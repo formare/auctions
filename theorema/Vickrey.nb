@@ -1,0 +1,3449 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[    120580,       3440]
+NotebookOptionsPosition[     67439,       2014]
+NotebookOutlinePosition[    106748,       2997]
+CellTagsIndexPosition[    105536,       2958]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Theorema`\>\"", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561288046748374*^9, 3.5612880508321238`*^9}},
+ CellID->1082076629],
+
+Cell[CellGroupData[{
+
+Cell["Vickrey Auctions", "Title",
+ CellChangeTimes->{{3.561384238353327*^9, 3.561384240998877*^9}},
+ CellID->1031320352],
+
+Cell[CellGroupData[{
+
+Cell["Preliminaries", "Section",
+ CellChangeTimes->{{3.561384490757696*^9, 3.5613844928942413`*^9}},
+ CellID->878648309],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Deviation from a vector", "Subsubtitle"]], \
+"Subsection",
+ CellChangeTimes->{{3.561377896974077*^9, 3.561377925483014*^9}},
+ CellID->507050536],
+
+Cell[TextData[{
+ "I\[CloseCurlyQuote]m not yet sure whether we need ",
+ StyleBox["both ",
+  FontSlant->"Italic"],
+ "of the following definitions, or just one of them (and if so, which one)."
+}], "Text",
+ CellChangeTimes->{{3.56137702933112*^9, 3.561377049120686*^9}},
+ CellID->988481996],
+
+Cell["\<\
+TODO: Theorema will provide a built-in operation for \
+\[OpenCurlyDoubleQuote]deviation\[CloseCurlyDoubleQuote].\
+\>", "Text",
+ CellChangeTimes->{{3.561381706956921*^9, 3.561381715525209*^9}, {
+  3.5613823205812273`*^9, 3.561382343808606*^9}},
+ CellID->971625049],
+
+Cell["", "OpenEnvironment",
+ CellID->1581138683],
+
+Cell[CellGroupData[{
+
+Cell["Definition (Deviation)", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561376923456688*^9, 3.5613769260415163`*^9}},
+ CellID->939790246],
+
+Cell[BoxData[
+ UnderscriptBox["\[ForAll]", 
+  RowBox[{
+  "b", ",", "alternativeValue", ",", "alternativeVector", ",", 
+   "index"}]]], "GlobalDeclaration",
+ CellChangeTimes->{{3.561381839589531*^9, 3.5613818935024023`*^9}},
+ CellID->1167442096],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"deviation", "[", 
+   RowBox[{"b", ",", "alternativeValue", ",", "index"}], "]"}], ":=", 
+  RowBox[{"\[LeftAngleBracket]", 
+   RowBox[{
+    TagBox[GridBox[{
+       {"\[Piecewise]", GridBox[{
+          {"alternativeValue", 
+           RowBox[{"j", "\[Equal]", "index"}]},
+          {
+           SubscriptBox["b", "j"], "otherwise"}
+         },
+         AllowedDimensions->{2, Automatic},
+         Editable->True,
+         GridBoxAlignment->{
+          "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, 
+           "Rows" -> {{Baseline}}, "RowsIndexed" -> {}},
+         GridBoxItemSize->{
+          "Columns" -> {{Automatic}}, "ColumnsIndexed" -> {}, 
+           "Rows" -> {{1.}}, "RowsIndexed" -> {}},
+         GridBoxSpacings->{"Columns" -> {
+             Offset[0.27999999999999997`], {
+              Offset[0.84]}, 
+             Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+             Offset[0.2], {
+              Offset[0.4]}, 
+             Offset[0.2]}, "RowsIndexed" -> {}},
+         Selectable->True]}
+      },
+      GridBoxAlignment->{
+       "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+        "RowsIndexed" -> {}},
+      GridBoxItemSize->{
+       "Columns" -> {{Automatic}}, "ColumnsIndexed" -> {}, "Rows" -> {{1.}}, 
+        "RowsIndexed" -> {}},
+      GridBoxSpacings->{"Columns" -> {
+          Offset[0.27999999999999997`], {
+           Offset[0.35]}, 
+          Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+          Offset[0.2], {
+           Offset[0.4]}, 
+          Offset[0.2]}, "RowsIndexed" -> {}}],
+     "Piecewise",
+     DeleteWithContents->True,
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False], 
+    UnderscriptBox["|", 
+     RowBox[{
+      RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", 
+      RowBox[{"\[LeftBracketingBar]", "b", "\[RightBracketingBar]"}]}]]}], 
+   "\[RightAngleBracket]"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(deviation)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:625928741", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.5613769280417843`*^9, 3.5613769679186573`*^9}, {
+  3.561377061656402*^9, 3.5613771179333477`*^9}, {3.561377150888322*^9, 
+  3.561377188679419*^9}, {3.561381591596713*^9, 3.561381623825334*^9}, {
+  3.561382176826337*^9, 3.561382178819396*^9}, {3.5613822187670937`*^9, 
+  3.5613822925703697`*^9}},
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->625928741]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Part", "::", "partw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Part \[NoBreak]\\!\\(14\\)\[NoBreak] of \
+\[NoBreak]\\!\\({1, 2, 1, 1, 9, 1, 1, 4, 1, 1, 1}\\)\[NoBreak] does not \
+exist. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/partw\\\", ButtonNote -> \
+\\\"Part::partw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.561449766917962*^9},
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->2062228367],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Part", "::", "partw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Part \[NoBreak]\\!\\(14\\)\[NoBreak] of \
+\[NoBreak]\\!\\({1, 2, 1, 1, 9, 1, 1, 4, 1, 1, 1}\\)\[NoBreak] does not \
+exist. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/partw\\\", ButtonNote -> \
+\\\"Part::partw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.561449766921767*^9},
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->1539717119],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"Part", "::", "partw"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Part \[NoBreak]\\!\\(14\\)\[NoBreak] of \
+\[NoBreak]\\!\\({1, 2, 1, 1, 9, 1, 1, 4, 1, 1, 1}\\)\[NoBreak] does not \
+exist. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/partw\\\", ButtonNote -> \
+\\\"Part::partw\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.561449766927528*^9},
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->2091097793],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "stop"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Further output of \[NoBreak]\\!\\(\\*StyleBox[\\(Part :: \
+partw\\), \\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during this \
+calculation. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/General/stop\\\", ButtonNote -> \
+\\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.561449766933628*^9},
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->2141382280],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"deviationVector", "[", 
+   RowBox[{"b", ",", "alternativeVector", ",", "index"}], "]"}], ":=", 
+  RowBox[{"deviation", "[", 
+   RowBox[{"b", ",", 
+    SubscriptBox["alternativeVector", "index"], ",", "index"}], 
+   "]"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(deviationVector)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1191118710", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.5613772930132847`*^9, 3.561377347077414*^9}, {
+   3.561377755022936*^9, 3.561377808854692*^9}, 3.561384430357257*^9},
+ CellTags->{
+  "ID:1191118710", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviationVector"},
+ CellID->1191118710],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->427380104]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1037368518]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Strategy (bids), Allocation, Payment", "Subsection",
+ CellChangeTimes->{{3.561377966620129*^9, 3.561377985707182*^9}, {
+  3.561384769180554*^9, 3.561384774442831*^9}},
+ CellID->566866655],
+
+Cell["\<\
+TODO: Once we have \[OpenCurlyDoubleQuote]where\[CloseCurlyDoubleQuote] as a \
+global quantifier, say \[OpenCurlyDoubleQuote]where n=|b|\
+\[CloseCurlyDoubleQuote].\
+\>", "Text",
+ CellChangeTimes->{{3.56138510591531*^9, 3.561385124810361*^9}, {
+  3.561446910631585*^9, 3.56144691137346*^9}},
+ CellID->2023624879],
+
+Cell["", "OpenEnvironment",
+ CellID->732652401],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Definition (Bids, Allocation and Payment)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561288657416934*^9, 3.561288659156513*^9}, {
+  3.561290230138443*^9, 3.561290232958151*^9}, {3.5613848165234947`*^9, 
+  3.561384830186839*^9}},
+ CellID->132554613],
+
+Cell[BoxData[
+ UnderscriptBox["\[ForAll]", 
+  RowBox[{"b", ",", "x", ",", "p", ",", "v"}]]], "GlobalDeclaration",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561291322033977*^9, 3.5612913323226833`*^9}, {
+   3.56138486270327*^9, 3.561384865797922*^9}, {3.5613849705977*^9, 
+   3.561384973522414*^9}, {3.5613850352915277`*^9, 3.5613850406615763`*^9}, 
+   3.561385096308896*^9},
+ CellID->1628633333],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"valuation", "[", "v", "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", 
+     RowBox[{"\[LeftBracketingBar]", "v", "\[RightBracketingBar]"}]}]], 
+   RowBox[{
+    SubscriptBox["v", "j"], ">", "0"}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(valuation)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:744585825", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561290266156434*^9, 3.561290370698698*^9}, {
+  3.561292057331737*^9, 3.5612920735110617`*^9}, {3.5613802588780127`*^9, 
+  3.561380266829639*^9}, {3.561380362966497*^9, 3.561380364109355*^9}},
+ CellTags->{
+  "ID:744585825", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "valuation"},
+ CellID->744585825],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"bids", "[", "b", "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", 
+     RowBox[{"\[LeftBracketingBar]", "b", "\[RightBracketingBar]"}]}]], 
+   RowBox[{
+    SubscriptBox["b", "j"], "\[GreaterEqual]", 
+    "0"}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(bids)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:949052997", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561290266156434*^9, 3.561290370698698*^9}, {
+  3.561292057331737*^9, 3.5612920735110617`*^9}, {3.5614636733629103`*^9, 
+  3.5614636747628517`*^9}},
+ CellTags->{
+  "ID:949052997", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "bids"},
+ CellID->949052997],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"allocation", "[", 
+   RowBox[{"b", ",", "x"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   UnderscriptBox["where", 
+    RowBox[{"n", "=", 
+     RowBox[{"\[LeftBracketingBar]", "b", "\[RightBracketingBar]"}]}]], 
+   RowBox[{
+    RowBox[{"bids", "[", "b", "]"}], "\[Wedge]", 
+    RowBox[{"(", 
+     RowBox[{
+      UnderscriptBox["\[Exists]", 
+       RowBox[{
+        RowBox[{"k", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         SubscriptBox["x", "k"], "\[Equal]", "1"}], ")"}], "\[Wedge]", 
+       RowBox[{
+        UnderscriptBox[
+         UnderscriptBox["\[ForAll]", 
+          RowBox[{
+           RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+         RowBox[{"j", "\[NotEqual]", "k"}]], 
+        RowBox[{
+         SubscriptBox["x", "j"], "\[Equal]", "0"}]}]}]}], ")"}], "\[Wedge]", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"\[LeftBracketingBar]", "x", "\[RightBracketingBar]"}], 
+      "\[Equal]", "n"}], ")"}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(allocation)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1369537856", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561288883670616*^9, 3.561288924844692*^9}, {
+  3.561288980760494*^9, 3.5612890640027313`*^9}, {3.5612891651417*^9, 
+  3.5612892135888443`*^9}, {3.561289270117042*^9, 3.561289363602068*^9}, {
+  3.5612894014902573`*^9, 3.56128942884951*^9}, {3.561289468644717*^9, 
+  3.561289488511057*^9}, {3.5612895331493483`*^9, 3.561289573590205*^9}, {
+  3.5612896130028543`*^9, 3.561289629545504*^9}, {3.561289710125691*^9, 
+  3.561289744713443*^9}, {3.561290005325697*^9, 3.56129000645581*^9}, {
+  3.561290085597699*^9, 3.561290128807139*^9}, {3.561292188030142*^9, 
+  3.561292246108387*^9}, {3.5614496856511307`*^9, 3.561449700905448*^9}, {
+  3.561462801181589*^9, 3.561462806316853*^9}},
+ CellTags->{
+  "ID:1369537856", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "allocation"},
+ CellID->1369537856],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"vickreyPayment", "[", 
+   RowBox[{"b", ",", "p"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   UnderscriptBox["where", 
+    RowBox[{"n", "=", 
+     RowBox[{"\[LeftBracketingBar]", "b", "\[RightBracketingBar]"}]}]], 
+   RowBox[{
+    RowBox[{"bids", "[", "b", "]"}], "\[Wedge]", 
+    RowBox[{"(", 
+     RowBox[{
+      UnderscriptBox[
+       UnderscriptBox["\[ForAll]", "i"], 
+       RowBox[{
+        RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+      RowBox[{
+       SubscriptBox["p", "i"], "\[GreaterEqual]", "0"}]}], ")"}], "\[Wedge]", 
+    
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"\[LeftBracketingBar]", "p", "\[RightBracketingBar]"}], 
+      "\[Equal]", "n"}], ")"}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561379709692799*^9, 3.5613798451139507`*^9}, {
+  3.561380012301763*^9, 3.561380059446334*^9}, {3.5613800911181726`*^9, 
+  3.5613800932464046`*^9}, {3.561384870614195*^9, 3.561384871884691*^9}, {
+  3.561449717319118*^9, 3.561449725422393*^9}, {3.5614628255053387`*^9, 
+  3.5614628287282476`*^9}},
+ EmphasizeSyntaxErrors->True,
+ CellTags->"???",
+ CellID->1967818693],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->677139921]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->166569218],
+
+Cell["", "OpenEnvironment",
+ CellID->235138849],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Sample Definition (a vector of \[OpenCurlyDoubleQuote]1\
+\[CloseCurlyDoubleQuote] bids)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561291874197254*^9, 3.5612918860619907`*^9}, {
+  3.56137675456374*^9, 3.561376755681652*^9}},
+ CellID->947021546],
+
+Cell[BoxData[
+ RowBox[{"allBid1", ":=", 
+  RowBox[{"\[LeftAngleBracket]", 
+   RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "1"}], 
+   "\[RightAngleBracket]"}]}]], "FormalTextInputFormula",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(allBid1)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1296967051", 
+            "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561291952438176*^9, 3.5612920360974607`*^9}},
+ CellTags->{
+  "ID:1296967051", 
+   "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allBid1"},
+ CellID->1296967051],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->107129873]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1819295916],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"bids", "[", "allBid1", "]"}]], "Computation",
+ CellChangeTimes->{{3.561295384094657*^9, 3.561295387765551*^9}},
+ CellID->785290181],
+
+Cell[BoxData[
+ DynamicModuleBox[{Typeset`var$$ = False}, 
+  InterpretationBox[
+   StyleBox[
+    PaneSelectorBox[{False->GridBox[{
+       {
+        OpenerBox[Dynamic[Typeset`var$$],
+         Appearance->Automatic,
+         AutoAction->False,
+         ContinuousAction->False,
+         Enabled->Automatic], "\<\"\"\>"}
+      },
+      AutoDelete->False,
+      BaselinePosition->{1, 1},
+      GridBoxAlignment->{"Columns" -> {{Left}}},
+      GridBoxBackground->{"Columns" -> {{Automatic}}},
+      GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+      GridBoxSpacings->{"Columns" -> {{0.2}}, "Rows" -> {{0.5}}}], True->
+     GridBox[{
+       {
+        OpenerBox[Dynamic[Typeset`var$$],
+         Appearance->Automatic,
+         AutoAction->False,
+         ContinuousAction->False,
+         Enabled->Automatic], "\<\"\"\>"},
+       {"", 
+        PaneBox[
+         TagBox[GridBox[{
+            {
+             TagBox[
+              DynamicModuleBox[{Typeset`var$$ = False}, 
+               InterpretationBox[
+                StyleBox[
+                 PaneSelectorBox[{False->GridBox[{
+                    {
+                    OpenerBox[Dynamic[Typeset`var$$],
+                    Appearance->Automatic,
+                    AutoAction->False,
+                    ContinuousAction->False,
+                    Enabled->Automatic], 
+                    
+                    StyleBox["\<\"Knowledge used in computation\"\>", 
+                    "CIContent",
+                    StripOnInput->False]}
+                   },
+                   AutoDelete->False,
+                   BaselinePosition->{1, 1},
+                   GridBoxAlignment->{"Columns" -> {{Left}}},
+                   GridBoxBackground->{"Columns" -> {{Automatic}}},
+                   
+                   GridBoxItemSize->{
+                    "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+                   
+                   GridBoxSpacings->{
+                    "Columns" -> {{0.2}}, "Rows" -> {{0.5}}}], True->
+                  GridBox[{
+                    {
+                    OpenerBox[Dynamic[Typeset`var$$],
+                    Appearance->Automatic,
+                    AutoAction->False,
+                    ContinuousAction->False,
+                    Enabled->Automatic], 
+                    
+                    StyleBox["\<\"Knowledge used in computation\"\>", 
+                    "CIContent",
+                    StripOnInput->False]},
+                    {"", 
+                    PaneBox[
+                    StyleBox[
+                    RowBox[{"{", 
+                    RowBox[{"\<\"bids\"\>", ",", "\<\"allBid1\"\>"}], "}"}], 
+                    "CIContent",
+                    StripOnInput->False],
+                    ImageMargins->0]}
+                   },
+                   AutoDelete->False,
+                   BaselinePosition->{1, 1},
+                   GridBoxAlignment->{"Columns" -> {{Left}}},
+                   GridBoxBackground->{"Columns" -> {{Automatic}}},
+                   
+                   GridBoxItemSize->{
+                    "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+                   
+                   GridBoxSpacings->{
+                    "Columns" -> {{0.2}}, "Rows" -> {{0.5}}}]}, Dynamic[
+                  Typeset`var$$],
+                  Alignment->Automatic,
+                  BaselinePosition->Baseline,
+                  DefaultBaseStyle->"OpenerView",
+                  ImageMargins->0,
+                  ImageSize->Automatic],
+                 Deployed->False,
+                 StripOnInput->False],
+                OpenerView[{
+                  Style["Knowledge used in computation", "CIContent"], 
+                  Style[{"bids", "allBid1"}, "CIContent"]}, False]],
+               DynamicModuleValues:>Automatic],
+              Setting[#, {0}]& ]},
+            {
+             TagBox[
+              DynamicModuleBox[{Typeset`var$$ = False}, 
+               InterpretationBox[
+                StyleBox[
+                 PaneSelectorBox[{False->GridBox[{
+                    {
+                    OpenerBox[Dynamic[Typeset`var$$],
+                    Appearance->Automatic,
+                    AutoAction->False,
+                    ContinuousAction->False,
+                    Enabled->Automatic], 
+                    
+                    StyleBox["\<\"Builtins used in computation\"\>", 
+                    "CIContent",
+                    StripOnInput->False]}
+                   },
+                   AutoDelete->False,
+                   BaselinePosition->{1, 1},
+                   GridBoxAlignment->{"Columns" -> {{Left}}},
+                   GridBoxBackground->{"Columns" -> {{Automatic}}},
+                   
+                   GridBoxItemSize->{
+                    "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+                   
+                   GridBoxSpacings->{
+                    "Columns" -> {{0.2}}, "Rows" -> {{0.5}}}], True->
+                  GridBox[{
+                    {
+                    OpenerBox[Dynamic[Typeset`var$$],
+                    Appearance->Automatic,
+                    AutoAction->False,
+                    ContinuousAction->False,
+                    Enabled->Automatic], 
+                    
+                    StyleBox["\<\"Builtins used in computation\"\>", 
+                    "CIContent",
+                    StripOnInput->False]},
+                    {"", 
+                    PaneBox[
+                    StyleBox[
+                    RowBox[{"{", 
+                    
+                    RowBox[{"\<\"And\"\>", ",", "\<\"Do\"\>", 
+                    ",", "\<\"Exists\"\>", ",", "\<\"For\"\>", 
+                    ",", "\<\"Forall\"\>", ",", "\<\"Greater\"\>", 
+                    ",", "\<\"GreaterEqual\"\>", ",", "\<\"Iff\"\>", 
+                    ",", "\<\"Implies\"\>", ",", "\<\"Less\"\>", 
+                    ",", "\<\"LessEqual\"\>", ",", "\<\"Module\"\>", 
+                    ",", "\<\"Not\"\>", ",", "\<\"Or\"\>", 
+                    ",", "\<\"Plus\"\>", ",", "\<\"Switch\"\>", 
+                    ",", "\<\"Times\"\>", ",", "\<\"Which\"\>", 
+                    ",", "\<\"While\"\>"}], "}"}], "CIContent",
+                    StripOnInput->False],
+                    ImageMargins->0]}
+                   },
+                   AutoDelete->False,
+                   BaselinePosition->{1, 1},
+                   GridBoxAlignment->{"Columns" -> {{Left}}},
+                   GridBoxBackground->{"Columns" -> {{Automatic}}},
+                   
+                   GridBoxItemSize->{
+                    "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+                   
+                   GridBoxSpacings->{
+                    "Columns" -> {{0.2}}, "Rows" -> {{0.5}}}]}, Dynamic[
+                  Typeset`var$$],
+                  Alignment->Automatic,
+                  BaselinePosition->Baseline,
+                  DefaultBaseStyle->"OpenerView",
+                  ImageMargins->0,
+                  ImageSize->Automatic],
+                 Deployed->False,
+                 StripOnInput->False],
+                OpenerView[{
+                  Style["Builtins used in computation", "CIContent"], 
+                  
+                  Style[{"And", "Do", "Exists", "For", "Forall", "Greater", 
+                    "GreaterEqual", "Iff", "Implies", "Less", "LessEqual", 
+                    "Module", "Not", "Or", "Plus", "Switch", "Times", "Which",
+                     "While"}, "CIContent"]}, False]],
+               DynamicModuleValues:>Automatic],
+              Setting[#, {0}]& ]},
+            {
+             ButtonBox["\<\"Reset environment\"\>",
+              Appearance->Automatic,
+              
+              ButtonFunction:>
+               Theorema`Interface`GUI`Private`setCompEnv[{{{
+                  "ID:1296967051", 
+                   "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/\
+theorema/auction/Vickrey.nb"}, True}, {{
+                  "ID:949052997", 
+                   "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/\
+theorema/auction/Vickrey.nb"}, True}}, {{"And", True}, {"Do", True}, {
+                 "Equal", False}, {"Exists", True}, {"For", True}, {
+                 "Forall", True}, {"Greater", True}, {"GreaterEqual", True}, {
+                 "Iff", True}, {"Implies", True}, {"Intersection", False}, {
+                 "Less", True}, {"LessEqual", True}, {"Module", True}, {
+                 "Not", True}, {"Or", True}, {"Plus", True}, {
+                 "SequenceOf", False}, {"SetEqual", False}, {
+                 "Switch", True}, {"Times", True}, {"Union", False}, {
+                 "Which", True}, {"While", True}}],
+              Evaluator->Automatic,
+              ImageSize->Automatic,
+              Method->"Preemptive"]}
+           },
+           GridBoxAlignment->{"Columns" -> {{Left}}},
+           
+           GridBoxItemSize->{
+            "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+          "Column"],
+         ImageMargins->0]}
+      },
+      AutoDelete->False,
+      BaselinePosition->{1, 1},
+      GridBoxAlignment->{"Columns" -> {{Left}}},
+      GridBoxBackground->{"Columns" -> {{Automatic}}},
+      GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+      GridBoxSpacings->{"Columns" -> {{0.2}}, "Rows" -> {{0.5}}}]}, Dynamic[
+     Typeset`var$$],
+     Alignment->Automatic,
+     BaselinePosition->Baseline,
+     DefaultBaseStyle->"OpenerView",
+     ImageMargins->0,
+     ImageSize->Automatic],
+    Deployed->False,
+    StripOnInput->False],
+   OpenerView[{"", 
+     Column[{
+       OpenerView[{
+         Style["Knowledge used in computation", "CIContent"], 
+         Style[{"bids", "allBid1"}, "CIContent"]}], 
+       OpenerView[{
+         Style["Builtins used in computation", "CIContent"], 
+         Style[{
+          "And", "Do", "Exists", "For", "Forall", "Greater", "GreaterEqual", 
+           "Iff", "Implies", "Less", "LessEqual", "Module", "Not", "Or", 
+           "Plus", "Switch", "Times", "Which", "While"}, "CIContent"]}], 
+       Button["Reset environment", 
+        Theorema`Interface`GUI`Private`setCompEnv[{{{
+           "ID:1296967051", 
+            "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}, True}, {{
+           "ID:949052997", 
+            "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}, True}}, {{"And", True}, {"Do", True}, {
+          "Equal", False}, {"Exists", True}, {"For", True}, {
+          "Forall", True}, {"Greater", True}, {"GreaterEqual", True}, {
+          "Iff", True}, {"Implies", True}, {"Intersection", False}, {
+          "Less", True}, {"LessEqual", True}, {"Module", True}, {
+          "Not", True}, {"Or", True}, {"Plus", True}, {"SequenceOf", False}, {
+          "SetEqual", False}, {"Switch", True}, {"Times", True}, {
+          "Union", False}, {"Which", True}, {"While", True}}], ImageSize -> 
+        Automatic]}]}, False]],
+  DynamicModuleValues:>{}]], "ComputationInfo",
+ CellChangeTimes->{3.561295516641243*^9},
+ CellID->1276382918],
+
+Cell[BoxData[
+ FormBox[
+  RowBox[{
+   UnderscriptBox["\[ForAll]", GridBox[{
+      {
+       RowBox[{
+        RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", 
+        RowBox[{"\[LeftBracketingBar]", 
+         RowBox[{"\[LeftAngleBracket]", 
+          RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "1"}], 
+          "\[RightAngleBracket]"}], "\[RightBracketingBar]"}]}]}
+     }]], 
+   RowBox[{
+    SubscriptBox[
+     RowBox[{"\[LeftAngleBracket]", 
+      RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "1"}], 
+      "\[RightAngleBracket]"}], "j"], "\[GreaterEqual]", "0"}]}], 
+  TheoremaForm]], "ComputationResult",
+ CellChangeTimes->{3.561295407254195*^9, 3.561295516666654*^9},
+ CellID->709518357]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Interesting part", "Section",
+ CellChangeTimes->{{3.5613845049429607`*^9, 3.561384506748757*^9}},
+ CellID->1342795056],
+
+Cell["From now on, \[Ellipsis]", "Text",
+ CellChangeTimes->{{3.5613843753830757`*^9, 3.5613843778703737`*^9}},
+ CellID->1495837657],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox["\[ForAll]", 
+   RowBox[{"valuation", "[", "v", "]"}]], 
+  RowBox[{
+   UnderscriptBox[
+    UnderscriptBox["\[ForAll]", 
+     RowBox[{"bids", "[", "b", "]"}]], 
+    RowBox[{
+     RowBox[{"\[LeftBracketingBar]", "b", "\[RightBracketingBar]"}], 
+     "\[Equal]", 
+     RowBox[{"\[LeftBracketingBar]", "v", "\[RightBracketingBar]"}]}]], 
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", "x"], 
+     RowBox[{"allocation", "[", 
+      RowBox[{"b", ",", "x"}], "]"}]], 
+    RowBox[{
+     UnderscriptBox[
+      UnderscriptBox["\[ForAll]", "p"], 
+      RowBox[{"vickreyPayment", "[", 
+       RowBox[{"b", ",", "p"}], "]"}]], 
+     UnderscriptBox["where", 
+      RowBox[{"n", "=", 
+       RowBox[{
+       "\[LeftBracketingBar]", "v", 
+        "\[RightBracketingBar]"}]}]]}]}]}]}]], "GlobalDeclaration",
+ CellChangeTimes->{{3.561384278657835*^9, 3.561384289288447*^9}, {
+  3.561384664787579*^9, 3.5613846766124353`*^9}, {3.5613849158594646`*^9, 
+  3.561384938940303*^9}, {3.561385155338513*^9, 3.5613851981909227`*^9}, {
+  3.561385394810546*^9, 3.561385426157433*^9}, {3.561449830997336*^9, 
+  3.5614498421584787`*^9}, {3.561462319207313*^9, 3.561462322104231*^9}, {
+  3.561462933627035*^9, 3.5614629340395403`*^9}},
+ CellID->2011835890],
+
+Cell["", "OpenEnvironment",
+ CellID->753015502],
+
+Cell[CellGroupData[{
+
+Cell["Lemma (A deviation from a bid is still a well-formed bid)", \
+"EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561378941629961*^9, 3.561378956847509*^9}},
+ CellID->654363036],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{"bids", "[", "alternativeVector", "]"}]], 
+   RowBox[{
+    RowBox[{
+    "\[LeftBracketingBar]", "alternativeVector", "\[RightBracketingBar]"}], 
+    "\[Equal]", "n"}]], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{"bids", "[", 
+    RowBox[{"deviationVector", "[", 
+     RowBox[{"b", ",", "alternativeVector", ",", "i"}], "]"}], 
+    "]"}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(4)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1115369896", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561378958842828*^9, 3.561378972337915*^9}, {
+   3.561379150180195*^9, 3.561379150247078*^9}, {3.5613792021702557`*^9, 
+   3.561379305990622*^9}, {3.561382427092668*^9, 3.561382462965406*^9}, {
+   3.561382542169724*^9, 3.561382557349659*^9}, {3.5613826911881943`*^9, 
+   3.561382739807928*^9}, 3.561384693568426*^9, {3.561449857097019*^9, 
+   3.561449867553335*^9}},
+ CellTags->{
+  "ID:1115369896", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "4"},
+ CellID->1115369896],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->2103138899]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1363737347],
+
+Cell["", "OpenEnvironment",
+ CellID->887345065],
+
+Cell[CellGroupData[{
+
+Cell["Lemma (An allocation uniquely determines the winner)", \
+"EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561379388476552*^9, 3.5613794062673597`*^9}},
+ CellID->1962162500],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", "winner"], 
+   RowBox[{
+    SubscriptBox["x", "winner"], "\[Equal]", "1"}]], 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["x", "j"], "\[Equal]", "1"}], 
+   TagBox["\[DoubleLongRightArrow]",
+    Identity,
+    SyntaxForm->"a\[DoubleRightArrow]b"], 
+   RowBox[{"j", "\[Equal]", "winner"}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(5)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1193232573", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561379407849719*^9, 3.561379575796356*^9}, 
+   3.561384701255007*^9, {3.561462837892334*^9, 3.5614628437935247`*^9}},
+ CellTags->{
+  "ID:1193232573", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "5"},
+ CellID->1193232573],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->701635043]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->994021466],
+
+Cell[CellGroupData[{
+
+Cell["Outcome", "Subsection",
+ CellChangeTimes->{{3.5613801399751673`*^9, 3.5613801486307907`*^9}},
+ CellID->285299677],
+
+Cell["\<\
+We don\[CloseCurlyQuote]t define the outcome (allocation and payment) \
+explicitly.\
+\>", "Text",
+ CellChangeTimes->{{3.5613801563677597`*^9, 3.5613801662483053`*^9}},
+ CellID->280671785]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Valuation", "Subsection",
+ CellChangeTimes->{{3.561380239222176*^9, 3.561380241028713*^9}},
+ CellID->1126836945],
+
+Cell["", "OpenEnvironment",
+ CellID->1377712845],
+
+Cell[CellGroupData[{
+
+Cell["Lemma (A valuation is a well-formed bid)", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561380376694055*^9, 3.5613803833088617`*^9}},
+ CellID->2146016054],
+
+Cell[BoxData[
+ RowBox[{"bids", "[", "v", "]"}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(6)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1698268575", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561380384744687*^9, 3.56138040684726*^9}, {
+   3.5613835168378687`*^9, 3.561383520487844*^9}, 3.5613854497269*^9},
+ CellTags->{
+  "ID:1698268575", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "6"},
+ CellID->1698268575],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->248741849]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1006688693]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Payoff", "Subsection",
+ CellChangeTimes->{{3.56138051535814*^9, 3.561380516083561*^9}},
+ CellID->1810774754],
+
+Cell[TextData[{
+ "TODO: document that defining ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox[
+    RowBox[{"payoff", "[", "...", "]"}], "i"], TraditionalForm]]],
+ " does not at the same time define a partially evaluated payoff[...] (as it \
+would in HOL)"
+}], "Text",
+ CellChangeTimes->{{3.561385853748476*^9, 3.5613858935727*^9}},
+ CellID->60985711],
+
+Cell["", "OpenEnvironment",
+ CellID->37098572],
+
+Cell[CellGroupData[{
+
+Cell["Definition (Payoff)", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.5613805325100718`*^9, 3.561380534092478*^9}},
+ CellID->1890136913],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"payoff", "[", 
+   RowBox[{"v", ",", "x", ",", "p"}], "]"}], ":=", 
+  RowBox[{"\[LeftAngleBracket]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      SubscriptBox["v", "i"], "*", 
+      SubscriptBox["x", "i"]}], "-", 
+     SubscriptBox["p", "i"]}], 
+    UnderscriptBox["|", 
+     RowBox[{
+      RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]]}], 
+   "\[RightAngleBracket]"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(7)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:262668548", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.5613805848093843`*^9, 3.561380650359521*^9}, {
+   3.5613836327660837`*^9, 3.561383676271541*^9}, {3.561385462605448*^9, 
+   3.561385486205203*^9}, {3.561385699592038*^9, 3.5613857202903976`*^9}, {
+   3.5614474412283897`*^9, 3.56144745097655*^9}, 3.561449880951827*^9, {
+   3.561462855214939*^9, 3.561462859203557*^9}, {3.561462915450429*^9, 
+   3.561462915747303*^9}},
+ CellTags->{
+  "ID:262668548", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "7"},
+ CellID->262668548],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->2127634020]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->2086555102]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Second-price auctions", "Subsection",
+ CellChangeTimes->{{3.561447011814183*^9, 3.5614470170452137`*^9}, {
+   3.5614470716835613`*^9, 3.5614470746915216`*^9}, 3.561451006014798*^9},
+ CellID->1949759481],
+
+Cell["\<\
+TODO: How will max for the empty set be defined? (Recall the discussion with \
+Colin, on second-price auctions with a single bidder, and our different \
+approaches to formalising them.)\
+\>", "Text",
+ CellChangeTimes->{{3.561447901374967*^9, 3.561447939167676*^9}},
+ CellID->1782935797],
+
+Cell["", "OpenEnvironment",
+ CellID->652972221],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Definition (second-price auction)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.5614470313888474`*^9, 3.5614470432121553`*^9}, 
+   3.561450097381297*^9, {3.561450167372282*^9, 3.5614501785072803`*^9}, {
+   3.561463944405695*^9, 3.561463944953595*^9}, {3.5614663859536877`*^9, 
+   3.5614663971899033`*^9}, {3.561466899166407*^9, 3.561466902049214*^9}},
+ CellID->1903490050],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"secondPriceAuction", "[", 
+   RowBox[{"b", ",", "x", ",", "p"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   RowBox[{
+    UnderscriptBox["\[Exists]", 
+     RowBox[{
+      RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+    RowBox[{"secondPriceAuctionWinner", "[", 
+     RowBox[{"b", ",", "x", ",", "p", ",", "i"}], "]"}]}], "\[And]", 
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", 
+      RowBox[{
+       RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+     RowBox[{"j", "\[NotEqual]", "i"}]], 
+    RowBox[{"secondPriceAuctionLoser", "[", 
+     RowBox[{"x", ",", "p", ",", "j"}], "]"}]}]}]}]], "FormalTextInputFormula",\
+
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(secondPriceAuction)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:913674971", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561450208876697*^9, 3.5614502094242907`*^9}, {
+  3.561450247115487*^9, 3.561450311051762*^9}, {3.561463895761777*^9, 
+  3.561463895952263*^9}},
+ CellTags->{
+  "ID:913674971", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "secondPriceAuction"},
+ CellID->913674971],
+
+Cell[BoxData[
+ UnderscriptBox["\[ForAll]", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", 
+   "n"}]]], "GlobalDeclaration",
+ CellChangeTimes->{{3.561447089662684*^9, 3.561447110683261*^9}, 
+   3.561466391302471*^9},
+ CellID->1673115366],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"secondPriceAuctionWinner", "[", 
+   RowBox[{"b", ",", "x", ",", "p", ",", "i"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["b", "i"], "\[Equal]", 
+    RowBox[{
+     UnderscriptBox["max", 
+      RowBox[{
+       RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+     SubscriptBox["b", "j"]}]}], "\[And]", 
+   RowBox[{
+    SubscriptBox["x", "i"], "\[Equal]", "1"}], "\[And]", 
+   RowBox[{
+    SubscriptBox["p", "i"], "\[Equal]", 
+    RowBox[{
+     UnderscriptBox[
+      UnderscriptBox["max", 
+       RowBox[{
+        RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+      RowBox[{"j", "\[NotEqual]", "i"}]], 
+     SubscriptBox["b", "j"]}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(secondPriceAuctionWinner)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:1133028480", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{
+  3.561447048881543*^9, {3.561447245969529*^9, 3.56144741785494*^9}, {
+   3.5614478164792137`*^9, 3.561447867794128*^9}, {3.5614488904247227`*^9, 
+   3.561448891440279*^9}, {3.561463426527166*^9, 3.561463442875145*^9}, {
+   3.561463650090435*^9, 3.5614636581043158`*^9}, {3.561466055055492*^9, 
+   3.561466058492208*^9}, 3.561466090546859*^9, {3.5614663316673717`*^9, 
+   3.561466337898799*^9}},
+ CellTags->{
+  "ID:1133028480", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "secondPriceAuctionWinner"},
+ CellID->1133028480],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"secondPriceAuctionLoser", "[", 
+   RowBox[{"x", ",", "p", ",", "i"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["x", "i"], "\[Equal]", "0"}], "\[And]", 
+   RowBox[{
+    SubscriptBox["p", "i"], "\[Equal]", "0"}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(secondPriceAuctionLoser)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:208908242", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561448864141395*^9, 3.561448919474978*^9}, {
+  3.561463659128986*^9, 3.5614636599001503`*^9}, {3.561463890837163*^9, 
+  3.5614638911661577`*^9}},
+ CellTags->{
+  "ID:208908242", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "secondPriceAuctionLoser"},
+ CellID->208908242],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->321009207]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1789784991],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Properties of second-price auctions\
+\>", "Subsubsection",
+ CellChangeTimes->{{3.56145101248641*^9, 3.561451013683908*^9}, {
+  3.561451076548937*^9, 3.5614510811875277`*^9}},
+ CellID->1256336400],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"secondPriceAuction", "[", 
+   RowBox[{"b", ",", "x", ",", "p"}], "]"}], 
+  "\[Implies]"}]], "GlobalDeclaration",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561384278657835*^9, 3.561384289288447*^9}, {
+  3.561384664787579*^9, 3.5613846766124353`*^9}, {3.5613849158594646`*^9, 
+  3.561384938940303*^9}, {3.561385155338513*^9, 3.5613851981909227`*^9}, {
+  3.561385394810546*^9, 3.561385426157433*^9}, {3.561449830997336*^9, 
+  3.5614498421584787`*^9}, {3.561452750063353*^9, 3.5614527518449097`*^9}},
+ CellID->1385597438],
+
+Cell["\<\
+TODO: We don\[CloseCurlyQuote]t have to specify the range of \
+\[OpenCurlyDoubleQuote]winner\[CloseCurlyDoubleQuote], do we? I think it\
+\[CloseCurlyQuote]s specified via i\[CloseCurlyQuote]s range in \
+secondPriceAuctionWinner\
+\>", "Text",
+ CellChangeTimes->{{3.561450572609359*^9, 3.5614505786489763`*^9}, {
+  3.5614508760310497`*^9, 3.5614509094949503`*^9}},
+ CellID->994196958],
+
+Cell["", "OpenEnvironment",
+ CellID->321469034],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (A second-price auction has only one winner)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561450517801621*^9, 3.561450533488028*^9}},
+ CellID->89794009],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", "winner"], 
+   RowBox[{"secondPriceAuctionWinner", "[", 
+    RowBox[{"b", ",", "x", ",", "p", ",", "winner"}], "]"}]], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    RowBox[{"secondPriceAuctionWinner", "[", 
+     RowBox[{"b", ",", "x", ",", "p", ",", "j"}], "]"}], 
+    TagBox["\[DoubleLongRightArrow]",
+     Identity,
+     SyntaxForm->"a\[DoubleRightArrow]b"], 
+    RowBox[{"j", "\[Equal]", "winner"}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{
+  3.561450553556283*^9, {3.5614506848926153`*^9, 3.561450804339019*^9}, {
+   3.561450867644506*^9, 3.56145087080299*^9}, {3.561451410147154*^9, 
+   3.561451444958933*^9}, {3.561452536439986*^9, 3.5614525453449373`*^9}},
+ CellTags->"???",
+ CellID->1250812687],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->1583979455]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1501618567],
+
+Cell["", "OpenEnvironment",
+ CellID->583044978],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (The participant to whom the good gets allocated also satisfies the \
+further properties of a second-price auction winner)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561450925062708*^9, 3.561450950823547*^9}},
+ CellID->935988213],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"winner", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    SubscriptBox["x", "winner"], "\[Equal]", "1"}]], 
+  RowBox[{"secondPriceAuctionWinner", "[", 
+   RowBox[{"b", ",", "x", ",", "p", ",", "winner"}], 
+   "]"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561450952202497*^9, 3.561450986507368*^9}, 
+   3.561451497861787*^9, {3.561452550754548*^9, 3.561452557211236*^9}, {
+   3.561452634043851*^9, 3.561452635456771*^9}, {3.561452767236802*^9, 
+   3.561452772054214*^9}, 3.5614636662114*^9},
+ CellTags->"???",
+ CellID->2039982043],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->688402696]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1201776289],
+
+Cell["", "OpenEnvironment",
+ CellID->2062989282],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (Participants to whom the good doesn\[CloseCurlyQuote]t get allocated \
+also satisfy the further properties of a second-price auction loser)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561452470349784*^9, 3.561452495133162*^9}},
+ CellID->672867980],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"loser", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    SubscriptBox["x", "loser"], "\[Equal]", "0"}]], 
+  RowBox[{"secondPriceAuctionLoser", "[", 
+   RowBox[{"b", ",", "x", ",", "p", ",", "loser"}], 
+   "]"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561452502585091*^9, 3.561452512257887*^9}, {
+   3.561452570182541*^9, 3.5614526079960947`*^9}, 3.561452778484768*^9, 
+   3.561463667976869*^9},
+ CellTags->"???",
+ CellID->221722319],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->675471359]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1317914173],
+
+Cell["", "OpenEnvironment",
+ CellID->956268671],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (If there is only one highest bidder, that bidder wins)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561452659915694*^9, 3.5614526674045877`*^9}},
+ CellID->2032133420],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"maxBidder", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    SubscriptBox["b", "maxBidder"], ">", 
+    RowBox[{
+     UnderscriptBox[
+      UnderscriptBox["max", 
+       RowBox[{
+        RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+      RowBox[{"j", "\[NotEqual]", "maxBidder"}]], 
+     SubscriptBox["b", "j"]}]}]], 
+  RowBox[{"secondPriceAuctionWinner", "[", 
+   RowBox[{"b", ",", "x", ",", "p", ",", "maxBidder"}], 
+   "]"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561452668553553*^9, 3.5614526786447153`*^9}, {
+  3.561452791955456*^9, 3.561452867034149*^9}, {3.5614634771250763`*^9, 
+  3.5614634773921137`*^9}},
+ CellTags->"???",
+ CellID->1860051248],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->43173557]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1145359966],
+
+Cell["\<\
+TODO: Is it OK now to use payoff with a subscript?\
+\>", "Text",
+ CellChangeTimes->{{3.5614601013882837`*^9, 3.561460111394261*^9}},
+ CellID->1183838886],
+
+Cell["", "OpenEnvironment",
+ CellID->195745246],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (A formula for computing the payoff of the winner of a second-price \
+auction)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561452894795639*^9, 3.561452906146456*^9}},
+ CellID->977935088],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"winner", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    SubscriptBox["x", "winner"], "\[Equal]", "1"}]], 
+  RowBox[{
+   SubscriptBox[
+    RowBox[{"payoff", "[", 
+     RowBox[{"v", ",", "b", ",", "x", ",", "p"}], "]"}], "winner"], 
+   "\[Equal]", 
+   RowBox[{
+    SubscriptBox["v", "winner"], "-", 
+    RowBox[{
+     UnderscriptBox[
+      UnderscriptBox["max", 
+       RowBox[{
+        RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+      RowBox[{"j", "\[NotEqual]", "winner"}]], 
+     SubscriptBox["b", "j"]}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{
+  3.561452907774506*^9, {3.5614533391342278`*^9, 3.56145336513266*^9}, {
+   3.5614595871954813`*^9, 3.561459663982203*^9}, 3.561459697576435*^9, {
+   3.5614597477922363`*^9, 3.5614597585621567`*^9}, {3.561459905349386*^9, 
+   3.561459905575354*^9}, {3.5614635223282013`*^9, 3.561463522578857*^9}, 
+   3.5614636689357986`*^9},
+ CellTags->"???",
+ CellID->1556948748],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->1019487586]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->169165158],
+
+Cell["", "OpenEnvironment",
+ CellID->1250996438],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (A formula for computing the payoff of a loser of a second-price \
+auction)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561452894795639*^9, 3.561452906146456*^9}, {
+  3.5614597789682713`*^9, 3.561459781055608*^9}},
+ CellID->1137021104],
+
+Cell[BoxData[
+ RowBox[{
+  UnderscriptBox[
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"loser", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    SubscriptBox["x", "loser"], "\[Equal]", "0"}]], 
+  RowBox[{
+   SubscriptBox[
+    RowBox[{"payoff", "[", 
+     RowBox[{"v", ",", "b", ",", "x", ",", "p"}], "]"}], "loser"], "\[Equal]",
+    "0"}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{
+  3.561452907774506*^9, {3.5614533391342278`*^9, 3.56145336513266*^9}, {
+   3.5614595871954813`*^9, 3.561459663982203*^9}, 3.561459697576435*^9, {
+   3.5614597477922363`*^9, 3.5614597873122053`*^9}, {3.561459825793009*^9, 
+   3.5614598403147087`*^9}, {3.561459909593843*^9, 3.561459909838088*^9}, 
+   3.5614636697297077`*^9},
+ CellTags->"???",
+ CellID->280031110],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->2068570558]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->2093749241],
+
+Cell["\<\
+TODO: Note that the \[OpenCurlyDoubleQuote]where\[CloseCurlyDoubleQuote] is \
+not needed to save space,  but for clarity (IMHO)\
+\>", "Text",
+ CellChangeTimes->{{3.5614603336657677`*^9, 3.561460344969594*^9}},
+ CellID->294578911],
+
+Cell["", "OpenEnvironment",
+ CellID->209222022],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Lemma (Payoff of the winner when deviating from his/her valuation)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561459864973733*^9, 3.561459885779375*^9}},
+ CellID->52990396],
+
+Cell[BoxData[
+ RowBox[{
+  SubscriptBox[
+   RowBox[{"payoff", "[", 
+    RowBox[{"v", ",", "b", ",", "x", ",", "p"}], "]"}], "winner"], "\[Equal]", 
+  RowBox[{
+   RowBox[{
+    UnderscriptBox["where", 
+     RowBox[{"winnerSticksWithValuation", "=", 
+      RowBox[{"deviationVector", "[", 
+       RowBox[{"b", ",", "v", ",", "winner"}], "]"}]}]], 
+    SubscriptBox["v", "winner"]}], "-", 
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["max", 
+      RowBox[{
+       RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+     RowBox[{"j", "\[NotEqual]", "winner"}]], 
+    SubscriptBox["winnerSticksWithValuation", 
+     "j"]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.56145988791607*^9, 3.561459912971192*^9}, {
+  3.56146009112202*^9, 3.561460125079727*^9}, {3.561460192825687*^9, 
+  3.5614603284098263`*^9}, {3.56146075469704*^9, 3.561460769180726*^9}, {
+  3.561463529629723*^9, 3.5614635299062843`*^9}},
+ CellTags->"???",
+ CellID->2099161813],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->497814276]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1324013907]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Properties of single-good auctions\
+\>", "Subsection",
+ CellChangeTimes->{{3.5614603937786493`*^9, 3.561460406489799*^9}},
+ CellID->1679635954],
+
+Cell[TextData[{
+ "TODO: Here, would it be possible to factor the ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox["\[ForAll]", 
+     RowBox[{
+      RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], " "}], 
+   TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ "out of the definitions?"
+}], "Text",
+ CellChangeTimes->{{3.561460964070496*^9, 3.561460992957362*^9}},
+ CellID->928379279],
+
+Cell["", "OpenEnvironment",
+ CellID->381165293],
+
+Cell[CellGroupData[{
+
+Cell["Definition (Efficiency)", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.5614603706014557`*^9, 3.561460373536224*^9}},
+ CellID->2085706310],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"efficient", "[", 
+   RowBox[{"v", ",", "b", ",", "x"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    RowBox[{
+     SubscriptBox["x", "i"], "\[Equal]", "1"}], 
+    TagBox["\[DoubleLongRightArrow]",
+     Identity,
+     SyntaxForm->"a\[DoubleRightArrow]b"], 
+    RowBox[{
+     SubscriptBox["v", "i"], "\[Equal]", 
+     RowBox[{
+      UnderscriptBox["max", 
+       RowBox[{
+        RowBox[{"j", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+      SubscriptBox["v", "j"]}]}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561460408723209*^9, 3.561460528036268*^9}, {
+   3.5614635347049923`*^9, 3.5614635349531116`*^9}, 3.5614636710646343`*^9},
+ CellTags->"???",
+ CellID->1634282486],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->1275611024]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->481748488],
+
+Cell["", "OpenEnvironment",
+ CellID->815736438],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Definition (Weakly Dominant Strategy)\
+\>", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561460935941373*^9, 3.561460945782381*^9}},
+ CellID->1713437178],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"equilibriumWeaklyDominantStrategy", "[", 
+   RowBox[{"v", ",", "b", ",", "x", ",", "p"}], "]"}], 
+  TagBox[
+   RowBox[{
+   ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
+    "\[DoubleLongLeftRightArrow]"}],
+   Identity,
+   SyntaxForm->"a\[Implies]b"], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{
+     RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", 
+      RowBox[{"bids", "[", "whateverBid", "]"}]], 
+     RowBox[{
+      SubscriptBox["whateverBid", "i"], "\[NotEqual]", 
+      SubscriptBox["b", "i"]}]], 
+    RowBox[{
+     RowBox[{
+      UnderscriptBox["where", 
+       RowBox[{"iSticksWithValuation", "=", 
+        RowBox[{"deviationVector", "[", 
+         RowBox[{"whateverBid", ",", "b", ",", "i"}], "]"}]}]], 
+      SubscriptBox[
+       RowBox[{"payoff", "[", 
+        RowBox[{"v", ",", "b", ",", 
+         RowBox[{"x", "[", "iSticksWithValuation", "]"}], ",", 
+         RowBox[{"p", "[", "iSticksWithValuation", "]"}]}], "]"}], "i"]}], 
+     "\[GreaterEqual]", 
+     SubscriptBox[
+      RowBox[{"payoff", "[", 
+       RowBox[{"v", ",", "b", ",", 
+        RowBox[{"x", "[", "whateverBid", "]"}], ",", 
+        RowBox[{"p", "[", "whateverBid", "]"}]}], "]"}], 
+      "i"]}]}]}]}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561460610012004*^9, 3.561460719817196*^9}, {
+  3.5614607820223007`*^9, 3.561460918353455*^9}},
+ CellTags->"???",
+ CellID->2110967529],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->712434439]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->2007231690]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Vickrey\[CloseCurlyQuote]s Theorem", "Subsection",
+ CellChangeTimes->{{3.561461000798073*^9, 3.561461003277183*^9}},
+ CellID->537386234],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"secondPriceAuction", "[", 
+   RowBox[{"b", ",", "x", ",", "p"}], "]"}], 
+  "\[Implies]"}]], "GlobalDeclaration",
+ InitializationCell->True,
+ CellChangeTimes->{{3.561384278657835*^9, 3.561384289288447*^9}, {
+  3.561384664787579*^9, 3.5613846766124353`*^9}, {3.5613849158594646`*^9, 
+  3.561384938940303*^9}, {3.561385155338513*^9, 3.5613851981909227`*^9}, {
+  3.561385394810546*^9, 3.561385426157433*^9}, {3.561449830997336*^9, 
+  3.5614498421584787`*^9}, {3.561452750063353*^9, 3.5614527518449097`*^9}},
+ CellID->859647141],
+
+Cell["", "OpenEnvironment",
+ CellID->2028615957],
+
+Cell[CellGroupData[{
+
+Cell["Theorem (Vickrey)", "EnvironmentHeader",
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      ButtonBox[
+      "\[Times]", Evaluator -> Automatic, Appearance -> None, ButtonFunction :> 
+       Theorema`Language`Session`Private`removeEnvironment[
+         ButtonNotebook[]]]]]}, {None, None}},
+ CellChangeTimes->{{3.561461017461544*^9, 3.5614610190144672`*^9}},
+ CellID->944329446],
+
+Cell[BoxData[
+ RowBox[{"equilibriumWeaklyDominantStrategy", "[", 
+  RowBox[{"v", ",", "v", ",", "x", ",", "p"}], 
+  "]"}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(vickreyA)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:464754694", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.561461020786235*^9, 3.561461037504891*^9}, {
+  3.561461072506649*^9, 3.561461082659059*^9}},
+ CellTags->{
+  "ID:464754694", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "vickreyA"},
+ CellID->464754694],
+
+Cell[BoxData[
+ RowBox[{"efficient", "[", 
+  RowBox[{"v", ",", "v", ",", "x"}], "]"}]], "FormalTextInputFormula",
+ InitializationCell->True,
+ CellFrameLabels->{{None, 
+    Cell[
+     BoxData[
+      RowBox[{
+        StyleBox["(vickreyB)", "FrameLabel"], "  ", 
+        ButtonBox[
+        "\[Times]", Evaluator -> Automatic, Appearance -> None, 
+         ButtonFunction :> 
+         Theorema`Language`Session`Private`removeFormula[{
+           "ID:822092051", 
+            "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
+auction/Vickrey.nb"}]]}]]]}, {None, None}},
+ ShowCellTags->False,
+ CellChangeTimes->{{3.5614611011042624`*^9, 3.56146112040971*^9}},
+ CellTags->{
+  "ID:822092051", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "vickreyB"},
+ CellID->822092051],
+
+Cell["\[GraySquare]", "EndEnvironmentMarker",
+ CellID->196244082]
+}, Open  ]],
+
+Cell["", "CloseEnvironment",
+ CellID->1291690230]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1362, 741},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+CounterAssignments->{{"TheoremaFormulaCounter" -> 11}},
+Magnification:>FEPrivate`If[
+  FEPrivate`Equal[FEPrivate`$VersionNumber, 6.], 1.25, 1.25 Inherited],
+FrontEndVersion->"8.0 for Linux x86 (64-bit) (October 10, 2011)",
+StyleDefinitions->Notebook[{
+   Cell[
+    StyleData[
+    StyleDefinitions -> FrontEnd`FileName[{"Theorema"}, "TheoremaCore.nb"]]], 
+   
+   Cell["Modify the definitions below to change the default appearance of all \
+cells in a given style. \nMake modifications to any definition using commands \
+in the Format menu.", "Text"], 
+   Cell[
+    CellGroupData[{
+      Cell["Notebook Options Settings", "Section"], 
+      Cell[
+      "The options defined for the style below will be used at the Notebook \
+level.", "Text"], 
+      Cell[
+       StyleData["Notebook"], Background -> RGBColor[0.957, 0.96, 0.97]]}, 
+     Open]], 
+   Cell[
+    CellGroupData[{
+      Cell["Style Environment Names", "Section"], 
+      Cell[
+       StyleData[All, "Working"], DockedCells -> {
+         Cell[
+         "T h e o r e m a   2", "SBO", CellMargins -> {{0, 0}, {0, 0}}, 
+          CellFrameMargins -> {{0, 50}, {0, 0}}, FontSize -> 28, FontSlant -> 
+          "Plain", FontColor -> RGBColor[0.29, 0.46, 0.6], TextAlignment -> 
+          Right, Background -> RGBColor[0.36, 0.54, 0.69]]}], 
+      Cell[
+       StyleData[All, "Presentation"], DockedCells -> {
+         Cell[
+         "T h e o r e m a . 2", "SBO", CellMargins -> {{0, 0}, {0, 0}}, 
+          CellFrameMargins -> {{0, 50}, {0, 0}}, FontSize -> 28, FontSlant -> 
+          "Plain", FontColor -> RGBColor[0.289412, 0.458824, 0.6], 
+          TextAlignment -> Right, Background -> 
+          RGBColor[0.364705882, 0.541176471, 0.694117647]]}, ShowGroupOpener -> 
+       True], 
+      Cell[
+       StyleData[
+       All, "SlideShow", StyleDefinitions -> StyleData[All, "Presentation"]], 
+       PageWidth -> WindowWidth, DockedCells -> {
+         FEPrivate`FrontEndResource["FEExpressions", "SlideshowToolbar"], 
+         Cell[
+         "T h e o r e m a . 2", "SBO", CellMargins -> {{0, 0}, {0, 0}}, 
+          CellFrameMargins -> {{0, 50}, {0, 0}}, FontSize -> 28, FontSlant -> 
+          "Plain", FontColor -> RGBColor[0.289412, 0.458824, 0.6], 
+          TextAlignment -> Right, Background -> 
+          RGBColor[0.364705882, 0.541176471, 0.694117647]]}, 
+       ScrollingOptions -> {
+        "PagewiseDisplay" -> True, "VerticalScrollRange" -> Fit}, 
+       MenuSortingValue -> 1300], 
+      Cell[
+       StyleData[All, "Printout"], DockedCells -> {
+         Cell[
+         "T h e o r e m a . 2", "SBO", CellMargins -> {{0, 0}, {0, 0}}, 
+          CellFrameMargins -> {{0, 50}, {0, 0}}, FontSize -> 28, FontSlant -> 
+          "Plain", FontColor -> RGBColor[0.289412, 0.458824, 0.6], 
+          TextAlignment -> Right, Background -> 
+          RGBColor[0.364705882, 0.541176471, 0.694117647]]}]}, Open]], 
+   Cell[
+    CellGroupData[{
+      Cell["Styles for Title and Section Cells", "Section"], 
+      Cell[
+       CellGroupData[{
+         Cell["Title", "Subsection"], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Title"], CellMargins -> {{27, Inherited}, {0, 30}}, 
+             MenuSortingValue -> 1100, MenuCommandKey -> "1", FontColor -> 
+             RGBColor[0.23, 0.25, 0.34]], 
+            Cell[
+             StyleData["Title", "Presentation"], 
+             CellMargins -> {{27, 10}, {0, 45}}], 
+            Cell[
+             StyleData["Title", "SlideShow"], 
+             CellMargins -> {{27, 10}, {0, 45}}], 
+            Cell[
+             StyleData["Title", "Printout"], ShowGroupOpener -> False, 
+             CellMargins -> {{6, 10}, {5, 30}}]}, Closed]], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Subtitle"], CellMargins -> {{27, Inherited}, {0, 2}}, 
+             MenuSortingValue -> 1150, FontColor -> 
+             RGBColor[0.23, 0.25, 0.34]], 
+            Cell[
+             StyleData["Subtitle", "Presentation"], 
+             CellMargins -> {{27, 10}, {0, 3}}], 
+            Cell[
+             StyleData["Subtitle", "SlideShow"], 
+             CellMargins -> {{27, 10}, {0, 3}}], 
+            Cell[
+             StyleData["Subtitle", "Printout"], 
+             CellMargins -> {{6, 10}, {5, 0}}]}, Closed]], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Subsubtitle"], MenuSortingValue -> 1200, FontColor -> 
+             RGBColor[0.23, 0.25, 0.34]], 
+            Cell[
+             StyleData["Subsubtitle", "Presentation"], 
+             CellMargins -> {{27, 10}, {12, 3}}], 
+            Cell[
+             StyleData["Subsubtitle", "SlideShow"], 
+             CellMargins -> {{27, 10}, {12, 3}}], 
+            Cell[
+             StyleData["Subsubtitle", "Printout"], 
+             CellMargins -> {{6, 10}, {0, 0}}]}, Closed]]}, Open]], 
+      Cell[
+       CellGroupData[{
+         Cell["Sectioning", "Subsection"], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Section"], ShowGroupOpener -> True, MenuSortingValue -> 
+             1250, MenuCommandKey -> "4", FontColor -> 
+             RGBColor[0.3, 0.3, 0.3]], 
+            Cell[
+             StyleData["Section", "Presentation"], 
+             CellMargins -> {{27, 10}, {12, 51}}], 
+            Cell[
+             StyleData["Section", "SlideShow"], 
+             CellMargins -> {{27, 10}, {12, 51}}], 
+            Cell[
+             StyleData["Section", "Printout"], ShowGroupOpener -> False, 
+             CellMargins -> {{2, 0}, {7, 22}}]}, Closed]], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Subsection"], CellDingbat -> None, ShowGroupOpener -> 
+             True, CellMargins -> {{48, Inherited}, {8, 12}}, 
+             MenuSortingValue -> 1300, MenuCommandKey -> "5", FontColor -> 
+             RGBColor[0.3, 0.3, 0.3]], 
+            Cell[
+             StyleData["Subsection", "Presentation"], 
+             CellMargins -> {{48, 10}, {12, 18}}], 
+            Cell[
+             StyleData["Subsection", "SlideShow"], 
+             CellMargins -> {{48, 10}, {12, 18}}], 
+            Cell[
+             StyleData["Subsection", "Printout"], ShowGroupOpener -> False, 
+             CellMargins -> {{9, 0}, {7, 22}}]}, Closed]], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Subsubsection"], CellDingbat -> None, ShowGroupOpener -> 
+             True, CellMargins -> {{60, Inherited}, {2, 10}}, 
+             MenuSortingValue -> 1350, MenuCommandKey -> "6", FontSlant -> 
+             "Italic", FontColor -> RGBColor[0.4, 0.4, 0.4]], 
+            Cell[
+             StyleData["Subsubsection", "Presentation"], 
+             CellMargins -> {{60, 10}, {3, 15}}], 
+            Cell[
+             StyleData["Subsubsection", "SlideShow"], 
+             CellMargins -> {{60, 10}, {3, 15}}], 
+            Cell[
+             StyleData["Subsubsection", "Printout"], ShowGroupOpener -> False,
+              CellMargins -> {{35, 0}, {7, 14}}]}, Closed]], 
+         Cell[
+          CellGroupData[{
+            Cell[
+             StyleData["Subsubsubsection"], CellDingbat -> None, 
+             ShowGroupOpener -> True, 
+             CellMargins -> {{92, Inherited}, {Inherited, Inherited}}, 
+             FontColor -> RGBColor[0.4, 0.4, 0.4]], 
+            Cell[
+             StyleData["Subsubsubsection", "Presentation"], 
+             CellMargins -> {{92, 10}, {3, 15}}, LineSpacing -> {1, 0}], 
+            Cell[
+             StyleData["Subsubsubsection", "SlideShow"], 
+             CellMargins -> {{92, 10}, {3, 15}}, LineSpacing -> {1, 0}], 
+            Cell[
+             StyleData["Subsubsubsection", "Printout"], 
+             CellMargins -> {{50, 0}, {7, 14}}]}, Closed]]}, Open]]}, Open]], 
+   
+   Cell[
+    CellGroupData[{
+      Cell["Styles for Publication\[Hyphen]ready Documents", "Section"], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Author"], CellMargins -> {{27, 30}, {20, 5}}, 
+          MenuSortingValue -> 1900, FontFamily -> "Helvetica", FontSize -> 14,
+           FontSlant -> "Italic"], 
+         Cell[
+          StyleData["Author", "Presentation"], 
+          CellMargins -> {{27, 30}, {30, 8}}, FontSize -> 28], 
+         Cell[
+          StyleData["Author", "SlideShow"], 
+          CellMargins -> {{27, 30}, {30, 8}}, FontSize -> 28], 
+         Cell[
+          StyleData["Author", "Printout"], CellMargins -> {{6, 10}, {0, 10}}, 
+          FontSize -> 10]}, Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Department"], CellMargins -> {{27, 12}, {2, 2}}, 
+          MenuSortingValue -> 1950, FontFamily -> "Helvetica", FontSize -> 11,
+           FontWeight -> "Bold"], 
+         Cell[
+          StyleData["Department", "Presentation"], 
+          CellMargins -> {{27, 12}, {3, 3}}, FontSize -> 22], 
+         Cell[
+          StyleData["Department", "SlideShow"], 
+          CellMargins -> {{27, 12}, {3, 3}}, FontSize -> 22], 
+         Cell[
+          StyleData["Department", "Printout"], 
+          CellMargins -> {{6, 10}, {0, 0}}, FontSize -> 10]}, Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Date"], CellMargins -> {{27, 12}, {28, 2}}, 
+          MenuSortingValue -> 2000, FontFamily -> "Helvetica", FontSize -> 11,
+           FontColor -> GrayLevel[0]], 
+         Cell[
+          StyleData["Date", "Presentation"], 
+          CellMargins -> {{27, 12}, {42, 3}}, FontSize -> 22], 
+         Cell[
+          StyleData["Date", "SlideShow"], CellMargins -> {{27, 12}, {42, 3}}, 
+          FontSize -> 22], 
+         Cell[
+          StyleData["Date", "Printout"], CellMargins -> {{6, 10}, {5, 0}}, 
+          FontSize -> 10]}, Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Abstract"], CellFrame -> {{0, 0}, {0.5, 0.5}}, 
+          CellMargins -> {{27, 140}, {20, 20}}, LineSpacing -> {0.9, 0}, 
+          MenuSortingValue -> 2050, FontFamily -> "Times", FontSize -> 12], 
+         Cell[
+          StyleData["Abstract", "Presentation"], 
+          CellFrame -> {{0, 0}, {1, 1}}, CellMargins -> {{27, 140}, {30, 30}},
+           FontSize -> 24], 
+         Cell[
+          StyleData["Abstract", "SlideShow"], CellFrame -> {{0, 0}, {1, 1}}, 
+          CellMargins -> {{27, 140}, {30, 30}}, FontSize -> 24], 
+         Cell[
+          StyleData["Abstract", "Printout"], Hyphenation -> True, 
+          LineSpacing -> {1, 2}, FontSize -> 10]}, Closed]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Reference"], CellMargins -> {{27, 20}, {6, 6}}, 
+          CellGroupingRules -> "GraphicsGrouping", LineSpacing -> {1, 2}, 
+          ParagraphIndent -> -36, CounterIncrements -> "Reference", 
+          MenuSortingValue -> 2100], 
+         Cell[
+          StyleData["Reference", "Presentation"], 
+          CellMargins -> {{27, 20}, {9, 9}}, ParagraphIndent -> -72, FontSize -> 
+          24], 
+         Cell[
+          StyleData["Reference", "SlideShow"], 
+          CellMargins -> {{27, 20}, {9, 9}}, ParagraphIndent -> -72, FontSize -> 
+          24], 
+         Cell[
+          StyleData["Reference", "Printout"], CellMargins -> {{2, 2}, {6, 6}},
+           StyleMenuListing -> None, FontSize -> 10]}, Closed]]}, Closed]], 
+   Cell[
+    CellGroupData[{
+      Cell["Theorema", "Section"], 
+      Cell[
+       StyleData["GlobalDeclaration"], CellFrame -> {{0, 2}, {0, 0}}, 
+       ShowCellBracket -> Automatic, CellMargins -> {{76, 10}, {2, 2}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameMargins -> 10, CellFrameColor -> RGBColor[0.73, 0.65, 0.61], 
+       CellFrameLabelMargins -> 22, ShowAutoStyles -> False, MenuSortingValue -> 
+       1441, MenuCommandKey -> "G", FontSize -> 14], 
+      Cell[
+       StyleData["OpenEnvironment"], 
+       CellFrame -> {{False, False}, {True, False}}, ShowCellBracket -> 
+       Automatic, CellMargins -> {{76, 6}, {-4, Inherited}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameMargins -> 2, CellFrameColor -> RGBColor[0.4, 0.4, 0.4], 
+       MenuSortingValue -> 1485], 
+      Cell[
+       StyleData["EnvironmentHeader"], 
+       CellFrame -> {{False, False}, {False, False}}, 
+       CellMargins -> {{76, Inherited}, {Inherited, Inherited}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameMargins -> 6, CellFrameColor -> RGBColor[0.4, 0.4, 0.4], 
+       ShowAutoStyles -> False, MenuSortingValue -> 1450, FontSize -> 14, 
+       FontWeight -> "Bold", FontVariations -> {"CapsType" -> "SmallCaps"}, 
+       Background -> RGBColor[0.89, 0.8, 0.69]], 
+      Cell[
+       StyleData["FormalTextInputFormula"], CellMargins -> {{96, 10}, {2, 2}},
+        CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameLabelMargins -> 53, ShowAutoStyles -> False, MenuSortingValue -> 
+       1470, MenuCommandKey -> "F", FontWeight -> "Bold", FontColor -> 
+       RGBColor[0.25, 0.19, 0.2]], 
+      Cell[
+       StyleData["EndEnvironmentMarker"], 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       TextAlignment -> Right, MenuSortingValue -> 1480], 
+      Cell[
+       StyleData["CloseEnvironment"], 
+       CellFrame -> {{False, False}, {False, True}}, ShowCellBracket -> 
+       Automatic, CellMargins -> {{76, 6}, {Inherited, 0}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameMargins -> 2, CellFrameColor -> RGBColor[0.4, 0.4, 0.4], 
+       MenuSortingValue -> 1485], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["Computation"], CellFrame -> {{1.5, 0}, {0, 0}}, 
+          ShowCellBracket -> Automatic, ShowGroupOpener -> True, 
+          CellMargins -> {{76, 0}, {-5, 10}}, 
+          CellBracketOptions -> {"Color" -> RGBColor[0.23, 0.25, 0.34]}, 
+          CellFrameColor -> RGBColor[0.486, 0.33, 0.32], 
+          CellFrameLabels -> {{None, 
+             Cell["\[MathematicaIcon]", "CILabel"]}, {None, None}}, 
+          CellFrameLabelMargins -> {{12, 10}, {0, 0}}, ShowAutoStyles -> 
+          False, MenuSortingValue -> 1510, MenuCommandKey -> "C", FontWeight -> 
+          "Bold", FontColor -> RGBColor[0.23, 0.25, 0.34]], 
+         Cell[
+          StyleData["Computation", "Presentation"], 
+          CellMargins -> {{74, 0}, {-10, 15}}], 
+         Cell[
+          StyleData["Computation", "SlideShow"], 
+          CellMargins -> {{74, 0}, {-10, 15}}]}, Open]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["ComputationResult"], CellFrame -> {{1.5, 0}, {0, 0}}, 
+          ShowCellBracket -> Automatic, CellMargins -> {{76, 60}, {5, -5}}, 
+          CellBracketOptions -> {"Color" -> RGBColor[0.23, 0.25, 0.34]}, 
+          CellFrameMargins -> {{8, 8}, {2, 0}}, CellFrameColor -> 
+          RGBColor[0.486, 0.33, 0.32], 
+          CellFrameLabels -> {{None, ""}, {None, None}}, 
+          CellFrameLabelMargins -> {{12, 5}, {0, 0}}, StyleMenuListing -> 
+          None, FontColor -> RGBColor[0.23, 0.25, 0.34]], 
+         Cell[
+          StyleData["ComputationResult", "Presentation"], 
+          CellMargins -> {{92, 10}, {15, -10}}], 
+         Cell[
+          StyleData["ComputationResult", "SlideShow"], 
+          CellMargins -> {{92, 10}, {15, -10}}]}, Open]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["ComputationInfo"], ShowCellBracket -> Automatic, 
+          CellMargins -> {{74, 30}, {0, 0}}, CellFrameLabels -> {{None, 
+             Cell["...?", "CIContent"]}, {None, None}}, TextAlignment -> 
+          Right, StyleMenuListing -> None], 
+         Cell[
+          StyleData["ComputationInfo", "Presentation"], 
+          CellMargins -> {{74, 30}, {0, 0}}], 
+         Cell[
+          StyleData["ComputationInfo", "SlideShow"], 
+          CellMargins -> {{74, 30}, {0, 0}}]}, Open]], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["ProofInfo"], ShowCellBracket -> Automatic, 
+          CellMargins -> {{74, 30}, {0, 0}}, CellFrameLabels -> {{None, 
+             Cell["...?", "PIContent"]}, {None, None}}, TextAlignment -> 
+          Right, StyleMenuListing -> None], 
+         Cell[
+          StyleData["ProofInfo", "Presentation"], 
+          CellMargins -> {{74, 30}, {0, 0}}], 
+         Cell[
+          StyleData["ProofInfo", "SlideShow"], 
+          CellMargins -> {{74, 30}, {0, 0}}]}, Open]], 
+      Cell[
+       StyleData["OpenProof"], ShowCellBracket -> Automatic, 
+       CellMargins -> {{66, Inherited}, {Inherited, Inherited}}, 
+       StyleMenuListing -> None, FontFamily -> "Arial", FontSize -> 11, 
+       FontWeight -> "Plain", FontSlant -> "Italic", 
+       FontVariations -> {"StrikeThrough" -> False, "Underline" -> False}], 
+      Cell[
+       StyleData["ProofDisplay"], ShowCellBracket -> Automatic], 
+      Cell[
+       StyleData["CloseProof"], ShowCellBracket -> Automatic, TextAlignment -> 
+       Right, StyleMenuListing -> None], 
+      Cell[
+       CellGroupData[{
+         Cell[
+          StyleData["FrameLabel"], LanguageCategory -> None, StyleMenuListing -> 
+          None, FontFamily -> "Times New Roman", FontSize -> 10, FontWeight -> 
+          "Plain", FontSlant -> "Italic", FontTracking -> "Plain", 
+          FontVariations -> {
+           "Masked" -> False, "Outline" -> False, "Shadow" -> False, 
+            "StrikeThrough" -> False, "Underline" -> False}, FontColor -> 
+          RGBColor[0.55, 0.44, 0.42], Background -> None], 
+         Cell[
+          StyleData["FrameLabel", "Presentation"], FontSize -> 18], 
+         Cell[
+          StyleData["FrameLabel", "SlideShow"], FontSize -> 18], 
+         Cell[
+          StyleData["FrameLabel", "Printout"]]}, Open]], 
+      Cell[
+       StyleData["CILabel"], FontSize -> 14, FontWeight -> "Plain", FontSlant -> 
+       "Plain", FontTracking -> "Plain", 
+       FontVariations -> {
+        "Masked" -> False, "Outline" -> False, "Shadow" -> False, 
+         "StrikeThrough" -> False, "Underline" -> False}, FontColor -> 
+       RGBColor[0.404, 0.43, 0.545]], 
+      Cell[
+       StyleData["CIContent"], FontFamily -> "Times New Roman", FontSize -> 
+       10, FontWeight -> "Plain", FontSlant -> "Plain", 
+       FontVariations -> {"StrikeThrough" -> False, "Underline" -> False}, 
+       FontColor -> RGBColor[0.23, 0.25, 0.34]], 
+      Cell[
+       StyleData["PILabel"], FontSize -> 14, FontWeight -> "Plain", FontSlant -> 
+       "Plain", FontTracking -> "Plain", 
+       FontVariations -> {
+        "Masked" -> False, "Outline" -> False, "Shadow" -> False, 
+         "StrikeThrough" -> False, "Underline" -> False}, FontColor -> 
+       RGBColor[0.404, 0.43, 0.545]], 
+      Cell[
+       StyleData["PIContent"], FontFamily -> "Times New Roman", FontSize -> 
+       10, FontWeight -> "Plain", FontSlant -> "Plain", 
+       FontVariations -> {"StrikeThrough" -> False, "Underline" -> False}, 
+       FontColor -> RGBColor[0.23, 0.25, 0.34]], 
+      Cell[
+       StyleData["OpenArchive"], CellFrame -> {{False, False}, {False, True}},
+        ShowCellBracket -> Automatic, CellMargins -> {{70, 70}, {0, 10}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellGroupingRules -> {"SectionGrouping", 20}, CellFrameMargins -> 3, 
+       CellFrameColor -> RGBColor[0.4, 0.4, 0.4], CellFrameLabelMargins -> 1, 
+       DefaultFormatType -> DefaultInputFormatType, ShowAutoStyles -> False, 
+       MenuSortingValue -> 1210, FontWeight -> Bold, Background -> 
+       RGBColor[0.73, 0.74, 0.84]], 
+      Cell[
+       StyleData["ArchiveInfo"], ShowCellBracket -> Automatic, 
+       CellMargins -> {{70, 70}, {0, 0}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameMargins -> 5, CellFrameLabelMargins -> 3, ShowCellTags -> 
+       False, ShowAutoStyles -> False, MenuSortingValue -> 1220, FontWeight -> 
+       "Bold", Background -> RGBColor[0.88, 0.88, 0.92]], 
+      Cell[
+       StyleData["CloseArchive"], 
+       CellFrame -> {{False, False}, {True, False}}, ShowCellBracket -> 
+       Automatic, CellMargins -> {{0, 0}, {5, 10}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellGroupingRules -> {"SectionGrouping", 25}, CellFrameMargins -> 2, 
+       CellFrameColor -> RGBColor[0.4, 0.4, 0.4], TextAlignment -> Center, 
+       MenuSortingValue -> 1230, FontFamily -> "Arial Black", FontSize -> 24, 
+       FontWeight -> "Plain", FontSlant -> "Plain", 
+       FontVariations -> {"StrikeThrough" -> False, "Underline" -> False}, 
+       Background -> RGBColor[0.73, 0.65, 0.61]], 
+      Cell[
+       StyleData["IncludeArchive"], CellFrame -> {{4, 0}, {False, False}}, 
+       ShowCellBracket -> Automatic, 
+       CellMargins -> {{81, 100}, {Inherited, Inherited}}, 
+       CellBracketOptions -> {"Color" -> RGBColor[0.73, 0.74, 0.84]}, 
+       CellFrameColor -> RGBColor[0.55, 0.44, 0.42], 
+       CellFrameLabels -> {{"\[RightSkeleton]", None}, {None, None}}, 
+       CellFrameLabelMargins -> 25, MenuSortingValue -> 1445], 
+      Cell[
+       StyleData["ExpressionVariable"], SingleLetterItalics -> True, 
+       MultiLetterItalics -> True, FontColor -> RGBColor[0.29, 0.46, 0.6]], 
+      Cell[
+       StyleData["ExpressionABF"], SingleLetterItalics -> True, 
+       MultiLetterItalics -> True, FontColor -> RGBColor[0.29, 0.46, 0.6]], 
+      Cell[
+       StyleData["ExpressionMeta"], SingleLetterItalics -> True, 
+       MultiLetterItalics -> True, FontColor -> RGBColor[0.29, 0.46, 0.6]], 
+      Cell[
+       StyleData["GenericButton"], FontFamily -> "Courier", FontSize -> 10, 
+       FontWeight -> "Plain", FontSlant -> "Plain", FontTracking -> "Plain", 
+       FontVariations -> {
+        "Masked" -> False, "Outline" -> False, "Shadow" -> False, 
+         "StrikeThrough" -> False, "Underline" -> False}, FontColor -> 
+       RGBColor[0.404, 0.43, 0.545]], 
+      Cell[
+       StyleData["TheoremaForm"], "TwoByteSyntaxCharacterAutoReplacement" -> 
+       True, LineSpacing -> {1.25, 0, 2}, SingleLetterItalics -> True, 
+       StyleMenuListing -> None, FontFamily -> "Courier"]}, Open]]}, Visible -> 
+  False, FrontEndVersion -> "8.0 for Linux x86 (64-bit) (October 10, 2011)", 
+  StyleDefinitions -> "StylesheetFormatting.nb"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ID:625928741"->{
+  Cell[2517, 86, 2934, 76, 51, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->625928741],
+  Cell[5466, 165, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2062228367],
+  Cell[6120, 183, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->1539717119],
+  Cell[6774, 201, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2091097793],
+  Cell[7428, 219, 680, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2141382280]},
+ "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb"->{
+  Cell[2517, 86, 2934, 76, 51, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->625928741],
+  Cell[5466, 165, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2062228367],
+  Cell[6120, 183, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->1539717119],
+  Cell[6774, 201, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2091097793],
+  Cell[7428, 219, 680, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2141382280],
+  Cell[8133, 239, 1076, 28, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1191118710", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviationVector"},
+   CellID->1191118710],
+  Cell[10898, 323, 1341, 37, 36, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:744585825", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "valuation"},
+   CellID->744585825],
+  Cell[12242, 362, 1301, 38, 36, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:949052997", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "bids"},
+   CellID->949052997],
+  Cell[13546, 402, 2536, 65, 76, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1369537856", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allocation"},
+   CellID->1369537856],
+  Cell[33167, 917, 1554, 41, 52, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1115369896", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "4"},
+   CellID->1115369896],
+  Cell[35360, 984, 1149, 33, 52, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1193232573", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "5"},
+   CellID->1193232573],
+  Cell[37632, 1062, 834, 22, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1698268575", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "6"},
+   CellID->1698268575],
+  Cell[39570, 1128, 1455, 39, 49, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:262668548", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "7"},
+   CellID->262668548],
+  Cell[42421, 1213, 1653, 47, 83, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:913674971", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuction"},
+   CellID->913674971],
+  Cell[44334, 1271, 1973, 54, 57, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1133028480", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuctionWinner"},
+   CellID->1133028480],
+  Cell[46310, 1327, 1274, 36, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:208908242", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuctionLoser"},
+   CellID->208908242],
+  Cell[65553, 1954, 898, 24, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:464754694", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "vickreyA"},
+   CellID->464754694],
+  Cell[66454, 1980, 813, 22, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:822092051", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "vickreyB"},
+   CellID->822092051]},
+ "deviation"->{
+  Cell[2517, 86, 2934, 76, 51, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->625928741],
+  Cell[5466, 165, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2062228367],
+  Cell[6120, 183, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->1539717119],
+  Cell[6774, 201, 651, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2091097793],
+  Cell[7428, 219, 680, 16, 27, "Message",
+   CellTags->{
+    "ID:625928741", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviation"},
+   CellID->2141382280]},
+ "ID:1191118710"->{
+  Cell[8133, 239, 1076, 28, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1191118710", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviationVector"},
+   CellID->1191118710]},
+ "deviationVector"->{
+  Cell[8133, 239, 1076, 28, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1191118710", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "deviationVector"},
+   CellID->1191118710]},
+ "ID:744585825"->{
+  Cell[10898, 323, 1341, 37, 36, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:744585825", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "valuation"},
+   CellID->744585825]},
+ "valuation"->{
+  Cell[10898, 323, 1341, 37, 36, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:744585825", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "valuation"},
+   CellID->744585825]},
+ "ID:949052997"->{
+  Cell[12242, 362, 1301, 38, 36, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:949052997", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "bids"},
+   CellID->949052997]},
+ "bids"->{
+  Cell[12242, 362, 1301, 38, 36, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:949052997", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "bids"},
+   CellID->949052997]},
+ "ID:1369537856"->{
+  Cell[13546, 402, 2536, 65, 76, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1369537856", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allocation"},
+   CellID->1369537856]},
+ "allocation"->{
+  Cell[13546, 402, 2536, 65, 76, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1369537856", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allocation"},
+   CellID->1369537856]},
+ "???"->{
+  Cell[16085, 469, 1309, 37, 88, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->1967818693],
+  Cell[49409, 1422, 905, 23, 68, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->1250812687],
+  Cell[51032, 1473, 682, 17, 71, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->2039982043],
+  Cell[52450, 1518, 585, 16, 69, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->221722319],
+  Cell[53688, 1561, 820, 23, 89, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->1860051248],
+  Cell[55346, 1618, 1083, 30, 71, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->1556948748],
+  Cell[57152, 1677, 805, 21, 69, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->280031110],
+  Cell[58854, 1732, 989, 26, 70, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->2099161813],
+  Cell[61058, 1808, 1006, 31, 54, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->1634282486],
+  Cell[62691, 1866, 1521, 43, 127, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->"???",
+   CellID->2110967529]},
+ "ID:1296967051"->{
+  Cell[18119, 535, 873, 23, 23, "FormalTextInputFormula",
+   CellTags->{
+    "ID:1296967051", 
+     "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allBid1"},
+   CellID->1296967051]},
+ "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb"->{
+  Cell[18119, 535, 873, 23, 23, "FormalTextInputFormula",
+   CellTags->{
+    "ID:1296967051", 
+     "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allBid1"},
+   CellID->1296967051]},
+ "allBid1"->{
+  Cell[18119, 535, 873, 23, 23, "FormalTextInputFormula",
+   CellTags->{
+    "ID:1296967051", 
+     "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allBid1"},
+   CellID->1296967051]},
+ "ID:1115369896"->{
+  Cell[33167, 917, 1554, 41, 52, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1115369896", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "4"},
+   CellID->1115369896]},
+ "4"->{
+  Cell[33167, 917, 1554, 41, 52, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1115369896", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "4"},
+   CellID->1115369896]},
+ "ID:1193232573"->{
+  Cell[35360, 984, 1149, 33, 52, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1193232573", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "5"},
+   CellID->1193232573]},
+ "5"->{
+  Cell[35360, 984, 1149, 33, 52, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1193232573", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "5"},
+   CellID->1193232573]},
+ "ID:1698268575"->{
+  Cell[37632, 1062, 834, 22, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1698268575", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "6"},
+   CellID->1698268575]},
+ "6"->{
+  Cell[37632, 1062, 834, 22, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1698268575", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "6"},
+   CellID->1698268575]},
+ "ID:262668548"->{
+  Cell[39570, 1128, 1455, 39, 49, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:262668548", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "7"},
+   CellID->262668548]},
+ "7"->{
+  Cell[39570, 1128, 1455, 39, 49, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:262668548", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "7"},
+   CellID->262668548]},
+ "ID:913674971"->{
+  Cell[42421, 1213, 1653, 47, 83, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:913674971", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuction"},
+   CellID->913674971]},
+ "secondPriceAuction"->{
+  Cell[42421, 1213, 1653, 47, 83, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:913674971", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuction"},
+   CellID->913674971]},
+ "ID:1133028480"->{
+  Cell[44334, 1271, 1973, 54, 57, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1133028480", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuctionWinner"},
+   CellID->1133028480]},
+ "secondPriceAuctionWinner"->{
+  Cell[44334, 1271, 1973, 54, 57, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:1133028480", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuctionWinner"},
+   CellID->1133028480]},
+ "ID:208908242"->{
+  Cell[46310, 1327, 1274, 36, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:208908242", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuctionLoser"},
+   CellID->208908242]},
+ "secondPriceAuctionLoser"->{
+  Cell[46310, 1327, 1274, 36, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:208908242", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "secondPriceAuctionLoser"},
+   CellID->208908242]},
+ "ID:464754694"->{
+  Cell[65553, 1954, 898, 24, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:464754694", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "vickreyA"},
+   CellID->464754694]},
+ "vickreyA"->{
+  Cell[65553, 1954, 898, 24, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:464754694", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "vickreyA"},
+   CellID->464754694]},
+ "ID:822092051"->{
+  Cell[66454, 1980, 813, 22, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:822092051", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "vickreyB"},
+   CellID->822092051]},
+ "vickreyB"->{
+  Cell[66454, 1980, 813, 22, 23, "FormalTextInputFormula",
+   InitializationCell->True,
+   CellTags->{
+    "ID:822092051", 
+     "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "vickreyB"},
+   CellID->822092051]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ID:625928741", 89886, 2496},
+ {"Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", 91030, 2529},
+ {"deviation", 95350, 2652},
+ {"ID:1191118710", 96429, 2684},
+ {"deviationVector", 96707, 2692},
+ {"ID:744585825", 96982, 2700},
+ {"valuation", 97247, 2708},
+ {"ID:949052997", 97515, 2716},
+ {"bids", 97770, 2724},
+ {"ID:1369537856", 98034, 2732},
+ {"allocation", 98303, 2740},
+ {"???", 98565, 2748},
+ {"ID:1296967051", 99908, 2789},
+ {"Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", 100218, 2797},
+ {"allBid1", 100454, 2804},
+ {"ID:1115369896", 100696, 2811},
+ {"4", 100947, 2819},
+ {"ID:1193232573", 101210, 2827},
+ {"5", 101461, 2835},
+ {"ID:1698268575", 101724, 2843},
+ {"6", 101975, 2851},
+ {"ID:262668548", 102237, 2859},
+ {"7", 102487, 2867},
+ {"ID:913674971", 102748, 2875},
+ {"secondPriceAuction", 103032, 2883},
+ {"ID:1133028480", 103311, 2891},
+ {"secondPriceAuctionWinner", 103609, 2899},
+ {"ID:208908242", 103895, 2907},
+ {"secondPriceAuctionLoser", 104189, 2915},
+ {"ID:464754694", 104472, 2923},
+ {"vickreyA", 104735, 2931},
+ {"ID:822092051", 105002, 2939},
+ {"vickreyB", 105265, 2947}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 190, 4, 36, "Input",
+ InitializationCell->True,
+ CellID->1082076629],
+Cell[CellGroupData[{
+Cell[772, 28, 120, 2, 97, "Title",
+ CellID->1031320352],
+Cell[CellGroupData[{
+Cell[917, 34, 120, 2, 91, "Section",
+ CellID->878648309],
+Cell[CellGroupData[{
+Cell[1062, 40, 168, 3, 51, "Subsection",
+ CellID->507050536],
+Cell[1233, 45, 287, 7, 36, "Text",
+ CellID->988481996],
+Cell[1523, 54, 273, 6, 35, "Text",
+ CellID->971625049],
+Cell[1799, 62, 48, 1, 15, "OpenEnvironment",
+ CellID->1581138683],
+Cell[CellGroupData[{
+Cell[1872, 67, 395, 9, 46, "EnvironmentHeader",
+ CellID->939790246],
+Cell[2270, 78, 244, 6, 36, "GlobalDeclaration",
+ CellID->1167442096],
+Cell[2517, 86, 2934, 76, 51, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->625928741]
+}, Open  ]],
+Cell[5466, 165, 651, 16, 27, "Message",
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->2062228367],
+Cell[6120, 183, 651, 16, 27, "Message",
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->1539717119],
+Cell[6774, 201, 651, 16, 27, "Message",
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->2091097793],
+Cell[7428, 219, 680, 16, 27, "Message",
+ CellTags->{
+  "ID:625928741", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviation"},
+ CellID->2141382280],
+Cell[CellGroupData[{
+Cell[8133, 239, 1076, 28, 23, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:1191118710", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "deviationVector"},
+ CellID->1191118710],
+Cell[9212, 269, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->427380104]
+}, Open  ]],
+Cell[9292, 273, 49, 1, 20, "CloseEnvironment",
+ CellID->1037368518]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9378, 279, 193, 3, 48, "Subsection",
+ CellID->566866655],
+Cell[9574, 284, 321, 7, 35, "Text",
+ CellID->2023624879],
+Cell[9898, 293, 47, 1, 15, "OpenEnvironment",
+ CellID->732652401],
+Cell[CellGroupData[{
+Cell[9970, 298, 520, 13, 46, "EnvironmentHeader",
+ CellID->132554613],
+Cell[10493, 313, 402, 8, 36, "GlobalDeclaration",
+ InitializationCell->True,
+ CellID->1628633333],
+Cell[10898, 323, 1341, 37, 36, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:744585825", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "valuation"},
+ CellID->744585825],
+Cell[12242, 362, 1301, 38, 36, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:949052997", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "bids"},
+ CellID->949052997],
+Cell[13546, 402, 2536, 65, 76, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:1369537856", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "allocation"},
+ CellID->1369537856],
+Cell[16085, 469, 1309, 37, 88, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->1967818693],
+Cell[17397, 508, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->677139921]
+}, Open  ]],
+Cell[17477, 512, 48, 1, 20, "CloseEnvironment",
+ CellID->166569218],
+Cell[17528, 515, 47, 1, 15, "OpenEnvironment",
+ CellID->235138849],
+Cell[CellGroupData[{
+Cell[17600, 520, 516, 13, 46, "EnvironmentHeader",
+ CellID->947021546],
+Cell[18119, 535, 873, 23, 23, "FormalTextInputFormula",
+ CellTags->{
+  "ID:1296967051", 
+   "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
+Vickrey.nb", "allBid1"},
+ CellID->1296967051],
+Cell[18995, 560, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->107129873]
+}, Open  ]],
+Cell[19075, 564, 49, 1, 20, "CloseEnvironment",
+ CellID->1819295916],
+Cell[CellGroupData[{
+Cell[19149, 569, 155, 3, 28, "Computation",
+ CellID->785290181],
+Cell[19307, 574, 11043, 255, 18, "ComputationInfo",
+ CellID->1276382918],
+Cell[30353, 831, 701, 19, 31, "ComputationResult",
+ CellID->709518357]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31115, 857, 124, 2, 91, "Section",
+ CellID->1342795056],
+Cell[31242, 861, 131, 2, 34, "Text",
+ CellID->1495837657],
+Cell[31376, 865, 1283, 33, 52, "GlobalDeclaration",
+ CellID->2011835890],
+Cell[32662, 900, 47, 1, 15, "OpenEnvironment",
+ CellID->753015502],
+Cell[CellGroupData[{
+Cell[32734, 905, 430, 10, 46, "EnvironmentHeader",
+ CellID->654363036],
+Cell[33167, 917, 1554, 41, 52, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:1115369896", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "4"},
+ CellID->1115369896],
+Cell[34724, 960, 66, 1, 27, "EndEnvironmentMarker",
+ CellID->2103138899]
+}, Open  ]],
+Cell[34805, 964, 49, 1, 20, "CloseEnvironment",
+ CellID->1363737347],
+Cell[34857, 967, 47, 1, 15, "OpenEnvironment",
+ CellID->887345065],
+Cell[CellGroupData[{
+Cell[34929, 972, 428, 10, 46, "EnvironmentHeader",
+ CellID->1962162500],
+Cell[35360, 984, 1149, 33, 52, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:1193232573", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "5"},
+ CellID->1193232573],
+Cell[36512, 1019, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->701635043]
+}, Open  ]],
+Cell[36592, 1023, 48, 1, 20, "CloseEnvironment",
+ CellID->994021466],
+Cell[CellGroupData[{
+Cell[36665, 1028, 119, 2, 48, "Subsection",
+ CellID->285299677],
+Cell[36787, 1032, 197, 5, 35, "Text",
+ CellID->280671785]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37021, 1042, 118, 2, 48, "Subsection",
+ CellID->1126836945],
+Cell[37142, 1046, 48, 1, 15, "OpenEnvironment",
+ CellID->1377712845],
+Cell[CellGroupData[{
+Cell[37215, 1051, 414, 9, 46, "EnvironmentHeader",
+ CellID->2146016054],
+Cell[37632, 1062, 834, 22, 23, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:1698268575", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "6"},
+ CellID->1698268575],
+Cell[38469, 1086, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->248741849]
+}, Open  ]],
+Cell[38549, 1090, 49, 1, 20, "CloseEnvironment",
+ CellID->1006688693]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[38635, 1096, 114, 2, 48, "Subsection",
+ CellID->1810774754],
+Cell[38752, 1100, 348, 10, 36, "Text",
+ CellID->60985711],
+Cell[39103, 1112, 46, 1, 15, "OpenEnvironment",
+ CellID->37098572],
+Cell[CellGroupData[{
+Cell[39174, 1117, 393, 9, 46, "EnvironmentHeader",
+ CellID->1890136913],
+Cell[39570, 1128, 1455, 39, 49, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:262668548", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "7"},
+ CellID->262668548],
+Cell[41028, 1169, 66, 1, 27, "EndEnvironmentMarker",
+ CellID->2127634020]
+}, Open  ]],
+Cell[41109, 1173, 49, 1, 20, "CloseEnvironment",
+ CellID->2086555102]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[41195, 1179, 208, 3, 48, "Subsection",
+ CellID->1949759481],
+Cell[41406, 1184, 296, 6, 55, "Text",
+ CellID->1782935797],
+Cell[41705, 1192, 47, 1, 15, "OpenEnvironment",
+ CellID->652972221],
+Cell[CellGroupData[{
+Cell[41777, 1197, 641, 14, 46, "EnvironmentHeader",
+ CellID->1903490050],
+Cell[42421, 1213, 1653, 47, 83, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:913674971", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "secondPriceAuction"},
+ CellID->913674971],
+Cell[44077, 1262, 254, 7, 36, "GlobalDeclaration",
+ CellID->1673115366],
+Cell[44334, 1271, 1973, 54, 57, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:1133028480", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "secondPriceAuctionWinner"},
+ CellID->1133028480],
+Cell[46310, 1327, 1274, 36, 23, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:208908242", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "secondPriceAuctionLoser"},
+ CellID->208908242],
+Cell[47587, 1365, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->321009207]
+}, Open  ]],
+Cell[47667, 1369, 49, 1, 20, "CloseEnvironment",
+ CellID->1789784991],
+Cell[CellGroupData[{
+Cell[47741, 1374, 205, 5, 34, "Subsubsection",
+ CellID->1256336400],
+Cell[47949, 1381, 559, 11, 25, "GlobalDeclaration",
+ InitializationCell->True,
+ CellID->1385597438],
+Cell[48511, 1394, 392, 8, 35, "Text",
+ CellID->994196958],
+Cell[48906, 1404, 47, 1, 15, "OpenEnvironment",
+ CellID->321469034],
+Cell[CellGroupData[{
+Cell[48978, 1409, 428, 11, 46, "EnvironmentHeader",
+ CellID->89794009],
+Cell[49409, 1422, 905, 23, 68, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->1250812687],
+Cell[50317, 1447, 66, 1, 27, "EndEnvironmentMarker",
+ CellID->1583979455]
+}, Open  ]],
+Cell[50398, 1451, 49, 1, 20, "CloseEnvironment",
+ CellID->1501618567],
+Cell[50450, 1454, 47, 1, 15, "OpenEnvironment",
+ CellID->583044978],
+Cell[CellGroupData[{
+Cell[50522, 1459, 507, 12, 46, "EnvironmentHeader",
+ CellID->935988213],
+Cell[51032, 1473, 682, 17, 71, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->2039982043],
+Cell[51717, 1492, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->688402696]
+}, Open  ]],
+Cell[51797, 1496, 49, 1, 20, "CloseEnvironment",
+ CellID->1201776289],
+Cell[51849, 1499, 48, 1, 15, "OpenEnvironment",
+ CellID->2062989282],
+Cell[CellGroupData[{
+Cell[51922, 1504, 525, 12, 46, "EnvironmentHeader",
+ CellID->672867980],
+Cell[52450, 1518, 585, 16, 69, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->221722319],
+Cell[53038, 1536, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->675471359]
+}, Open  ]],
+Cell[53118, 1540, 49, 1, 20, "CloseEnvironment",
+ CellID->1317914173],
+Cell[53170, 1543, 47, 1, 15, "OpenEnvironment",
+ CellID->956268671],
+Cell[CellGroupData[{
+Cell[53242, 1548, 443, 11, 46, "EnvironmentHeader",
+ CellID->2032133420],
+Cell[53688, 1561, 820, 23, 89, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->1860051248],
+Cell[54511, 1586, 64, 1, 27, "EndEnvironmentMarker",
+ CellID->43173557]
+}, Open  ]],
+Cell[54590, 1590, 49, 1, 20, "CloseEnvironment",
+ CellID->1145359966],
+Cell[54642, 1593, 163, 4, 35, "Text",
+ CellID->1183838886],
+Cell[54808, 1599, 47, 1, 15, "OpenEnvironment",
+ CellID->195745246],
+Cell[CellGroupData[{
+Cell[54880, 1604, 463, 12, 46, "EnvironmentHeader",
+ CellID->977935088],
+Cell[55346, 1618, 1083, 30, 71, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->1556948748],
+Cell[56432, 1650, 66, 1, 27, "EndEnvironmentMarker",
+ CellID->1019487586]
+}, Open  ]],
+Cell[56513, 1654, 48, 1, 20, "CloseEnvironment",
+ CellID->169165158],
+Cell[56564, 1657, 48, 1, 15, "OpenEnvironment",
+ CellID->1250996438],
+Cell[CellGroupData[{
+Cell[56637, 1662, 512, 13, 46, "EnvironmentHeader",
+ CellID->1137021104],
+Cell[57152, 1677, 805, 21, 69, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->280031110],
+Cell[57960, 1700, 66, 1, 27, "EndEnvironmentMarker",
+ CellID->2068570558]
+}, Open  ]],
+Cell[58041, 1704, 49, 1, 20, "CloseEnvironment",
+ CellID->2093749241],
+Cell[58093, 1707, 239, 5, 35, "Text",
+ CellID->294578911],
+Cell[58335, 1714, 47, 1, 15, "OpenEnvironment",
+ CellID->209222022],
+Cell[CellGroupData[{
+Cell[58407, 1719, 444, 11, 46, "EnvironmentHeader",
+ CellID->52990396],
+Cell[58854, 1732, 989, 26, 70, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->2099161813],
+Cell[59846, 1760, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->497814276]
+}, Open  ]],
+Cell[59926, 1764, 49, 1, 20, "CloseEnvironment",
+ CellID->1324013907]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[60024, 1771, 153, 4, 48, "Subsection",
+ CellID->1679635954],
+Cell[60180, 1777, 403, 13, 37, "Text",
+ CellID->928379279],
+Cell[60586, 1792, 47, 1, 15, "OpenEnvironment",
+ CellID->381165293],
+Cell[CellGroupData[{
+Cell[60658, 1797, 397, 9, 46, "EnvironmentHeader",
+ CellID->2085706310],
+Cell[61058, 1808, 1006, 31, 54, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->1634282486],
+Cell[62067, 1841, 66, 1, 27, "EndEnvironmentMarker",
+ CellID->1275611024]
+}, Open  ]],
+Cell[62148, 1845, 48, 1, 20, "CloseEnvironment",
+ CellID->481748488],
+Cell[62199, 1848, 47, 1, 15, "OpenEnvironment",
+ CellID->815736438],
+Cell[CellGroupData[{
+Cell[62271, 1853, 417, 11, 46, "EnvironmentHeader",
+ CellID->1713437178],
+Cell[62691, 1866, 1521, 43, 127, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->"???",
+ CellID->2110967529],
+Cell[64215, 1911, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->712434439]
+}, Open  ]],
+Cell[64295, 1915, 49, 1, 20, "CloseEnvironment",
+ CellID->2007231690]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[64381, 1921, 142, 2, 48, "Subsection",
+ CellID->537386234],
+Cell[64526, 1925, 558, 11, 25, "GlobalDeclaration",
+ InitializationCell->True,
+ CellID->859647141],
+Cell[65087, 1938, 48, 1, 15, "OpenEnvironment",
+ CellID->2028615957],
+Cell[CellGroupData[{
+Cell[65160, 1943, 390, 9, 46, "EnvironmentHeader",
+ CellID->944329446],
+Cell[65553, 1954, 898, 24, 23, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:464754694", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "vickreyA"},
+ CellID->464754694],
+Cell[66454, 1980, 813, 22, 23, "FormalTextInputFormula",
+ InitializationCell->True,
+ CellTags->{
+  "ID:822092051", 
+   "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
+nb", "vickreyB"},
+ CellID->822092051],
+Cell[67270, 2004, 65, 1, 27, "EndEnvironmentMarker",
+ CellID->196244082]
+}, Open  ]],
+Cell[67350, 2008, 49, 1, 20, "CloseEnvironment",
+ CellID->1291690230]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
