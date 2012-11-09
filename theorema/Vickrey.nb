@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[    120637,       3424]
-NotebookOptionsPosition[     67460,       2000]
-NotebookOutlinePosition[    106939,       2987]
-CellTagsIndexPosition[    105656,       2946]
+NotebookDataLength[    121545,       3443]
+NotebookOptionsPosition[     68367,       2019]
+NotebookOutlinePosition[    107848,       3006]
+CellTagsIndexPosition[    106565,       2965]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -484,8 +484,7 @@ Cell[BoxData[
     RowBox[{"bids", "[", "b", "]"}], "\[Wedge]", 
     RowBox[{"(", 
      RowBox[{
-      UnderscriptBox[
-       UnderscriptBox["\[ForAll]", "i"], 
+      UnderscriptBox["\[ForAll]", 
        RowBox[{
         RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]], 
       RowBox[{
@@ -500,7 +499,7 @@ Cell[BoxData[
   3.561380012301763*^9, 3.561380059446334*^9}, {3.5613800911181726`*^9, 
   3.5613800932464046`*^9}, {3.561384870614195*^9, 3.561384871884691*^9}, {
   3.561449717319118*^9, 3.561449725422393*^9}, {3.5614628255053387`*^9, 
-  3.5614628287282476`*^9}},
+  3.5614628287282476`*^9}, {3.561473276768208*^9, 3.5614732803624477`*^9}},
  EmphasizeSyntaxErrors->True,
  CellTags->"???",
  CellID->1967818693],
@@ -1766,7 +1765,7 @@ Cell["Definition (Efficiency)", "EnvironmentHeader",
 Cell[BoxData[
  RowBox[{
   RowBox[{"efficient", "[", 
-   RowBox[{"v", ",", "b", ",", "x"}], "]"}], 
+   RowBox[{"v", ",", "x"}], "]"}], 
   TagBox[
    RowBox[{
    ":", "\[NegativeThickSpace]\[NegativeThinSpace]", 
@@ -1792,7 +1791,8 @@ Cell[BoxData[
       SubscriptBox["v", "j"]}]}]}]}]}]], "FormalTextInputFormula",
  InitializationCell->True,
  CellChangeTimes->{{3.561460408723209*^9, 3.561460528036268*^9}, {
-   3.5614635347049923`*^9, 3.5614635349531116`*^9}, 3.5614636710646343`*^9},
+   3.5614635347049923`*^9, 3.5614635349531116`*^9}, 3.5614636710646343`*^9, {
+   3.5614739628975563`*^9, 3.561473963274837*^9}},
  CellTags->"efficiency",
  CellID->1634282486],
 
@@ -1901,11 +1901,12 @@ Cell["\[GraySquare]", "EndEnvironmentMarker",
 
 Cell["", "CloseEnvironment",
  CellID->2007231690]
+}, Open  ]]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell["Vickrey\[CloseCurlyQuote]s Theorem", "Subsection",
+Cell["Vickrey\[CloseCurlyQuote]s Theorem", "Section",
  CellChangeTimes->{{3.561461000798073*^9, 3.561461003277183*^9}},
  CellID->537386234],
 
@@ -1927,15 +1928,30 @@ Cell["Theorem (Vickrey)", "EnvironmentHeader",
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"secondPriceAuction", "[", 
-   RowBox[{"b", ",", "x", ",", "p"}], "]"}], 
+  RowBox[{
+   UnderscriptBox["\[ForAll]", 
+    RowBox[{"valuation", "[", "v", "]"}]], 
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", "x"], 
+     RowBox[{"allocation", "[", 
+      RowBox[{"v", ",", "x"}], "]"}]], 
+    RowBox[{
+     UnderscriptBox[
+      UnderscriptBox["\[ForAll]", "p"], 
+      RowBox[{"vickreyPayment", "[", 
+       RowBox[{"v", ",", "p"}], "]"}]], 
+     RowBox[{"secondPriceAuction", "[", 
+      RowBox[{"v", ",", "x", ",", "p"}], "]"}]}]}]}], 
   "\[Implies]"}]], "GlobalDeclaration",
  InitializationCell->True,
  CellChangeTimes->{{3.561384278657835*^9, 3.561384289288447*^9}, {
   3.561384664787579*^9, 3.5613846766124353`*^9}, {3.5613849158594646`*^9, 
   3.561384938940303*^9}, {3.561385155338513*^9, 3.5613851981909227`*^9}, {
   3.561385394810546*^9, 3.561385426157433*^9}, {3.561449830997336*^9, 
-  3.5614498421584787`*^9}, {3.561452750063353*^9, 3.5614527518449097`*^9}},
+  3.5614498421584787`*^9}, {3.561452750063353*^9, 3.5614527518449097`*^9}, {
+  3.5614741976138277`*^9, 3.5614741977286673`*^9}, {3.561474536964719*^9, 
+  3.561474579206667*^9}, {3.561474739201743*^9, 3.561474832301714*^9}},
  CellID->859647141],
 
 Cell[BoxData[
@@ -1957,7 +1973,10 @@ auction/Vickrey.nb"}]]}]]]}, {None, None}},
  ShowCellTags->False,
  CellChangeTimes->{{3.561461020786235*^9, 3.561461037504891*^9}, {
   3.561461072506649*^9, 3.561461082659059*^9}, {3.56147265990561*^9, 
-  3.561472660402856*^9}},
+  3.561472660402856*^9}, {3.5614739110268307`*^9, 3.561473914397373*^9}, {
+  3.561474201120199*^9, 3.561474213297534*^9}, {3.561474587704543*^9, 
+  3.561474587845416*^9}, {3.561474724266307*^9, 3.561474725347217*^9}, {
+  3.56147476989799*^9, 3.5614747700193243`*^9}},
  CellTags->{
   "ID:464754694", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
@@ -1966,7 +1985,7 @@ nb", "vickreyA"},
 
 Cell[BoxData[
  RowBox[{"efficient", "[", 
-  RowBox[{"v", ",", "v", ",", "x"}], "]"}]], "FormalTextInputFormula",
+  RowBox[{"v", ",", "x"}], "]"}]], "FormalTextInputFormula",
  InitializationCell->True,
  CellFrameLabels->{{None, 
     Cell[
@@ -1981,7 +2000,8 @@ Cell[BoxData[
             "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/\
 auction/Vickrey.nb"}]]}]]]}, {None, None}},
  ShowCellTags->False,
- CellChangeTimes->{{3.5614611011042624`*^9, 3.56146112040971*^9}},
+ CellChangeTimes->{{3.5614611011042624`*^9, 3.56146112040971*^9}, 
+   3.561473955612054*^9, {3.561474206112006*^9, 3.56147420628121*^9}},
  CellTags->{
   "ID:822092051", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
@@ -1994,7 +2014,6 @@ Cell["\[GraySquare]", "EndEnvironmentMarker",
 
 Cell["", "CloseEnvironment",
  CellID->1291690230]
-}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 },
@@ -2481,7 +2500,7 @@ level.", "Text"],
 (*CellTagsOutline
 CellTagsIndex->{
  "allBid1"->{
-  Cell[18162, 534, 873, 23, 28, "FormalTextInputFormula",
+  Cell[18181, 533, 873, 23, 28, "FormalTextInputFormula",
    CellTags->{
     "ID:1296967051", 
      "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
@@ -2544,17 +2563,17 @@ Vickrey.nb", "deviation"},
 Vickrey.nb", "deviationVector"},
    CellID->1191118710]},
  "efficiency"->{
-  Cell[59933, 1765, 1013, 31, 62, "FormalTextInputFormula",
+  Cell[59952, 1764, 1055, 32, 62, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"efficiency",
    CellID->1634282486]},
  "equilibriumWeaklyDominantStrategy"->{
-  Cell[61930, 1834, 2278, 61, 216, "FormalTextInputFormula",
+  Cell[61991, 1834, 2278, 61, 216, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"equilibriumWeaklyDominantStrategy",
    CellID->2110967529]},
  "ID:1115369896"->{
-  Cell[33210, 916, 1554, 41, 62, "FormalTextInputFormula",
+  Cell[33229, 915, 1554, 41, 62, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1115369896", 
@@ -2562,7 +2581,7 @@ Vickrey.nb", "deviationVector"},
 Vickrey.nb", "4"},
    CellID->1115369896]},
  "ID:1133028480"->{
-  Cell[44377, 1270, 1973, 54, 95, "FormalTextInputFormula",
+  Cell[44396, 1269, 1973, 54, 95, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1133028480", 
@@ -2578,7 +2597,7 @@ Vickrey.nb", "secondPriceAuctionWinner"},
 Vickrey.nb", "deviationVector"},
    CellID->1191118710]},
  "ID:1193232573"->{
-  Cell[35403, 983, 1149, 33, 61, "FormalTextInputFormula",
+  Cell[35422, 982, 1149, 33, 61, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1193232573", 
@@ -2586,7 +2605,7 @@ Vickrey.nb", "deviationVector"},
 Vickrey.nb", "5"},
    CellID->1193232573]},
  "ID:1296967051"->{
-  Cell[18162, 534, 873, 23, 28, "FormalTextInputFormula",
+  Cell[18181, 533, 873, 23, 28, "FormalTextInputFormula",
    CellTags->{
     "ID:1296967051", 
      "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
@@ -2601,7 +2620,7 @@ Vickrey.nb", "allBid1"},
 Vickrey.nb", "allocation"},
    CellID->1369537856]},
  "ID:1698268575"->{
-  Cell[37675, 1061, 834, 22, 27, "FormalTextInputFormula",
+  Cell[37694, 1060, 834, 22, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1698268575", 
@@ -2609,7 +2628,7 @@ Vickrey.nb", "allocation"},
 Vickrey.nb", "6"},
    CellID->1698268575]},
  "ID:208908242"->{
-  Cell[46353, 1326, 1274, 36, 28, "FormalTextInputFormula",
+  Cell[46372, 1325, 1274, 36, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:208908242", 
@@ -2617,7 +2636,7 @@ Vickrey.nb", "6"},
 Vickrey.nb", "secondPriceAuctionLoser"},
    CellID->208908242]},
  "ID:262668548"->{
-  Cell[39613, 1127, 1455, 39, 57, "FormalTextInputFormula",
+  Cell[39632, 1126, 1455, 39, 57, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:262668548", 
@@ -2625,7 +2644,7 @@ Vickrey.nb", "secondPriceAuctionLoser"},
 Vickrey.nb", "7"},
    CellID->262668548]},
  "ID:464754694"->{
-  Cell[65549, 1940, 923, 24, 28, "FormalTextInputFormula",
+  Cell[66165, 1956, 1165, 27, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:464754694", 
@@ -2673,7 +2692,7 @@ Vickrey.nb", "deviation"},
 Vickrey.nb", "valuation"},
    CellID->744585825]},
  "ID:822092051"->{
-  Cell[66475, 1966, 813, 22, 28, "FormalTextInputFormula",
+  Cell[67333, 1985, 874, 23, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:822092051", 
@@ -2681,7 +2700,7 @@ Vickrey.nb", "valuation"},
 Vickrey.nb", "vickreyB"},
    CellID->822092051]},
  "ID:913674971"->{
-  Cell[42464, 1212, 1653, 47, 140, "FormalTextInputFormula",
+  Cell[42483, 1211, 1653, 47, 140, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:913674971", 
@@ -2697,7 +2716,7 @@ Vickrey.nb", "secondPriceAuction"},
 Vickrey.nb", "bids"},
    CellID->949052997]},
  "secondPriceAuction"->{
-  Cell[42464, 1212, 1653, 47, 140, "FormalTextInputFormula",
+  Cell[42483, 1211, 1653, 47, 140, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:913674971", 
@@ -2705,7 +2724,7 @@ Vickrey.nb", "bids"},
 Vickrey.nb", "secondPriceAuction"},
    CellID->913674971]},
  "secondPriceAuctionLoser"->{
-  Cell[46353, 1326, 1274, 36, 28, "FormalTextInputFormula",
+  Cell[46372, 1325, 1274, 36, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:208908242", 
@@ -2713,7 +2732,7 @@ Vickrey.nb", "secondPriceAuction"},
 Vickrey.nb", "secondPriceAuctionLoser"},
    CellID->208908242]},
  "secondPriceAuctionWinner"->{
-  Cell[44377, 1270, 1973, 54, 95, "FormalTextInputFormula",
+  Cell[44396, 1269, 1973, 54, 95, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1133028480", 
@@ -2722,7 +2741,7 @@ Vickrey.nb", "secondPriceAuctionWinner"},
    CellID->1133028480]},
  "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb"->{
-  Cell[18162, 534, 873, 23, 28, "FormalTextInputFormula",
+  Cell[18181, 533, 873, 23, 28, "FormalTextInputFormula",
    CellTags->{
     "ID:1296967051", 
      "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
@@ -2789,63 +2808,63 @@ Vickrey.nb", "bids"},
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "allocation"},
    CellID->1369537856],
-  Cell[33210, 916, 1554, 41, 62, "FormalTextInputFormula",
+  Cell[33229, 915, 1554, 41, 62, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1115369896", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "4"},
    CellID->1115369896],
-  Cell[35403, 983, 1149, 33, 61, "FormalTextInputFormula",
+  Cell[35422, 982, 1149, 33, 61, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1193232573", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "5"},
    CellID->1193232573],
-  Cell[37675, 1061, 834, 22, 27, "FormalTextInputFormula",
+  Cell[37694, 1060, 834, 22, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1698268575", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "6"},
    CellID->1698268575],
-  Cell[39613, 1127, 1455, 39, 57, "FormalTextInputFormula",
+  Cell[39632, 1126, 1455, 39, 57, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:262668548", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "7"},
    CellID->262668548],
-  Cell[42464, 1212, 1653, 47, 140, "FormalTextInputFormula",
+  Cell[42483, 1211, 1653, 47, 140, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:913674971", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "secondPriceAuction"},
    CellID->913674971],
-  Cell[44377, 1270, 1973, 54, 95, "FormalTextInputFormula",
+  Cell[44396, 1269, 1973, 54, 95, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1133028480", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "secondPriceAuctionWinner"},
    CellID->1133028480],
-  Cell[46353, 1326, 1274, 36, 28, "FormalTextInputFormula",
+  Cell[46372, 1325, 1274, 36, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:208908242", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "secondPriceAuctionLoser"},
    CellID->208908242],
-  Cell[65549, 1940, 923, 24, 28, "FormalTextInputFormula",
+  Cell[66165, 1956, 1165, 27, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:464754694", 
      "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "vickreyA"},
    CellID->464754694],
-  Cell[66475, 1966, 813, 22, 28, "FormalTextInputFormula",
+  Cell[67333, 1985, 874, 23, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:822092051", 
@@ -2861,7 +2880,7 @@ Vickrey.nb", "vickreyB"},
 Vickrey.nb", "valuation"},
    CellID->744585825]},
  "vickreyA"->{
-  Cell[65549, 1940, 923, 24, 28, "FormalTextInputFormula",
+  Cell[66165, 1956, 1165, 27, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:464754694", 
@@ -2869,7 +2888,7 @@ Vickrey.nb", "valuation"},
 Vickrey.nb", "vickreyA"},
    CellID->464754694]},
  "vickreyB"->{
-  Cell[66475, 1966, 813, 22, 28, "FormalTextInputFormula",
+  Cell[67333, 1985, 874, 23, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:822092051", 
@@ -2877,40 +2896,40 @@ Vickrey.nb", "vickreyA"},
 Vickrey.nb", "vickreyB"},
    CellID->822092051]},
  "???"->{
-  Cell[16128, 468, 1309, 37, 102, "FormalTextInputFormula",
+  Cell[16128, 468, 1328, 36, 73, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->1967818693],
-  Cell[49057, 1411, 923, 23, 81, "FormalTextInputFormula",
+  Cell[49076, 1410, 923, 23, 81, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->1250812687],
-  Cell[50698, 1462, 682, 17, 83, "FormalTextInputFormula",
+  Cell[50717, 1461, 682, 17, 83, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->2039982043],
-  Cell[52116, 1507, 646, 16, 83, "FormalTextInputFormula",
+  Cell[52135, 1506, 646, 16, 83, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->221722319],
-  Cell[53415, 1550, 865, 23, 102, "FormalTextInputFormula",
+  Cell[53434, 1549, 865, 23, 102, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->1860051248],
-  Cell[54952, 1601, 1083, 30, 83, "FormalTextInputFormula",
+  Cell[54971, 1600, 1083, 30, 83, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->1556948748],
-  Cell[56758, 1660, 805, 21, 83, "FormalTextInputFormula",
+  Cell[56777, 1659, 805, 21, 83, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->280031110],
-  Cell[58218, 1708, 914, 24, 80, "FormalTextInputFormula",
+  Cell[58237, 1707, 914, 24, 80, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->"???",
    CellID->2099161813]},
  "4"->{
-  Cell[33210, 916, 1554, 41, 62, "FormalTextInputFormula",
+  Cell[33229, 915, 1554, 41, 62, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1115369896", 
@@ -2918,7 +2937,7 @@ Vickrey.nb", "vickreyB"},
 Vickrey.nb", "4"},
    CellID->1115369896]},
  "5"->{
-  Cell[35403, 983, 1149, 33, 61, "FormalTextInputFormula",
+  Cell[35422, 982, 1149, 33, 61, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1193232573", 
@@ -2926,7 +2945,7 @@ Vickrey.nb", "4"},
 Vickrey.nb", "5"},
    CellID->1193232573]},
  "6"->{
-  Cell[37675, 1061, 834, 22, 27, "FormalTextInputFormula",
+  Cell[37694, 1060, 834, 22, 28, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:1698268575", 
@@ -2934,7 +2953,7 @@ Vickrey.nb", "5"},
 Vickrey.nb", "6"},
    CellID->1698268575]},
  "7"->{
-  Cell[39613, 1127, 1455, 39, 57, "FormalTextInputFormula",
+  Cell[39632, 1126, 1455, 39, 57, "FormalTextInputFormula",
    InitializationCell->True,
    CellTags->{
     "ID:262668548", 
@@ -2945,43 +2964,43 @@ Vickrey.nb", "7"},
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"allBid1", 89900, 2482},
- {"allocation", 90139, 2489},
- {"bids", 90402, 2497},
- {"deviation", 90662, 2505},
- {"deviationVector", 91743, 2537},
- {"efficiency", 92016, 2545},
- {"equilibriumWeaklyDominantStrategy", 92197, 2550},
- {"ID:1115369896", 92382, 2555},
- {"ID:1133028480", 92645, 2563},
- {"ID:1191118710", 92932, 2571},
- {"ID:1193232573", 93208, 2579},
- {"ID:1296967051", 93471, 2587},
- {"ID:1369537856", 93713, 2594},
- {"ID:1698268575", 93985, 2602},
- {"ID:208908242", 94247, 2610},
- {"ID:262668548", 94530, 2618},
- {"ID:464754694", 94791, 2626},
- {"ID:625928741", 95058, 2634},
- {"ID:744585825", 96136, 2666},
- {"ID:822092051", 96404, 2674},
- {"ID:913674971", 96671, 2682},
- {"ID:949052997", 96950, 2690},
- {"secondPriceAuction", 97219, 2698},
- {"secondPriceAuctionLoser", 97509, 2706},
- {"secondPriceAuctionWinner", 97804, 2714},
+ {"allBid1", 90807, 2501},
+ {"allocation", 91046, 2508},
+ {"bids", 91309, 2516},
+ {"deviation", 91569, 2524},
+ {"deviationVector", 92650, 2556},
+ {"efficiency", 92923, 2564},
+ {"equilibriumWeaklyDominantStrategy", 93104, 2569},
+ {"ID:1115369896", 93289, 2574},
+ {"ID:1133028480", 93552, 2582},
+ {"ID:1191118710", 93839, 2590},
+ {"ID:1193232573", 94115, 2598},
+ {"ID:1296967051", 94378, 2606},
+ {"ID:1369537856", 94620, 2613},
+ {"ID:1698268575", 94892, 2621},
+ {"ID:208908242", 95154, 2629},
+ {"ID:262668548", 95437, 2637},
+ {"ID:464754694", 95698, 2645},
+ {"ID:625928741", 95966, 2653},
+ {"ID:744585825", 97044, 2685},
+ {"ID:822092051", 97312, 2693},
+ {"ID:913674971", 97579, 2701},
+ {"ID:949052997", 97858, 2709},
+ {"secondPriceAuction", 98127, 2717},
+ {"secondPriceAuctionLoser", 98417, 2725},
+ {"secondPriceAuctionWinner", 98712, 2733},
  {"Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
-Vickrey.nb", 98159, 2723},
+Vickrey.nb", 99067, 2742},
  {"Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
-nb", 98466, 2731},
- {"valuation", 102787, 2854},
- {"vickreyA", 103051, 2862},
- {"vickreyB", 103314, 2870},
- {"???", 103572, 2878},
- {"4", 104638, 2911},
- {"5", 104889, 2919},
- {"6", 105140, 2927},
- {"7", 105391, 2935}
+nb", 99374, 2750},
+ {"valuation", 103696, 2873},
+ {"vickreyA", 103960, 2881},
+ {"vickreyB", 104224, 2889},
+ {"???", 104482, 2897},
+ {"4", 105547, 2930},
+ {"5", 105798, 2938},
+ {"6", 106049, 2946},
+ {"7", 106300, 2954}
  }
 *)
 (*NotebookFileOutline
@@ -3089,341 +3108,341 @@ Cell[13589, 401, 2536, 65, 86, "FormalTextInputFormula",
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "allocation"},
  CellID->1369537856],
-Cell[16128, 468, 1309, 37, 102, "FormalTextInputFormula",
+Cell[16128, 468, 1328, 36, 73, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->1967818693],
-Cell[17440, 507, 65, 1, 33, "EndEnvironmentMarker",
+Cell[17459, 506, 65, 1, 33, "EndEnvironmentMarker",
  CellID->677139921]
 }, Open  ]],
-Cell[17520, 511, 48, 1, 24, "CloseEnvironment",
+Cell[17539, 510, 48, 1, 24, "CloseEnvironment",
  CellID->166569218],
-Cell[17571, 514, 47, 1, 18, "OpenEnvironment",
+Cell[17590, 513, 47, 1, 18, "OpenEnvironment",
  CellID->235138849],
 Cell[CellGroupData[{
-Cell[17643, 519, 516, 13, 56, "EnvironmentHeader",
+Cell[17662, 518, 516, 13, 56, "EnvironmentHeader",
  CellID->947021546],
-Cell[18162, 534, 873, 23, 28, "FormalTextInputFormula",
+Cell[18181, 533, 873, 23, 28, "FormalTextInputFormula",
  CellTags->{
   "ID:1296967051", 
    "Source:/home/clange/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/\
 Vickrey.nb", "allBid1"},
  CellID->1296967051],
-Cell[19038, 559, 65, 1, 33, "EndEnvironmentMarker",
+Cell[19057, 558, 65, 1, 33, "EndEnvironmentMarker",
  CellID->107129873]
 }, Open  ]],
-Cell[19118, 563, 49, 1, 24, "CloseEnvironment",
+Cell[19137, 562, 49, 1, 24, "CloseEnvironment",
  CellID->1819295916],
 Cell[CellGroupData[{
-Cell[19192, 568, 155, 3, 34, "Computation",
+Cell[19211, 567, 155, 3, 34, "Computation",
  CellID->785290181],
-Cell[19350, 573, 11043, 255, 22, "ComputationInfo",
+Cell[19369, 572, 11043, 255, 22, "ComputationInfo",
  CellID->1276382918],
-Cell[30396, 830, 701, 19, 36, "ComputationResult",
+Cell[30415, 829, 701, 19, 36, "ComputationResult",
  CellID->709518357]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[31158, 856, 124, 2, 109, "Section",
+Cell[31177, 855, 124, 2, 109, "Section",
  CellID->1342795056],
-Cell[31285, 860, 131, 2, 42, "Text",
+Cell[31304, 859, 131, 2, 42, "Text",
  CellID->1495837657],
-Cell[31419, 864, 1283, 33, 64, "GlobalDeclaration",
+Cell[31438, 863, 1283, 33, 64, "GlobalDeclaration",
  CellID->2011835890],
-Cell[32705, 899, 47, 1, 18, "OpenEnvironment",
+Cell[32724, 898, 47, 1, 18, "OpenEnvironment",
  CellID->753015502],
 Cell[CellGroupData[{
-Cell[32777, 904, 430, 10, 56, "EnvironmentHeader",
+Cell[32796, 903, 430, 10, 56, "EnvironmentHeader",
  CellID->654363036],
-Cell[33210, 916, 1554, 41, 62, "FormalTextInputFormula",
+Cell[33229, 915, 1554, 41, 62, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:1115369896", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "4"},
  CellID->1115369896],
-Cell[34767, 959, 66, 1, 33, "EndEnvironmentMarker",
+Cell[34786, 958, 66, 1, 33, "EndEnvironmentMarker",
  CellID->2103138899]
 }, Open  ]],
-Cell[34848, 963, 49, 1, 24, "CloseEnvironment",
+Cell[34867, 962, 49, 1, 24, "CloseEnvironment",
  CellID->1363737347],
-Cell[34900, 966, 47, 1, 18, "OpenEnvironment",
+Cell[34919, 965, 47, 1, 18, "OpenEnvironment",
  CellID->887345065],
 Cell[CellGroupData[{
-Cell[34972, 971, 428, 10, 56, "EnvironmentHeader",
+Cell[34991, 970, 428, 10, 56, "EnvironmentHeader",
  CellID->1962162500],
-Cell[35403, 983, 1149, 33, 61, "FormalTextInputFormula",
+Cell[35422, 982, 1149, 33, 61, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:1193232573", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "5"},
  CellID->1193232573],
-Cell[36555, 1018, 65, 1, 33, "EndEnvironmentMarker",
+Cell[36574, 1017, 65, 1, 33, "EndEnvironmentMarker",
  CellID->701635043]
 }, Open  ]],
-Cell[36635, 1022, 48, 1, 24, "CloseEnvironment",
+Cell[36654, 1021, 48, 1, 24, "CloseEnvironment",
  CellID->994021466],
 Cell[CellGroupData[{
-Cell[36708, 1027, 119, 2, 58, "Subsection",
+Cell[36727, 1026, 119, 2, 58, "Subsection",
  CellID->285299677],
-Cell[36830, 1031, 197, 5, 43, "Text",
+Cell[36849, 1030, 197, 5, 43, "Text",
  CellID->280671785]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[37064, 1041, 118, 2, 58, "Subsection",
+Cell[37083, 1040, 118, 2, 58, "Subsection",
  CellID->1126836945],
-Cell[37185, 1045, 48, 1, 18, "OpenEnvironment",
+Cell[37204, 1044, 48, 1, 18, "OpenEnvironment",
  CellID->1377712845],
 Cell[CellGroupData[{
-Cell[37258, 1050, 414, 9, 56, "EnvironmentHeader",
+Cell[37277, 1049, 414, 9, 56, "EnvironmentHeader",
  CellID->2146016054],
-Cell[37675, 1061, 834, 22, 27, "FormalTextInputFormula",
+Cell[37694, 1060, 834, 22, 28, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:1698268575", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "6"},
  CellID->1698268575],
-Cell[38512, 1085, 65, 1, 33, "EndEnvironmentMarker",
+Cell[38531, 1084, 65, 1, 33, "EndEnvironmentMarker",
  CellID->248741849]
 }, Open  ]],
-Cell[38592, 1089, 49, 1, 24, "CloseEnvironment",
+Cell[38611, 1088, 49, 1, 24, "CloseEnvironment",
  CellID->1006688693]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[38678, 1095, 114, 2, 58, "Subsection",
+Cell[38697, 1094, 114, 2, 58, "Subsection",
  CellID->1810774754],
-Cell[38795, 1099, 348, 10, 44, "Text",
+Cell[38814, 1098, 348, 10, 44, "Text",
  CellID->60985711],
-Cell[39146, 1111, 46, 1, 18, "OpenEnvironment",
+Cell[39165, 1110, 46, 1, 18, "OpenEnvironment",
  CellID->37098572],
 Cell[CellGroupData[{
-Cell[39217, 1116, 393, 9, 55, "EnvironmentHeader",
+Cell[39236, 1115, 393, 9, 56, "EnvironmentHeader",
  CellID->1890136913],
-Cell[39613, 1127, 1455, 39, 57, "FormalTextInputFormula",
+Cell[39632, 1126, 1455, 39, 57, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:262668548", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "7"},
  CellID->262668548],
-Cell[41071, 1168, 66, 1, 33, "EndEnvironmentMarker",
+Cell[41090, 1167, 66, 1, 33, "EndEnvironmentMarker",
  CellID->2127634020]
 }, Open  ]],
-Cell[41152, 1172, 49, 1, 24, "CloseEnvironment",
+Cell[41171, 1171, 49, 1, 24, "CloseEnvironment",
  CellID->2086555102]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[41238, 1178, 208, 3, 58, "Subsection",
+Cell[41257, 1177, 208, 3, 58, "Subsection",
  CellID->1949759481],
-Cell[41449, 1183, 296, 6, 68, "Text",
+Cell[41468, 1182, 296, 6, 68, "Text",
  CellID->1782935797],
-Cell[41748, 1191, 47, 1, 18, "OpenEnvironment",
+Cell[41767, 1190, 47, 1, 18, "OpenEnvironment",
  CellID->652972221],
 Cell[CellGroupData[{
-Cell[41820, 1196, 641, 14, 56, "EnvironmentHeader",
+Cell[41839, 1195, 641, 14, 56, "EnvironmentHeader",
  CellID->1903490050],
-Cell[42464, 1212, 1653, 47, 140, "FormalTextInputFormula",
+Cell[42483, 1211, 1653, 47, 140, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:913674971", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "secondPriceAuction"},
  CellID->913674971],
-Cell[44120, 1261, 254, 7, 44, "GlobalDeclaration",
+Cell[44139, 1260, 254, 7, 44, "GlobalDeclaration",
  CellID->1673115366],
-Cell[44377, 1270, 1973, 54, 95, "FormalTextInputFormula",
+Cell[44396, 1269, 1973, 54, 95, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:1133028480", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "secondPriceAuctionWinner"},
  CellID->1133028480],
-Cell[46353, 1326, 1274, 36, 28, "FormalTextInputFormula",
+Cell[46372, 1325, 1274, 36, 28, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:208908242", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "secondPriceAuctionLoser"},
  CellID->208908242],
-Cell[47630, 1364, 65, 1, 33, "EndEnvironmentMarker",
+Cell[47649, 1363, 65, 1, 33, "EndEnvironmentMarker",
  CellID->321009207]
 }, Open  ]],
-Cell[47710, 1368, 49, 1, 24, "CloseEnvironment",
+Cell[47729, 1367, 49, 1, 24, "CloseEnvironment",
  CellID->1789784991],
 Cell[CellGroupData[{
-Cell[47784, 1373, 205, 5, 40, "Subsubsection",
+Cell[47803, 1372, 205, 5, 40, "Subsubsection",
  CellID->1256336400],
-Cell[47992, 1380, 559, 11, 31, "GlobalDeclaration",
+Cell[48011, 1379, 559, 11, 31, "GlobalDeclaration",
  InitializationCell->True,
  CellID->1385597438],
-Cell[48554, 1393, 47, 1, 18, "OpenEnvironment",
+Cell[48573, 1392, 47, 1, 18, "OpenEnvironment",
  CellID->321469034],
 Cell[CellGroupData[{
-Cell[48626, 1398, 428, 11, 56, "EnvironmentHeader",
+Cell[48645, 1397, 428, 11, 56, "EnvironmentHeader",
  CellID->89794009],
-Cell[49057, 1411, 923, 23, 81, "FormalTextInputFormula",
+Cell[49076, 1410, 923, 23, 81, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->1250812687],
-Cell[49983, 1436, 66, 1, 33, "EndEnvironmentMarker",
+Cell[50002, 1435, 66, 1, 33, "EndEnvironmentMarker",
  CellID->1583979455]
 }, Open  ]],
-Cell[50064, 1440, 49, 1, 24, "CloseEnvironment",
+Cell[50083, 1439, 49, 1, 24, "CloseEnvironment",
  CellID->1501618567],
-Cell[50116, 1443, 47, 1, 18, "OpenEnvironment",
+Cell[50135, 1442, 47, 1, 18, "OpenEnvironment",
  CellID->583044978],
 Cell[CellGroupData[{
-Cell[50188, 1448, 507, 12, 84, "EnvironmentHeader",
+Cell[50207, 1447, 507, 12, 84, "EnvironmentHeader",
  CellID->935988213],
-Cell[50698, 1462, 682, 17, 83, "FormalTextInputFormula",
+Cell[50717, 1461, 682, 17, 83, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->2039982043],
-Cell[51383, 1481, 65, 1, 33, "EndEnvironmentMarker",
+Cell[51402, 1480, 65, 1, 33, "EndEnvironmentMarker",
  CellID->688402696]
 }, Open  ]],
-Cell[51463, 1485, 49, 1, 24, "CloseEnvironment",
+Cell[51482, 1484, 49, 1, 24, "CloseEnvironment",
  CellID->1201776289],
-Cell[51515, 1488, 48, 1, 18, "OpenEnvironment",
+Cell[51534, 1487, 48, 1, 18, "OpenEnvironment",
  CellID->2062989282],
 Cell[CellGroupData[{
-Cell[51588, 1493, 525, 12, 84, "EnvironmentHeader",
+Cell[51607, 1492, 525, 12, 84, "EnvironmentHeader",
  CellID->672867980],
-Cell[52116, 1507, 646, 16, 83, "FormalTextInputFormula",
+Cell[52135, 1506, 646, 16, 83, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->221722319],
-Cell[52765, 1525, 65, 1, 33, "EndEnvironmentMarker",
+Cell[52784, 1524, 65, 1, 33, "EndEnvironmentMarker",
  CellID->675471359]
 }, Open  ]],
-Cell[52845, 1529, 49, 1, 24, "CloseEnvironment",
+Cell[52864, 1528, 49, 1, 24, "CloseEnvironment",
  CellID->1317914173],
-Cell[52897, 1532, 47, 1, 18, "OpenEnvironment",
+Cell[52916, 1531, 47, 1, 18, "OpenEnvironment",
  CellID->956268671],
 Cell[CellGroupData[{
-Cell[52969, 1537, 443, 11, 56, "EnvironmentHeader",
+Cell[52988, 1536, 443, 11, 56, "EnvironmentHeader",
  CellID->2032133420],
-Cell[53415, 1550, 865, 23, 102, "FormalTextInputFormula",
+Cell[53434, 1549, 865, 23, 102, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->1860051248],
-Cell[54283, 1575, 64, 1, 33, "EndEnvironmentMarker",
+Cell[54302, 1574, 64, 1, 33, "EndEnvironmentMarker",
  CellID->43173557]
 }, Open  ]],
-Cell[54362, 1579, 49, 1, 24, "CloseEnvironment",
+Cell[54381, 1578, 49, 1, 24, "CloseEnvironment",
  CellID->1145359966],
-Cell[54414, 1582, 47, 1, 18, "OpenEnvironment",
+Cell[54433, 1581, 47, 1, 18, "OpenEnvironment",
  CellID->195745246],
 Cell[CellGroupData[{
-Cell[54486, 1587, 463, 12, 56, "EnvironmentHeader",
+Cell[54505, 1586, 463, 12, 56, "EnvironmentHeader",
  CellID->977935088],
-Cell[54952, 1601, 1083, 30, 83, "FormalTextInputFormula",
+Cell[54971, 1600, 1083, 30, 83, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->1556948748],
-Cell[56038, 1633, 66, 1, 33, "EndEnvironmentMarker",
+Cell[56057, 1632, 66, 1, 33, "EndEnvironmentMarker",
  CellID->1019487586]
 }, Open  ]],
-Cell[56119, 1637, 48, 1, 24, "CloseEnvironment",
+Cell[56138, 1636, 48, 1, 24, "CloseEnvironment",
  CellID->169165158],
-Cell[56170, 1640, 48, 1, 18, "OpenEnvironment",
+Cell[56189, 1639, 48, 1, 18, "OpenEnvironment",
  CellID->1250996438],
 Cell[CellGroupData[{
-Cell[56243, 1645, 512, 13, 56, "EnvironmentHeader",
+Cell[56262, 1644, 512, 13, 56, "EnvironmentHeader",
  CellID->1137021104],
-Cell[56758, 1660, 805, 21, 83, "FormalTextInputFormula",
+Cell[56777, 1659, 805, 21, 83, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->280031110],
-Cell[57566, 1683, 66, 1, 33, "EndEnvironmentMarker",
+Cell[57585, 1682, 66, 1, 33, "EndEnvironmentMarker",
  CellID->2068570558]
 }, Open  ]],
-Cell[57647, 1687, 49, 1, 24, "CloseEnvironment",
+Cell[57666, 1686, 49, 1, 24, "CloseEnvironment",
  CellID->2093749241],
-Cell[57699, 1690, 47, 1, 18, "OpenEnvironment",
+Cell[57718, 1689, 47, 1, 18, "OpenEnvironment",
  CellID->209222022],
 Cell[CellGroupData[{
-Cell[57771, 1695, 444, 11, 56, "EnvironmentHeader",
+Cell[57790, 1694, 444, 11, 56, "EnvironmentHeader",
  CellID->52990396],
-Cell[58218, 1708, 914, 24, 80, "FormalTextInputFormula",
+Cell[58237, 1707, 914, 24, 80, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"???",
  CellID->2099161813],
-Cell[59135, 1734, 65, 1, 33, "EndEnvironmentMarker",
+Cell[59154, 1733, 65, 1, 33, "EndEnvironmentMarker",
  CellID->497814276]
 }, Open  ]],
-Cell[59215, 1738, 49, 1, 24, "CloseEnvironment",
+Cell[59234, 1737, 49, 1, 24, "CloseEnvironment",
  CellID->1324013907]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[59313, 1745, 145, 2, 58, "Subsection",
+Cell[59332, 1744, 145, 2, 58, "Subsection",
  CellID->1679635954],
-Cell[59461, 1749, 47, 1, 18, "OpenEnvironment",
+Cell[59480, 1748, 47, 1, 18, "OpenEnvironment",
  CellID->381165293],
 Cell[CellGroupData[{
-Cell[59533, 1754, 397, 9, 56, "EnvironmentHeader",
+Cell[59552, 1753, 397, 9, 56, "EnvironmentHeader",
  CellID->2085706310],
-Cell[59933, 1765, 1013, 31, 62, "FormalTextInputFormula",
+Cell[59952, 1764, 1055, 32, 62, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"efficiency",
  CellID->1634282486],
-Cell[60949, 1798, 66, 1, 33, "EndEnvironmentMarker",
+Cell[61010, 1798, 66, 1, 33, "EndEnvironmentMarker",
  CellID->1275611024]
 }, Open  ]],
-Cell[61030, 1802, 48, 1, 24, "CloseEnvironment",
+Cell[61091, 1802, 48, 1, 24, "CloseEnvironment",
  CellID->481748488],
-Cell[61081, 1805, 362, 11, 43, "Text",
+Cell[61142, 1805, 362, 11, 43, "Text",
  CellID->1578571451],
-Cell[61446, 1818, 47, 1, 18, "OpenEnvironment",
+Cell[61507, 1818, 47, 1, 18, "OpenEnvironment",
  CellID->815736438],
 Cell[CellGroupData[{
-Cell[61518, 1823, 409, 9, 56, "EnvironmentHeader",
+Cell[61579, 1823, 409, 9, 56, "EnvironmentHeader",
  CellID->1713437178],
-Cell[61930, 1834, 2278, 61, 216, "FormalTextInputFormula",
+Cell[61991, 1834, 2278, 61, 216, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->"equilibriumWeaklyDominantStrategy",
  CellID->2110967529],
-Cell[64211, 1897, 65, 1, 33, "EndEnvironmentMarker",
+Cell[64272, 1897, 65, 1, 33, "EndEnvironmentMarker",
  CellID->712434439]
 }, Open  ]],
-Cell[64291, 1901, 49, 1, 24, "CloseEnvironment",
+Cell[64352, 1901, 49, 1, 24, "CloseEnvironment",
  CellID->2007231690]
+}, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[64377, 1907, 142, 2, 58, "Subsection",
+Cell[64450, 1908, 139, 2, 109, "Section",
  CellID->537386234],
-Cell[64522, 1911, 48, 1, 18, "OpenEnvironment",
+Cell[64592, 1912, 48, 1, 18, "OpenEnvironment",
  CellID->2028615957],
 Cell[CellGroupData[{
-Cell[64595, 1916, 390, 9, 56, "EnvironmentHeader",
+Cell[64665, 1917, 390, 9, 56, "EnvironmentHeader",
  CellID->944329446],
-Cell[64988, 1927, 558, 11, 31, "GlobalDeclaration",
+Cell[65058, 1928, 1104, 26, 63, "GlobalDeclaration",
  InitializationCell->True,
  CellID->859647141],
-Cell[65549, 1940, 923, 24, 28, "FormalTextInputFormula",
+Cell[66165, 1956, 1165, 27, 28, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:464754694", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "vickreyA"},
  CellID->464754694],
-Cell[66475, 1966, 813, 22, 28, "FormalTextInputFormula",
+Cell[67333, 1985, 874, 23, 28, "FormalTextInputFormula",
  InitializationCell->True,
  CellTags->{
   "ID:822092051", 
    "Source:/mnt/data/svn/codex.cs.bham.ac.uk/mmk/KLR/theorema/auction/Vickrey.\
 nb", "vickreyB"},
  CellID->822092051],
-Cell[67291, 1990, 65, 1, 33, "EndEnvironmentMarker",
+Cell[68210, 2010, 65, 1, 33, "EndEnvironmentMarker",
  CellID->196244082]
 }, Open  ]],
-Cell[67371, 1994, 49, 1, 24, "CloseEnvironment",
+Cell[68290, 2014, 49, 1, 24, "CloseEnvironment",
  CellID->1291690230]
-}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 }
