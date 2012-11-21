@@ -1,0 +1,25 @@
+%{
+CL: There are some things that I need to ask Till; these are prefixed with CL@TM.
+}%
+library Vickrey
+
+from Basic/SimpleDatatypes get Boolean
+from Basic/StructuredDatatypes get Bag
+from HasCASL/Real get Real
+
+%[CL@TM: Is this the right library to load for real numbers?]%
+
+%% main concepts 
+spec SingleGoodAuction =
+    %[CL: For now I'll just declare their types; full definitions follow.]%
+    Bag[Real] and Bag[Boolean] and Real and Boolean
+then
+    preds
+        bids: Bag[Real];
+        allocation: Bag[Real] * Bag[Boolean];
+            %[CL@TM: Can we enforce that these two bags need to have the same length?]%
+        vickreyPayment: Bag[Real] * Bag[Real];
+        valuation: Bag[Real];
+    ops
+        payoff: Real * Boolean * Real -> Real;
+end
