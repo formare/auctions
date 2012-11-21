@@ -557,34 +557,27 @@ qed
 
 text{* when two vectors differ in one component, skipping that component makes the vectors equal *}
 lemma equal_by_skipping :
-  fixes n::nat and v::real_vector and w::real_vector and j::nat
+  fixes n::nat and v::real_vector and w::real_vector and j::nat and k::nat
   assumes non_empty: "n > 0"
     and j_range: "in_range n j"
     and equal_except: "\<forall>i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> v i = w i"
-  shows "\<forall>k::nat . in_range (n-(1::nat)) k \<longrightarrow> (skip_index v j) k = (skip_index w j) k"
-proof
-  fix k::nat
-  show "in_range (n-(1::nat)) k \<longrightarrow> (skip_index v j) k = (skip_index w j) k"
-  proof
-    assume k_range: "in_range (n-(1::nat)) k"
-    show "(skip_index v j) k = (skip_index w j) k"
-    proof (cases "k < j")
-      case True
-      then have "(skip_index v j) k = v k" 
-        and "(skip_index w j) k = w k"
-        unfolding skip_index_def by auto
-      with equal_except and k_range and True show ?thesis
-        using in_range_def by (metis diff_le_self le_trans less_not_refl)
-    next
-      case False
-      then have "(skip_index v j) k = v (Suc k)"
-        and "(skip_index w j) k = w (Suc k)"
-        unfolding skip_index_def by auto
-      with equal_except and k_range and False show ?thesis
-       using in_range_def
-       by (metis One_nat_def diff_0_eq_0 diff_Suc_Suc diff_less le_neq_implies_less lessI less_imp_diff_less linorder_not_less not_less_eq_eq)
-    qed
-  qed
+    and k_range: "in_range (n-(1::nat)) k"
+  shows "(skip_index v j) k = (skip_index w j) k"
+proof (cases "k < j")
+  case True
+  then have "(skip_index v j) k = v k" 
+    and "(skip_index w j) k = w k"
+    unfolding skip_index_def by auto
+  with equal_except and k_range and True show ?thesis
+    using in_range_def by (metis diff_le_self le_trans less_not_refl)
+next
+  case False
+  then have "(skip_index v j) k = v (Suc k)"
+    and "(skip_index w j) k = w (Suc k)"
+    unfolding skip_index_def by auto
+  with equal_except and k_range and False show ?thesis
+   using in_range_def
+   by (metis One_nat_def diff_0_eq_0 diff_Suc_Suc diff_less le_neq_implies_less lessI less_imp_diff_less linorder_not_less not_less_eq_eq)
 qed
 
 text{* We define the maximum component value that remains after removing the i-th component from the non-negative real vector y: *}
