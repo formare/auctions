@@ -3,23 +3,25 @@ CL: There are some things that I need to ask Till; these are prefixed with CL@TM
 }%
 library Vickrey
 
-from Basic/SimpleDatatypes get Boolean
 from Basic/StructuredDatatypes get Bag
-from HasCASL/Real get Real
-
-%[CL@TM: Is this the right library to load for real numbers?]%
 
 %% main concepts 
 spec SingleGoodAuction =
-    %[CL: For now I'll just declare their types; full definitions follow.]%
-    Bag[Real] and Bag[Boolean] and Real and Boolean
-then
+    %% for now declaring our own sorts also for sorts that the basic CASL library, or Hets-lib, have built in, until we understand what to reuse and how
+    sorts
+    	PositiveReal < NonNegativeReal;
+    	Boolean
+    types
+        Bids ::= Bag[NonNegativeReal];
+        Allocation ::= Bag[Boolean];
+        Payments ::= Bag[NonNegativeReal];
+        Valuations ::= Bag[PositiveReal];
     preds
-        bids: Bag[Real];
-        allocation: Bag[Real] * Bag[Boolean];
+        bids: Bids
+        allocation: Bids * Allocation;
             %[CL@TM: Can we enforce that these two bags need to have the same length?]%
-        vickreyPayment: Bag[Real] * Bag[Real];
-        valuation: Bag[Real];
+        vickreyPayment: Bids * Payments;
+        valuation: Valuations;
     ops
-        payoff: Real * Boolean * Real -> Real;
+        payoff: PositiveReal * Boolean * NonNegativeReal -> NonNegativeReal;
 end
