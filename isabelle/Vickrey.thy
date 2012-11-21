@@ -117,28 +117,27 @@ lemma deviated_bid_well_formed :
   shows "bids n (deviation_vec n bid alternative_vec i)"
 proof -
   let ?dev = "deviation_vec n bid alternative_vec i"
-  have "\<forall> k::participant . in_range n k \<longrightarrow> ?dev k \<ge> 0"
-  proof
+  {
     fix k::participant
-    show "in_range n k \<longrightarrow> ?dev k \<ge> 0"
-    proof
-      assume k_range: "in_range n k"
-      show "?dev k \<ge> 0"
-      proof (cases "?dev k = bid k")
-        case True
-        with k_range and bids_original show ?thesis unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
-      next
-        case False
-        then have "?dev k = alternative_vec k" by (auto simp add: deviation_vec_def deviation_def)
-          (* "then" \<equiv> "from this", where "this" is the most recently established fact;
+    assume k_range: "in_range n k"
+    have "?dev k \<ge> 0"
+    proof (cases "?dev k = bid k")
+      case True
+      with k_range and bids_original
+        show ?thesis
+        unfolding deviation_def
+        by (simp only: bids_def non_negative_real_vector_def)
+    next
+      case False
+      then have "?dev k = alternative_vec k" by (auto simp add: deviation_vec_def deviation_def)
+           (* "then" \<equiv> "from this", where "this" is the most recently established fact;
              note that in line with https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2012-October/msg00057.html
              and for easier general comprehensibility
              we are not using the abbreviations "hence" \<equiv> "then have" and "thus" \<equiv> "then show" here. *)
         with k_range and bids_alternative show ?thesis unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
-      qed
     qed
-  qed
-  then show ?thesis unfolding bids_def non_negative_real_vector_def .
+  }
+  then show "bids n ?dev" unfolding bids_def and non_negative_real_vector_def by simp
 qed
 
 text{* A single-good auction is a mechanism specified by a function that maps a strategy profile to an outcome. *}
