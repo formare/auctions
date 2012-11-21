@@ -525,19 +525,15 @@ text{* skipping one component in a non-negative vector keeps it non-negative *}
 (* TODO CL: discuss whether we should actually prove the more general lemma that
    skipping one component in a vector whose components each satisfy p still satisfies p (for a suitable p) *)
 lemma skip_index_keeps_non_negativity :
-  fixes n::nat and v::real_vector
+  fixes n::nat and v::real_vector and i::nat
   assumes non_empty: "n > 0"
     and non_negative: "non_negative_real_vector n v"
-  shows "\<forall>i::nat . in_range n i \<longrightarrow> non_negative_real_vector (n-(1::nat)) (skip_index v i)"
-proof
-  fix i::nat
-  show "in_range n i \<longrightarrow> non_negative_real_vector (n-(1::nat)) (skip_index v i)"
-  proof
-    assume "in_range n i"
-    have "\<forall>j::nat. in_range (n-(1::nat)) j \<longrightarrow> (skip_index v i) j \<ge> 0"
-    proof
+    and range: "in_range n i"
+  shows "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
+proof -
+  {
       fix j::nat
-      show "in_range (n-(1::nat)) j \<longrightarrow> (skip_index v i) j \<ge> 0"
+      have "in_range (n-(1::nat)) j \<longrightarrow> (skip_index v i) j \<ge> 0"
       proof
         assume j_range: "in_range (n-(1::nat)) j"
         show "(skip_index v i) j \<ge> 0"
@@ -555,9 +551,8 @@ proof
             by (auto simp add: leD less_imp_diff_less not_leE)
         qed
       qed
-    qed
-    then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)" unfolding non_negative_real_vector_def by simp
-  qed
+  }
+  then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)" unfolding non_negative_real_vector_def by simp
 qed
 
 text{* when two vectors differ in one component, skipping that component makes the vectors equal *}
