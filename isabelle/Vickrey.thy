@@ -219,7 +219,7 @@ section{* Valuation *}
 text{* Each participant has a positive valuation of the good. *}
 definition valuation ::
   "participants \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "valuation n v \<equiv> \<forall>i:: participant. in_range n i \<longrightarrow> v i > 0"
+  "valuation n v \<equiv> positive_real_vector n v"
 
 text{* Any well-formed valuation vector is a well-formed bid vector *}
 lemma valuation_is_bid :
@@ -230,20 +230,16 @@ lemma valuation_is_bid :
    by (metis assms bids_def non_negative_real_vector_def order_less_imp_le valuation_def)
    but we prefer manual Isar style here. *)
 proof -
-  have bids_def_unfolded: "\<forall>i:: participant. in_range n i \<longrightarrow> v i \<ge> 0"
-  proof
+  {
     fix i::participant
-    show "in_range n i \<longrightarrow> v i \<ge> 0"
-    proof
-      assume "in_range n i"
-      with assms have "v i > 0" unfolding valuation_def by simp
-      then show "v i \<ge> 0" by simp
-        (* If we had been searching the library for an applicable theorem, we could have used
-           find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
-           and would have found less_imp_le *)
-    qed
-  qed
-  show ?thesis using bids_def_unfolded unfolding bids_def non_negative_real_vector_def by simp
+    assume "in_range n i"
+    with assms have "v i > 0" unfolding valuation_def and positive_real_vector_def by simp
+    then have "v i \<ge> 0" by simp
+      (* If we had been searching the library for an applicable theorem, we could have used
+         find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
+         and would have found less_imp_le *)
+  }
+  then show "bids n v" unfolding bids_def and non_negative_real_vector_def by simp
 qed
 
 section{* Payoff *}
