@@ -123,7 +123,7 @@ proof -
     have "?dev k \<ge> 0"
     proof (cases "?dev k = bid k")
       case True
-      with k_range and bids_original
+      with k_range bids_original
         show ?thesis
         unfolding deviation_def
         by (simp only: bids_def non_negative_real_vector_def)
@@ -134,10 +134,10 @@ proof -
              note that in line with https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2012-October/msg00057.html
              and for easier general comprehensibility
              we are not using the abbreviations "hence" \<equiv> "then have" and "thus" \<equiv> "then show" here. *)
-        with k_range and bids_alternative show ?thesis unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
+        with k_range bids_alternative show ?thesis unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
     qed
   }
-  then show "bids n ?dev" unfolding bids_def and non_negative_real_vector_def by simp
+  then show "bids n ?dev" unfolding bids_def non_negative_real_vector_def by simp
 qed
 
 text{* A single-good auction is a mechanism specified by a function that maps a strategy profile to an outcome. *}
@@ -198,7 +198,7 @@ done
 (* TODO CL: note that this is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps. *)
 lemma only_wins_is_allocation_declarative:
   shows "allocation 1 all_bid_1 first_wins"
-  unfolding allocation_def and in_range_def and first_wins_def using bid_all_bid_1
+  unfolding allocation_def in_range_def first_wins_def using bid_all_bid_1
   by blast
 
 section{* Payment *}
@@ -232,13 +232,13 @@ proof -
   {
     fix i::participant
     assume "in_range n i"
-    with assms have "v i > 0" unfolding valuation_def and positive_real_vector_def by simp
+    with assms have "v i > 0" unfolding valuation_def positive_real_vector_def by simp
     then have "v i \<ge> 0" by simp
       (* If we had been searching the library for an applicable theorem, we could have used
          find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
          and would have found less_imp_le *)
   }
-  then show "bids n v" unfolding bids_def and non_negative_real_vector_def by simp
+  then show "bids n v" unfolding bids_def non_negative_real_vector_def by simp
 qed
 
 section{* Payoff *}
@@ -369,7 +369,7 @@ next
       proof - (* by contradiction *)
         {
           assume "n = 0"
-          with False and non_negative have "y (Suc n) = maximum n y"
+          with False non_negative have "y (Suc n) = maximum n y"
             unfolding non_negative_real_vector_def maximum_def in_range_def
             by simp
           with False have "False" by simp
@@ -379,13 +379,13 @@ next
       from non_negative have pred_non_negative: "non_negative_real_vector n y"
         unfolding non_negative_real_vector_def in_range_def 
         by simp
-      with non_empty and hyp obtain i::nat where pred_max: "in_range n i \<and> maximum n y = y i" by auto
+      with non_empty hyp obtain i::nat where pred_max: "in_range n i \<and> maximum n y = y i" by auto
       with non_negative have y_i_non_negative: "0 \<le> y i" unfolding non_negative_real_vector_def in_range_def by simp
       have "y i = maximum n y" using pred_max by simp
       also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
         (* TODO CL: ask for the difference between "from" and "using" (before/after goal).
            In any case I got the impression that "with \<dots> also have" breaks the chain of calculational reasoning. *)
-      also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))" using non_negative and y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
+      also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))" using non_negative y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
       also have "\<dots> = maximum (Suc n) y" unfolding maximum_def using non_empty by simp
       finally have max: "y i = maximum (Suc n) y" .
       from pred_max have "in_range (Suc n) i" by (simp add: in_range_def)
@@ -432,7 +432,7 @@ next
         assume last_is_max: "y (Suc n) = m"
         have "\<dots> \<ge> maximum n y"
         proof -
-          from False and pred_non_negative and maximum_is_component have "\<exists> k::nat . in_range n k \<and> maximum n y = y k" by auto
+          from False pred_non_negative maximum_is_component have "\<exists> k::nat . in_range n k \<and> maximum n y = y k" by auto
           then obtain k::nat where "in_range n k \<and> maximum n y = y k" by auto
           with greater_or_equal show ?thesis unfolding in_range_def by (simp add: le_Suc_eq)
             (* TODO CL: ask whether we should have kept using metis here.  Sledgehammer always suggests metis.
@@ -467,14 +467,14 @@ lemma increment_keeps_maximum :
   shows "maximum n y' = y' max_index"
 proof -
   from increment have new_component: "y' max_index = max'" by simp
-  from non_negative and index_range and new_lt have "\<dots> \<ge> 0" unfolding non_negative_real_vector_def by (auto simp add: linorder_not_less order_less_trans)
-  with non_negative and increment have new_non_negative: "non_negative_real_vector n y'" unfolding non_negative_real_vector_def by simp
-  from old_maximum and new_lt and increment
+  from non_negative index_range new_lt have "\<dots> \<ge> 0" unfolding non_negative_real_vector_def by (auto simp add: linorder_not_less order_less_trans)
+  with non_negative increment have new_non_negative: "non_negative_real_vector n y'" unfolding non_negative_real_vector_def by simp
+  from old_maximum new_lt increment
     have greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> max' \<ge> y' i"
     by (metis linorder_not_less maximum_is_greater_or_equal order_less_trans order_refl)
   from increment have "max' = y' max_index" by simp
   (* now we have all prerequisites for applying maximum_sufficient *)
-  with new_non_negative and non_empty and greater_or_equal and index_range
+  with new_non_negative non_empty greater_or_equal index_range
     show "maximum n y' = y' max_index" using maximum_sufficient by metis
 qed 
 
@@ -526,13 +526,13 @@ proof -
       proof (cases "j < i")
         case True
         then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
-        with j_range and non_negative show ?thesis
+        with j_range non_negative show ?thesis
           unfolding non_negative_real_vector_def in_range_def
           by (auto simp add: leD less_imp_diff_less not_leE)
       next
         case False
         then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
-        with j_range and non_negative show ?thesis
+        with j_range non_negative show ?thesis
           unfolding non_negative_real_vector_def in_range_def
           by (auto simp add: leD less_imp_diff_less not_leE)
       qed
@@ -552,16 +552,16 @@ lemma equal_by_skipping :
 proof (cases "k < j")
   case True
   then have "(skip_index v j) k = v k" 
-    and "(skip_index w j) k = w k"
+    "(skip_index w j) k = w k"
     unfolding skip_index_def by auto
-  with equal_except and k_range and True show ?thesis
+  with equal_except k_range True show ?thesis
     using in_range_def by (metis diff_le_self le_trans less_not_refl)
 next
   case False
   then have "(skip_index v j) k = v (Suc k)"
-    and "(skip_index w j) k = w (Suc k)"
+   "(skip_index w j) k = w (Suc k)"
     unfolding skip_index_def by auto
-  with equal_except and k_range and False show ?thesis
+  with equal_except k_range False show ?thesis
    using in_range_def
    by (metis One_nat_def diff_0_eq_0 diff_Suc_Suc diff_less le_neq_implies_less lessI less_imp_diff_less linorder_not_less not_less_eq_eq)
 qed
@@ -595,19 +595,19 @@ proof -
   proof (cases "i < j")
     case True
     then have can_skip_j: "y i = ?y_with_j_skipped i" unfolding skip_index_def by simp
-    from True and j_range and i_range and pred_n have "in_range pred_n i" unfolding in_range_def by simp
+    from True j_range i_range pred_n have "in_range pred_n i" unfolding in_range_def by simp
     then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped i" by (simp add: maximum_is_greater_or_equal)
-    with can_skip_j and pred_n show ?thesis by simp
+    with can_skip_j pred_n show ?thesis by simp
   next
     case False
     with i_range have case_False_nice: "i > j" by simp
     then obtain pred_i where pred_i: "i = Suc pred_i" by (rule lessE) (* TODO CL: ask why this works.  I do not really understand what lessE does. *)
-    from case_False_nice and pred_i (* wouldn't work with "from False" *)
+    from case_False_nice pred_i (* wouldn't work with "from False" *)
       have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i" unfolding skip_index_def by simp
-    from case_False_nice and i_range and j_range and pred_i and pred_n
+    from case_False_nice i_range j_range pred_i pred_n
       have (* actually 2 \<le> i, but we don't need this *) "in_range pred_n pred_i" unfolding in_range_def by simp
     then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped pred_i" by (simp add: maximum_is_greater_or_equal)
-    with can_skip_j_and_shift_left and pred_n show ?thesis by simp
+    with can_skip_j_and_shift_left pred_n show ?thesis by simp
   qed
 qed
 
@@ -621,12 +621,12 @@ lemma maximum_greater_or_equal_remaining_maximum :
   shows "y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y"
 proof
   assume ge_remaining: "y j \<ge> maximum_except n y j"
-  from non_empty and range have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
+  from non_empty range have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
   with ge_remaining have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
   then have greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> y j \<ge> y i" by auto
   from range have is_component: "\<exists> i::nat . in_range n i \<and> y j = y i" by auto
     (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
-  with non_negative and non_empty and greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
+  with non_negative non_empty greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
   (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by arith") when either would work,
               and what's the difference between "from foo show bar by simp" vs. "show bar by (simp add: foo)" *)
 next (* nice to see that support for \<longleftrightarrow> is built in *)
@@ -637,32 +637,32 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
   show "y j \<ge> maximum_except n y j"
   proof (cases "n = 1")
     case True
-    with maximum_except_unfolded and maximum_def have "maximum_except n y j = 0" by auto
-    with j_max and non_negative show ?thesis by (simp add: maximum_non_negative)
+    with maximum_except_unfolded maximum_def have "maximum_except n y j = 0" by auto
+    with j_max non_negative show ?thesis by (simp add: maximum_non_negative)
   next
     case False
     from j_max have ge: "\<forall>k::nat . in_range n k \<longrightarrow> y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
-    from False and non_empty have "n > 1" by auto
+    from False non_empty have "n > 1" by auto
     then have pred_non_empty: "(n-(1::nat)) > 0" by simp
-    from non_empty and non_negative and range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
+    from non_empty non_negative range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
-    from pred_non_empty and pred_non_negative and maximum_is_component
+    from pred_non_empty pred_non_negative maximum_is_component
       have "\<exists> i::nat . in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
     then obtain i::nat where maximum_except_component: "in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
     then have i_range: "in_range (n-(1::nat)) i" ..
-    from maximum_except_component and maximum_except_unfolded
+    from maximum_except_component maximum_except_unfolded
       have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i" by simp
     have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by auto
     from i_range have 1: "in_range n i" unfolding in_range_def by arith
     from i_range have 2: "in_range n (Suc i)" unfolding in_range_def by arith
-    from skip_index_range and 1 and 2 have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k" by auto
+    from skip_index_range 1 2 have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k" by auto
     (* The following (found by remote_vampire) was nearly impossible for metis to prove: *)
     (* from i_range and range and skip_index_def
       and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
       have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k"
       by (metis (full_types) One_nat_def Suc_neq_Zero Suc_pred' leD less_Suc0 less_Suc_eq_le linorder_le_less_linear) *)
     then obtain k::nat where "in_range n k \<and> (skip_index y j) i = y k" ..
-    with ge and maximum_except_component_nice show "y j \<ge> maximum_except n y j" by simp
+    with ge maximum_except_component_nice show "y j \<ge> maximum_except n y j" by simp
   qed
 qed
 
@@ -676,7 +676,7 @@ lemma remaining_maximum_invariant :
 proof -
   from range have "\<forall>j::nat . in_range n j \<and> j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
     unfolding deviation_def by simp
-  with non_empty and range
+  with non_empty range
     have "\<forall>k::nat . in_range (n-(1::nat)) k \<longrightarrow> skip_index y i k = skip_index (deviation n y a i) i k"
     by (simp add: equal_by_skipping)
   then have "maximum (n-(1::nat)) (skip_index y i) = maximum (n-(1::nat)) (skip_index (deviation n y a i) i)"
@@ -725,8 +725,8 @@ lemma second_price_auction_has_only_one_winner :
 proof -
   from winner have wins: "x b winner" by (simp add: second_price_auction_winner_def)
   from also_winner have j_wins: "x b j" by (simp add: second_price_auction_winner_def)
-  from spa and bids have "allocation n b x" by (simp add: second_price_auction_def)
-  with wins and j_wins show "j = winner" by (simp add: allocation_unique)
+  from spa bids have "allocation n b x" by (simp add: second_price_auction_def)
+  with wins j_wins show "j = winner" by (simp add: allocation_unique)
 qed
 
 text{* The participant who gets the good also satisfies the further properties of a second-price auction winner *}
@@ -737,7 +737,7 @@ lemma allocated_implies_spa_winner :
     and wins: "x b winner" (* note that we need not assume anything about the range of winner *)
   shows "second_price_auction_winner n b x p winner"
 proof -
-  from wins and spa and bids and second_price_auction_winner_def and second_price_auction_has_only_one_winner
+  from wins spa bids second_price_auction_winner_def second_price_auction_has_only_one_winner
   show ?thesis by (metis allocation_unique second_price_auction_def)
 qed
 
@@ -752,10 +752,10 @@ lemma not_allocated_implies_spa_loser :
 proof - (* by contradiction *)
   {
     assume False: "\<not> second_price_auction_loser n b x p loser"
-    from spa and bids and second_price_auction_def
+    from spa bids second_price_auction_def
       have "(\<exists>j::participant. in_range n j \<and> second_price_auction_winner n b x p j
                   \<and> (\<forall>k::participant. in_range n k \<and> k \<noteq> j \<longrightarrow> second_price_auction_loser n b x p k))" by simp
-    with False and range have "second_price_auction_winner n b x p loser" by auto
+    with False range have "second_price_auction_winner n b x p loser" by auto
       (* Before we had introduced in_range as a predicate consistently used both in the winner and the loser branch,
          even metis wan't able to prove this without exceeding the unification bound. *)
     with second_price_auction_winner_def have "x b loser" by simp
@@ -782,7 +782,7 @@ proof -
       assume j_not_max: "in_range n j \<and> j \<noteq> max_bidder"
       show "j \<notin> arg_max_set n b"
       proof -
-        from j_not_max and range have "b j \<le> maximum_except n b max_bidder"
+        from j_not_max range have "b j \<le> maximum_except n b max_bidder"
           using in_range_def maximum_except_is_greater_or_equal by (metis le_trans)
         with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
         then show ?thesis
@@ -799,13 +799,13 @@ proof -
       qed
     qed
   qed
-  from bids and spa
+  from bids spa
     have x_is_allocation: "\<exists>i:: participant. in_range n i \<and> x b i \<and> (\<forall>j:: participant. j\<noteq>i \<longrightarrow> \<not>x b j)"
     unfolding second_price_auction_def allocation_def in_range_def by simp
-  from bids and spa have "\<exists>i::participant. second_price_auction_winner n b x p i
+  from bids spa have "\<exists>i::participant. second_price_auction_winner n b x p i
     \<and> (\<forall>j::participant. in_range n j \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)" unfolding second_price_auction_def by blast
-  with (* max_bidder and *) (* turns out that we didn't need this :-) *)
-    no_other_max and x_is_allocation show ?thesis by (metis (full_types) second_price_auction_winner_def)
+  with (* max_bidder *) (* turns out that we didn't need this :-) *)
+    no_other_max x_is_allocation show ?thesis by (metis (full_types) second_price_auction_winner_def)
 qed
 
 text{* a formula for computing the payoff of the winner of a second-price auction *}
@@ -821,7 +821,7 @@ proof -
   also have "\<dots> = payoff (v winner) True (p b winner)" using wins by simp
   also have "\<dots> = v winner - p b winner" unfolding payoff_def by simp
   also have "\<dots> = v winner - maximum_except n b winner"
-    using wins and spa and bids by (metis allocated_implies_spa_winner second_price_auction_winner_def)
+    using wins spa bids by (metis allocated_implies_spa_winner second_price_auction_winner_def)
   finally show ?thesis by simp
 qed
 
@@ -834,7 +834,7 @@ lemma second_price_auction_loser_payoff :
     and loses: "\<not> x b loser"
   shows "payoff_vector v (x b) (p b) loser = 0"
 proof -
-  from loses and spa and bids and range
+  from loses spa bids range
     have "second_price_auction_loser n b x p loser"
     by (simp add: not_allocated_implies_spa_loser)
   then show ?thesis unfolding second_price_auction_loser_def payoff_vector_def payoff_def
@@ -859,12 +859,12 @@ lemma winners_payoff_on_deviation_from_valuation :
 proof -
   let ?winner_sticks_with_valuation = "deviation_vec n b v winner"
   (* winner gets the good, so winner also satisfies the further properties of a second price auction winner: *)
-  from wins and spa and bids
+  from wins spa bids
     have "payoff_vector v (x b) (p b) winner = v winner - maximum_except n b winner"
     by (simp add: second_price_auction_winner_payoff)
   (* i's deviation doesn't change the maximum remaining bid (which is the second highest bid when winner wins) *)
   also have "\<dots> = v winner - maximum_except n ?winner_sticks_with_valuation winner"
-    unfolding deviation_vec_def using non_empty and range and remaining_maximum_invariant by auto
+    unfolding deviation_vec_def using non_empty range remaining_maximum_invariant by auto
   finally show ?thesis by simp
 qed
 
@@ -904,137 +904,115 @@ theorem vickreyA :
 proof -
   let ?b = v (* From now on, we refer to v as ?b if we mean the _bids_ (which happen to be equal to the valuations) *)
   from val have bids: "bids n v" by (rule valuation_is_bid)
-  have equilibrium_weakly_dominant_strategy_unfolded:
-    "\<forall> i::participant . in_range n i \<longrightarrow>
-      (\<forall> whatever_bid::real_vector . bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i \<longrightarrow> (
-       let i_sticks_with_valuation = deviation_vec n whatever_bid ?b i
-         in payoff_vector v (x i_sticks_with_valuation) (p i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i))"
-  proof
+  from spa bids have alloc: "allocation n ?b x" unfolding second_price_auction_def by simp
+  from spa bids have pay: "vickrey_payment n ?b p" unfolding second_price_auction_def by simp
+  {
     fix i::participant
-    show "in_range n i \<longrightarrow> (\<forall> whatever_bid::real_vector. bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i
-      \<longrightarrow> (let i_sticks_with_valuation = deviation_vec n whatever_bid ?b i
-      in payoff_vector v (x i_sticks_with_valuation) (p i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i))"
+    assume i_range: "in_range n i"
+    fix whatever_bid::real_vector
+    assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
+    then have alternative_is_bid: "bids n whatever_bid" ..
+    let ?i_sticks_with_valuation = "deviation_vec n whatever_bid ?b i"
+      (* Agent i sticks to bidding his/her valuation, whatever the others bid.  Given this, we have to show that agent i is best off. *)
+    from bids alternative_is_bid
+      have i_sticks_is_bid: "bids n ?i_sticks_with_valuation"
+      by (simp add: deviated_bid_well_formed)
+    have weak_dominance: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof (cases "n = 0")
       case True
-      then show ?thesis by (simp add: in_range_def)
-    next
+      with i_range show ?thesis by (simp add: in_range_def)
+    next                 
       case False
       then have non_empty: "n > 0" ..
+      let ?b_bar = "maximum n ?b"
       show ?thesis
-      proof
-        assume i_range: "in_range n i"
-        let ?b_bar = "maximum n ?b"
-        show "\<forall> whatever_bid::real_vector. bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i \<longrightarrow> (let i_sticks_with_valuation = deviation_vec n whatever_bid ?b i
-          in payoff_vector v (x i_sticks_with_valuation) (p i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i)"
-        proof
-          fix whatever_bid::real_vector
-          let ?i_sticks_with_valuation = "deviation_vec n whatever_bid ?b i"
-            (* Agent i sticks to bidding his/her valuation, whatever the others bid.  Given this, we have to show that agent i is best off. *)
-          have "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i \<longrightarrow>
-            payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
-          proof
-            assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
-            then have alternative_is_bid: "bids n whatever_bid" ..
-            from bids and alternative_is_bid
-              have i_sticks_is_bid: "bids n ?i_sticks_with_valuation"
-              by (simp add: deviated_bid_well_formed)
-            (* interesting part starts here *)
-            show "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
-            proof cases (* case 1 of the short proof *)
-              assume i_wins: "x ?i_sticks_with_valuation i"
-              (* i gets the good, so i also satisfies the further properties of a second price auction winner: *)
-              with spa and i_sticks_is_bid
-                have "i \<in> arg_max_set n ?i_sticks_with_valuation" by (metis allocated_implies_spa_winner second_price_auction_winner_def)
-              (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
-                 without first saying "have 'a \<and> b' and then breaking it down "by auto".
-                 In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
-              then have "?i_sticks_with_valuation i = maximum n ?i_sticks_with_valuation" by (simp add: arg_max_set_def)
-              also have "\<dots> \<ge> maximum_except n ?i_sticks_with_valuation i"
-                using i_sticks_is_bid and bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_valuation *)
-                and non_empty and i_range
-                by (metis calculation maximum_greater_or_equal_remaining_maximum)
-              finally have i_ge_max_except: "?i_sticks_with_valuation i \<ge> maximum_except n ?i_sticks_with_valuation i" by auto
-              (* Now we show that i's payoff is \<ge> 0 *)
-              from spa and i_sticks_is_bid and i_wins have "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i
-                = v i - maximum_except n ?i_sticks_with_valuation i" by (simp add: second_price_auction_winner_payoff)
-              also have "\<dots> = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
-                unfolding deviation_vec_def deviation_def by simp
-              finally have payoff_expanded: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i =
-                ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i" by simp
-              (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
-              also have "... \<ge> 0" using i_ge_max_except by simp
-              finally have non_negative_payoff: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> 0" by simp
-              show ?thesis
-              proof cases (* case 1a of the short proof *)
-                assume "x whatever_bid i"
-                with spa and alternative_is_bid and non_empty and i_range
-                  have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
-                  using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
-                (* Now we show that i's payoff hasn't changed *)
-                also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
-                  using payoff_expanded by simp
-                finally show ?thesis by simp (* = \<longrightarrow> \<le> *)
-              next (* case 1b of the short proof *)
-                assume "\<not> x whatever_bid i"
-                (* i doesn't get the good, so i also satisfies the further properties of a second price auction loser: *)
-                with spa and alternative_is_bid and i_range
-                  have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
-                  by (rule second_price_auction_loser_payoff)
-                also have "\<dots> \<le> payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i" using non_negative_payoff by simp
-                finally show ?thesis by simp
-              qed
-            next (* case 2 of the short proof *)
-              assume i_loses: "\<not> x ?i_sticks_with_valuation i"
-              (* i doesn't get the good, so i's payoff is 0 *)
-              with spa and i_sticks_is_bid and i_range
-                have zero_payoff: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i = 0"
-                by (rule second_price_auction_loser_payoff)
-              (* i's bid can't be higher than the second highest bid, as otherwise i would have won *)
-              have i_bid_at_most_second: "?i_sticks_with_valuation i \<le> maximum_except n ?i_sticks_with_valuation i"
-              proof - (* by contradiction *)
-                {
-                  assume "\<not> ?i_sticks_with_valuation i \<le> maximum_except n ?i_sticks_with_valuation i"
-                  then have "?i_sticks_with_valuation i > maximum_except n ?i_sticks_with_valuation i" by simp
-                  with spa and i_sticks_is_bid and i_range
-                    have "second_price_auction_winner n ?i_sticks_with_valuation x p i"
-                    using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
-                    by auto
-                  with i_loses have False using second_price_auction_winner_def by auto
-                }
-                then show ?thesis by blast
-              qed
-              show ?thesis
-              proof cases (* case 2a of the short proof *)
-                assume "x whatever_bid i"
-                with spa and alternative_is_bid and non_empty and i_range
-                  have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
-                  using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
-                (* Now we can compute i's payoff *)
-                also have "\<dots> \<le> 0" using i_bid_at_most_second by arith
-                also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
-                  using zero_payoff by arith
-                finally show ?thesis by auto
-              next (* case 2b of the short proof *)
-                assume "\<not> x whatever_bid i"
-                (* i doesn't get the good, so i's payoff is 0 *)
-                with spa and alternative_is_bid and i_range
-                  have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
-                  by (rule second_price_auction_loser_payoff)
-                also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i" using zero_payoff by simp
-                finally show ?thesis by simp
-              qed
-            qed
-          qed
-          then show "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i
-          \<longrightarrow> (let i_sticks_with_valuation = deviation_vec n whatever_bid ?b i
-          in payoff_vector v (x i_sticks_with_valuation) (p i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i)"
-            (* TODO CL: ask why ?thesis doesn't work here *)
-            by simp
+      proof cases (* case 1 of the short proof *)
+        assume i_wins: "x ?i_sticks_with_valuation i"
+        (* i gets the good, so i also satisfies the further properties of a second price auction winner: *)
+        with spa i_sticks_is_bid
+          have "i \<in> arg_max_set n ?i_sticks_with_valuation" by (metis allocated_implies_spa_winner second_price_auction_winner_def)
+        (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
+           without first saying "have 'a \<and> b' and then breaking it down "by auto".
+           In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
+        then have "?i_sticks_with_valuation i = maximum n ?i_sticks_with_valuation" by (simp add: arg_max_set_def)
+        also have "\<dots> \<ge> maximum_except n ?i_sticks_with_valuation i"
+          using i_sticks_is_bid bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_valuation *)
+          non_empty i_range
+          by (metis calculation maximum_greater_or_equal_remaining_maximum)
+        finally have i_ge_max_except: "?i_sticks_with_valuation i \<ge> maximum_except n ?i_sticks_with_valuation i" by auto
+        (* Now we show that i's payoff is \<ge> 0 *)
+        from spa i_sticks_is_bid i_wins have "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i
+          = v i - maximum_except n ?i_sticks_with_valuation i" by (simp add: second_price_auction_winner_payoff)
+        also have "\<dots> = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
+          unfolding deviation_vec_def deviation_def by simp
+        finally have payoff_expanded: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i =
+          ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i" by simp
+        (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
+        also have "... \<ge> 0" using i_ge_max_except by simp
+        finally have non_negative_payoff: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> 0" by simp
+        show ?thesis  
+        proof cases (* case 1a of the short proof *)
+          assume "x whatever_bid i"
+          with spa alternative_is_bid non_empty i_range
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
+            using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
+          (* Now we show that i's payoff hasn't changed *)
+          also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
+            using payoff_expanded by simp
+          finally show ?thesis by simp (* = \<longrightarrow> \<le> *)
+        next (* case 1b of the short proof *)
+          assume "\<not> x whatever_bid i"
+          (* i doesn't get the good, so i also satisfies the further properties of a second price auction loser: *)
+          with spa alternative_is_bid i_range
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
+            by (rule second_price_auction_loser_payoff)
+          also have "\<dots> \<le> payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i" using non_negative_payoff by simp
+          finally show ?thesis by simp
+        qed
+      next (* case 2 of the short proof *)
+        assume i_loses: "\<not> x ?i_sticks_with_valuation i"
+        (* i doesn't get the good, so i's payoff is 0 *)
+        with spa i_sticks_is_bid i_range
+          have zero_payoff: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i = 0"
+          by (rule second_price_auction_loser_payoff)
+        (* i's bid can't be higher than the second highest bid, as otherwise i would have won *)
+        have i_bid_at_most_second: "?i_sticks_with_valuation i \<le> maximum_except n ?i_sticks_with_valuation i"
+        proof - (* by contradiction *)
+          {
+            assume "\<not> ?i_sticks_with_valuation i \<le> maximum_except n ?i_sticks_with_valuation i"
+            then have "?i_sticks_with_valuation i > maximum_except n ?i_sticks_with_valuation i" by simp
+            with spa i_sticks_is_bid i_range
+              have "second_price_auction_winner n ?i_sticks_with_valuation x p i"
+              using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
+              by auto
+            with i_loses have False using second_price_auction_winner_def by auto
+          }
+          then show ?thesis by blast
+        qed
+        show ?thesis
+        proof cases (* case 2a of the short proof *)
+          assume "x whatever_bid i"
+          with spa alternative_is_bid non_empty i_range
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
+            using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
+          (* Now we can compute i's payoff *)
+          also have "\<dots> \<le> 0" using i_bid_at_most_second by arith
+          also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
+            using zero_payoff by arith
+          finally show ?thesis by auto
+        next (* case 2b of the short proof *)
+          assume "\<not> x whatever_bid i"
+          (* i doesn't get the good, so i's payoff is 0 *)
+          with spa alternative_is_bid i_range
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
+            by (rule second_price_auction_loser_payoff)
+          also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i" using zero_payoff by simp
+          finally show ?thesis by simp
         qed
       qed
     qed
-  qed
-  with spa val bids second_price_auction_def show ?thesis unfolding equilibrium_weakly_dominant_strategy_def by auto
+  }
+  with spa val bids alloc pay show ?thesis unfolding equilibrium_weakly_dominant_strategy_def by auto
 qed
 
 subsection{* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
@@ -1052,7 +1030,7 @@ proof -
     show "in_range n k \<and> x ?b k \<longrightarrow> k \<in> arg_max_set n v"
     proof
       assume (* k_wins: *)"in_range n k \<and> x ?b k"
-      with spa and bids show "k \<in> arg_max_set n v"
+      with spa bids show "k \<in> arg_max_set n v"
         using allocated_implies_spa_winner second_price_auction_winner_def by auto
       (* alternative proof with fewer prerequisites (before we had the lemmas used above): *)
       (* show "k \<in> arg_max_set n v"
