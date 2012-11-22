@@ -287,10 +287,9 @@ proof (induct n)
   show ?case by simp
 next
   case (Suc n)
-  assume assms: "\<forall>i::nat . in_range (Suc n) i \<longrightarrow> y i = z i"
-  then have equal_here: "y (Suc n) = z (Suc n)" by (simp add: in_range_def)
-  from assms have equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI in_range_def)
-  with equal_here show "maximum (Suc n) y = maximum (Suc n) z" by simp
+  assume vec_equal: "\<forall>i::nat . in_range (Suc n) i \<longrightarrow> y i = z i"
+  from vec_equal have max_equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI in_range_def)
+  with vec_equal show "maximum (Suc n) y = maximum (Suc n) z" by (simp add: in_range_def)
 qed
 
 text{* The maximum component, as defined above, is non-negative *}
