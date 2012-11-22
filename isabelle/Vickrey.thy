@@ -385,61 +385,61 @@ qed
 text{* Being a component of a non-negative vector and being greater or equal than all other components uniquely defines a maximum component. *}
 lemma maximum_sufficient :
   fixes n::nat and y::real_vector and m::real
-  shows "non_negative_real_vector n y \<and> n > 0 \<and> (\<forall> i::nat . in_range n i \<longrightarrow> m \<ge> y i) \<and> (\<exists> i::nat . in_range n i \<and> m = y i) \<longrightarrow> m = maximum n y"
+  assumes non_negative: "non_negative_real_vector n y"
+    and non_empty: "n > 0"
+    and greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> m \<ge> y i"
+    and is_component: "\<exists> i::nat . in_range n i \<and> m = y i"
+  shows "m = maximum n y"
+    using assms
 proof (induct n)
   case 0
-  show ?case by simp
+  then show ?case by simp
 next
   case (Suc n)
-  show ?case
-  proof
-    assume assms: "non_negative_real_vector (Suc n) y \<and> Suc n > 0 \<and> (\<forall> i::nat . in_range (Suc n) i \<longrightarrow> m \<ge> y i) \<and> (\<exists> i::nat . in_range (Suc n) i \<and> m = y i)"
-    (* now break this down into its conjunctives *)
-    from assms have non_negative: "non_negative_real_vector (Suc n) y" ..
-      (* ".." means: apply a canonical rule for the current context *)
-    from assms have non_empty: "Suc n > 0" by simp
-    from assms have greater_or_equal: "\<forall> i::nat . in_range (Suc n) i \<longrightarrow> m \<ge> y i" by simp
-    from assms have is_component: "\<exists> i::nat . in_range (Suc n) i \<and> m = y i" by simp
-    (* further preliminaries *)
-    from non_negative have pred_non_negative: "non_negative_real_vector n y"
-      unfolding non_negative_real_vector_def in_range_def by simp
-    (* then go on *)
-    from non_empty have max_def: "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))" using maximum_def by simp
-    also have "\<dots> = m"
-    proof (cases "n = 0")
-      case True
-      with is_component have m_is_only_component: "m = y 1" unfolding in_range_def by auto
-      with non_negative have "m \<ge> 0" unfolding non_negative_real_vector_def in_range_def by simp
-      (* we could break this down into further textbook-style steps, but their proofs turn out to be ugly as well, so we leave it at this high level *)
-      then have "max 0 (max (maximum 0 y) (y 1)) = m" by (auto simp add: m_is_only_component)
-      with True show ?thesis by auto (* this was (metis One_nat_def), but auto has access to simplification rules by default *)
-    next
-      case False
-      show ?thesis
-      proof cases
-        assume last_is_max: "y (Suc n) = m"
-        have "\<dots> \<ge> maximum n y"
-        proof -
-          from False pred_non_negative maximum_is_component have "\<exists> k::nat . in_range n k \<and> maximum n y = y k" by auto
-          then obtain k::nat where "in_range n k \<and> maximum n y = y k" by auto
-          with greater_or_equal show ?thesis unfolding in_range_def by (simp add: le_Suc_eq)
-            (* TODO CL: ask whether we should have kept using metis here.  Sledgehammer always suggests metis.
-               When auto or simp also works (which is the case here, but not always), is is more efficient? *)
-        qed
-        then show ?thesis using last_is_max by (metis less_max_iff_disj linorder_not_le maximum_non_negative min_max.sup_absorb1 min_max.sup_commute)
-      next
-        assume "y (Suc n) \<noteq> m"
-        with is_component have pred_is_component: "\<exists>k::nat . in_range n k \<and> m = y k"
-          unfolding in_range_def by (metis le_antisym not_less_eq_eq)
-        from greater_or_equal have "\<forall>k::nat . in_range n k \<longrightarrow> m \<ge> y k" unfolding in_range_def by simp
-        (* these, plus pred_non_negative, form the left hand side of the induction hypothesis *)
-        then have "m = maximum n y" by (metis False Suc gr0I pred_is_component pred_non_negative)
-        then show ?thesis
-          using in_range_def by (metis Suc_eq_plus1 greater_or_equal le_refl maximum_non_negative min_max.sup_absorb1 min_max.sup_absorb2 not_add_less2 not_leE)
+  (* TODO CL: Ask whether there is any way to avoid explicitly restating all assumptions for (Suc n)? *)
+  assume non_negative: "non_negative_real_vector (Suc n) y"
+  assume non_empty: "Suc n > 0"
+  assume greater_or_equal: "\<forall> i::nat . in_range (Suc n) i \<longrightarrow> m \<ge> y i"
+  assume is_component: "\<exists> i::nat . in_range (Suc n) i \<and> m = y i"
+  (* further preliminaries *)
+  from non_negative have pred_non_negative: "non_negative_real_vector n y"
+    unfolding non_negative_real_vector_def in_range_def by simp
+  (* then go on *)
+  from non_empty have max_def: "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))" using maximum_def by simp
+  also have "\<dots> = m"
+  proof (cases "n = 0")
+    case True
+    with is_component have m_is_only_component: "m = y 1" unfolding in_range_def by auto
+    with non_negative have "m \<ge> 0" unfolding non_negative_real_vector_def in_range_def by simp
+    (* we could break this down into further textbook-style steps, but their proofs turn out to be ugly as well, so we leave it at this high level *)
+    then have "max 0 (max (maximum 0 y) (y 1)) = m" by (auto simp add: m_is_only_component)
+    with True show ?thesis by auto (* this was (metis One_nat_def), but auto has access to simplification rules by default *)
+  next
+    case False
+    show ?thesis
+    proof cases
+      assume last_is_max: "y (Suc n) = m"
+      have "\<dots> \<ge> maximum n y"
+      proof -
+        from False pred_non_negative maximum_is_component have "\<exists> k::nat . in_range n k \<and> maximum n y = y k" by auto
+        then obtain k::nat where "in_range n k \<and> maximum n y = y k" by auto
+        with greater_or_equal show ?thesis unfolding in_range_def by (simp add: le_Suc_eq)
+          (* TODO CL: ask whether we should have kept using metis here.  Sledgehammer always suggests metis.
+             When auto or simp also works (which is the case here, but not always), is is more efficient? *)
       qed
+      then show ?thesis using last_is_max by (metis less_max_iff_disj linorder_not_le maximum_non_negative min_max.sup_absorb1 min_max.sup_commute)
+    next
+      assume "y (Suc n) \<noteq> m"
+      with is_component have pred_is_component: "\<exists>k::nat . in_range n k \<and> m = y k"
+        unfolding in_range_def by (metis le_antisym not_less_eq_eq)
+      from greater_or_equal have "\<forall>k::nat . in_range n k \<longrightarrow> m \<ge> y k" unfolding in_range_def by simp
+      (* these, plus pred_non_negative, form the left hand side of the induction hypothesis *)
+      then have "m = maximum n y" by (metis False Suc gr0I pred_is_component pred_non_negative)
+      then show ?thesis
+        using in_range_def by (metis Suc_eq_plus1 greater_or_equal le_refl maximum_non_negative min_max.sup_absorb1 min_max.sup_absorb2 not_add_less2 not_leE)
     qed
-    finally show "m = maximum (Suc n) y" ..
   qed
+  finally show "m = maximum (Suc n) y" .. (* ".." means: apply a canonical rule for the current context *)
 qed
 
 (* TODO CL: discuss whether it makes sense to keep this lemma – it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
