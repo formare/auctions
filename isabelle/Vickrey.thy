@@ -743,33 +743,25 @@ qed
 
 text{* A participant who doesn't gets the good satisfies the further properties of a second-price auction loser *}
 lemma not_allocated_implies_spa_loser :
-  fixes n::participants and x::allocation and p::payments and b::real_vector
+  fixes n::participants and x::allocation and p::payments and b::real_vector and loser::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
-  shows "\<forall>loser::participant . in_range n loser \<and> \<not> x b loser \<longrightarrow> second_price_auction_loser n b x p loser"
-proof
-  fix loser::participant
-  show "in_range n loser \<and> \<not> x b loser \<longrightarrow> second_price_auction_loser n b x p loser"
-  proof
-    assume assms: "in_range n loser \<and> \<not> x b loser"
-    from assms have range: "in_range n loser" ..
-    from assms have loses: "\<not> x b loser" ..
-    show "second_price_auction_loser n b x p loser"
-    proof - (* by contradiction *)
-      {
-        assume False: "\<not> second_price_auction_loser n b x p loser"
-        from spa and bids and second_price_auction_def
-          have "(\<exists>j::participant. in_range n j \<and> second_price_auction_winner n b x p j
-                      \<and> (\<forall>k::participant. in_range n k \<and> k \<noteq> j \<longrightarrow> second_price_auction_loser n b x p k))" by simp
-        with False and range have "second_price_auction_winner n b x p loser" by auto
-          (* Before we had introduced in_range as a predicate consistently used both in the winner and the loser branch,
-             even metis wan't able to prove this without exceeding the unification bound. *)
-        with second_price_auction_winner_def have "x b loser" by simp
-        with loses have "False" ..
-      }
-      then show ?thesis by blast
-    qed
-  qed
+    and range: "in_range n loser"
+    and loses: "\<not> x b loser"
+  shows "second_price_auction_loser n b x p loser"
+proof - (* by contradiction *)
+  {
+    assume False: "\<not> second_price_auction_loser n b x p loser"
+    from spa and bids and second_price_auction_def
+      have "(\<exists>j::participant. in_range n j \<and> second_price_auction_winner n b x p j
+                  \<and> (\<forall>k::participant. in_range n k \<and> k \<noteq> j \<longrightarrow> second_price_auction_loser n b x p k))" by simp
+    with False and range have "second_price_auction_winner n b x p loser" by auto
+      (* Before we had introduced in_range as a predicate consistently used both in the winner and the loser branch,
+         even metis wan't able to prove this without exceeding the unification bound. *)
+    with second_price_auction_winner_def have "x b loser" by simp
+    with loses have "False" ..
+  }
+  then show ?thesis by blast
 qed
 
 text{* If there is only one bidder with a maximum bid, that bidder wins. *}
