@@ -458,29 +458,15 @@ qed
 text{* Increasing the (actually: a) maximum component value keeps it the maximum. *}
 lemma increment_keeps_maximum :
   fixes n::nat and y::real_vector and y'::real_vector and max_index::nat and max::real and max'::real
-  shows "non_negative_real_vector n y
-    \<and> n > 0
-    \<and> in_range n max_index
-    \<and> maximum n y = y max_index
-    \<and> y max_index < max'
-    \<and> y' = (\<lambda> i::nat . if i = max_index then max' else y i)
-    \<longrightarrow> maximum n y' = y' max_index"
-proof
-  assume assms: "non_negative_real_vector n y
-    \<and> n > 0
-    \<and> in_range n max_index
-    \<and> maximum n y = y max_index
-    \<and> y max_index < max'
-    \<and> y' = (\<lambda> i::nat . if i = max_index then max' else y i)"
-  (* now break this down into its conjunctives *)
-  from assms have non_negative: "non_negative_real_vector n y" by simp
-  from assms have non_empty: "n > 0" by simp
-  from assms have index_range: "in_range n max_index" by simp
-  from assms have old_maximum: "maximum n y = y max_index" by simp
-  from assms have new_lt: "y max_index < max'" by simp
-  from assms have increment: "y' = (\<lambda> i::nat . if i = max_index then max' else y i)" by simp
-  (* now go on *)
-  then have new_component: "y' max_index = max'" by simp
+  assumes non_negative: "non_negative_real_vector n y"
+    and non_empty: "n > 0"
+    and index_range: "in_range n max_index"
+    and old_maximum: "maximum n y = y max_index"
+    and new_lt: "y max_index < max'"
+    and increment: "y' = (\<lambda> i::nat . if i = max_index then max' else y i)"
+  shows "maximum n y' = y' max_index"
+proof -
+  from increment have new_component: "y' max_index = max'" by simp
   from non_negative and index_range and new_lt have "\<dots> \<ge> 0" unfolding non_negative_real_vector_def by (auto simp add: linorder_not_less order_less_trans)
   with non_negative and increment have new_non_negative: "non_negative_real_vector n y'" unfolding non_negative_real_vector_def by simp
   from old_maximum and new_lt and increment
@@ -532,25 +518,25 @@ lemma skip_index_keeps_non_negativity :
   shows "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
 proof -
   {
-      fix j::nat
-      have "in_range (n-(1::nat)) j \<longrightarrow> (skip_index v i) j \<ge> 0"
-      proof
-        assume j_range: "in_range (n-(1::nat)) j"
-        show "(skip_index v i) j \<ge> 0"
-        proof (cases "j < i")
-          case True
-          then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
-          with j_range and non_negative show ?thesis
-            unfolding non_negative_real_vector_def in_range_def
-            by (auto simp add: leD less_imp_diff_less not_leE)
-        next
-          case False
-          then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
-          with j_range and non_negative show ?thesis
-            unfolding non_negative_real_vector_def in_range_def
-            by (auto simp add: leD less_imp_diff_less not_leE)
-        qed
+    fix j::nat
+    have "in_range (n-(1::nat)) j \<longrightarrow> (skip_index v i) j \<ge> 0"
+    proof
+      assume j_range: "in_range (n-(1::nat)) j"
+      show "(skip_index v i) j \<ge> 0"
+      proof (cases "j < i")
+        case True
+        then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
+        with j_range and non_negative show ?thesis
+          unfolding non_negative_real_vector_def in_range_def
+          by (auto simp add: leD less_imp_diff_less not_leE)
+      next
+        case False
+        then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
+        with j_range and non_negative show ?thesis
+          unfolding non_negative_real_vector_def in_range_def
+          by (auto simp add: leD less_imp_diff_less not_leE)
       qed
+    qed
   }
   then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)" unfolding non_negative_real_vector_def by simp
 qed
