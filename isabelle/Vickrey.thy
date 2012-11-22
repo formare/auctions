@@ -582,41 +582,34 @@ value "maximum_except 3 (\<lambda> x::nat . 4-x) 1" (* the maximum component val
 
 text{* The maximum component that remains after removing one component from a vector is greater or equal than the values of all remaining components *}
 lemma maximum_except_is_greater_or_equal :
-  fixes n::nat and y::real_vector and j::nat
-  shows "n \<ge> 1 \<and> in_range n j \<longrightarrow> (\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i)"
-proof
-  assume j_range: "n \<ge> 1 \<and> in_range n j"
-  show "\<forall>i::nat. in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i"
-  proof
-    fix i::nat
-    show "in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i"
-    proof
-      let ?y_with_j_skipped = "skip_index y j"
-      from j_range obtain pred_n where pred_n: "n = Suc pred_n"
-        by (metis not0_implies_Suc not_one_le_zero)
-        (* wouldn't work with simp or rule alone *)
-      assume i_range: "in_range n i \<and> i \<noteq> j"
-      then show "maximum_except n y j \<ge> y i"
-      proof (cases "i < j")
-        case True
-        then have can_skip_j: "y i = ?y_with_j_skipped i" unfolding skip_index_def by simp
-        from True and j_range and i_range and pred_n have "in_range pred_n i" unfolding in_range_def by simp
-        then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped i" by (simp add: maximum_is_greater_or_equal)
-        with can_skip_j and pred_n show ?thesis by simp
-      next
-        case False
-        with i_range have case_False_nice: "i > j" by simp
-        then obtain pred_i where pred_i: "i = Suc pred_i" by (rule lessE) (* TODO CL: ask why this works.  I do not really understand what lessE does. *)
-        from case_False_nice and pred_i (* wouldn't work with "from False" *)
-          have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i" unfolding skip_index_def by simp
-        from case_False_nice and i_range and j_range and pred_i and pred_n
-          have (* actually 2 \<le> i, but we don't need this *) "in_range pred_n pred_i" unfolding in_range_def by simp
-        then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped pred_i" by (simp add: maximum_is_greater_or_equal)
-        with can_skip_j_and_shift_left and pred_n show ?thesis by simp
-      qed
-    qed
+  fixes n::nat and y::real_vector and j::nat and i::nat
+  assumes j_range: "n \<ge> 1 \<and> in_range n j"
+    and i_range: "in_range n i \<and> i \<noteq> j"
+  shows "maximum_except n y j \<ge> y i"
+proof -
+  let ?y_with_j_skipped = "skip_index y j"
+  from j_range obtain pred_n where pred_n: "n = Suc pred_n"
+    by (metis not0_implies_Suc not_one_le_zero)
+    (* wouldn't work with simp or rule alone *)
+  then show "maximum_except n y j \<ge> y i"
+  proof (cases "i < j")
+    case True
+    then have can_skip_j: "y i = ?y_with_j_skipped i" unfolding skip_index_def by simp
+    from True and j_range and i_range and pred_n have "in_range pred_n i" unfolding in_range_def by simp
+    then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped i" by (simp add: maximum_is_greater_or_equal)
+    with can_skip_j and pred_n show ?thesis by simp
+  next
+    case False
+    with i_range have case_False_nice: "i > j" by simp
+    then obtain pred_i where pred_i: "i = Suc pred_i" by (rule lessE) (* TODO CL: ask why this works.  I do not really understand what lessE does. *)
+    from case_False_nice and pred_i (* wouldn't work with "from False" *)
+      have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i" unfolding skip_index_def by simp
+    from case_False_nice and i_range and j_range and pred_i and pred_n
+      have (* actually 2 \<le> i, but we don't need this *) "in_range pred_n pred_i" unfolding in_range_def by simp
+    then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped pred_i" by (simp add: maximum_is_greater_or_equal)
+    with can_skip_j_and_shift_left and pred_n show ?thesis by simp
   qed
-qed    
+qed
 
 text{* One component of a vector is a maximum component iff it has a value greater or equal than the maximum of the remaining values. *}
 lemma maximum_greater_or_equal_remaining_maximum :
