@@ -335,52 +335,50 @@ qed
 text{* The maximum component is one component *}
 lemma maximum_is_component :
   fixes n::nat and y::real_vector
-  shows "n > 0 \<and> non_negative_real_vector n y \<longrightarrow> (\<exists> i::nat . in_range n i \<and> maximum n y = y i)" (* reuse for "Suc n" inside proof didn't work when declaring premise with "assumes" *)
+  assumes "n > 0 \<and> non_negative_real_vector n y" 
+  shows "\<exists> i::nat . in_range n i \<and> maximum n y = y i"
+    using assms
 proof (induct n)
   case 0
-  show ?case by simp
+  then show ?case by simp
 next
   case (Suc n)
-  show ?case
-  proof
-    assume non_negative: "(Suc n) > 0 \<and> non_negative_real_vector (Suc n) y"
-    show "\<exists> i::nat . in_range (Suc n) i \<and> maximum (Suc n) y = y i"
-    proof (cases "y (Suc n) \<ge> maximum n y")
-      case True
-      from non_negative have "y (Suc n) \<ge> 0" unfolding in_range_def non_negative_real_vector_def by simp
-      with True have "y (Suc n) = max 0 (max (maximum n y) (y (Suc n)))" by simp
-      also have "\<dots> = maximum (Suc n) y" using maximum_def by simp
-      finally have "y (Suc n) = maximum (Suc n) y" .
-      then show ?thesis using in_range_def by auto
-    next
-      case False
-      have hyp: "n > 0 \<and> non_negative_real_vector n y \<longrightarrow> (\<exists> i::nat . in_range n i \<and> maximum n y = y i)" by (rule Suc.hyps)
-      have non_empty: "n > 0"
-      proof - (* by contradiction *)
-        {
-          assume "n = 0"
-          with False non_negative have "y (Suc n) = maximum n y"
-            using non_negative_real_vector_def maximum_def in_range_def
-            by simp
-          with False have "False" by simp
-        }
-        then show "n > 0" by blast
-      qed
-      from non_negative have pred_non_negative: "non_negative_real_vector n y"
-        unfolding non_negative_real_vector_def in_range_def 
-        by simp
-      with non_empty hyp obtain i::nat where pred_max: "in_range n i \<and> maximum n y = y i" by auto
-      with non_negative have y_i_non_negative: "0 \<le> y i" unfolding non_negative_real_vector_def in_range_def by simp
-      have "y i = maximum n y" using pred_max by simp
-      also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
-        (* TODO CL: ask for the difference between "from" and "using" (before/after goal).
-           In any case I got the impression that "with \<dots> also have" breaks the chain of calculational reasoning. *)
-      also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))" using non_negative y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
-      also have "\<dots> = maximum (Suc n) y" using maximum_def non_empty by simp
-      finally have max: "y i = maximum (Suc n) y" .
-      from pred_max have "in_range (Suc n) i" by (simp add: in_range_def)
-      with max show ?thesis by auto
+  assume non_negative: "(Suc n) > 0 \<and> non_negative_real_vector (Suc n) y"
+  show "\<exists> i::nat . in_range (Suc n) i \<and> maximum (Suc n) y = y i"
+  proof (cases "y (Suc n) \<ge> maximum n y")                                          
+    case True
+    from non_negative have "y (Suc n) \<ge> 0" unfolding in_range_def non_negative_real_vector_def by simp
+    with True have "y (Suc n) = max 0 (max (maximum n y) (y (Suc n)))" by simp
+    also have "\<dots> = maximum (Suc n) y" using maximum_def by simp
+    finally have "y (Suc n) = maximum (Suc n) y" .
+    then show ?thesis using in_range_def by auto
+  next
+    case False
+    have non_empty: "n > 0"
+    proof - (* by contradiction *)
+      {
+        assume "n = 0"
+        with False non_negative have "y (Suc n) = maximum n y"
+          using non_negative_real_vector_def maximum_def in_range_def
+          by simp                               
+        with False have "False" by simp
+      }
+      then show "n > 0" by blast
     qed
+    from non_negative have pred_non_negative: "non_negative_real_vector n y"
+      unfolding non_negative_real_vector_def in_range_def 
+      by simp
+    with non_empty obtain i::nat where pred_max: "in_range n i \<and> maximum n y = y i" by (metis Suc.hyps)
+    with non_negative have y_i_non_negative: "0 \<le> y i" unfolding non_negative_real_vector_def in_range_def by simp
+    have "y i = maximum n y" using pred_max by simp
+    also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
+      (* TODO CL: ask for the difference between "from" and "using" (before/after goal).
+         In any case I got the impression that "with \<dots> also have" breaks the chain of calculational reasoning. *)
+    also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))" using non_negative y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
+    also have "\<dots> = maximum (Suc n) y" using maximum_def non_empty by simp
+    finally have max: "y i = maximum (Suc n) y" .
+    from pred_max have "in_range (Suc n) i" by (simp add: in_range_def)
+    with max show ?thesis by auto
   qed
 qed
 
