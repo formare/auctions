@@ -771,38 +771,34 @@ lemma only_max_bidder_wins :
     and only_max_bidder: "b max_bidder > maximum_except n b max_bidder"
   shows "second_price_auction_winner n b x p max_bidder"
 proof -
-  have no_other_max: "\<forall>j::participant. in_range n j \<and> j \<noteq> max_bidder \<longrightarrow> j \<notin> arg_max_set n b"
-  proof
-    fix j::participant
-    show "in_range n j \<and> j \<noteq> max_bidder \<longrightarrow> j \<notin> arg_max_set n b"
-    proof
-      assume j_not_max: "in_range n j \<and> j \<noteq> max_bidder"
-      show "j \<notin> arg_max_set n b"
-      proof -
-        from j_not_max range have "b j \<le> maximum_except n b max_bidder"
-          using in_range_def maximum_except_is_greater_or_equal by (metis le_trans)
-        with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
-        then show ?thesis
-        proof - (* by contradiction *)
-          {
-            assume "b j = maximum n b"
-              with range have "b j \<ge> b max_bidder" by (simp add: maximum_is_greater_or_equal)
-            with b_j_lt_max have False by simp
-          }
-          then show ?thesis unfolding arg_max_set_def
-            by (metis (lifting, full_types) mem_Collect_eq)
-            (* recommended by sledgehammer using e *)
-        qed
-      qed
-    qed
-  qed
   from bids spa
     have x_is_allocation: "\<exists>i:: participant. in_range n i \<and> x b i \<and> (\<forall>j:: participant. j\<noteq>i \<longrightarrow> \<not>x b j)"
     unfolding second_price_auction_def allocation_def in_range_def by simp
-  from bids spa have "\<exists>i::participant. second_price_auction_winner n b x p i
+  from bids spa have spa_unfolded: "\<exists>i::participant. second_price_auction_winner n b x p i
     \<and> (\<forall>j::participant. in_range n j \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)" unfolding second_price_auction_def by blast
+  {
+    fix j::participant
+    assume j_not_max: "in_range n j \<and> j \<noteq> max_bidder"
+    have "j \<notin> arg_max_set n b"
+    proof -
+      from j_not_max range have "b j \<le> maximum_except n b max_bidder"
+        using in_range_def maximum_except_is_greater_or_equal by (metis le_trans)
+      with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
+      then show ?thesis
+      proof - (* by contradiction *)
+        {
+          assume "b j = maximum n b"
+            with range have "b j \<ge> b max_bidder" by (simp add: maximum_is_greater_or_equal)
+          with b_j_lt_max have False by simp
+        }
+        then show ?thesis unfolding arg_max_set_def
+          by (metis (lifting, full_types) mem_Collect_eq)
+          (* recommended by sledgehammer using e *)
+      qed
+    qed
+  }
   with (* max_bidder *) (* turns out that we didn't need this :-) *)
-    no_other_max x_is_allocation show ?thesis by (metis (full_types) second_price_auction_winner_def)
+    x_is_allocation spa_unfolded show ?thesis unfolding second_price_auction_def by (metis (full_types) second_price_auction_winner_def)
 qed
 
 text{* a formula for computing the payoff of the winner of a second-price auction *}
