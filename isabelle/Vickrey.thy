@@ -282,6 +282,7 @@ lemma maximum_equal :
   assumes "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> y i = z i"
   shows "maximum n y = maximum n z"
     using assms (* Apparently this is needed; otherwise the last proof step fails. *)
+(* TODO CL: Maybe restate this and other inductive statements using \<Longrightarrow> instead of assumes, as advised by Tobias Nipkow on 2012-11-22 *)
 proof (induct n)
   case 0
   show ?case by simp
