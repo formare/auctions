@@ -615,60 +615,54 @@ text{* One component of a vector is a maximum component iff it has a value great
 lemma maximum_greater_or_equal_remaining_maximum :
   (* TODO CL: discuss the name of this lemma; maybe there is something more appropriate *)
   fixes n::nat and y::real_vector and j::nat
-  shows "non_negative_real_vector n y \<and> n > 0 \<and> in_range n j \<longrightarrow> (y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y)"
+  assumes non_negative: "non_negative_real_vector n y"
+    and non_empty: "n > 0"
+    and range: "in_range n j"
+  shows "y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y"
 proof
-  assume assms: "non_negative_real_vector n y \<and> n > 0 \<and> in_range n j"
-  (* now break this down into its conjunctives *)
-  from assms have non_negative: "non_negative_real_vector n y" ..
-  from assms have non_empty: "n > 0" by simp (* TODO CL: ask why ".." doesnt work here *)
-  from assms have range: "in_range n j" by simp
-  (* now go on *)
-  show "y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y"
-  proof
-    assume ge_remaining: "y j \<ge> maximum_except n y j"
-    from non_empty and range have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
-    with ge_remaining have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
-    then have greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> y j \<ge> y i" by auto
-    from range have is_component: "\<exists> i::nat . in_range n i \<and> y j = y i" by auto
-      (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
-    with non_negative and non_empty and greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
-    (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by arith") when either would work,
-                and what's the difference between "from foo show bar by simp" vs. "show bar by (simp add: foo)" *)
-  next (* nice to see that support for \<longleftrightarrow> is built in *)
-    assume j_max: "y j = maximum n y"
-    from non_empty
-      have maximum_except_unfolded: "maximum_except n y j = maximum (n-(1::nat)) (skip_index y j)"
-      by (metis Suc_diff_1 maximum_except.simps(2))
-    show "y j \<ge> maximum_except n y j"
-    proof (cases "n = 1")
-      case True
-      with maximum_except_unfolded and maximum_def have "maximum_except n y j = 0" by auto
-      with j_max and non_negative show ?thesis by (simp add: maximum_non_negative)
-    next
-      case False
-      from j_max have ge: "\<forall>k::nat . in_range n k \<longrightarrow> y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
-      from False and non_empty have "n > 1" by auto
-      then have pred_non_empty: "(n-(1::nat)) > 0" by simp
-      from non_empty and non_negative and range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
-        by (metis skip_index_keeps_non_negativity)
-      from pred_non_empty and pred_non_negative and maximum_is_component
-        have "\<exists> i::nat . in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
-      then obtain i::nat where maximum_except_component: "in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
-      then have i_range: "in_range (n-(1::nat)) i" ..
-      from maximum_except_component and maximum_except_unfolded
-        have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i" by simp
-      have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by auto
-      from i_range have 1: "in_range n i" unfolding in_range_def by arith
-      from i_range have 2: "in_range n (Suc i)" unfolding in_range_def by arith
-      from skip_index_range and 1 and 2 have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k" by auto
-      (* The following (found by remote_vampire) was nearly impossible for metis to prove: *)
-      (* from i_range and range and skip_index_def
-        and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
-        have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k"
-        by (metis (full_types) One_nat_def Suc_neq_Zero Suc_pred' leD less_Suc0 less_Suc_eq_le linorder_le_less_linear) *)
-      then obtain k::nat where "in_range n k \<and> (skip_index y j) i = y k" ..
-      with ge and maximum_except_component_nice show "y j \<ge> maximum_except n y j" by simp
-    qed
+  assume ge_remaining: "y j \<ge> maximum_except n y j"
+  from non_empty and range have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
+  with ge_remaining have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
+  then have greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> y j \<ge> y i" by auto
+  from range have is_component: "\<exists> i::nat . in_range n i \<and> y j = y i" by auto
+    (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
+  with non_negative and non_empty and greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
+  (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by arith") when either would work,
+              and what's the difference between "from foo show bar by simp" vs. "show bar by (simp add: foo)" *)
+next (* nice to see that support for \<longleftrightarrow> is built in *)
+  assume j_max: "y j = maximum n y"
+  from non_empty
+    have maximum_except_unfolded: "maximum_except n y j = maximum (n-(1::nat)) (skip_index y j)"
+    by (metis Suc_diff_1 maximum_except.simps(2))
+  show "y j \<ge> maximum_except n y j"
+  proof (cases "n = 1")
+    case True
+    with maximum_except_unfolded and maximum_def have "maximum_except n y j = 0" by auto
+    with j_max and non_negative show ?thesis by (simp add: maximum_non_negative)
+  next
+    case False
+    from j_max have ge: "\<forall>k::nat . in_range n k \<longrightarrow> y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
+    from False and non_empty have "n > 1" by auto
+    then have pred_non_empty: "(n-(1::nat)) > 0" by simp
+    from non_empty and non_negative and range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
+      by (metis skip_index_keeps_non_negativity)
+    from pred_non_empty and pred_non_negative and maximum_is_component
+      have "\<exists> i::nat . in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
+    then obtain i::nat where maximum_except_component: "in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
+    then have i_range: "in_range (n-(1::nat)) i" ..
+    from maximum_except_component and maximum_except_unfolded
+      have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i" by simp
+    have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by auto
+    from i_range have 1: "in_range n i" unfolding in_range_def by arith
+    from i_range have 2: "in_range n (Suc i)" unfolding in_range_def by arith
+    from skip_index_range and 1 and 2 have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k" by auto
+    (* The following (found by remote_vampire) was nearly impossible for metis to prove: *)
+    (* from i_range and range and skip_index_def
+      and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
+      have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k"
+      by (metis (full_types) One_nat_def Suc_neq_Zero Suc_pred' leD less_Suc0 less_Suc_eq_le linorder_le_less_linear) *)
+    then obtain k::nat where "in_range n k \<and> (skip_index y j) i = y k" ..
+    with ge and maximum_except_component_nice show "y j \<ge> maximum_except n y j" by simp
   qed
 qed
 
