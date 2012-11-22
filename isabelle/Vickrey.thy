@@ -519,23 +519,20 @@ lemma skip_index_keeps_non_negativity :
 proof -
   {
     fix j::nat
-    have "in_range (n-(1::nat)) j \<longrightarrow> (skip_index v i) j \<ge> 0"
-    proof
-      assume j_range: "in_range (n-(1::nat)) j"
-      show "(skip_index v i) j \<ge> 0"
-      proof (cases "j < i")
-        case True
-        then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
-        with j_range non_negative show ?thesis
-          unfolding non_negative_real_vector_def in_range_def
-          by (auto simp add: leD less_imp_diff_less not_leE)
-      next
-        case False
-        then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
-        with j_range non_negative show ?thesis
-          unfolding non_negative_real_vector_def in_range_def
-          by (auto simp add: leD less_imp_diff_less not_leE)
-      qed
+    assume j_range: "in_range (n-(1::nat)) j"
+    have "(skip_index v i) j \<ge> 0"
+    proof (cases "j < i")
+      case True
+      then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
+      with j_range non_negative show ?thesis
+        unfolding non_negative_real_vector_def in_range_def
+        by (auto simp add: leD less_imp_diff_less not_leE)
+    next
+      case False
+      then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
+      with j_range non_negative show ?thesis
+        unfolding non_negative_real_vector_def in_range_def
+        by (auto simp add: leD less_imp_diff_less not_leE)
     qed
   }
   then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)" unfolding non_negative_real_vector_def by simp
