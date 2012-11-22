@@ -55,7 +55,7 @@ type_synonym payments = "real_vector \<Rightarrow> participants \<Rightarrow> re
 
 subsection{* some range checks for vectors *}
 
-text{* To ease writing, we introduce a predicate for the range of participants. *}
+text{* To help the prover in some situations, we introduce a predicate for the range of participants. *}
 definition in_range ::
   "nat \<Rightarrow> nat \<Rightarrow> bool" where
   "in_range n i \<equiv> 1 \<le> i \<and> i \<le> n"
@@ -63,11 +63,11 @@ definition in_range ::
 text{* we could also, in a higher-order style, generally define a vector whose components satisfy a predicate, and then parameterise this predicate with $\geq 0$ and $> 0$ *}
 definition non_negative_real_vector ::
   "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "non_negative_real_vector n v \<equiv> \<forall> i::nat . in_range n i \<longrightarrow> v i \<ge> 0"
+  "non_negative_real_vector n v \<equiv> \<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0"
 
 definition positive_real_vector ::
   "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "positive_real_vector n v \<equiv> \<forall> i::nat . in_range n i \<longrightarrow> v i > 0"
+  "positive_real_vector n v \<equiv> \<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i > 0"
 
 section{* Deviation from a vector *}
 
@@ -119,7 +119,7 @@ proof -
   let ?dev = "deviation_vec n bid alternative_vec i"
   {
     fix k::participant
-    assume k_range: "in_range n k"
+    assume k_range: "k \<in> {1..n}"
     have "?dev k \<ge> 0"
     proof (cases "?dev k = bid k")
       case True
@@ -155,7 +155,7 @@ text{* A function x, which takes a vector of n bids, is an allocation if it retu
    Same for payment *)
 definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where 
   "allocation n b x \<equiv> bids n b \<and> 
-   (\<exists>k:: participant. in_range n k \<and> x b k \<and> (\<forall>j:: participant. j\<noteq>k \<longrightarrow> \<not>x b j))"
+   (\<exists>k:: participant. k \<in> {1..n} \<and> x b k \<and> (\<forall>j:: participant. j\<noteq>k \<longrightarrow> \<not>x b j))"
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
@@ -198,15 +198,15 @@ done
 (* TODO CL: note that this is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps. *)
 lemma only_wins_is_allocation_declarative:
   shows "allocation 1 all_bid_1 first_wins"
-  unfolding allocation_def in_range_def first_wins_def using bid_all_bid_1
-  by blast
+  unfolding allocation_def first_wins_def using bid_all_bid_1
+  by auto
 
 section{* Payment *}
 
 text{* Each participant pays some amount. *}
 definition vickrey_payment ::
   "participants \<Rightarrow> real_vector \<Rightarrow> payments \<Rightarrow> bool" where
-  "vickrey_payment n b p \<equiv> bids n b \<and> (\<forall>i:: participant. in_range n i \<longrightarrow> p b i \<ge> 0)"
+  "vickrey_payment n b p \<equiv> bids n b \<and> (\<forall>i:: participant. i \<in> {1..n} \<longrightarrow> p b i \<ge> 0)"
 
 section{* Outcome *}
 
@@ -231,7 +231,7 @@ lemma valuation_is_bid :
 proof -
   {
     fix i::participant
-    assume "in_range n i"
+    assume "i: {1..n}"
     with assms have "v i > 0" unfolding valuation_def positive_real_vector_def by simp
     then have "v i \<ge> 0" by simp
       (* If we had been searching the library for an applicable theorem, we could have used
@@ -279,7 +279,7 @@ fun maximum ::
 text{* If two vectors are equal, their maximum components are equal too *}
 lemma maximum_equal :
   fixes n::nat and y::real_vector and z::real_vector
-  assumes "\<forall>i::nat . in_range n i \<longrightarrow> y i = z i"
+  assumes "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> y i = z i"
   shows "maximum n y = maximum n z"
     using assms (* Apparently this is needed; otherwise the last proof step fails. *)
 proof (induct n)
@@ -287,9 +287,9 @@ proof (induct n)
   show ?case by simp
 next
   case (Suc n)
-  assume vec_equal: "\<forall>i::nat . in_range (Suc n) i \<longrightarrow> y i = z i"
-  from vec_equal have max_equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI in_range_def)
-  with vec_equal show "maximum (Suc n) y = maximum (Suc n) z" by (simp add: in_range_def)
+  assume vec_equal: "\<forall>i::nat . i \<in> {1..Suc n} \<longrightarrow> y i = z i"
+  from vec_equal have max_equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI)
+  with vec_equal show "maximum (Suc n) y = maximum (Suc n) z" by simp
 qed
 
 text{* The maximum component, as defined above, is non-negative *}
@@ -309,15 +309,15 @@ qed
 text{* The maximum component value is greater or equal than the values of all [other] components *}
 lemma maximum_is_greater_or_equal :
   fixes n::nat and y::real_vector and i::nat
-  assumes "in_range n i"
+  assumes "i \<in> {1..n}"
   shows "maximum n y \<ge> y i"
     using assms
 proof (induct n)
   case 0
-  then show ?case using in_range_def by (metis le_0_eq not_one_le_zero)
+  then show ?case by auto
 next
   case (Suc n)
-  assume assms: "in_range (Suc n) i"
+  assume assms: "i \<in> {1..Suc n}"
   have "max (maximum n y) (y (Suc n)) \<ge> y i" (* TODO CL: ask whether there is a way of automatically decomposing the initial goal until we arrive at this expression *)
   proof (cases "i = Suc n")
     case True
@@ -325,7 +325,7 @@ next
   next
     case False
     with assms
-      have "in_range n i" by (simp add: less_eq_Suc_le in_range_def)
+      have "i \<in> {1..n}" by (simp add: less_eq_Suc_le)
     then have "maximum n y \<ge> y i" by (simp add: Suc.hyps)
     then show ?thesis by (simp add: le_max_iff_disj)
   qed
@@ -336,7 +336,7 @@ text{* The maximum component is one component *}
 lemma maximum_is_component :
   fixes n::nat and y::real_vector
   assumes "n > 0 \<and> non_negative_real_vector n y" 
-  shows "\<exists> i::nat . in_range n i \<and> maximum n y = y i"
+  shows "\<exists> i::nat . i \<in> {1..n} \<and> maximum n y = y i"
     using assms
 proof (induct n)
   case 0
@@ -344,14 +344,14 @@ proof (induct n)
 next
   case (Suc n)
   assume non_negative: "(Suc n) > 0 \<and> non_negative_real_vector (Suc n) y"
-  show "\<exists> i::nat . in_range (Suc n) i \<and> maximum (Suc n) y = y i"
+  show "\<exists> i::nat . i \<in> {1..Suc n} \<and> maximum (Suc n) y = y i"
   proof (cases "y (Suc n) \<ge> maximum n y")                                          
     case True
-    from non_negative have "y (Suc n) \<ge> 0" unfolding in_range_def non_negative_real_vector_def by simp
+    from non_negative have "y (Suc n) \<ge> 0" unfolding non_negative_real_vector_def by simp
     with True have "y (Suc n) = max 0 (max (maximum n y) (y (Suc n)))" by simp
     also have "\<dots> = maximum (Suc n) y" using maximum_def by simp
     finally have "y (Suc n) = maximum (Suc n) y" .
-    then show ?thesis using in_range_def by auto
+    then show ?thesis by auto
   next
     case False
     have non_empty: "n > 0"
@@ -359,17 +359,17 @@ next
       {
         assume "n = 0"
         with False non_negative have "y (Suc n) = maximum n y"
-          using non_negative_real_vector_def maximum_def in_range_def
-          by simp                               
+          using non_negative_real_vector_def maximum_def
+          by auto
         with False have "False" by simp
       }
       then show "n > 0" by blast
     qed
     from non_negative have pred_non_negative: "non_negative_real_vector n y"
-      unfolding non_negative_real_vector_def in_range_def 
+      unfolding non_negative_real_vector_def 
       by simp
-    with non_empty obtain i::nat where pred_max: "in_range n i \<and> maximum n y = y i" by (metis Suc.hyps)
-    with non_negative have y_i_non_negative: "0 \<le> y i" unfolding non_negative_real_vector_def in_range_def by simp
+    with non_empty obtain i::nat where pred_max: "i \<in> {1..n} \<and> maximum n y = y i" by (metis Suc.hyps)
+    with non_negative have y_i_non_negative: "0 \<le> y i" unfolding non_negative_real_vector_def by simp
     have "y i = maximum n y" using pred_max by simp
     also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
       (* TODO CL: ask for the difference between "from" and "using" (before/after goal).
@@ -377,7 +377,7 @@ next
     also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))" using non_negative y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
     also have "\<dots> = maximum (Suc n) y" using maximum_def non_empty by simp
     finally have max: "y i = maximum (Suc n) y" .
-    from pred_max have "in_range (Suc n) i" by (simp add: in_range_def)
+    from pred_max have "i \<in> {1..Suc n}" by simp
     with max show ?thesis by auto
   qed
 qed
@@ -387,8 +387,8 @@ lemma maximum_sufficient :
   fixes n::nat and y::real_vector and m::real
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
-    and greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> m \<ge> y i"
-    and is_component: "\<exists> i::nat . in_range n i \<and> m = y i"
+    and greater_or_equal: "\<forall> i::nat . i \<in> {1..n} \<longrightarrow> m \<ge> y i"
+    and is_component: "\<exists> i::nat . i \<in> {1..n} \<and> m = y i"
   shows "m = maximum n y"
     using assms
 proof (induct n)
@@ -399,18 +399,18 @@ next
   (* TODO CL: Ask whether there is any way to avoid explicitly restating all assumptions for (Suc n)? *)
   assume non_negative: "non_negative_real_vector (Suc n) y"
   assume non_empty: "Suc n > 0"
-  assume greater_or_equal: "\<forall> i::nat . in_range (Suc n) i \<longrightarrow> m \<ge> y i"
-  assume is_component: "\<exists> i::nat . in_range (Suc n) i \<and> m = y i"
+  assume greater_or_equal: "\<forall> i::nat . i \<in> {1..Suc n} \<longrightarrow> m \<ge> y i"
+  assume is_component: "\<exists> i::nat . i \<in> {1..Suc n} \<and> m = y i"
   (* further preliminaries *)
   from non_negative have pred_non_negative: "non_negative_real_vector n y"
-    unfolding non_negative_real_vector_def in_range_def by simp
+    unfolding non_negative_real_vector_def by simp
   (* then go on *)
   from non_empty have max_def: "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))" using maximum_def by simp
   also have "\<dots> = m"
   proof (cases "n = 0")
     case True
-    with is_component have m_is_only_component: "m = y 1" unfolding in_range_def by auto
-    with non_negative have "m \<ge> 0" unfolding non_negative_real_vector_def in_range_def by simp
+    with is_component have m_is_only_component: "m = y 1" by simp
+    with non_negative have "m \<ge> 0" unfolding non_negative_real_vector_def by simp
     (* we could break this down into further textbook-style steps, but their proofs turn out to be ugly as well, so we leave it at this high level *)
     then have "max 0 (max (maximum 0 y) (y 1)) = m" by (auto simp add: m_is_only_component)
     with True show ?thesis by auto (* this was (metis One_nat_def), but auto has access to simplification rules by default *)
@@ -421,22 +421,29 @@ next
       assume last_is_max: "y (Suc n) = m"
       have "\<dots> \<ge> maximum n y"
       proof -
-        from False pred_non_negative maximum_is_component have "\<exists> k::nat . in_range n k \<and> maximum n y = y k" by auto
-        then obtain k::nat where "in_range n k \<and> maximum n y = y k" by auto
-        with greater_or_equal show ?thesis unfolding in_range_def by (simp add: le_Suc_eq)
+        from False pred_non_negative maximum_is_component have "\<exists> k::nat . k \<in> {1..n} \<and> maximum n y = y k" by simp
+        then obtain k::nat where "k \<in> {1..n} \<and> maximum n y = y k" by blast
+        with greater_or_equal show ?thesis by simp
           (* TODO CL: ask whether we should have kept using metis here.  Sledgehammer always suggests metis.
              When auto or simp also works (which is the case here, but not always), is is more efficient? *)
       qed
       then show ?thesis using last_is_max by (metis less_max_iff_disj linorder_not_le maximum_non_negative min_max.sup_absorb1 min_max.sup_commute)
     next
-      assume "y (Suc n) \<noteq> m"
-      with is_component have pred_is_component: "\<exists>k::nat . in_range n k \<and> m = y k"
-        unfolding in_range_def by (metis le_antisym not_less_eq_eq)
-      from greater_or_equal have "\<forall>k::nat . in_range n k \<longrightarrow> m \<ge> y k" unfolding in_range_def by simp
+      assume a: "y (Suc n) \<noteq> m"
+      (* The following doesn't work:
+      with is_component have pred_is_component: "\<exists>k::nat . k \<in> {1..n} \<and> m = y k" by auto
+      Therefore we have to use the auxiliary predicate in_range:
+      *)
+      from is_component have "\<exists>i::nat . in_range (Suc n) i \<and> m = y i" unfolding in_range_def by simp
+      with a have "\<exists>k::nat . in_range n k \<and> m = y k" unfolding in_range_def by (metis le_antisym not_less_eq_eq)
+        (* The former doesn't work when defining in_range using i \<in> {1..n}; we need the form 1 \<le> i \<and> i \<le> n *)
+      then have pred_is_component: "\<exists>k::nat . k \<in> {1..n} \<and> m = y k" unfolding in_range_def by simp
+      (* OK, we got what we wanted. *)
+      from greater_or_equal have "\<forall>k::nat . k \<in> {1..n} \<longrightarrow> m \<ge> y k" by simp
       (* these, plus pred_non_negative, form the left hand side of the induction hypothesis *)
       then have "m = maximum n y" using pred_is_component pred_non_negative by (metis False Suc.hyps gr0I)
-      then show ?thesis
-        using in_range_def by (metis Suc_eq_plus1 greater_or_equal le_refl maximum_non_negative min_max.sup_absorb1 min_max.sup_absorb2 not_add_less2 not_leE)
+      then show ?thesis using greater_or_equal maximum_non_negative
+        by (metis Suc(2) is_component maximum.simps(2) maximum_is_component maximum_is_greater_or_equal min_max.le_iff_sup min_max.sup_absorb1 zero_less_Suc)
     qed
   qed
   finally show "m = maximum (Suc n) y" .. (* ".." means: apply a canonical rule for the current context *)
@@ -448,7 +455,7 @@ lemma increment_keeps_maximum :
   fixes n::nat and y::real_vector and y'::real_vector and max_index::nat and max::real and max'::real
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
-    and index_range: "in_range n max_index"
+    and index_range: "max_index \<in> {1..n}"
     and old_maximum: "maximum n y = y max_index"
     and new_lt: "y max_index < max'"
     and increment: "y' = (\<lambda> i::nat . if i = max_index then max' else y i)"
@@ -458,7 +465,7 @@ proof -
   from non_negative index_range new_lt have "\<dots> \<ge> 0" unfolding non_negative_real_vector_def by (auto simp add: linorder_not_less order_less_trans)
   with non_negative increment have new_non_negative: "non_negative_real_vector n y'" unfolding non_negative_real_vector_def by simp
   from old_maximum new_lt increment
-    have greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> max' \<ge> y' i"
+    have greater_or_equal: "\<forall> i::nat . i \<in> {1..n} \<longrightarrow> max' \<ge> y' i"
     by (metis linorder_not_less maximum_is_greater_or_equal order_less_trans order_refl)
   from increment have "max' = y' max_index" by simp
   (* now we have all prerequisites for applying maximum_sufficient *)
@@ -475,12 +482,12 @@ text{* We define the set of maximal components of a vector y: *}
 (* TODO CL: discuss whether this function should return a set, or a vector.  How to construct such a vector?  Or should we define it as a predicate? *)
 definition arg_max_set ::
   "nat \<Rightarrow> real_vector \<Rightarrow> (nat set)" where
-  "arg_max_set n b \<equiv> {i. in_range n i \<and> maximum n b = b i}"
+  "arg_max_set n b \<equiv> {i. i \<in> {1..n} \<and> maximum n b = b i}"
 
 (* for testing *)
 lemma test_arg_max_set:
   shows "{1,2} \<subseteq> arg_max_set 3 (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
-apply(unfold arg_max_set_def in_range_def)
+apply(unfold arg_max_set_def)
 apply(simp add: maximum_def)
 oops (* TODO CL: This is broken since I've changed "primrec maximum" to "fun maximum" *)
 
@@ -488,7 +495,7 @@ text{* an alternative proof of the same lemma – still too trivial to test how 
 lemma test_arg_max_set_declarative:
   shows "{1,2} \<subseteq> arg_max_set 3 (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
 oops (* TODO CL: This is broken since I've changed "primrec maximum" to "fun maximum" *)
-(* unfolding arg_max_set_def in_range_def
+(* unfolding arg_max_set_def
   by (simp add: maximum_def) *)
 
 text{* constructing a new vector from a given one, by skipping one component *}
@@ -503,24 +510,24 @@ lemma skip_index_keeps_non_negativity :
   fixes n::nat and v::real_vector and i::nat
   assumes non_empty: "n > 0"
     and non_negative: "non_negative_real_vector n v"
-    and range: "in_range n i"
+    and range: "i \<in> {1..n}"
   shows "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
 proof -
   {
     fix j::nat
-    assume j_range: "in_range (n-(1::nat)) j"
+    assume j_range: "j \<in> {1..n-(1::nat)}"
     have "(skip_index v i) j \<ge> 0"
     proof (cases "j < i")
       case True
       then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
       with j_range non_negative show ?thesis
-        unfolding non_negative_real_vector_def in_range_def
+        unfolding non_negative_real_vector_def
         by (auto simp add: leD less_imp_diff_less not_leE)
     next
       case False
       then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
       with j_range non_negative show ?thesis
-        unfolding non_negative_real_vector_def in_range_def
+        unfolding non_negative_real_vector_def
         by (auto simp add: leD less_imp_diff_less not_leE)
     qed
   }
@@ -531,25 +538,22 @@ text{* when two vectors differ in one component, skipping that component makes t
 lemma equal_by_skipping :
   fixes n::nat and v::real_vector and w::real_vector and j::nat and k::nat
   assumes non_empty: "n > 0"
-    and j_range: "in_range n j"
-    and equal_except: "\<forall>i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> v i = w i"
-    and k_range: "in_range (n-(1::nat)) k"
-  shows "(skip_index v j) k = (skip_index w j) k"
+    and j_range: "j \<in> {1..n}"
+    and equal_except: "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> v i = w i"
+    and k_range: "k \<in> {1..n-(1::nat)}"
+  shows "skip_index v j k = skip_index w j k"
 proof (cases "k < j")
   case True
-  then have "(skip_index v j) k = v k" 
-    "(skip_index w j) k = w k"
+  then have "skip_index v j k = v k" 
+    "skip_index w j k = w k"
     unfolding skip_index_def by auto
-  with equal_except k_range True show ?thesis
-    using in_range_def by (metis diff_le_self le_trans less_not_refl)
+  with equal_except k_range True show ?thesis by auto
 next
   case False
-  then have "(skip_index v j) k = v (Suc k)"
-   "(skip_index w j) k = w (Suc k)"
+  then have "skip_index v j k = v (Suc k)"
+   "skip_index w j k = w (Suc k)"
     unfolding skip_index_def by auto
-  with equal_except k_range False show ?thesis
-   using in_range_def
-   by (metis One_nat_def diff_0_eq_0 diff_Suc_Suc diff_less le_neq_implies_less lessI less_imp_diff_less linorder_not_less not_less_eq_eq)
+  with equal_except k_range False show ?thesis by auto
 qed
 
 text{* We define the maximum component value that remains after removing the i-th component from the non-negative real vector y: *}
@@ -569,8 +573,8 @@ value "maximum_except 3 (\<lambda> x::nat . 4-x) 1" (* the maximum component val
 text{* The maximum component that remains after removing one component from a vector is greater or equal than the values of all remaining components *}
 lemma maximum_except_is_greater_or_equal :
   fixes n::nat and y::real_vector and j::nat and i::nat
-  assumes j_range: "n \<ge> 1 \<and> in_range n j"
-    and i_range: "in_range n i \<and> i \<noteq> j"
+  assumes j_range: "n \<ge> 1 \<and> j \<in> {1..n}"
+    and i_range: "i \<in> {1..n} \<and> i \<noteq> j"
   shows "maximum_except n y j \<ge> y i"
 proof -
   let ?y_with_j_skipped = "skip_index y j"
@@ -581,7 +585,7 @@ proof -
   proof (cases "i < j")
     case True
     then have can_skip_j: "y i = ?y_with_j_skipped i" unfolding skip_index_def by simp
-    from True j_range i_range pred_n have "in_range pred_n i" unfolding in_range_def by simp
+    from True j_range i_range pred_n have "i \<in> {1..pred_n}" by simp
     then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped i" by (simp add: maximum_is_greater_or_equal)
     with can_skip_j pred_n show ?thesis by simp
   next
@@ -591,7 +595,7 @@ proof -
     from case_False_nice pred_i (* wouldn't work with "from False" *)
       have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i" unfolding skip_index_def by simp
     from case_False_nice i_range j_range pred_i pred_n
-      have (* actually 2 \<le> i, but we don't need this *) "in_range pred_n pred_i" unfolding in_range_def by simp
+      have (* actually 2 \<le> i, but we don't need this *) "pred_i \<in> {1..pred_n}" by simp
     then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped pred_i" by (simp add: maximum_is_greater_or_equal)
     with can_skip_j_and_shift_left pred_n show ?thesis by simp
   qed
@@ -603,14 +607,14 @@ lemma maximum_greater_or_equal_remaining_maximum :
   fixes n::nat and y::real_vector and j::nat
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
-    and range: "in_range n j"
+    and range: "j \<in> {1..n}"
   shows "y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y"
 proof
   assume ge_remaining: "y j \<ge> maximum_except n y j"
-  from non_empty range have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
-  with ge_remaining have "\<forall> i::nat . in_range n i \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
-  then have greater_or_equal: "\<forall> i::nat . in_range n i \<longrightarrow> y j \<ge> y i" by auto
-  from range have is_component: "\<exists> i::nat . in_range n i \<and> y j = y i" by auto
+  from non_empty range have "\<forall> i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
+  with ge_remaining have "\<forall> i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
+  then have greater_or_equal: "\<forall> i::nat . i \<in> {1..n} \<longrightarrow> y j \<ge> y i" by auto
+  from range have is_component: "\<exists> i::nat . i \<in> {1..n} \<and> y j = y i" by auto
     (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
   with non_negative non_empty greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
   (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by arith") when either would work,
@@ -627,27 +631,27 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     with j_max non_negative show ?thesis by (simp add: maximum_non_negative)
   next
     case False
-    from j_max have ge: "\<forall>k::nat . in_range n k \<longrightarrow> y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
+    from j_max have ge: "\<forall>k::nat . k \<in> {1..n} \<longrightarrow> y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
     from False non_empty have "n > 1" by auto
     then have pred_non_empty: "(n-(1::nat)) > 0" by simp
     from non_empty non_negative range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
     from pred_non_empty pred_non_negative maximum_is_component
-      have "\<exists> i::nat . in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
-    then obtain i::nat where maximum_except_component: "in_range (n-(1::nat)) i \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
-    then have i_range: "in_range (n-(1::nat)) i" ..
+      have "\<exists> i::nat . i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
+    then obtain i::nat where maximum_except_component: "i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
+    then have i_range: "i \<in> {1..n-(1::nat)}" ..
     from maximum_except_component maximum_except_unfolded
       have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i" by simp
     have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by auto
-    from i_range have 1: "in_range n i" unfolding in_range_def by arith
-    from i_range have 2: "in_range n (Suc i)" unfolding in_range_def by arith
-    from skip_index_range 1 2 have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k" by auto
+    from i_range have 1: "i \<in> {1..n}" by auto
+    from i_range have 2: "Suc i \<in> {1..n}" by auto
+    from skip_index_range 1 2 have "\<exists> k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k" by auto
     (* The following (found by remote_vampire) was nearly impossible for metis to prove: *)
     (* from i_range and range and skip_index_def
       and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
-      have "\<exists> k::nat . in_range n k \<and> (skip_index y j) i = y k"
+      have "\<exists> k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k"
       by (metis (full_types) One_nat_def Suc_neq_Zero Suc_pred' leD less_Suc0 less_Suc_eq_le linorder_le_less_linear) *)
-    then obtain k::nat where "in_range n k \<and> (skip_index y j) i = y k" ..
+    then obtain k::nat where "k \<in> {1..n} \<and> (skip_index y j) i = y k" ..
     with ge maximum_except_component_nice show "y j \<ge> maximum_except n y j" by simp
   qed
 qed
@@ -657,14 +661,14 @@ lemma remaining_maximum_invariant :
   (* TODO CL: discuss the name of this lemma; maybe there is something more appropriate *)
   fixes n::nat and y::real_vector and i::nat and a::real
   assumes non_empty: "n > 0" and
-    range: "in_range n i"
+    range: "i \<in> {1..n}"
   shows "maximum_except n y i = maximum_except n (deviation n y a i) i"
 proof -
-  from range have "\<forall>j::nat . in_range n j \<and> j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
+  from range have equal_except: "\<forall>j::nat . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
     unfolding deviation_def by simp
   with non_empty range
-    have "\<forall>k::nat . in_range (n-(1::nat)) k \<longrightarrow> skip_index y i k = skip_index (deviation n y a i) i k"
-    by (simp add: equal_by_skipping)
+    have "\<forall>k::nat . k \<in> {1..n-(1::nat)} \<longrightarrow> skip_index y i k = skip_index (deviation n y a i) i k"
+    using equal_by_skipping by (auto simp add: deviation_def)
   then have "maximum (n-(1::nat)) (skip_index y i) = maximum (n-(1::nat)) (skip_index (deviation n y a i) i)"
     by (simp add: maximum_equal)
   with non_empty show ?thesis by (metis Suc_pred' maximum_except.simps(2))
@@ -678,14 +682,14 @@ text{* Agent i being the winner of a second-price auction (see below for complet
 * and pays the maximum price that remains after removing the winner's own bid from the vector of bids. *}
 definition second_price_auction_winner ::
   "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
-  "second_price_auction_winner n b x p i \<equiv> in_range n i \<and> i \<in> arg_max_set n b \<and> x b i \<and> (p b i = maximum_except n b i)"
+  "second_price_auction_winner n b x p i \<equiv> i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i \<and> (p b i = maximum_except n b i)"
 
 text{* Agent i being a loser of a second-price auction (see below for complete definition) means
 * he/she loses the auction
 * and pays nothing *}
 definition second_price_auction_loser ::
   "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
-  "second_price_auction_loser n b x p i \<equiv> in_range n i \<and> \<not>x b i \<and> p b i = 0"
+  "second_price_auction_loser n b x p i \<equiv> i \<in> {1..n} \<and> \<not>x b i \<and> p b i = 0"
 
 text{* A second-price auction is an auction whose outcome satisfies the following conditions:
 1. One of the participants with the highest bids wins. (We do not formalise the random selection of one distinct participants from the set of highest bidders,
@@ -696,8 +700,8 @@ definition second_price_auction ::
   "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
   "second_price_auction n x p \<equiv>
     \<forall> b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
-    (\<exists>i::participant. in_range n i \<and> second_price_auction_winner n b x p i
-                      \<and> (\<forall>j::participant. in_range n j \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j))"
+    (\<exists>i::participant. i \<in> {1..n} \<and> second_price_auction_winner n b x p i
+                      \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j))"
 
 (* TODO CL: structure as in Theorema: \<forall>i \<forall>j . ... \<longrightarrow> i = j *)
 text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
@@ -732,18 +736,16 @@ lemma not_allocated_implies_spa_loser :
   fixes n::participants and x::allocation and p::payments and b::real_vector and loser::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
-    and range: "in_range n loser"
+    and range: "loser \<in> {1..n}"
     and loses: "\<not> x b loser"
   shows "second_price_auction_loser n b x p loser"
 proof - (* by contradiction *)
   {
     assume False: "\<not> second_price_auction_loser n b x p loser"
     from spa bids second_price_auction_def
-      have "(\<exists>j::participant. in_range n j \<and> second_price_auction_winner n b x p j
-                  \<and> (\<forall>k::participant. in_range n k \<and> k \<noteq> j \<longrightarrow> second_price_auction_loser n b x p k))" by simp
+      have "(\<exists>j::participant. j \<in> {1..n} \<and> second_price_auction_winner n b x p j
+                  \<and> (\<forall>k::participant. k \<in> {1..n} \<and> k \<noteq> j \<longrightarrow> second_price_auction_loser n b x p k))" by simp
     with False range have "second_price_auction_winner n b x p loser" by auto
-      (* Before we had introduced in_range as a predicate consistently used both in the winner and the loser branch,
-         even metis wan't able to prove this without exceeding the unification bound. *)
     with second_price_auction_winner_def have "x b loser" by simp
     with loses have "False" ..
   }
@@ -755,23 +757,23 @@ lemma only_max_bidder_wins :
   fixes n::participants and max_bidder::participant and b::real_vector and x::allocation and p::payments
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
-    and range: "in_range n max_bidder"
+    and range: "max_bidder \<in> {1..n}"
     (* and max_bidder: "b max_bidder = maximum n b" *) (* we actually don't need this :-) *)
     and only_max_bidder: "b max_bidder > maximum_except n b max_bidder"
   shows "second_price_auction_winner n b x p max_bidder"
 proof -
   from bids spa
-    have x_is_allocation: "\<exists>i:: participant. in_range n i \<and> x b i \<and> (\<forall>j:: participant. j\<noteq>i \<longrightarrow> \<not>x b j)"
-    unfolding second_price_auction_def allocation_def in_range_def by simp
+    have x_is_allocation: "\<exists>i:: participant. i \<in> {1..n} \<and> x b i \<and> (\<forall>j:: participant. j\<noteq>i \<longrightarrow> \<not>x b j)"
+    unfolding second_price_auction_def allocation_def by simp
   from bids spa have spa_unfolded: "\<exists>i::participant. second_price_auction_winner n b x p i
-    \<and> (\<forall>j::participant. in_range n j \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)" unfolding second_price_auction_def by blast
+    \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)" unfolding second_price_auction_def by blast
   {
     fix j::participant
-    assume j_not_max: "in_range n j \<and> j \<noteq> max_bidder"
+    assume j_not_max: "j \<in> {1..n} \<and> j \<noteq> max_bidder"
     have "j \<notin> arg_max_set n b"
     proof -
       from j_not_max range have "b j \<le> maximum_except n b max_bidder"
-        using in_range_def maximum_except_is_greater_or_equal by (metis le_trans)
+        using maximum_except_is_greater_or_equal by simp
       with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
       then show ?thesis
       proof - (* by contradiction *)
@@ -812,7 +814,7 @@ lemma second_price_auction_loser_payoff :
   fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and loser::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
-    and range: "in_range n loser"
+    and range: "loser \<in> {1..n}"
     and loses: "\<not> x b loser"
   shows "payoff_vector v (x b) (p b) loser = 0"
 proof -
@@ -834,7 +836,7 @@ lemma winners_payoff_on_deviation_from_valuation :
   assumes non_empty: "n > 0"
     and spa: "second_price_auction n x p"
     and bids: "bids n b"
-    and range: "in_range n winner"
+    and range: "winner \<in> {1..n}"
     and wins: "x b winner"
   shows "let winner_sticks_with_valuation = deviation_vec n b v winner
     in payoff_vector v (x b) (p b) winner = v winner - maximum_except n winner_sticks_with_valuation winner"
@@ -857,7 +859,7 @@ highest valuation of the good. *}
 definition efficient ::
   "participants \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where
   "efficient n v b x \<equiv> (valuation n v \<and> bids n b) \<and>
-      (\<forall>i::participant. in_range n i \<and> x b i \<longrightarrow> i \<in> arg_max_set n v)"
+      (\<forall>i::participant. i \<in> {1..n} \<and> x b i \<longrightarrow> i \<in> arg_max_set n v)"
 
 section{* Equilibrium in weakly dominant strategies *}
 
@@ -869,7 +871,7 @@ definition equilibrium_weakly_dominant_strategy ::
   "equilibrium_weakly_dominant_strategy n v b x p \<equiv>
     (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
-   (\<forall> i::participant . in_range n i \<longrightarrow>
+   (\<forall> i::participant . i \<in> {1..n} \<longrightarrow>
      (\<forall> whatever_bid::real_vector . bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
        let i_sticks_with_bid = deviation_vec n whatever_bid b i (* here, all components are (whatever_bid j), just the i-th component remains (b i) *)
        in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
@@ -890,7 +892,7 @@ proof -
   from spa bids have pay: "vickrey_payment n ?b p" unfolding second_price_auction_def by simp
   {
     fix i::participant
-    assume i_range: "in_range n i"
+    assume i_range: "i \<in> {1..n}"
     fix whatever_bid::real_vector
     assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
     then have alternative_is_bid: "bids n whatever_bid" ..
@@ -902,7 +904,7 @@ proof -
     have weak_dominance: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof (cases "n = 0")
       case True
-      with i_range show ?thesis by (simp add: in_range_def)
+      with i_range show ?thesis by simp
     next                 
       case False
       then have non_empty: "n > 0" ..
@@ -1008,7 +1010,7 @@ proof -
   from val have bids: "bids n v" by (rule valuation_is_bid)
   {
     fix k:: participant
-    assume "in_range n k \<and> x ?b k"
+    assume "k \<in> {1..n} \<and> x ?b k"
     with spa bids have "k \<in> arg_max_set n v"
       using allocated_implies_spa_winner second_price_auction_winner_def by auto
       (* alternative proof with fewer prerequisites (before we had the lemmas used above): *)
@@ -1016,11 +1018,11 @@ proof -
       proof -
         from bids and spa have
           second_price_auction_participant: "\<exists>i::participant. second_price_auction_winner n ?b x p i
-                      \<and> (\<forall>j::participant. in_range n j \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n ?b x p j)"
-          unfolding second_price_auction_def in_range_def by auto
+                      \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n ?b x p j)"
+          unfolding second_price_auction_def by auto
         then obtain i::participant where
           i_winner: "second_price_auction_winner n ?b x p i
-                      \<and> (\<forall>j::participant. in_range n j \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n ?b x p j)" 
+                      \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n ?b x p j)" 
             by blast
         then have i_values_highest: "i \<in> arg_max_set n v" unfolding second_price_auction_winner_def by simp (* note ?b = v *)
         have k_values_highest: "k \<in> arg_max_set n v"     
