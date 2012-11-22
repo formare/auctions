@@ -1024,14 +1024,11 @@ theorem vickreyB :
 proof -
   let ?b = v
   from val have bids: "bids n v" by (rule valuation_is_bid)
-  have efficient_def_unfolded: "\<forall>k::participant. in_range n k \<and> x ?b k \<longrightarrow> k \<in> arg_max_set n v" unfolding efficient_def
-  proof
+  {
     fix k:: participant
-    show "in_range n k \<and> x ?b k \<longrightarrow> k \<in> arg_max_set n v"
-    proof
-      assume (* k_wins: *)"in_range n k \<and> x ?b k"
-      with spa bids show "k \<in> arg_max_set n v"
-        using allocated_implies_spa_winner second_price_auction_winner_def by auto
+    assume "in_range n k \<and> x ?b k"
+    with spa bids have "k \<in> arg_max_set n v"
+      using allocated_implies_spa_winner second_price_auction_winner_def by auto
       (* alternative proof with fewer prerequisites (before we had the lemmas used above): *)
       (* show "k \<in> arg_max_set n v"
       proof -
@@ -1054,9 +1051,8 @@ proof -
         qed
         show ?thesis using k_values_highest .
       qed *)
-    qed
-  qed
-  with bids show ?thesis using efficient_def_unfolded val unfolding efficient_def by blast
+  }
+  with bids show ?thesis using val unfolding efficient_def by blast
 qed
 
 (* unused theorems (which might nevertheless be useful for the toolbox):
