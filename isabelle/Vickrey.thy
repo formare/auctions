@@ -716,21 +716,17 @@ definition second_price_auction ::
 (* TODO CL: structure as in Theorema: \<forall>i \<forall>j . ... \<longrightarrow> i = j *)
 text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
 lemma second_price_auction_has_only_one_winner :
-  fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant
+  fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant and j::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
     and winner: "second_price_auction_winner n b x p winner"
-  shows "\<forall>j::participant. second_price_auction_winner n b x p j \<longrightarrow> j = winner"
-proof
-  fix j::participant
+    and also_winner: "second_price_auction_winner n b x p j"
+  shows "j = winner"
+proof -
   from winner have wins: "x b winner" by (simp add: second_price_auction_winner_def)
-  show "second_price_auction_winner n b x p j \<longrightarrow> j = winner"
-  proof
-    assume "second_price_auction_winner n b x p j"
-    then have j_wins: "x b j" by (simp add: second_price_auction_winner_def)
-    from spa and bids have "allocation n b x" by (simp add: second_price_auction_def)
-    with wins and j_wins show "j = winner" by (simp add: allocation_unique)
-  qed
+  from also_winner have j_wins: "x b j" by (simp add: second_price_auction_winner_def)
+  from spa and bids have "allocation n b x" by (simp add: second_price_auction_def)
+  with wins and j_wins show "j = winner" by (simp add: allocation_unique)
 qed
 
 text{* The participant who gets the good also satisfies the further properties of a second-price auction winner *}
