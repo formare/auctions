@@ -434,7 +434,7 @@ next
         unfolding in_range_def by (metis le_antisym not_less_eq_eq)
       from greater_or_equal have "\<forall>k::nat . in_range n k \<longrightarrow> m \<ge> y k" unfolding in_range_def by simp
       (* these, plus pred_non_negative, form the left hand side of the induction hypothesis *)
-      then have "m = maximum n y" by (metis False Suc gr0I pred_is_component pred_non_negative)
+      then have "m = maximum n y" using pred_is_component pred_non_negative by (metis False Suc.hyps gr0I)
       then show ?thesis
         using in_range_def by (metis Suc_eq_plus1 greater_or_equal le_refl maximum_non_negative min_max.sup_absorb1 min_max.sup_absorb2 not_add_less2 not_leE)
     qed
