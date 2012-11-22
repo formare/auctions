@@ -308,36 +308,28 @@ qed
 
 text{* The maximum component value is greater or equal than the values of all [other] components *}
 lemma maximum_is_greater_or_equal :
-  fixes n::nat and y::real_vector
-  shows "\<forall> i::nat . in_range n i \<longrightarrow> maximum n y \<ge> y i"
+  fixes n::nat and y::real_vector and i::nat
+  assumes "in_range n i"
+  shows "maximum n y \<ge> y i"
+    using assms
 proof (induct n)
   case 0
-  show ?case by (simp add: in_range_def)
+  then show ?case using in_range_def by (metis le_0_eq not_one_le_zero)
 next
   case (Suc n)
-  show ?case  
-  (* This is a shorter alternative to first proving
-     have "\<forall> i::nat . in_range (Suc n) i \<longrightarrow> maximum (Suc n) y \<ge> y i"
-     and then trivially showing ?case *)
-  proof
-    fix i::nat
-    show "in_range (Suc n) i \<longrightarrow> maximum (Suc n) y \<ge> y i"
-    proof
-      assume 1: "in_range (Suc n) i"
-      have "max (maximum n y) (y (Suc n)) \<ge> y i" (* TODO CL: ask whether there is a way of automatically decomposing the initial goal until we arrive at this expression *)
-      proof (cases "i = Suc n")
-        case True
-        then show ?thesis by (simp add: le_max_iff_disj)
-      next
-        case False
-        with 1 (* TODO CL: ask whether there is a nicer way to write this, without having to number assumption 1 *)
-          have "in_range n i" by (simp add: less_eq_Suc_le in_range_def)
-        then have "maximum n y \<ge> y i" by (simp add: Suc.hyps)
-        then show ?thesis by (simp add: le_max_iff_disj)
-      qed
-      then show "maximum (Suc n) y \<ge> y i" using maximum_def by simp
-    qed
+  assume assms: "in_range (Suc n) i"
+  have "max (maximum n y) (y (Suc n)) \<ge> y i" (* TODO CL: ask whether there is a way of automatically decomposing the initial goal until we arrive at this expression *)
+  proof (cases "i = Suc n")
+    case True
+    then show ?thesis by (simp add: le_max_iff_disj)
+  next
+    case False
+    with assms
+      have "in_range n i" by (simp add: less_eq_Suc_le in_range_def)
+    then have "maximum n y \<ge> y i" by (simp add: Suc.hyps)
+    then show ?thesis by (simp add: le_max_iff_disj)
   qed
+  then show "maximum (Suc n) y \<ge> y i" using maximum_def by simp
 qed
 
 text{* The maximum component is one component *}
