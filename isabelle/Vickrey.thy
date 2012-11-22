@@ -279,20 +279,19 @@ fun maximum ::
 text{* If two vectors are equal, their maximum components are equal too *}
 lemma maximum_equal :
   fixes n::nat and y::real_vector and z::real_vector
-  shows "(\<forall>i::nat . in_range n i \<longrightarrow> y i = z i) \<longrightarrow> maximum n y = maximum n z"
+  assumes "\<forall>i::nat . in_range n i \<longrightarrow> y i = z i"
+  shows "maximum n y = maximum n z"
+    using assms (* Apparently this is needed; otherwise the last proof step fails. *)
 proof (induct n)
   case 0
   show ?case by simp
 next
   case (Suc n)
-  show ?case
-  proof
-    assume assms: "\<forall>i::nat . in_range (Suc n) i \<longrightarrow> y i = z i"
-    then have equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI in_range_def)
-    from assms have equal_here: "y (Suc n) = z (Suc n)" using Suc.hyps by (metis Suc_eq_plus1 le_add2 le_refl in_range_def)
-    with equal_so_far show "maximum (Suc n) y = maximum (Suc n) z" using maximum_def maximum.induct by auto
-  qed
-qed 
+  assume assms: "\<forall>i::nat . in_range (Suc n) i \<longrightarrow> y i = z i"
+  then have equal_here: "y (Suc n) = z (Suc n)" by (simp add: in_range_def)
+  from assms have equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI in_range_def)
+  with equal_here show "maximum (Suc n) y = maximum (Suc n) z" by simp
+qed
 
 text{* The maximum component, as defined above, is non-negative *}
 lemma maximum_non_negative :
