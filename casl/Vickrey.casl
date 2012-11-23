@@ -3,25 +3,32 @@ CL: There are some things that I need to ask Till; these are prefixed with CL@TM
 }%
 library Vickrey
 
-from Basic/StructuredDatatypes get Bag
-
 %% main concepts 
 spec SingleGoodAuction =
-    %% for now declaring our own sorts also for sorts that the basic CASL library, or Hets-lib, have built in, until we understand what to reuse and how
     sorts
-    	PositiveReal < NonNegativeReal;
-    	Boolean
-    types
-        Bids ::= Bag[NonNegativeReal];
-        Allocation ::= Bag[Boolean];
-        Payments ::= Bag[NonNegativeReal];
-        Valuations ::= Bag[PositiveReal];
+        NonNegativeReal;
+        PositiveReal;
+        Boolean;
+        Participants; %[ cardinal number of participants ]%
+        Participant; %[ ordinal number of one participant ]%
+    	Bids < Vector[NonNegativeReal];
+        Allocation < Vector[Boolean];
+        Payments < Vector[NonNegativeReal];
+        Valuations < Vector[PositiveReal];
     preds
-        bids: Bids
         allocation: Bids * Allocation;
-            %[CL@TM: Can we enforce that these two bags need to have the same length?]%
+            %[CL@TM: Can we enforce that these two bags need to have the same length?  Or should we use a different type, e.g. Array?]%
         vickreyPayment: Bids * Payments;
-        valuation: Valuations;
     ops
         payoff: PositiveReal * Boolean * NonNegativeReal -> NonNegativeReal;
+    %[CL@TM: In Isabelle we had a lemma valuation_is_bid stating "every valuation is a bid".  Do we need this here, or is it obvious anyway, from the declaration of our types/sorts?]%
+end
+
+spec Vickrey =
+SingleGoodAuction then
+    preds
+        secondPriceAuction: Participants * Allocation * Payments;
+        equilibriumWeaklyDominantStrategy: Participants * Valuations * Bids * Allocation * Payments;
+    forall n : Participants; v : Valuations; x : Allocation; p : Payments
+    . secondPriceAuction(n, x, p) => equilibriumWeaklyDominantStrategy(n, v, v %[ i.e. b ]%, x, p) %(vickreyA)%
 end
