@@ -145,6 +145,19 @@ qed
 text{* A single-good auction is a mechanism specified by a function that maps a strategy profile to an outcome. *}
 
 section{* Allocation *}
+
+text{* A predicate that is satisfied for exactly one component of a vector *}
+definition true_for_exactly_one_component :: "nat \<Rightarrow> (nat \<Rightarrow> 'a) \<Rightarrow> (nat \<Rightarrow> bool) \<Rightarrow> bool"
+  where "true_for_exactly_one_component n vec pred \<equiv>
+         \<exists>k::nat . k \<in> {1..n} \<and> pred k \<and> (\<forall>j::nat . j \<noteq> k \<longrightarrow> \<not>pred k)"
+
+lemma true_for_exactly_one_component_unique :
+  fixes n::nat and pred::"nat\<Rightarrow>bool" and vec::"nat \<Rightarrow> 'a" and satisfier::nat
+  assumes tfxoc: "true_for_exactly_one_component n vec pred"
+    and satisfier: "pred satisfier"
+  shows "pred j \<Longrightarrow> j = satisfier"
+using tfxoc satisfier true_for_exactly_one_component_def by (metis (full_types))
+
 text{* A function x, which takes a vector of n bids, is an allocation if it returns True for one bidder and False for the others. *}
 (* TODO CL: discuss whether we should use different names for "definition allocation" and "type_synonym allocation", as they denote two different things *)
 (* TODO CL: record in our notes that the order of arguments of a function matters.
@@ -152,12 +165,9 @@ text{* A function x, which takes a vector of n bids, is an allocation if it retu
    When using the function x in a curried way, we can speak of (x b) as a vector of booleans, in a very straightforward way;
    with a different order of arguments we'd have to use (\<lambda> index::nat . x index b).
 *)
-(* TODO CL: Discussion during Theorema formalisation: define this using a concrete x;
-   just, in some theorems, _pass_ different x's into this definition, e.g. x1 := x(b), x2 := x(b')
-   Same for payment *)
 definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where 
   "allocation n b x \<equiv> bids n b \<and> 
-   (\<exists>k:: participant. k \<in> {1..n} \<and> x b k \<and> (\<forall>j:: participant. j\<noteq>k \<longrightarrow> \<not>x b j))"
+   true_for_exactly_one_component n b (x b)"
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
@@ -165,7 +175,7 @@ lemma allocation_unique :
   assumes allocation: "allocation n b x"
     and winner: "x b winner"
   shows "x b j \<Longrightarrow> j = winner"
-by (metis allocation allocation_def winner)
+using allocation allocation_def winner true_for_exactly_one_component_unique by auto
 
 subsection{* Sample lemma: The allocation, in which the first participant wins (whatever the bids) is an allocation. *}
 
@@ -200,8 +210,9 @@ done
 (* TODO CL: note that this is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps. *)
 lemma only_wins_is_allocation_declarative:
   shows "allocation 1 all_bid_1 first_wins"
-  unfolding allocation_def first_wins_def using bid_all_bid_1
-  by simp
+  unfolding allocation_def true_for_exactly_one_component_def first_wins_def using bid_all_bid_1
+  (* When we changed allocation_def this no longer worked*)
+  oops
 
 section{* Payment *}
 
@@ -760,7 +771,7 @@ lemma only_max_bidder_wins :
 proof -
   from bids spa
     have x_is_allocation: "\<exists>i:: participant. i \<in> {1..n} \<and> x b i \<and> (\<forall>j:: participant. j\<noteq>i \<longrightarrow> \<not>x b j)"
-    unfolding second_price_auction_def allocation_def by simp
+    unfolding second_price_auction_def allocation_def true_for_exactly_one_component_def by (metis one_neq_zero)
   from bids spa have spa_unfolded: "\<exists>i::participant. second_price_auction_winner n b x p i
     \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)" unfolding second_price_auction_def by blast
   {
