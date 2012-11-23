@@ -6,6 +6,8 @@ header {* Vickrey's Theorem:
 Second price auctions support an equilibrium in weakly dominant strategies, and are efficient, if each participant bids their valuation of the good. *}
 
 (*
+$Id$
+
 Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>
 * Christoph Lange <c.lange@cs.bham.ac.uk>
@@ -73,7 +75,7 @@ section{* Deviation from a vector *}
 
 text{* We define a function that modifies a vector by using an alternative value for a given component. *}
 definition deviation ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> real" where
+  "nat \<Rightarrow> real_vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> real_vector" where
   "deviation n bid alternative_value index j \<equiv> if j = index then alternative_value else bid j"
 
 text{* We define a function that,
@@ -86,7 +88,7 @@ text{* We define a function that,
    TODO CL: ask whether there a way of writing the alternative as b_hat, as it looks in the paper version?
    TODO CL: discuss whether there any useful way we could use n for range-checking?  Or don't we need n at all? *)
 definition deviation_vec ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> real" where
+  "nat \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> nat \<Rightarrow> real_vector" where
   "deviation_vec n bid alternative_vec index \<equiv> deviation n bid (alternative_vec index) index"
   (* the old component-wise definition had an error actually:
      "deviation_vec n bid alternative_vec index j \<equiv> deviation n bid (alternative_vec j) index j"
@@ -231,7 +233,7 @@ lemma valuation_is_bid :
 proof -
   {
     fix i::participant
-    assume "i: {1..n}"
+    assume "i \<in> {1..n}"
     with assms have "v i > 0" unfolding valuation_def positive_real_vector_def by simp
     then have "v i \<ge> 0" by simp
       (* If we had been searching the library for an applicable theorem, we could have used
@@ -423,13 +425,13 @@ next
       qed
       then show ?thesis using last_is_max by (metis less_max_iff_disj linorder_not_le maximum_non_negative min_max.sup_absorb1 min_max.sup_commute)
     next
-      assume a: "y (Suc n) \<noteq> m"
+      assume last_is_not_max: "y (Suc n) \<noteq> m"
       (* The following doesn't work:
       with Suc.prems(4) have pred_is_component: "\<exists>k::nat . k \<in> {1..n} \<and> m = y k" by auto
       Therefore we have to use the auxiliary predicate in_range:
       *)
       from Suc.prems(4) have "\<exists>i::nat . in_range (Suc n) i \<and> m = y i" unfolding in_range_def by simp
-      with a have "\<exists>k::nat . in_range n k \<and> m = y k" unfolding in_range_def by (metis le_antisym not_less_eq_eq)
+      with last_is_not_max have "\<exists>k::nat . in_range n k \<and> m = y k" unfolding in_range_def by (metis le_antisym not_less_eq_eq)
         (* The former doesn't work when defining in_range using i \<in> {1..n}; we need the form 1 \<le> i \<and> i \<le> n *)
       then have pred_is_component: "\<exists>k::nat . k \<in> {1..n} \<and> m = y k" unfolding in_range_def by simp
       (* OK, we got what we wanted. *)
@@ -881,7 +883,7 @@ theorem vickreyA :
   shows "equilibrium_weakly_dominant_strategy n v v (* \<leftarrow> i.e. b *) x p"
 proof -
   let ?b = v (* From now on, we refer to v as ?b if we mean the _bids_ (which happen to be equal to the valuations) *)
-  from val have bids: "bids n v" by (rule valuation_is_bid)
+  from val have bids: "bids n ?b" by (rule valuation_is_bid)
   from spa bids have alloc: "allocation n ?b x" unfolding second_price_auction_def by simp
   from spa bids have pay: "vickrey_payment n ?b p" unfolding second_price_auction_def by simp
   {
