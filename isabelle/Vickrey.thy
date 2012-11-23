@@ -201,7 +201,7 @@ done
 lemma only_wins_is_allocation_declarative:
   shows "allocation 1 all_bid_1 first_wins"
   unfolding allocation_def first_wins_def using bid_all_bid_1
-  by auto
+  by simp
 
 section{* Payment *}
 
@@ -305,7 +305,7 @@ proof (induct n)
 next
   case (Suc n)
   have "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))" using maximum_def by simp
-  also have "\<dots> \<ge> 0" by auto
+  also have "\<dots> \<ge> 0" by simp
   finally show ?case .
 qed
 
@@ -317,7 +317,7 @@ lemma maximum_is_greater_or_equal :
     using assms
 proof (induct n)
   case 0
-  then show ?case by auto
+  then show ?case by simp
 next
   case (Suc n)
   have "max (maximum n y) (y (Suc n)) \<ge> y i" (* TODO CL: ask whether there is a way of automatically decomposing the initial goal until we arrive at this expression *)
@@ -409,7 +409,7 @@ next
     with Suc.prems(1) have "m \<ge> 0" unfolding non_negative_real_vector_def by simp
     (* we could break this down into further textbook-style steps, but their proofs turn out to be ugly as well, so we leave it at this high level *)
     then have "max 0 (max (maximum 0 y) (y 1)) = m" by (auto simp add: m_is_only_component)
-    with True show ?thesis by auto (* this was (metis One_nat_def), but auto has access to simplification rules by default *)
+    with True show ?thesis by simp (* this was (metis One_nat_def), but simp has access to simplification rules by default *)
   next
     case False
     show ?thesis
@@ -613,7 +613,7 @@ proof
   from range have is_component: "\<exists> i::nat . i \<in> {1..n} \<and> y j = y i" by auto
     (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
   with non_negative non_empty greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
-  (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by arith") when either would work,
+  (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by simp") when either would work,
               and what's the difference between "from foo show bar by simp" vs. "show bar by (simp add: foo)" *)
 next (* nice to see that support for \<longleftrightarrow> is built in *)
   assume j_max: "y j = maximum n y"
@@ -623,12 +623,12 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
   show "y j \<ge> maximum_except n y j"
   proof (cases "n = 1")
     case True
-    with maximum_except_unfolded maximum_def have "maximum_except n y j = 0" by auto
+    with maximum_except_unfolded maximum_def have "maximum_except n y j = 0" by simp
     with j_max non_negative show ?thesis by (simp add: maximum_non_negative)
   next
     case False
     from j_max have ge: "\<forall>k::nat . k \<in> {1..n} \<longrightarrow> y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
-    from False non_empty have "n > 1" by auto
+    from False non_empty have "n > 1" by simp
     then have pred_non_empty: "(n-(1::nat)) > 0" by simp
     from non_empty non_negative range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
@@ -638,7 +638,7 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     then have i_range: "i \<in> {1..n-(1::nat)}" ..
     from maximum_except_component maximum_except_unfolded
       have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i" by simp
-    have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by auto
+    have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by simp
     from i_range have 1: "i \<in> {1..n}" by auto
     from i_range have 2: "Suc i \<in> {1..n}" by auto
     from skip_index_range 1 2 have "\<exists> k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k" by auto
@@ -844,7 +844,7 @@ proof -
     by (simp add: second_price_auction_winner_payoff)
   (* i's deviation doesn't change the maximum remaining bid (which is the second highest bid when winner wins) *)
   also have "\<dots> = v winner - maximum_except n ?winner_sticks_with_valuation winner"
-    unfolding deviation_vec_def using non_empty range remaining_maximum_invariant by auto
+    unfolding deviation_vec_def using non_empty range remaining_maximum_invariant by simp
   finally show ?thesis by simp
 qed
 
@@ -919,7 +919,7 @@ proof -
           using i_sticks_is_bid bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_valuation *)
           non_empty i_range
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
-        finally have i_ge_max_except: "?i_sticks_with_valuation i \<ge> maximum_except n ?i_sticks_with_valuation i" by auto
+        finally have i_ge_max_except: "?i_sticks_with_valuation i \<ge> maximum_except n ?i_sticks_with_valuation i" by simp
         (* Now we show that i's payoff is \<ge> 0 *)
         from spa i_sticks_is_bid i_wins have "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i
           = v i - maximum_except n ?i_sticks_with_valuation i" by (simp add: second_price_auction_winner_payoff)
@@ -964,8 +964,8 @@ proof -
             with spa i_sticks_is_bid i_range
               have "second_price_auction_winner n ?i_sticks_with_valuation x p i"
               using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
-              by auto
-            with i_loses have False using second_price_auction_winner_def by auto
+              by simp
+            with i_loses have False using second_price_auction_winner_def by simp
           }
           then show ?thesis by blast
         qed
@@ -976,10 +976,10 @@ proof -
             have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
             using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
           (* Now we can compute i's payoff *)
-          also have "\<dots> \<le> 0" using i_bid_at_most_second by arith
+          also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
           also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
-            using zero_payoff by arith
-          finally show ?thesis by auto
+            using zero_payoff by simp
+          finally show ?thesis by simp
         next (* case 2b of the short proof *)
           assume "\<not> x whatever_bid i"
           (* i doesn't get the good, so i's payoff is 0 *)
@@ -992,7 +992,7 @@ proof -
       qed
     qed
   }
-  with spa val bids alloc pay show ?thesis unfolding equilibrium_weakly_dominant_strategy_def by auto
+  with spa val bids alloc pay show ?thesis unfolding equilibrium_weakly_dominant_strategy_def by simp
 qed
 
 subsection{* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
@@ -1008,7 +1008,7 @@ proof -
     fix k:: participant
     assume "k \<in> {1..n} \<and> x ?b k"
     with spa bids have "k \<in> arg_max_set n v"
-      using allocated_implies_spa_winner second_price_auction_winner_def by auto
+      using allocated_implies_spa_winner second_price_auction_winner_def by simp
       (* alternative proof with fewer prerequisites (before we had the lemmas used above): *)
       (* show "k \<in> arg_max_set n v"
       proof -
