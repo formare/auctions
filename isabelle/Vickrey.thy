@@ -146,17 +146,24 @@ text{* A single-good auction is a mechanism specified by a function that maps a 
 
 section{* Allocation *}
 
-text{* A predicate that is satisfied for exactly one component of a vector *}
-definition true_for_exactly_one_component :: "nat \<Rightarrow> (nat \<Rightarrow> 'a) \<Rightarrow> (nat \<Rightarrow> bool) \<Rightarrow> bool"
-  where "true_for_exactly_one_component n vec pred \<equiv>
-         \<exists>k::nat . k \<in> {1..n} \<and> pred k \<and> (\<forall>j::nat . j \<noteq> k \<longrightarrow> \<not>pred k)"
+text{* A predicate that is satisfied for exactly one member of a set *}
+definition true_for_exactly_one_member :: "('s \<Rightarrow> bool) \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool"
+  where "true_for_exactly_one_member member pred \<equiv>
+         \<exists>k . member k \<and> pred k \<and> (\<forall>j . member j \<and> j \<noteq> k \<longrightarrow> \<not>pred j)"
 
-lemma true_for_exactly_one_component_unique :
-  fixes n::nat and pred::"nat\<Rightarrow>bool" and vec::"nat \<Rightarrow> 'a" and satisfier::nat
-  assumes tfxoc: "true_for_exactly_one_component n vec pred"
-    and satisfier: "pred satisfier"
-  shows "pred j \<Longrightarrow> j = satisfier"
-using tfxoc satisfier true_for_exactly_one_component_def by (metis (full_types))
+lemma true_for_exactly_one_member_sat :
+  shows "true_for_exactly_one_member (\<lambda> b::bool . True) (\<lambda> b::bool . b)"
+  unfolding true_for_exactly_one_member_def by blast
+
+lemma true_for_exactly_one_member_unique :
+  fixes member::"'s \<Rightarrow> bool" and pred::"'s \<Rightarrow> bool" and satisfier::'s and j::'s
+  assumes "true_for_exactly_one_member member pred"
+    and "member satisfier"
+    and "pred satisfier"
+    and "member j"
+    and "pred j"
+  shows "j = satisfier"
+  using assms true_for_exactly_one_member_def by metis
 
 text{* A function x, which takes a vector of n bids, is an allocation if it returns True for one bidder and False for the others. *}
 (* TODO CL: discuss whether we should use different names for "definition allocation" and "type_synonym allocation", as they denote two different things *)
@@ -167,15 +174,18 @@ text{* A function x, which takes a vector of n bids, is an allocation if it retu
 *)
 definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where 
   "allocation n b x \<equiv> bids n b \<and> 
-   true_for_exactly_one_component n b (x b)"
+   true_for_exactly_one_member (\<lambda> i . i \<in> {1..n}) (x b)"
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
-  fixes n::participants and x::allocation and b::real_vector and winner::participant
+  fixes n::participants and x::allocation and b::real_vector and winner::participant and j::participant
   assumes allocation: "allocation n b x"
+    and winner_range: "winner \<in> {1..n}"
     and winner: "x b winner"
-  shows "x b j \<Longrightarrow> j = winner"
-using allocation allocation_def winner true_for_exactly_one_component_unique by auto
+    and other_range: "other \<in> {1..n}"
+    and other_winner: "x b other"
+  shows "other = winner"
+  using assms allocation_def true_for_exactly_one_member_unique by (metis (lifting))
 
 subsection{* Sample lemma: The allocation, in which the first participant wins (whatever the bids) is an allocation. *}
 
@@ -201,18 +211,19 @@ where
 lemma only_wins_is_allocation:
   shows "allocation 1 all_bid_1 first_wins"
 apply(unfold allocation_def)
-
+apply(unfold true_for_exactly_one_member_def)
 apply(unfold first_wins_def)
+apply(auto)
+apply(rule bid_all_bid_1)
 apply(blast)
 done
 *)
 
-(* TODO CL: note that this is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps. *)
+(* TODO CL: note that this is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps.
 lemma only_wins_is_allocation_declarative:
   shows "allocation 1 all_bid_1 first_wins"
-  unfolding allocation_def true_for_exactly_one_component_def first_wins_def using bid_all_bid_1
-  (* When we changed allocation_def this no longer worked*)
-  oops
+  unfolding allocation_def true_for_exactly_one_member_def first_wins_def using bid_all_bid_1
+  by auto *)
 
 section{* Payment *}
 
@@ -238,21 +249,13 @@ lemma valuation_is_bid :
   fixes n::participants and v::real_vector
   assumes "valuation n v"
   shows "bids n v"
-(* Sledgehammer finds a proof
-   by (metis assms bids_def non_negative_real_vector_def order_less_imp_le valuation_def)
-   but we prefer manual Isar style here. *)
-proof -
-  {
-    fix i::participant
-    assume "i \<in> {1..n}"
-    with assms have "v i > 0" unfolding valuation_def positive_real_vector_def by simp
-    then have "v i \<ge> 0" by simp
-      (* If we had been searching the library for an applicable theorem, we could have used
-         find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
-         and would have found less_imp_le *)
-  }
-  then show "bids n v" unfolding bids_def non_negative_real_vector_def by simp
-qed
+  using assms
+  unfolding valuation_def positive_real_vector_def
+  unfolding bids_def non_negative_real_vector_def
+  by (simp add: order_less_imp_le)
+  (* If we had been searching the library for an applicable theorem, we could have used
+     find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
+     and would have found less_imp_le and others *)
 
 section{* Payoff *}
 
@@ -301,9 +304,8 @@ proof (induct n)
   show ?case by simp
 next
   case (Suc n)
-  from Suc.prems (* the assumptions *)
-    have max_equal_so_far: "maximum n y = maximum n z" by (simp add: Suc.hyps le_SucI)
-  with Suc.prems show "maximum (Suc n) y = maximum (Suc n) z" by simp
+  from Suc.prems  (* the assumptions *)
+    show "maximum (Suc n) y = maximum (Suc n) z" by (simp add: Suc.hyps le_SucI)
 qed
 
 text{* The maximum component, as defined above, is non-negative *}
@@ -315,9 +317,7 @@ proof (induct n)
   show ?case by simp
 next
   case (Suc n)
-  have "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))" using maximum_def by simp
-  also have "\<dots> \<ge> 0" by simp
-  finally show ?case .
+  show "maximum (Suc n) y \<ge> 0" using maximum_def by simp
 qed
 
 text{* The maximum component value is greater or equal than the values of all [other] components *}
@@ -360,10 +360,8 @@ next
   proof (cases "y (Suc n) \<ge> maximum n y")                                          
     case True
     from Suc.prems have "y (Suc n) \<ge> 0" unfolding non_negative_real_vector_def by simp
-    with True have "y (Suc n) = max 0 (max (maximum n y) (y (Suc n)))" by simp
-    also have "\<dots> = maximum (Suc n) y" using maximum_def by simp
-    finally have "y (Suc n) = maximum (Suc n) y" .
-    then show ?thesis by auto
+    with True have "y (Suc n) = maximum (Suc n) y" using maximum_def by simp
+    then show ?thesis by auto (* We could directly have shown ?thesis in the previous step, but we prefer this for clarity. *)
   next
     case False
     have non_empty: "n > 0"
@@ -384,13 +382,10 @@ next
     with Suc.prems have y_i_non_negative: "0 \<le> y i" unfolding non_negative_real_vector_def by simp
     have "y i = maximum n y" using pred_max by simp
     also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
-      (* TODO CL: ask for the difference between "from" and "using" (before/after goal).
-         In any case I got the impression that "with \<dots> also have" breaks the chain of calculational reasoning. *)
     also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))" using Suc.prems y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
     also have "\<dots> = maximum (Suc n) y" using maximum_def non_empty by simp
     finally have max: "y i = maximum (Suc n) y" .
-    from pred_max have "i \<in> {1..Suc n}" by simp
-    with max show ?thesis by auto
+    with pred_max and max show ?thesis by auto
   qed
 qed
 
@@ -707,11 +702,11 @@ definition second_price_auction ::
   "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
   "second_price_auction n x p \<equiv>
     \<forall> b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
-    (\<exists>i::participant. i \<in> {1..n} \<and> second_price_auction_winner n b x p i
-                      \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j))"
+    (\<exists>i::participant . i \<in> {1..n} \<and> second_price_auction_winner n b x p i
+                      \<and> (\<forall>j::participant . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j))"
 
-(* TODO CL: structure as in Theorema: \<forall>i \<forall>j . ... \<longrightarrow> i = j *)
 text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
+(* TODO CL: discuss whether it makes sense to keep this lemma – it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
 lemma second_price_auction_has_only_one_winner :
   fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant and j::participant
   assumes spa: "second_price_auction n x p"
@@ -719,24 +714,23 @@ lemma second_price_auction_has_only_one_winner :
     and winner: "second_price_auction_winner n b x p winner"
     and also_winner: "second_price_auction_winner n b x p j"
   shows "j = winner"
-proof -
-  from winner have wins: "x b winner" by (simp add: second_price_auction_winner_def)
-  from also_winner have j_wins: "x b j" by (simp add: second_price_auction_winner_def)
-  from spa bids have "allocation n b x" by (simp add: second_price_auction_def)
-  with wins j_wins show "j = winner" by (simp add: allocation_unique)
-qed
+  using assms
+  unfolding second_price_auction_def second_price_auction_winner_def
+  using allocation_unique
+  by blast
 
 text{* The participant who gets the good also satisfies the further properties of a second-price auction winner *}
 lemma allocated_implies_spa_winner :
   fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
-    and wins: "x b winner" (* note that we need not assume anything about the range of winner *)
+    and winner_range: "winner \<in> {1..n}"  (* in an earlier version we managed without this assumption, but it makes the proof easier *)
+    and wins: "x b winner"
   shows "second_price_auction_winner n b x p winner"
-proof -
-  from wins spa bids second_price_auction_winner_def second_price_auction_has_only_one_winner
-  show ?thesis by (metis allocation_unique second_price_auction_def)
-qed
+  using assms
+  unfolding second_price_auction_def second_price_auction_winner_def
+  using allocation_unique
+  by blast
 
 text{* A participant who doesn't gets the good satisfies the further properties of a second-price auction loser *}
 lemma not_allocated_implies_spa_loser :
@@ -749,11 +743,11 @@ lemma not_allocated_implies_spa_loser :
 proof - (* by contradiction *)
   {
     assume False: "\<not> second_price_auction_loser n b x p loser"
-    from spa bids second_price_auction_def
-      have "(\<exists>j::participant. j \<in> {1..n} \<and> second_price_auction_winner n b x p j
-                  \<and> (\<forall>k::participant. k \<in> {1..n} \<and> k \<noteq> j \<longrightarrow> second_price_auction_loser n b x p k))" by simp
-    with False range have "second_price_auction_winner n b x p loser" by auto
-    with second_price_auction_winner_def have "x b loser" by simp
+    have "x b loser"
+      using second_price_auction_def
+      using spa bids
+      using False range
+      using second_price_auction_winner_def by auto
     with loses have "False" ..
   }
   then show ?thesis by blast
@@ -769,11 +763,11 @@ lemma only_max_bidder_wins :
     and only_max_bidder: "b max_bidder > maximum_except n b max_bidder"
   shows "second_price_auction_winner n b x p max_bidder"
 proof -
-  from bids spa
-    have x_is_allocation: "\<exists>i:: participant. i \<in> {1..n} \<and> x b i \<and> (\<forall>j:: participant. j\<noteq>i \<longrightarrow> \<not>x b j)"
-    unfolding second_price_auction_def allocation_def true_for_exactly_one_component_def by (metis one_neq_zero)
   from bids spa have spa_unfolded: "\<exists>i::participant. second_price_auction_winner n b x p i
-    \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)" unfolding second_price_auction_def by blast
+    \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)"
+    unfolding second_price_auction_def by blast
+  then have x_is_allocation: "\<exists>i:: participant. i \<in> {1..n} \<and> x b i \<and> (\<forall>j:: participant. j \<in> {1..n} \<and> j\<noteq>i \<longrightarrow> \<not>x b j)"
+    unfolding second_price_auction_winner_def second_price_auction_loser_def by blast
   {
     fix j::participant
     assume j_not_max: "j \<in> {1..n} \<and> j \<noteq> max_bidder"
@@ -796,7 +790,7 @@ proof -
     qed
   }
   with (* max_bidder *) (* turns out that we didn't need this :-) *)
-    x_is_allocation spa_unfolded show ?thesis unfolding second_price_auction_def by (metis (full_types) second_price_auction_winner_def)
+    x_is_allocation spa_unfolded show ?thesis by (metis second_price_auction_winner_def)
 qed
 
 text{* a formula for computing the payoff of the winner of a second-price auction *}
@@ -804,6 +798,7 @@ lemma second_price_auction_winner_payoff :
   fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and winner::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
+    and winner_range: "winner \<in> {1..n}"
     and wins: "x b winner"
   shows "payoff_vector v (x b) (p b) winner = v winner - maximum_except n b winner"
 proof -
@@ -812,7 +807,9 @@ proof -
   also have "\<dots> = payoff (v winner) True (p b winner)" using wins by simp
   also have "\<dots> = v winner - p b winner" unfolding payoff_def by simp
   also have "\<dots> = v winner - maximum_except n b winner"
-    using wins spa bids by (metis allocated_implies_spa_winner second_price_auction_winner_def)
+    using spa bids winner_range wins
+    using allocated_implies_spa_winner
+    unfolding second_price_auction_winner_def by simp
   finally show ?thesis by simp
 qed
 
@@ -824,13 +821,8 @@ lemma second_price_auction_loser_payoff :
     and range: "loser \<in> {1..n}"
     and loses: "\<not> x b loser"
   shows "payoff_vector v (x b) (p b) loser = 0"
-proof -
-  from loses spa bids range
-    have "second_price_auction_loser n b x p loser"
-    by (simp add: not_allocated_implies_spa_loser)
-  then show ?thesis unfolding second_price_auction_loser_def payoff_vector_def payoff_def
-    by (metis (full_types) diff_0_right mult_zero_right)
-qed
+  using assms not_allocated_implies_spa_loser
+  unfolding second_price_auction_loser_def payoff_vector_def payoff_def by simp
 
 text{* If a participant wins a second-price auction by not bidding his/her valuation,
   the payoff equals the valuation minus the remaining maximum bid *}
@@ -850,7 +842,7 @@ lemma winners_payoff_on_deviation_from_valuation :
 proof -
   let ?winner_sticks_with_valuation = "deviation_vec n b v winner"
   (* winner gets the good, so winner also satisfies the further properties of a second price auction winner: *)
-  from wins spa bids
+  from wins range spa bids
     have "payoff_vector v (x b) (p b) winner = v winner - maximum_except n b winner"
     by (simp add: second_price_auction_winner_payoff)
   (* i's deviation doesn't change the maximum remaining bid (which is the second highest bid when winner wins) *)
@@ -920,7 +912,7 @@ proof -
       proof cases (* case 1 of the short proof *)
         assume i_wins: "x ?i_sticks_with_valuation i"
         (* i gets the good, so i also satisfies the further properties of a second price auction winner: *)
-        with spa i_sticks_is_bid
+        with spa i_sticks_is_bid i_range
           have "i \<in> arg_max_set n ?i_sticks_with_valuation" by (metis allocated_implies_spa_winner second_price_auction_winner_def)
         (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
            without first saying "have 'a \<and> b' and then breaking it down "by auto".
@@ -932,7 +924,7 @@ proof -
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
         finally have i_ge_max_except: "?i_sticks_with_valuation i \<ge> maximum_except n ?i_sticks_with_valuation i" by simp
         (* Now we show that i's payoff is \<ge> 0 *)
-        from spa i_sticks_is_bid i_wins have "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i
+        from spa i_sticks_is_bid i_range i_wins have "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i
           = v i - maximum_except n ?i_sticks_with_valuation i" by (simp add: second_price_auction_winner_payoff)
         also have "\<dots> = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
           unfolding deviation_vec_def deviation_def by simp
