@@ -147,20 +147,21 @@ text{* A single-good auction is a mechanism specified by a function that maps a 
 section{* Allocation *}
 
 text{* A predicate that is satisfied for exactly one member of a set *}
-definition true_for_exactly_one_member :: "('s \<Rightarrow> bool) \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool"
-  where "true_for_exactly_one_member member pred \<equiv>
-         \<exists>k . member k \<and> pred k \<and> (\<forall>j . member j \<and> j \<noteq> k \<longrightarrow> \<not>pred j)"
+(* We could also have using a member_of_S predicate as the first argument, but a set is more convenient. *)
+definition true_for_exactly_one_member :: "'s set \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool"
+  where "true_for_exactly_one_member S pred \<equiv>
+         \<exists>k . k \<in> S \<and> pred k \<and> (\<forall>j . j \<in> S \<and> j \<noteq> k \<longrightarrow> \<not>pred j)"
 
 lemma true_for_exactly_one_member_sat :
-  shows "true_for_exactly_one_member (\<lambda> b::bool . True) (\<lambda> b::bool . b)"
+  shows "true_for_exactly_one_member { True } (\<lambda> b::bool . b)"
   unfolding true_for_exactly_one_member_def by blast
 
 lemma true_for_exactly_one_member_unique :
-  fixes member::"'s \<Rightarrow> bool" and pred::"'s \<Rightarrow> bool" and satisfier::'s and j::'s
-  assumes "true_for_exactly_one_member member pred"
-    and "member satisfier"
+  fixes S::"'s set" and pred::"'s \<Rightarrow> bool" and satisfier::'s and j::'s
+  assumes "true_for_exactly_one_member S pred"
+    and "satisfier \<in> S"
     and "pred satisfier"
-    and "member j"
+    and "j \<in> S"
     and "pred j"
   shows "j = satisfier"
   using assms true_for_exactly_one_member_def by metis
@@ -174,7 +175,7 @@ text{* A function x, which takes a vector of n bids, is an allocation if it retu
 *)
 definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where 
   "allocation n b x \<equiv> bids n b \<and> 
-   true_for_exactly_one_member (\<lambda> i . i \<in> {1..n}) (x b)"
+   true_for_exactly_one_member {1..n} (x b)"
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
@@ -185,7 +186,7 @@ lemma allocation_unique :
     and other_range: "other \<in> {1..n}"
     and other_winner: "x b other"
   shows "other = winner"
-  using assms allocation_def true_for_exactly_one_member_unique by (metis (lifting))
+  using assms allocation_def true_for_exactly_one_member_unique by metis
 
 subsection{* Sample lemma: The allocation, in which the first participant wins (whatever the bids) is an allocation. *}
 
