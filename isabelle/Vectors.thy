@@ -1,5 +1,7 @@
 (*
-$Id: Vickrey.thy 165 2012-11-24 13:57:35Z langec $
+$Id$
+
+Auction Theory Toolbox
 
 Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>
@@ -14,7 +16,7 @@ See LICENSE file for details
 *)
 
 theory Vectors
-imports Main Real
+imports Real
 
 begin
 
