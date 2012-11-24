@@ -72,4 +72,63 @@ definition deviation_vec ::
      The latter was desired after introducing remaining_maximum_invariant
        (which uses the more general "deviation" form instead of "deviation_vec") *)
 
+
+text{* constructing a new vector from a given one, by skipping one component *}
+definition skip_index ::
+  "(nat \<Rightarrow> 'a) \<Rightarrow> nat \<Rightarrow> (nat \<Rightarrow> 'a)" where
+  "skip_index vector index = (\<lambda> i::nat . vector (if i < index then i else Suc i))"
+
+text{* skipping one component in a non-negative vector keeps it non-negative *}
+(* TODO CL: discuss whether we should actually prove the more general lemma that
+   skipping one component in a vector whose components each satisfy p still satisfies p (for a suitable p) *)
+lemma skip_index_keeps_non_negativity :
+  fixes n::nat and v::real_vector and i::nat
+  assumes non_empty: "n > 0"
+    and non_negative: "non_negative_real_vector n v"
+    and range: "i \<in> {1..n}"
+  shows "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
+proof -
+  {
+    fix j::nat
+    assume j_range: "j \<in> {1..n-(1::nat)}"
+    have "(skip_index v i) j \<ge> 0"
+    proof (cases "j < i")
+      case True
+      then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
+      with j_range non_negative show ?thesis
+        unfolding non_negative_real_vector_def
+        by (auto simp add: leD less_imp_diff_less not_leE)
+    next
+      case False
+      then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
+      with j_range non_negative show ?thesis
+        unfolding non_negative_real_vector_def
+        by (auto simp add: leD less_imp_diff_less not_leE)
+    qed
+  }
+  then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)" unfolding non_negative_real_vector_def by simp
+qed
+
+text{* when two vectors differ in one component, skipping that component makes the vectors equal *}
+lemma equal_by_skipping :
+  fixes n::nat and v::real_vector and w::real_vector and j::nat and k::nat
+  assumes non_empty: "n > 0"
+    and j_range: "j \<in> {1..n}"
+    and equal_except: "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> v i = w i"
+    and k_range: "k \<in> {1..n-(1::nat)}"
+  shows "skip_index v j k = skip_index w j k"
+proof (cases "k < j")
+  case True
+  then have "skip_index v j k = v k" 
+    "skip_index w j k = w k"
+    unfolding skip_index_def by auto
+  with equal_except k_range True show ?thesis by auto
+next
+  case False
+  then have "skip_index v j k = v (Suc k)"
+   "skip_index w j k = w (Suc k)"
+    unfolding skip_index_def by auto
+  with equal_except k_range False show ?thesis by auto
+qed
+
 end

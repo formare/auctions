@@ -1,4 +1,12 @@
-SYNC_FILES = SingleGoodAuctionTest.thy SingleGoodAuction.thy Vectors.thy Vickrey.thy LICENSE LICENSE-CC-BY LICENSE-ISC README
+SYNC_FILES = \
+	MaximumTest.thy \
+	SingleGoodAuction.thy \
+	Vectors.thy \
+	Vickrey.thy \
+	Maximum.thy \
+	SingleGoodAuctionTest.thy \
+	LICENSE LICENSE-CC-BY LICENSE-ISC \
+	README
 
 all: sync
 
