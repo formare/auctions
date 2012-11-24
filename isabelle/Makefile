@@ -1,10 +1,12 @@
 SYNC_FILES = \
+	Maximum.thy \
 	MaximumTest.thy \
+	SecondPriceAuction.thy \
 	SingleGoodAuction.thy \
+	SingleGoodAuctionProperties.thy \
+	SingleGoodAuctionTest.thy \
 	Vectors.thy \
 	Vickrey.thy \
-	Maximum.thy \
-	SingleGoodAuctionTest.thy \
 	LICENSE LICENSE-CC-BY LICENSE-ISC \
 	README
 
