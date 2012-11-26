@@ -51,4 +51,4 @@ lemma allocated_implies_aa_winner : (* unchanged from allocated_implies_spa_winn
   using allocation_unique
   by blast
 
-
+end
