@@ -141,7 +141,18 @@ proof -
                 Case 1 was: i won with strategy, i.e.
                 * "p ?i_sticks_with_strategy i = maximum_except n ?i_sticks_with_strategy i"
                 * and "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i
-                       = v i - maximum_except n ?i_sticks_with_strategy i" *)
+                       = v i - maximum_except n ?i_sticks_with_strategy i"
+                show that this is \<ge> (v i) / n
+                  (because maximum_except n ?i_sticks_with_strategy i \<le> maximum n ?i_sticks_with_strategy (by maximum_greater_or_equal_remaining_maximum)
+                           = ?i_sticks_with_strategy i (because i \<in> arg_max_set n ?i_sticks_with_strategy)
+                           = (v i) * (n - 1) / n = v i - (v i / n))
+                Case 1b is: i loses by deviating from strategy, i.e.
+                * "payoff_vector v (x whatever_bid) (p whatever_bid) i
+                   = maximum_except n whatever_bid new_winner / (n - 1)"
+                * "\<dots> \<le> maximum n whatever_bid / (n - 1)" by maximum_greater_or_equal_remaining_maximum
+                * "\<dots> \<le> ?i_sticks_with_strategy i / (n - 1)" (otherwise i would have won – how to formally prove this step?)
+                * "v i / n \<le> payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i" (see above)
+             *)
           assume i_now_loses: "\<not> x whatever_bid i"
           from aa alternative_is_bid have 1: "allocation n whatever_bid x 
                \<and> (\<exists> new_winner::participant . 
