@@ -26,9 +26,13 @@ text{* Agent i being the winner of a second-price auction (see below for complet
 * he/she is one of the participants with the highest bids
 * he/she wins the auction
 * and pays the maximum price that remains after removing the winner's own bid from the vector of bids. *}
+definition second_price_auction_winners_payment :: "participants \<Rightarrow> real_vector \<Rightarrow> real_vector"
+  where "second_price_auction_winners_payment n b winner \<equiv> maximum_except n b winner"
+
 definition second_price_auction_winner ::
   "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
-  "second_price_auction_winner n b x p i \<equiv> i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i \<and> (p b i = maximum_except n b i)"
+  "second_price_auction_winner n b x p i \<equiv> i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i 
+                                           \<and> (p b i = second_price_auction_winners_payment n b i)"
 
 text{* Agent i being a loser of a second-price auction (see below for complete definition) means
 * he/she loses the auction
@@ -153,7 +157,7 @@ proof -
   also have "\<dots> = v winner - maximum_except n b winner"
     using spa bids winner_range wins
     using allocated_implies_spa_winner
-    unfolding second_price_auction_winner_def by simp
+    unfolding second_price_auction_winner_def second_price_auction_winners_payment_def by simp
   finally show ?thesis by simp
 qed
 
