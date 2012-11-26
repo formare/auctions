@@ -51,6 +51,27 @@ lemma allocated_implies_aa_winner : (* unchanged from allocated_implies_spa_winn
   using allocation_unique
   by blast
 
+lemma not_allocated_implies_aa_loser :
+  fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant and loser::participant
+  assumes aa: "applicant_auction n x p"
+    and bids: "bids n b"
+    and winner: "second_price_auction_winner n b x p winner"
+    and range: "loser \<in> {1..n}"
+    and loses: "\<not> x b loser"
+  shows "applicant_auction_loser n b x p winner loser"
+proof - (* by contradiction *)
+  {
+    assume False: "\<not> applicant_auction_loser n b x p winner loser"
+    have "x b loser"
+      using aa bids unfolding applicant_auction_def 
+      using False range winner allocation_unique
+      using second_price_auction_winner_def
+      by metis
+    with loses have "False" ..
+  }
+  then show ?thesis by blast
+qed
+
 lemma applicant_auction_winner_payoff : (* unchanged from allocated_implies_spa_winner *)
   fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and winner::participant
   assumes aa: "applicant_auction n x p"
@@ -68,6 +89,20 @@ proof -
     using allocated_implies_aa_winner
     unfolding second_price_auction_winner_def second_price_auction_winners_payment_def by simp
   finally show ?thesis by simp
+qed
+
+lemma applicant_auction_loser_payoff :
+  fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and winner::participant and loser::participant
+  assumes "applicant_auction n x p"
+    and "bids n b"
+    and "second_price_auction_winner n b x p winner"
+    and "loser \<in> {1..n}"
+    and "\<not> x b loser"
+  shows "payoff_vector v (x b) (p b) loser = second_price_auction_winners_payment n b winner / (n - 1)"
+proof -
+  from assms not_allocated_implies_aa_loser have "applicant_auction_loser n b x p winner loser" by simp
+  (* single-step "by simp" doesn't work here *)
+  then show ?thesis unfolding applicant_auction_loser_def payoff_vector_def payoff_def by simp
 qed
 
 end
