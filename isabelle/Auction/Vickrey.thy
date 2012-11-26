@@ -61,12 +61,12 @@ proof -
     fix whatever_bid::real_vector
     assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
     then have alternative_is_bid: "bids n whatever_bid" ..
-    let ?i_sticks_with_valuation = "deviation_vec n whatever_bid ?b i"
-      (* Agent i sticks to bidding his/her valuation, whatever the others bid.  Given this, we have to show that agent i is best off. *)
+    let ?i_sticks_with_strategy = "deviation_vec n whatever_bid ?b i"
+      (* Agent i sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.  Given this, we have to show that agent i is best off. *)
     from bids alternative_is_bid
-      have i_sticks_is_bid: "bids n ?i_sticks_with_valuation"
+      have i_sticks_is_bid: "bids n ?i_sticks_with_strategy"
       by (simp add: deviated_bid_well_formed)
-    have weak_dominance: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
+    have weak_dominance: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof (cases "n = 0")
       case True
       with i_range show ?thesis by simp
@@ -76,37 +76,37 @@ proof -
       let ?b_bar = "maximum n ?b"
       show ?thesis
       proof cases (* case 1 of the short proof *)
-        assume i_wins: "x ?i_sticks_with_valuation i"
+        assume i_wins: "x ?i_sticks_with_strategy i"
         (* i gets the good, so i also satisfies the further properties of a second price auction winner: *)
         with spa i_sticks_is_bid i_range
-          have "i \<in> arg_max_set n ?i_sticks_with_valuation" by (metis allocated_implies_spa_winner second_price_auction_winner_def)
+          have "i \<in> arg_max_set n ?i_sticks_with_strategy" by (metis allocated_implies_spa_winner second_price_auction_winner_def)
         (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
            without first saying "have 'a \<and> b' and then breaking it down "by auto".
            In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
-        then have "?i_sticks_with_valuation i = maximum n ?i_sticks_with_valuation" by (simp add: arg_max_set_def)
-        also have "\<dots> \<ge> maximum_except n ?i_sticks_with_valuation i"
-          using i_sticks_is_bid bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_valuation *)
+        then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy" by (simp add: arg_max_set_def)
+        also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
+          using i_sticks_is_bid bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_strategy *)
           non_empty i_range
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
-        finally have i_ge_max_except: "?i_sticks_with_valuation i \<ge> maximum_except n ?i_sticks_with_valuation i" by simp
+        finally have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i" by simp
         (* Now we show that i's payoff is \<ge> 0 *)
-        from spa i_sticks_is_bid i_range i_wins have "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i
-          = v i - maximum_except n ?i_sticks_with_valuation i" by (simp add: second_price_auction_winner_payoff)
-        also have "\<dots> = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
+        from spa i_sticks_is_bid i_range i_wins have "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i
+          = v i - maximum_except n ?i_sticks_with_strategy i" by (simp add: second_price_auction_winner_payoff)
+        also have "\<dots> = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
           unfolding deviation_vec_def deviation_def by simp
-        finally have payoff_expanded: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i =
-          ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i" by simp
+        finally have payoff_expanded: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
+          ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" by simp
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
         also have "... \<ge> 0" using i_ge_max_except by simp
-        finally have non_negative_payoff: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i \<ge> 0" by simp
+        finally have non_negative_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> 0" by simp
         show ?thesis  
         proof cases (* case 1a of the short proof *)
           assume "x whatever_bid i"
           with spa alternative_is_bid non_empty i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
           (* Now we show that i's payoff hasn't changed *)
-          also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
+          also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using payoff_expanded by simp
           finally show ?thesis by simp (* = \<longrightarrow> \<le> *)
         next (* case 1b of the short proof *)
@@ -115,23 +115,23 @@ proof -
           with spa alternative_is_bid i_range
             have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
             by (rule second_price_auction_loser_payoff)
-          also have "\<dots> \<le> payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i" using non_negative_payoff by simp
+          also have "\<dots> \<le> payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i" using non_negative_payoff by simp
           finally show ?thesis by simp
         qed
       next (* case 2 of the short proof *)
-        assume i_loses: "\<not> x ?i_sticks_with_valuation i"
+        assume i_loses: "\<not> x ?i_sticks_with_strategy i"
         (* i doesn't get the good, so i's payoff is 0 *)
         with spa i_sticks_is_bid i_range
-          have zero_payoff: "payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i = 0"
+          have zero_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i = 0"
           by (rule second_price_auction_loser_payoff)
         (* i's bid can't be higher than the second highest bid, as otherwise i would have won *)
-        have i_bid_at_most_second: "?i_sticks_with_valuation i \<le> maximum_except n ?i_sticks_with_valuation i"
+        have i_bid_at_most_second: "?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
         proof - (* by contradiction *)
           {
-            assume "\<not> ?i_sticks_with_valuation i \<le> maximum_except n ?i_sticks_with_valuation i"
-            then have "?i_sticks_with_valuation i > maximum_except n ?i_sticks_with_valuation i" by simp
+            assume "\<not> ?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
+            then have "?i_sticks_with_strategy i > maximum_except n ?i_sticks_with_strategy i" by simp
             with spa i_sticks_is_bid i_range
-              have "second_price_auction_winner n ?i_sticks_with_valuation x p i"
+              have "second_price_auction_winner n ?i_sticks_with_strategy x p i"
               using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
               by simp
             with i_loses have False using second_price_auction_winner_def by simp
@@ -142,11 +142,11 @@ proof -
         proof cases (* case 2a of the short proof *)
           assume "x whatever_bid i"
           with spa alternative_is_bid non_empty i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_valuation i - maximum_except n ?i_sticks_with_valuation i"
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
           (* Now we can compute i's payoff *)
           also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
-          also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i"
+          also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using zero_payoff by simp
           finally show ?thesis by simp
         next (* case 2b of the short proof *)
@@ -155,7 +155,7 @@ proof -
           with spa alternative_is_bid i_range
             have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
             by (rule second_price_auction_loser_payoff)
-          also have "\<dots> = payoff_vector v (x ?i_sticks_with_valuation) (p ?i_sticks_with_valuation) i" using zero_payoff by simp
+          also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i" using zero_payoff by simp
           finally show ?thesis by simp
         qed
       qed
