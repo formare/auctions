@@ -90,24 +90,24 @@ proof -
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
         finally have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i" by simp
         (* Now we show that i's payoff is \<ge> 0 *)
-        from spa i_sticks_is_bid i_range i_wins have "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i
+        from spa i_sticks_is_bid i_range i_wins have winners_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i
           = v i - maximum_except n ?i_sticks_with_strategy i" by (simp add: second_price_auction_winner_payoff)
         also have "\<dots> = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
           unfolding deviation_vec_def deviation_def by simp
         finally have payoff_expanded: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
           ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" by simp
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
-        also have "... \<ge> 0" using i_ge_max_except by simp
+        also have "\<dots> \<ge> 0" using i_ge_max_except by simp
         finally have non_negative_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> 0" by simp
-        show ?thesis  
+        show ?thesis 
         proof cases (* case 1a of the short proof *)
           assume "x whatever_bid i"
           with spa alternative_is_bid non_empty i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
-            using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = v i - maximum_except n ?i_sticks_with_strategy i"
+            using winners_payoff_on_deviation_from_valuation by simp
           (* Now we show that i's payoff hasn't changed *)
           also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
-            using payoff_expanded by simp
+            using winners_payoff by simp
           finally show ?thesis by simp (* = \<longrightarrow> \<le> *)
         next (* case 1b of the short proof *)
           assume "\<not> x whatever_bid i"
