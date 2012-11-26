@@ -57,10 +57,10 @@ text{* We chose not to \emph{define} that a second-price auction has only one wi
 (* TODO CL: discuss whether it makes sense to keep this lemma – it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
 lemma second_price_auction_has_only_one_winner :
   fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant and j::participant
-  assumes spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and winner: "second_price_auction_winner n b x p winner"
-    and also_winner: "second_price_auction_winner n b x p j"
+  assumes "second_price_auction n x p"
+    and "bids n b"
+    and "second_price_auction_winner n b x p winner"
+    and "second_price_auction_winner n b x p j"
   shows "j = winner"
   using assms
   unfolding second_price_auction_def second_price_auction_winner_def
@@ -70,10 +70,10 @@ lemma second_price_auction_has_only_one_winner :
 text{* The participant who gets the good also satisfies the further properties of a second-price auction winner *}
 lemma allocated_implies_spa_winner :
   fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant
-  assumes spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and winner_range: "winner \<in> {1..n}"  (* in an earlier version we managed without this assumption, but it makes the proof easier *)
-    and wins: "x b winner"
+  assumes "second_price_auction n x p"
+    and "bids n b"
+    and "winner \<in> {1..n}"  (* in an earlier version we managed without this assumption, but it makes the proof easier *)
+    and "x b winner"
   shows "second_price_auction_winner n b x p winner"
   using assms
   unfolding second_price_auction_def second_price_auction_winner_def
@@ -164,10 +164,10 @@ qed
 text{* a formula for computing the payoff of a loser of a second-price auction *}
 lemma second_price_auction_loser_payoff :
   fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and loser::participant
-  assumes spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and range: "loser \<in> {1..n}"
-    and loses: "\<not> x b loser"
+  assumes "second_price_auction n x p"
+    and "bids n b"
+    and "loser \<in> {1..n}"
+    and "\<not> x b loser"
   shows "payoff_vector v (x b) (p b) loser = 0"
   using assms not_allocated_implies_spa_loser
   unfolding second_price_auction_loser_def payoff_vector_def payoff_def by simp
