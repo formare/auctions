@@ -41,14 +41,33 @@ definition applicant_auction :: "participants \<Rightarrow> allocation \<Rightar
 
 lemma allocated_implies_aa_winner : (* unchanged from allocated_implies_spa_winner *)
   fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant
-  assumes spa: "applicant_auction n x p"
-    and bids: "bids n b"
-    and winner_range: "winner \<in> {1..n}"  (* in an earlier version we managed without this assumption, but it makes the proof easier *)
-    and wins: "x b winner"
+  assumes "applicant_auction n x p"
+    and "bids n b"
+    and "winner \<in> {1..n}"  (* in an earlier version we managed without this assumption, but it makes the proof easier *)
+    and "x b winner"
   shows "second_price_auction_winner n b x p winner"
   using assms
   unfolding applicant_auction_def second_price_auction_winner_def
   using allocation_unique
   by blast
+
+lemma applicant_auction_winner_payoff : (* unchanged from allocated_implies_spa_winner *)
+  fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and winner::participant
+  assumes aa: "applicant_auction n x p"
+    and bids: "bids n b"
+    and winner_range: "winner \<in> {1..n}"
+    and wins: "x b winner"
+  shows "payoff_vector v (x b) (p b) winner = v winner - maximum_except n b winner"
+proof -
+  have "payoff_vector v (x b) (p b) winner
+    = payoff (v winner) (x b winner) (p b winner)" unfolding payoff_vector_def by simp
+  also have "\<dots> = payoff (v winner) True (p b winner)" using wins by simp
+  also have "\<dots> = v winner - p b winner" unfolding payoff_def by simp
+  also have "\<dots> = v winner - maximum_except n b winner"
+    using aa bids winner_range wins
+    using allocated_implies_aa_winner
+    unfolding second_price_auction_winner_def second_price_auction_winners_payment_def by simp
+  finally show ?thesis by simp
+qed
 
 end
