@@ -112,11 +112,11 @@ definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> a
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
   fixes n::participants and x::allocation and b::real_vector and winner::participant and j::participant
-  assumes allocation: "allocation n b x"
-    and winner_range: "winner \<in> {1..n}"
-    and winner: "x b winner"
-    and other_range: "other \<in> {1..n}"
-    and other_winner: "x b other"
+  assumes "allocation n b x"
+    and "winner \<in> {1..n}"
+    and "x b winner"
+    and "other \<in> {1..n}"
+    and "x b other"
   shows "other = winner"
   using assms allocation_def true_for_exactly_one_member_unique by metis
 
