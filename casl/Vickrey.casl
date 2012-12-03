@@ -19,7 +19,7 @@ spec Nat =
         Nat
     preds
         __!=__: Nat * Nat;
-        inRange: Nat * Nat; %[ CL@TM: How can we actually _define_ 1 <= i <= n (if it's necessary to define it at all). ]%
+        inRange: Nat * Nat; %[ TODO CL: find out whether it's really necessary to _define_ this ]%
 end
 
 spec BasicConcepts =
@@ -33,6 +33,7 @@ Nat then
         __>__: NonNegativeReal * NonNegativeReal;
         __!=__: NonNegativeReal * NonNegativeReal;
     ops
+        __-__: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
         0: NonNegativeReal; %[ CL@TM: If we don't want to use actual reals from HasCASL, is this a reasonable way of saying that 0 is a non-negative real number? ]%
 end
 
@@ -40,8 +41,8 @@ spec Vectors[sort Elem] given BasicConcepts =
     sorts
     	Vector[Elem];  
     ops
-        component: Vector[Elem] * Nat -> Elem;
-        %% alternative modelling:     sort NonNegativeReal < Thing; ... ; sort Vector; op component: Vector * Nat -> Thing;
+        __[__]: Vector[Elem] * Nat -> Elem;
+        %% TM: alternative modelling:     sort NonNegativeReal < Thing; ... ; sort Vector; op component: Vector * Nat -> Thing;
         %[ CL@TM: The following should actually be parameterized by sort; and, can we make length for some SubSort < Vector[...] return Participants < Nat? ]%
         length: Vector[Elem] -> Nat;
         deviationVector: Vector[Elem] * Vector[Elem] * Nat -> Vector[Elem];
@@ -86,7 +87,7 @@ Vectors[sort Elem] then
         maximumExcept: Vector[Elem] * Nat -> Elem;
     forall b: Vector[Elem];
            i: Nat
-    . inArgMaxSet(b, i) <=> maximum(b) = component(b, i)
+    . inArgMaxSet(b, i) <=> maximum(b) = b[i]
 end
 
 spec MaximumNonNegativeReal =
@@ -112,12 +113,12 @@ then
         payments(b, p) /\
         (forall i: Participant . inRange(n, i) =>
           (forall whateverBid,dV: Bids .
-            component(whateverBid, i) != component(b, i) /\ dV = deviationVector(whateverBid, b, i)
+            whateverBid[i] != b[i] /\ dV = deviationVector(whateverBid, b, i)
             => 
-            payoff(component(v, i),
+            payoff(v[i],
               True when allocated(x, dV, i) else False,
               payment(p, dV, i)) >=
-            payoff(component(v, i),
+            payoff(v[i],
               True when allocated(x, whateverBid, i) else False,
               payment(p, whateverBid, i))))
 end
@@ -132,6 +133,7 @@ MaximumNonNegativeReal then
     ops
         secondPriceAuctionWinnersPayment:  Bids * Participant -> NonNegativeReal;
     forall n: Participants;
+           v: Valuations;
            x: Allocation;
            b: Bids;
            p: Payments;
@@ -187,21 +189,19 @@ MaximumNonNegativeReal then
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       inRange(n, maxBidder) /\
-      component(b, maxBidder) > maximumExcept(b, maxBidder)
+      b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
-    %[ TODO CL: continue; we need a "-" operator for this. ]%
-    %[. secondPriceAuction(x, p) /\]%
-    %[  bids(b) /\]%
-    %[  n = length(b) /\]%
-    %[  %\[ TODO CL: Do we need to say that some other lengths should also be n? ]\%]%
-    %[  inRange(n, winner) /\]%
-    %[  allocated(x, b, winner)]%
-    %[  =>]%
-    %[  payoff(component(v, i),]%
-    %[    allocated(x, b, i),]%
-    %[    payment(p, b, i)) =]%
-      
-    %[%(second_price_auction_winner_payoff)% %implied]%
+    . secondPriceAuction(x, p) /\
+      n = length(b) /\
+      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
+      inRange(n, winner) /\
+      allocated(x, b, winner)
+      =>
+      payoff(v[i],
+        True when allocated(x, b, i) else False,
+        payment(p, b, i)) =
+      v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
+    %[ TODO CL: continue ]%
     %[%(second_price_auction_loser_payoff)% %implied]%
 end
 
