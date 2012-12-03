@@ -26,7 +26,7 @@ text{* Agent i being the winner of a second-price auction (see below for complet
 * he/she is one of the participants with the highest bids
 * he/she wins the auction
 * and pays the maximum price that remains after removing the winner's own bid from the vector of bids. *}
-definition second_price_auction_winners_payment :: "participants \<Rightarrow> real_vector \<Rightarrow> real_vector"
+definition second_price_auction_winners_payment :: "participants \<Rightarrow> real_vector \<Rightarrow> participant \<Rightarrow> real"
   where "second_price_auction_winners_payment n b winner \<equiv> maximum_except n b winner"
 
 definition second_price_auction_winner ::
