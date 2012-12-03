@@ -3,32 +3,205 @@ CL: There are some things that I need to ask Till; these are prefixed with CL@TM
 }%
 library Vickrey
 
-%% main concepts 
-spec SingleGoodAuction =
+%{
+CL@TM: Generally, how do I make best use of sorts/types?  It seems that the only alternative to using them _properly_ is a full fallback to raw FOL, where the only advantage of CASL over TPTP would be a little syntactic sugar.
+
+CL@TM: Generally, how do I translate any of the following specs to TPTP syntax (not just the SoftFOL _logic_) and/or send them to a TPTP prover?
+
+CL@TM: How does casl-mode indentation work?
+}%
+spec BasicConcepts =
     sorts
-        NonNegativeReal;
-        PositiveReal;
+        PositiveReal < NonNegativeReal;
         Boolean;
-        Participants; %[ cardinal number of participants ]%
-        Participant; %[ ordinal number of one participant ]%
-    	Bids < Vector[NonNegativeReal];
+        Nat;
+    preds
+        __>=__: NonNegativeReal * NonNegativeReal;
+        __>__: NonNegativeReal * NonNegativeReal;
+        __!=__: NonNegativeReal * NonNegativeReal;
+        __!=__: Nat * Nat;
+        inRange: Nat * Nat; %[ CL@TM: How can we actually _define_ 1 <= i <= n (if it's necessary to define it at all). ]%
+    ops
+        0: NonNegativeReal; %[ CL@TM: If we don't want to use actual reals from HasCASL, is this a reasonable way of saying that 0 is a non-negative real number? ]%
+end
+
+%[ CL@TM: I suppose I did not yet get this spec right.  Two spurious "blank" nodes show up in the theory graph. ]%
+spec Vectors[sort Elem] =
+BasicConcepts then
+    sorts
+    	Vector;
+        %[ CL@TM: Is it possible to have the following hierarchy inferred automatically, from PositiveReal < NonNegativeReal? ]%
+        Vector[PositiveReal] < Vector[NonNegativeReal];
+    ops
+        %[ CL@TM: Did I get the following right? ]%
+        %[component: Vector * Nat -> Elem;]%
+        %[ CL@TM: For now I did it just for one sort: ]%
+        component: Vector[NonNegativeReal] * Nat -> NonNegativeReal;
+        %[ CL@TM: The following should actually be parameterized by sort; and, can we make length for some SubSort < Vector[...] return Participants < Nat? ]%
+        length: Vector[NonNegativeReal] -> Nat;
+        deviationVector: Vector[NonNegativeReal] * Vector[NonNegativeReal] * Nat -> Vector[NonNegativeReal];
+end
+
+%% main concepts 
+spec SingleGoodAuction = %[ TODO CL: complete from Isabelle ]%
+BasicConcepts then
+    sorts
+        Participants < Nat; %[ cardinal number of participants (variable usually called n) ]%
+        Participant < Nat; %[ ordinal number of one participant ]%
+    	Bids < Vector[NonNegativeReal]; %[ CL@TM: Why can I write this without having to declare Vector? ]%
         Allocation < Vector[Boolean];
         Payments < Vector[NonNegativeReal];
         Valuations < Vector[PositiveReal];
     preds
-        allocation: Bids * Allocation;
-            %[CL@TM: Can we enforce that these two bags need to have the same length?  Or should we use a different type, e.g. Array?]%
-        vickreyPayment: Bids * Payments;
+        valuations: Vector[NonNegativeReal]; %[ CL@TM: Can we actually get rid of this predicate and the following, and do everything with sorts/types? ]%
+        bids: Vector[NonNegativeReal];
+        allocation: Vector[NonNegativeReal] %[ actually Bids ]% * Allocation;
+            %[ CL@TM: Can we enforce that the previous two vectors need to have the same length?  Or should we use a different type, e.g. Array?]%
+        allocated: Allocation * Vector[NonNegativeReal] %[ actually Bids ]% * Participant;
+        payments: Vector[NonNegativeReal] %[ actually Bids ]% * Payments;
     ops
-        payoff: PositiveReal * Boolean * NonNegativeReal -> NonNegativeReal;
-    %[CL@TM: In Isabelle we had a lemma valuation_is_bid stating "every valuation is a bid".  Do we need this here, or is it obvious anyway, from the declaration of our types/sorts?]%
+        %[ CL@TM: I already have allocated as a predicate, but apparently I need the following as well, if I want to use the result of the predicate as a function argument.]%
+        allocated: Allocation * Vector[NonNegativeReal] * Participant -> Boolean;
+        payment: Payments * Vector[NonNegativeReal] * Participant -> NonNegativeReal;
+        payoff: NonNegativeReal %[ actually PositiveReal ]% * Boolean * NonNegativeReal -> NonNegativeReal;
+    forall v: Vector[NonNegativeReal] %[ actually Valuations ]%
+    . valuations(v) => bids(v) %(valuation_is_bid)% %[ CL@TM: Do we really need this here, or can we do it with types/sorts? ]%
+end
+
+spec Maximum = %[ TODO CL: complete from Isabelle ]%
+BasicConcepts then
+Vectors[sort NonNegativeReal] then
+    preds
+        inArgMaxSet: Vector[NonNegativeReal] * Nat;
+        %[ CL@TM: How can I make this apply to any vector, as long as its element sort is totally ordered? ]%
+    ops
+        maximum: Vector[NonNegativeReal] -> NonNegativeReal;
+        maximumExcept: Vector[NonNegativeReal] * Nat -> NonNegativeReal;
+    forall b: Vector[NonNegativeReal];
+           i: Nat
+    . inArgMaxSet(b, i) <=> maximum(b) = component(b, i)
+end
+
+spec SingleGoodAuctionProperties = %[ TODO CL: complete from Isabelle ]%
+Maximum then
+SingleGoodAuction then
+    preds
+        equilibriumWeaklyDominantStrategy: Vector[NonNegativeReal] %[ actually Valuations ]% * Vector[NonNegativeReal] %[ CL@TM: Actually we'd like to say "Bids" here, but then a Valuations value wouldn't be accepted here. ]% * Allocation * Payments;
+        efficient: Vector[NonNegativeReal] %[ actually Valuations ]% * Vector[NonNegativeReal] %[ actually Bids ]% * Allocation;
+    forall v: Vector[NonNegativeReal]; %[ actually Valuations ]%
+           b: Vector[NonNegativeReal]; %[ actually Bids ]%
+           x: Allocation;
+           p: Payments
+    %[ CL@TM: In the quantifiers below, are there any brackets I could save? ]%
+    . efficient(v, b, x) <=> (exists n: Participants .
+      length(v) = n /\ valuations(v) /\ bids(b) /\
+      (forall i: Participant . allocated(x, b, i) => inArgMaxSet(v, i)))
+    . equilibriumWeaklyDominantStrategy(v, b, x, p) <=> exists n: Participants . %[ see above for n ]%
+        valuations(v) /\
+        bids(b) /\
+        allocation(b, x) /\
+        payments(b, p) /\
+        (forall i: Participant . inRange(n, i) =>
+          (forall whateverBid: Vector[NonNegativeReal] .
+            bids(whateverBid) /\
+            component(whateverBid, i) != component(b, i)
+            => %[ CL@TM: Is there a let-like construct? ]%
+            payoff(component(v, i),
+              allocated(x, deviationVector(whateverBid, b, i), i),
+              payment(p, deviationVector(whateverBid, b, i), i)) >=
+            payoff(component(v, i),
+              allocated(x, whateverBid, i),
+              payment(p, whateverBid, i))))
+end
+
+spec SecondPriceAuction = %[ TODO CL: complete from Isabelle ]%
+SingleGoodAuction then
+Maximum then
+    preds
+        secondPriceAuction: Allocation * Payments;
+        secondPriceAuctionWinner: Participants * Vector[NonNegativeReal] %[ actually Bids ]% * Allocation * Payments * Participant;
+        secondPriceAuctionLoser: Participants * Vector[NonNegativeReal] %[ actually Bids ]% * Allocation * Payments * Participant;
+    ops
+        secondPriceAuctionWinnersPayment: Vector[NonNegativeReal] %[ actually Bids ]% * Participant -> NonNegativeReal %[ actually Payments ]%;
+    forall n: Participants;
+           x: Allocation;
+           b: Vector[NonNegativeReal]; %[ actually Bids ]%
+           p: Payments;
+           winner, loser, i, maxBidder: Participant
+    . secondPriceAuctionWinnersPayment(b, winner) = maximumExcept(b, winner)
+    . secondPriceAuctionWinner(n, b, x, p, i) <=>
+      inRange(n, i) /\
+      inArgMaxSet(b, i) /\
+      allocated(x, b, i) /\
+      payment(p, b, i) = secondPriceAuctionWinnersPayment(b, i)
+    . secondPriceAuctionLoser(n, b, x, p, i) <=>
+      inRange(n, i) /\
+      not allocated(x, b, i) %[ use actual Boolean operations here ]% /\
+      payment(p, b, i) = 0
+    . secondPriceAuction(x, p) <=>
+      (exists n: Participants . length(p) = n /\
+        (forall b: Vector[NonNegativeReal] . bids(b) =>
+          allocation(b, x) /\
+          payments(b, p) /\
+          (forall i: Participant .
+            inRange(n, i) /\
+            secondPriceAuctionWinner(n, b, x, p, i) /\
+            (forall j: Participant .
+              inRange(n, j) /\
+              j != i
+              =>
+              secondPriceAuctionLoser(n, b, x, p, j)))))
+    %[ CL@TM: The following lemmas were needed to enable Isabelle to do the proofs in the Vickrey theory.  If a FOL prover can prove the Vickrey theorems automatically, without further support, what's better:
+       * leaving the following lemmas in place and just not proving them with Hets,
+       * factoring them out to a separate theory (to make the original theory valid)
+       * deleting them? ]%
+    %{ not formalising secondPriceAuctionHasOnlyOneWinner for now, as it is not currently needed (see Isabelle) }%
+    %[ CL@TM: If, from here on, we "globally" assume "secondPriceAuction(x, p) => ...", can we still name individual axioms in the nested expression? ]%
+    . secondPriceAuction(x, p) /\
+      bids(b) /\
+      n = length(b) /\
+      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
+      inRange(n, winner) /\
+      allocated(x, b, winner)
+      =>
+      secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
+    . secondPriceAuction(x, p) /\
+      bids(b) /\
+      n = length(b) /\
+      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
+      inRange(n, loser) /\
+      not allocated(x, b, winner)
+      =>
+      secondPriceAuctionLoser(n, b, x, p, loser) %(not_allocated_implies_spa_loser)% %implied
+    . secondPriceAuction(x, p) /\
+      bids(b) /\
+      n = length(b) /\
+      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
+      inRange(n, maxBidder) /\
+      component(b, maxBidder) > maximumExcept(b, maxBidder)
+      => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
+    %[ TODO CL: continue; we need a "-" operator for this. ]%
+    %[. secondPriceAuction(x, p) /\]%
+    %[  bids(b) /\]%
+    %[  n = length(b) /\]%
+    %[  %\[ TODO CL: Do we need to say that some other lengths should also be n? ]\%]%
+    %[  inRange(n, winner) /\]%
+    %[  allocated(x, b, winner)]%
+    %[  =>]%
+    %[  payoff(component(v, i),]%
+    %[    allocated(x, b, i),]%
+    %[    payment(p, b, i)) =]%
+      
+    %[%(second_price_auction_winner_payoff)% %implied]%
+    %[%(second_price_auction_loser_payoff)% %implied]%
 end
 
 spec Vickrey =
-SingleGoodAuction then
-    preds
-        secondPriceAuction: Participants * Allocation * Payments;
-        equilibriumWeaklyDominantStrategy: Participants * Valuations * Bids * Allocation * Payments;
-    forall n : Participants; v : Valuations; x : Allocation; p : Payments
-    . secondPriceAuction(n, x, p) => equilibriumWeaklyDominantStrategy(n, v, v %[ i.e. b ]%, x, p) %(vickreyA)%
+SecondPriceAuction then
+SingleGoodAuctionProperties then
+    forall v: Vector[NonNegativeReal]; %[ actually Valuations ]%
+           x: Allocation;
+           p: Payments
+    . secondPriceAuction(x, p) => equilibriumWeaklyDominantStrategy(v, v %[ i.e. b ]%, x, p) %(vickreyA)% %implied
+    . secondPriceAuction(x, p) => efficient(v, v %[ i.e. b ]%, x) %(vickreyB)% %implied
 end
