@@ -69,8 +69,10 @@ RealVectors then
     ops
         payment: Payments * Bids * Participant -> NonNegativeReal;
         payoff: NonNegativeReal %[ actually PositiveReal ]% * Boolean * NonNegativeReal -> NonNegativeReal;
-    forall b:Bids; x:Allocation
-    . allocation(b,x) => length(b)=length(x) %[ enforces that the previous two vectors need to have the same length]%
+        payoff: Valuations * Bids * Allocation * Payments * Participant -> NonNegativeReal;
+    forall v:Valuations; b:Bids; x:Allocation; p:Payments; i:Participant
+    . allocation(b,x) => length(b) = length(x) %[ enforces that the previous two vectors need to have the same length]%
+    . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i))
 end
 
 spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
@@ -109,13 +111,9 @@ then
         (forall i: Participant . inRange(n, i) =>
           (forall whateverBid,dV: Bids .
             whateverBid[i] != b[i] /\ dV = deviationVector(whateverBid, b, i)
-            => 
-            payoff(v[i],
-              True when allocated(x, dV, i) else False,
-              payment(p, dV, i)) >=
-            payoff(v[i],
-              True when allocated(x, whateverBid, i) else False,
-              payment(p, whateverBid, i))))
+            =>
+            payoff(v, dV, x, p, i) >=
+            payoff(v, whateverBid, x, p, i)))
 end
 
 spec SecondPriceAuction = %[ TODO CL: complete from Isabelle ]%
@@ -192,9 +190,7 @@ MaximumNonNegativeReal then
       inRange(n, winner) /\
       allocated(x, b, winner)
       =>
-      payoff(v[i],
-        True when allocated(x, b, i) else False,
-        payment(p, b, i)) =
+      payoff(v, b, x, p, i) =
       v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
     . secondPriceAuction(x, p) /\
       n = length(b) /\
@@ -202,9 +198,7 @@ MaximumNonNegativeReal then
       inRange(n, loser) /\
       not(allocated(x, b, loser))
       =>
-      payoff(v[i],
-        True when allocated(x, b, i) else False,
-        payment(p, b, i)) =
+      payoff(v, b, x, p, loser) =
       0 %(second_price_auction_loser_payoff)% %implied
 end
 
