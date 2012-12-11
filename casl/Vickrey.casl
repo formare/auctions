@@ -1,12 +1,7 @@
-%{
-CL: There are some things that I need to ask Till; these are prefixed with CL@TM.
-}%
 library Vickrey
 
 %{
-CL@TM: Generally, how do I make best use of sorts/types?  It seems that the only alternative to using them _properly_ is a full fallback to raw FOL, where the only advantage of CASL over TPTP would be a little syntactic sugar.
-
-CL@TM: Generally, how do I translate any of the following specs to TPTP syntax (not just the SoftFOL _logic_) and/or send them to a TPTP prover?
+It seems that the only alternative to using sorts/types _properly_ (which we are now trying to do) is a full fallback to raw FOL, where the only advantage of CASL over TPTP would be a little syntactic sugar.
 
 CL@TM: How does casl-mode indentation work?
 }%
@@ -201,8 +196,16 @@ MaximumNonNegativeReal then
         True when allocated(x, b, i) else False,
         payment(p, b, i)) =
       v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
-    %[ TODO CL: continue ]%
-    %[%(second_price_auction_loser_payoff)% %implied]%
+    . secondPriceAuction(x, p) /\
+      n = length(b) /\
+      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
+      inRange(n, loser) /\
+      not(allocated(x, b, loser))
+      =>
+      payoff(v[i],
+        True when allocated(x, b, i) else False,
+        payment(p, b, i)) =
+      0 %(second_price_auction_loser_payoff)% %implied
 end
 
 spec Vickrey =
