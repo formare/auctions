@@ -13,8 +13,11 @@ spec Nat =
     sorts
         Nat
     preds
+        __>__: Nat * Nat;
         __!=__: Nat * Nat;
         inRange: Nat * Nat; %[ TODO CL: find out whether it's really necessary to _define_ this ]%
+    ops
+        0: Nat;
 end
 
 spec BasicConcepts =
@@ -109,10 +112,10 @@ then
         allocation(b, x) /\
         payments(b, p) /\
         (forall i: Participant . inRange(n, i) =>
-          (forall whateverBid,dV: Bids .
-            whateverBid[i] != b[i] /\ dV = deviationVector(whateverBid, b, i)
+          (forall whateverBid: Bids .
+            whateverBid[i] != b[i] 
             =>
-            payoff(v, dV, x, p, i) >=
+            payoff(v, deviationVector(whateverBid, b, i) as Bids, x, p, i) >=
             payoff(v, whateverBid, x, p, i)))
 end
 
@@ -200,6 +203,15 @@ MaximumNonNegativeReal then
       =>
       payoff(v, b, x, p, loser) =
       0 %(second_price_auction_loser_payoff)% %implied
+    . secondPriceAuction(x, p) /\
+      n = length(b) /\
+      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
+      n > 0 /\
+      inRange(n, winner) /\
+      allocated(x, b, winner)
+      =>
+      payoff(v, b, x, p, winner)
+      = maximumExcept(deviationVector(b, v, winner), winner) %(winners_payoff_on_deviation_from_valuation)% %implied
 end
 
 spec Vickrey =
