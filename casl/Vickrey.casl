@@ -84,6 +84,15 @@ RealVectors then
                             j != k /\
                             not allocated(x, b, j))) %(allocation_def)%
     . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
+    forall b:Bids; x:Allocation; n:Participants; winner,other:Participant
+    . allocation(b, x) /\
+      n = length(b) /\
+      inRange(n, winner) /\
+      allocated(x, b, winner) /\
+      inRange(n, other) /\
+      allocated(x, b, other)
+      =>
+      other = winner %(allocation_unique)% %implied
 end
 
 spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
