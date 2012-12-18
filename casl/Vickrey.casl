@@ -75,6 +75,14 @@ RealVectors then
         payoff: Valuations * Bids * Allocation * Payments * Participant -> NonNegativeReal;
     forall v:Valuations; b:Bids; x:Allocation; p:Payments; i:Participant
     . allocation(b,x) => length(b) = length(x) %(allocation_length_eq_bids_length)% %[ enforces that the previous two vectors need to have the same length]%
+    . allocation(b, x) => (exists n:Participants, k:Participant .
+                           n = length(b) /\
+                           inRange(n, k) /\
+                           allocated(x, b, k) /\
+                           (forall j:Participant .
+                            inRange(n, j) /\
+                            j != k /\
+                            not allocated(x, b, j))) %(allocation_def)%
     . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
 end
 
