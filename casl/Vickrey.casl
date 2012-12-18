@@ -14,7 +14,6 @@ spec Nat =
         Nat
     preds
         __>__: Nat * Nat;
-        __!=__: Nat * Nat;
         inRange: Nat * Nat; %[ TODO CL: find out whether it's really necessary to _define_ this ]%
     ops
         0: Nat;
@@ -29,7 +28,6 @@ Nat then
         __>=__: NonNegativeReal * NonNegativeReal;
         __<=__: NonNegativeReal * NonNegativeReal;
         __>__: NonNegativeReal * NonNegativeReal;
-        __!=__: NonNegativeReal * NonNegativeReal;
     ops
         __-__: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
         0: NonNegativeReal; %[ CL@TM: If we don't want to use actual reals from HasCASL, is this a reasonable way of saying that 0 is a non-negative real number? ]%
@@ -81,7 +79,7 @@ RealVectors then
                            allocated(x, b, k) /\
                            (forall j:Participant .
                             inRange(n, j) /\
-                            j != k /\
+                            not j = k /\
                             not allocated(x, b, j))) %(allocation_def)%
     . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
     forall b:Bids; x:Allocation; n:Participants; winner,other:Participant
@@ -130,7 +128,7 @@ then
         payments(b, p) /\
         (forall i: Participant . inRange(n, i) =>
           (forall whateverBid: Bids .
-            whateverBid[i] != b[i] 
+            not whateverBid[i] = b[i] 
             =>
             payoff(v, deviationVector(whateverBid, b, i) as Bids, x, p, i) >=
             payoff(v, whateverBid, x, p, i))) %(equilibrium_weakly_dominant_strategy_def)%
@@ -171,7 +169,7 @@ MaximumNonNegativeReal then
             secondPriceAuctionWinner(n, b, x, p, i) /\
             (forall j: Participant .
               inRange(n, j) /\
-              j != i
+              not j = i
               =>
               secondPriceAuctionLoser(n, b, x, p, j))))) %(second_price_auction_def)%
     %[ CL@TM: The following lemmas were needed to enable Isabelle to do the proofs in the Vickrey theory.  If a FOL prover can prove the Vickrey theorems automatically, without further support, what's better:
