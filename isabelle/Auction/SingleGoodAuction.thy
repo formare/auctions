@@ -111,7 +111,7 @@ definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> a
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
-  fixes n::participants and x::allocation and b::real_vector and winner::participant and j::participant
+  fixes n::participants and x::allocation and b::real_vector and winner::participant and other::participant
   assumes "allocation n b x"
     and "winner \<in> {1..n}"
     and "x b winner"
