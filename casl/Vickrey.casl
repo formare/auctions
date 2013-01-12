@@ -95,7 +95,7 @@ RealVectors then
          * MathServe Broker
          * SPASS (allocation_def)
          * Vampire
-         * darwin-non-fd (allocation_def) TODO CL: sometimes seems to use payoff_vector_def as well!? – asked on mailing list how “axioms to include” works – 2013-01-12
+         * darwin-non-fd (allocation_def) TODO CL: sometimes seems to use payoff_vector_def as well, but then didn't use it!? – asked on mailing list how “axioms to include” works – 2013-01-12
          * eprover (allocation_def) ]%
 end
 
@@ -195,7 +195,12 @@ MaximumNonNegativeReal then
       allocated(x, b, winner)
       =>
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
-      %[ proved with MathServe Broker, SPASS, Vampire, darwin-non-fd, eprover ]%
+      %[ proved with
+         * MathServe Broker
+         * SPASS (second_price_auction_def, allocation_def) – TODO CL: Isabelle additionally needs allocation_unique; note that second_price_auction_winner_def (which Isabelle needs) does not currently exist here.
+         * Vampire
+         * darwin-non-fd (second_price_auction_def, allocation_def) – TODO CL: also needs allocation_unique, but then didn't use it!?
+         * eprover (second_price_auction_def, allocation_def) – wrt. allocation_unique same as darwin-non-fd ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
