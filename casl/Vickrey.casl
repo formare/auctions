@@ -91,6 +91,7 @@ RealVectors then
       allocated(x, b, other)
       =>
       other = winner %(allocation_unique)% %implied
+      %[ proof works with darwin-non-fd ]%
 end
 
 spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
