@@ -91,7 +91,7 @@ RealVectors then
       allocated(x, b, other)
       =>
       other = winner %(allocation_unique)% %implied
-      %[ proof works with darwin-non-fd ]%
+      %[ proved with MathServe Broker, SPASS, Vampire, darwin-non-fd, eprover ]%
 end
 
 spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
@@ -190,6 +190,7 @@ MaximumNonNegativeReal then
       allocated(x, b, winner)
       =>
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
+      %[ proved with MathServe Broker, SPASS, Vampire, darwin-non-fd, eprover ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
