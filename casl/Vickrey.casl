@@ -14,7 +14,7 @@ spec Nat =
         Nat
     preds
         __>__: Nat * Nat;
-        inRange: Nat * Nat; %[ TODO CL: find out whether it's really necessary to _define_ this ]%
+        inRange: Nat * Nat; %[ TODO CL: find out whether it's additionally necessary to _define_ this ]%
     ops
         0: Nat;
 end
@@ -91,7 +91,12 @@ RealVectors then
       allocated(x, b, other)
       =>
       other = winner %(allocation_unique)% %implied
-      %[ proved with MathServe Broker, SPASS, Vampire, darwin-non-fd, eprover ]%
+      %[ proved with
+         * MathServe Broker
+         * SPASS (allocation_def)
+         * Vampire
+         * darwin-non-fd (allocation_def) TODO CL: sometimes seems to use payoff_vector_def as well!? – asked on mailing list how “axioms to include” works – 2013-01-12
+         * eprover (allocation_def) ]%
 end
 
 spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
