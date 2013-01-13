@@ -160,7 +160,7 @@ MaximumNonNegativeReal then
       inRange(n, i) /\
       inArgMaxSet(b, i) /\
       allocated(x, b, i) /\
-      payment(p, b, i) = secondPriceAuctionWinnersPayment(b, i) %(second_price_auction_losers_payment_def)%
+      payment(p, b, i) = secondPriceAuctionWinnersPayment(b, i) %(second_price_auction_winner_def)%
     . secondPriceAuctionLoser(n, b, x, p, i) <=>
       inRange(n, i) /\
       not allocated(x, b, i) /\
@@ -197,7 +197,7 @@ MaximumNonNegativeReal then
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
       %[ proved with
          * MathServe Broker
-         * SPASS (second_price_auction_def, allocation_def) – TODO CL: Isabelle additionally needs allocation_unique; note that second_price_auction_winner_def (which Isabelle needs) does not currently exist here.
+         * SPASS (second_price_auction_def, allocation_def) – Isabelle additionally needs allocation_unique and second_price_auction_winner_def.
          * Vampire
          * darwin-non-fd (second_price_auction_def, allocation_def) – TODO CL: also needs allocation_unique, but then didn't use it!?
          * eprover (second_price_auction_def, allocation_def) – wrt. allocation_unique same as darwin-non-fd ]%
@@ -208,6 +208,12 @@ MaximumNonNegativeReal then
       not allocated(x, b, winner)
       =>
       secondPriceAuctionLoser(n, b, x, p, loser) %(not_allocated_implies_spa_loser)% %implied
+      %[ proved with
+         * MathServe Broker
+         * SPASS (second_price_auction_def, allocation_def) – TODO CL: Isabelle doesn't need allocation_def but needs second_price_auction_winner_def
+         * Vampire
+         * darwin-non-fd (second_price_auction_def, allocation_def) – but uses far more axioms if I don't restrict “axioms to include”
+         * eprover (second_price_auction_def, allocation_def) or (second_price_auction_def, second_price_auction_winner_def) ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
