@@ -234,6 +234,7 @@ MaximumNonNegativeReal then
       =>
       payoff(v, b, x, p, i) =
       v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
+    . not (secondPriceAuction(x, p) /\ n = length(b) /\ inRange(n, winner) /\ allocated(x, b, winner)) %(spa_winner_unsat)% %implied
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
