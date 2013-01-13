@@ -1,0 +1,2 @@
+sync:
+	rsync -avzc --delete $(SYNC_FILES) $(DEST)

@@ -1,3 +1,6 @@
+include ../Makefile.vars
+include ../Makefile.in
+
 SYNC_FILES = \
 	Auction/Maximum.thy \
 	Auction/MaximumTest.thy \
@@ -13,6 +16,3 @@ all: sync
 
 graph.pdf: Auction
 	isabelle browser -o $@ ~/.isabelle/Isabelle2012/browser_info/HOL/Auction/*.graph
-
-sync:
-	rsync -avzc --delete $(SYNC_FILES) $(DEST)
