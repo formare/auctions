@@ -220,6 +220,12 @@ MaximumNonNegativeReal then
       inRange(n, maxBidder) /\
       b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
+      %[ proved with
+         * MathServe Broker
+         * SPASS (second_price_auction_def, allocation_def) – TODO CL: How is this possible given that the “>” antecedent is not easy to understand?  Is it automagically concluded from the axioms inherited via Maximum[TotalOrder]?  However they are not used in the SPASS proof!?  Also note that the Isabelle proof is quite complex and makes use of a lot more definitions.  Besides, SystemOnTPTP says it's refutable.
+         * Vampire
+         * darwin-non-fd (second_price_auction_def, allocation_def) – but uses far more axioms if I don't restrict “axioms to include”.  TODO CL: Here I also wonder why the proof works with so few prerequisites, and why SystemOnTPTP finds a refutation.
+         * eprover (second_price_auction_def, allocation_def) or (second_price_auction_def, second_price_auction_winner_def)  TODO CL: Here I also wonder why the proof works with so few prerequisites, and why SystemOnTPTP finds a refutation. ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
