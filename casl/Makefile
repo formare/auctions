@@ -1,11 +1,12 @@
 include ../Makefile.vars
-include ../Makefile.in
 
 SYNC_FILES = \
 	Vickrey.casl \
 	README.casl.html
 
 all: sync
+
+include ../Makefile.in
 
 .SECONDEXPANSION:
 %: $$(word 1,$$(subst _, ,$$*)).casl

@@ -1,5 +1,4 @@
 include ../Makefile.vars
-include ../Makefile.in
 
 SYNC_FILES = \
 	Auction/Maximum.thy \
@@ -13,6 +12,8 @@ SYNC_FILES = \
 	README.isabelle.html
 
 all: sync
+
+include ../Makefile.in
 
 graph.pdf: Auction
 	isabelle browser -o $@ ~/.isabelle/Isabelle2012/browser_info/HOL/Auction/*.graph

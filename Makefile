@@ -1,5 +1,4 @@
 include Makefile.vars
-include Makefile.in
 
 SYNC_FILES = \
 	LICENSE LICENSE-CC-BY LICENSE-ISC \
@@ -12,6 +11,8 @@ SUBDIRS = \
 .PHONY: all sync subdirs force-make
 
 all: sync subdirs
+
+include Makefile.in
 
 subdirs: $(SUBDIRS)
 
