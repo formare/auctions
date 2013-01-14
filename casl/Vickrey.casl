@@ -97,6 +97,7 @@ RealVectors then
          * Vampire
          * darwin-non-fd (allocation_def)
          * eprover (allocation_def) ]%
+    %[. not allocation(b, x) %(allocation_unsat)% %implied]%
     %[. exists b:Bids; x:Allocation . allocation(b, x) %(allocation_sat)% %implied]%
 end
 
