@@ -32,7 +32,8 @@ Nat then
         __<__: NonNegativeReal * NonNegativeReal;
     ops
         __-__: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
-        %[ The following four we just need for being able to use <, >, <=, >= with reasonable axioms as provided by ExtTotalOrder ]%
+        %[ The following four we just need for being able to use <, >, <=, >= with reasonable axioms as provided by ExtTotalOrder
+           CL@TM: Is there a better way of doing this? ]%
         inf: NonNegativeReal * NonNegativeReal ->? NonNegativeReal;
         sup: NonNegativeReal * NonNegativeReal ->? NonNegativeReal;
         min: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
@@ -51,7 +52,7 @@ spec Vectors[sort Elem] given BasicConcepts =
     ops
         __[__]: Vector[Elem] * Nat -> Elem;
         %% TM: alternative modelling:     sort NonNegativeReal < Thing; ... ; sort Vector; op component: Vector * Nat -> Thing;
-        %[ CL@TM: The following should actually be parameterized by sort; and, can we make length for some SubSort < Vector[...] return Participants < Nat? ]%
+        %[ CL@TM: can we make length for some SubSort < Vector[...] return Participants < Nat? ]%
         length: Vector[Elem] -> Nat;
         deviationVector: Vector[Elem] * Vector[Elem] * Nat -> Vector[Elem];
 end
