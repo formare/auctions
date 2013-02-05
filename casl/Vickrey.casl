@@ -7,16 +7,17 @@ CL@TM: How does casl-mode indentation work?
 }%
 
 from Basic/SimpleDatatypes get Boolean
-from Basic/RelationsAndOrders get TotalOrder
+from Basic/RelationsAndOrders get ExtTotalOrder, TotalOrder
 
 spec Nat =
     sorts
         Nat
     preds
         __>__: Nat * Nat;
+        __>=__: Nat * Nat;
         inRange: Nat * Nat; %[ TODO CL: find out whether it's additionally necessary to _define_ this ]%
     ops
-        0: Nat;
+        0, 1: Nat;
 end
 
 spec BasicConcepts =
@@ -28,9 +29,20 @@ Nat then
         __>=__: NonNegativeReal * NonNegativeReal;
         __<=__: NonNegativeReal * NonNegativeReal;
         __>__: NonNegativeReal * NonNegativeReal;
+        __<__: NonNegativeReal * NonNegativeReal;
     ops
         __-__: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
-        0: NonNegativeReal; %[ CL@TM: If we don't want to use actual reals from HasCASL, is this a reasonable way of saying that 0 is a non-negative real number? ]%
+        %[ The following four we just need for being able to use <, >, <=, >= with reasonable axioms as provided by ExtTotalOrder ]%
+        inf: NonNegativeReal * NonNegativeReal ->? NonNegativeReal;
+        sup: NonNegativeReal * NonNegativeReal ->? NonNegativeReal;
+        min: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
+        max: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
+        0: NonNegativeReal;
+    forall a,b,c: NonNegativeReal
+    . a < b <=> a <= b /\ not a = b %(lt_def)%
+    . a > b <=> not a <= b %(gt_def)%
+    . a >= b <=> not a < b %(ge_def)%
+    . a <= b /\ b <= c => a <= c %(le_trans)%
 end
 
 spec Vectors[sort Elem] given BasicConcepts =
@@ -102,7 +114,7 @@ RealVectors then
          Note: Isabelle formalisation is slightly more general ]%
 end
 
-spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
+spec Maximum[ExtTotalOrder[TotalOrder]] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
 Vectors[sort Elem] then
     preds
         inArgMaxSet: Vector[Elem] * Nat;
@@ -110,8 +122,12 @@ Vectors[sort Elem] then
         maximum: Vector[Elem] -> Elem;
         maximumExcept: Vector[Elem] * Nat -> Elem;
     forall b: Vector[Elem];
-           i: Nat
+           i, j, n: Nat
     . inArgMaxSet(b, i) <=> maximum(b) = b[i] %(arg_max_set_def)%
+    . inRange(n, i) => maximum(b) >= b[i] %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
+    . n >= 1 /\ inRange(n, j) /\
+      inRange(n, i) /\ not i = j
+      => maximumExcept(b, j) >= b[i] %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
 end
 
 spec MaximumNonNegativeReal =
@@ -210,7 +226,7 @@ MaximumNonNegativeReal then
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       inRange(n, loser) /\
-      not allocated(x, b, loser) %[ fixed bug in r310 (had "winner" instead of "loser": possible "thanks" to global quantification) ]%
+      not allocated(x, b, loser) %[ fixed bug in r313 (had "winner" instead of "loser": possible "thanks" to global quantification) ]%
       =>
       secondPriceAuctionLoser(n, b, x, p, loser) %(not_allocated_implies_spa_loser)% %implied
       %[ proved with
@@ -228,11 +244,16 @@ MaximumNonNegativeReal then
       b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
       %[ proved with
+         * 
+         does not work with
+         * 
+         not yet tested with
+         * SPASS
+         * eprover
          * MathServe Broker
-         * SPASS (second_price_auction_def, allocation_def) – TODO CL: How is this possible given that the “>” antecedent is not easy to understand?  Is it automagically concluded from the axioms inherited via Maximum[TotalOrder]?  However they are not used in the SPASS proof!?  Also note that the Isabelle proof is quite complex and makes use of a lot more definitions.  Besides, SystemOnTPTP says it's refutable.
+         * darwin-non-fd
          * Vampire
-         * darwin-non-fd (second_price_auction_def, allocation_def) – but uses far more axioms if I don't restrict “axioms to include”.  TODO CL: Here I also wonder why the proof works with so few prerequisites, and why SystemOnTPTP finds a refutation.
-         * eprover (second_price_auction_def, allocation_def) or (second_price_auction_def, second_price_auction_winner_def)  TODO CL: Here I also wonder why the proof works with so few prerequisites, and why SystemOnTPTP finds a refutation. ]%
+         Isabelle proof uses second_price_auction_def, second_price_auction_winner_def, second_price_auction_loser_def, maximum_except_is_greater_or_equal, maximum_is_greater_or_equal, arg_max_set_def ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       inRange(n, winner) /\
