@@ -78,8 +78,7 @@ RealVectors then
                            inRange(n, k) /\
                            allocated(x, b, k) /\
                            (forall j:Participant .
-                            inRange(n, j) /\
-                            not j = k /\
+                            inRange(n, j) /\ not j = k =>
                             not allocated(x, b, j))) %(allocation_def)%
     . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
     forall b:Bids; x:Allocation; n:Participants; winner,other:Participant
@@ -91,14 +90,14 @@ RealVectors then
       allocated(x, b, other)
       =>
       other = winner %(allocation_unique)% %implied
-      %[ "proved" (but seemingly due to unsatisfiable antecedent) with
-         * MathServe Broker
+      %[ proved with (using axioms …)
          * SPASS (allocation_def)
-         * Vampire
          * darwin-non-fd (allocation_def)
-         * eprover (allocation_def) ]%
-    %[. not allocation(b, x) %(allocation_unsat)% %implied]%
-    %[. exists b:Bids; x:Allocation . allocation(b, x) %(allocation_sat)% %implied]%
+         * eprover (allocation_def)
+         does not work with
+         * MathServe Broker (hangs beyond timeout)
+         * Vampire (hangs beyond timeout)
+         Note: Isabelle formalisation is slightly more general ]%
 end
 
 spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
@@ -172,7 +171,7 @@ MaximumNonNegativeReal then
         (forall b: Bids . 
           allocation(b, x) /\
           payments(b, p) /\
-          (forall i: Participant .
+          (exists i: Participant .
             inRange(n, i) /\
             secondPriceAuctionWinner(n, b, x, p, i) /\
             (forall j: Participant .
@@ -197,12 +196,15 @@ MaximumNonNegativeReal then
       allocated(x, b, winner)
       =>
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
-      %[ proved with
+      %[ proved with (using axioms …)
+         * 
+         does not work with
+         * eprover
+         * SPASS
          * MathServe Broker
-         * SPASS (second_price_auction_def, allocation_def) – Isabelle additionally needs allocation_unique and second_price_auction_winner_def.
          * Vampire
-         * darwin-non-fd (second_price_auction_def, allocation_def) – TODO CL: also needs allocation_unique, but then didn't use it!?
-         * eprover (second_price_auction_def, allocation_def) – wrt. allocation_unique same as darwin-non-fd ]%
+         * darwin-non-fd
+         Isabelle proof uses second_price_auction_def, allocation_def, allocation_unique, second_price_auction_winner_def ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
