@@ -72,7 +72,7 @@ RealVectors then
         payoff: NonNegativeReal %[ actually PositiveReal ]% * Boolean * NonNegativeReal -> NonNegativeReal;
         payoff: Valuations * Bids * Allocation * Payments * Participant -> NonNegativeReal;
     forall v:Valuations; b:Bids; x:Allocation; p:Payments; i:Participant
-    . allocation(b,x) => length(b) = length(x) %(allocation_length_eq_bids_length)% %[ enforces that the previous two vectors need to have the same length]%
+    . allocation(b, x) => length(b) = length(x) %(allocation_length_eq_bids_length)% %[ enforces that the previous two vectors need to have the same length]%
     . allocation(b, x) => (exists n:Participants, k:Participant .
                            n = length(b) /\
                            inRange(n, k) /\
@@ -80,6 +80,7 @@ RealVectors then
                            (forall j:Participant .
                             inRange(n, j) /\ not j = k =>
                             not allocated(x, b, j))) %(allocation_def)%
+    . payments(b, p) => length(b) = length(p) %(payments_length_eq_bids_length)% %[ enforces that the previous two vectors need to have the same length]%
     . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
     forall b:Bids; x:Allocation; n:Participants; winner,other:Participant
     . allocation(b, x) /\
@@ -191,7 +192,6 @@ MaximumNonNegativeReal then
       end ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
-      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       inRange(n, winner) /\
       allocated(x, b, winner)
       =>
@@ -207,7 +207,6 @@ MaximumNonNegativeReal then
          Isabelle proof uses second_price_auction_def, allocation_def, allocation_unique, second_price_auction_winner_def ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
-      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       inRange(n, loser) /\
       not allocated(x, b, winner)
       =>
@@ -220,7 +219,6 @@ MaximumNonNegativeReal then
          * eprover (second_price_auction_def, allocation_def) or (second_price_auction_def, second_price_auction_winner_def) ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
-      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       inRange(n, maxBidder) /\
       b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
@@ -232,7 +230,6 @@ MaximumNonNegativeReal then
          * eprover (second_price_auction_def, allocation_def) or (second_price_auction_def, second_price_auction_winner_def)  TODO CL: Here I also wonder why the proof works with so few prerequisites, and why SystemOnTPTP finds a refutation. ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
-      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       inRange(n, winner) /\
       allocated(x, b, winner)
       =>
@@ -240,7 +237,6 @@ MaximumNonNegativeReal then
       v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
     . secondPriceAuction(x, p) /\
       n = length(b) /\
-      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       inRange(n, loser) /\
       not(allocated(x, b, loser))
       =>
@@ -248,7 +244,6 @@ MaximumNonNegativeReal then
       0 %(second_price_auction_loser_payoff)% %implied
     . secondPriceAuction(x, p) /\
       n = length(b) /\
-      %[ TODO CL: Do we need to say that some other lengths should also be n? ]%
       n > 0 /\
       inRange(n, winner) /\
       allocated(x, b, winner)
