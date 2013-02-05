@@ -18,6 +18,8 @@ spec Nat =
         inRange: Nat * Nat; %[ TODO CL: find out whether it's additionally necessary to _define_ this ]%
     ops
         0, 1: Nat;
+    forall i,n: Nat
+    . inRange(n, i) => n >= 1 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
 end
 
 spec BasicConcepts =
@@ -39,22 +41,19 @@ Nat then
         min: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
         max: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
         0: NonNegativeReal;
-    forall a,b,c: NonNegativeReal
-    . a < b <=> a <= b /\ not a = b %(lt_def)%
-    . a > b <=> not a <= b %(gt_def)%
-    . a >= b <=> not a < b %(ge_def)%
-    . a <= b /\ b <= c => a <= c %(le_trans)%
 end
 
 spec Vectors[sort Elem] given BasicConcepts =
     sorts
     	Vector[Elem];  
     ops
-        __[__]: Vector[Elem] * Nat -> Elem;
+        __[__]: Vector[Elem] * Nat ->? Elem;
         %% TM: alternative modelling:     sort NonNegativeReal < Thing; ... ; sort Vector; op component: Vector * Nat -> Thing;
         %[ CL@TM: can we make length for some SubSort < Vector[...] return Participants < Nat? ]%
         length: Vector[Elem] -> Nat;
         deviationVector: Vector[Elem] * Vector[Elem] * Nat -> Vector[Elem];
+    forall v: Vector[Elem]; i, n: Nat; e: Elem
+    . length(v) = n /\ inRange(n, i) => (exists e: Elem . v[i] = e) %(non_empty_vector_has_elements)%
 end
 
 spec RealVectors =
@@ -124,11 +123,20 @@ Vectors[sort Elem] then
         maximumExcept: Vector[Elem] * Nat -> Elem;
     forall b: Vector[Elem];
            i, j, n: Nat
+    . n >= 1 /\ n = length(b)
+      =>
+      exists k: Nat . inRange(n, k) /\ maximum(b) = b[k] %(maximum_exists)%
     . inArgMaxSet(b, i) <=> maximum(b) = b[i] %(arg_max_set_def)%
     . inRange(n, i) => maximum(b) >= b[i] %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
+    . n > 1 /\ n = length(b) /\ inRange(n, i)
+      =>
+      exists k: Nat . inRange(n, k) /\ maximumExcept(b, i) = b[k] %(maximum_except_exists)%
     . n >= 1 /\ inRange(n, j) /\
       inRange(n, i) /\ not i = j
       => maximumExcept(b, j) >= b[i] %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
+    %[ TODO CL: the following are for testing what we need to prove SecondPriceAuction#only_max_bidder_wins ]%
+    . n > 1 /\ inRange(n, i) /\ b[i] > maximumExcept(b, i) => inArgMaxSet(b, i) %(foo)% %implied
+    . n > 1 /\ inRange(n, i) /\ b[i] > maximumExcept(b, i) => (forall j: Nat . inRange(n, j) => b[i] >= b[j]) %(foo_simpler)% %implied
 end
 
 spec MaximumNonNegativeReal =
