@@ -91,6 +91,7 @@ RealVectors then
       allocated(x, b, other)
       =>
       other = winner %(allocation_unique)% %implied
+      %[ fixed bug in allocation_def in r309 (unsatisfiable antecedent; found by closely inspecting SPASS proof) ]%
       %[ proved with (using axioms …)
          * SPASS (allocation_def)
          * darwin-non-fd (allocation_def; requires manual minimisation)
@@ -196,6 +197,7 @@ MaximumNonNegativeReal then
       allocated(x, b, winner)
       =>
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
+      %[ fixed bug in r309 ("forall i" instead of "exists i" in second_price_auction_def, and needed to introduce payments_length_eq_bids_length; found after realising that this theorem could be "proved" without taking into account allocation axioms) ]%
       %[ proved with (using axioms …)
          * SPASS (same as Isabelle)
          * eprover (same as Isabelle; requires manual minimisation)
