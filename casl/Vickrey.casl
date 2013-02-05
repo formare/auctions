@@ -104,7 +104,7 @@ RealVectors then
       allocated(x, b, other)
       =>
       other = winner %(allocation_unique)% %implied
-      %[ fixed bug in allocation_def in r309 (unsatisfiable antecedent; found by closely inspecting SPASS proof) ]%
+      %[ LOG fixed bug in allocation_def in r309 (unsatisfiable antecedent; found by closely inspecting SPASS proof) ]%
       %[ proved with (using axioms …)
          * SPASS (allocation_def)
          * darwin-non-fd (allocation_def; requires manual minimisation)
@@ -214,7 +214,7 @@ MaximumNonNegativeReal then
       allocated(x, b, winner)
       =>
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
-      %[ fixed bug in r309 ("forall i" instead of "exists i" in second_price_auction_def, and needed to introduce payments_length_eq_bids_length; found after realising that this theorem could be "proved" without taking into account allocation axioms) ]%
+      %[ LOG fixed bug in r309 ("forall i" instead of "exists i" in second_price_auction_def, and needed to introduce payments_length_eq_bids_length; found after realising that this theorem could be "proved" without taking into account allocation axioms) ]%
       %[ proved with (using axioms …)
          * SPASS (same as Isabelle)
          * eprover (same as Isabelle; requires manual minimisation)
@@ -223,11 +223,12 @@ MaximumNonNegativeReal then
          not yet tested with
          * MathServe Broker
          * Vampire
-         Isabelle proof uses second_price_auction_def, allocation_def, allocation_unique, second_price_auction_winner_def ]%
+         Isabelle proof uses second_price_auction_def, allocation_def, allocation_unique, second_price_auction_winner_def
+         LOG It would be great if Isabelle were able to export such dependency information as a graph (or is it actually a tree?)  OMDoc (rather in the RDF encoding than XML) might be suitable for representing such information generically. ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       inRange(n, loser) /\
-      not allocated(x, b, loser) %[ fixed bug in r313 (had "winner" instead of "loser": possible "thanks" to global quantification) ]%
+      not allocated(x, b, loser) %[ LOG fixed bug in r313 (had "winner" instead of "loser": possible "thanks" to global quantification) ]%
       =>
       secondPriceAuctionLoser(n, b, x, p, loser) %(not_allocated_implies_spa_loser)% %implied
       %[ proved with
