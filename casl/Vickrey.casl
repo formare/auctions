@@ -93,11 +93,11 @@ RealVectors then
       other = winner %(allocation_unique)% %implied
       %[ proved with (using axioms …)
          * SPASS (allocation_def)
-         * darwin-non-fd (allocation_def)
-         * eprover (allocation_def)
-         does not work with
-         * MathServe Broker (hangs beyond timeout)
-         * Vampire (hangs beyond timeout)
+         * darwin-non-fd (allocation_def; requires manual minimisation)
+         * eprover (allocation_def; requires manual minimisation)
+         not yet tested with
+         * MathServe Broker
+         * Vampire
          Note: Isabelle formalisation is slightly more general ]%
 end
 
@@ -197,13 +197,13 @@ MaximumNonNegativeReal then
       =>
       secondPriceAuctionWinner(n, b, x, p, winner) %(allocated_implies_spa_winner)% %implied
       %[ proved with (using axioms …)
-         * 
+         * SPASS (same as Isabelle)
+         * eprover (same as Isabelle; requires manual minimisation)
          does not work with
-         * eprover
-         * SPASS
-         * MathServe Broker
-         * Vampire
-         * darwin-non-fd
+         * darwin-non-fd (timeout)
+         not yet tested with
+         * MathServe Broker (hangs beyond timeout)
+         * Vampire (hangs beyond timeout)
          Isabelle proof uses second_price_auction_def, allocation_def, allocation_unique, second_price_auction_winner_def ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
