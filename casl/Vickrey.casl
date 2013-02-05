@@ -204,21 +204,24 @@ MaximumNonNegativeReal then
          does not work with
          * darwin-non-fd (timeout)
          not yet tested with
-         * MathServe Broker (hangs beyond timeout)
-         * Vampire (hangs beyond timeout)
+         * MathServe Broker
+         * Vampire
          Isabelle proof uses second_price_auction_def, allocation_def, allocation_unique, second_price_auction_winner_def ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       inRange(n, loser) /\
-      not allocated(x, b, winner)
+      not allocated(x, b, loser) %[ fixed bug in r310 (had "winner" instead of "loser": possible "thanks" to global quantification) ]%
       =>
       secondPriceAuctionLoser(n, b, x, p, loser) %(not_allocated_implies_spa_loser)% %implied
       %[ proved with
+         * SPASS (same as Isabelle)
+         * eprover (second_price_auction_def, second_price_auction_loser_def; requires manual minimisation; doesn't work with second_price_auction_winner_def instead of second_price_auction_loser_def)
+         does not work with
+         * darwin-non-fd (timeout)
+         not yet tested with
          * MathServe Broker
-         * SPASS (second_price_auction_def, allocation_def) – TODO CL: Isabelle doesn't need allocation_def but needs second_price_auction_winner_def
          * Vampire
-         * darwin-non-fd (second_price_auction_def, allocation_def) – but uses far more axioms if I don't restrict “axioms to include”
-         * eprover (second_price_auction_def, allocation_def) or (second_price_auction_def, second_price_auction_winner_def) ]%
+         Isabelle proof (by contradiction) uses second_price_auction_def, second_price_auction_winner_def ]%
     . secondPriceAuction(x, p) /\
       n = length(b) /\
       inRange(n, maxBidder) /\
