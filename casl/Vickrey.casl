@@ -19,7 +19,7 @@ spec Nat =
     ops
         0, 1: Nat;
     forall i,n: Nat
-    . inRange(n, i) => n >= 1 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
+    . inRange(n, i) => n > 0 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
 end
 
 spec BasicConcepts =
@@ -122,21 +122,26 @@ Vectors[sort Elem] then
         maximum: Vector[Elem] -> Elem;
         maximumExcept: Vector[Elem] * Nat -> Elem;
     forall b: Vector[Elem];
-           i, j, n: Nat
-    . n >= 1 /\ n = length(b)
-      =>
-      exists k: Nat . inRange(n, k) /\ maximum(b) = b[k] %(maximum_exists)%
+           i, j, n: Nat;
+           m: Elem
     . inArgMaxSet(b, i) <=> maximum(b) = b[i] %(arg_max_set_def)%
-    . inRange(n, i) => maximum(b) >= b[i] %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
-    . n > 1 /\ n = length(b) /\ inRange(n, i)
+    . length(b) = n /\ inRange(n, i)
       =>
-      exists k: Nat . inRange(n, k) /\ maximumExcept(b, i) = b[k] %(maximum_except_exists)%
-    . n >= 1 /\ inRange(n, j) /\
+      maximum(b) >= b[i] %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
+    . length(b) = n /\ n > 0
+      =>
+      exists i: Nat . inRange(n, i) /\ maximum(b) = b[i] %(maximum_is_component)% %[ In Isabelle we proved this by induction ]%
+    . length(b) = n /\ n > 0 /\
+      ( forall i: Nat . inRange(n, i) => m >= b[i] %[ greater or equal ]% ) /\
+      ( exists i: Nat . inRange(n, i) /\ m = b[i] %[ component ]% )
+      =>
+      m = maximum(b) %(maximum_sufficient)% %[ In Isabelle we proved this by induction ]%
+    . length(b) = n /\ n > 0 /\ inRange(n, j) /\
       inRange(n, i) /\ not i = j
       => maximumExcept(b, j) >= b[i] %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
-    %[ TODO CL: the following are for testing what we need to prove SecondPriceAuction#only_max_bidder_wins ]%
-    . n > 1 /\ inRange(n, i) /\ b[i] > maximumExcept(b, i) => inArgMaxSet(b, i) %(foo)% %implied
-    . n > 1 /\ inRange(n, i) /\ b[i] > maximumExcept(b, i) => (forall j: Nat . inRange(n, j) => b[i] >= b[j]) %(foo_simpler)% %implied
+    %[ TODO CL: the following are for testing what we really need to prove SecondPriceAuction#only_max_bidder_wins ]%
+    . length(b) = n /\ n > 1 /\ inRange(n, i) /\ b[i] > maximumExcept(b, i)
+      => inArgMaxSet(b, i) %(foo)% %implied
 end
 
 spec MaximumNonNegativeReal =
