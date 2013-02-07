@@ -23,7 +23,9 @@ spec Nat =
     . inRange(n, i) => n > 0 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
 end
 
-spec NonNegativeReal = ExtBasicReal[BasicReal] then
+spec Real = ExtBasicReal[BasicReal]
+
+spec NonNegativeReal = Real then
     sort NonNegativeReal = { x: Real . x >= 0 }
 
 spec PositiveReal = NonNegativeReal then
@@ -32,7 +34,7 @@ spec PositiveReal = NonNegativeReal then
 spec BasicConcepts =
 Boolean then 
 Nat then
-ExtBasicReal[BasicReal]
+Real
 
 spec Vectors[sort Elem] given BasicConcepts =
     sorts
