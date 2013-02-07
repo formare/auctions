@@ -8,7 +8,7 @@ CL@TM: How does casl-mode indentation work?
 
 from Basic/SimpleDatatypes get Boolean
 from Basic/RelationsAndOrders get ExtTotalOrder, TotalOrder
-from Basic/Reals get BasicReal, ExtBasicReal
+from Basic/Reals get OrderedField, ExtOrderedField
 
 spec Nat =
     sorts
@@ -23,7 +23,10 @@ spec Nat =
     . inRange(n, i) => n > 0 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
 end
 
-spec Real = ExtBasicReal[BasicReal]
+spec Real =
+     ExtOrderedField[OrderedField] with Elem |-> Real 
+    %[sort Real; preds __>=__, __>__, __<__, __<=__: Real * Real; ops 0, 1: Real; __*__, __-__, max, min: Real * Real -> Real; inf, sup: Real * Real ->? Real;]%
+end
 
 spec NonNegativeReal = Real then
     sort NonNegativeReal = { x: Real . x >= 0 }
@@ -109,7 +112,8 @@ RealVectors then
          Note: Isabelle formalisation is slightly more general ]%
 end
 
-spec Maximum[ExtTotalOrder[TotalOrder]] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
+%{ It would be more convenient to use Maximum[ExtTotalOrder[TotalOrder]], but in the interest of more efficient and easy reuse we do without >= here and use <= instead. }%
+spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
 Vectors[sort Elem] then
     preds
         inArgMaxSet: Vector[Elem] * Nat;
@@ -122,21 +126,22 @@ Vectors[sort Elem] then
     . inArgMaxSet(b, i) <=> maximum(b) = b[i] %(arg_max_set_def)%
     . length(b) = n /\ inRange(n, i)
       =>
-      maximum(b) >= b[i] %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
+      b[i] <= maximum(b) %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
     . length(b) = n /\ n > 0
       =>
       exists i: Nat . inRange(n, i) /\ maximum(b) = b[i] %(maximum_is_component)% %[ In Isabelle we proved this by induction ]%
     . length(b) = n /\ n > 0 /\
-      ( forall i: Nat . inRange(n, i) => m >= b[i] %[ greater or equal ]% ) /\
+      ( forall i: Nat . inRange(n, i) => b[i] <= m %[ greater or equal ]% ) /\
       ( exists i: Nat . inRange(n, i) /\ m = b[i] %[ component ]% )
       =>
       m = maximum(b) %(maximum_sufficient)% %[ In Isabelle we proved this by induction ]%
     . length(b) = n /\ n > 0 /\ inRange(n, j) /\
       inRange(n, i) /\ not i = j
-      => maximumExcept(b, j) >= b[i] %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
-    %[ TODO CL: the following are for testing what we really need to prove SecondPriceAuction#only_max_bidder_wins ]%
-    . length(b) = n /\ n > 1 /\ inRange(n, i) /\ b[i] > maximumExcept(b, i)
-      => inArgMaxSet(b, i) %(foo)% %implied
+      =>
+      b[i] <= maximumExcept(b, j) %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
+    %[ TODO CL: the following was for testing what we really need to prove SecondPriceAuction#only_max_bidder_wins ]%
+    %[. length(b) = n /\ n > 1 /\ inRange(n, i) /\ maximumExcept(b, i) < b[i]]%
+    %[  => inArgMaxSet(b, i) %(foo)% %implied]%
 end
 
 %[ CL@TM: I'd actually like to speak of NonNegativeReal, but this doesn't work. ]%
