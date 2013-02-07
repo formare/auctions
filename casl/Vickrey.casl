@@ -8,6 +8,7 @@ CL@TM: How does casl-mode indentation work?
 
 from Basic/SimpleDatatypes get Boolean
 from Basic/RelationsAndOrders get ExtTotalOrder, TotalOrder
+from Basic/Reals get BasicReal, ExtBasicReal
 
 spec Nat =
     sorts
@@ -22,26 +23,16 @@ spec Nat =
     . inRange(n, i) => n > 0 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
 end
 
+spec NonNegativeReal = ExtBasicReal[BasicReal] then
+    sort NonNegativeReal = { x: Real . x >= 0 }
+
+spec PositiveReal = NonNegativeReal then
+    sort PositiveReal = { x: NonNegativeReal . x > 0 }
+
 spec BasicConcepts =
 Boolean then 
 Nat then
-    sorts
-        PositiveReal < NonNegativeReal;
-    preds
-        __>=__: NonNegativeReal * NonNegativeReal;
-        __<=__: NonNegativeReal * NonNegativeReal;
-        __>__: NonNegativeReal * NonNegativeReal;
-        __<__: NonNegativeReal * NonNegativeReal;
-    ops
-        __-__: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
-        %[ The following four we just need for being able to use <, >, <=, >= with reasonable axioms as provided by ExtTotalOrder
-           CL@TM: Is there a better way of doing this? ]%
-        inf: NonNegativeReal * NonNegativeReal ->? NonNegativeReal;
-        sup: NonNegativeReal * NonNegativeReal ->? NonNegativeReal;
-        min: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
-        max: NonNegativeReal * NonNegativeReal -> NonNegativeReal;
-        0: NonNegativeReal;
-end
+ExtBasicReal[BasicReal]
 
 spec Vectors[sort Elem] given BasicConcepts =
     sorts
@@ -58,10 +49,8 @@ end
 
 spec RealVectors =
   BasicConcepts then
-  Vectors[sort NonNegativeReal] then
-  Vectors[sort PositiveReal] then
-  Vectors[sort Boolean] then
-  sorts Vector[PositiveReal] < Vector[NonNegativeReal]
+  Vectors[sort Real] then
+  Vectors[sort Boolean]
 end
 
 %% main concepts 
@@ -70,19 +59,22 @@ RealVectors then
     sorts
         Participants < Nat; %[ cardinal number of participants (variable usually called n) ]%
         Participant < Nat; %[ ordinal number of one participant ]%
-    	Bids < Vector[NonNegativeReal]; 
+    	Bids < Vector[Real]; %[ actually NonNegativeReal, but then I get typing errors further below.  CL@TM: What's wrong? ]%
         Allocation < Vector[Boolean];
-        Payments < Vector[NonNegativeReal];
-        Valuations < Vector[PositiveReal];
+        Payments < Vector[Real]; %[ actually NonNegativeReal, but then I get typing errors further below.  CL@TM: What's wrong? ]%
+        Valuations < Vector[Real]; %[ actually PositiveReal, but then I get typing errors further below.  CL@TM: What's wrong? ]%
         Valuations < Bids;
     preds
         allocation: Bids * Allocation;
         allocated: Allocation * Bids * Participant;
         payments: Bids * Payments;
     ops
-        payment: Payments * Bids * Participant -> NonNegativeReal;
-        payoff: NonNegativeReal %[ actually PositiveReal ]% * Boolean * NonNegativeReal -> NonNegativeReal;
-        payoff: Valuations * Bids * Allocation * Payments * Participant -> NonNegativeReal;
+        payment: Payments * Bids * Participant -> Real;
+        payoff: Real %[ actually PositiveReal ]% * Boolean * Real -> Real;
+        payoff: Valuations * Bids * Allocation * Payments * Participant -> Real;
+    forall v: Real; p : Real; x: Boolean
+    . payoff(v, x, p) = v * (1 when x = True else 0) - p %(payoff_def)%
+    %[ CL@TM: 1 when x else 0 doesn't work; is this a bug or a feature? ]%
     forall v:Valuations; b:Bids; x:Allocation; p:Payments; i:Participant
     . allocation(b, x) => length(b) = length(x) %(allocation_length_eq_bids_length)% %[ enforces that the previous two vectors need to have the same length]%
     . allocation(b, x) => (exists n:Participants, k:Participant .
@@ -93,7 +85,8 @@ RealVectors then
                             inRange(n, j) /\ not j = k =>
                             not allocated(x, b, j))) %(allocation_def)%
     . payments(b, p) => length(b) = length(p) %(payments_length_eq_bids_length)% %[ enforces that the previous two vectors need to have the same length]%
-    . payoff(v, b, x, p, i) = payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
+    . payoff(v, b, x, p, i) =
+      payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
     forall b:Bids; x:Allocation; n:Participants; winner,other:Participant
     . allocation(b, x) /\
       n = length(b) /\
@@ -144,12 +137,14 @@ Vectors[sort Elem] then
       => inArgMaxSet(b, i) %(foo)% %implied
 end
 
-spec MaximumNonNegativeReal =
-  Maximum[BasicConcepts fit Elem |-> NonNegativeReal]
+%[ CL@TM: I'd actually like to speak of NonNegativeReal, but this doesn't work. ]%
+%[ CL@TM: In the neighbourhood of this node there are some red edges in the development graph.  Where do they come from, and how do I get rid of them? ]%
+spec MaximumReal =
+  Maximum[BasicConcepts fit Elem |-> Real]
 end
 
 spec SingleGoodAuctionProperties = %[ TODO CL: complete from Isabelle ]%
-MaximumNonNegativeReal then
+MaximumReal then
 SingleGoodAuction 
 then
     preds
@@ -175,13 +170,13 @@ end
 
 spec SecondPriceAuction = %[ TODO CL: complete from Isabelle ]%
 SingleGoodAuction then
-MaximumNonNegativeReal then
+MaximumReal then
     preds
         secondPriceAuction: Allocation * Payments;
         secondPriceAuctionWinner: Participants * Bids * Allocation * Payments * Participant;
         secondPriceAuctionLoser: Participants * Bids * Allocation * Payments * Participant;
     ops
-        secondPriceAuctionWinnersPayment:  Bids * Participant -> NonNegativeReal;
+        secondPriceAuctionWinnersPayment:  Bids * Participant -> Real %[ actually NonNegativeReal ]%;
     forall n: Participants;
            v: Valuations;
            x: Allocation;
