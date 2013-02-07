@@ -24,8 +24,8 @@ spec Nat =
 end
 
 spec Real =
-     ExtOrderedField[OrderedField] with Elem |-> Real 
-    %[sort Real; preds __>=__, __>__, __<__, __<=__: Real * Real; ops 0, 1: Real; __*__, __-__, max, min: Real * Real -> Real; inf, sup: Real * Real ->? Real;]%
+    %[ExtOrderedField[OrderedField] with Elem |-> Real ]%
+    sort Real; preds __>=__, __>__, __<__, __<=__: Real * Real; ops 0, 1: Real; __*__, __-__: Real * Real -> Real;
 end
 
 spec NonNegativeReal = Real then
