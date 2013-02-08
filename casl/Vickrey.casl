@@ -159,6 +159,9 @@ Vectors[sort Elem] then
       exists i: Index . inRange(n, i) /\ not i = j /\ maximumExcept(b, j) = b[i] %(maximum_except_is_component)%
     . length(b) = n /\ n > 1 /\ inRange(n, j)
       => maximumExcept(b, j) <= maximum(b) %(maximum_greater_or_equal_remaining_maximum)%
+    %[ The following was for testing what we really need to prove SecondPriceAuction#only_max_bidder_wins, but it helps eprover to get the latter proved much faster. ]%
+    . length(b) = n /\ n > 1 /\ inRange(n, i) /\ maximumExcept(b, i) <= b[i] /\ not maximumExcept(b, i) = b[i]
+      => inArgMaxSet(b, i) /\ (forall j:Index . inRange(n, j) /\ not j = i => not inArgMaxSet(b, j)) %(only_one_maximum)% %implied
 end
 
 %[ CL@TM: I'd actually like to speak of NonNegativeReal, but this doesn't work. ]%
@@ -277,13 +280,13 @@ MaximumReal then
       b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
       %[ proved with
-         * SPASS (second_price_auction_def, arg_max_set_def, maximum_is_greater_or_equal, second_price_auction_winner_def, maximum_except_is_greater_or_equal; also reports using maximum_is_component, but it actually works without)
-         * eprover (second_price_auction_winner_def, second_price_auction_def, allocation_def, arg_max_set_def, maximum_is_greater_or_equal, maximum_except_is_greater_or_equal)
+         * eprover (now takes a lot of time unless Maximum#only_one_maximum is used, therefore didn't minimise; worked before r324 using second_price_auction_winner_def, second_price_auction_def, allocation_def, arg_max_set_def, maximum_is_greater_or_equal, maximum_except_is_greater_or_equal; requires manual minimisation)
+         * Vampire (needs more than 10 seconds)
+         * MathServe Broker
          does not work with
+         * SPASS (but worked before r324 using second_price_auction_def, arg_max_set_def, maximum_is_greater_or_equal, second_price_auction_winner_def, maximum_except_is_greater_or_equal; also reports using maximum_is_component, but it actually works without)
          * darwin-non-fd (timeout)
          not yet tested with
-         * MathServe Broker (firewall issue)
-         * Vampire (firewall issue)
          Isabelle proof (by contradiction) uses second_price_auction_def, second_price_auction_winner_def, second_price_auction_loser_def, maximum_except_is_greater_or_equal, maximum_is_greater_or_equal, arg_max_set_def ]%
     . secondPriceAuction(n, x, p) /\
       n = length(b) /\
