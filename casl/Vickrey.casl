@@ -320,73 +320,66 @@ MaximumReal then
       payoff(v, b, x, p, winner)
       = maximumExcept(deviationVector(b, v, winner), winner) %(winners_payoff_on_deviation_from_valuation)% %implied
     %[*** TESTING CODE ***]%
+    preds
+         allocatedImpliesSpaWinnerAnt, allocatedImpliesSpaWinnerCons: Participants * Bids * Allocation * Payments * Participant;
     forall b: Bids;
            n: Participants;
            p: Payments;
            v: Valuations;
            winner, loser, i, maxBidder: Participant;
            x: Allocation
-    %[. allocation(b, x) /\]%
-    %[  payments(b, p) /\]%
-    %[  n = length(b) /\]%
-    %[  secondPriceAuctionWinner(n, b, x, p, winner) /\]%
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) <=>
+      secondPriceAuction(n, x, p) /\
+      n = length(b) /\
+      inRange(n, winner) /\
+      allocated(x, b, winner)
+      %(allocated_implies_spa_winner_ant)%
+    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) <=>
+      allocation(b, x) /\
+      payments(b, p) /\
+      n = length(b) /\
+      secondPriceAuctionWinner(n, b, x, p, winner)
+      %(allocated_implies_spa_winner_cons)%
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) =>
+      allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
+      %(allocated_implies_spa_winner_variant)% %implied
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
     %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, payment(p, b, winner))]%
-    %[  %(test_spa_winner_payoff_0step)% %implied]%
-    %[. secondPriceAuction(n, x, p) /\]%
-    %[  n = length(b) /\]%
-    %[  n = length(v) /\]%
-    %[  inRange(n, winner) /\]%
-    %[  allocated(x, b, winner)]%
+    %[  %(test_spa_winner_payoff_0step)% %implied %\[ works with SPASS ]\%]%
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
     %[  =>]%
     %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, payment(p, b, winner))]%
-    %[  %(test2_spa_winner_payoff_0step)% %implied]%
-    %[. allocation(b, x) /\]%
-    %[  payments(b, p) /\]%
-    %[  n = length(b) /\]%
-    %[  secondPriceAuctionWinner(n, b, x, p, winner) /\]%
+    %[  %(test2_spa_winner_payoff_0step)% %implied %\[ works with SPASS ]\%]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
     %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner))]%
-    %[  %(test_spa_winner_payoff_0.5step)% %implied]%
-    . secondPriceAuction(n, x, p) /\
-      n = length(b) /\
-      n = length(v) /\
-      inRange(n, winner) /\
-      allocated(x, b, winner)
+    %[  %(test_spa_winner_payoff_0.5step)% %implied %\[ works with SPASS ]\%]%
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
+      n = length(v)
       =>
       payoff(v, b, x, p, winner) = payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner))
       %(test2_spa_winner_payoff_0.5step)% %implied
-    . allocation(b, x) /\
-      payments(b, p) /\
-      n = length(b) /\
-      secondPriceAuctionWinner(n, b, x, p, winner) /\
+    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
       n = length(v)
       =>
       payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))
       %(test_spa_winner_payoff_1step)% %implied
-    . secondPriceAuction(n, x, p) /\
-      n = length(b) /\
-      n = length(v) /\
-      inRange(n, winner) /\
-      allocated(x, b, winner)
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
+      n = length(v)
       =>
       payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))
       %(test2_spa_winner_payoff_1step)% %implied
-    . secondPriceAuction(n, x, p) /\
-      n = length(b) /\
-      n = length(v) /\
-      inRange(n, winner) /\
-      allocated(x, b, winner)
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
+      n = length(v)
       =>
       payoff(v, b, x, p, winner) = v[winner] * 1 - maximumExcept(b, winner)
       %(test2_spa_winner_payoff_2step)% %implied
-    . secondPriceAuction(n, x, p) /\
-      n = length(b) /\
-      n = length(v) /\
-      inRange(n, winner) /\
-      allocated(x, b, winner)
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
+      n = length(v)
       =>
       payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner)
       %(test2_spa_winner_payoff_3step)% %implied
@@ -395,11 +388,8 @@ MaximumReal then
     %[  =>]%
     %[  exists r: Real . v[winner] = r]%
     %[  %(test0_spa_win_val_exists)% %implied]%
-    . secondPriceAuction(n, x, p) /\
-      n = length(b) /\
-      n = length(v) /\
-      inRange(n, winner) /\
-      allocated(x, b, winner)
+    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
+      n = length(v)
       =>
       exists r: Real . v[winner] = r
       %(test1_spa_win_val_exists)% %implied
@@ -407,18 +397,12 @@ MaximumReal then
     %[. (exists r: Real . v[winner] = r) => payoff(v[winner], True, maximumExcept(b, winner)) = v[winner] * 1 - maximumExcept(b, winner) %(test_payoff1_compute)% %implied]%
     %[. (exists r: Real . v[winner] = r) => v[winner] * 1 - maximumExcept(b, winner) = v[winner] - maximumExcept(b, winner) %(test_payoff2_simplify)% %implied]%
     . (exists r: Real . v[winner] = r) => payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner)) = v[winner] - maximumExcept(b, winner) %(test_payoff3_all)% %implied
-    . allocation(b, x) /\
-      payments(b, p) /\
-      n = length(b) /\
-      secondPriceAuctionWinner(n, b, x, p, winner) /\
+    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
       n = length(v) /\
       (exists r: Real . v[winner] = r)
       =>
       payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner) %(test_spa_winner_payoff_if_exists)% %implied
-    . allocation(b, x) /\
-      payments(b, p) /\
-      n = length(b) /\
-      secondPriceAuctionWinner(n, b, x, p, winner) /\
+    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
       n = length(v)
       =>
       payoff(v, b, x, p, winner) = v[winner] * 1 - maximumExcept(b, winner)
