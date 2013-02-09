@@ -269,6 +269,7 @@ proof -
   qed
 qed
 
+(* TODO CL: not sure whether we really need this, or rather just: The maximum is \<ge> the maximum of the remaining values *)
 text{* One component of a vector is a maximum component iff it has a value greater or equal than the maximum of the remaining values. *}
 lemma maximum_greater_or_equal_remaining_maximum :
   (* TODO CL: discuss the name of this lemma; maybe there is something more appropriate *)
