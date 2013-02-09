@@ -2,8 +2,7 @@ include Makefile.vars
 
 SYNC_FILES = \
 	LICENSE LICENSE-CC-BY LICENSE-ISC \
-	README.html \
-	.htaccess
+	README.html
 SUBDIRS = \
 	casl \
 	isabelle

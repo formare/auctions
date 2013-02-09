@@ -5,7 +5,7 @@ Auction Theory Toolbox
 
 Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>
-* Christoph Lange <c.lange@cs.bham.ac.uk>
+* Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 
 Dually licenced under

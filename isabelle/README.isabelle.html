@@ -1,10 +1,24 @@
 <html>
   <body>
-    Files relevant to the Isabelle formalisation:
+    <h1>Auction Theory Toolbox</h1>
+    <h2>Files relevant to the Isabelle formalisation</h2>
     <ul>
-      <li>*.thy: Isabelle formalisation</li>
+      <li>*.thy: Isabelle formalisation:<ul>
+          <li><a href="Vectors.thy">Vectors.thy</a>: vectors, implemented as functions</li>
+          <li><a href="Maximum.thy">Maximum.thy</a>: maximum components of vectors, and their properties</li>
+          <li><a href="MaximumTest.thy">MaximumTest.thy</a>: some examples for testing Maximum</li>
+          <li><a href="SingleGoodAuction.thy">SingleGoodAuction.thy</a>: single good auctions</li>
+          <li><a href="SingleGoodAuctionTest.thy">SingleGoodAuctionTest.thy</a>: some examples for testing SingleGoodAuction</li>
+          <li><a href="SingleGoodAuctionProperties.thy">SingleGoodAuctionProperties.thy</a>: some properties that single good auctions can have</li>
+          <li><a href="SecondPriceAuction.thy">SecondPriceAuction.thy</a>: second price single good auctions and some of their properties</li>
+          <li><a href="Vickrey.thy">Vickrey.thy</a>: Vickrey's Theorem: second price auctions are efficient, and truthful bidding is a weakly dominant strategy.</li>
+      </li>
       <li><a href="graph.pdf">graph</a>: exported theory graph</li>
       <li><a href="vickrey-paper.pdf">vickrey-paper.pdf</a>: paper version of the theorem</li><!-- this paper is not physically in this svn, but uploaded via https://codex.cs.bham.ac.uk/svn/mmk/KLR/auction-theory/Makefile -->
     </ul>
+    <h2>How to run</h2>
+    <ol>
+      <li>Obtain <a href="https://isabelle.in.tum.de/">Isabelle</a>.</li>
+      <li>Run <code>isabelle jedit</code>, open Vickrey.thy, and agree to loading all of its dependencies.</li>
   </body>
 </html>
