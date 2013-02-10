@@ -45,12 +45,7 @@ spec NonNegativeReal = Real then
 spec PositiveReal = NonNegativeReal then
     sort PositiveReal = { x: NonNegativeReal . x > 0 }
 
-spec BasicConcepts =
-Boolean then 
-Nat then
-Real
-
-spec Vectors[sort Elem] given BasicConcepts =
+spec Vectors[sort Elem] given Nat =
     sorts
     	Vector[Elem];
         Index < Nat;
@@ -68,12 +63,13 @@ spec Vectors[sort Elem] given BasicConcepts =
 end
 
 spec RealVectors =
-  BasicConcepts then
+  Real then
   Vectors[sort Real]
 end
 
 %% main concepts 
 spec SingleGoodAuction = %[ TODO CL: complete from Isabelle ]%
+Boolean then
 RealVectors then
     sorts
         Participants = Length; %[ cardinal number of participants (variable usually called n) ]%
@@ -127,7 +123,7 @@ RealVectors then
 end
 
 %{ It would be more convenient to use Maximum[ExtTotalOrder[TotalOrder]], but in the interest of more efficient and easy reuse we do without >= here and use <= instead. }%
-spec Maximum[TotalOrder] given BasicConcepts = %[ TODO CL: complete from Isabelle ]%
+spec Maximum[TotalOrder] = %[ TODO CL: complete from Isabelle ]%
 Vectors[sort Elem] then
     preds
         inArgMaxSet: Vector[Elem] * Index;
@@ -167,7 +163,7 @@ end
 %[ CL@TM: I'd actually like to speak of NonNegativeReal, but this doesn't work. ]%
 %[ CL@TM: In the neighbourhood of this node there are some red edges in the development graph.  Where do they come from, and how do I get rid of them? ]%
 spec MaximumReal =
-  Maximum[BasicConcepts fit Elem |-> Real]
+  Maximum[Real fit Elem |-> Real]
 end
 
 spec SingleGoodAuctionProperties = %[ TODO CL: complete from Isabelle ]%
@@ -297,11 +293,8 @@ MaximumReal then
       =>
       payoff(v, b, x, p, winner) =
       v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
-    %[ can establish proof in the following steps (always including theorems):
-       1. prove test_payoff3_all with SPASS
-       2. prove test1_spa_win_val_exists with SPASS
-       3. prove test2_spa_winner_payoff_0.5step with eprover
-       4. prove second_price_auction_winner_payoff with eprover ]%
+    %[ proved with a scripted combination of SPASS and eprover using auxiliary lemmas; see
+       Vickrey-SecondPriceAuction-second_price_auction_winners_payment.hpf ]%
     . secondPriceAuction(n, x, p) /\
       n = length(b) /\
       n = length(v) /\
@@ -343,11 +336,11 @@ MaximumReal then
     . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) =>
       allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
       %(allocated_implies_spa_winner_variant)% %implied
-    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
-    %[  n = length(v)]%
-    %[  =>]%
-    %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, payment(p, b, winner))]%
-    %[  %(test_spa_winner_payoff_0step)% %implied %\[ works with SPASS ]\%]%
+    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
+      n = length(v)
+      =>
+      payoff(v, b, x, p, winner) = payoff(v[winner], True, payment(p, b, winner))
+      %(test_spa_winner_payoff_0step)% %implied %[ works with SPASS ]%
     %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
@@ -358,31 +351,31 @@ MaximumReal then
     %[  =>]%
     %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner))]%
     %[  %(test_spa_winner_payoff_0.5step)% %implied %\[ works with SPASS ]\%]%
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      payoff(v, b, x, p, winner) = payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner))
-      %(test2_spa_winner_payoff_0.5step)% %implied
-    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))
-      %(test_spa_winner_payoff_1step)% %implied
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))
-      %(test2_spa_winner_payoff_1step)% %implied
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      payoff(v, b, x, p, winner) = v[winner] * 1 - maximumExcept(b, winner)
-      %(test2_spa_winner_payoff_2step)% %implied
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner)
-      %(test2_spa_winner_payoff_3step)% %implied
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner))]%
+    %[  %(test2_spa_winner_payoff_0.5step)% %implied]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))]%
+    %[  %(test_spa_winner_payoff_1step)% %implied]%
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))]%
+    %[  %(test2_spa_winner_payoff_1step)% %implied]%
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = v[winner] * 1 - maximumExcept(b, winner)]%
+    %[  %(test2_spa_winner_payoff_2step)% %implied]%
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner)]%
+    %[  %(test2_spa_winner_payoff_3step)% %implied]%
     %[. n = length(v) /\]%
     %[  inRange(n, winner)]%
     %[  =>]%
