@@ -28,12 +28,13 @@ spec Nat =
 end
 
 spec Real =
+    TotalOrder with Elem |-> Real then
     %[ExtOrderedField[OrderedField] with Elem |-> Real ]%
-    sort Real; preds __>=__, __>__, __<__, __<=__: Real * Real; ops 0, 1: Real; __*__, __-__: Real * Real -> Real;
+    sort Real; preds __>=__, __>__, __<__: Real * Real; ops 0, 1: Real; __*__, __-__: Real * Real -> Real;
+    %[ First the axioms that we actually need: ]%
     forall x,y,z:Real
     . x < y <=> x <= y /\ not x = y %(lt_def)%
     . x > y <=> not x <= y %(gt_def)%
-    . x <= y /\ y <= z => x <= z %(lt_trans)%
     . x * 1 = x %(1_mult)%
     . x * 0 = 0 %(0_mult)%
     . x - 0 = x %(minus_0)%
