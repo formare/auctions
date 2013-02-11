@@ -480,4 +480,13 @@ SingleGoodAuctionProperties then
     . secondPriceAuction(n, x, p) /\
       length(v) = n
       => efficient(n, v, v %[ i.e. b ]%, x) %(vickreyB)% %implied
+    %[ proved with
+       * eprover (same as Isabelle and really nothing else; requires manual minimisation)
+       does not work with
+       * SPASS (timeout)
+       not yet tested with
+       * darwin-non-fd
+       * Vampire
+       * MathServe Broker
+       Isabelle proof second_price_auction_winner_def, allocated_implies_spa_winner, efficient_def ]%
 end
