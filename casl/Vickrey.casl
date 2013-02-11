@@ -55,12 +55,25 @@ spec Vectors[sort Elem] given Nat =
         __[__]: Vector[Elem] * Index ->? Elem;
         %% TM: alternative modelling:     sort NonNegativeReal < Thing; ... ; sort Vector; op component: Vector * Nat -> Thing;
         length: Vector[Elem] -> Length;
+        deviation: Vector[Elem] * Elem * Index -> Vector[Elem];
         deviationVector: Vector[Elem] * Vector[Elem] * Index -> Vector[Elem];
     preds
         inRange: Length * Index; %[ TODO CL: find out whether it's additionally necessary to _define_ this ]%
-    forall v: Vector[Elem]; i: Index; n: Length; e: Elem
+    forall v, altV: Vector[Elem]; i: Index; n: Length; e: Elem
     . length(v) = n /\ inRange(n, i) => (exists e: Elem . v[i] = e) %(non_empty_vector_has_elements)%
     . inRange(n, i) => n > 0 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
+    forall v, altV: Vector[Elem]; alt: Elem; i, j: Index; n: Length
+    %[ We don't need the following axioms for the proof of Vickrey's theorem; actually they seem to be inconsistent. ]%
+    %[. (exists n: Length . n = length(v) /\ inRange(n, i))]%
+    %[  => length(deviation(v, alt, i)) = length(v) %(deviation_same_length)%]%
+    %[. (exists n: Length . n = length(v) /\ inRange(n, i))]%
+    %[  => (deviation(v, alt, i))[i] = alt %(deviation_def_index)%]%
+    %[. (exists n: Length . n = length(v) /\ inRange(n, i) /\ inRange(n, j)) /\]%
+    %[  not j = i]%
+    %[  => (deviation(v, alt, i))[i] = v[i] %(deviation_def_otherwise)%]%
+    %[. not j = i => (deviation(v, alt, i))[i] = alt]%
+    . n = length(v) /\ n = length(altV) /\ inRange(n, i)
+      => deviationVector(v, altV, i) = deviation(v, altV[i], i) %(deviation_vec_def)%
 end
 
 spec RealVectors =
@@ -134,7 +147,7 @@ Vectors[sort Elem] then
     forall b: Vector[Elem];
            i, j: Index;
            n: Length;
-           m: Elem
+           m, alt: Elem
     . inArgMaxSet(b, i) <=> maximum(b) = b[i] %(arg_max_set_def)%
     . length(b) = n /\ inRange(n, i)
       =>
@@ -153,10 +166,12 @@ Vectors[sort Elem] then
       b[i] <= maximumExcept(b, j) %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
     . length(b) = n /\ n > 1 /\ inRange(n, j)
       =>
-      exists i: Index . inRange(n, i) /\ not i = j /\ maximumExcept(b, j) = b[i] %(maximum_except_is_component)%
+      exists i: Index . inRange(n, i) /\ not i = j /\ maximumExcept(b, j) = b[i] %(maximum_except_is_component)% %[ TODO CL: Find out whether we need this. ]%
     . length(b) = n /\ n > 1 /\ inRange(n, j)
-      => maximumExcept(b, j) <= maximum(b) %(maximum_greater_or_equal_remaining_maximum)%
-    %[ The following was for testing what we really need to prove SecondPriceAuction#only_max_bidder_wins, but it helps eprover to get the latter proved much faster. ]%
+      => maximumExcept(b, j) <= maximum(b) %(maximum_greater_or_equal_remaining_maximum)% %[ In Isabelle we proved this by induction ]%
+    . length(b) = n /\ n > 1 /\ inRange(n, i)
+      => maximumExcept(b, i) = maximumExcept(deviation(b, alt, i), i) %(remaining_maximum_invariant)% %[ In Isabelle we proved this by the definition of maximumExcept ]%
+    %[ The following was for testing what we really need to prove SecondPriceAuction#only_max_bidder_wins, but its presence helps eprover to get the latter proved much faster. ]%
     . length(b) = n /\ n > 1 /\ inRange(n, i) /\ maximumExcept(b, i) <= b[i] /\ not maximumExcept(b, i) = b[i]
       => inArgMaxSet(b, i) /\ (forall j:Index . inRange(n, j) /\ not j = i => not inArgMaxSet(b, j)) %(only_one_maximum)% %implied
 end
@@ -295,15 +310,17 @@ MaximumReal then
       payoff(v, b, x, p, winner) =
       v[winner] - maximumExcept(b, winner) %(second_price_auction_winner_payoff)% %implied
     %[ proved with a scripted combination of SPASS and eprover using auxiliary lemmas; see
-       Vickrey-SecondPriceAuction-second_price_auction_winners_payment.hpf ]%
+       Vickrey-SecondPriceAuction-second_price_auction_winner_payoff.hpf ]%
     . secondPriceAuction(n, x, p) /\
       n = length(b) /\
       n = length(v) /\
       inRange(n, loser) /\
-      not(allocated(x, b, loser))
+      not allocated(x, b, loser)
       =>
       payoff(v, b, x, p, loser) =
       0 %(second_price_auction_loser_payoff)% %implied
+    %[ proved with a scripted combination of SPASS and eprover using auxiliary lemmas; see
+       Vickrey-SecondPriceAuction-second_price_auction_loser_payoff.hpf ]%
     . secondPriceAuction(n, x, p) /\
       n = length(b) /\
       n = length(v) /\
@@ -312,36 +329,74 @@ MaximumReal then
       allocated(x, b, winner)
       =>
       payoff(v, b, x, p, winner)
-      = maximumExcept(deviationVector(b, v, winner), winner) %(winners_payoff_on_deviation_from_valuation)% %implied
-    %[*** TESTING CODE ***]%
+      = v[winner] - maximumExcept(deviationVector(b, v, winner), winner) %(winners_payoff_on_deviation_from_valuation)% %implied
+    %[ proved with a scripted combination of SPASS and eprover using auxiliary lemmas; see
+       Vickrey-SecondPriceAuction-winners_payoff_on_deviation_from_valuation.hpf ]%
+    %[ Further auxiliaries ]%
     preds
-         allocatedImpliesSpaWinnerAnt, allocatedImpliesSpaWinnerCons: Participants * Bids * Allocation * Payments * Participant;
+         allocatedImpliesSpaWinnerAnt, allocatedImpliesSpaWinnerCons, notAllocatedImpliesSpaLoserCons: Participants * Bids * Allocation * Payments * Participant;
     forall b: Bids;
            n: Participants;
            p: Payments;
            v: Valuations;
            winner, loser, i, maxBidder: Participant;
            x: Allocation
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) <=>
-      secondPriceAuction(n, x, p) /\
-      n = length(b) /\
-      inRange(n, winner) /\
-      allocated(x, b, winner)
-      %(allocated_implies_spa_winner_ant)%
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) <=>]%
+    %[  secondPriceAuction(n, x, p) /\]%
+    %[  n = length(b) /\]%
+    %[  inRange(n, winner) /\]%
+    %[  allocated(x, b, winner)]%
+    %[  %(allocated_implies_spa_winner_ant)%]%
     . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) <=>
       allocation(b, x) /\
       payments(b, p) /\
       n = length(b) /\
+      n > 1 /\
       secondPriceAuctionWinner(n, b, x, p, winner)
       %(allocated_implies_spa_winner_cons)%
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) =>
-      allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
-      %(allocated_implies_spa_winner_variant)% %implied
+    . notAllocatedImpliesSpaLoserCons(n, b, x, p, loser) <=>
+      allocation(b, x) /\
+      payments(b, p) /\
+      n = length(b) /\
+      secondPriceAuctionLoser(n, b, x, p, loser)
+      %(not_allocated_implies_spa_loser_cons)%
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) =>]%
+    %[  allocatedImpliesSpaWinnerCons(n, b, x, p, winner)]%
+    %[  %(allocated_implies_spa_winner_variant)% %implied]%
     . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
       n = length(v)
       =>
       payoff(v, b, x, p, winner) = payoff(v[winner], True, payment(p, b, winner))
       %(test_spa_winner_payoff_0step)% %implied %[ works with SPASS ]%
+    . notAllocatedImpliesSpaLoserCons(n, b, x, p, loser) /\
+      n = length(v)
+      =>
+      payoff(v, b, x, p, loser) = payoff(v[loser], False, payment(p, b, loser))
+      %(test_spa_loser_payoff_0step)% %implied
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  n > 1 %(test_wpdv_pre0)% %implied %\[ SPASS ]\%]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  length(b) = n /\ n > 1 /\ inRange(n, winner) %(test_wpdv_pre1)% %implied %\[ SPASS ]\%]%
+    %[. length(b) = n /\ n > 1 /\ inRange(n, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  v[winner] - maximumExcept(b, winner) = v[winner] - maximumExcept(deviation(b, v[winner], winner), winner) %(test_wpdv_pre2)% %implied %\[ SPASS ]\%]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  v[winner] - maximumExcept(b, winner) = v[winner] - maximumExcept(deviation(b, v[winner], winner), winner) %(test_wpdv_0)% %implied %\[ eprover ]\%]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  v[winner] - maximumExcept(deviation(b, v[winner], winner), winner) = v[winner] - maximumExcept(deviationVector(b, v, winner), winner) %(test_wpdv_1)% %implied %\[ eprover ]\%]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = v[winner] - maximumExcept(deviationVector(b, v, winner), winner) %(test_wpdv_2)% %implied]%
     %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
@@ -360,18 +415,28 @@ MaximumReal then
     %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
-    %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))]%
+    %[  payoff(v[winner], True, payment(p, b, winner)) = payoff(v[winner], True, maximumExcept(b, winner))]%
     %[  %(test_spa_winner_payoff_1step)% %implied]%
     %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
     %[  payoff(v, b, x, p, winner) = payoff(v[winner], True, maximumExcept(b, winner))]%
     %[  %(test2_spa_winner_payoff_1step)% %implied]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  payoff(v[winner], True, maximumExcept(b, winner)) = v[winner] - maximumExcept(b, winner)]%
+    %[  %(test_spa_winner_payoff_2step)% %implied]%
     %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
     %[  payoff(v, b, x, p, winner) = v[winner] * 1 - maximumExcept(b, winner)]%
     %[  %(test2_spa_winner_payoff_2step)% %implied]%
+    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
+      n = length(v)
+      =>
+      payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner)
+      %(test_spa_winner_payoff_3step)% %implied
     %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
@@ -382,25 +447,20 @@ MaximumReal then
     %[  =>]%
     %[  exists r: Real . v[winner] = r]%
     %[  %(test0_spa_win_val_exists)% %implied]%
-    . allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      exists r: Real . v[winner] = r
-      %(test1_spa_win_val_exists)% %implied
+    %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
+    %[  n = length(v)]%
+    %[  =>]%
+    %[  exists r: Real . v[winner] = r]%
+    %[  %(test1_spa_win_val_exists)% %implied]%
     %[. (exists r: Real . v[winner] = r) => payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner)) = payoff(v[winner], True, maximumExcept(b, winner)) %(test_payoff0_def)% %implied]%
     %[. (exists r: Real . v[winner] = r) => payoff(v[winner], True, maximumExcept(b, winner)) = v[winner] * 1 - maximumExcept(b, winner) %(test_payoff1_compute)% %implied]%
     %[. (exists r: Real . v[winner] = r) => v[winner] * 1 - maximumExcept(b, winner) = v[winner] - maximumExcept(b, winner) %(test_payoff2_simplify)% %implied]%
-    . (exists r: Real . v[winner] = r) => payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner)) = v[winner] - maximumExcept(b, winner) %(test_payoff3_all)% %implied
-    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
-      n = length(v) /\
-      (exists r: Real . v[winner] = r)
-      =>
-      payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner) %(test_spa_winner_payoff_if_exists)% %implied
-    . allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\
-      n = length(v)
-      =>
-      payoff(v, b, x, p, winner) = v[winner] * 1 - maximumExcept(b, winner)
-      %(test_spa_winner_payoff_compute)% %implied
+    %[. (exists r: Real . v[winner] = r) => payoff(v[winner], True, secondPriceAuctionWinnersPayment(b, winner)) = v[winner] - maximumExcept(b, winner) %(test_payoff3_all)% %implied]%
+    %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
+    %[  n = length(v) /\]%
+    %[  (exists r: Real . v[winner] = r)]%
+    %[  =>]%
+    %[  payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner) %(test_spa_winner_payoff_if_exists)% %implied]%
 end
 
 spec Vickrey =

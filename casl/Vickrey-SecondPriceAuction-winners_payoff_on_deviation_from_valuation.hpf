@@ -1,0 +1,17 @@
+#!hets -I
+
+use Vickrey.casl
+dg basic SecondPriceAuction
+
+# Preparation
+set goals test_spa_winner_payoff_0step
+prover SPASS
+prove
+
+set goals test_spa_winner_payoff_3step
+prover eprover
+prove
+
+# Actual goal
+set goals winners_payoff_on_deviation_from_valuation
+prove
