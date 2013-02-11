@@ -189,14 +189,18 @@ then
     preds
         equilibriumWeaklyDominantStrategy: Valuations * Bids * Allocation * Payments;
         efficient:  Valuations * Bids * Allocation;
-    forall v: Valuations;
+    forall n: Participants;
+           v: Valuations;
            b: Bids;
            x: Allocation;
            p: Payments
-    . efficient(v, b, x) <=> exists n: Participants .
-        length(v) = n /\ 
-        forall i: Participant . allocated(x, b, i) => inArgMaxSet(v, i) %(efficient_def)%
-    . equilibriumWeaklyDominantStrategy(v, b, x, p) <=> exists n: Participants . %[ see above for n ]%
+    . efficient(n, v, b, x) <=>
+        (length(v) = n /\ length(b) = n /\
+         forall i: Participant . inRange(n, i) /\ allocated(x, b, i)
+         => inArgMaxSet(v, i)) %(efficient_def)%
+    . equilibriumWeaklyDominantStrategy(n, v, b, x, p) <=>
+        length(v) = n /\
+        length(b) = n /\
         allocation(b, x) /\
         payments(b, p) /\
         (forall i: Participant . inRange(n, i) =>
@@ -470,6 +474,10 @@ SingleGoodAuctionProperties then
            n: Participants;
            x: Allocation;
            p: Payments
-    . secondPriceAuction(n, x, p) => equilibriumWeaklyDominantStrategy(v, v %[ i.e. b ]%, x, p) %(vickreyA)% %implied
-    . secondPriceAuction(n, x, p) => efficient(v, v %[ i.e. b ]%, x) %(vickreyB)% %implied
+    . secondPriceAuction(n, x, p) /\
+      length(v) = n
+      => equilibriumWeaklyDominantStrategy(n, v, v %[ i.e. b ]%, x, p) %(vickreyA)% %implied
+    . secondPriceAuction(n, x, p) /\
+      length(v) = n
+      => efficient(n, v, v %[ i.e. b ]%, x) %(vickreyB)% %implied
 end
