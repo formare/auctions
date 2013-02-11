@@ -27,6 +27,7 @@ spec Nat =
         0, 1: Nat;
 end
 
+%[ TODO CL: reuse ExtOrderedField (with hiding) as explained in http://trac.informatik.uni-bremen.de:8080/hets/ticket/1103, once http://trac.informatik.uni-bremen.de:8080/hets/ticket/1111 has been fixed.  Or work around the hiding, as suggested by TM: "define MyExtField in the same way as ExtField (but based on ConstructField), etc." ]% 
 spec Real =
     TotalOrder with Elem |-> Real then
     %[ExtOrderedField[OrderedField] with Elem |-> Real ]%
