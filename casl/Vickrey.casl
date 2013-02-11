@@ -35,9 +35,11 @@ spec Real =
     forall x,y,z:Real
     . x < y <=> x <= y /\ not x = y %(lt_def)%
     . x > y <=> not x <= y %(gt_def)%
+    . x >= y <=> y <= x %(ge_def)%
     . x * 1 = x %(1_mult)%
     . x * 0 = 0 %(0_mult)%
     . x - 0 = x %(minus_0)%
+    . x >= y => x - y >= 0 %(x_ge_y)%
 end
 
 spec NonNegativeReal = Real then
@@ -62,18 +64,15 @@ spec Vectors[sort Elem] given Nat =
     forall v, altV: Vector[Elem]; i: Index; n: Length; e: Elem
     . length(v) = n /\ inRange(n, i) => (exists e: Elem . v[i] = e) %(non_empty_vector_has_elements)%
     . inRange(n, i) => n > 0 %(range_not_empty)% %[ TODO CL: get rid of this once (if!) we define inRange ]%
-    forall v, altV: Vector[Elem]; alt: Elem; i, j: Index; n: Length
-    %[ We don't need the following axioms for the proof of Vickrey's theorem; actually they seem to be inconsistent. ]%
-    %[. (exists n: Length . n = length(v) /\ inRange(n, i))]%
-    %[  => length(deviation(v, alt, i)) = length(v) %(deviation_same_length)%]%
-    %[. (exists n: Length . n = length(v) /\ inRange(n, i))]%
-    %[  => (deviation(v, alt, i))[i] = alt %(deviation_def_index)%]%
-    %[. (exists n: Length . n = length(v) /\ inRange(n, i) /\ inRange(n, j)) /\]%
-    %[  not j = i]%
-    %[  => (deviation(v, alt, i))[i] = v[i] %(deviation_def_otherwise)%]%
-    %[. not j = i => (deviation(v, alt, i))[i] = alt]%
-    . n = length(v) /\ n = length(altV) /\ inRange(n, i)
-      => deviationVector(v, altV, i) = deviation(v, altV[i], i) %(deviation_vec_def)%
+    forall v, altV, dev: Vector[Elem]; alt: Elem; i, j: Index; n: Length
+    . dev = deviation(v, alt, i) =>
+      (exists n: Length . length(v) = n /\
+                          inRange(n, i) /\
+                          length(dev) = n) %(deviation_range)%
+    . (deviation(v, alt, i))[i] = alt %(deviation_def_index)%
+    . (not j = i) => (deviation(v, alt, i))[i] = v[i] %(deviation_def_otherwise)%
+    . length(deviationVector(v, altV, i)) = length(altV) %(deviation_vec_range)% %[ The other range constraints are enforced by deviation_range ]%
+    . deviationVector(v, altV, i) = deviation(v, altV[i], i) %(deviation_vec_def)%
 end
 
 spec RealVectors =
@@ -489,4 +488,68 @@ SingleGoodAuctionProperties then
        * Vampire
        * MathServe Broker
        Isabelle proof second_price_auction_winner_def, allocated_implies_spa_winner, efficient_def ]%
+    %[ Further auxiliaries ]%
+    preds iSticksWithValuationInSPA: Participants * Allocation * Payments * Valuations * Bids * Participant * Bids;
+    forall v: Valuations;
+           n: Participants;
+           x: Allocation;
+           p: Payments;
+           i: Participant;
+           whateverBid, iSticksWithValuation: Bids
+    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) <=>
+      secondPriceAuction(n, x, p) /\
+      length(v) = n /\
+      length(whateverBid) = n /\
+      inRange(n, i) /\
+      not whateverBid[i] = v[i] /\
+      iSticksWithValuation = deviationVector(whateverBid, v, i) %(i_sticks_with_valuation_def)%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  secondPriceAuction(n, x, p) /\ n = length(iSticksWithValuation) /\ n > 1 /\ inRange(n, i) /\ allocated(x, iSticksWithValuation, i) %(case_1_pre00)% %implied %\[ SPASS, eprover ]\%]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  inArgMaxSet(iSticksWithValuation, i) %(case_1_pre01)% %implied]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  iSticksWithValuation[i] = maximum(iSticksWithValuation) %(case_1_pre02)% %implied %\[ SPASS, eprover ]\%]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  length(iSticksWithValuation) = n /\ n > 1 /\ inRange(n, i) %(case_1_pre03)% %implied]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  maximumExcept(iSticksWithValuation, i) <= maximum(iSticksWithValuation) %(case_1_pre04)% %implied]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  maximum(iSticksWithValuation) >= maximumExcept(iSticksWithValuation, i) %(case_1_pre05)% %implied]%
+    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i)
+      =>
+      iSticksWithValuation[i] >= maximumExcept(iSticksWithValuation, i) %(case_1_pre06)% %implied %[ SPASS, eprover ]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  secondPriceAuction(n, x, p) /\]%
+    %[  n = length(iSticksWithValuation) /\]%
+    %[  n = length(v) /\]%
+    %[  inRange(n, i) /\]%
+    %[  allocated(x, iSticksWithValuation, i) %(case_1_pre07)% %implied %\[ SPASS ]\%]%
+    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[  allocated(x, iSticksWithValuation, i)]%
+    %[  =>]%
+    %[  payoff(v, iSticksWithValuation, x, p, i) = v[i] - maximumExcept(iSticksWithValuation, i) %(case_1_pre08)% %implied %\[ eprover ]\%]%
+    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i)
+      =>
+      payoff(v, iSticksWithValuation, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(case_1_pre09)% %implied %[ eprover ]%
+    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i)
+      =>
+      payoff(v, iSticksWithValuation, x, p, i) >= 0 %(case_1_pre10)% %implied
+      
 end
