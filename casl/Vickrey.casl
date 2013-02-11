@@ -187,8 +187,8 @@ MaximumReal then
 SingleGoodAuction 
 then
     preds
-        equilibriumWeaklyDominantStrategy: Valuations * Bids * Allocation * Payments;
-        efficient:  Valuations * Bids * Allocation;
+        equilibriumWeaklyDominantStrategy: Participants * Valuations * Bids * Allocation * Payments;
+        efficient: Participants * Valuations * Bids * Allocation;
     forall n: Participants;
            v: Valuations;
            b: Bids;
