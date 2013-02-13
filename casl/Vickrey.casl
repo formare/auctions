@@ -569,4 +569,12 @@ SingleGoodAuctionProperties then
       not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) <= payoff(v, iSticksWithValuation, x, p, i) %(case_1b_01)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) %[ i loses by truthful bidding ]%
+      =>
+      payoff(v, iSticksWithValuation, x, p, i) = 0 %(case_2_pre00)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) %[ i loses by truthful bidding ]%
+      =>
+      iSticksWithValuation[i] <= maximumExcept(iSticksWithValuation, i) %(case_2_pre01)% %implied %[ eprover; in Isabelle we did this by contradiction using only_max_bidder_wins; here, it works directly. ]%
 end
