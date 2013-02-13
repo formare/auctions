@@ -490,49 +490,49 @@ SingleGoodAuctionProperties then
        * MathServe Broker
        Isabelle proof second_price_auction_winner_def, allocated_implies_spa_winner, efficient_def ]%
     %[ Further auxiliaries ]%
-    preds iSticksWithValuationInSPA: Participants * Allocation * Payments * Valuations * Bids * Participant * Bids;
+    preds spaWithTruthfulOrOtherBid: Participants * Allocation * Payments * Valuations * Bids * Participant * Bids;
     forall v: Valuations;
            n: Participants;
            x: Allocation;
            p: Payments;
            i: Participant;
            whateverBid, iSticksWithValuation: Bids
-    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) <=>
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) <=>
       secondPriceAuction(n, x, p) /\
       length(v) = n /\
       length(whateverBid) = n /\
       inRange(n, i) /\
       not whateverBid[i] = v[i] /\
       iSticksWithValuation = deviationVector(whateverBid, v, i) %(i_sticks_with_valuation_def)%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  secondPriceAuction(n, x, p) /\ n = length(iSticksWithValuation) /\ n > 1 /\ inRange(n, i) /\ allocated(x, iSticksWithValuation, i) %(case_1_pre00)% %implied %\[ SPASS, eprover ]\%]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  inArgMaxSet(iSticksWithValuation, i) %(case_1_pre01)% %implied]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  iSticksWithValuation[i] = maximum(iSticksWithValuation) %(case_1_pre02)% %implied %\[ SPASS, eprover ]\%]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  length(iSticksWithValuation) = n /\ n > 1 /\ inRange(n, i) %(case_1_pre03)% %implied]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  maximumExcept(iSticksWithValuation, i) <= maximum(iSticksWithValuation) %(case_1_pre04)% %implied]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  maximum(iSticksWithValuation) >= maximumExcept(iSticksWithValuation, i) %(case_1_pre05)% %implied]%
-    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
-      allocated(x, iSticksWithValuation, i)
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i) %[ i wins by truthful bidding ]%
       =>
       iSticksWithValuation[i] >= maximumExcept(iSticksWithValuation, i) %(case_1_pre06)% %implied %[ SPASS, eprover ]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
+    %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
     %[  secondPriceAuction(n, x, p) /\]%
@@ -540,17 +540,32 @@ SingleGoodAuctionProperties then
     %[  n = length(v) /\]%
     %[  inRange(n, i) /\]%
     %[  allocated(x, iSticksWithValuation, i) %(case_1_pre07)% %implied %\[ SPASS ]\%]%
-    %[. iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
-    %[  allocated(x, iSticksWithValuation, i)]%
-    %[  =>]%
-    %[  payoff(v, iSticksWithValuation, x, p, i) = v[i] - maximumExcept(iSticksWithValuation, i) %(case_1_pre08)% %implied %\[ eprover ]\%]%
-    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
-      allocated(x, iSticksWithValuation, i)
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i) %[ i wins by truthful bidding ]%
+      =>
+      payoff(v, iSticksWithValuation, x, p, i) = v[i] - maximumExcept(iSticksWithValuation, i) %(case_1_pre08_winners_payoff)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i) %[ i wins by truthful bidding ]%
       =>
       payoff(v, iSticksWithValuation, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(case_1_pre09)% %implied %[ eprover ]%
-    . iSticksWithValuationInSPA(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
-      allocated(x, iSticksWithValuation, i)
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, iSticksWithValuation, i) %[ i wins by truthful bidding ]%
       =>
-      payoff(v, iSticksWithValuation, x, p, i) >= 0 %(case_1_pre10)% %implied
-      
+      payoff(v, iSticksWithValuation, x, p, i) >= 0 %(case_1_pre10)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = v[i] - maximumExcept(iSticksWithValuation, i) %(case_1a_00)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_1a_01)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = 0 %(case_1b_00)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) <= payoff(v, iSticksWithValuation, x, p, i) %(case_1b_01)% %implied %[ eprover ]%
 end
