@@ -9,7 +9,9 @@ SYNC_FILES = \
 	Auction/SingleGoodAuctionTest.thy \
 	Auction/Vectors.thy \
 	Auction/Vickrey.thy \
-	README.isabelle.html
+	README.isabelle.html \
+	graph.pdf \
+	Auction/output/document.pdf
 BROWSER_INFO = $(shell isabelle getenv -b ISABELLE_BROWSER_INFO)
 
 all: sync
