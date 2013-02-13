@@ -10,10 +10,14 @@ SYNC_FILES = \
 	Auction/Vectors.thy \
 	Auction/Vickrey.thy \
 	README.isabelle.html
+BROWSER_INFO = $(shell isabelle getenv -b ISABELLE_BROWSER_INFO)
 
 all: sync
 
 include ../Makefile.in
 
-graph.pdf: Auction
-	isabelle browser -o $@ ~/.isabelle/Isabelle2012/browser_info/HOL/Auction/*.graph
+$(BROWSER_INFO)/HOL/Auction/session.graph: Auction
+	isabelle build -o browser_info -v -D $<
+
+graph.pdf: $(BROWSER_INFO)/HOL/Auction/session.graph
+	isabelle browser -o $@ $<

@@ -1,0 +1,7 @@
+session "Auction" = "HOL" +
+  options [document = pdf, document_output = "output"]
+  theories [document = false]
+    (* Foo Bar *)
+  theories
+    Vickrey
+  files "document/root.tex"
