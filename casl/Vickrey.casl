@@ -577,4 +577,32 @@ SingleGoodAuctionProperties then
       not allocated(x, iSticksWithValuation, i) %[ i loses by truthful bidding ]%
       =>
       iSticksWithValuation[i] <= maximumExcept(iSticksWithValuation, i) %(case_2_pre01)% %implied %[ eprover; in Isabelle we did this by contradiction using only_max_bidder_wins; here, it works directly. ]%
+
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(case_2a_00)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) <= 0 %(case_2a_01)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_2a_02)% %implied
+
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = 0 %(case_2b_00)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
+      =>
+      payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_2b_01)% %implied
+
+    %[ TODO CL: strangely I have also been able to prove the following, which seems to be wrong: ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
+      => %[ The following holds when i wins, but should it also hold when i loses? ]%
+      payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(test_wins_loses_mixup)% %implied
 end
