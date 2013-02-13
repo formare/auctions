@@ -187,7 +187,13 @@ lemma winners_payoff_on_deviation_from_valuation :
     and wins: "x b winner"
   shows "let winner_sticks_with_valuation = deviation_vec n b v winner
     in payoff_vector v (x b) (p b) winner = v winner - maximum_except n winner_sticks_with_valuation winner"
-proof -
+  using wins range spa bids second_price_auction_winner_payoff (* compute the winner's payoff *)
+  unfolding deviation_vec_def (* unfold to deviation, as remaining_maximum_invariant is stated for elements not vectors *)
+  (* i's deviation doesn't change the maximum remaining bid (which is the second highest bid when winner wins) *)
+  using non_empty remaining_maximum_invariant
+  by simp
+(* Until the CASL formalisation made us realise how easy eprover could prove this, we had been using the following structured proof: *)
+(* proof -
   let ?winner_sticks_with_valuation = "deviation_vec n b v winner"
   (* winner gets the good, so winner also satisfies the further properties of a second price auction winner: *)
   from wins range spa bids
@@ -197,7 +203,7 @@ proof -
   also have "\<dots> = v winner - maximum_except n ?winner_sticks_with_valuation winner"
     unfolding deviation_vec_def using non_empty range remaining_maximum_invariant by simp
   finally show ?thesis by simp
-qed
+qed *)
 
 (* unused theorems (which might nevertheless be useful for the toolbox):
    * move cursor over the word "unused_thms" for jEdit to display the list
