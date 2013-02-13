@@ -504,6 +504,7 @@ SingleGoodAuctionProperties then
       inRange(n, i) /\
       not whateverBid[i] = v[i] /\
       iSticksWithValuation = deviationVector(whateverBid, v, i) %(i_sticks_with_valuation_def)%
+    %[ TODO CL: clean up once we know what lemmas eprover really needs ]%
     %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
