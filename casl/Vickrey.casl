@@ -207,7 +207,7 @@ then
           (forall whateverBid: Bids .
             not whateverBid[i] = b[i] 
             =>
-            payoff(v, deviationVector(whateverBid, b, i) as Bids, x, p, i) >=
+            payoff(v, deviationVector(whateverBid, v, i) as Bids, x, p, i) >=
             payoff(v, whateverBid, x, p, i))) %(equilibrium_weakly_dominant_strategy_def)%
 end
 
@@ -553,22 +553,70 @@ SingleGoodAuctionProperties then
       allocated(x, iSticksWithValuation, i) %[ i wins by truthful bidding ]%
       =>
       payoff(v, iSticksWithValuation, x, p, i) >= 0 %(case_1_pre10)% %implied %[ eprover ]%
+    %[ *** case 1a *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      %[allocated(x, iSticksWithValuation, i) /\ %\[ i won by truthful bidding ]\%]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = v[i] - maximumExcept(iSticksWithValuation, i) %(case_1a_00)% %implied %[ eprover ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      %[allocated(x, iSticksWithValuation, i) /\ %\[ i won by truthful bidding ]\%]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_1a_01)% %implied %[ eprover ]%
+      %[ turns out that case 1a works without assuming 1pre, i.e. "i wins by truthful bidding" ]%
+    %[ *** case 1b *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      %[allocated(x, iSticksWithValuation, i) /\ %\[ i won by truthful bidding ]\%]%
       not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = 0 %(case_1b_00)% %implied %[ eprover ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      %[allocated(x, iSticksWithValuation, i) /\ %\[ i won by truthful bidding ]\%]%
       not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) <= payoff(v, iSticksWithValuation, x, p, i) %(case_1b_01)% %implied %[ eprover ]%
+      %[ turns out that case 1a works without assuming 1pre, i.e. "i wins by truthful bidding", because i's payoff will never be < 0 anyway. ]%
+    %[ *** combined conclusion from cases 1a and 1b *** ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
+      =>
+      payoff(v, whateverBid, x, p, i) <= payoff(v, iSticksWithValuation, x, p, i) %(case_1z_combined)% %implied %[ eprover ]%
+    %[ TODO CL: This is actually the same as vickreyA already, isn't it?  So we probably don't need case 2 :-) ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
+      =>
+      length(v) = n /\
+      allocation(v, x) /\
+      payments(v, p) /\
+      (forall i: Participant . inRange(n, i) =>
+        (forall whateverBid: Bids .
+          not whateverBid[i] = v[i]
+          =>
+          payoff(v, deviationVector(whateverBid, v, i) as Bids, x, p, i) >=
+          payoff(v, whateverBid, x, p, i))) %(vickreyA_pre00)% %implied %[ eprover ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
+      =>
+      (exists b: Bids .
+      b = v /\
+      length(b) = n /\
+      length(v) = n /\
+      allocation(b, x) /\
+      payments(b, p) /\
+      (forall i: Participant . inRange(n, i) =>
+        (forall whateverBid: Bids .
+          not whateverBid[i] = b[i]
+          =>
+          payoff(v, deviationVector(whateverBid, v, i) as Bids, x, p, i) >=
+          payoff(v, whateverBid, x, p, i)))) %(vickreyA_pre01)% %implied %[ eprover ]%
+    %[ FIXME Why does the following not work? ]%
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
+      =>
+      (exists b: Bids .
+        b = v /\
+        equilibriumWeaklyDominantStrategy(n, v, b, x, p)) %(vickreyA_pre02)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
+      =>
+      equilibriumWeaklyDominantStrategy(n, v, v, x, p) %(vickreyA_pre03)% %implied
+    %[ *** case 2 *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
       not allocated(x, iSticksWithValuation, i) %[ i loses by truthful bidding ]%
       =>
@@ -576,33 +624,41 @@ SingleGoodAuctionProperties then
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
       not allocated(x, iSticksWithValuation, i) %[ i loses by truthful bidding ]%
       =>
-      iSticksWithValuation[i] <= maximumExcept(iSticksWithValuation, i) %(case_2_pre01)% %implied %[ eprover; in Isabelle we did this by contradiction using only_max_bidder_wins; here, it works directly. ]%
-
+      iSticksWithValuation[i] <= maximumExcept(iSticksWithValuation, i) %(case_2_pre01_i_bid_at_most_second)% %implied %[ eprover; in Isabelle we did this by contradiction using only_max_bidder_wins; here, it works directly. ]%
+    %[ *** case 2a *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) /\ %[ i lost by truthful bidding ]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(case_2a_00)% %implied
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) /\ %[ i lost by truthful bidding ]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) <= 0 %(case_2a_01)% %implied
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) /\ %[ i lost by truthful bidding ]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_2a_02)% %implied
-
+    %[ *** case 2b *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) /\ %[ i lost by truthful bidding ]%
       not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = 0 %(case_2b_00)% %implied
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      not allocated(x, iSticksWithValuation, i) /\ %[ i lost by truthful bidding ]%
       not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
       =>
       payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_2b_01)% %implied
-
-    %[ TODO CL: strangely I have also been able to prove the following, which seems to be wrong: ]%
+    %[ TODO CL: strangely I have also been able to prove the following ones, which seem to be wrong: ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
       not allocated(x, whateverBid, i) %[ i loses with the new, non-truthful bid ]%
       => %[ The following holds when i wins, but should it also hold when i loses? ]%
       payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(test_wins_loses_mixup)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
+      => %[ I think this is not necessarily the case, if iSticksWithValuation[i] is not a maximum component.  This is 2a without the assumption that i lost with a truthful bid (which means that iSticksWithValuation[i] is not necessarily a maximum component). ]%
+      payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(test_equal_payoff_when_non_truthful_wins)% %implied
 end
