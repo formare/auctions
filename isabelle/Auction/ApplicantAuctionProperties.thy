@@ -155,7 +155,7 @@ proof -
              *)
           assume i_now_loses: "\<not> x whatever_bid i"
           from aa alternative_is_bid have 1: "allocation n whatever_bid x 
-               \<and> (\<exists> new_winner::participant . 
+               \<and> (\<exists>new_winner::participant . 
                   new_winner \<in> {1..n} \<and> second_price_auction_winner n whatever_bid x p new_winner)" unfolding applicant_auction_def by auto
           then obtain new_winner where new_winner: "second_price_auction_winner n whatever_bid x p new_winner" by blast
           (* i doesn't get the good, so i also satisfies the further properties of an applicant auction loser: *)

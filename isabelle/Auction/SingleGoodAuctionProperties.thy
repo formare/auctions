@@ -42,8 +42,8 @@ definition equilibrium_weakly_dominant_strategy ::
   "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
     (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
-   (\<forall> i::participant . i \<in> {1..n} \<longrightarrow>
-     (\<forall> whatever_bid::real_vector . bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
+   (\<forall>i::participant . i \<in> {1..n} \<longrightarrow>
+     (\<forall>whatever_bid::real_vector . bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
        let i_sticks_with_bid = deviation_vec n whatever_bid b i (* here, all components are (whatever_bid j), just the i-th component remains (b i) *)
        in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
 

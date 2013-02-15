@@ -41,11 +41,11 @@ definition in_range ::
 text{* we could also, in a higher-order style, generally define a vector whose components satisfy a predicate, and then parameterise this predicate with $\geq 0$ and $> 0$ *}
 definition non_negative_real_vector ::
   "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "non_negative_real_vector n v \<longleftrightarrow> (\<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0)"
+  "non_negative_real_vector n v \<longleftrightarrow> (\<forall>i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0)"
 
 definition positive_real_vector ::
   "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "positive_real_vector n v \<longleftrightarrow> (\<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i > 0)"
+  "positive_real_vector n v \<longleftrightarrow> (\<forall>i::nat . i \<in> {1..n} \<longrightarrow> v i > 0)"
 
 
 subsection {* Deviation from a vector *}

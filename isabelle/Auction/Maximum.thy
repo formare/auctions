@@ -95,14 +95,14 @@ text{* The maximum component is one component *}
 lemma maximum_is_component :
   fixes n::nat and y::real_vector
   assumes "n > 0 \<and> non_negative_real_vector n y" 
-  shows "\<exists> i::nat . i \<in> {1..n} \<and> maximum n y = y i"
+  shows "\<exists>i::nat . i \<in> {1..n} \<and> maximum n y = y i"
     using assms
 proof (induct n)
   case 0
   then show ?case by simp
 next
   case (Suc n)
-  show "\<exists> i::nat . i \<in> {1..Suc n} \<and> maximum (Suc n) y = y i"
+  show "\<exists>i::nat . i \<in> {1..Suc n} \<and> maximum (Suc n) y = y i"
   proof (cases "y (Suc n) \<ge> maximum n y")                                          
     case True
     from Suc.prems have "y (Suc n) \<ge> 0" unfolding non_negative_real_vector_def by simp
@@ -140,8 +140,8 @@ lemma maximum_sufficient :
   fixes n::nat and y::real_vector and m::real
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
-    and greater_or_equal: "\<forall> i::nat . i \<in> {1..n} \<longrightarrow> m \<ge> y i"
-    and is_component: "\<exists> i::nat . i \<in> {1..n} \<and> m = y i"
+    and greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> m \<ge> y i"
+    and is_component: "\<exists>i::nat . i \<in> {1..n} \<and> m = y i"
   shows "m = maximum n y"
     using assms
 proof (induct n)
@@ -169,7 +169,7 @@ next
       assume last_is_max: "y (Suc n) = m"
       have "\<dots> \<ge> maximum n y"
       proof -
-        from False pred_non_negative maximum_is_component have "\<exists> k::nat . k \<in> {1..n} \<and> maximum n y = y k" by simp
+        from False pred_non_negative maximum_is_component have "\<exists>k::nat . k \<in> {1..n} \<and> maximum n y = y k" by simp
         then obtain k::nat where "k \<in> {1..n} \<and> maximum n y = y k" by blast
         with Suc.prems(3) show ?thesis by simp
           (* TODO CL: ask whether we should have kept using metis here.  Sledgehammer always suggests metis.
@@ -213,7 +213,7 @@ proof -
   from non_negative index_range new_lt have "\<dots> \<ge> 0" unfolding non_negative_real_vector_def by (auto simp add: linorder_not_less order_less_trans)
   with non_negative increment have new_non_negative: "non_negative_real_vector n y'" unfolding non_negative_real_vector_def by simp
   from old_maximum new_lt increment
-    have greater_or_equal: "\<forall> i::nat . i \<in> {1..n} \<longrightarrow> max' \<ge> y' i"
+    have greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> max' \<ge> y' i"
     by (metis linorder_not_less maximum_is_greater_or_equal order_less_trans order_refl)
   from increment have "max' = y' max_index" by simp
   (* now we have all prerequisites for applying maximum_sufficient *)
@@ -281,10 +281,10 @@ lemma maximum_greater_or_equal_remaining_maximum :
   shows "y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y"
 proof
   assume ge_remaining: "y j \<ge> maximum_except n y j"
-  from non_empty range have "\<forall> i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
-  with ge_remaining have "\<forall> i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
-  then have greater_or_equal: "\<forall> i::nat . i \<in> {1..n} \<longrightarrow> y j \<ge> y i" by auto
-  from range have is_component: "\<exists> i::nat . i \<in> {1..n} \<and> y j = y i" by auto
+  from non_empty range have "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i" by (simp add: maximum_except_is_greater_or_equal)
+  with ge_remaining have "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
+  then have greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> y j \<ge> y i" by auto
+  from range have is_component: "\<exists>i::nat . i \<in> {1..n} \<and> y j = y i" by auto
     (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
   with non_negative non_empty greater_or_equal show "y j = maximum n y" by (simp add: maximum_sufficient)
   (* TODO CL: ask whether it makes a difference to use "by auto" vs. "by simp" (or even "by simp") when either would work,
@@ -307,7 +307,7 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     from non_empty non_negative range have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
     from pred_non_empty pred_non_negative maximum_is_component
-      have "\<exists> i::nat . i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
+      have "\<exists>i::nat . i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" by simp
     then obtain i::nat where maximum_except_component: "i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
     then have i_range: "i \<in> {1..n-(1::nat)}" ..
     from maximum_except_component maximum_except_unfolded
@@ -315,11 +315,11 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)" unfolding skip_index_def by simp
     from i_range have 1: "i \<in> {1..n}" by auto
     from i_range have 2: "Suc i \<in> {1..n}" by auto
-    from skip_index_range 1 2 have "\<exists> k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k" by auto
+    from skip_index_range 1 2 have "\<exists>k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k" by auto
     (* The following (found by remote_vampire) was nearly impossible for metis to prove: *)
     (* from i_range and range and skip_index_def
       and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
-      have "\<exists> k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k"
+      have "\<exists>k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k"
       by (metis (full_types) One_nat_def Suc_neq_Zero Suc_pred' leD less_Suc0 less_Suc_eq_le linorder_le_less_linear) *)
     then obtain k::nat where "k \<in> {1..n} \<and> (skip_index y j) i = y k" ..
     with ge maximum_except_component_nice show "y j \<ge> maximum_except n y j" by simp

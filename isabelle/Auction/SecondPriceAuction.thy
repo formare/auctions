@@ -49,7 +49,7 @@ in case there is more than one.)
 definition second_price_auction ::
   "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
   "second_price_auction n x p \<longleftrightarrow>
-    (\<forall> b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
+    (\<forall>b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
     (\<exists>i::participant . i \<in> {1..n} \<and> second_price_auction_winner n b x p i
                       \<and> (\<forall>j::participant . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
 
