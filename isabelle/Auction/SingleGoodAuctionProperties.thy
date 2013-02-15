@@ -7,6 +7,7 @@ Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
+* Makarius Wenzel <wenzel@lri.fr>
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
