@@ -157,17 +157,14 @@ proof -
         txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
           @{term i} would have won *}
         have i_bid_at_most_second: "?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
-        proof - (* by contradiction *)
-          {
-            assume "\<not> ?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
-            then have "?i_sticks_with_strategy i > maximum_except n ?i_sticks_with_strategy i" by simp
-            with spa i_sticks_is_bid i_range
-              have "second_price_auction_winner n ?i_sticks_with_strategy x p i"
-              using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
-              by simp
-            with i_loses have False using second_price_auction_winner_def by simp
-          }
-          then show ?thesis by blast
+        proof (rule ccontr)
+          assume "\<not> ?thesis"
+          then have "?i_sticks_with_strategy i > maximum_except n ?i_sticks_with_strategy i" by simp
+          with spa i_sticks_is_bid i_range
+          have "second_price_auction_winner n ?i_sticks_with_strategy x p i"
+            using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
+            by simp
+          with i_loses show False using second_price_auction_winner_def by simp
         qed
         show ?thesis
         proof cases -- {* case 2a of the short proof *}

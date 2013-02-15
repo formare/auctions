@@ -88,17 +88,14 @@ lemma not_allocated_implies_spa_loser :
     and range: "loser \<in> {1..n}"
     and loses: "\<not> x b loser"
   shows "second_price_auction_loser n b x p loser"
-proof - (* by contradiction *)
-  {
-    assume False: "\<not> second_price_auction_loser n b x p loser"
-    have "x b loser"
-      using second_price_auction_def
-      using spa bids
-      using False range
-      using second_price_auction_winner_def by auto
-    with loses have "False" ..
-  }
-  then show ?thesis by blast
+proof (rule ccontr)
+  assume "\<not> ?thesis"
+  then have "x b loser"
+    using second_price_auction_def
+    using spa bids
+    using range
+    using second_price_auction_winner_def by auto
+  with loses show "False" by contradiction
 qed
 
 text{* If there is only one bidder with a maximum bid, that bidder wins. *}
