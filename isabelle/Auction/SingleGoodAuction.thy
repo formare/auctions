@@ -15,7 +15,7 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Single-good auctions *}
+header {* Single good auctions *}
 
 theory SingleGoodAuction
 imports Vectors

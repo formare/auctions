@@ -16,7 +16,7 @@ See LICENSE file for details
 *)
 
 
-header {* Single-good auction test *}
+header {* Some examples for testing SingleGoodAuction *}
 
 theory SingleGoodAuctionTest
 imports SingleGoodAuction

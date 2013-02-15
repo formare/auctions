@@ -19,8 +19,8 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Vickrey's Theorem:
-Second price auctions support an equilibrium in weakly dominant strategies, and are efficient, if each participant bids their valuation of the good. *}
+header {* Vickrey's Theorem: second price auctions are
+  efficient, and truthful bidding is a weakly dominant strategy *}
 
 theory Vickrey
 imports SecondPriceAuction SingleGoodAuctionProperties

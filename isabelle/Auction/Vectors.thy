@@ -16,7 +16,7 @@ See LICENSE file for details
 *)
 
 
-header {* Vectors *}
+header {* Vectors, implemented as functions *}
 
 theory Vectors
 imports Complex_Main

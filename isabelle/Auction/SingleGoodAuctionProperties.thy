@@ -15,7 +15,7 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Properties of single-good auction *}
+header {* Some properties that single good auctions can have *}
 
 theory SingleGoodAuctionProperties
 imports SingleGoodAuction Maximum

@@ -15,7 +15,7 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Second-price auctions *}
+header {* Second price single good auctions and some of their properties *}
 
 theory SecondPriceAuction
 imports SingleGoodAuction Maximum
