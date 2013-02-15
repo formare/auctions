@@ -94,8 +94,7 @@ proof -
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
         finally
         have i_ge_max_except:
-            "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i"
-          by simp
+            "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i" .
         txt {* Now we show that @{term i}'s payoff is @{text "\<ge> 0"}. *}
         from spa i_sticks_is_bid i_range i_wins
         have winners_payoff:
@@ -107,14 +106,12 @@ proof -
           unfolding deviation_vec_def deviation_def by simp
         finally have payoff_expanded:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
-            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
-          by simp
+            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" .
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
         also have "\<dots> \<ge> 0" using i_ge_max_except by simp
         finally
         have non_negative_payoff:
-            "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> 0"
-          by simp
+            "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> 0" .
         show ?thesis 
         proof cases -- {* case 1a of the short proof *}
           assume "x whatever_bid i"
@@ -126,7 +123,7 @@ proof -
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using winners_payoff by simp
-          finally show ?thesis by simp (* = \<longrightarrow> \<le> *)
+          finally show ?thesis by (rule eq_refl) (* = \<longrightarrow> \<le> *)
         next -- {* case 1b of the short proof *}
           assume "\<not> x whatever_bid i"
           txt {* @{term i} doesn't get the good, so @{term i} also satisfies the further properties
@@ -137,7 +134,7 @@ proof -
           also have "\<dots> \<le>
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using non_negative_payoff by simp
-          finally show ?thesis by simp
+          finally show ?thesis .
         qed
       next -- {* case 2 of the short proof *}
         assume i_loses: "\<not> x ?i_sticks_with_strategy i"
@@ -170,7 +167,7 @@ proof -
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using zero_payoff by simp
-          finally show ?thesis by simp
+          finally show ?thesis .
         next -- {* case 2b of the short proof *}
           assume "\<not> x whatever_bid i"
           txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
@@ -180,7 +177,7 @@ proof -
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using zero_payoff by simp
-          finally show ?thesis by simp
+          finally show ?thesis by (rule eq_refl)
         qed
       qed
     qed

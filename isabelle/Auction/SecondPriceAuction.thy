@@ -155,7 +155,7 @@ proof -
     using spa bids winner_range wins
     using allocated_implies_spa_winner
     unfolding second_price_auction_winner_def second_price_auction_winners_payment_def by simp
-  finally show ?thesis by simp
+  finally show ?thesis .
 qed
 
 text{* a formula for computing the payoff of a loser of a second-price auction *}
