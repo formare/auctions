@@ -82,7 +82,7 @@ proof -
           second price auction winner: *}
         with spa i_sticks_is_bid i_range
         have "i \<in> arg_max_set n ?i_sticks_with_strategy"
-          by (metis allocated_implies_spa_winner second_price_auction_winner_def)
+          using allocated_implies_spa_winner by (simp add: second_price_auction_winner_def)
         (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
            without first saying "have 'a \<and> b' and then breaking it down "by auto".
            In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
@@ -161,7 +161,7 @@ proof -
             have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation
-            by (metis deviation_vec_def deviation_def)
+            by (simp add: deviation_vec_def deviation_def)
           txt {* Now we can compute @{term i}'s payoff *}
           also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
           also have "\<dots> =
