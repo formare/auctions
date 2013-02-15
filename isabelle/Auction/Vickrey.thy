@@ -76,11 +76,12 @@ proof -
     have weak_dominance:
       "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
         payoff_vector v (x whatever_bid) (p whatever_bid) i"
-    proof (cases "n = 0")
-      case True
-      with i_range show ?thesis by simp
+    proof cases
+      assume "n = 0"
+      with i_range have False by simp
+      then show ?thesis ..
     next                 
-      case False
+      assume "n \<noteq> 0"
       then have non_empty: "n > 0" ..
       let ?b_bar = "maximum n ?b"
       show ?thesis
