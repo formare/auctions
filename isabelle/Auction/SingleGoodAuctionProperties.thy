@@ -15,29 +15,30 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+header {* Properties of single-good auction *}
+
 theory SingleGoodAuctionProperties
 imports SingleGoodAuction Maximum
-
 begin
 
-
-section{* Efficiency *}
+subsection {* Efficiency *}
 
 text{* A single good auction (this is the one we are talking about here) is efficient, if the winner is among the participants who have the
 highest valuation of the good. *}
 definition efficient ::
   "participants \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where
-  "efficient n v b x \<equiv> (valuation n v \<and> bids n b) \<and>
+  "efficient n v b x \<longleftrightarrow> (valuation n v \<and> bids n b) \<and>
       (\<forall>i::participant. i \<in> {1..n} \<and> x b i \<longrightarrow> i \<in> arg_max_set n v)"
 
-section{* Equilibrium in weakly dominant strategies *}
+
+subsection {* Equilibrium in weakly dominant strategies *}
 
 text{* Given some auction, a strategy profile supports an equilibrium in weakly dominant strategies
   if each participant maximises its payoff by playing its component in that profile,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::
   "participants \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
-  "equilibrium_weakly_dominant_strategy n v b x p \<equiv>
+  "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
     (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
    (\<forall> i::participant . i \<in> {1..n} \<longrightarrow>

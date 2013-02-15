@@ -2,9 +2,6 @@
 (* TODO CL: report Isabelle/jEdit bug: no auto-indentation *)
 (* TODO CL: report Isabelle/jEdit bug: when I set long lines to wrap at window boundary, wrapped part behaves badly: not editable *)
 (* TODO CL: report Isabelle/jEdit bug: can't copy goal in output pane to clipboard *)
-header {* Vickrey's Theorem:
-Second price auctions support an equilibrium in weakly dominant strategies, and are efficient, if each participant bids their valuation of the good. *}
-
 (*
 $Id$
 
@@ -22,12 +19,14 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+header {* Vickrey's Theorem:
+Second price auctions support an equilibrium in weakly dominant strategies, and are efficient, if each participant bids their valuation of the good. *}
+
 theory Vickrey
 imports SecondPriceAuction SingleGoodAuctionProperties
-
 begin
 
-section{* Introduction *}
+subsection {* Introduction *}
 
 text{*
 In second price (or Vickrey) auctions, bidders submit sealed bids;
@@ -39,34 +38,41 @@ Thus, the auction is also efficient, awarding the item to the bidder with the hi
 
 Vickrey was awarded Economics' Nobel prize in 1996 for his work.
 High level versions of his theorem, and 12 others, were collected in Eric Maskin's 2004 review of Paul Milgrom's influential book on auction theory
-("The unity of auction theory: Milgrom's master class", Journal of Economic Literature, 42(4), pp. 1102–1115).
+(``The unity of auction theory: Milgrom's master class'', Journal of Economic Literature, 42(4), pp. 1102--1115).
 Maskin himself won the Nobel in 2007.
 *}
 
-section{* Vickrey's Theorem *}
 
-subsection{* Part 1: A second-price auction supports an equilibrium in weakly dominant strategies if all participants bid their valuation. *}
-theorem vickreyA :
-  fixes n::participants and v::real_vector and x::allocation and p::payments
+subsection {* Vickrey's Theorem *}
+
+subsubsection {* Part 1: A second-price auction supports an equilibrium in weakly dominant strategies if all participants bid their valuation. *}
+
+theorem vickreyA:
+  fixes n :: participants and v :: real_vector and x :: allocation and p :: payments
   assumes val: "valuation n v" and spa: "second_price_auction n x p"
   shows "equilibrium_weakly_dominant_strategy n v v (* \<leftarrow> i.e. b *) x p"
 proof -
   let ?b = v (* From now on, we refer to v as ?b if we mean the _bids_ (which happen to be equal to the valuations) *)
   from val have bids: "bids n ?b" by (rule valuation_is_bid)
-  from spa bids have alloc: "allocation n ?b x" unfolding second_price_auction_def by simp
-  from spa bids have pay: "vickrey_payment n ?b p" unfolding second_price_auction_def by simp
+  from spa bids have alloc: "allocation n ?b x"
+    unfolding second_price_auction_def by simp
+  from spa bids have pay: "vickrey_payment n ?b p"
+    unfolding second_price_auction_def by simp
   {
-    fix i::participant
+    fix i :: participant
     assume i_range: "i \<in> {1..n}"
-    fix whatever_bid::real_vector
+    fix whatever_bid :: real_vector
     assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
     then have alternative_is_bid: "bids n whatever_bid" ..
     let ?i_sticks_with_strategy = "deviation_vec n whatever_bid ?b i"
-      (* Agent i sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.  Given this, we have to show that agent i is best off. *)
+    txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
+      Given this, we have to show that agent @{term i} is best off. *}
     from bids alternative_is_bid
-      have i_sticks_is_bid: "bids n ?i_sticks_with_strategy"
+    have i_sticks_is_bid: "bids n ?i_sticks_with_strategy"
       by (simp add: deviated_bid_well_formed)
-    have weak_dominance: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
+    have weak_dominance:
+      "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
+        payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof (cases "n = 0")
       case True
       with i_range show ?thesis by simp
@@ -75,56 +81,77 @@ proof -
       then have non_empty: "n > 0" ..
       let ?b_bar = "maximum n ?b"
       show ?thesis
-      proof cases (* case 1 of the short proof *)
+      proof cases -- {* case 1 of the short proof *}
         assume i_wins: "x ?i_sticks_with_strategy i"
-        (* i gets the good, so i also satisfies the further properties of a second price auction winner: *)
+        txt {* @{term i} gets the good, so i also satisfies the further properties of a
+          second price auction winner: *}
         with spa i_sticks_is_bid i_range
-          have "i \<in> arg_max_set n ?i_sticks_with_strategy" by (metis allocated_implies_spa_winner second_price_auction_winner_def)
+        have "i \<in> arg_max_set n ?i_sticks_with_strategy"
+          by (metis allocated_implies_spa_winner second_price_auction_winner_def)
         (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
            without first saying "have 'a \<and> b' and then breaking it down "by auto".
            In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
-        then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy" by (simp add: arg_max_set_def)
+        then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy"
+          by (simp add: arg_max_set_def)
         also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
           using i_sticks_is_bid bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_strategy *)
           non_empty i_range
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
-        finally have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i" by simp
-        (* Now we show that i's payoff is \<ge> 0 *)
-        from spa i_sticks_is_bid i_range i_wins have winners_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i
-          = v i - maximum_except n ?i_sticks_with_strategy i" by (simp add: second_price_auction_winner_payoff)
-        also have "\<dots> = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
+        finally
+        have i_ge_max_except:
+            "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i"
+          by simp
+        txt {* Now we show that @{term i}'s payoff is @{text "\<ge> 0"} *}
+        from spa i_sticks_is_bid i_range i_wins
+        have winners_payoff:
+          "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
+            v i - maximum_except n ?i_sticks_with_strategy i"
+          by (simp add: second_price_auction_winner_payoff)
+        also have "\<dots> =
+            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
           unfolding deviation_vec_def deviation_def by simp
-        finally have payoff_expanded: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
-          ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" by simp
+        finally have payoff_expanded:
+          "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
+            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
+          by simp
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
         also have "\<dots> \<ge> 0" using i_ge_max_except by simp
-        finally have non_negative_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> 0" by simp
+        finally
+        have non_negative_payoff:
+            "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge> 0"
+          by simp
         show ?thesis 
-        proof cases (* case 1a of the short proof *)
+        proof cases -- {* case 1a of the short proof *}
           assume "x whatever_bid i"
           with spa alternative_is_bid non_empty i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = v i - maximum_except n ?i_sticks_with_strategy i"
+          have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
+              v i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by simp
           (* Now we show that i's payoff hasn't changed *)
-          also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
+          also have "\<dots> =
+              payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using winners_payoff by simp
           finally show ?thesis by simp (* = \<longrightarrow> \<le> *)
-        next (* case 1b of the short proof *)
+        next -- {* case 1b of the short proof *}
           assume "\<not> x whatever_bid i"
-          (* i doesn't get the good, so i also satisfies the further properties of a second price auction loser: *)
+          txt {* @{term i} doesn't get the good, so @{term i} also satisfies the further properties
+            of a second price auction loser: *}
           with spa alternative_is_bid i_range
             have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
             by (rule second_price_auction_loser_payoff)
-          also have "\<dots> \<le> payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i" using non_negative_payoff by simp
+          also have "\<dots> \<le>
+              payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
+            using non_negative_payoff by simp
           finally show ?thesis by simp
         qed
-      next (* case 2 of the short proof *)
+      next -- {* case 2 of the short proof *}
         assume i_loses: "\<not> x ?i_sticks_with_strategy i"
-        (* i doesn't get the good, so i's payoff is 0 *)
+        txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
         with spa i_sticks_is_bid i_range
           have zero_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i = 0"
           by (rule second_price_auction_loser_payoff)
-        (* i's bid can't be higher than the second highest bid, as otherwise i would have won *)
+        txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
+          @{term i} would have won *}
         have i_bid_at_most_second: "?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
         proof - (* by contradiction *)
           {
@@ -139,42 +166,50 @@ proof -
           then show ?thesis by blast
         qed
         show ?thesis
-        proof cases (* case 2a of the short proof *)
+        proof cases -- {* case 2a of the short proof *}
           assume "x whatever_bid i"
           with spa alternative_is_bid non_empty i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
-            using winners_payoff_on_deviation_from_valuation by (metis deviation_vec_def deviation_def)
-          (* Now we can compute i's payoff *)
+            have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
+              ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
+            using winners_payoff_on_deviation_from_valuation
+            by (metis deviation_vec_def deviation_def)
+          txt {* Now we can compute @{term i}'s payoff *}
           also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
-          also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
+          also have "\<dots> =
+              payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using zero_payoff by simp
           finally show ?thesis by simp
-        next (* case 2b of the short proof *)
+        next -- {* case 2b of the short proof *}
           assume "\<not> x whatever_bid i"
-          (* i doesn't get the good, so i's payoff is 0 *)
+          txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
           with spa alternative_is_bid i_range
             have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
             by (rule second_price_auction_loser_payoff)
-          also have "\<dots> = payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i" using zero_payoff by simp
+          also have "\<dots> =
+              payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
+            using zero_payoff by simp
           finally show ?thesis by simp
         qed
       qed
     qed
   }
-  with spa val bids alloc pay show ?thesis unfolding equilibrium_weakly_dominant_strategy_def by simp
+  with spa val bids alloc pay show ?thesis
+    unfolding equilibrium_weakly_dominant_strategy_def by simp
 qed
 
-subsection{* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
+
+subsubsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
+
 (* TODO CL: document that we use local renamings (let) to make definition unfoldings resemble the original definitions *)
-theorem vickreyB :
-  fixes n::participants and v::real_vector and x::allocation and p::payments
+theorem vickreyB:
+  fixes n :: participants and v :: real_vector and x :: allocation and p :: payments
   assumes val: "valuation n v" and spa: "second_price_auction n x p"
   shows "efficient n v v x"
 proof -
   let ?b = v
   from val have bids: "bids n v" by (rule valuation_is_bid)
   {
-    fix k:: participant
+    fix k :: participant
     assume "k \<in> {1..n} \<and> x ?b k"
     with spa bids have "k \<in> arg_max_set n v"
       using allocated_implies_spa_winner second_price_auction_winner_def by simp

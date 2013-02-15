@@ -15,12 +15,12 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+header {* Maximum and related functions *}
+
 theory Maximum
 imports Vectors
-
 begin
 
-section{* Maximum and related functions *}
 text{*
 The maximum component value of a vector y of non-negative reals is equal to the value of one of the components, and it is greater or equal than the values of all [other] components.
 
@@ -196,7 +196,7 @@ next
   finally show "m = maximum (Suc n) y" .. (* ".." means: apply a canonical rule for the current context *)
 qed
 
-(* TODO CL: discuss whether it makes sense to keep this lemma – it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
+(* TODO CL: discuss whether it makes sense to keep this lemma -- it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
 text{* Increasing the (actually: a) maximum component value keeps it the maximum. *}
 lemma increment_keeps_maximum :
   fixes n::nat and y::real_vector and y'::real_vector and max_index::nat and max::real and max'::real
@@ -225,7 +225,7 @@ text{* We define the set of maximal components of a vector y: *}
 (* TODO CL: discuss whether this function should return a set, or a vector.  How to construct such a vector?  Or should we define it as a predicate? *)
 definition arg_max_set ::
   "nat \<Rightarrow> real_vector \<Rightarrow> (nat set)" where
-  "arg_max_set n b \<equiv> {i. i \<in> {1..n} \<and> maximum n b = b i}"
+  "arg_max_set n b = {i. i \<in> {1..n} \<and> maximum n b = b i}"
 
 text{* We define the maximum component value that remains after removing the i-th component from the non-negative real vector y: *}
 (* TODO CL: discuss whether we should demand n \<ge> 2, or whether it's fine to implicitly assume that maximum_except 1 y j is 0

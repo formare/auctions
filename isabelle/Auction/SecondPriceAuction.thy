@@ -15,23 +15,22 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+header {* Second-price auctions *}
+
 theory SecondPriceAuction
 imports SingleGoodAuction Maximum
-
 begin
-
-section{* Second-price auction *}
 
 text{* Agent i being the winner of a second-price auction (see below for complete definition) means
 * he/she is one of the participants with the highest bids
 * he/she wins the auction
 * and pays the maximum price that remains after removing the winner's own bid from the vector of bids. *}
 definition second_price_auction_winners_payment :: "participants \<Rightarrow> real_vector \<Rightarrow> participant \<Rightarrow> real"
-  where "second_price_auction_winners_payment n b winner \<equiv> maximum_except n b winner"
+  where "second_price_auction_winners_payment n b winner = maximum_except n b winner"
 
 definition second_price_auction_winner ::
   "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
-  "second_price_auction_winner n b x p i \<equiv> i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i 
+  "second_price_auction_winner n b x p i \<longleftrightarrow> i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i 
                                            \<and> (p b i = second_price_auction_winners_payment n b i)"
 
 text{* Agent i being a loser of a second-price auction (see below for complete definition) means
@@ -39,7 +38,7 @@ text{* Agent i being a loser of a second-price auction (see below for complete d
 * and pays nothing *}
 definition second_price_auction_loser ::
   "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
-  "second_price_auction_loser n b x p i \<equiv> i \<in> {1..n} \<and> \<not>x b i \<and> p b i = 0"
+  "second_price_auction_loser n b x p i \<longleftrightarrow> i \<in> {1..n} \<and> \<not>x b i \<and> p b i = 0"
 
 text{* A second-price auction is an auction whose outcome satisfies the following conditions:
 1. One of the participants with the highest bids wins. (We do not formalise the random selection of one distinct participants from the set of highest bidders,
@@ -48,13 +47,13 @@ in case there is more than one.)
 3. The losers do not pay anything. *}
 definition second_price_auction ::
   "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
-  "second_price_auction n x p \<equiv>
-    \<forall> b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
+  "second_price_auction n x p \<longleftrightarrow>
+    (\<forall> b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
     (\<exists>i::participant . i \<in> {1..n} \<and> second_price_auction_winner n b x p i
-                      \<and> (\<forall>j::participant . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j))"
+                      \<and> (\<forall>j::participant . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
 
 text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
-(* TODO CL: discuss whether it makes sense to keep this lemma – it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
+(* TODO CL: discuss whether it makes sense to keep this lemma -- it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
 lemma second_price_auction_has_only_one_winner :
   fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant and j::participant
   assumes "second_price_auction n x p"

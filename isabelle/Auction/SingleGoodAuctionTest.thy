@@ -15,17 +15,19 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+
+header {* Single-good auction test *}
+
 theory SingleGoodAuctionTest
 imports SingleGoodAuction
-
 begin
 
-section{* Allocation *}
+subsection {* Allocation *}
 
-subsection{* Sample lemma: The allocation, in which the first participant wins (whatever the bids) is an allocation. *}
+subsubsection {* Sample lemma: The allocation, in which the first participant wins (whatever the bids) is an allocation. *}
 
 definition all_bid_1 :: "real_vector" where
-   "all_bid_1 \<equiv> \<lambda>x.1"
+   "all_bid_1 = (\<lambda>x. 1)"
 
 (* TODO CL: document that, in contrast to Theorema, Isabelle can't _compute_ universal quantification in the finite case.
 value "bids 1 all_bid_1"
@@ -40,7 +42,7 @@ done
 
 definition first_wins :: "allocation"
 where
-  "first_wins _ i \<equiv> i = 1" (* whatever the bids, the first participant wins *)
+  "first_wins _ i \<longleftrightarrow> i = 1" (* whatever the bids, the first participant wins *)
 
 (* for testing
 lemma only_wins_is_allocation:
@@ -60,7 +62,8 @@ lemma only_wins_is_allocation_declarative:
   unfolding allocation_def true_for_exactly_one_member_def first_wins_def using bid_all_bid_1
   by auto *)
 
-section{* Payoff *}
+
+subsection {* Payoff *}
 
 (* for testing *)
 value "payoff 5 True 2" (* I ascribed the value 5 to the good, won the auction, and had to pay 2. *)

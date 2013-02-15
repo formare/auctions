@@ -15,12 +15,13 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+header {* Single-good auctions *}
+
 theory SingleGoodAuction
 imports Vectors
-
 begin
 
-section{* Preliminaries *}
+subsection {* Preliminaries *}
 
 text{* some types defined for our convenience *}
 type_synonym participant = "nat"  (* ordinal number *)
@@ -31,7 +32,9 @@ However, being of one such type does not yet imply well-formedness; e.g. we coul
 type_synonym allocation = "real_vector \<Rightarrow> participants \<Rightarrow> bool"
 type_synonym payments = "real_vector \<Rightarrow> participants \<Rightarrow> real" (* a payment vector is a function of a real_vector of bids *)
 
-section{* Strategy (bids) *}
+
+subsection {* Strategy (bids) *}
+
 text{*
 Strategy and strategy profile (the vector of the strategies of all participants) are not fully defined below. We ignore the distribu-
 tion and density function, as they do not play a role in the proof of the theorem.
@@ -40,9 +43,10 @@ negative number that doesn't depend on anything.
 *}
 definition bids ::
   "participants \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "bids n b \<equiv> non_negative_real_vector n b"
+  "bids n b \<longleftrightarrow> non_negative_real_vector n b"
 
-subsection{* Deviation from a bid *}
+
+subsubsection {* Deviation from a bid *}
 
 text{* A deviation from a bid is still a well-formed bid. *}
 lemma deviated_bid_well_formed :
@@ -76,13 +80,14 @@ qed
 
 text{* A single-good auction is a mechanism specified by a function that maps a strategy profile to an outcome. *}
 
-section{* Allocation *}
+
+subsection {* Allocation *}
 
 text{* A predicate that is satisfied for exactly one member of a set *}
 (* We could also have using a member_of_S predicate as the first argument, but a set is more convenient. *)
 definition true_for_exactly_one_member :: "'s set \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool"
-  where "true_for_exactly_one_member S pred \<equiv>
-         \<exists>k . k \<in> S \<and> pred k \<and> (\<forall>j . j \<in> S \<and> j \<noteq> k \<longrightarrow> \<not>pred j)"
+  where "true_for_exactly_one_member S pred \<longleftrightarrow>
+         (\<exists>k . k \<in> S \<and> pred k \<and> (\<forall>j . j \<in> S \<and> j \<noteq> k \<longrightarrow> \<not>pred j))"
 
 lemma true_for_exactly_one_member_sat :
   shows "true_for_exactly_one_member { True } (\<lambda> b::bool . b)"
@@ -106,7 +111,7 @@ text{* A function x, which takes a vector of n bids, is an allocation if it retu
    with a different order of arguments we'd have to use (\<lambda> index::nat . x index b).
 *)
 definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where 
-  "allocation n b x \<equiv> bids n b \<and> 
+  "allocation n b x \<longleftrightarrow> bids n b \<and> 
    true_for_exactly_one_member {1..n} (x b)"
 
 text{* An allocation function uniquely determines the winner. *}
@@ -120,24 +125,27 @@ lemma allocation_unique :
   shows "other = winner"
   using assms allocation_def true_for_exactly_one_member_unique by metis
 
-section{* Payment *}
+
+subsection {* Payment *}
 
 text{* Each participant pays some amount. *}
 definition vickrey_payment ::
   "participants \<Rightarrow> real_vector \<Rightarrow> payments \<Rightarrow> bool" where
-  "vickrey_payment n b p \<equiv> bids n b \<and> (\<forall>i:: participant. i \<in> {1..n} \<longrightarrow> p b i \<ge> 0)"
+  "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i:: participant. i \<in> {1..n} \<longrightarrow> p b i \<ge> 0)"
 
-section{* Outcome *}
+
+subsection {* Outcome *}
 
 text{* The outcome of an auction is specified an allocation ${0, 1}^n$ and a vector of payments $R^n$
  made by each participant; we don't introduce a dedicated definition for this. *}
 
-section{* Valuation *}
+
+subsection {* Valuation *}
 
 text{* Each participant has a positive valuation of the good. *}
 definition valuation ::
   "participants \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "valuation n v \<equiv> positive_real_vector n v"
+  "valuation n v \<longleftrightarrow> positive_real_vector n v"
 
 text{* Any well-formed valuation vector is a well-formed bid vector *}
 lemma valuation_is_bid :
@@ -152,7 +160,8 @@ lemma valuation_is_bid :
      find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
      and would have found less_imp_le and others *)
 
-section{* Payoff *}
+
+subsection {* Payoff *}
 
 (* TODO CL: Maybe define payoff as a vector altogether, and just use one definition. *)
 text{* The payoff of the winner ($x_i=1$), determined by a utility function u, is the difference between its valuation and the actual
@@ -160,12 +169,12 @@ payment. For the losers, it is the negative payment. *}
 (* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
 definition payoff ::
   "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real" where
-  "payoff Valuation Allocation Payment \<equiv> Valuation * (if Allocation then 1 else 0) - Payment"
+  "payoff Valuation Allocation Payment = Valuation * (if Allocation then 1 else 0) - Payment"
 
 text{* For convenience in the subsequent formalisation, we also define the payoff as a vector, component-wise. *}
 definition payoff_vector ::
   "real_vector \<Rightarrow> bool_vector \<Rightarrow> real_vector \<Rightarrow> participant \<Rightarrow> real" where
-  "payoff_vector v concrete_x concrete_p i \<equiv> payoff (v i) (concrete_x i) (concrete_p i)"
+  "payoff_vector v concrete_x concrete_p i = payoff (v i) (concrete_x i) (concrete_p i)"
 
 (* unused theorems (which might nevertheless be useful for the toolbox):
    * move cursor over the word "unused_thms" for jEdit to display the list

@@ -15,12 +15,14 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-theory Vectors
-imports Real
 
+header {* Vectors *}
+
+theory Vectors
+imports Complex_Main
 begin
 
-section{* Preliminaries *}
+subsection {* Preliminaries *}
 
 text{* some types defined for our convenience *}
 type_synonym bool_vector = "nat \<Rightarrow> bool"
@@ -28,28 +30,29 @@ type_synonym bool_vector = "nat \<Rightarrow> bool"
 type_synonym real_vector = "nat \<Rightarrow> real"
 
 
-subsection{* some range checks for vectors *}
+subsubsection {* Some range checks for vectors *}
 
 text{* To help the prover in some situations, we introduce a predicate for the range of participants. *}
 definition in_range ::
   "nat \<Rightarrow> nat \<Rightarrow> bool" where
-  "in_range n i \<equiv> 1 \<le> i \<and> i \<le> n"
+  "in_range n i \<longleftrightarrow> 1 \<le> i \<and> i \<le> n"
 
 text{* we could also, in a higher-order style, generally define a vector whose components satisfy a predicate, and then parameterise this predicate with $\geq 0$ and $> 0$ *}
 definition non_negative_real_vector ::
   "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "non_negative_real_vector n v \<equiv> \<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0"
+  "non_negative_real_vector n v \<longleftrightarrow> (\<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0)"
 
 definition positive_real_vector ::
   "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
-  "positive_real_vector n v \<equiv> \<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i > 0"
+  "positive_real_vector n v \<longleftrightarrow> (\<forall> i::nat . i \<in> {1..n} \<longrightarrow> v i > 0)"
 
-section{* Deviation from a vector *}
+
+subsection {* Deviation from a vector *}
 
 text{* We define a function that modifies a vector by using an alternative value for a given component. *}
 definition deviation ::
   "nat \<Rightarrow> real_vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> real_vector" where
-  "deviation n bid alternative_value index j \<equiv> if j = index then alternative_value else bid j"
+  "deviation n bid alternative_value index j = (if j = index then alternative_value else bid j)"
 
 text{* We define a function that,
   given one vector and an alternative one (in practice these will be strategy profiles), and a participant index i,
@@ -62,9 +65,9 @@ text{* We define a function that,
    TODO CL: discuss whether there any useful way we could use n for range-checking?  Or don't we need n at all? *)
 definition deviation_vec ::
   "nat \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> nat \<Rightarrow> real_vector" where
-  "deviation_vec n bid alternative_vec index \<equiv> deviation n bid (alternative_vec index) index"
+  "deviation_vec n bid alternative_vec index = deviation n bid (alternative_vec index) index"
   (* the old component-wise definition had an error actually:
-     "deviation_vec n bid alternative_vec index j \<equiv> deviation n bid (alternative_vec j) index j"
+     "deviation_vec n bid alternative_vec index j = deviation n bid (alternative_vec j) index j"
                                                                                      ^^ should have been index
      so actually a component-wise definition was not necessary
      the error didn't cause trouble because of the "j = index" condition in deviation_def,
