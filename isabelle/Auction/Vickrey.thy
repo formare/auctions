@@ -78,7 +78,7 @@ proof -
       show ?thesis
       proof cases -- {* case 1 of the short proof *}
         assume i_wins: "x ?i_sticks_with_strategy i"
-        txt {* @{term i} gets the good, so i also satisfies the further properties of a
+        txt {* @{term i} gets the good, so @{term i} also satisfies the further properties of a
           second price auction winner: *}
         with spa i_sticks_is_bid i_range
         have "i \<in> arg_max_set n ?i_sticks_with_strategy"
@@ -129,7 +129,7 @@ proof -
           txt {* @{term i} doesn't get the good, so @{term i} also satisfies the further properties
             of a second price auction loser: *}
           with spa alternative_is_bid i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
+          have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
             by (rule second_price_auction_loser_payoff)
           also have "\<dots> \<le>
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
@@ -140,7 +140,7 @@ proof -
         assume i_loses: "\<not> x ?i_sticks_with_strategy i"
         txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
         with spa i_sticks_is_bid i_range
-          have zero_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i = 0"
+        have zero_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i = 0"
           by (rule second_price_auction_loser_payoff)
         txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
           @{term i} would have won *}
