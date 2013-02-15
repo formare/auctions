@@ -1,7 +1,3 @@
-(* TODO CL: ask whether jEdit's Isabelle mode disables word wrapping *)
-(* TODO CL: report Isabelle/jEdit bug: no auto-indentation *)
-(* TODO CL: report Isabelle/jEdit bug: when I set long lines to wrap at window boundary, wrapped part behaves badly: not editable *)
-(* TODO CL: report Isabelle/jEdit bug: can't copy goal in output pane to clipboard *)
 (*
 $Id$
 
