@@ -158,7 +158,7 @@ proof -
         proof cases -- {* case 2a of the short proof *}
           assume "x whatever_bid i"
           with spa alternative_is_bid non_empty i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
+          have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation
             by (simp add: deviation_vec_def deviation_def)
@@ -172,7 +172,7 @@ proof -
           assume "\<not> x whatever_bid i"
           txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
           with spa alternative_is_bid i_range
-            have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
+          have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
             by (rule second_price_auction_loser_payoff)
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
