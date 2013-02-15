@@ -34,13 +34,13 @@ Here, we derive those two statements as lemmas from the definition of the comput
 Having the maximum as a computable function might turn out to be useful when doing concrete auctions.
 *}
 fun maximum ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> real" where
+  "nat \<Rightarrow> real vector \<Rightarrow> real" where
   "maximum 0 _ = 0" | (* In our setting with non-negative real numbers it makes sense to define the maximum of the empty set as 0 *)
   "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))" (* we don't enforce that y is non-negative, but this computation only makes sense for a non-negative y *)
 
 text{* If two vectors are equal, their maximum components are equal too *}
 lemma maximum_equal :
-  fixes n::nat and y::real_vector and z::real_vector
+  fixes n::nat and y::"real vector" and z::"real vector"
   assumes "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> y i = z i"
   shows "maximum n y = maximum n z"
     using assms (* Apparently this is needed; otherwise the last proof step fails. *)
@@ -56,7 +56,7 @@ qed
 
 text{* The maximum component, as defined above, is non-negative *}
 lemma maximum_non_negative :
-  fixes n::nat and y::real_vector
+  fixes n::nat and y::"real vector"
   shows "maximum n y \<ge> 0"
 proof (induct n)
   case 0
@@ -68,7 +68,7 @@ qed
 
 text{* The maximum component value is greater or equal than the values of all [other] components *}
 lemma maximum_is_greater_or_equal :
-  fixes n::nat and y::real_vector and i::nat
+  fixes n::nat and y::"real vector" and i::nat
   assumes "i \<in> {1..n}"
   shows "maximum n y \<ge> y i"
     using assms
@@ -93,7 +93,7 @@ qed
 
 text{* The maximum component is one component *}
 lemma maximum_is_component :
-  fixes n::nat and y::real_vector
+  fixes n::nat and y::"real vector"
   assumes "n > 0 \<and> non_negative_real_vector n y" 
   shows "\<exists>i::nat . i \<in> {1..n} \<and> maximum n y = y i"
     using assms
@@ -137,7 +137,7 @@ qed
 
 text{* Being a component of a non-negative vector and being greater or equal than all other components uniquely defines a maximum component. *}
 lemma maximum_sufficient :
-  fixes n::nat and y::real_vector and m::real
+  fixes n::nat and y::"real vector" and m::real
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
     and greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> m \<ge> y i"
@@ -200,7 +200,7 @@ qed
 (* TODO CL: discuss whether it makes sense to keep this lemma -- it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
 text{* Increasing the (actually: a) maximum component value keeps it the maximum. *}
 lemma increment_keeps_maximum :
-  fixes n::nat and y::real_vector and y'::real_vector and max_index::nat and max::real and max'::real
+  fixes n::nat and y::"real vector" and y'::"real vector" and max_index::nat and max::real and max'::real
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
     and index_range: "max_index \<in> {1..n}"
@@ -225,7 +225,7 @@ text{* We define the set of maximal components of a vector y: *}
 (* TODO CL: discuss whether we should define this in a computable way.  If so, how? *)
 (* TODO CL: discuss whether this function should return a set, or a vector.  How to construct such a vector?  Or should we define it as a predicate? *)
 definition arg_max_set ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> (nat set)" where
+  "nat \<Rightarrow> real vector \<Rightarrow> (nat set)" where
   "arg_max_set n b = {i. i \<in> {1..n} \<and> maximum n b = b i}"
 
 text{* We define the maximum component value that remains after removing the i-th component from the non-negative real vector y: *}
@@ -234,14 +234,14 @@ text{* We define the maximum component value that remains after removing the i-t
 (* TODO CL: discuss whether we can, or should, enforce that j is \<le> n *)
 (* TODO CL: ask whether there is an easier or more efficient way of stating this *)
 fun maximum_except ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> nat \<Rightarrow> real" where
+  "nat \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real" where
   "maximum_except 0 _ _ = 0" |
   "maximum_except (Suc n) y j =
     maximum n (skip_index y j)" (* we take y but skip its j-th component *)
 
 text{* The maximum component that remains after removing one component from a vector is greater or equal than the values of all remaining components *}
 lemma maximum_except_is_greater_or_equal :
-  fixes n::nat and y::real_vector and j::nat and i::nat
+  fixes n::nat and y::"real vector" and j::nat and i::nat
   assumes j_range: "n \<ge> 1 \<and> j \<in> {1..n}"
     and i_range: "i \<in> {1..n} \<and> i \<noteq> j"
   shows "maximum_except n y j \<ge> y i"
@@ -274,7 +274,7 @@ qed
 text{* One component of a vector is a maximum component iff it has a value greater or equal than the maximum of the remaining values. *}
 lemma maximum_greater_or_equal_remaining_maximum :
   (* TODO CL: discuss the name of this lemma; maybe there is something more appropriate *)
-  fixes n::nat and y::real_vector and j::nat
+  fixes n::nat and y::"real vector" and j::nat
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
     and range: "j \<in> {1..n}"
@@ -329,7 +329,7 @@ qed
 text{* Changing one component in a vector doesn't affect the maximum of the remaining components. *}
 lemma remaining_maximum_invariant :
   (* TODO CL: discuss the name of this lemma; maybe there is something more appropriate *)
-  fixes n::nat and y::real_vector and i::nat and a::real
+  fixes n::nat and y::"real vector" and i::nat and a::real
   assumes non_empty: "n > 0" and
     range: "i \<in> {1..n}"
   shows "maximum_except n y i = maximum_except n (deviation n y a i) i"

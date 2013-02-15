@@ -26,11 +26,11 @@ text{* Agent i being the winner of a second-price auction (see below for complet
 * he/she is one of the participants with the highest bids
 * he/she wins the auction
 * and pays the maximum price that remains after removing the winner's own bid from the vector of bids. *}
-definition second_price_auction_winners_payment :: "participants \<Rightarrow> real_vector \<Rightarrow> participant \<Rightarrow> real"
+definition second_price_auction_winners_payment :: "participants \<Rightarrow> real vector \<Rightarrow> participant \<Rightarrow> real"
   where "second_price_auction_winners_payment n b winner = maximum_except n b winner"
 
 definition second_price_auction_winner ::
-  "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
+  "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
   "second_price_auction_winner n b x p i \<longleftrightarrow> i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i 
                                            \<and> (p b i = second_price_auction_winners_payment n b i)"
 
@@ -38,7 +38,7 @@ text{* Agent i being a loser of a second-price auction (see below for complete d
 * he/she loses the auction
 * and pays nothing *}
 definition second_price_auction_loser ::
-  "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
+  "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool" where
   "second_price_auction_loser n b x p i \<longleftrightarrow> i \<in> {1..n} \<and> \<not>x b i \<and> p b i = 0"
 
 text{* A second-price auction is an auction whose outcome satisfies the following conditions:
@@ -49,14 +49,14 @@ in case there is more than one.)
 definition second_price_auction ::
   "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
   "second_price_auction n x p \<longleftrightarrow>
-    (\<forall>b::real_vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
+    (\<forall>b::real vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
     (\<exists>i::participant . i \<in> {1..n} \<and> second_price_auction_winner n b x p i
                       \<and> (\<forall>j::participant . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
 
 text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
 (* TODO CL: discuss whether it makes sense to keep this lemma -- it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
 lemma second_price_auction_has_only_one_winner :
-  fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant and j::participant
+  fixes n::participants and x::allocation and p::payments and b::"real vector" and winner::participant and j::participant
   assumes "second_price_auction n x p"
     and "bids n b"
     and "second_price_auction_winner n b x p winner"
@@ -69,7 +69,7 @@ lemma second_price_auction_has_only_one_winner :
 
 text{* The participant who gets the good also satisfies the further properties of a second-price auction winner *}
 lemma allocated_implies_spa_winner :
-  fixes n::participants and x::allocation and p::payments and b::real_vector and winner::participant
+  fixes n::participants and x::allocation and p::payments and b::"real vector" and winner::participant
   assumes "second_price_auction n x p"
     and "bids n b"
     and "winner \<in> {1..n}"  (* in an earlier version we managed without this assumption, but it makes the proof easier *)
@@ -82,7 +82,7 @@ lemma allocated_implies_spa_winner :
 
 text{* A participant who doesn't gets the good satisfies the further properties of a second-price auction loser *}
 lemma not_allocated_implies_spa_loser :
-  fixes n::participants and x::allocation and p::payments and b::real_vector and loser::participant
+  fixes n::participants and x::allocation and p::payments and b::"real vector" and loser::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
     and range: "loser \<in> {1..n}"
@@ -103,7 +103,7 @@ qed
 
 text{* If there is only one bidder with a maximum bid, that bidder wins. *}
 lemma only_max_bidder_wins :
-  fixes n::participants and max_bidder::participant and b::real_vector and x::allocation and p::payments
+  fixes n::participants and max_bidder::participant and b::"real vector" and x::allocation and p::payments
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
     and range: "max_bidder \<in> {1..n}"
@@ -143,7 +143,7 @@ qed
 
 text{* a formula for computing the payoff of the winner of a second-price auction *}
 lemma second_price_auction_winner_payoff :
-  fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and winner::participant
+  fixes n::participants and v::"real vector" and x::allocation and b::"real vector" and p::payments and winner::participant
   assumes spa: "second_price_auction n x p"
     and bids: "bids n b"
     and winner_range: "winner \<in> {1..n}"
@@ -163,7 +163,7 @@ qed
 
 text{* a formula for computing the payoff of a loser of a second-price auction *}
 lemma second_price_auction_loser_payoff :
-  fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and loser::participant
+  fixes n::participants and v::"real vector" and x::allocation and b::"real vector" and p::payments and loser::participant
   assumes "second_price_auction n x p"
     and "bids n b"
     and "loser \<in> {1..n}"
@@ -175,7 +175,7 @@ lemma second_price_auction_loser_payoff :
 text{* If a participant wins a second-price auction by not bidding his/her valuation,
   the payoff equals the valuation minus the remaining maximum bid *}
 lemma winners_payoff_on_deviation_from_valuation :
-  fixes n::participants and v::real_vector and x::allocation and b::real_vector and p::payments and winner::participant
+  fixes n::participants and v::"real vector" and x::allocation and b::"real vector" and p::payments and winner::participant
   (* how this was created by factoring out stuff from vickreyA proof cases 1a and 2a:
      1. wrote "lemma \<dots> fixes \<dots> shows
      2. pasted proof steps

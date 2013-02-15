@@ -30,8 +30,8 @@ type_synonym participants = "nat" (* cardinal number *)
 
 text{* TODO CL: discuss whether it's intuitive to name some types as in the following lines.
 However, being of one such type does not yet imply well-formedness; e.g. we could have an x::allocation, which, for some given n and b does not satisfy "allocation n b x". *}
-type_synonym allocation = "real_vector \<Rightarrow> participants \<Rightarrow> bool"
-type_synonym payments = "real_vector \<Rightarrow> participants \<Rightarrow> real" (* a payment vector is a function of a real_vector of bids *)
+type_synonym allocation = "real vector \<Rightarrow> participants \<Rightarrow> bool"
+type_synonym payments = "real vector \<Rightarrow> participants \<Rightarrow> real" (* a payment vector is a function of a "real vector" of bids *)
 
 
 subsection {* Strategy (bids) *}
@@ -43,7 +43,7 @@ So, for now, we do not model the random mapping from a participant's valuation t
 negative number that doesn't depend on anything.
 *}
 definition bids ::
-  "participants \<Rightarrow> real_vector \<Rightarrow> bool" where
+  "participants \<Rightarrow> real vector \<Rightarrow> bool" where
   "bids n b \<longleftrightarrow> non_negative_real_vector n b"
 
 
@@ -51,7 +51,7 @@ subsubsection {* Deviation from a bid *}
 
 text{* A deviation from a bid is still a well-formed bid. *}
 lemma deviated_bid_well_formed :
-  fixes n::participants and bid::real_vector and alternative_vec::real_vector and i::participant
+  fixes n::participants and bid::"real vector" and alternative_vec::"real vector" and i::participant
   assumes bids_original: "bids n bid" and bids_alternative: "bids n alternative_vec"
   shows "bids n (deviation_vec n bid alternative_vec i)"
 proof -
@@ -111,13 +111,13 @@ text{* A function x, which takes a vector of n bids, is an allocation if it retu
    When using the function x in a curried way, we can speak of (x b) as a vector of booleans, in a very straightforward way;
    with a different order of arguments we'd have to use (\<lambda> index::nat . x index b).
 *)
-definition allocation :: "participants \<Rightarrow> real_vector \<Rightarrow> allocation \<Rightarrow> bool" where 
+definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool" where 
   "allocation n b x \<longleftrightarrow> bids n b \<and> 
    true_for_exactly_one_member {1..n} (x b)"
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
-  fixes n::participants and x::allocation and b::real_vector and winner::participant and other::participant
+  fixes n::participants and x::allocation and b::"real vector" and winner::participant and other::participant
   assumes "allocation n b x"
     and "winner \<in> {1..n}"
     and "x b winner"
@@ -131,7 +131,7 @@ subsection {* Payment *}
 
 text{* Each participant pays some amount. *}
 definition vickrey_payment ::
-  "participants \<Rightarrow> real_vector \<Rightarrow> payments \<Rightarrow> bool" where
+  "participants \<Rightarrow> real vector \<Rightarrow> payments \<Rightarrow> bool" where
   "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i:: participant. i \<in> {1..n} \<longrightarrow> p b i \<ge> 0)"
 
 
@@ -145,12 +145,12 @@ subsection {* Valuation *}
 
 text{* Each participant has a positive valuation of the good. *}
 definition valuation ::
-  "participants \<Rightarrow> real_vector \<Rightarrow> bool" where
+  "participants \<Rightarrow> real vector \<Rightarrow> bool" where
   "valuation n v \<longleftrightarrow> positive_real_vector n v"
 
 text{* Any well-formed valuation vector is a well-formed bid vector *}
 lemma valuation_is_bid :
-  fixes n::participants and v::real_vector
+  fixes n::participants and v::"real vector"
   assumes "valuation n v"
   shows "bids n v"
   using assms
@@ -174,7 +174,7 @@ definition payoff ::
 
 text{* For convenience in the subsequent formalisation, we also define the payoff as a vector, component-wise. *}
 definition payoff_vector ::
-  "real_vector \<Rightarrow> bool_vector \<Rightarrow> real_vector \<Rightarrow> participant \<Rightarrow> real" where
+  "real vector \<Rightarrow> bool vector \<Rightarrow> real vector \<Rightarrow> participant \<Rightarrow> real" where
   "payoff_vector v concrete_x concrete_p i = payoff (v i) (concrete_x i) (concrete_p i)"
 
 (* unused theorems (which might nevertheless be useful for the toolbox):

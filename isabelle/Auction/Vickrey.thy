@@ -49,7 +49,7 @@ subsection {* Vickrey's Theorem *}
 subsubsection {* Part 1: A second-price auction supports an equilibrium in weakly dominant strategies if all participants bid their valuation. *}
 
 theorem vickreyA:
-  fixes n :: participants and v :: real_vector and x :: allocation and p :: payments
+  fixes n :: participants and v :: "real vector" and x :: allocation and p :: payments
   assumes val: "valuation n v" and spa: "second_price_auction n x p"
   shows "equilibrium_weakly_dominant_strategy n v v (* \<leftarrow> i.e. b *) x p"
 proof -
@@ -62,7 +62,7 @@ proof -
   {
     fix i :: participant
     assume i_range: "i \<in> {1..n}"
-    fix whatever_bid :: real_vector
+    fix whatever_bid :: "real vector"
     assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
     then have alternative_is_bid: "bids n whatever_bid" ..
     let ?i_sticks_with_strategy = "deviation_vec n whatever_bid ?b i"
@@ -203,7 +203,7 @@ subsubsection {* Part 2: A second-price auction is efficient if all participants
 
 (* TODO CL: document that we use local renamings (let) to make definition unfoldings resemble the original definitions *)
 theorem vickreyB:
-  fixes n :: participants and v :: real_vector and x :: allocation and p :: payments
+  fixes n :: participants and v :: "real vector" and x :: allocation and p :: payments
   assumes val: "valuation n v" and spa: "second_price_auction n x p"
   shows "efficient n v v x"
 proof -

@@ -25,10 +25,8 @@ begin
 
 subsection {* Preliminaries *}
 
-text{* some types defined for our convenience *}
-type_synonym bool_vector = "nat \<Rightarrow> bool"
+type_synonym 'a vector = "nat \<Rightarrow> 'a"
   (* TODO CL: report jEdit bug that suggested completions for nat (\<nat>) and bool (\<bool>) cause syntax errors *)
-type_synonym real_vector = "nat \<Rightarrow> real"
 
 
 subsubsection {* Some range checks for vectors *}
@@ -40,11 +38,11 @@ definition in_range ::
 
 text{* we could also, in a higher-order style, generally define a vector whose components satisfy a predicate, and then parameterise this predicate with $\geq 0$ and $> 0$ *}
 definition non_negative_real_vector ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
+  "nat \<Rightarrow> real vector \<Rightarrow> bool" where
   "non_negative_real_vector n v \<longleftrightarrow> (\<forall>i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0)"
 
 definition positive_real_vector ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> bool" where
+  "nat \<Rightarrow> real vector \<Rightarrow> bool" where
   "positive_real_vector n v \<longleftrightarrow> (\<forall>i::nat . i \<in> {1..n} \<longrightarrow> v i > 0)"
 
 
@@ -52,7 +50,7 @@ subsection {* Deviation from a vector *}
 
 text{* We define a function that modifies a vector by using an alternative value for a given component. *}
 definition deviation ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> real_vector" where
+  "nat \<Rightarrow> real vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> real vector" where
   "deviation n bid alternative_value index j = (if j = index then alternative_value else bid j)"
 
 text{* We define a function that,
@@ -65,7 +63,7 @@ text{* We define a function that,
    TODO CL: ask whether there a way of writing the alternative as b_hat, as it looks in the paper version?
    TODO CL: discuss whether there any useful way we could use n for range-checking?  Or don't we need n at all? *)
 definition deviation_vec ::
-  "nat \<Rightarrow> real_vector \<Rightarrow> real_vector \<Rightarrow> nat \<Rightarrow> real_vector" where
+  "nat \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real vector" where
   "deviation_vec n bid alternative_vec index = deviation n bid (alternative_vec index) index"
   (* the old component-wise definition had an error actually:
      "deviation_vec n bid alternative_vec index j = deviation n bid (alternative_vec j) index j"
@@ -86,7 +84,7 @@ text{* skipping one component in a non-negative vector keeps it non-negative *}
 (* TODO CL: discuss whether we should actually prove the more general lemma that
    skipping one component in a vector whose components each satisfy p still satisfies p (for a suitable p) *)
 lemma skip_index_keeps_non_negativity :
-  fixes n::nat and v::real_vector and i::nat
+  fixes n::nat and v::"real vector" and i::nat
   assumes non_empty: "n > 0"
     and non_negative: "non_negative_real_vector n v"
     and range: "i \<in> {1..n}"
@@ -115,7 +113,7 @@ qed
 
 text{* when two vectors differ in one component, skipping that component makes the vectors equal *}
 lemma equal_by_skipping :
-  fixes n::nat and v::real_vector and w::real_vector and j::nat and k::nat
+  fixes n::nat and v::"real vector" and w::"real vector" and j::nat and k::nat
   assumes non_empty: "n > 0"
     and j_range: "j \<in> {1..n}"
     and equal_except: "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> v i = w i"
