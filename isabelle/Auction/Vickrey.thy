@@ -119,7 +119,7 @@ proof -
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               v i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by simp
-          txt {* Now we show that i's payoff hasn't changed. *}
+          txt {* Now we show that @{term i}'s payoff hasn't changed. *}
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using winners_payoff by simp
