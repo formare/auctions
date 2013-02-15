@@ -53,7 +53,9 @@ theorem vickreyA:
   assumes val: "valuation n v" and spa: "second_price_auction n x p"
   shows "equilibrium_weakly_dominant_strategy n v v (* \<leftarrow> i.e. b *) x p"
 proof -
-  let ?b = v (* From now on, we refer to v as ?b if we mean the _bids_ (which happen to be equal to the valuations) *)
+  let ?b = v
+  txt {* From now on, we refer to @{term v} as @{term ?b} if we mean the \emph{bids},
+    (which happen to be equal to the valuations). *}
   from val have bids: "bids n ?b" by (rule valuation_is_bid)
   from spa bids have alloc: "allocation n ?b x"
     unfolding second_price_auction_def by simp
@@ -102,7 +104,7 @@ proof -
         have i_ge_max_except:
             "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i"
           by simp
-        txt {* Now we show that @{term i}'s payoff is @{text "\<ge> 0"} *}
+        txt {* Now we show that @{term i}'s payoff is @{text "\<ge> 0"}. *}
         from spa i_sticks_is_bid i_range i_wins
         have winners_payoff:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
@@ -128,7 +130,7 @@ proof -
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               v i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by simp
-          (* Now we show that i's payoff hasn't changed *)
+          txt {* Now we show that i's payoff hasn't changed. *}
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
             using winners_payoff by simp
