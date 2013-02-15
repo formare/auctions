@@ -192,7 +192,7 @@ lemma winners_payoff_on_deviation_from_valuation :
   (* i's deviation doesn't change the maximum remaining bid (which is the second highest bid when winner wins) *)
   using non_empty remaining_maximum_invariant
   by simp
-(* Until the CASL formalisation made us realise how easy eprover could prove this, we had been using the following structured proof: *)
+(* Until the CASL formalisation made us realise how easily eprover could prove this, we had been using the following structured proof: *)
 (* proof -
   let ?winner_sticks_with_valuation = "deviation_vec n b v winner"
   (* winner gets the good, so winner also satisfies the further properties of a second price auction winner: *)
