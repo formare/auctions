@@ -64,6 +64,7 @@ proof -
   {
     fix i :: participant
     assume i_range: "i \<in> {1..n}"
+    then have non_empty: "n > 0" by simp
     fix whatever_bid :: "real vector"
     assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i"
     then have alternative_is_bid: "bids n whatever_bid" ..
@@ -76,13 +77,7 @@ proof -
     have weak_dominance:
       "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
         payoff_vector v (x whatever_bid) (p whatever_bid) i"
-    proof cases
-      assume "n = 0"
-      with i_range have False by simp
-      then show ?thesis ..
-    next                 
-      assume "n \<noteq> 0"
-      then have non_empty: "n > 0" ..
+    proof -
       let ?b_bar = "maximum n ?b"
       show ?thesis
       proof cases -- {* case 1 of the short proof *}
