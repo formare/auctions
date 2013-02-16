@@ -89,47 +89,28 @@ text{* A single-good auction is a mechanism specified by a function that maps a 
 
 subsection {* Allocation *}
 
-text{* A predicate that is satisfied for exactly one member of a set *}
-(* We could also have using a member_of_S predicate as the first argument, but a set is more convenient. *)
-definition true_for_exactly_one_member :: "'s set \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool" where
-  "true_for_exactly_one_member S pred \<longleftrightarrow> (\<exists>k \<in> S. pred k \<and> (\<forall>j \<in> S. j \<noteq> k \<longrightarrow> \<not> pred j))"
-
-lemma true_for_exactly_one_member_sat :
-  shows "true_for_exactly_one_member {True} (\<lambda> b::bool . b)"
-  unfolding true_for_exactly_one_member_def by blast
-
-lemma true_for_exactly_one_member_unique :
-  fixes S::"'s set" and pred::"'s \<Rightarrow> bool" and satisfier::'s and j::'s
-  assumes "true_for_exactly_one_member S pred"
-    and "satisfier \<in> S"
-    and "pred satisfier"
-    and "j \<in> S"
-    and "pred j"
-  shows "j = satisfier"
-  using assms true_for_exactly_one_member_def by metis
-
 text{* A function @{text x}, which takes a vector of @{text n} bids, is an allocation
   if it returns @{text True} for one bidder and @{text False} for the others. *}
 (* TODO CL: discuss whether we should use different names for "definition allocation" and "type_synonym allocation", as they denote two different things *)
+(* makarius: I would say this is OK.  Isabelle clearly distinguishes certain categories of formal entities:
+   types, terms, theorems etc., all with a different name space *)
+
 (* TODO CL: record in our notes that the order of arguments of a function matters.
    Note that I, CL, reordered the arguments on 2012-08-24.
    When using the function x in a curried way, we can speak of (x b) as a vector of booleans, in a very straightforward way;
    with a different order of arguments we'd have to use (\<lambda> index::nat . x index b).
 *)
-definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool" where 
-  "allocation n b x \<longleftrightarrow> bids n b \<and> 
-   true_for_exactly_one_member {1..n} (x b)"
+definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
+  where "allocation n b x \<longleftrightarrow> bids n b \<and> (\<exists>!i \<in> {1..n}. x b i)"
 
 text{* An allocation function uniquely determines the winner. *}
 lemma allocation_unique :
   fixes n::participants and x::allocation and b::"real vector" and winner::participant and other::participant
   assumes "allocation n b x"
-    and "winner \<in> {1..n}"
-    and "x b winner"
-    and "other \<in> {1..n}"
-    and "x b other"
+    and "winner \<in> {1..n}" and "x b winner"
+    and "other \<in> {1..n}" and "x b other"
   shows "other = winner"
-  using assms allocation_def true_for_exactly_one_member_unique by metis
+  using assms unfolding allocation_def by blast
 
 
 subsection {* Payment *}

@@ -1,2 +1,6 @@
 * avoid odd reference to "calculation", notably in metis;
 
+* check true_for_exactly_one_member vs. EX!;
+
+* check in_range;
+
