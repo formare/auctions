@@ -90,11 +90,11 @@ lemma skip_index_keeps_non_negativity :
   assumes non_empty: "n > 0"
     and non_negative: "non_negative_real_vector n v"
     and range: "i \<in> {1..n}"
-  shows "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
+  shows "non_negative_real_vector (n - 1) (skip_index v i)"
 proof -
   {
     fix j::nat
-    assume j_range: "j \<in> {1..n-(1::nat)}"
+    assume j_range: "j \<in> {1..n - 1}"
     have "(skip_index v i) j \<ge> 0"
     proof (cases "j < i")
       case True
@@ -110,7 +110,7 @@ proof -
         by (auto simp add: leD less_imp_diff_less not_leE)
     qed
   }
-  then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
+  then show "non_negative_real_vector (n - 1) (skip_index v i)"
     unfolding non_negative_real_vector_def by simp
 qed
 
@@ -120,7 +120,7 @@ lemma equal_by_skipping :
   assumes non_empty: "n > 0"
     and j_range: "j \<in> {1..n}"
     and equal_except: "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> v i = w i"
-    and k_range: "k \<in> {1..n-(1::nat)}"
+    and k_range: "k \<in> {1..n - 1}"
   shows "skip_index v j k = skip_index w j k"
 proof (cases "k < j")
   case True

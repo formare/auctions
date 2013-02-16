@@ -318,7 +318,7 @@ proof
 next (* nice to see that support for \<longleftrightarrow> is built in *)
   assume j_max: "y j = maximum n y"
   from non_empty
-  have maximum_except_unfolded: "maximum_except n y j = maximum (n-(1::nat)) (skip_index y j)"
+  have maximum_except_unfolded: "maximum_except n y j = maximum (n - 1) (skip_index y j)"
     by (metis Suc_diff_1 maximum_except.simps(2))
   show "y j \<ge> maximum_except n y j"
   proof (cases "n = 1")
@@ -330,13 +330,13 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     from j_max have ge: "\<forall>k::nat . k \<in> {1..n} \<longrightarrow> y j \<ge> y k"
       by (simp add: maximum_is_greater_or_equal)
     from False non_empty have "n > 1" by simp
-    then have pred_non_empty: "(n-(1::nat)) > 0" by simp
+    then have pred_non_empty: "n - 1 > 0" by simp
     from non_empty non_negative range
-    have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
+    have pred_non_negative: "non_negative_real_vector (n - 1) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
     from pred_non_empty pred_non_negative maximum_is_component
-    obtain i::nat where i_range: "i \<in> {1..n-(1::nat)}" and
-      maximum_except_component: "maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i"
+    obtain i::nat where i_range: "i \<in> {1..n - 1}" and
+      maximum_except_component: "maximum (n - 1) (skip_index y j) = (skip_index y j) i"
       by blast
     from maximum_except_component maximum_except_unfolded
     have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i"
@@ -368,12 +368,10 @@ proof -
   from range have equal_except: "\<forall>j::nat . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
     unfolding deviation_def by simp
   with non_empty range
-  have "\<forall>k::nat . k \<in> {1..n-(1::nat)} \<longrightarrow> skip_index y i k = skip_index (deviation n y a i) i k"
+  have "\<forall>k::nat . k \<in> {1..n - 1} \<longrightarrow> skip_index y i k = skip_index (deviation n y a i) i k"
     using equal_by_skipping by (auto simp add: deviation_def)
-  then
-  have "maximum (n-(1::nat)) (skip_index y i) =
-      maximum (n-(1::nat)) (skip_index (deviation n y a i) i)"
-    by (simp add: maximum_equal)
+  then have "maximum (n - 1) (skip_index y i) =
+    maximum (n - 1) (skip_index (deviation n y a i) i)" by (simp add: maximum_equal)
   with non_empty show ?thesis by (metis Suc_pred' maximum_except.simps(2))
 qed
 
