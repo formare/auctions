@@ -168,91 +168,57 @@ definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow>
 
 subsection {* Maximum *}
 
-fun maximum :: "nat \<Rightarrow> real vector \<Rightarrow> real"
-where
-  "maximum 0 _ = 0"
-| "maximum (Suc n) y = max 0 (max (maximum n y) (y (Suc n)))"
+definition maximum :: "nat \<Rightarrow> real vector \<Rightarrow> real"
+  where "maximum n y = (if n = 0 then 0 else max 0 (Max (y ` {1..n})))"
 
 lemma maximum_equal:
   fixes n::nat and y::"real vector" and z::"real vector"
   assumes "\<forall>i \<in> {1..n}. y i = z i"
   shows "maximum n y = maximum n z"
-  using assms by (induct n) simp_all
+proof -
+  have "y ` {1..n} = z ` {1..n}" by (rule image_cong) (auto simp add: assms)
+  then show ?thesis unfolding maximum_def by simp
+qed
 
 lemma maximum_non_negative:
   fixes n::nat and y::"real vector"
   shows "maximum n y \<ge> 0"
-  by (induct n) simp_all
+  unfolding maximum_def by simp
 
 lemma maximum_is_greater_or_equal:
   fixes n::nat and y::"real vector" and i::nat
   assumes "i \<in> {1..n}"
   shows "maximum n y \<ge> y i"
-  using assms
-proof (induct n)
-  case 0
-  then show ?case by simp
-next
-  case (Suc n)
-  have "max (maximum n y) (y (Suc n)) \<ge> y i"
-  proof (cases "i = Suc n")
-    case True
-    then show ?thesis by (simp add: le_max_iff_disj)
-  next
-    case False
-    with Suc.prems
-      have "i \<in> {1..n}" by (simp add: less_eq_Suc_le)
-    then have "maximum n y \<ge> y i" by (simp add: Suc.hyps)
-    then show ?thesis by (simp add: le_max_iff_disj)
-  qed
-  then show "maximum (Suc n) y \<ge> y i" using maximum_def by simp
+proof -
+  from assms have "n > 0" and "y i \<le> Max (y ` {1..n})" by simp_all
+  then show ?thesis unfolding maximum_def by simp
+qed
+
+lemma maximum_Max:
+  fixes n::nat and y::"real vector"
+  assumes non_empty: "n > 0"
+    and non_negative: "non_negative_real_vector n y"
+  shows "maximum n y = Max (y ` {1..n})"
+proof -
+  let ?A = "y ` {1..n}"
+  from non_empty have "finite ?A" and "?A \<noteq> {}" by simp_all
+  with non_empty non_negative have "0 \<le> Max ?A"
+    unfolding non_negative_real_vector_def by (auto simp add: Max_ge_iff)
+  with non_empty show ?thesis unfolding maximum_def by simp
 qed
 
 lemma maximum_is_component:
   fixes n::nat and y::"real vector"
-  assumes "n > 0 \<and> non_negative_real_vector n y"
+  assumes non_empty: "n > 0"
+    and non_negative: "non_negative_real_vector n y"
   shows "\<exists>i \<in> {1..n}. maximum n y = y i"
-  using assms
-proof (induct n)
-  case 0
-  then show ?case by simp
-next
-  case (Suc n)
-  show "\<exists>i \<in> {1..Suc n}. maximum (Suc n) y = y i"
-  proof (cases "y (Suc n) \<ge> maximum n y")
-    case True
-    from Suc.prems have "y (Suc n) \<ge> 0"
-      unfolding non_negative_real_vector_def by simp
-    with True have "y (Suc n) = maximum (Suc n) y" using maximum_def by simp
-    then show ?thesis by auto
-  next
-    case False
-    have non_empty: "n > 0"
-    proof - (* by contradiction *)
-      {
-        assume "n = 0"
-        with False Suc.prems have "y (Suc n) = maximum n y"
-          using non_negative_real_vector_def maximum_def
-          by auto
-        with False have "False" by simp
-      }
-      then show "n > 0" by blast
-    qed
-    from Suc.prems have pred_non_negative: "non_negative_real_vector n y"
-      unfolding non_negative_real_vector_def
-      by simp
-    with non_empty obtain i where "i \<in> {1..n}" and pred_max: "maximum n y = y i"
-      by (metis Suc.hyps)
-    with Suc.prems have y_i_non_negative: "0 \<le> y i"
-      unfolding non_negative_real_vector_def by simp
-    have "y i = maximum n y" by (rule pred_max [symmetric])
-    also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
-    also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))"
-      using Suc.prems y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
-    also have "\<dots> = maximum (Suc n) y" using maximum_def non_empty by simp
-    finally have "y i = maximum (Suc n) y" .
-    from `i \<in> {1..n}` and this [symmetric] show ?thesis by auto
-  qed
+proof -
+  let ?A = "y ` {1..n}"
+  have *: "maximum n y = Max ?A" using non_empty non_negative by (rule maximum_Max)
+  from non_empty have "finite ?A" and "?A \<noteq> {}" by simp_all
+  then have "Max ?A \<in> ?A" by (rule Max_in)
+  then obtain i where "i \<in> {1..n}" and "Max ?A = y i" by auto
+  with * show ?thesis by auto
 qed
 
 lemma maximum_sufficient:
@@ -261,55 +227,18 @@ lemma maximum_sufficient:
     and non_empty: "n > 0"
     and greater_or_equal: "\<forall>i \<in> {1..n}. m \<ge> y i"
     and is_component: "\<exists>i \<in> {1..n}. m = y i"
-  shows "m = maximum n y"
-  using assms
-proof (induct n)
-  case 0
-  then show ?case by simp
-next
-  case (Suc n)
-  from Suc.prems(1) have pred_non_negative: "non_negative_real_vector n y"
-    unfolding non_negative_real_vector_def by simp
-  from non_empty have max_def: "maximum (Suc n) y =
-    max 0 (max (maximum n y) (y (Suc n)))" using maximum_def by simp
-  also have "\<dots> = m"
-  proof (cases "n = 0")
-    case True
-    with Suc.prems(4) have m_is_only_component: "m = y 1" by simp
-    with Suc.prems(1) have "m \<ge> 0" unfolding non_negative_real_vector_def by simp
-    then have "max 0 (max (maximum 0 y) (y 1)) = m"
-      by (auto simp add: m_is_only_component)
-    with True show ?thesis by simp
-  next
-    case False
-    show ?thesis
-    proof cases
-      assume last_is_max: "y (Suc n) = m"
-      have "\<dots> \<ge> maximum n y"
-      proof -
-        from False pred_non_negative maximum_is_component
-        obtain k where "k \<in> {1..n}" and "maximum n y = y k" by blast
-        with Suc.prems(3) show ?thesis by simp
-      qed
-      then show ?thesis
-        using last_is_max
-        by (metis less_max_iff_disj linorder_not_le
-            maximum_non_negative min_max.sup_absorb1 min_max.sup_commute)
-    next
-      assume last_is_not_max: "y (Suc n) \<noteq> m"
-      from Suc.prems(4) obtain i where "i \<in> {1..Suc n}" and "m = y i" by auto
-      with last_is_not_max atLeastAtMostSuc_conv have "i \<in> {1..n}" by auto
-      from this and `m = y i` have pred_is_component: "\<exists>k \<in> {1..n}. m = y k" ..
-      from Suc.prems(3) have "\<forall>k \<in> {1..n}. m \<ge> y k" by simp
-      then have "m = maximum n y"
-        using pred_is_component pred_non_negative by (metis False Suc.hyps gr0I)
-      then show ?thesis using Suc.prems(3) maximum_non_negative
-        by (metis Suc(2) Suc.prems(4) maximum.simps(2)
-            maximum_is_component maximum_is_greater_or_equal
-            min_max.le_iff_sup min_max.sup_absorb1 zero_less_Suc)
-    qed
+  shows "m = maximum n y"  (* FIXME swap?! *)
+proof -
+  let ?A = "y ` {1..n}"
+  have *: "maximum n y = Max ?A" using non_empty non_negative by (rule maximum_Max)
+  also have "Max ?A = m"
+  proof (rule Max_eqI)
+    show "finite ?A" by simp
+    show "m \<in> ?A" using is_component by auto
+    fix a assume "a \<in> ?A"
+    then show "a \<le> m" using greater_or_equal by blast
   qed
-  finally show "m = maximum (Suc n) y" ..
+  finally show ?thesis ..
 qed
 
 definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> (nat set)"
