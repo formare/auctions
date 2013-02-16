@@ -34,36 +34,22 @@ definition non_negative_real_vector :: "nat \<Rightarrow> real vector \<Rightarr
 definition positive_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
   where "positive_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i > 0)"
 
-
 definition skip_index :: "'a vector \<Rightarrow> nat \<Rightarrow> 'a vector"
   where "skip_index vector index = (\<lambda>i. vector (if i < index then i else Suc i))"
 
-lemma skip_index_keeps_non_negativity :
+lemma skip_index_keeps_non_negativity:
   fixes n::nat and v::"real vector" and i::nat
   assumes non_negative: "non_negative_real_vector n v"
     and range: "i \<in> {1..n}"
   shows "non_negative_real_vector (n - 1) (skip_index v i)"
-proof -
-  {
-    fix j::nat
-    assume j_range: "j \<in> {1..n - 1}"
-    have "(skip_index v i) j \<ge> 0"
-    proof (cases "j < i")
-      case True
-      then have "(skip_index v i) j = v j" unfolding skip_index_def by simp
-      with j_range non_negative show ?thesis
-        unfolding non_negative_real_vector_def
-        by (auto simp add: leD less_imp_diff_less not_leE)
-    next
-      case False
-      then have "(skip_index v i) j = v (Suc j)" unfolding skip_index_def by simp
-      with j_range non_negative show ?thesis
-        unfolding non_negative_real_vector_def
-        by (auto simp add: leD less_imp_diff_less not_leE)
-    qed
-  }
-  then show "non_negative_real_vector (n - 1) (skip_index v i)"
-    unfolding non_negative_real_vector_def by simp
+  unfolding non_negative_real_vector_def
+proof
+  fix j::nat
+  assume j_range: "j \<in> {1..n - 1}"
+  have "(skip_index v i) j = (if j < i then v j else v (Suc j))"
+    unfolding skip_index_def by auto
+  with j_range non_negative show "(skip_index v i) j \<ge> 0"
+    unfolding non_negative_real_vector_def by auto
 qed
 
 lemma equal_by_skipping :
@@ -72,18 +58,12 @@ lemma equal_by_skipping :
     and equal_except: "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> v i = w i"
     and k_range: "k \<in> {1..n - 1}"
   shows "skip_index v j k = skip_index w j k"
-proof (cases "k < j")
-  case True
-  then have "skip_index v j k = v k" and "skip_index w j k = w k"
-    unfolding skip_index_def by auto
-  with equal_except k_range True show ?thesis by auto
-next
-  case False
-  then have "skip_index v j k = v (Suc k)" and "skip_index w j k = w (Suc k)"
-    unfolding skip_index_def by auto
-  with equal_except k_range False show ?thesis by auto
+proof -
+  have "skip_index v j k = (if k < j then v k else v (Suc k))"
+    and "skip_index w j k = (if k < j then w k else w (Suc k))"
+    unfolding skip_index_def by simp_all
+  with equal_except k_range show ?thesis by auto
 qed
-
 
 
 section {* Single good auctions *}
