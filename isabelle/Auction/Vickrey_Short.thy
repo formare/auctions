@@ -227,10 +227,10 @@ lemma maximum_sufficient:
     and non_empty: "n > 0"
     and greater_or_equal: "\<forall>i \<in> {1..n}. m \<ge> y i"
     and is_component: "\<exists>i \<in> {1..n}. m = y i"
-  shows "m = maximum n y"  (* FIXME swap?! *)
+  shows "maximum n y = m"
 proof -
   let ?A = "y ` {1..n}"
-  have *: "maximum n y = Max ?A" using non_empty non_negative by (rule maximum_Max)
+  have "maximum n y = Max ?A" using non_empty non_negative by (rule maximum_Max)
   also have "Max ?A = m"
   proof (rule Max_eqI)
     show "finite ?A" by simp
@@ -238,7 +238,7 @@ proof -
     fix a assume "a \<in> ?A"
     then show "a \<le> m" using greater_or_equal by blast
   qed
-  finally show ?thesis ..
+  finally show ?thesis .
 qed
 
 definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> (nat set)"
