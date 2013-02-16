@@ -28,10 +28,6 @@ section {* Vectors *}
 
 type_synonym 'a vector = "nat \<Rightarrow> 'a"
 
-definition in_range ::
-  "nat \<Rightarrow> nat \<Rightarrow> bool" where
-  "in_range n i \<longleftrightarrow> 1 \<le> i \<and> i \<le> n"
-
 definition non_negative_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
   where "non_negative_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i \<ge> 0)"
 
@@ -329,12 +325,9 @@ next
             maximum_non_negative min_max.sup_absorb1 min_max.sup_commute)
     next
       assume last_is_not_max: "y (Suc n) \<noteq> m"
-      from Suc.prems(4) have "\<exists>i. in_range (Suc n) i \<and> m = y i"
-        unfolding in_range_def by auto
-      with last_is_not_max have "\<exists>k. in_range n k \<and> m = y k"
-        unfolding in_range_def by (metis le_antisym not_less_eq_eq)
-      then have pred_is_component: "\<exists>k \<in> {1..n}. m = y k"
-        unfolding in_range_def by auto
+      from Suc.prems(4) obtain i where "i \<in> {1..Suc n}" and "m = y i" by auto
+      with last_is_not_max atLeastAtMostSuc_conv have "i \<in> {1..n}" by auto
+      from this and `m = y i` have pred_is_component: "\<exists>k \<in> {1..n}. m = y k" ..
       from Suc.prems(3) have "\<forall>k \<in> {1..n}. m \<ge> y k" by simp
       then have "m = maximum n y"
         using pred_is_component pred_non_negative by (metis False Suc.hyps gr0I)
