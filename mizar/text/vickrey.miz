@@ -108,22 +108,12 @@ registrations
  ,INT_2 :: non natural
  ;
 
-equalities
-FOMODEL0 :: +*1
+equalities FOMODEL0 :: +*1
 ,FUNCOP_1 :: x.-->y 
 ,XBOOLEAN :: FALSE
 ,MARGREL1 :: BOOLEAN
 ,ORDINAL1 :: 0
 ;
- 
-:: expansions
-:: XBOOLEAN
-:: ,FOMODEL0
-:: ;
- 
-definitions TARSKI, FOMODEL0
-, XBOOLEAN, FUNCOP_1, MARGREL1
- ;
  
 theorems TARSKI
  ,FUNCT_1
@@ -152,9 +142,7 @@ begin :::preliminaries
 :::inducing the proven facts to the most common, low-level and desirably
 :::supported entities, rather than proving things about new and particular
 :::mathematical objects
-reserve x,y,z,X,Y,Z,i,v for set, P,Q,R for Relation, 
-:: i,b for Element of NAT, 
-f,g for Function;
+reserve x,y,z,X,Y,Z,i,v for set, P,Q,R for Relation, f,g for Function;
 
 registration
 let x; cluster union {x} \+\ x -> empty for set; 
@@ -234,12 +222,10 @@ end;
 ::}
 end;
 
-notation let P,X; synonym P strc X for P|X; end;
-
 Lm9c: y<>{} implies (x=z iff ([:X,{{}}:]+*[:{z},{y}:]).x=y)
 ::{
 proof
-set f=[:X,{{}}:], gg=[:{z},{y}:], ff=f strc (dom f\ dom gg), 
+set f=[:X,{{}}:], gg=[:{z},{y}:], ff=f | (dom f\ dom gg), 
 g=z.-->y, F=f +* gg, i=x, w=z; 
 assume
 B2: y<>{}; 
@@ -259,7 +245,7 @@ Lm9b: y<>{} implies (x=z iff ([:X,{{}}:]+*[:{z},{y}:]).x<>{})
 ::{
 proof
 set f=[:X,{{}}:], w=z, g=z.-->y, gg=[:{z},{y}:], 
-ff=f strc (dom f\ dom gg), F=f +* gg, i=x; assume y<>{}; hence 
+ff=f | (dom f\ dom gg), F=f +* gg, i=x; assume y<>{}; hence 
 x=z implies F.x<>{} by Lm9c; assume 
 B2: F.x<>{}; assume x<>z; then not x in dom gg by TARSKI:def 1; 
 then F.x=f.x by FUNCT_4:11 .= {}; hence contradiction by B2; 
@@ -294,9 +280,8 @@ end;
 Lm6: dom (P +*1 Q) = dom P \/ dom Q
 ::{
 proof
-set dP=dom P,dQ=dom Q,R=P +*1 Q,dR=dom R,PP=P strc (dP\dQ),dPP=dom PP;
-dR=dPP\/dQ by XTUPLE_0:23 .= dP /\ (dP\dQ) \/ dQ .=
-dP\dQ null dP \/ dQ .= dP\dQ\/dQ .= dP\/dQ by XBOOLE_1:39; hence thesis;
+set dP=dom P,dQ=dom Q,R=P +*1 Q,dR=dom R,PP=P | (dP\dQ),dPP=dom PP;
+dR=dPP\/dQ by XTUPLE_0:23 .= dP\/dQ by XBOOLE_1:39; hence thesis;
 end;
 ::}
 
@@ -369,7 +354,7 @@ end;
 ::: natural numbers; the modification below preserves its simplicity while 
 ::: patching the value to zero for non significant cases 
 ::: (e.g., non numerical bids), saving typing-related work
-definition let R;::R are the bids; no need to require it is a sequence,yet 
+definition let R;::R=bids; no need to require it is a sequence,yet 
 func priceof R -> Element of NAT equals the Element of {priceof R}/\NAT;
 coherence by ORDINAL1:def 12;
 end;
@@ -449,13 +434,12 @@ Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q implies
 (P +*1 Q)-indmax=Q"{natmax rng Q} :: c< is strict set inclusion
 ::{
 proof set dP=dom P, 
-dQ=dom Q, PP=P strc (dP\dQ), R=P +*1 Q, maxQ=natmax rng Q; assume
+dQ=dom Q, PP=P|(dP\dQ), R=P +*1 Q, maxQ=natmax rng Q; assume
 B0: natmax rng PP c< maxQ; then reconsider 
 maxPP=natmax rng PP as Subset of maxQ by XBOOLE_0:def 8;
-B1: R-indmax=R"{natmax rng R} .= R"{natmax (rng PP \/ rng Q)} 
-by RELAT_1:12 .= R"{maxPP \/ maxQ} by ZFMISC_1:78 .= 
-(PP \/ Q)"{maxQ null maxPP} .= PP"{maxQ} \/ Q"{maxQ} by FOMODEL0:23;
-not maxQ c= maxPP by B0, XBOOLE_0:def 8; then not 
+B1: R-indmax=R"{natmax (rng PP \/ rng Q)} by RELAT_1:12 .= 
+(PP \/ Q)"{maxQ null maxPP} by ZFMISC_1:78 .= PP"{maxQ} \/ Q"{maxQ} 
+by FOMODEL0:23; not maxQ c= maxPP by B0, XBOOLE_0:def 8; then not 
 maxQ in rng PP by ZFMISC_1:74; then {maxQ} misses rng PP 
 by ZFMISC_1:50; then PP"{maxQ}={} by RELAT_1:138; hence thesis by B1; 
 end;
@@ -466,7 +450,7 @@ Lm1: natmax rng (P | (dom P\{x})) c< X implies
 ::{
 proof
 set dP=dom P, maxP=natmax rng P, Q=[:{x},{X}:], dQ=dom Q, 
-PP1=P strc (dP\{x}), PP=P strc (dP\dQ), maxQ=natmax rng Q, 
+PP1=P|(dP\{x}), PP=P|(dP\dQ), maxQ=natmax rng Q, 
 R=P +*1 Q,QQ=[:{X},{x}:]; 
 B0: rng Q={X} & dom Q={x} & rng QQ={x} & dom QQ={X}; 
 assume natmax rng PP1 c< X; then natmax rng PP c< maxQ 
@@ -485,30 +469,24 @@ Bi=B +*1 f, pii=Bi-pay, Pi=pii.i, w=winnerof B, wi=winnerof Bi,
 D=dom B, Di=dom Bi, l=losersof R, RR=B|l; D\/dom f \+\ Di={}; then 
 D \/ dom f=Di & dom f \+\ {i}={} by FOMODEL0:29; then 
 dom f={i} & Di=D\/{i}; then
-B2: Di\{i} = D\/{i}\{i} .= D\{i} by XBOOLE_1:40; 
-(D\{i}) /\ ({i}/\{i})={}; then 
+B2: Di\{i} = D\{i} by XBOOLE_1:40; (D\{i}) /\ ({i}/\{i})={}; then 
 B4: D\{i} misses dom f by XBOOLE_0:def 7;
 assume 
 B7: priceof B<>{} & i=w; then P=priceof B by Lm3; then 
 B8: P=natmax rng RR by B7, Lm16;
-assume P c< v; then 
-Bi-indmax={i} 
-by Lm1, B8, B7; then 
+assume P c< v; then Bi-indmax={i} by Lm1, B8, B7; then 
 wi in Bi-indmax & Bi-indmax={i}; then 
 B0: wi=i & i=w by TARSKI:def 1, B7; then
-Bi | (Di\{wi}) = Bi | (Di\{i}) .= Bi | (D\{i}) by B2 .=
-(B | (D\{i})  | (D\{i})) \/ (f strc (D\{i})) by FOMODEL0:56 .= 
-(B | ((D\{i})/\(D\{i}))) \/ (f strc (D\{i})) .=
-(B | (D\{i})) \/ {} by B4, RELAT_1:66 .= 
-B | (D\{w}) by B0; then priceof B=priceof Bi .= Pi by Lm3, B0; 
-hence P=Pi by Lm3, B0;
+Bi|(Di\{wi}) = (B|(D\{i})|(D\{i})) \/ (f|(D\{i})) 
+by B2, FOMODEL0:56 .= (B | (D\{i})) \/ {} by B4, RELAT_1:66 .= 
+B|(D\{w}) by B0; then priceof B=Pi by Lm3, B0; hence P=Pi by Lm3, B0;
 end;
 ::}
 
 reserve v for non empty Element of NAT;
 
 Lm4: f is NAT-valued & rng f is finite implies 
-(f +*1 [:{i},{v}:])-pay.i <= v*((f +*1 [:{i},{v}:])-allocations.i)
+(f+*[:{i},{v}:])-pay.i <= v*((f+*[:{i},{v}:])-allocations.i)
 ::{
 proof
 assume f is NAT-valued; then reconsider ff=f as NAT-valued Function;
@@ -516,9 +494,9 @@ set V={v}, g=[:{i},{v}:]; V \ NAT={}; then reconsider V as
 Subset of NAT by FOMODEL0:29; g is V-valued; then 
 reconsider g as NAT-valued Function; reconsider fi=ff +* g as 
 NAT-valued Function; set pi=fi-pay, xi=fi-allocations, wi=winnerof fi, 
-LH=pi.i, RH=v*(xi.i); reconsider X=rng (f strc (dom f \ dom g)) as 
+LH=pi.i, RH=v*(xi.i); reconsider X=rng (f|(dom f \ dom g)) as 
 Subset of rng f by RELAT_1:70;
-B2: rng fi = rng (f strc (dom f \ dom g)) \/ rng g by RELAT_1:12;
+B2: rng fi = rng (f|(dom f \ dom g)) \/ rng g by RELAT_1:12;
 assume rng f is finite; then reconsider XX=X as finite set; 
 XX \/ rng g is finite; then rng fi is finite & rng fi c= NAT 
 by B2; then  
@@ -540,7 +518,7 @@ end;
 Lm21: :::Vickrey's theorem, version 1
 f is NAT-valued & rng f is finite & priceof f <> {} implies 
 (v*(f-allocations.i)) - ((f-pay).i) <= 
-v*((f +*1 [:{i},{v}:])-allocations).i - (f +*1 [:{i},{v}:])-pay.i
+v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
 ::{
 proof
 assume f is NAT-valued; then reconsider R=f as NAT-valued Function; 
@@ -560,11 +538,10 @@ then LH <= RH; hence thesis;
 end;
 suppose 
 C1: LH > 0; then x.i <> {}; then x.i \+\ 1={}; then 
-C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then v-p.i > (p.i)-(p.i) & x.i<>{} 
-by C1; then v > p.i by XREAL_1:9; then Segm p.i c= Segm v & p.i <> v 
-by NAT_1:39; then 
-p.i c< v & i=w by C0, Lm9c, XBOOLE_0:def 8;
-then pi.i=p.i & p.i=priceof R by Lm5, Lm3, B9; then 
+C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then v-p.i > (p.i)-(p.i) & 
+x.i<>{} by C1; then v > p.i by XREAL_1:9; then Segm p.i c= Segm v & 
+p.i <> v by NAT_1:39; then p.i c< v & i=w by C0, Lm9c, 
+XBOOLE_0:def 8; then pi.i=p.i & p.i=priceof R by Lm5, Lm3, B9; then 
 C2: pi.i=p.i & pi.i<>{} & Pi<>{} by B9; then 
 i=wi by Lm9b; then xi.i<>{} by Lm9b; 
 then xi.i \+\ 1={}; then pi.i=p.i & xi.i=1 
@@ -596,7 +573,7 @@ end;
 rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
 implies ::: Vickrey's theorem, version 2
 (v*(f-allocations.i)) - ((f-pay).i) <= 
-v*((f +*1 [:{i},{v}:])-allocations).i - (f +*1 [:{i},{v}:])-pay.i
+v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
 ::{
 proof
 set Y=rng f, X=dom f, p=priceof f; assume 
