@@ -51,7 +51,8 @@ subsection {* Deviation from a vector *}
 text{* We define a function that modifies a vector by using an alternative value for a given component. *}
 definition deviation ::
   "nat \<Rightarrow> real vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> real vector" where
-  "deviation n bid alternative_value index j = (if j = index then alternative_value else bid j)"
+  "deviation n bid alternative_value index j =
+    (if j = index then alternative_value else bid j)"
 
 text{* We define a function that,
   given one vector and an alternative one (in practice these will be strategy profiles), and a participant index i,
@@ -64,7 +65,8 @@ text{* We define a function that,
    TODO CL: discuss whether there any useful way we could use n for range-checking?  Or don't we need n at all? *)
 definition deviation_vec ::
   "nat \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real vector" where
-  "deviation_vec n bid alternative_vec index = deviation n bid (alternative_vec index) index"
+  "deviation_vec n bid alternative_vec index =
+    deviation n bid (alternative_vec index) index"
   (* the old component-wise definition had an error actually:
      "deviation_vec n bid alternative_vec index j = deviation n bid (alternative_vec j) index j"
                                                                                      ^^ should have been index
@@ -108,7 +110,8 @@ proof -
         by (auto simp add: leD less_imp_diff_less not_leE)
     qed
   }
-  then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)" unfolding non_negative_real_vector_def by simp
+  then show "non_negative_real_vector (n-(1::nat)) (skip_index v i)"
+    unfolding non_negative_real_vector_def by simp
 qed
 
 text{* when two vectors differ in one component, skipping that component makes the vectors equal *}

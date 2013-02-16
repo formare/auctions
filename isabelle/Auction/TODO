@@ -1,2 +1,8 @@
 * avoid odd reference to "calculation", notably in metis;
 
+* check 1::nat;
+
+* proper obtain proofs;
+
+* check/eliminate ALL x. x : A --> B;
+

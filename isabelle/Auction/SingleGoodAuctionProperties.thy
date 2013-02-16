@@ -38,14 +38,14 @@ text{* Given some auction, a strategy profile supports an equilibrium in weakly 
   if each participant maximises its payoff by playing its component in that profile,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::
-  "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
+  "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where     (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
   "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
-    (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
    (\<forall>i::participant . i \<in> {1..n} \<longrightarrow>
      (\<forall>whatever_bid::real vector . bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
        let i_sticks_with_bid = deviation_vec n whatever_bid b i (* here, all components are (whatever_bid j), just the i-th component remains (b i) *)
-       in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
+       in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
+          payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
 
 (* TODO CL: discuss whether we should define _dominant_ in addition to _weakly_ dominant.  If so, can we refactor the definitions in some way that makes this less redundant? *)
 
@@ -53,6 +53,6 @@ definition equilibrium_weakly_dominant_strategy ::
 (* unused theorems (which might nevertheless be useful for the toolbox):
    * move cursor over the word "unused_thms" for jEdit to display the list
    * This has to be at the end of the file to make sure that the whole theory has been processed. *)
-unused_thms
+unused_thms %invisible
 
 end

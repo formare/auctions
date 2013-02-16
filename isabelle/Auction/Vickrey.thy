@@ -140,14 +140,17 @@ proof -
         assume i_loses: "\<not> x ?i_sticks_with_strategy i"
         txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
         with spa i_sticks_is_bid i_range
-        have zero_payoff: "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i = 0"
+        have zero_payoff:
+          "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i = 0"
           by (rule second_price_auction_loser_payoff)
         txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
           @{term i} would have won *}
-        have i_bid_at_most_second: "?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
+        have i_bid_at_most_second:
+          "?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
         proof (rule ccontr)
           assume "\<not> ?thesis"
-          then have "?i_sticks_with_strategy i > maximum_except n ?i_sticks_with_strategy i" by simp
+          then have "?i_sticks_with_strategy i >
+            maximum_except n ?i_sticks_with_strategy i" by simp
           with spa i_sticks_is_bid i_range
           have "second_price_auction_winner n ?i_sticks_with_strategy x p i"
             using only_max_bidder_wins (* a lemma we had from the formalisation of the earlier 10-case proof *)
@@ -231,6 +234,6 @@ qed
 (* unused theorems (which might nevertheless be useful for the toolbox):
    * move cursor over the word "unused_thms" for jEdit to display the list
    * This has to be at the end of the file to make sure that the whole theory has been processed. *)
-unused_thms
+unused_thms %invisible
 
 end

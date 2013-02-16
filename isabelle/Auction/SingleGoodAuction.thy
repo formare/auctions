@@ -37,10 +37,10 @@ type_synonym payments = "real vector \<Rightarrow> participants \<Rightarrow> re
 subsection {* Strategy (bids) *}
 
 text{*
-Strategy and strategy profile (the vector of the strategies of all participants) are not fully defined below. We ignore the distribu-
-tion and density function, as they do not play a role in the proof of the theorem.
-So, for now, we do not model the random mapping from a participant's valuation to its bid, but simply consider its bid as a non-
-negative number that doesn't depend on anything.
+Strategy and strategy profile (the vector of the strategies of all participants) are not fully defined below. We ignore the
+distribution and density function, as they do not play a role in the proof of the theorem.
+So, for now, we do not model the random mapping from a participant's valuation to its bid, but simply consider its bid as a
+non-negative number that doesn't depend on anything.
 *}
 definition bids ::
   "participants \<Rightarrow> real vector \<Rightarrow> bool" where
@@ -51,8 +51,10 @@ subsubsection {* Deviation from a bid *}
 
 text{* A deviation from a bid is still a well-formed bid. *}
 lemma deviated_bid_well_formed :
-  fixes n::participants and bid::"real vector" and alternative_vec::"real vector" and i::participant
-  assumes bids_original: "bids n bid" and bids_alternative: "bids n alternative_vec"
+  fixes n::participants and bid::"real vector"
+    and alternative_vec::"real vector" and i::participant
+  assumes bids_original: "bids n bid"
+    and bids_alternative: "bids n alternative_vec"
   shows "bids n (deviation_vec n bid alternative_vec i)"
 proof -
   let ?dev = "deviation_vec n bid alternative_vec i"
@@ -68,15 +70,18 @@ proof -
         by (simp only: bids_def non_negative_real_vector_def)
     next
       case False
-      then have "?dev k = alternative_vec k" by (auto simp add: deviation_vec_def deviation_def)
+      then have "?dev k = alternative_vec k"
+        by (auto simp add: deviation_vec_def deviation_def)
            (* "then" \<equiv> "from this", where "this" is the most recently established fact;
              note that in line with https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2012-October/msg00057.html
              and for easier general comprehensibility
              we are not using the abbreviations "hence" \<equiv> "then have" and "thus" \<equiv> "then show" here. *)
-        with k_range bids_alternative show ?thesis unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
+        with k_range bids_alternative show ?thesis
+          unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
     qed
   }
-  then show "bids n ?dev" unfolding bids_def non_negative_real_vector_def by simp
+  then show "bids n ?dev"
+    unfolding bids_def non_negative_real_vector_def by simp
 qed
 
 text{* A single-good auction is a mechanism specified by a function that maps a strategy profile to an outcome. *}
@@ -87,11 +92,12 @@ subsection {* Allocation *}
 text{* A predicate that is satisfied for exactly one member of a set *}
 (* We could also have using a member_of_S predicate as the first argument, but a set is more convenient. *)
 definition true_for_exactly_one_member :: "'s set \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool"
-  where "true_for_exactly_one_member S pred \<longleftrightarrow>
-         (\<exists>k . k \<in> S \<and> pred k \<and> (\<forall>j . j \<in> S \<and> j \<noteq> k \<longrightarrow> \<not>pred j))"
+  where
+    "true_for_exactly_one_member S pred \<longleftrightarrow>
+      (\<exists>k . k \<in> S \<and> pred k \<and> (\<forall>j . j \<in> S \<and> j \<noteq> k \<longrightarrow> \<not>pred j))"
 
 lemma true_for_exactly_one_member_sat :
-  shows "true_for_exactly_one_member { True } (\<lambda> b::bool . b)"
+  shows "true_for_exactly_one_member {True} (\<lambda> b::bool . b)"
   unfolding true_for_exactly_one_member_def by blast
 
 lemma true_for_exactly_one_member_unique :
@@ -104,7 +110,8 @@ lemma true_for_exactly_one_member_unique :
   shows "j = satisfier"
   using assms true_for_exactly_one_member_def by metis
 
-text{* A function x, which takes a vector of n bids, is an allocation if it returns True for one bidder and False for the others. *}
+text{* A function @{text x}, which takes a vector of @{text n} bids, is an allocation
+  if it returns @{text True} for one bidder and @{text False} for the others. *}
 (* TODO CL: discuss whether we should use different names for "definition allocation" and "type_synonym allocation", as they denote two different things *)
 (* TODO CL: record in our notes that the order of arguments of a function matters.
    Note that I, CL, reordered the arguments on 2012-08-24.
@@ -137,7 +144,7 @@ definition vickrey_payment ::
 
 subsection {* Outcome *}
 
-text{* The outcome of an auction is specified an allocation ${0, 1}^n$ and a vector of payments $R^n$
+text{* The outcome of an auction is specified an allocation $\{0, 1\}^n$ and a vector of payments $R^n$
  made by each participant; we don't introduce a dedicated definition for this. *}
 
 
@@ -170,7 +177,8 @@ payment. For the losers, it is the negative payment. *}
 (* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
 definition payoff ::
   "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real" where
-  "payoff Valuation Allocation Payment = Valuation * (if Allocation then 1 else 0) - Payment"
+  "payoff Valuation Allocation Payment =
+    Valuation * (if Allocation then 1 else 0) - Payment"
 
 text{* For convenience in the subsequent formalisation, we also define the payoff as a vector, component-wise. *}
 definition payoff_vector ::
@@ -180,6 +188,6 @@ definition payoff_vector ::
 (* unused theorems (which might nevertheless be useful for the toolbox):
    * move cursor over the word "unused_thms" for jEdit to display the list
    * This has to be at the end of the file to make sure that the whole theory has been processed. *)
-unused_thms
+unused_thms %invisible
 
 end
