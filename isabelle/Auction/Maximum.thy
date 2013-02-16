@@ -178,8 +178,7 @@ next
       have "\<dots> \<ge> maximum n y"
       proof -
         from False pred_non_negative maximum_is_component
-        have "\<exists>k::nat . k \<in> {1..n} \<and> maximum n y = y k" by simp
-        then obtain k::nat where "k \<in> {1..n} \<and> maximum n y = y k" by blast
+        obtain k::nat where "k \<in> {1..n}" and "maximum n y = y k" by blast
         with Suc.prems(3) show ?thesis by simp
           (* TODO CL: ask whether we should have kept using metis here.  Sledgehammer always suggests metis.
              When auto or simp also works (which is the case here, but not always), is is more efficient? *)
@@ -336,11 +335,9 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     have pred_non_negative: "non_negative_real_vector (n-(1::nat)) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
     from pred_non_empty pred_non_negative maximum_is_component
-    have "\<exists>i::nat . i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i"
-      by simp
-    then obtain i::nat where
-      maximum_except_component: "i \<in> {1..n-(1::nat)} \<and> maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i" ..
-    then have i_range: "i \<in> {1..n-(1::nat)}" ..
+    obtain i::nat where i_range: "i \<in> {1..n-(1::nat)}" and
+      maximum_except_component: "maximum (n-(1::nat)) (skip_index y j) = (skip_index y j) i"
+      by blast
     from maximum_except_component maximum_except_unfolded
     have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i"
       by simp
@@ -355,9 +352,8 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
       and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
       have "\<exists>k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k"
       by (metis (full_types) One_nat_def Suc_neq_Zero Suc_pred' leD less_Suc0 less_Suc_eq_le linorder_le_less_linear) *)
-    then obtain k::nat where "k \<in> {1..n} \<and> (skip_index y j) i = y k" ..
     with ge maximum_except_component_nice
-    show "y j \<ge> maximum_except n y j" by simp
+    show "y j \<ge> maximum_except n y j" by auto
   qed
 qed
 
