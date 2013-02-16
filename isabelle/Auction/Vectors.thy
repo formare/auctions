@@ -26,7 +26,6 @@ begin
 subsection {* Preliminaries *}
 
 type_synonym 'a vector = "nat \<Rightarrow> 'a"
-  (* TODO CL: report jEdit bug that suggested completions for nat (\<nat>) and bool (\<bool>) cause syntax errors *)
 
 
 subsubsection {* Some range checks for vectors *}
@@ -61,7 +60,6 @@ text{* We define a function that,
 
   Actually this definition doesn't check whether its arguments are non-negative real vectors (i.e. well-formed strategy profiles). *}
 (* NOTE CL: I changed the order of arguments compared to our original Theorema attempts, as I think this one is more intuitive.
-   TODO CL: ask whether there a way of writing the alternative as b_hat, as it looks in the paper version?
    TODO CL: discuss whether there any useful way we could use n for range-checking?  Or don't we need n at all? *)
 definition deviation_vec ::
   "nat \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real vector" where

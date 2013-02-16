@@ -2,6 +2,26 @@ theory Questions
 imports Main
 begin
 
+(* TODO CL: ask whether there a way of writing the alternative as b_hat, as it looks in the paper version? *)
+(* makarius: Isabelle is text based, and Isabelle/jEdit is a plain text editor, but there are
+   many tricks that can be played with "visual tuning" of formal documents; most of this works
+   for the generated LaTeX.  Here is just a cheap one:
+
+  We re-use an existing letter symbol from the Isabelle repertoire.  Its LaTeX interpretation
+  is re-defined in document/root.tex like this:
+
+   \renewcommand{\isasymbb}{\isamath{\hat b}}
+
+  You can also try to find alternative Unicode mapping for $ISABELLE_HOME_USER/etc/symbols
+  but it rarely works out so well in practice.
+ *)
+
+definition "\<bb> = 0"
+
+
+(* TODO CL: report jEdit bug that suggested completions for nat (\<nat>) and bool (\<bool>) cause syntax errors *)
+(* makarius: completion still lacks context (Isabelle2013), so it can propose things that don't make sense *)
+
 (* TODO CL: report Isabelle/jEdit bug: no auto-indentation *)
 (* makarius: not a bug, but lack of feature (when it eventually arrives, people will complain
    about being forced into Isar standard indentation) *)
