@@ -230,28 +230,29 @@ where
 
 lemma maximum_except_is_greater_or_equal:
   fixes n::nat and y::"real vector" and j::nat and i::nat
-  assumes j_range: "n \<ge> 1 \<and> j \<in> {1..n}"
-    and i_range: "i \<in> {1..n} \<and> i \<noteq> j"
+  assumes j_range: "j \<in> {1..n}"
+    and i_range: "i \<in> {1..n}"
+    and neq: "i \<noteq> j"
   shows "maximum_except n y j \<ge> y i"
 proof -
   let ?y_with_j_skipped = "skip_index y j"
-  from j_range obtain pred_n where pred_n: "n = Suc pred_n"
-    by (metis not0_implies_Suc not_one_le_zero)
-  then show "maximum_except n y j \<ge> y i"
-  proof (cases "i < j")
-    case True
+  from j_range have "n > 0" by simp
+  then obtain pred_n where pred_n: "n = Suc pred_n" by (cases n) auto
+  from neq have "i < j \<or> i > j" by auto
+  then show ?thesis
+  proof
+    assume "i < j"
     then have can_skip_j: "y i = ?y_with_j_skipped i" unfolding skip_index_def by simp
-    from True j_range i_range pred_n have "i \<in> {1..pred_n}" by simp
+    from `i < j` j_range i_range pred_n have "i \<in> {1..pred_n}" by simp
     then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped i"
       by (simp add: maximum_is_greater_or_equal)
     with can_skip_j pred_n show ?thesis by simp
   next
-    case False
-    with i_range have case_False_nice: "i > j" by simp
-    then obtain pred_i where pred_i: "i = Suc pred_i" by (rule lessE)
-    from case_False_nice pred_i have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i"
+    assume "i > j"
+    then obtain pred_i where pred_i: "i = Suc pred_i" by (cases i) auto
+    from `i > j` pred_i have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i"
       unfolding skip_index_def by simp
-    from case_False_nice i_range j_range pred_i pred_n
+    from `i > j` i_range j_range pred_i pred_n
     have "pred_i \<in> {1..pred_n}" by simp
     then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped pred_i"
       by (simp add: maximum_is_greater_or_equal)
