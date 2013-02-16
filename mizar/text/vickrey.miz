@@ -14,99 +14,77 @@
 ::{
 environ
 
-vocabularies TARSKI
- ,XBOOLE_0
- ,ZFMISC_1
- ,SUBSET_1
- ,NUMBERS
- ,NAT_1
- ,RELAT_1 :: for dom
- ,FUNCT_1 
- ,XCMPLX_0 :: for good typing of eg m+n is Nat
- ,ORDINAL1 :: for number mode
- ,XXREAL_0 :: for attribute positive
- ,FINSET_1
- ,ARYTM_1 :: -
- ,CARD_1
- ,FUNCT_4
- ,FUNCOP_1 :: -->
- ,FOMODEL0
- ,XBOOLEAN
- ,XXREAL_2
- ,MEMBERED
- ,VICKREY 
- ,MARGREL1
- ;
+vocabularies TARSKI, XBOOLE_0, ZFMISC_1, SUBSET_1, NUMBERS, NAT_1, RELAT_1
+, FUNCT_1, XCMPLX_0, ORDINAL1, XXREAL_0, FINSET_1, ARYTM_1 ,CARD_1, FUNCT_4
+,FUNCOP_1 ,FOMODEL0 ,XBOOLEAN ,XXREAL_2 ,MEMBERED ,VICKREY ,MARGREL1;
  
 constructors TARSKI
- ,NAT_1
- ,CARD_1
- ,ZFMISC_1
- ,NUMBERS
- ,RELSET_1 
- ,PBOOLE
- ,FINSET_1 
- ,ORDINAL1
- ,FUNCT_4
- ,RELAT_2
- ,FUNCOP_1
- ,XBOOLEAN
- ,RELAT_1 :: |
- ,XBOOLE_0
- ,XXREAL_2
- ,MEMBERED
- ,FOMODEL0 
- ,XREAL_0 :: to access XREAL_1:9
- ,MARGREL1
- ;
- 
+,NAT_1
+,CARD_1
+,ZFMISC_1
+,NUMBERS
+,RELSET_1 
+,PBOOLE
+,FINSET_1 
+,ORDINAL1
+,FUNCT_4
+,RELAT_2
+,FUNCOP_1
+,XBOOLEAN
+,RELAT_1 :: |
+,XBOOLE_0
+,XXREAL_2
+,MEMBERED
+,FOMODEL0 
+,XREAL_0 :: to access XREAL_1:9
+,MARGREL1
+;
+
 notations TARSKI :: notations directive is order-sensitive!
- ,XBOOLE_0
- ,FOMODEL0
- ,SUBSET_1
- ,NAT_1
- ,ZFMISC_1
- ,NUMBERS
- ,XCMPLX_0 :: for good typing of eg m+n is Nat
- ,RELAT_1 :: for dom
- ,FUNCT_1 :: for Function mode
- ,RELSET_1 :: for .: redef
- ,ORDINAL1
- ,CARD_1
- ,FINSET_1 
- ,FUNCT_4
- ,FUNCOP_1
- ,XXREAL_0 :: for attribute positive
- ,XBOOLEAN
- ,XXREAL_2
- ,MEMBERED
- ,MARGREL1 
- ;
- 
-registrations 
-  FOMODEL0
- ,ORDINAL1 
- ,XCMPLX_0 
- ,NAT_1 
- ,RELAT_1 :: dom R -> trivial
- ,NUMBERS
- ,FUNCT_1 :: dom f -> non trivial
- ,SUBSET_1 
- ,XBOOLE_0
- , SETFAM_1 
- , FINSET_1
- , ZFMISC_1
- , XXREAL_0
- , XREAL_0
- , MEMBERED
- , FUNCOP_1
- , FUNCT_4 :: +* -> non-empty
- ,XBOOLEAN
- ,XXREAL_2
- ,YELLOW12 :: union -> empty
- ,XXREAL_3
- ,INT_2 :: non natural
- ;
+,XBOOLE_0
+,FOMODEL0
+,SUBSET_1
+,NAT_1
+,ZFMISC_1
+,NUMBERS
+,XCMPLX_0 :: for good typing of eg m+n is Nat
+,RELAT_1 :: for dom
+,FUNCT_1 :: for Function mode
+,RELSET_1 :: for .: redef
+,ORDINAL1
+,CARD_1
+,FINSET_1 
+,FUNCT_4
+,FUNCOP_1
+,XXREAL_0 :: for attribute positive
+,XBOOLEAN
+,XXREAL_2
+,MEMBERED
+,MARGREL1 
+;
+
+registrations FOMODEL0
+,ORDINAL1 
+,XCMPLX_0 
+,NAT_1 
+,RELAT_1 :: dom R -> trivial
+,NUMBERS
+,FUNCT_1 :: dom f -> non trivial
+,SUBSET_1 
+,XBOOLE_0
+,SETFAM_1 
+,FINSET_1
+,ZFMISC_1
+,XREAL_0
+,MEMBERED
+,FUNCOP_1
+,FUNCT_4 :: +* -> non-empty
+,XBOOLEAN
+,XXREAL_2
+,YELLOW12 :: union -> empty
+,XXREAL_3
+,INT_2 :: non natural
+;
 
 equalities FOMODEL0 :: +*1
 ,FUNCOP_1 :: x.-->y 
@@ -116,23 +94,23 @@ equalities FOMODEL0 :: +*1
 ;
  
 theorems TARSKI
- ,FUNCT_1
- ,RELAT_1
- ,ZFMISC_1
- ,XBOOLE_1
- ,SUBSET_1
- ,XREAL_1
- ,XBOOLE_0
- ,NAT_1
- ,XBOOLEAN
- ,XTUPLE_0
- ,FOMODEL0
- ,FUNCT_4
- ,XXREAL_2
- ,CARD_1
- ,ORDINAL1
- ,MEMBERED
- ;
+,FUNCT_1
+,RELAT_1
+,ZFMISC_1
+,XBOOLE_1
+,SUBSET_1
+,XREAL_1
+,XBOOLE_0
+,NAT_1
+,XBOOLEAN
+,XTUPLE_0
+,FOMODEL0
+,FUNCT_4
+,XXREAL_2
+,CARD_1
+,ORDINAL1
+,MEMBERED
+;
 
 requirements REAL, NUMERALS, SUBSET, BOOLE, ARITHM;
 ::}
@@ -142,31 +120,10 @@ begin :::preliminaries
 :::inducing the proven facts to the most common, low-level and desirably
 :::supported entities, rather than proving things about new and particular
 :::mathematical objects
-reserve x,y,z,X,Y,Z,i,v for set, P,Q,R for Relation, f,g for Function;
-
-registration
-let x; cluster union {x} \+\ x -> empty for set; 
-coherence by ZFMISC_1:25, FOMODEL0:29;
-end;
-
-registration let X,Y; let y be Subset of Y;
-cluster X\Y \ (X\y) -> empty for set; 
-coherence proof X null X is Subset of X; hence thesis; end;
-end;
-
-registration let X be non trivial set, x be trivial set;
-cluster X\x -> non empty for set; coherence
-proof X\x={} implies X c= x by FOMODEL0:29; hence thesis; end;
-end;
-
-registration
-let X be non empty set, x be Element of X;
-cluster {x}\X -> empty for set; coherence by FOMODEL0:29;
-end;
 
 definition func two equals 2; coherence; end;
-registration cluster TRUE -> non empty; coherence; end;
-registration
+registration 
+cluster TRUE -> non empty; coherence; 
 identify BOOLEAN with two; compatibility by CARD_1:50;
 identify two with BOOLEAN; compatibility;
 cluster non natural for number;
@@ -181,46 +138,12 @@ reconsider IT=the right_end non empty natural-membered set as
 Subset of NAT by MEMBERED:6; take IT; thus thesis; 
 end;
 ::}
-end;
-
-registration
-let n be natural number;
-cluster {n}\NAT -> empty for set;
+let x be natural number; cluster {x}\NAT -> empty;
 coherence by ORDINAL1:def 12, FOMODEL0:29; 
 end;
 
-registration let x be non natural number;
-cluster {x}\NAT -> non empty; coherence 
-proof not x in NAT; hence thesis by FOMODEL0:29; end;
-end;
-
-Lm13: f.x <> {} implies f.x in rng f
-::{
-proof
-assume f.x<>{}; then x in dom f by FUNCT_1:def 2; hence thesis by FUNCT_1:3;
-end;
-::}
-
-Lm17: f.x in rng f \/ {{}}
-::{
-proof
-set Y=rng f, y=f.x, e={{}}; y={} or y in Y by Lm13; 
-then y in e or y in Y by TARSKI:def 1; hence thesis by XBOOLE_0:def 3;
-end;
-::}
-
-registration
-let x; let f be NAT-valued Function;
-cluster f.x -> natural for number;
-coherence
-::{
-proof
-set y=f.x, Y=rng f; {0}\NAT={}; then reconsider e={0} as 
-Subset of NAT by FOMODEL0:29; y in Y\/e & Y\/e c= NAT by Lm17; then 
-y in NAT; then {y}\NAT={}; hence thesis;
-end;
-::}
-end;
+reserve x,y,z,X,Y,i for set, P,Q,R for Relation, f,g for Function, 
+v for non zero Nat;
 
 Lm9c: y<>{} implies (x=z iff ([:X,{{}}:]+*[:{z},{y}:]).x=y)
 ::{
@@ -252,49 +175,31 @@ then F.x=f.x by FUNCT_4:11 .= {}; hence contradiction by B2;
 end;
 ::}
 
-Lm15: rng (P +*1 Q) c= rng P \/ rng Q
+Lm15: rng(P +*1 Q) c= rng P \/ rng Q & dom(P +*1 Q)=dom P \/ dom Q
 ::{
 proof
-set dP=dom P, dQ=dom Q, R=P +*1 Q, r=rng R, PP=P | (dP\dQ), 
-rP=rng P, rQ=rng Q; rng PP \ rng P={}; then reconsider rPP=rng PP as 
-Subset of rP by FOMODEL0:29; r=rPP \/ rQ by RELAT_1:12; 
-then r c= rP\/rQ by XBOOLE_1:9; hence thesis;
+set dP=dom P, dQ=dom Q, R=P +*1 Q, r=rng R, PP=P|(dP\dQ), rP=rng P, 
+rQ=rng Q, dR=dom R, dPP=dom PP; rng PP \ rng P={}; then reconsider 
+rPP=rng PP as Subset of rP by FOMODEL0:29; r=rPP \/ rQ by RELAT_1:12; 
+hence r c= rP\/rQ by XBOOLE_1:9; dR=dPP\/dQ by XTUPLE_0:23 .= dP\/dQ 
+by XBOOLE_1:39; hence thesis;
 end;
 ::}
 
-registration
-let X,Y; let P be X-valued Relation, Q be Y-valued Relation;
-cluster P +*1 Q -> (X\/Y)-valued for Relation;
-coherence
+Lm13: f.x <> {} implies f.x in rng f
 ::{
 proof
-set rP=rng P, rQ=rng Q, R=P +*1 Q, r=rng R; 
-rP c= X & rQ c= Y & X null Y c= X\/Y & Y null X c= X\/Y; 
-then reconsider rP, rQ as Subset of X\/Y by XBOOLE_1:1; 
-r c= rP \/ rQ by Lm15; then r c= X\/Y by XBOOLE_1:1;
-hence thesis by RELAT_1:def 19;
-end;
-::}
-end;
-
-Lm6: dom (P +*1 Q) = dom P \/ dom Q
-::{
-proof
-set dP=dom P,dQ=dom Q,R=P +*1 Q,dR=dom R,PP=P | (dP\dQ),dPP=dom PP;
-dR=dPP\/dQ by XTUPLE_0:23 .= dP\/dQ by XBOOLE_1:39; hence thesis;
+assume f.x<>{}; then x in dom f by FUNCT_1:def 2; hence thesis by FUNCT_1:3;
 end;
 ::}
 
-registration
-let P,Q;
-cluster dom (P +*1 Q) \+\ (dom P \/ dom Q) -> empty for set;
-coherence by Lm6, FOMODEL0:29;
+Lm17: f.x in rng f \/ {{}}
+::{
+proof
+set Y=rng f, y=f.x, e={{}}; y={} or y in Y by Lm13; 
+then y in e or y in Y by TARSKI:def 1; hence thesis by XBOOLE_0:def 3;
 end;
-
-registration let x be boolean non empty set; 
-cluster x \+\ 1 -> empty for set;
-coherence proof x=1 by XBOOLEAN:def 3; hence thesis by FOMODEL0:29; end;
-end;
+::}
 
 Lm14: f is 2-valued implies f.x is boolean
 ::{
@@ -306,10 +211,6 @@ by Lm17; then y in T; then y=0 or y=1
 by TARSKI:def 2; hence thesis by XBOOLEAN:def 3;
 end;
 ::}
-
-registration let x; let f be 2-valued Function;
-cluster f.x -> boolean for set; coherence by Lm14;
-end;
 
 Lm12: for X being right_end Subset of NAT holds max X=union X
 ::{
@@ -328,6 +229,70 @@ M in XX by XXREAL_2:def 8; then max X c= union X by ZFMISC_1:74;
 hence thesis by XBOOLE_0:def 10, B1;
 end;
 ::}
+
+registration
+let X be non empty set, x be Element of X;
+cluster {x}\X -> empty; coherence by FOMODEL0:29;
+end;
+
+registration let X,Y; let y be Subset of Y;
+cluster X\Y \ (X\y) -> empty; 
+coherence proof X null X is Subset of X; hence thesis; end;
+end;
+
+registration let X be non trivial set, x be trivial set;
+cluster X\x -> non empty; coherence
+proof X\x={} implies X c= x by FOMODEL0:29; hence thesis; end;
+end;
+
+registration let x be boolean non empty set; 
+cluster x \+\ 1 -> empty;
+coherence proof x=1 by XBOOLEAN:def 3; hence thesis by FOMODEL0:29; end;
+end;
+
+registration 
+let x be non natural number;
+cluster {x}\NAT -> non empty; coherence 
+proof not x in NAT; hence thesis by FOMODEL0:29; end;
+end;
+
+registration let x; 
+cluster union {x} \+\ x -> empty;
+coherence by ZFMISC_1:25, FOMODEL0:29; let f be NAT-valued Function;
+cluster f.x -> natural for number;
+coherence
+::{
+proof
+set y=f.x, Y=rng f; {0}\NAT={}; then reconsider e={0} as 
+Subset of NAT by FOMODEL0:29; y in Y\/e & Y\/e c= NAT by Lm17; then 
+y in NAT; then {y}\NAT={}; hence thesis;
+end;
+::}
+end;
+
+registration
+let X,Y; let P be X-valued Relation, Q be Y-valued Relation;
+cluster P +*1 Q -> (X\/Y)-valued for Relation;
+coherence
+::{
+proof
+set rP=rng P, rQ=rng Q, R=P +*1 Q, r=rng R; 
+rP c= X & rQ c= Y & X null Y c= X\/Y & Y null X c= X\/Y; 
+then reconsider rP, rQ as Subset of X\/Y by XBOOLE_1:1; 
+r c= rP \/ rQ by Lm15; then r c= X\/Y by XBOOLE_1:1;
+hence thesis by RELAT_1:def 19;
+end;
+::}
+end;
+
+registration let P,Q;
+cluster dom (P +*1 Q) \+\ (dom P \/ dom Q) -> empty;
+coherence by Lm15, FOMODEL0:29;
+end;
+
+registration let x; let f be 2-valued Function;
+cluster f.x -> boolean; coherence by Lm14;
+end;
 
 notation let X; synonym natmax X for union X; end; 
 ::: to remind that, for a finite subset of NAT, set theoretical union
@@ -397,20 +362,17 @@ end;
 ::}
 
 definition let R;
-func R-pay -> Function equals [:dom R,{0}:]+*[:{winnerof R},{priceof R}:];
+func R-pay ->Function equals [:dom R,{0}:]+*[:{winnerof R},{priceof R}:];
 coherence; ::R-pay gives how much each bidder must pay in the end
-func R-allocations -> Function equals [:dom R,{0}:]+*[:{winnerof R},{1}:];
+func R-allocations ->Function equals [:dom R,{0}:]+*[:{winnerof R},{1}:];
 coherence; ::how much of the sold asset each bidder gets in the end
 end;
 
-registration let R be Relation; 
-cluster R-allocations -> 2-valued for Function; 
+registration 
+let R; cluster R-allocations -> 2-valued for Function; 
 coherence ::We treat only the case of an indivisible asset
 proof R-allocations is BOOLEAN-valued; hence thesis; end;
-end;
-
-registration let x, R;
-cluster R-pay.x -> natural for number; 
+let x; cluster R-pay.x -> natural for number; 
 coherence ::The case of integer currency is much simpler to formalize
 ::{
 proof
@@ -431,7 +393,7 @@ end;
 ::}
 
 Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q implies 
-(P +*1 Q)-indmax=Q"{natmax rng Q} :: c< is strict set inclusion
+(P +*1 Q)-indmax=Q"{natmax rng Q} :: c< is strict inclusion; i.e., <
 ::{
 proof set dP=dom P, 
 dQ=dom Q, PP=P|(dP\dQ), R=P +*1 Q, maxQ=natmax rng Q; assume
@@ -460,11 +422,11 @@ dom ([:{x},{x}:]) by FOMODEL0:73; hence thesis;
 end;
 ::}
 
-Lm5: (priceof R<>{} & i=winnerof R & R-pay.i c< v) implies 
-(R +*1 [:{i},{v}:])-pay.i = R-pay.i
+Lm5: (priceof R<>{} & i=winnerof R & R-pay.i c< y) implies 
+(R +*1 [:{i},{y}:])-pay.i = R-pay.i
 ::{
 proof
-set B=R, x=B-allocations, p=B-pay, P=p.i, f=[:{i},{v}:], 
+set B=R, x=B-allocations, p=B-pay, P=p.i, f=[:{i},{y}:], 
 Bi=B +*1 f, pii=Bi-pay, Pi=pii.i, w=winnerof B, wi=winnerof Bi, 
 D=dom B, Di=dom Bi, l=losersof R, RR=B|l; D\/dom f \+\ Di={}; then 
 D \/ dom f=Di & dom f \+\ {i}={} by FOMODEL0:29; then 
@@ -474,7 +436,7 @@ B4: D\{i} misses dom f by XBOOLE_0:def 7;
 assume 
 B7: priceof B<>{} & i=w; then P=priceof B by Lm3; then 
 B8: P=natmax rng RR by B7, Lm16;
-assume P c< v; then Bi-indmax={i} by Lm1, B8, B7; then 
+assume P c< y; then Bi-indmax={i} by Lm1, B8, B7; then 
 wi in Bi-indmax & Bi-indmax={i}; then 
 B0: wi=i & i=w by TARSKI:def 1, B7; then
 Bi|(Di\{wi}) = (B|(D\{i})|(D\{i})) \/ (f|(D\{i})) 
@@ -482,8 +444,6 @@ by B2, FOMODEL0:56 .= (B | (D\{i})) \/ {} by B4, RELAT_1:66 .=
 B|(D\{w}) by B0; then priceof B=Pi by Lm3, B0; hence P=Pi by Lm3, B0;
 end;
 ::}
-
-reserve v for non empty Element of NAT;
 
 Lm4: f is NAT-valued & rng f is finite implies 
 (f+*[:{i},{v}:])-pay.i <= v*((f+*[:{i},{v}:])-allocations.i)
