@@ -108,28 +108,15 @@ subsubsection {* Deviation from a bid *}
 lemma deviated_bid_well_formed :
   fixes n::participants and bid::"real vector"
     and alternative_vec::"real vector" and i::participant
-  assumes bids_original: "bids n bid"
-    and bids_alternative: "bids n alternative_vec"
-  shows "bids n (bid(i := alternative_vec i))"
+  assumes "bids n bid" and "bids n alternative_vec"
+  shows "bids n (bid(i := alternative_vec i))"  (is "bids _ ?dev")
 proof -
-  let ?dev = "bid(i := alternative_vec i)"
   {
     fix k::participant
-    assume k_range: "k \<in> {1..n}"
-    have "?dev k \<ge> 0"
-    proof (cases "?dev k = bid k")
-      case True
-      with k_range bids_original show ?thesis
-        by (simp only: bids_def non_negative_real_vector_def)
-    next
-      case False
-      then have "?dev k = alternative_vec k" by auto
-      with k_range bids_alternative show ?thesis
-        by (simp add: bids_def non_negative_real_vector_def)
-    qed
+    assume "k \<in> {1..n}"
+    with assms have "?dev k \<ge> 0" by (simp add: bids_def non_negative_real_vector_def)
   }
-  then show "bids n ?dev"
-    unfolding bids_def non_negative_real_vector_def by simp
+  then show "bids n ?dev" by (simp add: bids_def non_negative_real_vector_def)
 qed
 
 
