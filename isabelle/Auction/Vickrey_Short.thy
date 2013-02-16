@@ -347,29 +347,6 @@ next
   finally show "m = maximum (Suc n) y" ..
 qed
 
-lemma increment_keeps_maximum:
-  fixes n::nat and y::"real vector" and y'::"real vector" and max_index::nat and max::real and max'::real
-  assumes non_negative: "non_negative_real_vector n y"
-    and non_empty: "n > 0"
-    and index_range: "max_index \<in> {1..n}"
-    and old_maximum: "maximum n y = y max_index"
-    and new_lt: "y max_index < max'"
-    and increment: "y' = (\<lambda> i::nat . if i = max_index then max' else y i)"
-  shows "maximum n y' = y' max_index"
-proof -
-  from increment have new_component: "y' max_index = max'" by simp
-  from non_negative index_range new_lt have "\<dots> \<ge> 0"
-    unfolding non_negative_real_vector_def by fastforce
-  with non_negative increment have new_non_negative: "non_negative_real_vector n y'"
-    unfolding non_negative_real_vector_def by simp
-  from old_maximum new_lt increment
-  have greater_or_equal: "\<forall>i \<in> {1..n}. max' \<ge> y' i"
-    by (metis linorder_not_less maximum_is_greater_or_equal order_less_trans order_refl)
-  from increment have "max' = y' max_index" by simp
-  with new_non_negative non_empty greater_or_equal index_range
-  show "maximum n y' = y' max_index" using maximum_sufficient by metis
-qed
-
 definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> (nat set)"
   where "arg_max_set n b = {i. i \<in> {1..n} \<and> maximum n b = b i}"
 
@@ -498,19 +475,6 @@ definition second_price_auction :: "participants \<Rightarrow> allocation \<Righ
       (\<forall>b::real vector. bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
         (\<exists>i::participant \<in> {1..n}. second_price_auction_winner n b x p i \<and>
           (\<forall>j::participant \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
-
-lemma second_price_auction_has_only_one_winner:
-  fixes n::participants and x::allocation and p::payments and b::"real vector"
-    and winner::participant and j::participant
-  assumes "second_price_auction n x p"
-    and "bids n b"
-    and "second_price_auction_winner n b x p winner"
-    and "second_price_auction_winner n b x p j"
-  shows "j = winner"
-  using assms
-  unfolding second_price_auction_def second_price_auction_winner_def
-  using allocation_unique
-  by blast
 
 lemma allocated_implies_spa_winner:
   fixes n::participants and x::allocation and p::payments
@@ -838,6 +802,5 @@ proof -
   }
   with bids show ?thesis using val unfolding efficient_def by blast
 qed
-
 
 end
