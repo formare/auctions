@@ -34,16 +34,6 @@ definition non_negative_real_vector :: "nat \<Rightarrow> real vector \<Rightarr
 definition positive_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
   where "positive_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i > 0)"
 
-definition deviation :: "nat \<Rightarrow> real vector \<Rightarrow> real \<Rightarrow> nat \<Rightarrow> real vector"
-  where
-    "deviation n bid alternative_value index j =
-      (if j = index then alternative_value else bid j)"
-
-definition deviation_vec :: "nat \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real vector"
-  where
-    "deviation_vec n bid alternative_vec index =
-      deviation n bid (alternative_vec index) index"
-
 
 definition skip_index :: "'a vector \<Rightarrow> nat \<Rightarrow> 'a vector"
   where "skip_index vector index = (\<lambda>i. vector (if i < index then i else Suc i))"
@@ -122,25 +112,22 @@ lemma deviated_bid_well_formed :
     and alternative_vec::"real vector" and i::participant
   assumes bids_original: "bids n bid"
     and bids_alternative: "bids n alternative_vec"
-  shows "bids n (deviation_vec n bid alternative_vec i)"
+  shows "bids n (bid(i := alternative_vec i))"
 proof -
-  let ?dev = "deviation_vec n bid alternative_vec i"
+  let ?dev = "bid(i := alternative_vec i)"
   {
     fix k::participant
     assume k_range: "k \<in> {1..n}"
     have "?dev k \<ge> 0"
     proof (cases "?dev k = bid k")
       case True
-      with k_range bids_original
-        show ?thesis
-        unfolding deviation_def
+      with k_range bids_original show ?thesis
         by (simp only: bids_def non_negative_real_vector_def)
     next
       case False
-      then have "?dev k = alternative_vec k"
-        by (auto simp add: deviation_vec_def deviation_def)
+      then have "?dev k = alternative_vec k" by auto
       with k_range bids_alternative show ?thesis
-        unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
+        by (simp add: bids_def non_negative_real_vector_def)
     qed
   }
   then show "bids n ?dev"
@@ -433,15 +420,13 @@ lemma remaining_maximum_invariant:
   fixes n::nat and y::"real vector" and i::nat and a::real
   assumes non_empty: "n > 0"
     and range: "i \<in> {1..n}"
-  shows "maximum_except n y i = maximum_except n (deviation n y a i) i"
+  shows "maximum_except n y i = maximum_except n (y(i := a)) i"
 proof -
-  from range have equal_except: "\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
-    unfolding deviation_def by simp
-  with non_empty range
-  have "\<forall>k \<in> {1..n - 1}. skip_index y i k = skip_index (deviation n y a i) i k"
-    using equal_by_skipping by (auto simp add: deviation_def)
+  from range have equal_except: "\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> y j = (y(i := a)) j" by simp
+  with non_empty range have "\<forall>k \<in> {1..n - 1}. skip_index y i k = skip_index (y(i := a)) i k"
+    using equal_by_skipping by auto
   then have "maximum (n - 1) (skip_index y i) =
-    maximum (n - 1) (skip_index (deviation n y a i) i)" by (simp add: maximum_equal)
+    maximum (n - 1) (skip_index (y(i := a)) i)" by (simp add: maximum_equal)
   with non_empty show ?thesis by (metis Suc_pred' maximum_except.simps(2))
 qed
 
@@ -581,11 +566,10 @@ lemma winners_payoff_on_deviation_from_valuation:
     and range: "winner \<in> {1..n}"
     and wins: "x b winner"
   shows
-    "let winner_sticks_with_valuation = deviation_vec n b v winner
+    "let winner_sticks_with_valuation = b(winner := v winner)
     in payoff_vector v (x b) (p b) winner =
       v winner - maximum_except n winner_sticks_with_valuation winner"
   using wins range spa bids second_price_auction_winner_payoff
-  unfolding deviation_vec_def
   using non_empty remaining_maximum_invariant
   by simp
 
@@ -608,7 +592,7 @@ definition equilibrium_weakly_dominant_strategy ::
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and>
    (\<forall>i::participant \<in> {1..n}.
      (\<forall>whatever_bid::real vector. bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
-       let i_sticks_with_bid = deviation_vec n whatever_bid b i
+       let i_sticks_with_bid = whatever_bid(i := b i)
        in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
           payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
 
@@ -637,7 +621,7 @@ proof -
     then have non_empty: "n > 0" by simp
     fix whatever_bid :: "real vector"
     assume alternative_is_bid: "bids n whatever_bid"
-    let ?i_sticks_with_strategy = "deviation_vec n whatever_bid ?b i"
+    let ?i_sticks_with_strategy = "whatever_bid(i := ?b i)"
     txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
       Given this, we have to show that agent @{term i} is best off. *}
     from bids alternative_is_bid
@@ -670,9 +654,8 @@ proof -
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
             v i - maximum_except n ?i_sticks_with_strategy i"
           by (simp add: second_price_auction_winner_payoff)
-        also have "\<dots> =
-            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
-          unfolding deviation_vec_def deviation_def by simp
+        also have "\<dots> = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
+          by simp
         finally have payoff_expanded:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
             ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" .
@@ -729,8 +712,7 @@ proof -
           with spa alternative_is_bid non_empty i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
-            using winners_payoff_on_deviation_from_valuation
-            by (simp add: deviation_vec_def deviation_def)
+            using winners_payoff_on_deviation_from_valuation by simp
           txt {* Now we can compute @{term i}'s payoff *}
           also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
           also have "\<dots> =
