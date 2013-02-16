@@ -38,7 +38,8 @@ text{* Given some auction, a strategy profile supports an equilibrium in weakly 
   if each participant maximises its payoff by playing its component in that profile,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::
-  "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where     (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
+  "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
+  (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
   "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
    (\<forall>i::participant \<in> {1..n}.

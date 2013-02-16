@@ -86,6 +86,7 @@ proof -
         (* TODO CL: ask whether it is possible to get to "have 'a' and 'b'" directly,
            without first saying "have 'a \<and> b' and then breaking it down "by auto".
            In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
+        (* makarius: Probably yes, but I don't quite understand what you want to do. *)
         then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy"
           by (simp add: arg_max_set_def)
         also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
@@ -108,6 +109,7 @@ proof -
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
             ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" .
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
+        (* makarius: Probably yes, but I don't quite understand what you want to do. *)
         also have "\<dots> \<ge> 0" using i_ge_max_except by simp
         finally
         have non_negative_payoff:
@@ -193,6 +195,7 @@ qed
 subsubsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
 
 (* TODO CL: document that we use local renamings (let) to make definition unfoldings resemble the original definitions *)
+(* makarius: Note that 'let' in Isar introduces "term bindings" or "term abbreviations"; it is extra-logical illusion. *)
 theorem vickreyB:
   fixes n :: participants and v :: "real vector" and x :: allocation and p :: payments
   assumes val: "valuation n v" and spa: "second_price_auction n x p"

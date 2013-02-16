@@ -28,8 +28,10 @@ text{* some types defined for our convenience *}
 type_synonym participant = "nat"  (* ordinal number *)
 type_synonym participants = "nat" (* cardinal number *)
 
-text{* TODO CL: discuss whether it's intuitive to name some types as in the following lines.
-However, being of one such type does not yet imply well-formedness; e.g. we could have an x::allocation, which, for some given n and b does not satisfy "allocation n b x". *}
+(* TODO CL: discuss whether it's intuitive to name some types as in the following lines.
+However, being of one such type does not yet imply well-formedness; e.g. we could have an x::allocation, which, for some given n and b does not satisfy "allocation n b x". *)
+(* makarius: This is perfectly normal: these types are just static approximations of the semantic properties that you have in mind.
+   We are not strongly-dependent types in this club. *)
 type_synonym allocation = "real vector \<Rightarrow> participants \<Rightarrow> bool"
 type_synonym payments = "real vector \<Rightarrow> participants \<Rightarrow> real" (* a payment vector is a function of a "real vector" of bids *)
 
@@ -100,6 +102,7 @@ text{* A function @{text x}, which takes a vector of @{text n} bids, is an alloc
    When using the function x in a curried way, we can speak of (x b) as a vector of booleans, in a very straightforward way;
    with a different order of arguments we'd have to use (\<lambda> index::nat . x index b).
 *)
+(* makarius: There is indeed a fine art of natural argument order of curried functions. *)
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation n b x \<longleftrightarrow> bids n b \<and> (\<exists>!i \<in> {1..n}. x b i)"
 
@@ -146,6 +149,7 @@ lemma valuation_is_bid :
   (* If we had been searching the library for an applicable theorem, we could have used
      find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
      and would have found less_imp_le and others *)
+  (* NOTE makarius: note that above, any of "auto", "fastforce", "force" would solve it outright *)
 
 
 subsection {* Payoff *}
@@ -154,6 +158,10 @@ subsection {* Payoff *}
 text{* The payoff of the winner ($x_i=1$), determined by a utility function u, is the difference between its valuation and the actual
 payment. For the losers, it is the negative payment. *}
 (* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
+(* makarius: that function is called "If" :-) Note that below you don't need to simulate mathematicians
+   avoiding booleans -- just use "if" directly without the multiplication. *)
+(* makarius: Why are the function arguments capitalized! *)
+
 definition payoff ::
   "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real" where
   "payoff Valuation Allocation Payment =
