@@ -132,7 +132,7 @@ lemma valuation_is_bid :
   using assms
   unfolding valuation_def positive_real_vector_def
   unfolding bids_def non_negative_real_vector_def
-  by (simp add: order_less_imp_le)
+  by auto
 
 
 subsection {* Payoff *}
