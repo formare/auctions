@@ -160,7 +160,7 @@ payment. For the losers, it is the negative payment. *}
 (* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
 (* makarius: that function is called "If" :-) Note that below you don't need to simulate mathematicians
    avoiding booleans -- just use "if" directly without the multiplication. *)
-(* makarius: Why are the function arguments capitalized! *)
+(* makarius: Why are the function arguments capitalized? *)
 
 definition payoff ::
   "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real" where
