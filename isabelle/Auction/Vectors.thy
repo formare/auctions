@@ -36,13 +36,11 @@ definition in_range ::
   "in_range n i \<longleftrightarrow> 1 \<le> i \<and> i \<le> n"
 
 text{* we could also, in a higher-order style, generally define a vector whose components satisfy a predicate, and then parameterise this predicate with $\geq 0$ and $> 0$ *}
-definition non_negative_real_vector ::
-  "nat \<Rightarrow> real vector \<Rightarrow> bool" where
-  "non_negative_real_vector n v \<longleftrightarrow> (\<forall>i::nat . i \<in> {1..n} \<longrightarrow> v i \<ge> 0)"
+definition non_negative_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
+  where "non_negative_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i \<ge> 0)"
 
-definition positive_real_vector ::
-  "nat \<Rightarrow> real vector \<Rightarrow> bool" where
-  "positive_real_vector n v \<longleftrightarrow> (\<forall>i::nat . i \<in> {1..n} \<longrightarrow> v i > 0)"
+definition positive_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
+  where "positive_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i > 0)"
 
 
 subsection {* Deviation from a vector *}
@@ -117,19 +115,17 @@ lemma equal_by_skipping :
   fixes n::nat and v::"real vector" and w::"real vector" and j::nat and k::nat
   assumes non_empty: "n > 0"
     and j_range: "j \<in> {1..n}"
-    and equal_except: "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> v i = w i"
+    and equal_except: "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> v i = w i"
     and k_range: "k \<in> {1..n - 1}"
   shows "skip_index v j k = skip_index w j k"
 proof (cases "k < j")
   case True
-  then have "skip_index v j k = v k" 
-    "skip_index w j k = w k"
+  then have "skip_index v j k = v k" and "skip_index w j k = w k"
     unfolding skip_index_def by auto
   with equal_except k_range True show ?thesis by auto
 next
   case False
-  then have "skip_index v j k = v (Suc k)"
-   "skip_index w j k = w (Suc k)"
+  then have "skip_index v j k = v (Suc k)" and "skip_index w j k = w (Suc k)"
     unfolding skip_index_def by auto
   with equal_except k_range False show ?thesis by auto
 qed

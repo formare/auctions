@@ -28,8 +28,8 @@ text{* A single good auction (this is the one we are talking about here) is effi
 highest valuation of the good. *}
 definition efficient ::
   "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool" where
-  "efficient n v b x \<longleftrightarrow> (valuation n v \<and> bids n b) \<and>
-      (\<forall>i::participant. i \<in> {1..n} \<and> x b i \<longrightarrow> i \<in> arg_max_set n v)"
+  "efficient n v b x \<longleftrightarrow> valuation n v \<and> bids n b \<and>
+      (\<forall>i::participant \<in> {1..n}. x b i \<longrightarrow> i \<in> arg_max_set n v)"
 
 
 subsection {* Equilibrium in weakly dominant strategies *}
@@ -41,8 +41,8 @@ definition equilibrium_weakly_dominant_strategy ::
   "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where     (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
   "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
-   (\<forall>i::participant . i \<in> {1..n} \<longrightarrow>
-     (\<forall>whatever_bid::real vector . bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
+   (\<forall>i::participant \<in> {1..n}.
+     (\<forall>whatever_bid::real vector. bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
        let i_sticks_with_bid = deviation_vec n whatever_bid b i (* here, all components are (whatever_bid j), just the i-th component remains (b i) *)
        in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
           payoff_vector v (x whatever_bid) (p whatever_bid) i)))"

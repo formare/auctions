@@ -1,4 +1,2 @@
 * avoid odd reference to "calculation", notably in metis;
 
-* check/eliminate ALL x. x : A --> B;
-

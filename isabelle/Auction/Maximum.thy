@@ -43,7 +43,7 @@ fun maximum ::
 text{* If two vectors are equal, their maximum components are equal too *}
 lemma maximum_equal:
   fixes n::nat and y::"real vector" and z::"real vector"
-  assumes "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> y i = z i"
+  assumes "\<forall>i \<in> {1..n}. y i = z i"
   shows "maximum n y = maximum n z"
     using assms (* Apparently this is needed; otherwise the last proof step fails. *)
 (* TODO CL: Maybe restate this and other inductive statements using \<Longrightarrow> instead of assumes, as advised by Tobias Nipkow on 2012-11-22 *)
@@ -97,14 +97,14 @@ text{* The maximum component is one component *}
 lemma maximum_is_component:
   fixes n::nat and y::"real vector"
   assumes "n > 0 \<and> non_negative_real_vector n y" 
-  shows "\<exists>i::nat . i \<in> {1..n} \<and> maximum n y = y i"
-    using assms
+  shows "\<exists>i \<in> {1..n}. maximum n y = y i"
+  using assms
 proof (induct n)
   case 0
   then show ?case by simp
 next
   case (Suc n)
-  show "\<exists>i::nat . i \<in> {1..Suc n} \<and> maximum (Suc n) y = y i"
+  show "\<exists>i \<in> {1..Suc n}. maximum (Suc n) y = y i"
   proof (cases "y (Suc n) \<ge> maximum n y")                                          
     case True
     from Suc.prems have "y (Suc n) \<ge> 0"
@@ -127,17 +127,17 @@ next
     from Suc.prems have pred_non_negative: "non_negative_real_vector n y"
       unfolding non_negative_real_vector_def 
       by simp
-    with non_empty obtain i::nat where pred_max: "i \<in> {1..n} \<and> maximum n y = y i"
+    with non_empty obtain i::nat where "i \<in> {1..n}" and pred_max: "maximum n y = y i"
       by (metis Suc.hyps)
     with Suc.prems have y_i_non_negative: "0 \<le> y i"
       unfolding non_negative_real_vector_def by simp
-    have "y i = maximum n y" using pred_max by simp
+    have "y i = maximum n y" by (rule pred_max [symmetric])
     also have "\<dots> = max (maximum n y) (y (Suc n))" using False by simp
     also have "\<dots> = max 0 (max (maximum n y) (y (Suc n)))"
       using Suc.prems y_i_non_negative by (auto simp add: calculation min_max.le_iff_sup)
     also have "\<dots> = maximum (Suc n) y" using maximum_def non_empty by simp
-    finally have max: "y i = maximum (Suc n) y" .
-    with pred_max and max show ?thesis by auto
+    finally have "y i = maximum (Suc n) y" .
+    from `i \<in> {1..n}` and this [symmetric] show ?thesis by auto
   qed
 qed
 
@@ -146,8 +146,8 @@ lemma maximum_sufficient:
   fixes n::nat and y::"real vector" and m::real
   assumes non_negative: "non_negative_real_vector n y"
     and non_empty: "n > 0"
-    and greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> m \<ge> y i"
-    and is_component: "\<exists>i::nat . i \<in> {1..n} \<and> m = y i"
+    and greater_or_equal: "\<forall>i \<in> {1..n}. m \<ge> y i"
+    and is_component: "\<exists>i \<in> {1..n}. m = y i"
   shows "m = maximum n y"
   using assms
 proof (induct n)
@@ -193,15 +193,15 @@ next
       with Suc.prems(4) have pred_is_component: "\<exists>k::nat . k \<in> {1..n} \<and> m = y k" by auto
       Therefore we have to use the auxiliary predicate in_range:
       *)
-      from Suc.prems(4) have "\<exists>i::nat . in_range (Suc n) i \<and> m = y i"
-        unfolding in_range_def by simp
-      with last_is_not_max have "\<exists>k::nat . in_range n k \<and> m = y k"
+      from Suc.prems(4) have "\<exists>i. in_range (Suc n) i \<and> m = y i"
+        unfolding in_range_def by auto
+      with last_is_not_max have "\<exists>k. in_range n k \<and> m = y k"
         unfolding in_range_def by (metis le_antisym not_less_eq_eq)
         (* The former doesn't work when defining in_range using i \<in> {1..n}; we need the form 1 \<le> i \<and> i \<le> n *)
-      then have pred_is_component: "\<exists>k::nat . k \<in> {1..n} \<and> m = y k"
-        unfolding in_range_def by simp
+      then have pred_is_component: "\<exists>k \<in> {1..n}. m = y k"
+        unfolding in_range_def by auto
       (* OK, we got what we wanted. *)
-      from Suc.prems(3) have "\<forall>k::nat . k \<in> {1..n} \<longrightarrow> m \<ge> y k" by simp
+      from Suc.prems(3) have "\<forall>k \<in> {1..n}. m \<ge> y k" by simp
       (* these, plus pred_non_negative, form the left hand side of the induction hypothesis *)
       then have "m = maximum n y"
         using pred_is_component pred_non_negative by (metis False Suc.hyps gr0I)
@@ -228,12 +228,11 @@ lemma increment_keeps_maximum:
 proof -
   from increment have new_component: "y' max_index = max'" by simp
   from non_negative index_range new_lt have "\<dots> \<ge> 0"
-    unfolding non_negative_real_vector_def
-    by (auto simp add: linorder_not_less order_less_trans)
+    unfolding non_negative_real_vector_def by fastforce
   with non_negative increment have new_non_negative: "non_negative_real_vector n y'"
     unfolding non_negative_real_vector_def by simp
   from old_maximum new_lt increment
-  have greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> max' \<ge> y' i"
+  have greater_or_equal: "\<forall>i \<in> {1..n}. max' \<ge> y' i"
     by (metis linorder_not_less maximum_is_greater_or_equal order_less_trans order_refl)
   from increment have "max' = y' max_index" by simp
   (* now we have all prerequisites for applying maximum_sufficient *)
@@ -305,11 +304,11 @@ lemma maximum_greater_or_equal_remaining_maximum:
 proof
   assume ge_remaining: "y j \<ge> maximum_except n y j"
   from non_empty range
-  have "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i"
+  have "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i"
     by (simp add: maximum_except_is_greater_or_equal)
-  with ge_remaining have "\<forall>i::nat . i \<in> {1..n} \<and> i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
-  then have greater_or_equal: "\<forall>i::nat . i \<in> {1..n} \<longrightarrow> y j \<ge> y i" by auto
-  from range have is_component: "\<exists>i::nat . i \<in> {1..n} \<and> y j = y i" by auto
+  with ge_remaining have "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
+  then have greater_or_equal: "\<forall>i \<in> {1..n}. y j \<ge> y i" by auto
+  from range have is_component: "\<exists>i \<in> {1..n}. y j = y i" by auto
     (* when we first tried non_empty: "n \<ge> 1" sledgehammer didn't find a proof for this *)
   with non_negative non_empty greater_or_equal show "y j = maximum n y"
     by (simp add: maximum_sufficient)
@@ -327,8 +326,7 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
     with j_max non_negative show ?thesis by (simp add: maximum_non_negative)
   next
     case False
-    from j_max have ge: "\<forall>k::nat . k \<in> {1..n} \<longrightarrow> y j \<ge> y k"
-      by (simp add: maximum_is_greater_or_equal)
+    from j_max have ge: "\<forall>k \<in> {1..n}. y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
     from False non_empty have "n > 1" by simp
     then have pred_non_empty: "n - 1 > 0" by simp
     from non_empty non_negative range
@@ -345,8 +343,7 @@ next (* nice to see that support for \<longleftrightarrow> is built in *)
       unfolding skip_index_def by simp
     from i_range have 1: "i \<in> {1..n}" by auto
     from i_range have 2: "Suc i \<in> {1..n}" by auto
-    from skip_index_range 1 2 have "\<exists>k::nat . k \<in> {1..n} \<and> (skip_index y j) i = y k"
-      by auto
+    from skip_index_range 1 2 have "\<exists>k \<in> {1..n}. (skip_index y j) i = y k" by auto
     (* The following (found by remote_vampire) was nearly impossible for metis to prove: *)
     (* from i_range and range and skip_index_def
       and maximum_except_component (* not sure why we need this given that we have maximum_except_component *)
@@ -365,10 +362,10 @@ lemma remaining_maximum_invariant:
     and range: "i \<in> {1..n}"
   shows "maximum_except n y i = maximum_except n (deviation n y a i) i"
 proof -
-  from range have equal_except: "\<forall>j::nat . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
+  from range have equal_except: "\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> y j = deviation n y a i j"
     unfolding deviation_def by simp
   with non_empty range
-  have "\<forall>k::nat . k \<in> {1..n - 1} \<longrightarrow> skip_index y i k = skip_index (deviation n y a i) i k"
+  have "\<forall>k \<in> {1..n - 1}. skip_index y i k = skip_index (deviation n y a i) i k"
     using equal_by_skipping by (auto simp add: deviation_def)
   then have "maximum (n - 1) (skip_index y i) =
     maximum (n - 1) (skip_index (deviation n y a i) i)" by (simp add: maximum_equal)

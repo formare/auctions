@@ -57,9 +57,9 @@ in case there is more than one.)
 definition second_price_auction ::
   "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
   "second_price_auction n x p \<longleftrightarrow>
-    (\<forall>b::real vector . bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
-    (\<exists>i::participant . i \<in> {1..n} \<and> second_price_auction_winner n b x p i \<and>
-      (\<forall>j::participant . j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
+    (\<forall>b::real vector. bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
+      (\<exists>i::participant \<in> {1..n}. second_price_auction_winner n b x p i \<and>
+        (\<forall>j::participant \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
 
 text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
 (* TODO CL: discuss whether it makes sense to keep this lemma -- it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
@@ -102,10 +102,10 @@ lemma not_allocated_implies_spa_loser:
 proof (rule ccontr)
   assume "\<not> ?thesis"
   then have "x b loser"
-    using second_price_auction_def
     using spa bids
     using range
-    using second_price_auction_winner_def by auto
+    unfolding second_price_auction_def second_price_auction_winner_def
+    by force
   with loses show "False" by contradiction
 qed
 
@@ -121,11 +121,10 @@ lemma only_max_bidder_wins:
   shows "second_price_auction_winner n b x p max_bidder"
 proof -
   from bids spa
-  have spa_unfolded: "\<exists>i::participant. second_price_auction_winner n b x p i \<and>
-      (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)"
+  have spa_unfolded: "\<exists>i. second_price_auction_winner n b x p i \<and>
+      (\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)"
     unfolding second_price_auction_def by blast
-  then have x_is_allocation: "\<exists>i:: participant.
-      i \<in> {1..n} \<and> x b i \<and> (\<forall>j:: participant. j \<in> {1..n} \<and> j\<noteq>i \<longrightarrow> \<not>x b j)"
+  then have x_is_allocation: "\<exists>i \<in> {1..n}. x b i \<and> (\<forall>j \<in> {1..n}. j\<noteq>i \<longrightarrow> \<not> x b j)"
     unfolding second_price_auction_winner_def second_price_auction_loser_def by blast
   {
     fix j::participant

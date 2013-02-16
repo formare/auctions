@@ -91,10 +91,8 @@ subsection {* Allocation *}
 
 text{* A predicate that is satisfied for exactly one member of a set *}
 (* We could also have using a member_of_S predicate as the first argument, but a set is more convenient. *)
-definition true_for_exactly_one_member :: "'s set \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool"
-  where
-    "true_for_exactly_one_member S pred \<longleftrightarrow>
-      (\<exists>k . k \<in> S \<and> pred k \<and> (\<forall>j . j \<in> S \<and> j \<noteq> k \<longrightarrow> \<not>pred j))"
+definition true_for_exactly_one_member :: "'s set \<Rightarrow> ('s \<Rightarrow> bool) \<Rightarrow> bool" where
+  "true_for_exactly_one_member S pred \<longleftrightarrow> (\<exists>k \<in> S. pred k \<and> (\<forall>j \<in> S. j \<noteq> k \<longrightarrow> \<not> pred j))"
 
 lemma true_for_exactly_one_member_sat :
   shows "true_for_exactly_one_member {True} (\<lambda> b::bool . b)"
@@ -139,7 +137,7 @@ subsection {* Payment *}
 text{* Each participant pays some amount. *}
 definition vickrey_payment ::
   "participants \<Rightarrow> real vector \<Rightarrow> payments \<Rightarrow> bool" where
-  "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i:: participant. i \<in> {1..n} \<longrightarrow> p b i \<ge> 0)"
+  "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i::participant \<in> {1..n}. p b i \<ge> 0)"
 
 
 subsection {* Outcome *}
