@@ -40,8 +40,7 @@ definition skip_index :: "'a vector \<Rightarrow> nat \<Rightarrow> 'a vector"
 
 lemma skip_index_keeps_non_negativity :
   fixes n::nat and v::"real vector" and i::nat
-  assumes non_empty: "n > 0"
-    and non_negative: "non_negative_real_vector n v"
+  assumes non_negative: "non_negative_real_vector n v"
     and range: "i \<in> {1..n}"
   shows "non_negative_real_vector (n - 1) (skip_index v i)"
 proof -
@@ -69,8 +68,7 @@ qed
 
 lemma equal_by_skipping :
   fixes n::nat and v::"real vector" and w::"real vector" and j::nat and k::nat
-  assumes non_empty: "n > 0"
-    and j_range: "j \<in> {1..n}"
+  assumes j_range: "j \<in> {1..n}"
     and equal_except: "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> v i = w i"
     and k_range: "k \<in> {1..n - 1}"
   shows "skip_index v j k = skip_index w j k"
