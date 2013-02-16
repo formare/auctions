@@ -52,7 +52,7 @@ proof
     unfolding non_negative_real_vector_def by auto
 qed
 
-lemma equal_by_skipping :
+lemma equal_by_skipping:
   fixes n::nat and v::"real vector" and w::"real vector" and j::nat and k::nat
   assumes j_range: "j \<in> {1..n}"
     and equal_except: "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> v i = w i"
@@ -85,7 +85,7 @@ definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
 
 subsubsection {* Deviation from a bid *}
 
-lemma deviated_bid_well_formed :
+lemma deviated_bid_well_formed:
   fixes n::participants and bid::"real vector"
     and alternative_vec::"real vector" and i::participant
   assumes "bids n bid" and "bids n alternative_vec"
@@ -105,8 +105,9 @@ subsection {* Allocation *}
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation n b x \<longleftrightarrow> bids n b \<and> (\<exists>!i \<in> {1..n}. x b i)"
 
-lemma allocation_unique :
-  fixes n::participants and x::allocation and b::"real vector" and winner::participant and other::participant
+lemma allocation_unique:
+  fixes n::participants and x::allocation and b::"real vector"
+    and winner::participant and other::participant
   assumes "allocation n b x"
     and "winner \<in> {1..n}" and "x b winner"
     and "other \<in> {1..n}" and "x b other"
@@ -125,7 +126,7 @@ subsection {* Valuation *}
 definition valuation :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
   where "valuation n v \<longleftrightarrow> positive_real_vector n v"
 
-lemma valuation_is_bid :
+lemma valuation_is_bid:
   fixes n::participants and v::"real vector"
   assumes "valuation n v"
   shows "bids n v"
@@ -221,7 +222,7 @@ proof -
   finally show ?thesis .
 qed
 
-definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> (nat set)"
+definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> nat set"
   where "arg_max_set n b = {i. i \<in> {1..n} \<and> maximum n b = b i}"
 
 fun maximum_except :: "nat \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real"
@@ -338,7 +339,8 @@ definition second_price_auction_winner ::
       i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i \<and>
       (p b i = second_price_auction_winners_payment n b i)"
 
-definition second_price_auction_loser :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
+definition second_price_auction_loser ::
+    "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where "second_price_auction_loser n b x p i \<longleftrightarrow> i \<in> {1..n} \<and> \<not> x b i \<and> p b i = 0"
 
 definition second_price_auction :: "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
@@ -418,7 +420,7 @@ proof -
     show ?thesis by (auto simp add: second_price_auction_winner_def)
 qed
 
-lemma second_price_auction_winner_payoff :
+lemma second_price_auction_winner_payoff:
   fixes n::participants and v::"real vector" and x::allocation
     and b::"real vector" and p::payments and winner::participant
   assumes spa: "second_price_auction n x p"
