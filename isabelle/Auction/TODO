@@ -1,6 +1,4 @@
 * avoid odd reference to "calculation", notably in metis;
 
-* proper obtain proofs;
-
 * check/eliminate ALL x. x : A --> B;
 
