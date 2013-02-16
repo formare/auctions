@@ -223,10 +223,8 @@ qed
 definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> nat set"
   where "arg_max_set n b = {i. i \<in> {1..n} \<and> maximum n b = b i}"
 
-fun maximum_except :: "nat \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real"
-where
-  "maximum_except 0 _ _ = 0"
-| "maximum_except (Suc n) y j = maximum n (skip_index y j)"
+definition maximum_except :: "nat \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real"
+  where "maximum_except n y j = (if n = 0 then 0 else maximum (n - 1) (skip_index y j))"
 
 lemma maximum_except_is_greater_or_equal:
   fixes n::nat and y::"real vector" and j::nat and i::nat
@@ -237,26 +235,27 @@ lemma maximum_except_is_greater_or_equal:
 proof -
   let ?y_with_j_skipped = "skip_index y j"
   from j_range have "n > 0" by simp
-  then obtain pred_n where pred_n: "n = Suc pred_n" by (cases n) auto
   from neq have "i < j \<or> i > j" by auto
   then show ?thesis
   proof
     assume "i < j"
-    then have can_skip_j: "y i = ?y_with_j_skipped i" unfolding skip_index_def by simp
-    from `i < j` j_range i_range pred_n have "i \<in> {1..pred_n}" by simp
-    then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped i"
+    then have can_skip_j: "?y_with_j_skipped i = y i"
+      unfolding skip_index_def by simp
+    from `i < j` j_range i_range have "i \<in> {1..n - 1}" by simp
+    then have "maximum (n - 1) ?y_with_j_skipped \<ge> ?y_with_j_skipped i"
       by (simp add: maximum_is_greater_or_equal)
-    with can_skip_j pred_n show ?thesis by simp
+    with can_skip_j show ?thesis
+      by (auto simp add: maximum_def maximum_except_def)
   next
     assume "i > j"
-    then obtain pred_i where pred_i: "i = Suc pred_i" by (cases i) auto
-    from `i > j` pred_i have can_skip_j_and_shift_left: "y i = ?y_with_j_skipped pred_i"
-      unfolding skip_index_def by simp
-    from `i > j` i_range j_range pred_i pred_n
-    have "pred_i \<in> {1..pred_n}" by simp
-    then have "maximum pred_n ?y_with_j_skipped \<ge> ?y_with_j_skipped pred_i"
+    then have can_skip_j_and_shift_left: "?y_with_j_skipped (i - 1) = y i"
+      unfolding skip_index_def by (cases i) simp_all
+    from `i > j` i_range j_range have "i - 1 \<in> {1..n - 1}"
+      by (cases i) simp_all
+    then have "maximum (n - 1) ?y_with_j_skipped \<ge> ?y_with_j_skipped (i - 1)"
       by (simp add: maximum_is_greater_or_equal)
-    with can_skip_j_and_shift_left pred_n show ?thesis by simp
+    with can_skip_j_and_shift_left show ?thesis
+      by (auto simp add: maximum_def maximum_except_def)
   qed
 qed
 
@@ -280,7 +279,7 @@ next
   assume j_max: "y j = maximum n y"
   from non_empty
   have maximum_except_unfolded: "maximum_except n y j = maximum (n - 1) (skip_index y j)"
-    by (metis Suc_diff_1 maximum_except.simps(2))
+    by (simp add: maximum_except_def)
   show "y j \<ge> maximum_except n y j"
   proof (cases "n = 1")
     case True
@@ -321,7 +320,7 @@ proof -
     using equal_by_skipping by auto
   then have "maximum (n - 1) (skip_index y i) =
     maximum (n - 1) (skip_index (y(i := a)) i)" by (simp add: maximum_equal)
-  with non_empty show ?thesis by (metis Suc_pred' maximum_except.simps(2))
+  with non_empty show ?thesis by (simp add: maximum_except_def)
 qed
 
 
