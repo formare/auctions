@@ -139,12 +139,10 @@ lemma valuation_is_bid:
 subsection {* Payoff *}
 
 definition payoff :: "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real"
-  where
-    "payoff Valuation Allocation Payment =
-      Valuation * (if Allocation then 1 else 0) - Payment"
+  where "payoff v x p = v * (if x then 1 else 0) - p"
 
-definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow> real vector \<Rightarrow> participant \<Rightarrow> real"
-  where "payoff_vector v concrete_x concrete_p i = payoff (v i) (concrete_x i) (concrete_p i)"
+definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow> real vector \<Rightarrow> real vector"
+  where "payoff_vector v x p = (\<lambda>i. payoff (v i) (x i) (p i))"
 
 
 subsection {* Maximum *}
