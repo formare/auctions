@@ -137,7 +137,7 @@ lemma allocation_unique :
 subsection {* Payment *}
 
 definition vickrey_payment :: "participants \<Rightarrow> real vector \<Rightarrow> payments \<Rightarrow> bool"
-  where "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i::participant \<in> {1..n}. p b i \<ge> 0)"
+  where "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i \<in> {1..n}. p b i \<ge> 0)"
 
 
 subsection {* Valuation *}
@@ -241,7 +241,7 @@ next
     from Suc.prems have pred_non_negative: "non_negative_real_vector n y"
       unfolding non_negative_real_vector_def
       by simp
-    with non_empty obtain i::nat where "i \<in> {1..n}" and pred_max: "maximum n y = y i"
+    with non_empty obtain i where "i \<in> {1..n}" and pred_max: "maximum n y = y i"
       by (metis Suc.hyps)
     with Suc.prems have y_i_non_negative: "0 \<le> y i"
       unfolding non_negative_real_vector_def by simp
@@ -288,7 +288,7 @@ next
       have "\<dots> \<ge> maximum n y"
       proof -
         from False pred_non_negative maximum_is_component
-        obtain k::nat where "k \<in> {1..n}" and "maximum n y = y k" by blast
+        obtain k where "k \<in> {1..n}" and "maximum n y = y k" by blast
         with Suc.prems(3) show ?thesis by simp
       qed
       then show ?thesis
@@ -386,7 +386,7 @@ next
     have pred_non_negative: "non_negative_real_vector (n - 1) (skip_index y j)"
       by (metis skip_index_keeps_non_negativity)
     from pred_non_empty pred_non_negative maximum_is_component
-    obtain i::nat where i_range: "i \<in> {1..n - 1}" and
+    obtain i where i_range: "i \<in> {1..n - 1}" and
       maximum_except_component: "maximum (n - 1) (skip_index y j) = (skip_index y j) i"
       by blast
     from maximum_except_component maximum_except_unfolded
@@ -435,9 +435,9 @@ definition second_price_auction_loser :: "participants \<Rightarrow> real vector
 definition second_price_auction :: "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "second_price_auction n x p \<longleftrightarrow>
-      (\<forall>b::real vector. bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
-        (\<exists>i::participant \<in> {1..n}. second_price_auction_winner n b x p i \<and>
-          (\<forall>j::participant \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
+      (\<forall>b. bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
+        (\<exists>i \<in> {1..n}. second_price_auction_winner n b x p i \<and>
+          (\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
 
 lemma allocated_implies_spa_winner:
   fixes n::participants and x::allocation and p::payments
@@ -565,8 +565,8 @@ subsection {* Efficiency *}
 
 definition efficient :: "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
   where
-    "efficient n v b x \<longleftrightarrow> valuation n v \<and> bids n b \<and>
-      (\<forall>i::participant \<in> {1..n}. x b i \<longrightarrow> i \<in> arg_max_set n v)"
+    "efficient n v b x \<longleftrightarrow>
+      valuation n v \<and> bids n b \<and> (\<forall>i \<in> {1..n}. x b i \<longrightarrow> i \<in> arg_max_set n v)"
 
 
 subsection {* Equilibrium in weakly dominant strategies *}
@@ -575,11 +575,11 @@ definition equilibrium_weakly_dominant_strategy ::
   "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
   "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
     valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and>
-   (\<forall>i::participant \<in> {1..n}.
-     (\<forall>whatever_bid::real vector. bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
-       let i_sticks_with_bid = whatever_bid(i := b i)
-       in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
-          payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
+    (\<forall>i \<in> {1..n}.
+      (\<forall>whatever_bid. bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
+        (let i_sticks_with_bid = whatever_bid(i := b i)
+         in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
+            payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
 
 
 section {* Vickrey's Theorem *}
