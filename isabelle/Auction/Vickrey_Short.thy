@@ -512,7 +512,7 @@ proof -
         have winners_payoff:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
             v i - maximum_except n ?i_sticks_with_strategy i"
-          by (simp add: second_price_auction_winner_payoff)
+          by (rule second_price_auction_winner_payoff)
         also have "\<dots> = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
           by simp
         finally have payoff_expanded:
