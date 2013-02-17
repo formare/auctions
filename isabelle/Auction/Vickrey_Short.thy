@@ -48,23 +48,6 @@ definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"  
   where "bids N b \<longleftrightarrow> non_negative_real_vector N b"
 
 
-subsubsection {* Deviation from a bid *}
-
-lemma deviated_bid_well_formed:
-  fixes N :: participants and bid :: "real vector"
-    and alternative_vec :: "real vector" and i :: participant
-  assumes "bids N bid" and "bids N alternative_vec"
-  shows "bids N (bid(i := alternative_vec i))"  (is "bids _ ?dev")
-proof -
-  {
-    fix k::participant
-    assume "k \<in> N"
-    with assms have "?dev k \<ge> 0" by (auto simp add: bids_def non_negative_real_vector_def)
-  }
-  then show "bids N ?dev" by (simp add: bids_def non_negative_real_vector_def)
-qed
-
-
 subsection {* Allocation *}
 
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
@@ -406,7 +389,7 @@ proof -
     let ?i_sticks_with_strategy = "whatever_bid(i := ?b i)"
     from bids alternative_is_bid
     have i_sticks_is_bid: "bids ?N ?i_sticks_with_strategy"
-      by (simp add: deviated_bid_well_formed)
+      by (simp add: bids_def non_negative_real_vector_def)
     then have i_sticks_nonneg: "non_negative_real_vector ?N ?i_sticks_with_strategy"
       by (simp add: bids_def)
 
