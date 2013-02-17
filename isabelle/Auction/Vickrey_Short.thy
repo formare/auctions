@@ -159,11 +159,6 @@ proof -
   then show ?thesis unfolding maximum_def by simp
 qed
 
-lemma maximum_non_negative:
-  fixes n::nat and y::"real vector"
-  shows "maximum n y \<ge> 0"
-  unfolding maximum_def by simp
-
 lemma maximum_is_greater_or_equal:
   fixes n::nat and y::"real vector" and i::nat
   assumes "i \<in> {1..n}"
@@ -262,38 +257,33 @@ qed
 lemma maximum_greater_or_equal_remaining_maximum:
   fixes n::nat and y::"real vector" and j::nat
   assumes non_negative: "non_negative_real_vector n y"
-    and non_empty: "n > 0"
+    and non_trivial: "n > 1"
     and range: "j \<in> {1..n}"
-  shows "y j \<ge> maximum_except n y j \<longleftrightarrow> y j = maximum n y"
+  shows "y j \<ge> maximum_except n y j \<longleftrightarrow> maximum n y = y j"
 proof
   assume ge_remaining: "y j \<ge> maximum_except n y j"
-  from non_empty range
+  from non_trivial range
   have "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i"
     by (simp add: maximum_except_is_greater_or_equal)
   with ge_remaining have "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
   then have greater_or_equal: "\<forall>i \<in> {1..n}. y j \<ge> y i" by auto
   from range have is_component: "\<exists>i \<in> {1..n}. y j = y i" by auto
-  with non_negative non_empty greater_or_equal show "y j = maximum n y"
+  with non_negative non_trivial greater_or_equal show "maximum n y = y j"
     by (simp add: maximum_sufficient)
 next
-  assume j_max: "y j = maximum n y"
-  from non_empty
+  assume j_max: "maximum n y = y j"
+  from non_trivial
   have maximum_except_unfolded: "maximum_except n y j = maximum (n - 1) (skip_index y j)"
     by (simp add: maximum_except_def)
   show "y j \<ge> maximum_except n y j"
-  proof (cases "n = 1")
-    case True
-    with maximum_except_unfolded maximum_def have "maximum_except n y j = 0" by simp
-    with j_max non_negative show ?thesis by (simp add: maximum_non_negative)
-  next
-    case False
-    from j_max have ge: "\<forall>k \<in> {1..n}. y j \<ge> y k" by (simp add: maximum_is_greater_or_equal)
-    from False non_empty have "n > 1" by simp
-    then have pred_non_empty: "n - 1 > 0" by simp
-    from non_empty non_negative range
+  proof -
+    from j_max [symmetric] have ge: "\<forall>k \<in> {1..n}. y j \<ge> y k"
+      by (simp add: maximum_is_greater_or_equal)
+    from non_negative range
     have pred_non_negative: "non_negative_real_vector (n - 1) (skip_index y j)"
-      by (metis skip_index_keeps_non_negativity)
-    from pred_non_empty pred_non_negative maximum_is_component
+      by (rule skip_index_keeps_non_negativity)
+    from non_trivial have "n - 1 > 0" by simp
+    with pred_non_negative maximum_is_component
     obtain i where i_range: "i \<in> {1..n - 1}" and
       maximum_except_component: "maximum (n - 1) (skip_index y j) = (skip_index y j) i"
       by blast
@@ -498,6 +488,7 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
 
 theorem vickreyA:
   fixes n :: participants and v :: "real vector" and x :: allocation and p :: payments
+  assumes non_trivial: "n > 1"
   assumes val: "valuation n v" and spa: "second_price_auction n x p"
   shows "equilibrium_weakly_dominant_strategy n v v (* \<leftarrow> i.e. b *) x p"
 proof -
@@ -512,15 +503,18 @@ proof -
   {
     fix i :: participant
     assume i_range: "i \<in> {1..n}"
-    then have non_empty: "n > 0" by simp
+
     fix whatever_bid :: "real vector"
     assume alternative_is_bid: "bids n whatever_bid"
+
     let ?i_sticks_with_strategy = "whatever_bid(i := ?b i)"
-    txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
-      Given this, we have to show that agent @{term i} is best off. *}
     from bids alternative_is_bid
     have i_sticks_is_bid: "bids n ?i_sticks_with_strategy"
       by (simp add: deviated_bid_well_formed)
+
+    txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
+      Given this, we have to show that agent @{term i} is best off. *}
+
     have weak_dominance:
       "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
         payoff_vector v (x whatever_bid) (p whatever_bid) i"
@@ -537,7 +531,8 @@ proof -
         then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy"
           by (simp add: arg_max_set_def)
         also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
-          using i_sticks_is_bid bids_def non_empty i_range
+          using i_sticks_is_bid bids_def non_trivial i_range
+          maximum_greater_or_equal_remaining_maximum
           by (metis calculation maximum_greater_or_equal_remaining_maximum)
         finally
         have i_ge_max_except:
@@ -560,7 +555,7 @@ proof -
         show ?thesis
         proof cases -- {* case 1a of the short proof *}
           assume "x whatever_bid i"
-          with spa alternative_is_bid non_empty i_range
+          with spa alternative_is_bid non_trivial i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               v i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by simp
@@ -603,7 +598,7 @@ proof -
         show ?thesis
         proof cases -- {* case 2a of the short proof *}
           assume "x whatever_bid i"
-          with spa alternative_is_bid non_empty i_range
+          with spa alternative_is_bid non_trivial i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
             using winners_payoff_on_deviation_from_valuation by simp
