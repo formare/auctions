@@ -70,15 +70,6 @@ subsection {* Allocation *}
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation N b x \<longleftrightarrow> bids N b \<and> (\<exists>!i \<in> N. x b i)"
 
-lemma allocation_unique:
-  fixes N :: participants and x :: allocation and b :: "real vector"
-    and winner::participant and other::participant
-  assumes "allocation N b x"
-    and "winner \<in> N" and "x b winner"
-    and "other \<in> N" and "x b other"
-  shows "other = winner"
-  using assms unfolding allocation_def by blast
-
 
 subsection {* Payment *}
 
@@ -239,8 +230,7 @@ lemma allocated_implies_spa_winner:
     and "x b winner"
   shows "second_price_auction_winner N b x p winner"
   using assms
-  unfolding second_price_auction_def second_price_auction_winner_def
-  using allocation_unique
+  unfolding second_price_auction_def second_price_auction_winner_def allocation_def
   by blast
 
 lemma not_allocated_implies_spa_loser:
