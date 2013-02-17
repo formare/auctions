@@ -366,10 +366,11 @@ proof -
 
     let ?M = "?N - {i}"
     have defined': "maximum_defined ?M"
-      unfolding maximum_defined_def
-      (* FIXME cleanup this mess *)
-      by (metis atLeastAtMost_singleton_iff finite_Diff finite_atLeastAtMost
-          i_range insert_Diff_single insert_absorb less_numeral_extra(4) non_trivial)
+    proof -
+      from non_trivial have "\<not> (\<exists>x. ?N = {x})" by auto
+      with i_range have "?M \<noteq> {}" by blast
+      then show ?thesis by (simp add: maximum_defined_def)
+    qed
 
     fix whatever_bid :: "real vector"
     assume alternative_is_bid: "bids ?N whatever_bid"
