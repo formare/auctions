@@ -195,7 +195,8 @@ definition second_price_auction_loser ::
 definition second_price_auction :: "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "second_price_auction N x p \<longleftrightarrow>
-      (\<forall>b. bids N b \<longrightarrow> allocation N b x \<and> vickrey_payment N b p \<and>
+      (\<forall>b. bids N b \<longrightarrow>
+        allocation N b x \<and> vickrey_payment N b p \<and>
         (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
           (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N b x p j)))"
 
@@ -236,34 +237,29 @@ lemma only_max_bidder_wins:
     and only_max_bidder: "b max_bidder > maximum (N - {max_bidder}) b"
   shows "second_price_auction_winner N b x p max_bidder"
 proof -
-  from bids spa
-  have spa_unfolded: "\<exists>i. second_price_auction_winner N b x p i \<and>
+  from spa bids have spa_unfolded:
+    "\<exists>i. second_price_auction_winner N b x p i \<and>
       (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N b x p j)"
     unfolding second_price_auction_def by blast
-  then have x_is_allocation: "\<exists>i \<in> N. x b i \<and> (\<forall>j \<in> N. j\<noteq>i \<longrightarrow> \<not> x b j)"
-    unfolding second_price_auction_winner_def second_price_auction_loser_def by blast
   {
-    fix j::participant
+    fix j :: participant
     assume j_not_max: "j \<in> N \<and> j \<noteq> max_bidder"
     have "j \<notin> arg_max_set N b"
-    proof -
+    proof
+      assume "j \<in> arg_max_set N b"
+      then have maximum: "b j = maximum N b" unfolding arg_max_set_def by simp
+
       from j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
         using defined maximum_except_is_greater_or_equal by simp
       with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
-      then show ?thesis
-      proof - (* by contradiction *)  (* FIXME !? *)
-        {
-          assume "b j = maximum N b"
-          with defined range have "b j \<ge> b max_bidder"
-            by (simp add: maximum_is_greater_or_equal)
-          with b_j_lt_max have False by simp
-        }
-        then show ?thesis unfolding arg_max_set_def by auto
-      qed
+
+      from defined range maximum have "b j \<ge> b max_bidder"
+        by (simp add: maximum_is_greater_or_equal)
+      with b_j_lt_max show False by simp
     qed
   }
-  with x_is_allocation spa_unfolded
-    show ?thesis by (auto simp add: second_price_auction_winner_def)
+  with spa_unfolded show ?thesis
+    by (auto simp add: second_price_auction_winner_def)
 qed
 
 lemma second_price_auction_winner_payoff:
