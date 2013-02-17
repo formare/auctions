@@ -44,7 +44,7 @@ type_synonym payments = "real vector \<Rightarrow> participant \<Rightarrow> rea
 
 subsection {* Strategy (bids) *}
 
-definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"  (* FIXME include maximum_defined here!? *)
+definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
   where "bids N b \<longleftrightarrow> non_negative_real_vector N b"
 
 
