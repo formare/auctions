@@ -237,49 +237,36 @@ proof -
   qed
 qed
 
-lemma maximum_greater_or_equal_remaining_maximum:
+lemma maximum_remaining_maximum:
   fixes n::nat and y::"real vector" and j::nat
   assumes non_negative: "non_negative_real_vector n y"
     and non_trivial: "n > 1"
     and range: "j \<in> {1..n}"
-  shows "y j \<ge> maximum_except n y j \<longleftrightarrow> maximum n y = y j"
-proof
-  assume ge_remaining: "y j \<ge> maximum_except n y j"
-  from non_trivial range
-  have "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> maximum_except n y j \<ge> y i"
-    by (simp add: maximum_except_is_greater_or_equal)
-  with ge_remaining have "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> y j \<ge> y i" by auto
-  then have greater_or_equal: "\<forall>i \<in> {1..n}. y j \<ge> y i" by auto
-  from range have is_component: "\<exists>i \<in> {1..n}. y j = y i" by auto
-  with non_negative non_trivial greater_or_equal show "maximum n y = y j"
-    by (simp add: maximum_sufficient)
-next
-  assume j_max: "maximum n y = y j"
+    and j_max: "maximum n y = y j"
+  shows "maximum_except n y j \<le> y j"
+proof -
   from non_trivial
   have maximum_except_unfolded: "maximum_except n y j = maximum (n - 1) (skip_index y j)"
     by (simp add: maximum_except_def)
-  show "y j \<ge> maximum_except n y j"
-  proof -
-    from j_max [symmetric] have ge: "\<forall>k \<in> {1..n}. y j \<ge> y k"
-      by (simp add: maximum_is_greater_or_equal)
-    from non_negative range
-    have pred_non_negative: "non_negative_real_vector (n - 1) (skip_index y j)"
-      by (rule skip_index_keeps_non_negativity)
-    from non_trivial have "n - 1 > 0" by simp
-    with pred_non_negative maximum_is_component
-    obtain i where i_range: "i \<in> {1..n - 1}" and
-      maximum_except_component: "maximum (n - 1) (skip_index y j) = (skip_index y j) i"
-      by blast
-    from maximum_except_component maximum_except_unfolded
-    have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i"
-      by simp
-    have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)"
-      unfolding skip_index_def by simp
-    from i_range have 1: "i \<in> {1..n}" by auto
-    from i_range have 2: "Suc i \<in> {1..n}" by auto
-    from skip_index_range 1 2 have "\<exists>k \<in> {1..n}. (skip_index y j) i = y k" by auto
-    with ge maximum_except_component_nice show "y j \<ge> maximum_except n y j" by auto
-  qed
+  from j_max [symmetric] have ge: "\<forall>k \<in> {1..n}. y j \<ge> y k"
+    by (simp add: maximum_is_greater_or_equal)
+  from non_negative range
+  have pred_non_negative: "non_negative_real_vector (n - 1) (skip_index y j)"
+    by (rule skip_index_keeps_non_negativity)
+  from non_trivial have "n - 1 > 0" by simp
+  with pred_non_negative maximum_is_component
+  obtain i where i_range: "i \<in> {1..n - 1}" and
+    maximum_except_component: "maximum (n - 1) (skip_index y j) = (skip_index y j) i"
+    by blast
+  from maximum_except_component maximum_except_unfolded
+  have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i"
+    by simp
+  have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)"
+    unfolding skip_index_def by simp
+  from i_range have 1: "i \<in> {1..n}" by auto
+  from i_range have 2: "Suc i \<in> {1..n}" by auto
+  from skip_index_range 1 2 have "\<exists>k \<in> {1..n}. (skip_index y j) i = y k" by auto
+  with ge maximum_except_component_nice show ?thesis by auto
 qed
 
 lemma remaining_maximum_invariant:
@@ -494,6 +481,8 @@ proof -
     from bids alternative_is_bid
     have i_sticks_is_bid: "bids n ?i_sticks_with_strategy"
       by (simp add: deviated_bid_well_formed)
+    then have i_sticks_nonneg: "non_negative_real_vector n ?i_sticks_with_strategy"
+      by (simp add: bids_def)
 
     txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
       Given this, we have to show that agent @{term i} is best off. *}
@@ -506,20 +495,18 @@ proof -
       show ?thesis
       proof cases -- {* case 1 of the short proof *}
         assume i_wins: "x ?i_sticks_with_strategy i"
+
         txt {* @{term i} gets the good, so @{term i} also satisfies the further properties of a
           second price auction winner: *}
         with spa i_sticks_is_bid i_range
         have "i \<in> arg_max_set n ?i_sticks_with_strategy"
           using allocated_implies_spa_winner by (simp add: second_price_auction_winner_def)
-        then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy"
+        then have "maximum n ?i_sticks_with_strategy = ?i_sticks_with_strategy i"
           by (simp add: arg_max_set_def)
-        also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
-          using i_sticks_is_bid bids_def non_trivial i_range
-          maximum_greater_or_equal_remaining_maximum
-          by (metis calculation maximum_greater_or_equal_remaining_maximum)
-        finally
-        have i_ge_max_except:
-            "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i" .
+        with i_sticks_nonneg non_trivial i_range
+        have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i"
+          by (rule maximum_remaining_maximum)
+
         txt {* Now we show that @{term i}'s payoff is @{text "\<ge> 0"}. *}
         from spa i_sticks_is_bid i_range i_wins
         have winners_payoff:
