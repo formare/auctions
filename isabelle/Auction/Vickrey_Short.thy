@@ -251,11 +251,11 @@ proof -
 
       from j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
         using defined maximum_except_is_greater_or_equal by simp
-      with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
+      with only_max_bidder have *: "b j < b max_bidder" by simp
 
       from defined range maximum have "b j \<ge> b max_bidder"
         by (simp add: maximum_is_greater_or_equal)
-      with b_j_lt_max show False by simp
+      with * show False by simp
     qed
   }
   with spa_unfolded show ?thesis
