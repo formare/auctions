@@ -142,7 +142,7 @@ definition arg_max_set :: "participants \<Rightarrow> real vector \<Rightarrow> 
 lemma maximum_except_is_greater_or_equal:
   fixes N :: participants and y :: "real vector" and j :: participant and i :: participant
   assumes defined: "maximum_defined N"
-    and i: "i \<in> N" "i \<noteq> j"
+    and i: "i \<in> N \<and> i \<noteq> j"
   shows "maximum (N - {j}) y \<ge> y i"
 proof -
   let ?M = "N - {j}"
