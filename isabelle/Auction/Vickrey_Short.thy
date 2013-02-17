@@ -148,7 +148,7 @@ definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow>
 subsection {* Maximum *}
 
 definition maximum :: "nat \<Rightarrow> real vector \<Rightarrow> real"
-  where "maximum n y = (if n = 0 then 0 else max 0 (Max (y ` {1..n})))"
+  where "maximum n y = Max (y ` {1..n})"
 
 lemma maximum_equal:
   fixes n::nat and y::"real vector" and z::"real vector"
@@ -163,23 +163,7 @@ lemma maximum_is_greater_or_equal:
   fixes n::nat and y::"real vector" and i::nat
   assumes "i \<in> {1..n}"
   shows "maximum n y \<ge> y i"
-proof -
-  from assms have "n > 0" and "y i \<le> Max (y ` {1..n})" by simp_all
-  then show ?thesis unfolding maximum_def by simp
-qed
-
-lemma maximum_Max:
-  fixes n::nat and y::"real vector"
-  assumes non_empty: "n > 0"
-    and non_negative: "non_negative_real_vector n y"
-  shows "maximum n y = Max (y ` {1..n})"
-proof -
-  let ?A = "y ` {1..n}"
-  from non_empty have "finite ?A" and "?A \<noteq> {}" by simp_all
-  with non_empty non_negative have "0 \<le> Max ?A"
-    unfolding non_negative_real_vector_def by (auto simp add: Max_ge_iff)
-  with non_empty show ?thesis unfolding maximum_def by simp
-qed
+  using assms unfolding maximum_def by simp
 
 lemma maximum_is_component:
   fixes n::nat and y::"real vector"
@@ -188,11 +172,10 @@ lemma maximum_is_component:
   shows "\<exists>i \<in> {1..n}. maximum n y = y i"
 proof -
   let ?A = "y ` {1..n}"
-  have *: "maximum n y = Max ?A" using non_empty non_negative by (rule maximum_Max)
   from non_empty have "finite ?A" and "?A \<noteq> {}" by simp_all
   then have "Max ?A \<in> ?A" by (rule Max_in)
   then obtain i where "i \<in> {1..n}" and "Max ?A = y i" by auto
-  with * show ?thesis by auto
+  with maximum_def show ?thesis by auto
 qed
 
 lemma maximum_sufficient:
@@ -202,17 +185,16 @@ lemma maximum_sufficient:
     and greater_or_equal: "\<forall>i \<in> {1..n}. m \<ge> y i"
     and is_component: "\<exists>i \<in> {1..n}. m = y i"
   shows "maximum n y = m"
+  unfolding maximum_def
 proof -
   let ?A = "y ` {1..n}"
-  have "maximum n y = Max ?A" using non_empty non_negative by (rule maximum_Max)
-  also have "Max ?A = m"
+  show "Max ?A = m"
   proof (rule Max_eqI)
     show "finite ?A" by simp
     show "m \<in> ?A" using is_component by auto
     fix a assume "a \<in> ?A"
     then show "a \<le> m" using greater_or_equal by blast
   qed
-  finally show ?thesis .
 qed
 
 definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> nat set"
@@ -229,7 +211,8 @@ lemma maximum_except_is_greater_or_equal:
   shows "maximum_except n y j \<ge> y i"
 proof -
   let ?y_with_j_skipped = "skip_index y j"
-  from j_range have "n > 0" by simp
+  from j_range i_range neq have "n > 1" by simp
+
   from neq have "i < j \<or> i > j" by auto
   then show ?thesis
   proof
@@ -239,7 +222,7 @@ proof -
     from `i < j` j_range i_range have "i \<in> {1..n - 1}" by simp
     then have "maximum (n - 1) ?y_with_j_skipped \<ge> ?y_with_j_skipped i"
       by (simp add: maximum_is_greater_or_equal)
-    with can_skip_j show ?thesis
+    with `n > 1` can_skip_j show ?thesis
       by (auto simp add: maximum_def maximum_except_def)
   next
     assume "i > j"
@@ -249,7 +232,7 @@ proof -
       by (cases i) simp_all
     then have "maximum (n - 1) ?y_with_j_skipped \<ge> ?y_with_j_skipped (i - 1)"
       by (simp add: maximum_is_greater_or_equal)
-    with can_skip_j_and_shift_left show ?thesis
+    with `n > 1` can_skip_j_and_shift_left show ?thesis
       by (auto simp add: maximum_def maximum_except_def)
   qed
 qed
