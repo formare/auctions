@@ -65,11 +65,7 @@ subsection {* Valuation *}
 definition valuation :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
   where "valuation N v \<longleftrightarrow> positive_real_vector N v"
 
-lemma valuation_is_bid:
-  fixes N :: participants and v :: "real vector"
-  assumes "valuation N v"
-  shows "bids N v"
-  using assms
+lemma valuation_is_bid: "valuation N v \<Longrightarrow> bids N v"
   unfolding valuation_def positive_real_vector_def
   unfolding bids_def non_negative_real_vector_def
   by auto
