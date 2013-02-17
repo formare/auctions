@@ -23,94 +23,59 @@ theory Vickrey_Short
 imports Complex_Main
 begin
 
-
-section {* Vectors *}
-
-type_synonym 'a vector = "nat \<Rightarrow> 'a"
-
-definition non_negative_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
-  where "non_negative_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i \<ge> 0)"
-
-definition positive_real_vector :: "nat \<Rightarrow> real vector \<Rightarrow> bool"
-  where "positive_real_vector n v \<longleftrightarrow> (\<forall>i \<in> {1..n}. v i > 0)"
-
-definition skip_index :: "'a vector \<Rightarrow> nat \<Rightarrow> 'a vector"
-  where "skip_index vector index = (\<lambda>i. vector (if i < index then i else Suc i))"
-
-lemma skip_index_keeps_non_negativity:
-  fixes n::nat and v::"real vector" and i::nat
-  assumes non_negative: "non_negative_real_vector n v"
-    and range: "i \<in> {1..n}"
-  shows "non_negative_real_vector (n - 1) (skip_index v i)"
-  unfolding non_negative_real_vector_def
-proof
-  fix j::nat
-  assume j_range: "j \<in> {1..n - 1}"
-  have "(skip_index v i) j = (if j < i then v j else v (Suc j))"
-    unfolding skip_index_def by auto
-  with j_range non_negative show "(skip_index v i) j \<ge> 0"
-    unfolding non_negative_real_vector_def by auto
-qed
-
-lemma equal_by_skipping:
-  fixes n::nat and v::"real vector" and w::"real vector" and j::nat and k::nat
-  assumes j_range: "j \<in> {1..n}"
-    and equal_except: "\<forall>i \<in> {1..n}. i \<noteq> j \<longrightarrow> v i = w i"
-    and k_range: "k \<in> {1..n - 1}"
-  shows "skip_index v j k = skip_index w j k"
-proof -
-  have "skip_index v j k = (if k < j then v k else v (Suc k))"
-    and "skip_index w j k = (if k < j then w k else w (Suc k))"
-    unfolding skip_index_def by simp_all
-  with equal_except k_range show ?thesis by auto
-qed
-
-
 section {* Single good auctions *}
 
 subsection {* Preliminaries *}
 
-type_synonym participant = "nat"  (* ordinal number *)
-type_synonym participants = "nat" (* cardinal number *)
+type_synonym participant = nat
+type_synonym participants = "nat set"
 
-type_synonym allocation = "real vector \<Rightarrow> participants \<Rightarrow> bool"
-type_synonym payments = "real vector \<Rightarrow> participants \<Rightarrow> real"
+type_synonym 'a vector = "participant \<Rightarrow> 'a"
+
+definition non_negative_real_vector :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
+  where "non_negative_real_vector N v \<longleftrightarrow> (\<forall>i \<in> N. v i \<ge> 0)"
+
+definition positive_real_vector :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
+  where "positive_real_vector N v \<longleftrightarrow> (\<forall>i \<in> N. v i > 0)"
+
+type_synonym allocation = "real vector \<Rightarrow> participant \<Rightarrow> bool"
+type_synonym payments = "real vector \<Rightarrow> participant \<Rightarrow> real"
 
 
 subsection {* Strategy (bids) *}
 
-definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
-  where "bids n b \<longleftrightarrow> non_negative_real_vector n b"
+definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"  (* FIXME include maximum_defined here!? *)
+  where "bids N b \<longleftrightarrow> non_negative_real_vector N b"
 
 
 subsubsection {* Deviation from a bid *}
 
 lemma deviated_bid_well_formed:
-  fixes n::participants and bid::"real vector"
-    and alternative_vec::"real vector" and i::participant
-  assumes "bids n bid" and "bids n alternative_vec"
-  shows "bids n (bid(i := alternative_vec i))"  (is "bids _ ?dev")
+  fixes N :: participants and bid :: "real vector"
+    and alternative_vec :: "real vector" and i :: participant
+  assumes "bids N bid" and "bids N alternative_vec"
+  shows "bids N (bid(i := alternative_vec i))"  (is "bids _ ?dev")
 proof -
   {
     fix k::participant
-    assume "k \<in> {1..n}"
-    with assms have "?dev k \<ge> 0" by (simp add: bids_def non_negative_real_vector_def)
+    assume "k \<in> N"
+    with assms have "?dev k \<ge> 0" by (auto simp add: bids_def non_negative_real_vector_def)
   }
-  then show "bids n ?dev" by (simp add: bids_def non_negative_real_vector_def)
+  then show "bids N ?dev" by (simp add: bids_def non_negative_real_vector_def)
 qed
 
 
 subsection {* Allocation *}
 
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
-  where "allocation n b x \<longleftrightarrow> bids n b \<and> (\<exists>!i \<in> {1..n}. x b i)"
+  where "allocation N b x \<longleftrightarrow> bids N b \<and> (\<exists>!i \<in> N. x b i)"
 
 lemma allocation_unique:
-  fixes n::participants and x::allocation and b::"real vector"
+  fixes N :: participants and x :: allocation and b :: "real vector"
     and winner::participant and other::participant
-  assumes "allocation n b x"
-    and "winner \<in> {1..n}" and "x b winner"
-    and "other \<in> {1..n}" and "x b other"
+  assumes "allocation N b x"
+    and "winner \<in> N" and "x b winner"
+    and "other \<in> N" and "x b other"
   shows "other = winner"
   using assms unfolding allocation_def by blast
 
@@ -118,18 +83,18 @@ lemma allocation_unique:
 subsection {* Payment *}
 
 definition vickrey_payment :: "participants \<Rightarrow> real vector \<Rightarrow> payments \<Rightarrow> bool"
-  where "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i \<in> {1..n}. p b i \<ge> 0)"
+  where "vickrey_payment N b p \<longleftrightarrow> bids N b \<and> (\<forall>i \<in> N. p b i \<ge> 0)"
 
 
 subsection {* Valuation *}
 
 definition valuation :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
-  where "valuation n v \<longleftrightarrow> positive_real_vector n v"
+  where "valuation N v \<longleftrightarrow> positive_real_vector N v"
 
 lemma valuation_is_bid:
-  fixes n::participants and v::"real vector"
-  assumes "valuation n v"
-  shows "bids n v"
+  fixes N :: participants and v :: "real vector"
+  assumes "valuation N v"
+  shows "bids N v"
   using assms
   unfolding valuation_def positive_real_vector_def
   unfolding bids_def non_negative_real_vector_def
@@ -147,140 +112,97 @@ definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow>
 
 subsection {* Maximum *}
 
-definition maximum :: "nat \<Rightarrow> real vector \<Rightarrow> real"
-  where "maximum n y = Max (y ` {1..n})"
+definition maximum_defined :: "participants \<Rightarrow> bool"
+  where "maximum_defined N \<longleftrightarrow> finite N \<and> N \<noteq> {}"
+
+definition maximum :: "participants \<Rightarrow> real vector \<Rightarrow> real"
+  where "maximum N y = Max (y ` N)"
 
 lemma maximum_equal:
-  fixes n::nat and y::"real vector" and z::"real vector"
-  assumes "\<forall>i \<in> {1..n}. y i = z i"
-  shows "maximum n y = maximum n z"
+  fixes N :: participants and y :: "real vector" and z :: "real vector"
+  assumes "\<forall>i \<in> N. y i = z i"
+  shows "maximum N y = maximum N z"
 proof -
-  have "y ` {1..n} = z ` {1..n}" by (rule image_cong) (auto simp add: assms)
+  have "y ` N = z ` N" by (rule image_cong) (auto simp add: assms)
   then show ?thesis unfolding maximum_def by simp
 qed
 
 lemma maximum_is_greater_or_equal:
-  fixes n::nat and y::"real vector" and i::nat
-  assumes "i \<in> {1..n}"
-  shows "maximum n y \<ge> y i"
-  using assms unfolding maximum_def by simp
+  fixes N :: participants and y :: "real vector" and i :: participant
+  assumes "maximum_defined N"
+    and "i \<in> N"
+  shows "maximum N y \<ge> y i"
+  using assms unfolding maximum_defined_def maximum_def by simp
 
 lemma maximum_is_component:
-  fixes n::nat and y::"real vector"
-  assumes non_empty: "n > 0"
-    and non_negative: "non_negative_real_vector n y"
-  shows "\<exists>i \<in> {1..n}. maximum n y = y i"
+  fixes N :: participants and y :: "real vector"
+  assumes defined: "maximum_defined N"
+    and non_negative: "non_negative_real_vector N y"
+  shows "\<exists>i \<in> N. maximum N y = y i"
 proof -
-  let ?A = "y ` {1..n}"
-  from non_empty have "finite ?A" and "?A \<noteq> {}" by simp_all
+  let ?A = "y ` N"
+  from defined have "finite ?A" and "?A \<noteq> {}" by (simp_all add: maximum_defined_def)
   then have "Max ?A \<in> ?A" by (rule Max_in)
-  then obtain i where "i \<in> {1..n}" and "Max ?A = y i" by auto
+  then obtain i where "i \<in> N" and "Max ?A = y i" by auto
   with maximum_def show ?thesis by auto
 qed
 
 lemma maximum_sufficient:
-  fixes n::nat and y::"real vector" and m::real
-  assumes non_negative: "non_negative_real_vector n y"
-    and non_empty: "n > 0"
-    and greater_or_equal: "\<forall>i \<in> {1..n}. m \<ge> y i"
-    and is_component: "\<exists>i \<in> {1..n}. m = y i"
-  shows "maximum n y = m"
+  fixes N :: participants and y :: "real vector" and m :: real
+  assumes non_negative: "non_negative_real_vector N y"
+    and defined: "maximum_defined N"
+    and greater_or_equal: "\<forall>i \<in> N. m \<ge> y i"
+    and is_component: "\<exists>i \<in> N. m = y i"
+  shows "maximum N y = m"
   unfolding maximum_def
 proof -
-  let ?A = "y ` {1..n}"
+  let ?A = "y ` N"
   show "Max ?A = m"
   proof (rule Max_eqI)
-    show "finite ?A" by simp
+    from defined show "finite ?A" by (simp add: maximum_defined_def)
     show "m \<in> ?A" using is_component by auto
     fix a assume "a \<in> ?A"
     then show "a \<le> m" using greater_or_equal by blast
   qed
 qed
 
-definition arg_max_set :: "nat \<Rightarrow> real vector \<Rightarrow> nat set"
-  where "arg_max_set n b = {i. i \<in> {1..n} \<and> maximum n b = b i}"
-
-definition maximum_except :: "nat \<Rightarrow> real vector \<Rightarrow> nat \<Rightarrow> real"
-  where "maximum_except n y j = (if n = 0 then 0 else maximum (n - 1) (skip_index y j))"
+definition arg_max_set :: "participants \<Rightarrow> real vector \<Rightarrow> participants"
+  where "arg_max_set N b = {i. i \<in> N \<and> maximum N b = b i}"
 
 lemma maximum_except_is_greater_or_equal:
-  fixes n::nat and y::"real vector" and j::nat and i::nat
-  assumes j_range: "j \<in> {1..n}"
-    and i_range: "i \<in> {1..n}"
-    and neq: "i \<noteq> j"
-  shows "maximum_except n y j \<ge> y i"
+  fixes N :: participants and y :: "real vector" and j :: participant and i :: participant
+  assumes defined: "maximum_defined N"
+    and i: "i \<in> N" "i \<noteq> j"
+  shows "maximum (N - {j}) y \<ge> y i"
 proof -
-  let ?y_with_j_skipped = "skip_index y j"
-  from j_range i_range neq have "n > 1" by simp
-
-  from neq have "i < j \<or> i > j" by auto
-  then show ?thesis
-  proof
-    assume "i < j"
-    then have can_skip_j: "?y_with_j_skipped i = y i"
-      unfolding skip_index_def by simp
-    from `i < j` j_range i_range have "i \<in> {1..n - 1}" by simp
-    then have "maximum (n - 1) ?y_with_j_skipped \<ge> ?y_with_j_skipped i"
-      by (simp add: maximum_is_greater_or_equal)
-    with `n > 1` can_skip_j show ?thesis
-      by (auto simp add: maximum_def maximum_except_def)
-  next
-    assume "i > j"
-    then have can_skip_j_and_shift_left: "?y_with_j_skipped (i - 1) = y i"
-      unfolding skip_index_def by (cases i) simp_all
-    from `i > j` i_range j_range have "i - 1 \<in> {1..n - 1}"
-      by (cases i) simp_all
-    then have "maximum (n - 1) ?y_with_j_skipped \<ge> ?y_with_j_skipped (i - 1)"
-      by (simp add: maximum_is_greater_or_equal)
-    with `n > 1` can_skip_j_and_shift_left show ?thesis
-      by (auto simp add: maximum_def maximum_except_def)
-  qed
+  let ?M = "N - {j}"
+  let ?A = "y ` ?M"
+  from i have *: "i \<in> ?M" by simp
+  with defined have "finite ?A" and "?A \<noteq> {}" by (auto simp add: maximum_defined_def)
+  with * have "Max ?A \<ge> y i" by (auto simp add: Max_ge_iff)
+  then show ?thesis unfolding maximum_def .
 qed
 
 lemma maximum_remaining_maximum:
-  fixes n::nat and y::"real vector" and j::nat
-  assumes non_negative: "non_negative_real_vector n y"
-    and non_trivial: "n > 1"
-    and range: "j \<in> {1..n}"
-    and j_max: "maximum n y = y j"
-  shows "maximum_except n y j \<le> y j"
+  fixes N :: participants and y :: "real vector" and j :: participant
+  assumes defined': "maximum_defined (N - {j})"
+    and j_max: "maximum N y = y j"
+  shows "maximum (N - {j}) y \<le> y j"
 proof -
-  from non_trivial
-  have maximum_except_unfolded: "maximum_except n y j = maximum (n - 1) (skip_index y j)"
-    by (simp add: maximum_except_def)
-  from j_max [symmetric] have ge: "\<forall>k \<in> {1..n}. y j \<ge> y k"
-    by (simp add: maximum_is_greater_or_equal)
-  from non_negative range
-  have pred_non_negative: "non_negative_real_vector (n - 1) (skip_index y j)"
-    by (rule skip_index_keeps_non_negativity)
-  from non_trivial have "n - 1 > 0" by simp
-  with pred_non_negative maximum_is_component
-  obtain i where i_range: "i \<in> {1..n - 1}" and
-    maximum_except_component: "maximum (n - 1) (skip_index y j) = (skip_index y j) i"
-    by blast
-  from maximum_except_component maximum_except_unfolded
-  have maximum_except_component_nice: "maximum_except n y j = (skip_index y j) i"
-    by simp
-  have skip_index_range: "\<dots> = y i \<or> (skip_index y j) i = y (Suc i)"
-    unfolding skip_index_def by simp
-  from i_range have 1: "i \<in> {1..n}" by auto
-  from i_range have 2: "Suc i \<in> {1..n}" by auto
-  from skip_index_range 1 2 have "\<exists>k \<in> {1..n}. (skip_index y j) i = y k" by auto
-  with ge maximum_except_component_nice show ?thesis by auto
+  have "y ` (N - {j}) \<subseteq> y ` N" by auto
+  with defined' have "maximum (N - {j}) y \<le> maximum N y"
+    unfolding maximum_def maximum_defined_def by (simp add: Max_mono)
+  also note j_max
+  finally show ?thesis .
 qed
 
 lemma remaining_maximum_invariant:
-  fixes n::nat and y::"real vector" and i::nat and a::real
-  assumes non_empty: "n > 0"
-    and range: "i \<in> {1..n}"
-  shows "maximum_except n y i = maximum_except n (y(i := a)) i"
+  fixes N :: participants and y :: "real vector" and i :: participant and a :: real
+  shows "maximum (N - {i}) (y(i := a)) = maximum (N - {i}) y"
 proof -
-  from range have equal_except: "\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> y j = (y(i := a)) j" by simp
-  with non_empty range have "\<forall>k \<in> {1..n - 1}. skip_index y i k = skip_index (y(i := a)) i k"
-    using equal_by_skipping by auto
-  then have "maximum (n - 1) (skip_index y i) =
-    maximum (n - 1) (skip_index (y(i := a)) i)" by (simp add: maximum_equal)
-  with non_empty show ?thesis by (simp add: maximum_except_def)
+  let ?M = "N - {i}"
+  have "y ` ?M = (y(i := a)) ` ?M" by auto
+  then show ?thesis unfolding maximum_def by simp
 qed
 
 
@@ -288,89 +210,90 @@ subsection {* Second price single good auctions and some of their properties *}
 
 definition second_price_auction_winners_payment ::
     "participants \<Rightarrow> real vector \<Rightarrow> participant \<Rightarrow> real"
-  where "second_price_auction_winners_payment n b winner = maximum_except n b winner"
+  where "second_price_auction_winners_payment N b winner = maximum (N - {winner}) b"
 
 definition second_price_auction_winner ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where
-    "second_price_auction_winner n b x p i \<longleftrightarrow>
-      i \<in> {1..n} \<and> i \<in> arg_max_set n b \<and> x b i \<and>
-      (p b i = second_price_auction_winners_payment n b i)"
+    "second_price_auction_winner N b x p i \<longleftrightarrow>
+      i \<in> N \<and> i \<in> arg_max_set N b \<and> x b i \<and>
+      (p b i = second_price_auction_winners_payment N b i)"
 
 definition second_price_auction_loser ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
-  where "second_price_auction_loser n b x p i \<longleftrightarrow> i \<in> {1..n} \<and> \<not> x b i \<and> p b i = 0"
+  where "second_price_auction_loser N b x p i \<longleftrightarrow> i \<in> N \<and> \<not> x b i \<and> p b i = 0"
 
 definition second_price_auction :: "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
-    "second_price_auction n x p \<longleftrightarrow>
-      (\<forall>b. bids n b \<longrightarrow> allocation n b x \<and> vickrey_payment n b p \<and>
-        (\<exists>i \<in> {1..n}. second_price_auction_winner n b x p i \<and>
-          (\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)))"
+    "second_price_auction N x p \<longleftrightarrow>
+      (\<forall>b. bids N b \<longrightarrow> allocation N b x \<and> vickrey_payment N b p \<and>
+        (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
+          (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N b x p j)))"
 
 lemma allocated_implies_spa_winner:
-  fixes n::participants and x::allocation and p::payments
-    and b::"real vector" and winner::participant
-  assumes "second_price_auction n x p"
-    and "bids n b"
-    and "winner \<in> {1..n}"
+  fixes N :: participants and x :: allocation and p :: payments
+    and b :: "real vector" and winner :: participant
+  assumes "second_price_auction N x p"
+    and "bids N b"
+    and "winner \<in> N"
     and "x b winner"
-  shows "second_price_auction_winner n b x p winner"
+  shows "second_price_auction_winner N b x p winner"
   using assms
   unfolding second_price_auction_def second_price_auction_winner_def
   using allocation_unique
   by blast
 
 lemma not_allocated_implies_spa_loser:
-  fixes n::participants and x::allocation and p::payments
-    and b::"real vector" and loser::participant
-  assumes spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and range: "loser \<in> {1..n}"
+  fixes N :: participants and x :: allocation and p :: payments
+    and b :: "real vector" and loser :: participant
+  assumes spa: "second_price_auction N x p"
+    and bids: "bids N b"
+    and range: "loser \<in> N"
     and loses: "\<not> x b loser"
-  shows "second_price_auction_loser n b x p loser"
-proof (rule ccontr)
+  shows "second_price_auction_loser N b x p loser"
+proof (rule ccontr)   (* FIXME is this really classical? *)
   assume "\<not> ?thesis"
   then have "x b loser"
     using spa bids
     using range
     unfolding second_price_auction_def second_price_auction_winner_def
     by force
-  with loses show "False" by contradiction
+  with loses show False by contradiction
 qed
 
 lemma only_max_bidder_wins:
-  fixes n::participants and max_bidder::participant
-    and b::"real vector" and x::allocation and p::payments
-  assumes spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and range: "max_bidder \<in> {1..n}"
-    and only_max_bidder: "b max_bidder > maximum_except n b max_bidder"
-  shows "second_price_auction_winner n b x p max_bidder"
+  fixes N :: participants and max_bidder :: participant
+    and b :: "real vector" and x :: allocation and p :: payments
+  assumes defined: "maximum_defined N"
+    and spa: "second_price_auction N x p"
+    and bids: "bids N b"
+    and range: "max_bidder \<in> N"
+    and only_max_bidder: "b max_bidder > maximum (N - {max_bidder}) b"
+  shows "second_price_auction_winner N b x p max_bidder"
 proof -
   from bids spa
-  have spa_unfolded: "\<exists>i. second_price_auction_winner n b x p i \<and>
-      (\<forall>j \<in> {1..n}. j \<noteq> i \<longrightarrow> second_price_auction_loser n b x p j)"
+  have spa_unfolded: "\<exists>i. second_price_auction_winner N b x p i \<and>
+      (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N b x p j)"
     unfolding second_price_auction_def by blast
-  then have x_is_allocation: "\<exists>i \<in> {1..n}. x b i \<and> (\<forall>j \<in> {1..n}. j\<noteq>i \<longrightarrow> \<not> x b j)"
+  then have x_is_allocation: "\<exists>i \<in> N. x b i \<and> (\<forall>j \<in> N. j\<noteq>i \<longrightarrow> \<not> x b j)"
     unfolding second_price_auction_winner_def second_price_auction_loser_def by blast
   {
     fix j::participant
-    assume j_not_max: "j \<in> {1..n} \<and> j \<noteq> max_bidder"
-    have "j \<notin> arg_max_set n b"
+    assume j_not_max: "j \<in> N \<and> j \<noteq> max_bidder"
+    have "j \<notin> arg_max_set N b"
     proof -
-      from j_not_max range have "b j \<le> maximum_except n b max_bidder"
-        using maximum_except_is_greater_or_equal by simp
+      from j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
+        using defined maximum_except_is_greater_or_equal by simp
       with only_max_bidder have b_j_lt_max: "b j < b max_bidder" by simp
       then show ?thesis
-      proof - (* by contradiction *)
+      proof - (* by contradiction *)  (* FIXME !? *)
         {
-          assume "b j = maximum n b"
-            with range have "b j \<ge> b max_bidder" by (simp add: maximum_is_greater_or_equal)
+          assume "b j = maximum N b"
+          with defined range have "b j \<ge> b max_bidder"
+            by (simp add: maximum_is_greater_or_equal)
           with b_j_lt_max have False by simp
         }
-        then show ?thesis unfolding arg_max_set_def
-          by (metis (lifting, full_types) mem_Collect_eq)
+        then show ?thesis unfolding arg_max_set_def by auto
       qed
     qed
   }
@@ -379,21 +302,22 @@ proof -
 qed
 
 lemma second_price_auction_winner_payoff:
-  fixes n::participants and v::"real vector" and x::allocation
-    and b::"real vector" and p::payments and winner::participant
-  assumes spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and winner_range: "winner \<in> {1..n}"
+  fixes N :: participants and v :: "real vector" and x :: allocation
+    and b :: "real vector" and p :: payments and winner :: participant
+  assumes defined: "maximum_defined N"
+    and spa: "second_price_auction N x p"
+    and bids: "bids N b"
+    and winner_range: "winner \<in> N"
     and wins: "x b winner"
-  shows "payoff_vector v (x b) (p b) winner = v winner - maximum_except n b winner"
+  shows "payoff_vector v (x b) (p b) winner = v winner - maximum (N - {winner}) b"
 proof -
   have "payoff_vector v (x b) (p b) winner =
       payoff (v winner) (x b winner) (p b winner)"
     unfolding payoff_vector_def by simp
   also have "\<dots> = payoff (v winner) True (p b winner)" using wins by simp
   also have "\<dots> = v winner - p b winner" unfolding payoff_def by simp
-  also have "\<dots> = v winner - maximum_except n b winner"
-    using spa bids winner_range wins
+  also have "\<dots> = v winner - maximum (N - {winner}) b"
+    using defined spa bids winner_range wins
     using allocated_implies_spa_winner
     unfolding second_price_auction_winner_def second_price_auction_winners_payment_def
     by simp
@@ -401,30 +325,30 @@ proof -
 qed
 
 lemma second_price_auction_loser_payoff:
-  fixes n::participants and v::"real vector" and x::allocation
-    and b::"real vector" and p::payments and loser::participant
-  assumes "second_price_auction n x p"
-    and "bids n b"
-    and "loser \<in> {1..n}"
+  fixes N :: participants and v :: "real vector" and x :: allocation
+    and b :: "real vector" and p :: payments and loser :: participant
+  assumes "second_price_auction N x p"
+    and "bids N b"
+    and "loser \<in> N"
     and "\<not> x b loser"
   shows "payoff_vector v (x b) (p b) loser = 0"
   using assms not_allocated_implies_spa_loser
   unfolding second_price_auction_loser_def payoff_vector_def payoff_def by simp
 
 lemma winners_payoff_on_deviation_from_valuation:
-  fixes n::participants and v::"real vector" and x::allocation
-    and b::"real vector" and p::payments and winner::participant
-  assumes non_empty: "n > 0"
-    and spa: "second_price_auction n x p"
-    and bids: "bids n b"
-    and range: "winner \<in> {1..n}"
+  fixes N :: participants and v :: "real vector" and x :: allocation
+    and b :: "real vector" and p :: payments and winner :: participant
+  assumes defined: "maximum_defined N"
+    and spa: "second_price_auction N x p"
+    and bids: "bids N b"
+    and range: "winner \<in> N"
     and wins: "x b winner"
   shows
     "let winner_sticks_with_valuation = b(winner := v winner)
     in payoff_vector v (x b) (p b) winner =
-      v winner - maximum_except n winner_sticks_with_valuation winner"
+      v winner - maximum (N - {winner}) winner_sticks_with_valuation"
   using wins range spa bids second_price_auction_winner_payoff
-  using non_empty remaining_maximum_invariant
+  using defined remaining_maximum_invariant
   by simp
 
 
@@ -434,18 +358,18 @@ subsection {* Efficiency *}
 
 definition efficient :: "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
   where
-    "efficient n v b x \<longleftrightarrow>
-      valuation n v \<and> bids n b \<and> (\<forall>i \<in> {1..n}. x b i \<longrightarrow> i \<in> arg_max_set n v)"
+    "efficient N v b x \<longleftrightarrow>
+      valuation N v \<and> bids N b \<and> (\<forall>i \<in> N. x b i \<longrightarrow> i \<in> arg_max_set N v)"
 
 
 subsection {* Equilibrium in weakly dominant strategies *}
 
 definition equilibrium_weakly_dominant_strategy ::
   "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
-  "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
-    valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and>
-    (\<forall>i \<in> {1..n}.
-      (\<forall>whatever_bid. bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
+  "equilibrium_weakly_dominant_strategy N v b x p \<longleftrightarrow>
+    valuation N v \<and> bids N b \<and> allocation N b x \<and> vickrey_payment N b p \<and>
+    (\<forall>i \<in> N.
+      (\<forall>whatever_bid. bids N whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
         (let i_sticks_with_bid = whatever_bid(i := b i)
          in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
             payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
@@ -457,31 +381,43 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
   strategies if all participants bid their valuation. *}
 
 theorem vickreyA:
-  fixes n :: participants and v :: "real vector" and x :: allocation and p :: payments
+  fixes n :: nat and v :: "real vector" and x :: allocation and p :: payments
   assumes non_trivial: "n > 1"
-  assumes val: "valuation n v" and spa: "second_price_auction n x p"
-  shows "equilibrium_weakly_dominant_strategy n v v (* \<leftarrow> i.e. b *) x p"
+  assumes val: "valuation {1..n} v" and spa: "second_price_auction {1..n} x p"
+  shows "equilibrium_weakly_dominant_strategy {1..n} v v (* \<leftarrow> i.e. b *) x p"
 proof -
   let ?b = v
+
+  let ?N = "{1..n}"
+  have defined: "maximum_defined ?N"
+    using non_trivial unfolding maximum_defined_def by auto
+
   txt {* From now on, we refer to @{term v} as @{term ?b} if we mean the \emph{bids},
     (which happen to be equal to the valuations). *}
-  from val have bids: "bids n ?b" by (rule valuation_is_bid)
-  from spa bids have alloc: "allocation n ?b x"
+  from val have bids: "bids ?N ?b" by (rule valuation_is_bid)
+  from spa bids have alloc: "allocation ?N ?b x"
     unfolding second_price_auction_def by simp
-  from spa bids have pay: "vickrey_payment n ?b p"
+  from spa bids have pay: "vickrey_payment ?N ?b p"
     unfolding second_price_auction_def by simp
   {
     fix i :: participant
-    assume i_range: "i \<in> {1..n}"
+    assume i_range: "i \<in> ?N"
+
+    let ?M = "?N - {i}"
+    have defined': "maximum_defined ?M"
+      unfolding maximum_defined_def
+      (* FIXME cleanup this mess *)
+      by (metis atLeastAtMost_singleton_iff finite_Diff finite_atLeastAtMost
+          i_range insert_Diff_single insert_absorb less_numeral_extra(4) non_trivial)
 
     fix whatever_bid :: "real vector"
-    assume alternative_is_bid: "bids n whatever_bid"
+    assume alternative_is_bid: "bids ?N whatever_bid"
 
     let ?i_sticks_with_strategy = "whatever_bid(i := ?b i)"
     from bids alternative_is_bid
-    have i_sticks_is_bid: "bids n ?i_sticks_with_strategy"
+    have i_sticks_is_bid: "bids ?N ?i_sticks_with_strategy"
       by (simp add: deviated_bid_well_formed)
-    then have i_sticks_nonneg: "non_negative_real_vector n ?i_sticks_with_strategy"
+    then have i_sticks_nonneg: "non_negative_real_vector ?N ?i_sticks_with_strategy"
       by (simp add: bids_def)
 
     txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
@@ -491,7 +427,7 @@ proof -
       "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
         payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof -
-      let ?b_bar = "maximum n ?b"
+      let ?b_bar = "maximum ?N ?b"
       show ?thesis
       proof cases -- {* case 1 of the short proof *}
         assume i_wins: "x ?i_sticks_with_strategy i"
@@ -499,25 +435,25 @@ proof -
         txt {* @{term i} gets the good, so @{term i} also satisfies the further properties of a
           second price auction winner: *}
         with spa i_sticks_is_bid i_range
-        have "i \<in> arg_max_set n ?i_sticks_with_strategy"
+        have "i \<in> arg_max_set ?N ?i_sticks_with_strategy"
           using allocated_implies_spa_winner by (simp add: second_price_auction_winner_def)
-        then have "maximum n ?i_sticks_with_strategy = ?i_sticks_with_strategy i"
+        then have "maximum ?N ?i_sticks_with_strategy = ?i_sticks_with_strategy i"
           by (simp add: arg_max_set_def)
-        with i_sticks_nonneg non_trivial i_range
-        have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum_except n ?i_sticks_with_strategy i"
+        with defined'
+        have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum ?M ?i_sticks_with_strategy"
           by (rule maximum_remaining_maximum)
 
         txt {* Now we show that @{term i}'s payoff is @{text "\<ge> 0"}. *}
-        from spa i_sticks_is_bid i_range i_wins
+        from defined spa i_sticks_is_bid i_range i_wins
         have winners_payoff:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
-            v i - maximum_except n ?i_sticks_with_strategy i"
+            v i - maximum ?M ?i_sticks_with_strategy"
           by (rule second_price_auction_winner_payoff)
-        also have "\<dots> = ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
+        also have "\<dots> = ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy"
           by simp
         finally have payoff_expanded:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
-            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" .
+            ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy" .
         also have "\<dots> \<ge> 0" using i_ge_max_except by simp
         finally
         have non_negative_payoff:
@@ -525,9 +461,9 @@ proof -
         show ?thesis
         proof cases -- {* case 1a of the short proof *}
           assume "x whatever_bid i"
-          with spa alternative_is_bid non_trivial i_range
+          with defined spa alternative_is_bid non_trivial i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
-              v i - maximum_except n ?i_sticks_with_strategy i"
+              v i - maximum ?M ?i_sticks_with_strategy"
             using winners_payoff_on_deviation_from_valuation by simp
           txt {* Now we show that @{term i}'s payoff hasn't changed. *}
           also have "\<dots> =
@@ -553,14 +489,12 @@ proof -
           by (rule second_price_auction_loser_payoff)
         txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
           @{term i} would have won *}
-        have i_bid_at_most_second:
-          "?i_sticks_with_strategy i \<le> maximum_except n ?i_sticks_with_strategy i"
+        have i_bid_at_most_second: "?i_sticks_with_strategy i \<le> maximum ?M ?i_sticks_with_strategy"
         proof (rule ccontr)
           assume "\<not> ?thesis"
-          then have "?i_sticks_with_strategy i >
-            maximum_except n ?i_sticks_with_strategy i" by simp
-          with spa i_sticks_is_bid i_range
-          have "second_price_auction_winner n ?i_sticks_with_strategy x p i"
+          then have "?i_sticks_with_strategy i > maximum ?M ?i_sticks_with_strategy" by simp
+          with defined spa i_sticks_is_bid i_range
+          have "second_price_auction_winner ?N ?i_sticks_with_strategy x p i"
             using only_max_bidder_wins
             by simp
           with i_loses show False using second_price_auction_winner_def by simp
@@ -568,9 +502,9 @@ proof -
         show ?thesis
         proof cases -- {* case 2a of the short proof *}
           assume "x whatever_bid i"
-          with spa alternative_is_bid non_trivial i_range
+          with defined spa alternative_is_bid non_trivial i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
-              ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
+              ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy"
             using winners_payoff_on_deviation_from_valuation by simp
           txt {* Now we can compute @{term i}'s payoff *}
           also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
@@ -600,39 +534,18 @@ qed
 subsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
 
 theorem vickreyB:
-  fixes n :: participants and v :: "real vector" and x :: allocation and p :: payments
-  assumes val: "valuation n v" and spa: "second_price_auction n x p"
-  shows "efficient n v v x"
+  fixes n :: nat and v :: "real vector" and x :: allocation and p :: payments
+  assumes val: "valuation {1..n} v" and spa: "second_price_auction {1..n} x p"
+  shows "efficient {1..n} v v x"
 proof -
   let ?b = v
-  from val have bids: "bids n v" by (rule valuation_is_bid)
+  let ?N = "{1..n}"
+  from val have bids: "bids ?N v" by (rule valuation_is_bid)
   {
     fix k :: participant
-    assume "k \<in> {1..n} \<and> x ?b k"
-    with spa bids have "k \<in> arg_max_set n v"
+    assume "k \<in> ?N \<and> x ?b k"
+    with spa bids have "k \<in> arg_max_set ?N v"
       using allocated_implies_spa_winner second_price_auction_winner_def by simp
-      (* alternative proof with fewer prerequisites (before we had the lemmas used above): *)
-      (* show "k \<in> arg_max_set n v"
-      proof -
-        from bids and spa have
-          second_price_auction_participant: "\<exists>i::participant. second_price_auction_winner n ?b x p i
-                      \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n ?b x p j)"
-          unfolding second_price_auction_def by auto
-        then obtain i::participant where
-          i_winner: "second_price_auction_winner n ?b x p i
-                      \<and> (\<forall>j::participant. j \<in> {1..n} \<and> j \<noteq> i \<longrightarrow> second_price_auction_loser n ?b x p j)"
-            by blast
-        then have i_values_highest: "i \<in> arg_max_set n v" unfolding second_price_auction_winner_def by simp (* note ?b = v *)
-        have k_values_highest: "k \<in> arg_max_set n v"
-        proof cases
-          assume "k = i"
-          with i_values_highest show ?thesis by blast
-        next
-          assume "k \<noteq> i"
-          then show ?thesis using i_winner and k_wins by (auto simp add: second_price_auction_loser_def)
-        qed
-        show ?thesis using k_values_highest .
-      qed *)
   }
   with bids show ?thesis using val unfolding efficient_def by blast
 qed
