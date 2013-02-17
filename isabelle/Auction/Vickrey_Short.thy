@@ -186,8 +186,7 @@ definition second_price_auction_winner ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where
     "second_price_auction_winner N b x p i \<longleftrightarrow>
-      i \<in> N \<and> i \<in> arg_max_set N b \<and> x b i \<and>
-      (p b i = second_price_auction_winners_payment N b i)"
+      i \<in> N \<and> i \<in> arg_max_set N b \<and> x b i \<and> p b i = second_price_auction_winners_payment N b i"
 
 definition second_price_auction_loser ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
@@ -220,14 +219,11 @@ lemma not_allocated_implies_spa_loser:
     and range: "loser \<in> N"
     and loses: "\<not> x b loser"
   shows "second_price_auction_loser N b x p loser"
-proof (rule ccontr)   (* FIXME is this really classical? *)
-  assume "\<not> ?thesis"
-  then have "x b loser"
-    using spa bids
-    using range
-    unfolding second_price_auction_def second_price_auction_winner_def
-    by force
-  with loses show False by contradiction
+proof -
+  from loses have "\<not> second_price_auction_winner N b x p loser"
+    unfolding second_price_auction_winner_def by simp
+  with spa bids range show ?thesis
+    unfolding second_price_auction_def by auto
 qed
 
 lemma only_max_bidder_wins:
