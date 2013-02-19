@@ -299,31 +299,40 @@ notation let X; synonym natmax X for union X; end;
 ::: is equivalent to taking the maximum 
 ::: (thanks to von Neumann encoding of ordinals)
 
+
+
+
+
+
+
+
+
+
 begin :::definitions related to second price auctions, and basic facts
 
-::{
-definition let R; :: indmax gives the set of highest-bidding participant(s) 
-func R-indmax -> Subset of dom R equals R"{natmax rng R};
-coherence by RELAT_1:132; ::note that R"Y is the preimage of Y under R
+definition let R; 
+func topbiddersof R -> Subset of dom R equals R"{natmax rng R};
+coherence by RELAT_1:132; :: R"Y is the preimage of Y under R
 end;
 
-definition let R; func winnerof R equals the Element of R-indmax; coherence;
+definition let R; func winnerof R equals 
+the Element of topbiddersof R; coherence;
 end;
 definition let R; func losersof R -> Subset of dom R equals 
 dom R \ {winnerof R}; coherence; end;
 definition let R; func priceof R equals natmax rng (R | losersof R); 
 coherence;
 end;
-::: priceof R, defined above, gives the second value, when the bids is a
-::: finite set of 
-::: natural numbers; the modification below preserves its simplicity while 
-::: patching the value to zero for non significant cases 
-::: (e.g., non numerical bids), saving typing-related work
+::: priceof R, defined above, gives the second value, when the bids is
+::: a finite set of natural numbers; the modification below preserves 
+::: its simplicity while  patching the value to zero for bogus cases 
+::: (e.g., non-numerical bids), saving typing-related work.
+::: This works because, by Mizar convention, the types Element of {}
+::: is inhabited by {} alone; and, in turn, 0={}, set theoretically.
 definition let R;::R=bids; no need to require it is a sequence,yet 
 func priceof R -> Element of NAT equals the Element of {priceof R}/\NAT;
 coherence by ORDINAL1:def 12;
 end;
-::}
 
 Lm16: priceof R={} or priceof R=natmax rng (R|losersof R)
 ::{
@@ -335,10 +344,10 @@ end;
 ::}
 
 Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) implies 
-winnerof R in R-indmax
+winnerof R in topbiddersof R
 ::{
 proof
-set r=rng R, U=natmax r, w=winnerof R, O=R-indmax; assume 
+set r=rng R, U=natmax r, w=winnerof R, O=topbiddersof R; assume 
 r<>{} & r c= NAT; then 
 reconsider XX=r as non empty real-membered Subset of NAT; 
 assume r is finite; then reconsider X=XX as right_end Subset of NAT; 
@@ -347,11 +356,11 @@ by ZFMISC_1:48; then O<>{} by RELAT_1:138; hence thesis;
 end;
 ::}
 
-Lm7: winnerof f in f-indmax implies 
+Lm7: winnerof f in topbiddersof f implies 
 (f.(winnerof f)=union rng f & priceof f c= f.(winnerof f))
 ::{
 proof
-set w=winnerof f, P=priceof f, I=f-indmax, y=f.w, l=losersof f; 
+set w=winnerof f, P=priceof f, I=topbiddersof f, y=f.w, l=losersof f; 
 reconsider r=rng (f|l) as Subset of rng f by RELAT_1:70; 
 assume w in I; then consider z being element such that
 B0: [w,z] in f & z in {natmax rng f} by RELAT_1:def 14; {}\f.w={}; then 
@@ -380,7 +389,14 @@ set P=priceof R, A={0}, B={P}; A\NAT={} & B\NAT={}; then
 A c= NAT & B c= NAT by FOMODEL0:29; hence thesis;
 end;
 ::}
-end; ::and it's integer in real world; fractional currency would be overkill 
+end;:::and it's integer in real world; fractional currency'd be overkill 
+
+
+
+
+
+
+
 
 begin ::: the core theorems
 
@@ -393,13 +409,15 @@ end;
 ::}
 
 Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q implies 
-(P +*1 Q)-indmax=Q"{natmax rng Q} :: c< is strict inclusion; i.e., <
+topbiddersof (P +*1 Q)=Q"{natmax rng Q} 
+::: c< is strict set inclusion; thanks to von Neumann encoding 
+::: (see above comments), this translates to <
 ::{
 proof set dP=dom P, 
 dQ=dom Q, PP=P|(dP\dQ), R=P +*1 Q, maxQ=natmax rng Q; assume
 B0: natmax rng PP c< maxQ; then reconsider 
 maxPP=natmax rng PP as Subset of maxQ by XBOOLE_0:def 8;
-B1: R-indmax=R"{natmax (rng PP \/ rng Q)} by RELAT_1:12 .= 
+B1: topbiddersof R=R"{natmax (rng PP \/ rng Q)} by RELAT_1:12 .= 
 (PP \/ Q)"{maxQ null maxPP} by ZFMISC_1:78 .= PP"{maxQ} \/ Q"{maxQ} 
 by FOMODEL0:23; not maxQ c= maxPP by B0, XBOOLE_0:def 8; then not 
 maxQ in rng PP by ZFMISC_1:74; then {maxQ} misses rng PP 
@@ -408,7 +426,7 @@ end;
 ::}
 
 Lm1: natmax rng (P | (dom P\{x})) c< X implies 
-(P +*1 [:{x},{X}:])-indmax={x}
+topbiddersof (P +*1 [:{x},{X}:])={x}
 ::{
 proof
 set dP=dom P, maxP=natmax rng P, Q=[:{x},{X}:], dQ=dom Q, 
@@ -416,7 +434,7 @@ PP1=P|(dP\{x}), PP=P|(dP\dQ), maxQ=natmax rng Q,
 R=P +*1 Q,QQ=[:{X},{x}:]; 
 B0: rng Q={X} & dom Q={x} & rng QQ={x} & dom QQ={X}; 
 assume natmax rng PP1 c< X; then natmax rng PP c< maxQ 
-by ZFMISC_1:25; then R-indmax=Q"{maxQ} by Lm0 .= Q"{X} 
+by ZFMISC_1:25; then topbiddersof R=Q"{maxQ} by Lm0 .= Q"{X} 
 by ZFMISC_1:25 .= dom (Q>*>QQ) by RELAT_1:147, B0 .= 
 dom ([:{x},{x}:]) by FOMODEL0:73; hence thesis;
 end;
@@ -436,8 +454,8 @@ B4: D\{i} misses dom f by XBOOLE_0:def 7;
 assume 
 B7: priceof B<>{} & i=w; then P=priceof B by Lm3; then 
 B8: P=natmax rng RR by B7, Lm16;
-assume P c< y; then Bi-indmax={i} by Lm1, B8, B7; then 
-wi in Bi-indmax & Bi-indmax={i}; then 
+assume P c< y; then topbiddersof Bi={i} by Lm1, B8, B7; then 
+wi in topbiddersof Bi & topbiddersof Bi={i}; then 
 B0: wi=i & i=w by TARSKI:def 1, B7; then
 Bi|(Di\{wi}) = (B|(D\{i})|(D\{i})) \/ (f|(D\{i})) 
 by B2, FOMODEL0:56 .= (B | (D\{i})) \/ {} by B4, RELAT_1:66 .= 
@@ -460,7 +478,7 @@ B2: rng fi = rng (f|(dom f \ dom g)) \/ rng g by RELAT_1:12;
 assume rng f is finite; then reconsider XX=X as finite set; 
 XX \/ rng g is finite; then rng fi is finite & rng fi c= NAT 
 by B2; then  
-B1: wi in fi-indmax by Lm8; fi=f +* (i.-->v); then
+B1: wi in topbiddersof fi by Lm8; fi=f +* (i.-->v); then
 B0: fi.i=v by FUNCT_4:113;
 per cases;
 suppose 
@@ -486,15 +504,13 @@ set x=R-allocations, V={v}, p=R-pay, g=[:{i},V:];
 V\NAT={}; then V c= NAT by FOMODEL0:29; then 
 reconsider g as NAT-valued Function;
 reconsider Ri=R +*1 g as NAT-valued Function;
-set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R;
-set RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
-assume rng f is finite; then
-pi.i-(pi.i)<=RH by XREAL_1:9, Lm4; then 
+set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R, 
+RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
+assume rng f is finite; then pi.i-(pi.i)<=RH by XREAL_1:9, Lm4; then 
 B0: 0<=RH; assume 
 B9: priceof f <>{};
 per cases;
-suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; 
-then LH <= RH; hence thesis;
+suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; hence thesis;
 end;
 suppose 
 C1: LH > 0; then x.i <> {}; then x.i \+\ 1={}; then 
@@ -530,7 +546,7 @@ by TARSKI:def 1; hence thesis by B0, B1;
 end;
 ::}
 
-rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
+Lm22: rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
 implies ::: Vickrey's theorem, version 2
 (v*(f-allocations.i)) - ((f-pay).i) <= 
 v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
