@@ -197,3 +197,5 @@ implies priceof R in rng R
 Lm22: rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
 implies ::: Vickrey's theorem, version 2
 (v*(f-allocations.i)) - ((f-pay).i) <= 
+v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
+
