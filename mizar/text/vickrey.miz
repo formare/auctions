@@ -31,32 +31,32 @@ constructors TARSKI
 ,RELAT_2
 ,FUNCOP_1
 ,XBOOLEAN
-,RELAT_1 :: |
+,RELAT_1 :::|
 ,XBOOLE_0
 ,XXREAL_2
 ,MEMBERED
 ,FOMODEL0 
-,XREAL_0 :: to access XREAL_1:9
+,XREAL_0 :::to access XREAL_1:9
 ,MARGREL1
 ;
 
-notations TARSKI :: notations directive is order-sensitive!
+notations TARSKI :::notations directive is order-sensitive!
 ,XBOOLE_0
 ,FOMODEL0
 ,SUBSET_1
 ,NAT_1
 ,ZFMISC_1
 ,NUMBERS
-,XCMPLX_0 :: for good typing of eg m+n is Nat
-,RELAT_1 :: for dom
-,FUNCT_1 :: for Function mode
-,RELSET_1 :: for .: redef
+,XCMPLX_0 :::for good typing of eg m+n is Nat
+,RELAT_1 :::for dom
+,FUNCT_1 :::for Function mode
+,RELSET_1 :::for .: redef
 ,ORDINAL1
 ,CARD_1
 ,FINSET_1 
 ,FUNCT_4
 ,FUNCOP_1
-,XXREAL_0 :: for attribute positive
+,XXREAL_0 :::for attribute positive
 ,XBOOLEAN
 ,XXREAL_2
 ,MEMBERED
@@ -67,9 +67,9 @@ registrations FOMODEL0
 ,ORDINAL1 
 ,XCMPLX_0 
 ,NAT_1 
-,RELAT_1 :: dom R -> trivial
+,RELAT_1 :::dom R -> trivial
 ,NUMBERS
-,FUNCT_1 :: dom f -> non trivial
+,FUNCT_1 :::dom f -> non trivial
 ,SUBSET_1 
 ,XBOOLE_0
 ,SETFAM_1 
@@ -78,19 +78,19 @@ registrations FOMODEL0
 ,XREAL_0
 ,MEMBERED
 ,FUNCOP_1
-,FUNCT_4 :: +* -> non-empty
+,FUNCT_4 :::+* -> non-empty
 ,XBOOLEAN
 ,XXREAL_2
-,YELLOW12 :: union -> empty
+,YELLOW12 :::union -> empty
 ,XXREAL_3
-,INT_2 :: non natural
+,INT_2 :::non natural
 ;
 
-equalities FOMODEL0 :: +*1
-,FUNCOP_1 :: x.-->y 
-,XBOOLEAN :: FALSE
-,MARGREL1 :: BOOLEAN
-,ORDINAL1 :: 0
+equalities FOMODEL0 :::+*1
+,FUNCOP_1 :::x.-->y 
+,XBOOLEAN :::FALSE
+,MARGREL1 :::BOOLEAN
+,ORDINAL1 :::0
 ;
  
 theorems TARSKI
@@ -117,9 +117,9 @@ requirements REAL, NUMERALS, SUBSET, BOOLE, ARITHM;
 
 begin :::preliminaries
 :::the length of this section testifies for the effort put into
-:::inducing the proven facts to the most common, low-level and desirably
-:::supported entities, rather than proving things about new and particular
-:::mathematical objects
+:::inducing the proven facts to the most common, low-level and 
+:::desirably supported entities, rather than proving things about 
+:::new and particular mathematical objects
 
 definition func two equals 2; coherence; end;
 registration 
@@ -295,9 +295,9 @@ cluster f.x -> boolean; coherence by Lm14;
 end;
 
 notation let X; synonym natmax X for union X; end; 
-::: to remind that, for a finite subset of NAT, set theoretical union
-::: is equivalent to taking the maximum 
-::: (thanks to von Neumann encoding of ordinals)
+:::as a reminder that, for a finite subset of NAT, set  
+:::theoretical union is equivalent to taking the maximum 
+:::(thanks to von Neumann encoding of ordinals)
 
 
 
@@ -312,7 +312,7 @@ begin :::definitions related to second price auctions, and basic facts
 
 definition let R; 
 func topbiddersof R -> Subset of dom R equals R"{natmax rng R};
-coherence by RELAT_1:132; :: R"Y is the preimage of Y under R
+coherence by RELAT_1:132; :::R"Y is the preimage of Y under R
 end;
 
 definition let R; func winnerof R equals 
@@ -323,13 +323,13 @@ dom R \ {winnerof R}; coherence; end;
 definition let R; func priceof R equals natmax rng (R | losersof R); 
 coherence;
 end;
-::: priceof R, defined above, gives the second value, when the bids is
-::: a finite set of natural numbers; the modification below preserves 
-::: its simplicity while  patching the value to zero for bogus cases 
-::: (e.g., non-numerical bids), saving typing-related work.
-::: This works because, by Mizar convention, the types Element of {}
-::: is inhabited by {} alone; and, in turn, 0={}, set theoretically.
-definition let R;::R=bids; no need to require it is a sequence,yet 
+:::priceof R, above, gives the second value, when the bids is a
+:::finite set of natural numbers; the modification below preserves  
+:::its simplicity while  patching the value to zero for bogus cases  
+:::(e.g., non-numerical bids), saving typing-related work. This 
+:::works because, by Mizar convention, the type "Element of {}" is 
+:::inhabited by {} alone; and, in turn, 0={}, set-theoretically.
+definition let R;:::R=bids; no need to require it is a sequence,yet 
 func priceof R -> Element of NAT equals the Element of {priceof R}/\NAT;
 coherence by ORDINAL1:def 12;
 end;
@@ -372,17 +372,17 @@ end;
 
 definition let R;
 func R-pay ->Function equals [:dom R,{0}:]+*[:{winnerof R},{priceof R}:];
-coherence; ::R-pay gives how much each bidder must pay in the end
+coherence; :::R-pay gives how much each bidder must pay in the end
 func R-allocations ->Function equals [:dom R,{0}:]+*[:{winnerof R},{1}:];
-coherence; ::how much of the sold asset each bidder gets in the end
+coherence; :::how much of the sold asset each bidder gets in the end
 end;
 
 registration 
 let R; cluster R-allocations -> 2-valued for Function; 
-coherence ::We treat only the case of an indivisible asset
+coherence :::2-valued: we treat only the case of an indivisible asset
 proof R-allocations is BOOLEAN-valued; hence thesis; end;
 let x; cluster R-pay.x -> natural for number; 
-coherence ::The case of integer currency is much simpler to formalize
+coherence :::The case of integer currency is much simpler to formalize
 ::{
 proof
 set P=priceof R, A={0}, B={P}; A\NAT={} & B\NAT={}; then 
@@ -398,7 +398,7 @@ end;:::and it's integer in real world; fractional currency'd be overkill
 
 
 
-begin ::: the core theorems
+begin :::the core theorems
 
 Lm3: R-pay.(winnerof R) = priceof R
 ::{
@@ -410,8 +410,8 @@ end;
 
 Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q implies 
 topbiddersof (P +*1 Q)=Q"{natmax rng Q} 
-::: c< is strict set inclusion; thanks to von Neumann encoding 
-::: (see above comments), this translates to <
+:::c< is strict set inclusion; thanks to von Neumann encoding 
+:::(see above comments), this translates to <
 ::{
 proof set dP=dom P, 
 dQ=dom Q, PP=P|(dP\dQ), R=P +*1 Q, maxQ=natmax rng Q; assume
@@ -547,7 +547,7 @@ end;
 ::}
 
 Lm22: rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
-implies ::: Vickrey's theorem, version 2
+implies :::Vickrey's theorem, version 2
 (v*(f-allocations.i)) - ((f-pay).i) <= 
 v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
 ::{
