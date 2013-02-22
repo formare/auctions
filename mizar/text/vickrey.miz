@@ -343,8 +343,8 @@ then P in {PP}; hence thesis by TARSKI:def 1;
 end;
 ::}
 
-Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) implies 
-winnerof R in topbiddersof R
+Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) 
+implies winnerof R in topbiddersof R
 ::{
 proof
 set r=rng R, U=natmax r, w=winnerof R, O=topbiddersof R; assume 
@@ -408,8 +408,8 @@ g=w.-->P; hence thesis by FUNCT_4:113;
 end;
 ::}
 
-Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q implies 
-topbiddersof (P +*1 Q)=Q"{natmax rng Q} 
+Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q 
+implies topbiddersof (P +*1 Q)=Q"{natmax rng Q} 
 :::c< is strict set inclusion; thanks to von Neumann encoding 
 :::(see above comments), this translates to <
 ::{
@@ -425,8 +425,8 @@ by ZFMISC_1:50; then PP"{maxQ}={} by RELAT_1:138; hence thesis by B1;
 end;
 ::}
 
-Lm1: natmax rng (P | (dom P\{x})) c< X implies 
-topbiddersof (P +*1 [:{x},{X}:])={x}
+Lm1: natmax rng (P | (dom P\{x})) c< X 
+implies topbiddersof (P +*1 [:{x},{X}:])={x}
 ::{
 proof
 set dP=dom P, maxP=natmax rng P, Q=[:{x},{X}:], dQ=dom Q, 
@@ -440,8 +440,8 @@ dom ([:{x},{x}:]) by FOMODEL0:73; hence thesis;
 end;
 ::}
 
-Lm5: (priceof R<>{} & i=winnerof R & R-pay.i c< y) implies 
-(R +*1 [:{i},{y}:])-pay.i = R-pay.i
+Lm5: (priceof R<>{} & i=winnerof R & R-pay.i c< y) 
+implies (R +*1 [:{i},{y}:])-pay.i = R-pay.i
 ::{
 proof
 set B=R, x=B-allocations, p=B-pay, P=p.i, f=[:{i},{y}:], 
