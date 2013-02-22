@@ -1,6 +1,7 @@
 include Makefile.vars
 
 SYNC_FILES = \
+        '!!! PLEASE SEE OVERVIEW AT BOTTOM !!!' \
 	LICENSE LICENSE-CC-BY LICENSE-ISC \
 	README.html
 SUBDIRS = \
