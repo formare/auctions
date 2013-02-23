@@ -86,6 +86,25 @@ proof -
            without first saying "have 'a \<and> b' and then breaking it down "by auto".
            In an earlier version we had not only deduced i_in_max_set but also the payoff here. *)
         (* makarius: Probably yes, but I don't quite understand what you want to do. *)
+        (* CL: This referred to an old version, where I wanted to say
+
+           have foo: "foo" and bar: "bar"
+
+           but hadn't been able to do so in a single step.  Instead I had to say
+
+           have "foo \<and> bar" by ...
+           then have foo: "foo" and bar: "bar" by auto
+
+           Maybe the problem is the following: When I say
+
+           have foo: "foo" and bar: "bar" by <method>
+
+           <method> may not be suitable to obtain "foo" exactly in the same way as we obtain "bar".
+            
+           If you'd like to see the full context, I'd have to retrieve
+
+           svn cat -r395 https://codex.cs.bham.ac.uk/svn/mmk/KLR/isabelle/auction/Vickrey.thy@428
+        *)
         then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy"
           by (simp add: arg_max_set_def)
         also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
