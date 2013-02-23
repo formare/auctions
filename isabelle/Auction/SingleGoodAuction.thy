@@ -161,7 +161,7 @@ payment. For the losers, it is the negative payment. *}
 (* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
 (* makarius: that function is called "If" :-) Note that below you don't need to simulate mathematicians
    avoiding booleans -- just use "if" directly without the multiplication. *)
-(* CL: good point!  The general definition "payoff := valuation * allocated - payment" is more general than we need it here. *)
+(* CL: good point!  The general definition "payoff := valuation * allocated - payment" in the paper source is more general than we need it here.  OTOH if-then-else (or its curly brace notation) doesn't always look _so_ nice on paper. *)
 (* makarius: Why are the function arguments capitalized? *)
 (* CL: just wanted to visually distinguish them from valuation/allocation/payment _vectors_ as used above *)
 definition payoff ::
