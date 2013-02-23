@@ -160,12 +160,13 @@ payment. For the losers, it is the negative payment. *}
 (* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
 (* makarius: that function is called "If" :-) Note that below you don't need to simulate mathematicians
    avoiding booleans -- just use "if" directly without the multiplication. *)
+(* CL: good point!  The general definition "payoff := valuation * allocated - payment" is more general than we need it here. *)
 (* makarius: Why are the function arguments capitalized? *)
-
+(* CL: just wanted to visually distinguish them from valuation/allocation/payment _vectors_ as used above *)
 definition payoff ::
   "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real" where
   "payoff Valuation Allocation Payment =
-    Valuation * (if Allocation then 1 else 0) - Payment"
+    (if Allocation then Valuation else 0) - Payment"
 
 text{* For convenience in the subsequent formalisation, we also define the payoff as a vector, component-wise. *}
 definition payoff_vector ::
