@@ -19,6 +19,7 @@ See LICENSE file for details
 header {* Single good auctions *}
 
 theory SingleGoodAuction
+(* TODO CL: This is actually about single _indivisible_ goods; consider renaming theory *)
 imports Vectors
 begin
 
