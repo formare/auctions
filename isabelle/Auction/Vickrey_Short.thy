@@ -496,17 +496,16 @@ qed
 subsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
 
 theorem vickreyB:
-  fixes n :: nat and v :: "real vector" and x :: allocation and p :: payments
-  assumes val: "valuation {1..n} v" and spa: "second_price_auction {1..n} x p"
-  shows "efficient {1..n} v v x"
+  fixes N :: participants and v :: "real vector" and x :: allocation and p :: payments
+  assumes val: "valuation N v" and spa: "second_price_auction N x p"
+  shows "efficient N v v x"
 proof -
   let ?b = v
-  let ?N = "{1..n}"
-  from val have bids: "bids ?N v" by (rule valuation_is_bid)
+  from val have bids: "bids N v" by (rule valuation_is_bid)
   {
     fix k :: participant
-    assume "k \<in> ?N \<and> x ?b k"
-    with spa bids have "k \<in> arg_max_set ?N v"
+    assume "k \<in> N \<and> x ?b k"
+    with spa bids have "k \<in> arg_max_set N v"
       using allocated_implies_spa_winner second_price_auction_winner_def by simp
   }
   with bids show ?thesis using val unfolding efficient_def by blast
