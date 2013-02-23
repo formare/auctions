@@ -334,11 +334,11 @@ func priceof R -> Element of NAT equals the Element of {priceof R}/\NAT;
 coherence by ORDINAL1:def 12;
 end;
 
-Lm16: priceof R={} or priceof R=natmax rng (R|losersof R)
+Lm16: priceof R=0 or priceof R=natmax rng (R|losersof R)
 ::{
 proof
 set P=priceof R, l=losersof R, RR=R|l, Y=rng RR, PP=natmax Y; 
-assume P<>{}; then {PP}/\NAT <> {} by SUBSET_1:def 1; then P in {PP}/\NAT;
+assume P<>0; then {PP}/\NAT <> {} by SUBSET_1:def 1; then P in {PP}/\NAT;
 then P in {PP}; hence thesis by TARSKI:def 1;
 end;
 ::}
@@ -440,7 +440,7 @@ dom ([:{x},{x}:]) by FOMODEL0:73; hence thesis;
 end;
 ::}
 
-Lm5: (priceof R<>{} & i=winnerof R & R-pay.i c< y) 
+Lm5: (priceof R<>0 & i=winnerof R & R-pay.i c< y) 
 implies (R +*1 [:{i},{y}:])-pay.i = R-pay.i
 ::{
 proof
@@ -452,7 +452,7 @@ dom f={i} & Di=D\/{i}; then
 B2: Di\{i} = D\{i} by XBOOLE_1:40; (D\{i}) /\ ({i}/\{i})={}; then 
 B4: D\{i} misses dom f by XBOOLE_0:def 7;
 assume 
-B7: priceof B<>{} & i=w; then P=priceof B by Lm3; then 
+B7: priceof B<>0 & i=w; then P=priceof B by Lm3; then 
 B8: P=natmax rng RR by B7, Lm16;
 assume P c< y; then topbiddersof Bi={i} by Lm1, B8, B7; then 
 wi in topbiddersof Bi & topbiddersof Bi={i}; then 
@@ -475,9 +475,8 @@ NAT-valued Function; set pi=fi-pay, xi=fi-allocations, wi=winnerof fi,
 LH=pi.i, RH=v*(xi.i); reconsider X=rng (f|(dom f \ dom g)) as 
 Subset of rng f by RELAT_1:70;
 B2: rng fi = rng (f|(dom f \ dom g)) \/ rng g by RELAT_1:12;
-assume rng f is finite; then reconsider XX=X as finite set; 
-XX \/ rng g is finite; then rng fi is finite & rng fi c= NAT 
-by B2; then  
+assume rng f is finite; then reconsider XX=X as finite set; XX \/ rng g 
+is finite; then rng fi is finite & rng fi c= NAT by B2; then  
 B1: wi in topbiddersof fi by Lm8; fi=f +* (i.-->v); then
 B0: fi.i=v by FUNCT_4:113;
 per cases;
@@ -486,15 +485,14 @@ C0: i=wi; then
 C2: xi.i=1 & LH = priceof fi by Lm3, Lm9c; Segm LH c= Segm (fi.i) & 
 RH=v by Lm7, C0, B1, C2; hence thesis by B0, NAT_1:39;
 end;
-suppose i<>wi & priceof fi<>{}; then LH=0 by Lm9b; hence thesis;
-end;
-suppose i<>wi & priceof fi={}; then LH=0; hence thesis;
+suppose i<>wi; then i<>wi & (priceof fi<>0 or priceof fi=0); 
+then LH=0 by Lm9b; hence thesis; 
 end;
 end;
 ::}
 
 Lm21: :::Vickrey's theorem, version 1
-f is NAT-valued & rng f is finite & priceof f <> {} implies 
+f is NAT-valued & rng f is finite & priceof f <> 0 implies 
 (v*(f-allocations.i)) - ((f-pay).i) <= 
 v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
 ::{
@@ -508,7 +506,7 @@ set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R,
 RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
 assume rng f is finite; then pi.i-(pi.i)<=RH by XREAL_1:9, Lm4; then 
 B0: 0<=RH; assume 
-B9: priceof f <>{};
+B9: priceof f<>0;
 per cases;
 suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; hence thesis;
 end;
@@ -556,9 +554,9 @@ set Y=rng f, X=dom f, p=priceof f; assume
 B1: Y c= NAT\{0}; then 
 B0: Y c= NAT by XBOOLE_1:1; assume 
 B2: Y is finite & X is non trivial; 
-then p in Y by Lm20, B0; then p in NAT\{{}} by B1; then 
-not p in {{}} by XBOOLE_0:def 5; then
-p<>{} by TARSKI:def 1; then f is NAT-valued & Y is finite & p<>{} 
+then p in Y by Lm20, B0; then p in NAT\{0} by B1; then 
+not p in {0} by XBOOLE_0:def 5; then
+p<>0 by TARSKI:def 1; then f is NAT-valued & Y is finite & p<>0 
 by RELAT_1:def 19, B0, B2; hence thesis by Lm21;
 end;
 ::}
