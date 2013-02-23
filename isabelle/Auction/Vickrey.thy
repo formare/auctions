@@ -62,7 +62,6 @@ proof -
     assume i_range: "i \<in> {1..n}"
     then have non_empty: "n > 0" by simp
     fix whatever_bid :: "real vector"
-    (* assume alternative_bid: "bids n whatever_bid \<and> whatever_bid i \<noteq> ?b i" *) (* FIXME RHS unused!? *)
     assume alternative_is_bid: "bids n whatever_bid"
     let ?i_sticks_with_strategy = "deviation_vec n whatever_bid ?b i"
     txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
