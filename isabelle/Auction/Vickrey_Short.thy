@@ -342,44 +342,42 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
   strategies if all participants bid their valuation. *}
 
 theorem vickreyA:
-  fixes n :: nat and v :: "real vector" and x :: allocation and p :: payments
-  assumes non_trivial: "n > 1"
-  assumes val: "valuation {1..n} v" and spa: "second_price_auction {1..n} x p"
-  shows "equilibrium_weakly_dominant_strategy {1..n} v v (* \<leftarrow> i.e. b *) x p"
+  fixes N :: participants and v :: "real vector" and x :: allocation and p :: payments
+  (* non-triviality now stated in terms of sets: *)
+  assumes defined: "maximum_defined N" and non_trivial: "\<not> (\<exists>x. N = {x})"
+  assumes val: "valuation N v" and spa: "second_price_auction N x p"
+  shows "equilibrium_weakly_dominant_strategy N v v (* \<leftarrow> i.e. b *) x p"
 proof -
   let ?b = v
 
-  let ?N = "{1..n}"
-  have defined: "maximum_defined ?N"
-    using non_trivial unfolding maximum_defined_def by auto
-
   txt {* From now on, we refer to @{term v} as @{term ?b} if we mean the \emph{bids},
     (which happen to be equal to the valuations). *}
-  from val have bids: "bids ?N ?b" by (rule valuation_is_bid)
-  from spa bids have alloc: "allocation ?N ?b x"
+  from val have bids: "bids N ?b" by (rule valuation_is_bid)
+  from spa bids have alloc: "allocation N ?b x"
     unfolding second_price_auction_def by simp
-  from spa bids have pay: "vickrey_payment ?N ?b p"
+  from spa bids have pay: "vickrey_payment N ?b p"
     unfolding second_price_auction_def by simp
   {
     fix i :: participant
-    assume i_range: "i \<in> ?N"
+    assume i_range: "i \<in> N"
 
-    let ?M = "?N - {i}"
+    let ?M = "N - {i}"
     have defined': "maximum_defined ?M"
     proof -
-      from non_trivial have "\<not> (\<exists>x. ?N = {x})" by auto
-      with i_range have "?M \<noteq> {}" by blast
-      then show ?thesis by (simp add: maximum_defined_def)
+      from defined and non_trivial and i_range have "?M \<noteq> {}"
+        by blast
+      then show ?thesis
+        using defined and maximum_defined_def by simp
     qed
 
     fix whatever_bid :: "real vector"
-    assume alternative_is_bid: "bids ?N whatever_bid"
+    assume alternative_is_bid: "bids N whatever_bid"
 
     let ?i_sticks_with_strategy = "whatever_bid(i := ?b i)"
     from bids alternative_is_bid
-    have i_sticks_is_bid: "bids ?N ?i_sticks_with_strategy"
+    have i_sticks_is_bid: "bids N ?i_sticks_with_strategy"
       by (simp add: bids_def non_negative_real_vector_def)
-    then have i_sticks_nonneg: "non_negative_real_vector ?N ?i_sticks_with_strategy"
+    then have i_sticks_nonneg: "non_negative_real_vector N ?i_sticks_with_strategy"
       by (simp add: bids_def)
 
     txt {* Agent @{term i} sticks to his/her strategy (i.e. truthful bidding), whatever the others bid.
@@ -389,7 +387,7 @@ proof -
       "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
         payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof -
-      let ?b_bar = "maximum ?N ?b"
+      let ?b_bar = "maximum N ?b"
       show ?thesis
       proof cases -- {* case 1 of the short proof *}
         assume i_wins: "x ?i_sticks_with_strategy i"
@@ -397,9 +395,9 @@ proof -
         txt {* @{term i} gets the good, so @{term i} also satisfies the further properties of a
           second price auction winner: *}
         with spa i_sticks_is_bid i_range
-        have "i \<in> arg_max_set ?N ?i_sticks_with_strategy"
+        have "i \<in> arg_max_set N ?i_sticks_with_strategy"
           using allocated_implies_spa_winner by (simp add: second_price_auction_winner_def)
-        then have "maximum ?N ?i_sticks_with_strategy = ?i_sticks_with_strategy i"
+        then have "maximum N ?i_sticks_with_strategy = ?i_sticks_with_strategy i"
           by (simp add: arg_max_set_def)
         with defined'
         have i_ge_max_except: "?i_sticks_with_strategy i \<ge> maximum ?M ?i_sticks_with_strategy"
@@ -456,7 +454,7 @@ proof -
           assume "\<not> ?thesis"
           then have "?i_sticks_with_strategy i > maximum ?M ?i_sticks_with_strategy" by simp
           with defined spa i_sticks_is_bid i_range
-          have "second_price_auction_winner ?N ?i_sticks_with_strategy x p i"
+          have "second_price_auction_winner N ?i_sticks_with_strategy x p i"
             using only_max_bidder_wins
             by simp
           with i_loses show False using second_price_auction_winner_def by simp
@@ -464,7 +462,7 @@ proof -
         show ?thesis
         proof cases -- {* case 2a of the short proof *}
           assume "x whatever_bid i"
-          with defined spa alternative_is_bid non_trivial i_range
+          with defined spa alternative_is_bid i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy"
             using winners_payoff_on_deviation_from_valuation by simp
