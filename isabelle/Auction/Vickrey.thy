@@ -123,12 +123,10 @@ proof -
         also have "\<dots> =
             ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i"
           unfolding deviation_vec_def deviation_def by simp
-        finally have payoff_expanded:
-          "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
-            ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" .
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
         (* makarius: Probably yes, but I don't quite understand what you want to do. *)
-        (* CL: In an earlier version of this formalisation I wanted to refer to the statement preceding this comment by a name payoff_expanded, which, as I see, is now no longer needed.  I haven't been able to achieve this by staying within the chain of calculational reasoning, i.e. by saying
+        (* CL: In an earlier version of this formalisation I wanted to refer to the statement preceding this comment by a name payoff_expanded.
+           I see that this reference is now no longer needed.  I haven't been able to achieve this naming by staying within the chain of calculational reasoning, i.e. by saying
 
            have winners_payoff: "..."
            also have "..."
