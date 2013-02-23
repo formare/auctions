@@ -128,6 +128,15 @@ proof -
             ?i_sticks_with_strategy i - maximum_except n ?i_sticks_with_strategy i" .
         (* TODO CL: ask whether/how it is possible to name one step of a calculation (for reusing it) without breaking the chain (which is what we did here) *)
         (* makarius: Probably yes, but I don't quite understand what you want to do. *)
+        (* CL: In an earlier version of this formalisation I wanted to refer to the statement preceding this comment by a name payoff_expanded, which, as I see, is now no longer needed.  I haven't been able to achieve this by staying within the chain of calculational reasoning, i.e. by saying
+
+           have winners_payoff: "..."
+           also have "..."
+           also have payoff_expanded: "..." (* this is the calculation step to which I'd like to assign a name *)
+           also have "\<dots> \<ge> 0" (* the line below this comment *)
+           finally have non_negative_payoff: "..."
+
+           I can try to produce a self-contained example if it helps.  (Maybe this was a bug in Isabelle2012?) *)
         also have "\<dots> \<ge> 0" using i_ge_max_except by simp
         finally
         have non_negative_payoff:
