@@ -1,0 +1,27 @@
+#!hets -I
+
+use Vickrey.casl
+
+dg basic Nat
+cons-checker darwin
+check-consistency
+
+dg basic Real
+cons-checker darwin
+check-consistency
+
+dg basic Vectors
+cons-checker darwin
+check-consistency
+
+dg basic RealVectors
+cons-checker darwin
+check-consistency
+
+dg basic Maximum
+cons-checker darwin
+check-consistency
+
+dg basic MaximumReal
+cons-checker darwin
+check-consistency

@@ -1,0 +1,9 @@
+#!hets -I
+
+use Vickrey.casl
+dg basic Vectors
+
+prover eprover
+
+set goals test01_dev_exist
+prove

@@ -3,24 +3,9 @@
 use Vickrey.casl
 dg basic Vickrey
 
+#set time-limit 30
 prover eprover
 
-# Preparation (proof cases)
-set goals case_1_pre06 case_1_pre08_winners_payoff case_1_pre09 case_1_pre10 case_1a_00 case_1a_01 case_1b_00 case_1b_01 case_1z_combined
+set axioms exists_different deviation_def_index deviation_def_otherwise deviation_vec_def arg_max_set_def maximum_except_is_greater_or_equal maximum_except_is_component
+set goals inconsistency
 prove
-
-set goals vickreyA_pre00 vickreyA_pre01
-prove
-
-set axioms equilibrium_weakly_dominant_strategy_def vickreyA_pre01
-set include-theorems false
-set goals vickreyA_pre02 vickreyA_pre03
-prove
-
-set axioms i_sticks_with_valuation_def vickreyA_pre03
-set goals vickreyA_pre04
-prove
-
-# Actual goal
-# set goals vickreyA
-# prove
