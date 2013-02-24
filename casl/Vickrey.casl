@@ -563,7 +563,7 @@ SingleGoodAuctionProperties then
       %[allocated(x, iSticksWithValuation, i) /\ %\[ i won by truthful bidding ]\%]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
-      payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_1a_01)% %implied %[ eprover ]%
+      payoff(v, whateverBid, x, p, i) = payoff(v, iSticksWithValuation, x, p, i) %(case_1a_01)% %implied %[ eprover (> 10 sec) ]%
       %[ turns out that case 1a works without assuming 1pre, i.e. "i wins by truthful bidding" ]%
     %[ *** case 1b *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
@@ -597,8 +597,8 @@ SingleGoodAuctionProperties then
       =>
       (exists b: Bids .
       b = v /\
-      length(b) = n /\
       length(v) = n /\
+      length(b) = n /\
       allocation(b, x) /\
       payments(b, p) /\
       (forall i: Participant . inRange(n, i) =>
@@ -607,15 +607,28 @@ SingleGoodAuctionProperties then
           =>
           payoff(v, deviationVector(whateverBid, v, i) as Bids, x, p, i) >=
           payoff(v, whateverBid, x, p, i)))) %(vickreyA_pre01)% %implied %[ eprover ]%
-    %[ FIXME Why does the following not work? ]%
+    forall v: Valuations;
+           n: Participants;
+           x: Allocation;
+           p: Payments;
+           i: Participant;
+           whateverBid, iSticksWithValuation: Bids
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
       =>
       (exists b: Bids .
         b = v /\
-        equilibriumWeaklyDominantStrategy(n, v, b, x, p)) %(vickreyA_pre02)% %implied
+        equilibriumWeaklyDominantStrategy(n, v, b, x, p)) %(vickreyA_pre02)% %implied %[ eprover, but need to restrict "axioms to include" to and equilibrium_weakly_dominant_strategy_def, and "theorems to include if proven" to vickreyA_pre01 ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
       =>
-      equilibriumWeaklyDominantStrategy(n, v, v, x, p) %(vickreyA_pre03)% %implied
+      equilibriumWeaklyDominantStrategy(n, v, v, x, p) %(vickreyA_pre03)% %implied %[ eprover, at least when "axioms to include" is empty and "theorems to include if proven" is restricted to vickreyA_pre02 ]%
+    . secondPriceAuction(n, x, p) /\
+      length(v) = n /\
+      length(whateverBid) = n /\
+      inRange(n, i) /\
+      not whateverBid[i] = v[i] /\
+      iSticksWithValuation = deviationVector(whateverBid, v, i)
+      =>
+      equilibriumWeaklyDominantStrategy(n, v, v, x, p) %(vickreyA_pre04)% %implied
     %[ *** case 2 *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
       not allocated(x, iSticksWithValuation, i) %[ i loses by truthful bidding ]%
@@ -662,3 +675,9 @@ SingleGoodAuctionProperties then
       => %[ I think this is not necessarily the case, if iSticksWithValuation[i] is not a maximum component.  This is 2a without the assumption that i lost with a truthful bid (which means that iSticksWithValuation[i] is not necessarily a maximum component). ]%
       payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(test_equal_payoff_when_non_truthful_wins)% %implied
 end
+
+%[ TODO CL: current problem: can't prove vickreyA_pre02
+   approach by first proving case_1* in theory order (with eprover)
+   they all worked for me; some may need more than 10 seconds
+   vickreyA_pre{00,01} work as well
+   vickreyA_pre02 relies on the definition of equilibrium_weakly_dominant_strategy_def (imported from SingleGoodAuctionProperties), but eprover somehow doesn't use this definition. ]%
