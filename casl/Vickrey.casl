@@ -2,7 +2,7 @@ library Vickrey
 
 %{
 CL@TM: I'm currently stuck in case_2a of the proof of Vickrey#vickreyA
-}
+}%
 
 %{
 It seems that the only alternative to using sorts/types _properly_ (which we are now trying to do) is a full fallback to raw FOL, where the only advantage of CASL over TPTP would be a little syntactic sugar.
