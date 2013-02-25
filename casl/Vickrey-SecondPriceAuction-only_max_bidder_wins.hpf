@@ -1,0 +1,11 @@
+#!hets -I
+
+use Vickrey.casl
+dg basic SecondPriceAuction
+
+#set time-limit 30
+prover SPASS
+
+set axioms allocation_def gt_def second_price_auction_def deviation_def_index maximum_is_greater_or_equal deviation_def_otherwise only_one_maximum
+set goals only_max_bidder_wins
+prove

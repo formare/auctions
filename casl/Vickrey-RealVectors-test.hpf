@@ -1,9 +1,0 @@
-#!hets -I
-
-use Vickrey.casl
-dg basic RealVectors
-
-prover eprover
-
-set goals test01_exist_difference_in_elem test02
-prove

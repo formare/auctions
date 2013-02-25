@@ -18,10 +18,26 @@ dg basic RealVectors
 cons-checker darwin
 check-consistency
 
+dg basic SingleGoodAuction
+cons-checker darwin
+check-consistency
+
 dg basic Maximum
 cons-checker darwin
 check-consistency
 
 dg basic MaximumReal
+cons-checker darwin
+check-consistency
+
+dg basic SingleGoodAuctionProperties
+cons-checker darwin
+check-consistency
+
+dg basic SecondPriceAuction
+cons-checker darwin
+check-consistency
+
+dg basic Vickrey
 cons-checker darwin
 check-consistency

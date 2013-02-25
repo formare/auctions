@@ -3,9 +3,10 @@
 use Vickrey.casl
 dg basic Vickrey
 
-#set time-limit 30
-prover eprover
+# Either of these works:
+prover SPASS
+# prover eprover
 
-set axioms exists_different deviation_def_index deviation_def_otherwise deviation_vec_def arg_max_set_def maximum_except_is_greater_or_equal maximum_except_is_component
-set goals inconsistency
+set axioms second_price_auction_def exists_different deviation_def_index deviation_def_otherwise maximum_except_is_component 
+set goals vickreyA_bug
 prove

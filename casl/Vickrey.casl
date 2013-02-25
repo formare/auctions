@@ -25,8 +25,8 @@ spec Nat =
         __>=__: Nat * Nat;
     ops
         0, 1: Nat;
-    %[forall n:Nat]%
-    %[. n > 1 => n > 0 %(gt_one_imp_gt_0)%]%
+    forall n:Nat
+    . n > 1 => n > 0 %(gt_one_imp_gt_0)%
 end
 
 %[ TODO CL: reuse Basic/Reals, or ExtOrderedField (with hiding) as explained in http://trac.informatik.uni-bremen.de:8080/hets/ticket/1103.  Or work around the hiding, as suggested by TM: "define MyExtField in the same way as ExtField (but based on ConstructField), etc." ]% 
@@ -83,7 +83,7 @@ spec Vectors[sort Elem] given Nat = %[ checked consistency with darwin ]%
     %[forall v, altV: Vector[Elem]; i: Index]%
     %[. (exists dev: Vector[Elem] . dev = v[i <- altV]) %(test01_dev_exist)% %implied]%
 end
-
+    
 spec RealVectors = %[ checked consistency with darwin ]%
   Real then
   Vectors[sort Real]
@@ -307,7 +307,7 @@ MaximumReal then
       =>
       secondPriceAuctionLoser(n, b, x, p, loser) %(not_allocated_implies_spa_loser)% %implied
       %[ proved with
-         * SPASS (same as Isabelle)
+         * SPASS (same as Isabelle; as of r519, maximum_except_is_component, deviation_def_index, deviation_def_otherwise can be excluded manually)
          * eprover (second_price_auction_def, second_price_auction_winner_def; requires manual minimisation; doesn't work with second_price_auction_loser_def instead of second_price_auction_loser_def (says "disproved"; CL@TM: Does this make sense?); before r324 this was vice-versa.)
          * MathServe Broker
          * Vampire
@@ -320,11 +320,11 @@ MaximumReal then
       b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
       %[ proved with
+         * SPASS (as of r519 has strange requirements: allocation_def gt_def second_price_auction_def deviation_def_index maximum_is_greater_or_equal deviation_def_otherwise only_one_maximum – as determined by script) TODO CL: check this!!!
          * eprover (now takes a lot of time unless Maximum#only_one_maximum is used, therefore didn't minimise; worked before r324 using second_price_auction_winner_def, second_price_auction_def, allocation_def, arg_max_set_def, maximum_is_greater_or_equal, maximum_except_is_greater_or_equal; requires manual minimisation)
          * Vampire (needs more than 10 seconds)
          * MathServe Broker
          does not work with
-         * SPASS (but worked before r324 using second_price_auction_def, arg_max_set_def, maximum_is_greater_or_equal, second_price_auction_winner_def, maximum_except_is_greater_or_equal; also reports using maximum_is_component, but it actually works without)
          * darwin-non-fd (timeout)
          not yet tested with
          Isabelle proof (by contradiction) uses second_price_auction_def, second_price_auction_winner_def, second_price_auction_loser_def, maximum_except_is_greater_or_equal, maximum_is_greater_or_equal, arg_max_set_def ]%
@@ -346,7 +346,7 @@ MaximumReal then
       =>
       payoff(v, b, x, p, loser) =
       0 %(second_price_auction_loser_payoff)% %implied
-    %[ proved with a scripted combination of SPASS and eprover using auxiliary lemmas; see
+    %[ no longer works as of r519; previously proved with a scripted combination of SPASS and eprover using auxiliary lemmas; see
        Vickrey-SecondPriceAuction-second_price_auction_loser_payoff.hpf ]%
     . secondPriceAuction(n, x, p) /\
       n = length(b) /\
@@ -500,6 +500,9 @@ SingleGoodAuctionProperties then
     . secondPriceAuction(n, x, p) /\
       length(v) = n
       => equilibriumWeaklyDominantStrategy(n, v, v %[ i.e. b ]%, x, p) %(vickreyA)% %implied
+    . not (secondPriceAuction(n, x, p) /\
+           length(v) = n)
+       %(vickreyA_bug)% %implied
     %[ proved with eprover using (after manual minimization)
        second_price_auction_winner_def
        second_price_auction_loser_def
