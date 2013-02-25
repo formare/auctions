@@ -630,6 +630,17 @@ SingleGoodAuctionProperties then
       iSticksWithValuation[i] <= maximumExcept(iSticksWithValuation, i) %(case_2_pre01_i_bid_at_most_second)% %implied %[ eprover; in Isabelle we did this by contradiction using only_max_bidder_wins; here, it works directly. ]%
      %[*** case 2a *** ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i)
+      =>
+      secondPriceAuction(n, x, p) /\ n = length(whateverBid) /\ n = length(v) /\ inRange(n, i) /\ allocated(x, whateverBid, i) %(case_2a_pre_00)% %implied
+    . secondPriceAuction(n, x, p) /\ n = length(whateverBid) /\ n = length(v) /\ inRange(n, i) /\ allocated(x, whateverBid, i)
+      =>
+      payoff(v, whateverBid, x, p, i) = v[i] - maximumExcept(whateverBid, i) %(case_2a_pre_01)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
+      allocated(x, whateverBid, i)
+      =>
+      payoff(v, whateverBid, x, p, i) = v[i] - maximumExcept(whateverBid, i) %(case_2a_pre_02)% %implied
+    . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\
       not allocated(x, iSticksWithValuation, i) /\ %[ i lost by truthful bidding ]%
       allocated(x, whateverBid, i) %[ i wins with the new, non-truthful bid ]%
       =>
