@@ -1,4 +1,5 @@
-include ../Makefile.vars
+PREFIX = ..
+include $(PREFIX)/Makefile.vars
 
 SYNC_FILES = \
 	Auction/Maximum.thy \
@@ -9,14 +10,16 @@ SYNC_FILES = \
 	Auction/SingleGoodAuctionTest.thy \
 	Auction/Vectors.thy \
 	Auction/Vickrey.thy \
-	README.isabelle.html \
+	Auction/Vickrey_Short.thy \
+	index.php \
+	sidebar.php \
 	graph.pdf \
 	Auction/output/document.pdf
 BROWSER_INFO = $(shell isabelle getenv -b ISABELLE_BROWSER_INFO)
 
 all: sync
 
-include ../Makefile.in
+include $(PREFIX)/Makefile.in
 
 $(BROWSER_INFO)/HOL/Auction/session.graph: Auction
 	isabelle build -o browser_info -v -D $<

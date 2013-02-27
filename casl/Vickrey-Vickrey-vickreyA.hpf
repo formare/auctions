@@ -1,5 +1,21 @@
 #!hets -I
 
+# $Id$
+# 
+# Auction Theory Toolbox
+# 
+# Authors:
+# * Christoph Lange <math.semantic.web@gmail.com>
+# * Till Mossakowski <till.mossakowski@dfki.de>
+# 
+# Dually licenced under
+# * Creative Commons Attribution (CC-BY) 3.0
+# * ISC License (1-clause BSD License)
+# See LICENSE file for details
+# (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+
+# Proves Vickrey/Vickrey#vickreyA
+
 use Vickrey.casl
 dg basic Vickrey
 

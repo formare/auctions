@@ -1,12 +1,15 @@
+PREFIX = .
+DPATH = .
 include Makefile.vars
 
 SYNC_FILES = \
-        '!!! PLEASE SEE OVERVIEW AT BOTTOM !!!' \
 	LICENSE LICENSE-CC-BY LICENSE-ISC \
-	README.html
+	index.php \
+	sidebar.php
 SUBDIRS = \
 	casl \
-	isabelle
+	isabelle #\
+#	mizar
 
 .PHONY: all sync subdirs force-make
 
@@ -18,7 +21,6 @@ subdirs: $(SUBDIRS)
 
 $(SUBDIRS): force-make
 	$(MAKE) -C $@
-
 
 force-make:
 	true
