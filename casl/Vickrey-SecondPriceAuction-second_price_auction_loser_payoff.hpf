@@ -26,5 +26,6 @@ prove
 
 # Actual goal
 set goals second_price_auction_loser_payoff
+set time-limit 1000
 prover eprover
 prove

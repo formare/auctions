@@ -30,10 +30,12 @@ dg basic Vickrey
 
 prover eprover
 set goals case_2_pre00 case_2_pre01_i_bid_at_most_second case_2a_pre_00 case_2a_pre_01 case_2a_pre_02 case_2a_00 case_2a_01 case_2a_02 case_2a_03 case_2b_00 case_2b_01
+set time-limit 1000
 prove
 
 prover SPASS
 set goals case_2z_combined_00 case_2z_combined_01 case_2z_combined_02
+set time-limit 1000
 prove
 
 # set goals vickreyA_pre00 vickreyA_pre01

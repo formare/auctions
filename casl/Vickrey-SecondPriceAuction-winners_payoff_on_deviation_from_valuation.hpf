@@ -30,4 +30,5 @@ prove
 
 # Actual goal
 set goals winners_payoff_on_deviation_from_valuation
+set time-limit 1000
 prove
