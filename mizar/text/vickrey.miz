@@ -2,12 +2,10 @@
 ::  by Marco B. Caminati
 :: February 2013
 :: Copyright (c) 2013 by Marco B. Caminati
-:: This code can be distributed under the GNU General Public Licence
-:: version 3.0 or later, or the Creative Commons Attribution-ShareAlike
-:: License version 3.0 or later, subject to the binding interpretation
-:: detailed in file COPYING.interpretation.
-:: See http://www.gnu.org/licenses/gpl.html and
-:: http://creativecommons.org/licenses/by-sa/3.0/.
+:: Dually licenced under
+:: * Creative Commons Attribution (CC-BY) 3.0
+:: * ISC License (1-clause BSD License)
+:: See LICENSE file for details
 :: Successfully and fully verified under 
 :: MML ver. 5.8.1171 for Mizar ver. 8.1.01 (linux i386)
 
@@ -498,9 +496,8 @@ v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
 ::{
 proof
 assume f is NAT-valued; then reconsider R=f as NAT-valued Function; 
-set x=R-allocations, V={v}, p=R-pay, g=[:{i},V:];
-V\NAT={}; then V c= NAT by FOMODEL0:29; then 
-reconsider g as NAT-valued Function;
+set x=R-allocations, V={v}, p=R-pay, g=[:{i},V:]; V\NAT={}; then 
+V c= NAT by FOMODEL0:29; then reconsider g as NAT-valued Function;
 reconsider Ri=R +*1 g as NAT-valued Function;
 set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R, 
 RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
