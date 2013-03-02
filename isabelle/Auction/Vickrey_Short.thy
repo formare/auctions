@@ -345,20 +345,17 @@ theorem vickreyA:
   fixes N :: participants and v :: "real vector" and x :: allocation and p :: payments
   assumes card_N: "card N > 1"
   assumes val: "valuation N v" and spa: "second_price_auction N x p"
-  shows "equilibrium_weakly_dominant_strategy N v v (* \<leftarrow> i.e. b *) x p"
+  defines "b \<equiv> v"
+  shows "equilibrium_weakly_dominant_strategy N v b x p"
 proof -
-  let ?b = v
-
   have defined: "maximum_defined N" using card_N
     unfolding maximum_defined_def by (auto intro: card_ge_0_finite)
 
-  txt {* From now on, we refer to @{term v} as @{term ?b} if we mean the \emph{bids},
-    (which happen to be equal to the valuations). *}
-  from val have bids: "bids N ?b" by (rule valuation_is_bid)
-  from spa bids have alloc: "allocation N ?b x"
-    unfolding second_price_auction_def by simp
-  from spa bids have pay: "vickrey_payment N ?b p"
-    unfolding second_price_auction_def by simp
+  from val have bids: "bids N b" unfolding b_def by (rule valuation_is_bid)
+  from spa bids have alloc: "allocation N b x"
+    unfolding b_def second_price_auction_def by simp
+  from spa bids have pay: "vickrey_payment N b p"
+    unfolding b_def second_price_auction_def by simp
   {
     fix i :: participant
     assume i_range: "i \<in> N"
@@ -375,7 +372,7 @@ proof -
     fix whatever_bid :: "real vector"
     assume alternative_is_bid: "bids N whatever_bid"
 
-    let ?i_sticks_with_strategy = "whatever_bid(i := ?b i)"
+    let ?i_sticks_with_strategy = "whatever_bid(i := b i)"
     from bids alternative_is_bid
     have i_sticks_is_bid: "bids N ?i_sticks_with_strategy"
       by (simp add: bids_def non_negative_real_vector_def)
@@ -389,7 +386,7 @@ proof -
       "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i \<ge>
         payoff_vector v (x whatever_bid) (p whatever_bid) i"
     proof -
-      let ?b_bar = "maximum N ?b"
+      let ?b_bar = "maximum N b"
       show ?thesis
       proof cases -- {* case 1 of the short proof *}
         assume i_wins: "x ?i_sticks_with_strategy i"
@@ -412,7 +409,7 @@ proof -
             v i - maximum ?M ?i_sticks_with_strategy"
           by (rule second_price_auction_winner_payoff)
         also have "\<dots> = ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy"
-          by simp
+          unfolding b_def by simp
         finally have payoff_expanded:
           "payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i =
             ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy" .
@@ -426,7 +423,7 @@ proof -
           with defined spa alternative_is_bid i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               v i - maximum ?M ?i_sticks_with_strategy"
-            using winners_payoff_on_deviation_from_valuation by simp
+            using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
           txt {* Now we show that @{term i}'s payoff hasn't changed. *}
           also have "\<dots> =
               payoff_vector v (x ?i_sticks_with_strategy) (p ?i_sticks_with_strategy) i"
@@ -467,7 +464,7 @@ proof -
           with defined spa alternative_is_bid i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               ?i_sticks_with_strategy i - maximum ?M ?i_sticks_with_strategy"
-            using winners_payoff_on_deviation_from_valuation by simp
+            using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
           txt {* Now we can compute @{term i}'s payoff *}
           also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
           also have "\<dots> =
