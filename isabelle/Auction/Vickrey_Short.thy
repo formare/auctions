@@ -505,7 +505,7 @@ proof -
   from val have bids: "bids N v" by (rule valuation_is_bid)
   {
     fix k :: participant
-    assume "k \<in> N \<and> x b k"
+    assume "k \<in> N" and "x b k"
     with spa bids have "k \<in> arg_max_set N v"
       using allocated_implies_spa_winner
       unfolding b_def second_price_auction_winner_def by simp
