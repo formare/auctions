@@ -351,9 +351,8 @@ theorem vickreyA:
   defines "b \<equiv> v"
   shows "equilibrium_weakly_dominant_strategy N v b x p"
 proof -
-  have finite: "finite N" using card_N by (simp add: card_ge_0_finite)
-  then have defined: "maximum_defined N" using card_N
-    unfolding maximum_defined_def by auto
+  have defined: "maximum_defined N" using card_N
+    unfolding maximum_defined_def by (auto simp: card_ge_0_finite)
 
   from val have bids: "bids N b" unfolding b_def by (rule valuation_is_bid)
   from spa bids have alloc: "allocation N b x"
@@ -366,12 +365,8 @@ proof -
 
     let ?M = "N - {i}"
     have defined': "maximum_defined ?M"
-    proof -
-      from finite card_N and i_range have "card ?M > 0"
-        by (simp add: card_Diff_singleton)
-      then show ?thesis
-        using defined unfolding maximum_defined_def by auto
-    qed
+      using card_N i_range unfolding maximum_defined_def
+      by (simp add: card_ge_0_finite card_Diff_singleton)
 
     fix whatever_bid :: "real vector"
     assume alternative_is_bid: "bids N whatever_bid"
