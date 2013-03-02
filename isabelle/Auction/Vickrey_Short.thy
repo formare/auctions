@@ -344,8 +344,9 @@ proof -
   have defined: "maximum_defined N" using card_N
     unfolding maximum_defined_def by (auto simp: card_ge_0_finite)
 
-  from val have bids: "bids N b" unfolding b_def by (rule valuation_is_bid)
-  from spa bids have alloc: "allocation N b x"
+  from val have bids: "bids N b"
+    unfolding b_def by (rule valuation_is_bid)
+  from spa bids have allocation: "allocation N b x"
     unfolding b_def second_price_auction_def by simp
   from spa bids have pay: "vickrey_payment N b p"
     unfolding b_def second_price_auction_def by simp
@@ -373,28 +374,28 @@ proof -
     have weak_dominance:
       "payoff (v i) (x ?b i) (p ?b i) \<ge> payoff (v i) (x whatever_bid i) (p whatever_bid i)"
     proof cases
-      assume i_alloc: "x ?b i"
+      assume alloc: "x ?b i"
       with spa is_bid i_range
-      have i_wins: "second_price_auction_winner N ?b x p i"
+      have winner: "second_price_auction_winner N ?b x p i"
         by (rule allocated_implies_spa_winner)
 
-      from i_wins have "?b i = ?b_max"
+      from winner have "?b i = ?b_max"
         unfolding second_price_auction_winner_def arg_max_set_def by simp
       with defined' have "?b i \<ge> ?b_max'"
         by (rule maximum_remaining_maximum)
 
-      from i_wins have "p ?b i = ?b_max'"
+      from winner have "p ?b i = ?b_max'"
         unfolding second_price_auction_winner_def second_price_auction_winners_payment_def
         by simp
 
-      have winners_payoff: "payoff (v i) (x ?b i) (p ?b i) = v i - ?b_max'"
-        using defined spa is_bid i_range i_alloc
+      have winner_payoff: "payoff (v i) (x ?b i) (p ?b i) = v i - ?b_max'"
+        using defined spa is_bid i_range alloc
         by (rule second_price_auction_winner_payoff)
 
       have non_negative_payoff: "payoff (v i) (x ?b i) (p ?b i) \<ge> 0"
       proof -
         from `?b i \<ge> ?b_max'` have "?b i - ?b_max' \<ge> 0" by simp
-        with winners_payoff show ?thesis unfolding b_def by simp
+        with winner_payoff show ?thesis unfolding b_def by simp
       qed
 
       show ?thesis
@@ -403,8 +404,7 @@ proof -
         with defined spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = v i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
-        txt {* Now we show that @{term i}'s payoff hasn't changed. *}
-        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using winners_payoff by simp
+        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using winner_payoff by simp
         finally show ?thesis by (rule eq_refl)
       next -- {* case 1b of the short proof *}
         assume "\<not> x whatever_bid i"
@@ -416,45 +416,41 @@ proof -
       qed
 
     next -- {* case 2 of the short proof *}
-      assume i_loses: "\<not> x ?b i"
-      txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
+      assume non_alloc: "\<not> x ?b i"
       with spa is_bid i_range
-      have zero_payoff: "payoff (v i) (x ?b i) (p ?b i) = 0"
+      have loser_payoff: "payoff (v i) (x ?b i) (p ?b i) = 0"
         by (rule second_price_auction_loser_payoff)
-      txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
-        @{term i} would have won *}
+
       have i_bid_at_most_second: "?b i \<le> ?b_max'"
       proof (rule ccontr)
         assume "\<not> ?thesis"
         then have "?b i > ?b_max'" by simp
         with defined spa is_bid i_range
         have "second_price_auction_winner N ?b x p i"
-          using only_max_bidder_wins
-          by simp
-        with i_loses show False using second_price_auction_winner_def by simp
+          using only_max_bidder_wins by simp
+        with non_alloc show False using second_price_auction_winner_def by simp
       qed
+
       show ?thesis
       proof cases -- {* case 2a of the short proof *}
         assume "x whatever_bid i"
         with defined spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = ?b i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
-        txt {* Now we can compute @{term i}'s payoff *}
         also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
-        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using zero_payoff by simp
+        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using loser_payoff by simp
         finally show ?thesis .
       next -- {* case 2b of the short proof *}
         assume "\<not> x whatever_bid i"
-        txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
         with spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
           by (rule second_price_auction_loser_payoff)
-        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using zero_payoff by simp
+        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using loser_payoff by simp
         finally show ?thesis by (rule eq_refl)
       qed
     qed
   }
-  with spa val bids alloc pay show ?thesis
+  with spa val bids allocation pay show ?thesis
     unfolding equilibrium_weakly_dominant_strategy_def by simp
 qed
 
