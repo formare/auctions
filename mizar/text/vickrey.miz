@@ -140,8 +140,7 @@ let x be natural number; cluster {x}\NAT -> empty;
 coherence by ORDINAL1:def 12, FOMODEL0:29; 
 end;
 
-reserve x,y,z,X,Y,i for set, P,Q,R for Relation, f,g for Function, 
-v for non zero Nat;
+reserve x,y,z,X,Y,i for set,P,Q,R for Relation,f,g for Function,v for Nat;
 
 Lm9c: y<>{} implies (x=z iff ([:X,{{}}:]+*[:{z},{y}:]).x=y)
 ::{
