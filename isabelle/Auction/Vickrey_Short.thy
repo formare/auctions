@@ -83,7 +83,7 @@ definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow>
 subsection {* Maximum *}
 
 definition maximum_defined :: "participants \<Rightarrow> bool"
-  where "maximum_defined N \<longleftrightarrow> finite N \<and> N \<noteq> {}"
+  where "maximum_defined N \<longleftrightarrow> card N > 0"
 
 definition maximum :: "participants \<Rightarrow> real vector \<Rightarrow> real"
   where "maximum N y = Max (y ` N)"
@@ -102,7 +102,7 @@ lemma maximum_is_greater_or_equal:
   assumes "maximum_defined N"
     and "i \<in> N"
   shows "maximum N y \<ge> y i"
-  using assms unfolding maximum_defined_def maximum_def by simp
+  using assms unfolding maximum_defined_def maximum_def by (simp add: card_gt_0_iff)
 
 lemma maximum_is_component:
   fixes N :: participants and y :: "real vector"
@@ -111,7 +111,8 @@ lemma maximum_is_component:
   shows "\<exists>i \<in> N. maximum N y = y i"
 proof -
   let ?A = "y ` N"
-  from defined have "finite ?A" and "?A \<noteq> {}" by (simp_all add: maximum_defined_def)
+  from defined have "finite ?A" and "?A \<noteq> {}"
+    unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
   then have "Max ?A \<in> ?A" by (rule Max_in)
   then obtain i where "i \<in> N" and "Max ?A = y i" by auto
   with maximum_def show ?thesis by auto
@@ -129,7 +130,8 @@ proof -
   let ?A = "y ` N"
   show "Max ?A = m"
   proof (rule Max_eqI)
-    from defined show "finite ?A" by (simp add: maximum_defined_def)
+    from defined show "finite ?A"
+      unfolding maximum_defined_def by (simp add: card_gt_0_iff)
     show "m \<in> ?A" using is_component by auto
     fix a assume "a \<in> ?A"
     then show "a \<le> m" using greater_or_equal by blast
@@ -148,7 +150,8 @@ proof -
   let ?M = "N - {j}"
   let ?A = "y ` ?M"
   from i have *: "i \<in> ?M" by simp
-  with defined have "finite ?A" and "?A \<noteq> {}" by (auto simp add: maximum_defined_def)
+  with defined have "finite ?A" and "?A \<noteq> {}"
+    unfolding maximum_defined_def by (auto simp add: card_gt_0_iff)
   with * have "Max ?A \<ge> y i" by (auto simp add: Max_ge_iff)
   then show ?thesis unfolding maximum_def .
 qed
@@ -161,7 +164,7 @@ lemma maximum_remaining_maximum:
 proof -
   have "y ` (N - {j}) \<subseteq> y ` N" by auto
   with defined' have "maximum (N - {j}) y \<le> maximum N y"
-    unfolding maximum_def maximum_defined_def by (simp add: Max_mono)
+    unfolding maximum_def maximum_defined_def by (simp add: card_gt_0_iff Max_mono)
   also note j_max
   finally show ?thesis .
 qed
@@ -348,8 +351,9 @@ theorem vickreyA:
   defines "b \<equiv> v"
   shows "equilibrium_weakly_dominant_strategy N v b x p"
 proof -
-  have defined: "maximum_defined N" using card_N
-    unfolding maximum_defined_def by (auto intro: card_ge_0_finite)
+  have finite: "finite N" using card_N by (simp add: card_ge_0_finite)
+  then have defined: "maximum_defined N" using card_N
+    unfolding maximum_defined_def by auto
 
   from val have bids: "bids N b" unfolding b_def by (rule valuation_is_bid)
   from spa bids have alloc: "allocation N b x"
@@ -363,10 +367,10 @@ proof -
     let ?M = "N - {i}"
     have defined': "maximum_defined ?M"
     proof -
-      have "\<not> (\<exists>x. N = {x})" using card_N by auto
-      with defined and i_range have "?M \<noteq> {}" by blast
+      from finite card_N and i_range have "card ?M > 0"
+        by (simp add: card_Diff_singleton)
       then show ?thesis
-        using defined and maximum_defined_def by simp
+        using defined unfolding maximum_defined_def by auto
     qed
 
     fix whatever_bid :: "real vector"
