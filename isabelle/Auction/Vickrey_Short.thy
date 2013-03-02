@@ -76,9 +76,6 @@ subsection {* Payoff *}
 definition payoff :: "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real"
   where "payoff v x p = v * (if x then 1 else 0) - p"
 
-definition payoff_vector :: "real vector \<Rightarrow> bool vector \<Rightarrow> real vector \<Rightarrow> real vector"
-  where "payoff_vector v x p = (\<lambda>i. payoff (v i) (x i) (p i))"
-
 
 subsection {* Maximum *}
 
@@ -271,17 +268,14 @@ lemma second_price_auction_winner_payoff:
   assumes defined: "maximum_defined N"
     and spa: "second_price_auction N x p"
     and bids: "bids N b"
-    and winner_range: "winner \<in> N"
-    and wins: "x b winner"
-  shows "payoff_vector v (x b) (p b) winner = v winner - maximum (N - {winner}) b"
+    and i_range: "i \<in> N"
+    and wins: "x b i"
+  shows "payoff (v i) (x b i) (p b i) = v i - maximum (N - {i}) b"
 proof -
-  have "payoff_vector v (x b) (p b) winner =
-      payoff (v winner) (x b winner) (p b winner)"
-    unfolding payoff_vector_def by simp
-  also have "\<dots> = payoff (v winner) True (p b winner)" using wins by simp
-  also have "\<dots> = v winner - p b winner" unfolding payoff_def by simp
-  also have "\<dots> = v winner - maximum (N - {winner}) b"
-    using defined spa bids winner_range wins
+  have "payoff (v i) (x b i) (p b i) = v i - p b i"
+    using wins unfolding payoff_def by simp
+  also have "\<dots> = v i - maximum (N - {i}) b"
+    using defined spa bids i_range wins
     using allocated_implies_spa_winner
     unfolding second_price_auction_winner_def second_price_auction_winners_payment_def
     by simp
@@ -293,26 +287,22 @@ lemma second_price_auction_loser_payoff:
     and b :: "real vector" and p :: payments and loser :: participant
   assumes "second_price_auction N x p"
     and "bids N b"
-    and "loser \<in> N"
-    and "\<not> x b loser"
-  shows "payoff_vector v (x b) (p b) loser = 0"
+    and "i \<in> N"
+    and "\<not> x b i"
+  shows "payoff (v i) (x b i) (p b i) = 0"
   using assms not_allocated_implies_spa_loser
-  unfolding second_price_auction_loser_def payoff_vector_def payoff_def by simp
+  unfolding second_price_auction_loser_def payoff_def by simp
 
 lemma winners_payoff_on_deviation_from_valuation:
   fixes N :: participants and v :: "real vector" and x :: allocation
     and b :: "real vector" and p :: payments and winner :: participant
-  assumes defined: "maximum_defined N"
-    and spa: "second_price_auction N x p"
-    and bids: "bids N b"
-    and range: "winner \<in> N"
-    and wins: "x b winner"
-  shows
-    "let winner_sticks_with_valuation = b(winner := v winner)
-    in payoff_vector v (x b) (p b) winner =
-      v winner - maximum (N - {winner}) winner_sticks_with_valuation"
-  using wins range spa bids second_price_auction_winner_payoff
-  using defined remaining_maximum_invariant
+  assumes "maximum_defined N"
+    and "second_price_auction N x p"
+    and "bids N b"
+    and "i \<in> N"
+    and "x b i"
+  shows "payoff (v i) (x b i) (p b i) = v i - maximum (N - {i}) (b(i := v i))"
+  using assms second_price_auction_winner_payoff remaining_maximum_invariant
   by simp
 
 
@@ -334,9 +324,9 @@ definition equilibrium_weakly_dominant_strategy ::
     valuation N v \<and> bids N b \<and> allocation N b x \<and> vickrey_payment N b p \<and>
     (\<forall>i \<in> N.
       (\<forall>whatever_bid. bids N whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
-        (let i_sticks_with_bid = whatever_bid(i := b i)
-         in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
-            payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
+        (let b' = whatever_bid(i := b i)
+         in payoff (v i) (x b' i) (p b' i) \<ge>
+            payoff (v i) (x whatever_bid i) (p whatever_bid i))))"
 
 
 section {* Vickrey's Theorem *}
@@ -381,7 +371,7 @@ proof -
     let ?b_max' = "maximum ?M ?b"
 
     have weak_dominance:
-      "payoff_vector v (x ?b) (p ?b) i \<ge> payoff_vector v (x whatever_bid) (p whatever_bid) i"
+      "payoff (v i) (x ?b i) (p ?b i) \<ge> payoff (v i) (x whatever_bid i) (p whatever_bid i)"
     proof cases
       assume i_alloc: "x ?b i"
       with spa is_bid i_range
@@ -397,11 +387,11 @@ proof -
         unfolding second_price_auction_winner_def second_price_auction_winners_payment_def
         by simp
 
-      have winners_payoff: "payoff_vector v (x ?b) (p ?b) i = v i - ?b_max'"
+      have winners_payoff: "payoff (v i) (x ?b i) (p ?b i) = v i - ?b_max'"
         using defined spa is_bid i_range i_alloc
         by (rule second_price_auction_winner_payoff)
 
-      have non_negative_payoff: "payoff_vector v (x ?b) (p ?b) i \<ge> 0"
+      have non_negative_payoff: "payoff (v i) (x ?b i) (p ?b i) \<ge> 0"
       proof -
         from `?b i \<ge> ?b_max'` have "?b i - ?b_max' \<ge> 0" by simp
         with winners_payoff show ?thesis unfolding b_def by simp
@@ -411,22 +401,17 @@ proof -
       proof cases -- {* case 1a of the short proof *}
         assume "x whatever_bid i"
         with defined spa alternative_is_bid i_range
-        have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
-            v i - ?b_max'"
+        have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = v i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
         txt {* Now we show that @{term i}'s payoff hasn't changed. *}
-        also have "\<dots> =
-            payoff_vector v (x ?b) (p ?b) i"
-          using winners_payoff by simp
+        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using winners_payoff by simp
         finally show ?thesis by (rule eq_refl)
       next -- {* case 1b of the short proof *}
         assume "\<not> x whatever_bid i"
         with spa alternative_is_bid i_range
-        have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
+        have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
           by (rule second_price_auction_loser_payoff)
-        also have "\<dots> \<le>
-            payoff_vector v (x ?b) (p ?b) i"
-          using non_negative_payoff by simp
+        also have "\<dots> \<le> payoff (v i) (x ?b i) (p ?b i)" using non_negative_payoff by simp
         finally show ?thesis .
       qed
 
@@ -434,8 +419,7 @@ proof -
       assume i_loses: "\<not> x ?b i"
       txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
       with spa is_bid i_range
-      have zero_payoff:
-        "payoff_vector v (x ?b) (p ?b) i = 0"
+      have zero_payoff: "payoff (v i) (x ?b i) (p ?b i) = 0"
         by (rule second_price_auction_loser_payoff)
       txt {* @{term i}'s bid can't be higher than the second highest bid, as otherwise
         @{term i} would have won *}
@@ -453,24 +437,19 @@ proof -
       proof cases -- {* case 2a of the short proof *}
         assume "x whatever_bid i"
         with defined spa alternative_is_bid i_range
-        have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
-            ?b i - ?b_max'"
+        have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = ?b i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
         txt {* Now we can compute @{term i}'s payoff *}
         also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
-        also have "\<dots> =
-            payoff_vector v (x ?b) (p ?b) i"
-          using zero_payoff by simp
+        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using zero_payoff by simp
         finally show ?thesis .
       next -- {* case 2b of the short proof *}
         assume "\<not> x whatever_bid i"
         txt {* @{term i} doesn't get the good, so @{term i}'s payoff is @{text 0} *}
         with spa alternative_is_bid i_range
-        have "payoff_vector v (x whatever_bid) (p whatever_bid) i = 0"
+        have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
           by (rule second_price_auction_loser_payoff)
-        also have "\<dots> =
-            payoff_vector v (x ?b) (p ?b) i"
-          using zero_payoff by simp
+        also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using zero_payoff by simp
         finally show ?thesis by (rule eq_refl)
       qed
     qed
