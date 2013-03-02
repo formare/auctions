@@ -343,12 +343,14 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
 
 theorem vickreyA:
   fixes N :: participants and v :: "real vector" and x :: allocation and p :: payments
-  (* non-triviality now stated in terms of sets: *)
-  assumes defined: "maximum_defined N" and non_trivial: "\<not> (\<exists>x. N = {x})"
+  assumes card_N: "card N > 1"
   assumes val: "valuation N v" and spa: "second_price_auction N x p"
   shows "equilibrium_weakly_dominant_strategy N v v (* \<leftarrow> i.e. b *) x p"
 proof -
   let ?b = v
+
+  have defined: "maximum_defined N" using card_N
+    unfolding maximum_defined_def by (auto intro: card_ge_0_finite)
 
   txt {* From now on, we refer to @{term v} as @{term ?b} if we mean the \emph{bids},
     (which happen to be equal to the valuations). *}
@@ -364,8 +366,8 @@ proof -
     let ?M = "N - {i}"
     have defined': "maximum_defined ?M"
     proof -
-      from defined and non_trivial and i_range have "?M \<noteq> {}"
-        by blast
+      have "\<not> (\<exists>x. N = {x})" using card_N by auto
+      with defined and i_range have "?M \<noteq> {}" by blast
       then show ?thesis
         using defined and maximum_defined_def by simp
     qed
@@ -421,7 +423,7 @@ proof -
         show ?thesis
         proof cases -- {* case 1a of the short proof *}
           assume "x whatever_bid i"
-          with defined spa alternative_is_bid non_trivial i_range
+          with defined spa alternative_is_bid i_range
           have "payoff_vector v (x whatever_bid) (p whatever_bid) i =
               v i - maximum ?M ?i_sticks_with_strategy"
             using winners_payoff_on_deviation_from_valuation by simp
