@@ -371,7 +371,6 @@ MaximumReal then
     . secondPriceAuction(n, x, p) /\
       n = length(b) /\
       n = length(v) /\
-      n > 0 /\
       inRange(n, winner) /\
       allocated(x, b, winner)
       =>
