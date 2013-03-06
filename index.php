@@ -35,8 +35,8 @@ PageStart();
       <td>1 (Vickrey)</td>
       <td><a href="source/1.pdf">elaboration</a><!-- this paper is not physically in this svn, but uploaded via https://codex.cs.bham.ac.uk/svn/mmk/KLR/auction-theory/Makefile -->
         (<a href="http://www.socscistaff.bham.ac.uk/rowat/">Rowat</a>/<a href="http://www.cs.bham.ac.uk/~mmk/">Kerber</a>/<a href="http://www.cs.bham.ac.uk/~langec/">Lange</a>)</td>
-      <td>Lange/<a href="http://www.lri.fr/~wenzel/">Wenzel</a>/Kerber</td>
       <td>Lange/<a href="http://www.informatik.uni-bremen.de/~till/">Mossakowski</a></td>
+      <td>Lange/<a href="http://www.lri.fr/~wenzel/">Wenzel</a>/Kerber</td>
       <td><a href="http://uniroma1.academia.edu/MarcoCaminati">Caminati</a></td>
       <td><a href="http://www.risc.jku.at/people/wwindste/">Windsteiger</a></td>
     </tr>

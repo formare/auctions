@@ -30,7 +30,7 @@ PageStart();
 </ul>
 <h2>How to run</h2>
 <ol>
-  <li>Obtain <a href="https://isabelle.in.tum.de/">Isabelle</a>.</li>
+  <li>Obtain <a href="https://isabelle.in.tum.de/">Isabelle</a>.  Our code is known to work with Isabelle2013.</li>
   <li>Interactive mode: run <code>isabelle jedit Auction/Vickrey.thy</code> and agree to loading all of its dependencies.</li>
   <li>Batch mode: run <code>isabelle build -D Auction</code> and open the generated <code>Auction/output/document.pdf</code></li>
 </ol>
