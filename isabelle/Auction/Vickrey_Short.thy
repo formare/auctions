@@ -111,7 +111,7 @@ proof -
   from defined have "finite ?A" and "?A \<noteq> {}"
     unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
   then have "Max ?A \<in> ?A" by (rule Max_in)
-  then obtain i where "i \<in> N" and "Max ?A = y i" by auto
+  then obtain i where "i \<in> N" and "Max ?A = y i" by blast
   with maximum_def show ?thesis by auto
 qed
 
@@ -129,7 +129,7 @@ proof -
   proof (rule Max_eqI)
     from defined show "finite ?A"
       unfolding maximum_defined_def by (simp add: card_gt_0_iff)
-    show "m \<in> ?A" using is_component by auto
+    show "m \<in> ?A" using is_component by blast
     fix a assume "a \<in> ?A"
     then show "a \<le> m" using greater_or_equal by blast
   qed
@@ -159,7 +159,7 @@ lemma maximum_remaining_maximum:
     and j_max: "y j = maximum N y"
   shows "y j \<ge> maximum (N - {j}) y"
 proof -
-  have "y ` (N - {j}) \<subseteq> y ` N" by auto
+  have "y ` (N - {j}) \<subseteq> y ` N" by blast
   with defined' have "maximum (N - {j}) y \<le> maximum N y"
     unfolding maximum_def maximum_defined_def by (simp add: card_gt_0_iff Max_mono)
   also note j_max [symmetric]
