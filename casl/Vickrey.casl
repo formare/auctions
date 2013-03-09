@@ -85,6 +85,7 @@ spec Vectors[sort Elem] given Nat = %[ checked consistency with darwin ]%
         __[__<-__]: Vector[Elem] * Index * Vector[Elem] -> Vector[Elem];
     preds
         inRange: Length * Index; %[ TODO CL: find out whether it's additionally necessary to _define_ this ]%
+    %[ CL@TM: I'm not sure whether the following ones are needed.  I had already taken them out when __[__] was still a partial function, but I think now they are needed even less. ]%
     %[forall n: Length]%
     %[. n > 0 <=> (exists v: Vector[Elem] . length(v) = n) %(exists_dimension)%]%
     %[. n > 0 => (exists i: Index . inRange(n, i)) %(range_not_empty)%]%
@@ -250,8 +251,10 @@ then
           (forall whateverBid: Bids .
             not whateverBid[i] = b[i] 
             =>
-            payoff(v, whateverBid[i <- v] as Bids, x, p, i) >=
-            payoff(v, whateverBid, x, p, i))) %(equilibrium_weakly_dominant_strategy_def)%
+            (exists b: Bids %[ this avoids saying "as Bids" below ]% .
+             b = whateverBid[i <- v] /\
+             payoff(v, b, x, p, i) >=
+             payoff(v, whateverBid, x, p, i)))) %(equilibrium_weakly_dominant_strategy_def)%
 end
 
 spec SecondPriceAuction = %[ TODO CL: complete from Isabelle ]%
@@ -713,8 +716,10 @@ SingleGoodAuctionProperties then
         (forall whateverBid: Bids .
           not whateverBid[i] = v[i]
           =>
-          payoff(v, whateverBid[i <- v] as Bids, x, p, i) >=
-          payoff(v, whateverBid, x, p, i))) %(vickreyA_pre00)% %implied %[ eprover ]%
+         (exists b: Bids %[ this avoids saying "as Bids" below ]% .
+          b = whateverBid[i <- v] /\
+          payoff(v, b, x, p, i) >=
+          payoff(v, whateverBid, x, p, i)))) %(vickreyA_pre00)% %implied %[ eprover ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
       =>
       (exists b: Bids .
@@ -727,8 +732,10 @@ SingleGoodAuctionProperties then
         (forall whateverBid: Bids .
           not whateverBid[i] = b[i]
           =>
-          payoff(v, whateverBid[i <- v] as Bids, x, p, i) >=
-          payoff(v, whateverBid, x, p, i)))) %(vickreyA_pre01)% %implied %[ eprover ]%
+          (exists b: Bids %[ this avoids saying "as Bids" below ]% .
+           b = whateverBid[i <- v] /\
+           payoff(v, b, x, p, i) >=
+           payoff(v, whateverBid, x, p, i))))) %(vickreyA_pre01)% %implied %[ eprover ]%
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
       =>
       (exists b: Bids .
