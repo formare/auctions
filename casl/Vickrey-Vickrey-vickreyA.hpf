@@ -28,6 +28,7 @@ dg basic Vickrey
 # set goals case_1z_combined_00 case_1z_combined_01
 # prove
 
+# CL: case_2a_pre_02 seems to take a few hundred seconds
 prover eprover
 set goals case_2_pre00 case_2_pre01_i_bid_at_most_second case_2a_pre_00 case_2a_pre_01 case_2a_pre_02 case_2a_00 case_2a_01 case_2a_02 case_2a_03 case_2b_00 case_2b_01
 set time-limit 1000
