@@ -136,7 +136,7 @@ RealVectors then
         Allocation; %[ we don't care what this is, as we always access it with allocated() ]%
         Payments; %[ we don't care what this is, as we always access it with payment() ]%
         Valuations < Vector[Real]; %[ actually PositiveReal, but then I get typing errors further below.  CL@TM: What's wrong? ]%
-        Valuations < Bids;
+        Valuations < Bids; %[ CL@TM: Does this kind of "multiple inheritance" work? ]%
     preds
         allocation: Bids * Allocation;
         allocated: Allocation * Bids * Participant;
