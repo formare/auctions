@@ -78,7 +78,7 @@ spec Vectors[sort Elem] given Nat = %[ checked consistency with darwin ]%
         Index < Nat;
         Length < Nat;
     ops
-        __[__]: Vector[Elem] * Index ->? Elem;
+        __[__]: Vector[Elem] * Index -> Elem; %[ CL: For indices out of scope this is actually a partial function, but we don't model it this way for performance reasons. ]%
         %% TM: alternative modelling:     sort NonNegativeReal < Thing; ... ; sort Vector; op component: Vector * Nat -> Thing;
         length: Vector[Elem] -> Length;
         __[__:=__]: Vector[Elem] * Index * Elem -> Vector[Elem];
@@ -418,7 +418,7 @@ MaximumReal then
       n = length(v)
       =>
       payoff(v, b, x, p, loser) = payoff(v[loser], False, payment(p, b, loser))
-      %(test_spa_loser_payoff_0step)% %implied
+      %(test_spa_loser_payoff_0step)% %implied %[ works with SPASS ]%
     %[. allocatedImpliesSpaWinnerCons(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
@@ -482,7 +482,7 @@ MaximumReal then
       n = length(v)
       =>
       payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner)
-      %(test_spa_winner_payoff_3step)% %implied
+      %(test_spa_winner_payoff_3step)% %implied %[ works with SPASS ]%
     %[. allocatedImpliesSpaWinnerAnt(n, b, x, p, winner) /\]%
     %[  n = length(v)]%
     %[  =>]%
