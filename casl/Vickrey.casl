@@ -129,6 +129,8 @@ end
 spec SingleGoodAuction = %[ TODO CL: complete from Isabelle ]%
 Boolean then
 RealVectors then
+  sort  Vector[NonNegativeReal] < Vector[Real];   Vector[PositiveReal] < Vector[Real]
+
     sorts
         Participants = Length; %[ cardinal number of participants (variable usually called n) ]%
         Participant = Index; %[ ordinal number of one participant ]%
@@ -147,7 +149,7 @@ RealVectors then
         payoff: Valuations * Bids * Allocation * Payments * Participant -> Real;
     forall v: Real; p : Real; x: Boolean
     . payoff(v, x, p) = v * (1 when x = True else 0) - p %(payoff_def)%
-    %[ CL@TM: 1 when x else 0 doesn't work; is this a bug or a feature? ]%
+    %[ CL@TM: 1 when x else 0 doesn't work; is this a bug or a feature? TM: this is a feature]%
     forall v:Valuations; b:Bids; x:Allocation; p:Payments; i:Participant
     . allocation(b, x) => (exists n:Participants .
                            n = length(b) /\ (exists! k:Participant .
@@ -156,7 +158,7 @@ RealVectors then
     %[ Note that we leave the related predicate payments(b, p) unspecified, as for this type of auction the payments are arbitrary (but for others they might not be). ]%
     . allocation(b, x) /\
       payments(b, p) /\
-      (exists n: Participants . n = length(b) /\ n = length(v)) %[ speaking of a payoff only makes sense under these preconditions ]%
+      length(b) = length(v) %[ speaking of a payoff only makes sense under these preconditions ]%
       =>
       payoff(v, b, x, p, i) =
       payoff(v[i], True when allocated(x, b, i) else False, payment(p, b, i)) %(payoff_vector_def)%
@@ -195,10 +197,10 @@ Vectors[sort Elem] then
     . inArgMaxSet(b, i) <=> maximum(b) = b[i] %(arg_max_set_def)%
     . length(b) = n /\ inRange(n, i)
       =>
-      b[i] <= maximum(b) %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]%
+      b[i] <= maximum(b) %(maximum_is_greater_or_equal)% %[ In Isabelle we proved this by induction ]% %% TM: but this is a definition here! In Iasbelle, this can be proven only on basis of some *other* definition, which is not given here.
     . length(b) = n /\ n > 0
       =>
-      exists i: Index . inRange(n, i) /\ maximum(b) = b[i] %(maximum_is_component)% %[ In Isabelle we proved this by induction ]%
+      exists i: Index . inRange(n, i) /\ maximum(b) = b[i] %(maximum_is_component)% %[ In Isabelle we proved this by induction ]% %% TM: this also is part of the *definition* of maximum!
     . length(b) = n /\ n > 0 /\
       ( forall i: Index . inRange(n, i) => b[i] <= m %[ greater or equal ]% ) /\
       ( exists i: Index . inRange(n, i) /\ m = b[i] %[ component ]% )
@@ -207,10 +209,10 @@ Vectors[sort Elem] then
     . length(b) = n /\ n > 1 /\ inRange(n, j) /\
       inRange(n, i) /\ not i = j
       =>
-      b[i] <= maximumExcept(b, j) %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]%
+      b[i] <= maximumExcept(b, j) %(maximum_except_is_greater_or_equal)% %[ In Isabelle we proved this using some properties of the natural numbers ]% %% TM: definition
     . length(b) = n /\ n > 1 /\ inRange(n, j)
       =>
-      ( exists i: Index . inRange(n, i) /\ not i = j /\ maximumExcept(b, j) = b[i] ) %(maximum_except_is_component)% %[ TODO CL: Find out whether we need this. ]%
+      ( exists i: Index . inRange(n, i) /\ not i = j /\ maximumExcept(b, j) = b[i] ) %(maximum_except_is_component)% %[ TODO CL: Find out whether we need this. ]% %% TM: definitely we need this, since it is part of the definition!
     . length(b) = n /\ n > 1 /\ inRange(n, j)
       => maximumExcept(b, j) <= maximum(b) %(maximum_greater_or_equal_remaining_maximum)% %[ In Isabelle we proved this by induction ]%
     . length(b) = n /\ n > 1 /\ inRange(n, i)
@@ -221,7 +223,7 @@ Vectors[sort Elem] then
 end
 
 %[ CL@TM: I'd actually like to speak of NonNegativeReal, but this doesn't work. ]%
-%[ CL@TM: In the neighbourhood of this node there are some red edges in the development graph.  Where do they come from, and how do I get rid of them? ]%
+%[ CL@TM: In the neighbourhood of this node there are some red edges in the development graph.  Where do they come from, and how do I get rid of them? ]% %% TM: youneed to prove that the reals are a total order
 spec MaximumReal =
   Maximum[Real fit Elem |-> Real]
 end
