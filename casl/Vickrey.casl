@@ -26,10 +26,11 @@ It seems that the only alternative to using sorts/types _properly_ (which we are
 CL@TM: How does casl-mode indentation work?
 }%
 
-%% from Basic/SimpleDatatypes get Boolean
-spec Boolean =
-  free type Boolean ::= True | False
-end
+from Basic/SimpleDatatypes get Boolean
+%[ CL@TM: With the following spec, Vickrey-SecondPriceAuction-second_price_auction_winner_payoff.hpf no longer works. ]%
+%[spec Boolean =]%
+%[  free type Boolean ::= True | False]%
+%[end]%
 
 from Basic/RelationsAndOrders get TotalOrder
 %[from Basic/Reals get OrderedField, ExtOrderedField]%
@@ -142,7 +143,7 @@ RealVectors then
         Allocation; %[ we don't care what this is, as we always access it with allocated() ]%
         Payments; %[ we don't care what this is, as we always access it with payment() ]%
         Valuations < Vector[Real]; %[ actually PositiveReal, but then I get typing errors further below.  CL@TM: What's wrong? ]%
-        Valuations < Bids; %[ CL@TM: Does this kind of "multiple inheritance" work? TM: yes ]%
+        Valuations < Bids;
     preds
         allocation: Bids * Allocation;
         allocated: Allocation * Bids * Participant;
