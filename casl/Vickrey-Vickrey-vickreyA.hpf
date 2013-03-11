@@ -30,8 +30,24 @@ dg basic Vickrey
 
 # CL: case_2a_pre_02 seems to take a few hundred seconds
 prover eprover
-set goals case_2_pre00 case_2_pre01_i_bid_at_most_second case_2a_pre_00 case_2a_pre_01 case_2a_pre_02 case_2a_00 case_2a_01 case_2a_02 case_2a_03 case_2b_00 case_2b_01
-set time-limit 1000
+set goals case_2_pre00 case_2_pre01_i_bid_at_most_second case_2a_pre_00 case_2a_pre_01 
+set time-limit 100
+prove
+set goals case_2a_pre_02 
+set time-limit 500
+prove
+set goals case_2a_00 case_2a_01 
+set time-limit 100
+prove
+set goals case_2a_02 case_2a_03
+# set axioms second_price_auction_winners_payment_def case_2a_pre_02 maximum_is_component ga_non_empty_sort_index maximum_sufficient gt_one_imp_gt_0 second_price_auction_winners_payment_def arg_max_set_def second_price_auction_def ga_non_empty_sort_participant ga_non_empty_sort_bids deviation_def_index deviation_vec_range deviation_vec_def deviation_range remaining_maximum_invariant i_sticks_with_valuation_def case_2a_pre_02
+# already tried: SPASS 3000, eprover 3000
+prover SPASS
+set time-limit 3000
+prove
+set goals case_2b_00 case_2b_01
+prover eprover
+set time-limit 100
 prove
 
 prover SPASS
@@ -39,18 +55,23 @@ set goals case_2z_combined_00 case_2z_combined_01 case_2z_combined_02
 set time-limit 1000
 prove
 
-# set goals vickreyA_pre00 vickreyA_pre01
-# prove
-# 
-# set axioms equilibrium_weakly_dominant_strategy_def vickreyA_pre01
-# set include-theorems false
-# set goals vickreyA_pre02 vickreyA_pre03
-# prove
-# 
-# set axioms i_sticks_with_valuation_def vickreyA_pre03
-# set goals vickreyA_pre04
-# prove
+set goals vickreyA_pre00 vickreyA_pre01
+prove
+ 
+set axioms equilibrium_weakly_dominant_strategy_def vickreyA_pre01
+set include-theorems false
+set goals vickreyA_pre02 vickreyA_pre03
+prove
+ 
+set include-theorems true
+set axioms i_sticks_with_valuation_def vickreyA_pre03
+set goals vickreyA_pre04
+prove
 
 # Actual goal
-# set goals vickreyA
-# prove
+set goals vickreyA
+prove
+
+set goals vickreyB
+set time-limit 200
+prove
