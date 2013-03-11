@@ -26,11 +26,10 @@ It seems that the only alternative to using sorts/types _properly_ (which we are
 CL@TM: How does casl-mode indentation work?
 }%
 
-from Basic/SimpleDatatypes get Boolean
-%[ CL@TM: With the following spec, Vickrey-SecondPriceAuction-second_price_auction_winner_payoff.hpf no longer works. ]%
-%[spec Boolean =]%
-%[  free type Boolean ::= True | False]%
-%[end]%
+%% from Basic/SimpleDatatypes get Boolean
+spec Boolean =
+  free type Boolean ::= True | False
+end
 
 from Basic/RelationsAndOrders get TotalOrder
 %[from Basic/Reals get OrderedField, ExtOrderedField]%
