@@ -1,0 +1,41 @@
+#!hets -I
+
+# $Id: Vickrey-Vickrey-vickreyA.hpf 840 2013-03-11 22:19:46Z till $
+# 
+# Auction Theory Toolbox
+# 
+# Authors:
+# * Christoph Lange <math.semantic.web@gmail.com>
+# * Till Mossakowski <till.mossakowski@dfki.de>
+# 
+# Dually licenced under
+# * Creative Commons Attribution (CC-BY) 3.0
+# * ISC License (1-clause BSD License)
+# See LICENSE file for details
+# (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+
+# Proves Vickrey/Vickrey#vickreyA
+
+use Vickrey.casl
+dg basic Vickrey
+
+# Preparation (proof cases)
+# prover eprover
+# set goals case_1_pre06 case_1_pre10 case_1a_01 case_1a_02 case_1b_00 case_1b_01
+# prove
+# 
+# prover SPASS
+# set goals case_1z_combined_00 case_1z_combined_01
+# prove
+
+# CL: case_2a_pre_02 seems to take a few hundred seconds
+prover eprover
+set goals case_2_pre00 case_2_pre01_i_bid_at_most_second case_2a_pre_00 case_2a_pre_01 
+set time-limit 200
+prove
+set goals case_2a_pre_02 
+set time-limit 500
+prove
+set goals case_2a_00 case_2a_01 
+set time-limit 100
+prove
