@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+TEMPERATURE = 1000
+
 # experimental script for finding axiom sets suitable for proofs with SPASS
 require 'open3'
 require 'io/wait'
@@ -53,7 +55,7 @@ Open3.popen3('hets -I') do | stdin, stdout, stderr |
     axs[ax] = if ["second_price_auction_winners_payment_def","case_2a_pre_02","maximum_is_component","ga_non_empty_sort_index","maximum_sufficient","gt_one_imp_gt_0","second_price_auction_winners_payment_def","arg_max_set_def","second_price_auction_def","ga_non_empty_sort_participant","ga_non_empty_sort_bids","deviation_def_index","deviation_vec_range","deviation_vec_def","deviation_range","remaining_maximum_invariant","i_sticks_with_valuation_def","case_2a_pre_02"].include?(ax) then 10000 else 9990 end
   end
 
-  temperature = 1000
+  temperature = TEMPERATURE
   loop do
     sorted_axs = axs.sort_by { |ax, val| -val+rand(100)*temperature/1000 }
     puts
@@ -76,6 +78,7 @@ Open3.popen3('hets -I') do | stdin, stdout, stderr |
       end
     end
     temperature -= 1
+    if temperature == 0 then temperature = TEMPERATURE end
   end
 
 end
