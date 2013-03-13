@@ -41,12 +41,20 @@ definition positive_real_vector :: "participants \<Rightarrow> real vector \<Rig
 type_synonym allocation = "real vector \<Rightarrow> participant \<Rightarrow> bool"
 type_synonym payments = "real vector \<Rightarrow> participant \<Rightarrow> real"
 
+subsection {* Valuation *}
+
+definition valuation :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
+  where "valuation N v \<longleftrightarrow> positive_real_vector N v"
 
 subsection {* Strategy (bids) *}
 
 definition bids :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
   where "bids N b \<longleftrightarrow> non_negative_real_vector N b"
 
+lemma valuation_is_bid: "valuation N v \<Longrightarrow> bids N v"
+  unfolding valuation_def positive_real_vector_def
+  unfolding bids_def non_negative_real_vector_def
+  by auto
 
 subsection {* Allocation *}
 
@@ -58,18 +66,6 @@ subsection {* Payment *}
 
 definition vickrey_payment :: "participants \<Rightarrow> real vector \<Rightarrow> payments \<Rightarrow> bool"
   where "vickrey_payment N b p \<longleftrightarrow> bids N b \<and> (\<forall>i \<in> N. p b i \<ge> 0)"
-
-
-subsection {* Valuation *}
-
-definition valuation :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
-  where "valuation N v \<longleftrightarrow> positive_real_vector N v"
-
-lemma valuation_is_bid: "valuation N v \<Longrightarrow> bids N v"
-  unfolding valuation_def positive_real_vector_def
-  unfolding bids_def non_negative_real_vector_def
-  by auto
-
 
 subsection {* Payoff *}
 
