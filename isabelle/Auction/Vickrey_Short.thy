@@ -74,6 +74,7 @@ definition payoff :: "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> r
 
 
 subsection {* Maximum *}
+text{* This subsection uses Isabelle's set maximum functions, wrapping them for our use. *}
 
 definition maximum_defined :: "participants \<Rightarrow> bool"
   where "maximum_defined N \<longleftrightarrow> card N > 0"
