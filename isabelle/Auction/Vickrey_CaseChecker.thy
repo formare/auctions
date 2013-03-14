@@ -60,8 +60,8 @@ lemma valuation_is_bid: "valuation N v \<Longrightarrow> bids N v"
 subsection {* Allocation *}
 
 (* CL: changed for case checker: From now on, we merely assume that an allocation is a vector 
-       of reals that sum up to 1.  This will make it easier for us to overlook cases in the 
-       definitions of concrete auctions ;-)
+       of reals that sum up to 1, i.e. this allows for a divisible good.
+       This will make it easier for us to ``overlook'' cases in the definitions of concrete auctions ;-)
    CL@CR: I see that in your paper formalisation you had already defined the allocation as 
           a vector of {0,1} with exactly one 1.  *)
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
@@ -211,9 +211,10 @@ lemma allocated_implies_spa_winner:
     and "x b winner = 1"
   shows "second_price_auction_winner N b x p winner"
   using assms
-  unfolding second_price_auction_def second_price_auction_winner_def allocation_def
-  sorry (* TODO CL: now that allocation_def no longer does this job for us,
-    second_price_auction_def needs to ensure this. *)
+  unfolding second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def allocation_def
+  by (metis zero_neq_one)
+  (* CL: With the generalised allocation_def, this proof needed a bit more complexity,
+         as "x b winner = 1" implies "x b i = 0" for all other participants is rather implicit now. *)
 
 lemma not_allocated_implies_spa_loser:
   fixes N :: participants and x :: allocation and p :: payments
