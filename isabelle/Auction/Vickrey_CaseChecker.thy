@@ -1,9 +1,7 @@
 (*
-$Id: Vickrey_Short.thy 423 2013-02-16 16:58:12Z makarius $
+$Id$
 
 Auction Theory Toolbox
-
-13 Mar 2013: unchanged copy of Vickrey_Short to begin to experiment with case checking
 
 Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>
@@ -19,7 +17,8 @@ See LICENSE file for details
 *)
 
 header {* Vickrey's Theorem: second price auctions are
-  efficient, and truthful bidding is a weakly dominant strategy *}
+  efficient, and truthful bidding is a weakly dominant strategy --
+  copy to experiment with ``case checking'' *}
 
 theory Vickrey_CaseChecker
 imports Complex_Main
@@ -40,7 +39,7 @@ definition non_negative_real_vector :: "participants \<Rightarrow> real vector \
 definition positive_real_vector :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
   where "positive_real_vector N v \<longleftrightarrow> (\<forall>i \<in> N. v i > 0)"
 
-type_synonym allocation = "real vector \<Rightarrow> participant \<Rightarrow> bool"
+type_synonym allocation = "real vector \<Rightarrow> participant \<Rightarrow> real"
 type_synonym payments = "real vector \<Rightarrow> participant \<Rightarrow> real"
 
 subsection {* Valuation *}
@@ -60,9 +59,13 @@ lemma valuation_is_bid: "valuation N v \<Longrightarrow> bids N v"
 
 subsection {* Allocation *}
 
+(* CL: changed for case checker: From now on, we merely assume that an allocation is a vector 
+       of reals that sum up to 1.  This will make it easier for us to overlook cases in the 
+       definitions of concrete auctions ;-)
+   CL@CR: I see that in your paper formalisation you had already defined the allocation as 
+          a vector of {0,1} with exactly one 1.  *)
 definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
-  where "allocation N b x \<longleftrightarrow> bids N b \<and> (\<exists>!i \<in> N. x b i)"
-
+  where "allocation N b x \<longleftrightarrow> bids N b \<and> (\<Sum> i \<in> N . x b i) = 1"
 
 subsection {* Payment *}
 
@@ -71,8 +74,8 @@ definition vickrey_payment :: "participants \<Rightarrow> real vector \<Rightarr
 
 subsection {* Payoff *}
 
-definition payoff :: "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real"
-  where "payoff v x p = v * (if x then 1 else 0) - p"
+definition payoff :: "real \<Rightarrow> real \<Rightarrow> real \<Rightarrow> real"
+  where "payoff v x p = v * x - p"
 
 
 subsection {* Maximum *}
@@ -185,11 +188,11 @@ definition second_price_auction_winner ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where
     "second_price_auction_winner N b x p i \<longleftrightarrow>
-      i \<in> N \<and> i \<in> arg_max_set N b \<and> x b i \<and> p b i = second_price_auction_winners_payment N b i"
+      i \<in> N \<and> i \<in> arg_max_set N b \<and> x b i = 1 \<and> p b i = second_price_auction_winners_payment N b i"
 
 definition second_price_auction_loser ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
-  where "second_price_auction_loser N b x p i \<longleftrightarrow> i \<in> N \<and> \<not> x b i \<and> p b i = 0"
+  where "second_price_auction_loser N b x p i \<longleftrightarrow> i \<in> N \<and> x b i = 0 \<and> p b i = 0"
 
 definition second_price_auction :: "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
@@ -205,11 +208,12 @@ lemma allocated_implies_spa_winner:
   assumes "second_price_auction N x p"
     and "bids N b"
     and "winner \<in> N"
-    and "x b winner"
+    and "x b winner = 1"
   shows "second_price_auction_winner N b x p winner"
   using assms
   unfolding second_price_auction_def second_price_auction_winner_def allocation_def
-  by blast
+  sorry (* TODO CL: now that allocation_def no longer does this job for us,
+    second_price_auction_def needs to ensure this. *)
 
 lemma not_allocated_implies_spa_loser:
   fixes N :: participants and x :: allocation and p :: payments
@@ -217,7 +221,7 @@ lemma not_allocated_implies_spa_loser:
   assumes spa: "second_price_auction N x p"
     and bids: "bids N b"
     and range: "loser \<in> N"
-    and loses: "\<not> x b loser"
+    and loses: "x b loser = 0"
   shows "second_price_auction_loser N b x p loser"
 proof -
   from loses have "\<not> second_price_auction_winner N b x p loser"
@@ -268,7 +272,7 @@ lemma second_price_auction_winner_payoff:
     and spa: "second_price_auction N x p"
     and bids: "bids N b"
     and i_range: "i \<in> N"
-    and wins: "x b i"
+    and wins: "x b i = 1"
   shows "payoff (v i) (x b i) (p b i) = v i - maximum (N - {i}) b"
 proof -
   have "payoff (v i) (x b i) (p b i) = v i - p b i"
@@ -287,7 +291,7 @@ lemma second_price_auction_loser_payoff:
   assumes "second_price_auction N x p"
     and "bids N b"
     and "i \<in> N"
-    and "\<not> x b i"
+    and "x b i = 0"
   shows "payoff (v i) (x b i) (p b i) = 0"
   using assms not_allocated_implies_spa_loser
   unfolding second_price_auction_loser_def payoff_def by simp
@@ -299,7 +303,7 @@ lemma winners_payoff_on_deviation_from_valuation:
     and "second_price_auction N x p"
     and "bids N b"
     and "i \<in> N"
-    and "x b i"
+    and "x b i = 1"
   shows "payoff (v i) (x b i) (p b i) = v i - maximum (N - {i}) (b(i := v i))"
   using assms second_price_auction_winner_payoff remaining_maximum_invariant
   by simp
@@ -312,7 +316,7 @@ subsection {* Efficiency *}
 definition efficient :: "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
   where
     "efficient N v b x \<longleftrightarrow>
-      valuation N v \<and> bids N b \<and> (\<forall>i \<in> N. x b i \<longrightarrow> i \<in> arg_max_set N v)"
+      valuation N v \<and> bids N b \<and> (\<forall>i \<in> N. x b i = 1 \<longrightarrow> i \<in> arg_max_set N v)"
 
 
 subsection {* Equilibrium in weakly dominant strategies *}
@@ -373,7 +377,7 @@ proof -
     have weak_dominance:
       "payoff (v i) (x ?b i) (p ?b i) \<ge> payoff (v i) (x whatever_bid i) (p whatever_bid i)"
     proof cases
-      assume alloc: "x ?b i"
+      assume alloc: "x ?b i = 1"
       with spa is_bid i_range
       have winner: "second_price_auction_winner N ?b x p i"
         by (rule allocated_implies_spa_winner)
@@ -399,26 +403,31 @@ proof -
 
       show ?thesis
       proof cases -- {* case 1a of the short proof *}
-        assume "x whatever_bid i"
+        assume "x whatever_bid i = 1"
         with defined spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = v i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
         also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using winner_payoff by simp
         finally show ?thesis by (rule eq_refl)
       next -- {* case 1b of the short proof *}
-        assume "\<not> x whatever_bid i"
+        assume "x whatever_bid i \<noteq> 1"
+        (* CL: TODO Now that allocation_def allows for divisible goods, we need 
+               second_price_auction_def to say that it is about an indivisible good,
+               i.e. allocation is either 0 or 1. *)
         with spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
-          by (rule second_price_auction_loser_payoff)
+          (* by (rule second_price_auction_loser_payoff) *)
+          sorry
         also have "\<dots> \<le> payoff (v i) (x ?b i) (p ?b i)" using non_negative_payoff by simp
         finally show ?thesis .
       qed
 
     next -- {* case 2 of the short proof *}
-      assume non_alloc: "\<not> x ?b i"
+      assume non_alloc: "x ?b i \<noteq> 1"
       with spa is_bid i_range
       have loser_payoff: "payoff (v i) (x ?b i) (p ?b i) = 0"
-        by (rule second_price_auction_loser_payoff)
+        (* by (rule second_price_auction_loser_payoff) *)
+        sorry
 
       have i_bid_at_most_second: "?b i \<le> ?b_max'"
       proof (rule ccontr)
@@ -432,7 +441,7 @@ proof -
 
       show ?thesis
       proof cases -- {* case 2a of the short proof *}
-        assume "x whatever_bid i"
+        assume "x whatever_bid i = 1"
         with defined spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = ?b i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
@@ -440,10 +449,11 @@ proof -
         also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using loser_payoff by simp
         finally show ?thesis .
       next -- {* case 2b of the short proof *}
-        assume "\<not> x whatever_bid i"
+        assume "x whatever_bid i \<noteq> 1"
         with spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
-          by (rule second_price_auction_loser_payoff)
+          (* by (rule second_price_auction_loser_payoff) *)
+          sorry
         also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using loser_payoff by simp
         finally show ?thesis by (rule eq_refl)
       qed
@@ -465,7 +475,7 @@ proof -
   from val have bids: "bids N v" by (rule valuation_is_bid)
   {
     fix k :: participant
-    assume "k \<in> N" and "x b k"
+    assume "k \<in> N" and "x b k = 1"
     with spa bids have "k \<in> arg_max_set N v"
       using allocated_implies_spa_winner
       unfolding b_def second_price_auction_winner_def by simp
