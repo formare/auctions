@@ -202,6 +202,16 @@ definition second_price_auction :: "participants \<Rightarrow> allocation \<Righ
         (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
           (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N b x p j)))"
 
+lemma spa_allocates_binary :
+  fixes N :: participants and x :: allocation and p :: payments and i :: participant
+  assumes "second_price_auction N x p"
+      and "bids N b"
+      and "i \<in> N"
+  shows "x b i = 0 \<or> x b i = 1"
+  using assms
+  unfolding second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
+  by auto
+
 lemma allocated_implies_spa_winner:
   fixes N :: participants and x :: allocation and p :: payments
     and b :: "real vector" and winner :: participant
@@ -412,23 +422,26 @@ proof -
         finally show ?thesis by (rule eq_refl)
       next -- {* case 1b of the short proof *}
         assume "x whatever_bid i \<noteq> 1"
-        (* CL: TODO Now that allocation_def allows for divisible goods, we need 
-               second_price_auction_def to say that it is about an indivisible good,
-               i.e. allocation is either 0 or 1. *)
+        (* CL: TODO I'm sure one can use spa_allocates_binary at the top level of the 
+               case distinction, to get rid of having to do this step for each case distinction. *)
+        with spa alternative_is_bid i_range have "x whatever_bid i = 0"
+          using spa_allocates_binary by blast
         with spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
-          (* by (rule second_price_auction_loser_payoff) *)
-          sorry
+          by (rule second_price_auction_loser_payoff)
         also have "\<dots> \<le> payoff (v i) (x ?b i) (p ?b i)" using non_negative_payoff by simp
         finally show ?thesis .
       qed
 
     next -- {* case 2 of the short proof *}
       assume non_alloc: "x ?b i \<noteq> 1"
+      (* CL: TODO I'm sure one can use spa_allocates_binary at the top level of the 
+             case distinction, to get rid of having to do this step for each case distinction. *)
+      with spa is_bid i_range have "x ?b i = 0"
+        using spa_allocates_binary by blast
       with spa is_bid i_range
       have loser_payoff: "payoff (v i) (x ?b i) (p ?b i) = 0"
-        (* by (rule second_price_auction_loser_payoff) *)
-        sorry
+        by (rule second_price_auction_loser_payoff)
 
       have i_bid_at_most_second: "?b i \<le> ?b_max'"
       proof (rule ccontr)
@@ -451,10 +464,13 @@ proof -
         finally show ?thesis .
       next -- {* case 2b of the short proof *}
         assume "x whatever_bid i \<noteq> 1"
+        (* CL: TODO I'm sure one can use spa_allocates_binary at the top level of the 
+               case distinction, to get rid of having to do this step for each case distinction. *)
+        with spa alternative_is_bid i_range have "x whatever_bid i = 0"
+          using spa_allocates_binary by blast
         with spa alternative_is_bid i_range
         have "payoff (v i) (x whatever_bid i) (p whatever_bid i) = 0"
-          (* by (rule second_price_auction_loser_payoff) *)
-          sorry
+          by (rule second_price_auction_loser_payoff)
         also have "\<dots> = payoff (v i) (x ?b i) (p ?b i)" using loser_payoff by simp
         finally show ?thesis by (rule eq_refl)
       qed
