@@ -1,0 +1,733 @@
+%---------------------------------------------------------------------------
+% Problem : hets_exported
+% Name    : Vickrey_SecondPriceAuction_only_max_bidder_wins
+% Author  : hets
+% Status  : unknown
+% Desc    :
+% Date    : 2013-02-21 02:17:56.612498 UTC
+% Option  :
+%---------------------------------------------------------------------------
+fof(declaration0,axiom,
+    ! [Y0] : (bids(Y0) => vectorOSqBrRealCSqBr(Y0))).
+fof(declaration1,axiom,
+    ! [Y0] : (index(Y0) => participant(Y0))).
+fof(declaration2,axiom,
+    ! [Y0] : (length(Y0) => participants(Y0))).
+fof(declaration3,axiom,
+    ! [Y0] : (participant(Y0) => index(Y0))).
+fof(declaration4,axiom,
+    ! [Y0] : (participants(Y0) => length(Y0))).
+fof(declaration5,axiom,
+    ! [Y0] : (valuations(Y0) => bids(Y0))).
+fof(declaration6,axiom,
+    ! [X1, X2, X3] : ((vectorOSqBrRealCSqBr(X1) & real(X2) & index(X3))
+                      => vectorOSqBrRealCSqBr(deviation(X1, X2, X3)))).
+fof(declaration7,axiom,
+    ! [X1, X2, X3] : ((vectorOSqBrRealCSqBr(X1)
+                       & vectorOSqBrRealCSqBr(X2) & index(X3))
+                      => vectorOSqBrRealCSqBr(deviationVector(X1, X2, X3)))).
+fof(declaration8,axiom,
+    length(gn_bottom_Length)).
+fof(declaration9,axiom,
+    nat(gn_bottom_Nat)).
+fof(declaration10,axiom,
+    participants(gn_bottom_Participants)).
+fof(declaration11,axiom,
+    real(gn_bottom_Real)).
+fof(declaration12,axiom,
+    vectorOSqBrRealCSqBr(gn_bottom_VectorOSqBrRealCSqBr)).
+fof(declaration13,axiom,
+    ! [X1] : (length(X1) => length(gn_proj_Length_Length(X1)))).
+fof(declaration14,axiom,
+    ! [X1] : (length(X1)
+              => participants(gn_proj_Length_Participants(X1)))).
+fof(declaration15,axiom,
+    ! [X1] : (nat(X1) => length(gn_proj_Nat_Length(X1)))).
+fof(declaration16,axiom,
+    ! [X1] : (nat(X1) => participants(gn_proj_Nat_Participants(X1)))).
+fof(declaration17,axiom,
+    ! [X1] : (participants(X1)
+              => length(gn_proj_Participants_Length(X1)))).
+fof(declaration18,axiom,
+    ! [X1] : (participants(X1)
+              => participants(gn_proj_Participants_Participants(X1)))).
+fof(declaration19,axiom,
+    ! [X1] : (vectorOSqBrRealCSqBr(X1) => length(length_1(X1)))).
+fof(declaration20,axiom,
+    ! [X1] : (vectorOSqBrRealCSqBr(X1) => real(maximum(X1)))).
+fof(declaration21,axiom,
+    ! [X1, X2] : ((vectorOSqBrRealCSqBr(X1) & index(X2))
+                  => real(maximumExcept(X1, X2)))).
+fof(declaration22,axiom,
+    ! [X1] : (boolean(X1) => boolean(not__(X1)))).
+fof(declaration23,axiom,
+    ! [X1, X2] : ((boolean(X1) & boolean(X2))
+                  => boolean(o__And__(X1, X2)))).
+fof(declaration24,axiom,
+    ! [X1, X2] : ((real(X1) & real(X2)) => real(o__Minus__(X1, X2)))).
+fof(declaration25,axiom,
+    ! [X1, X2] : ((vectorOSqBrRealCSqBr(X1) & index(X2))
+                  => real(o__OSqBr__CSqBr(X1, X2)))).
+fof(declaration26,axiom,
+    ! [X1, X2] : ((boolean(X1) & boolean(X2))
+                  => boolean(o__Or__(X1, X2)))).
+fof(declaration27,axiom,
+    ! [X1, X2] : ((real(X1) & real(X2)) => real(o__x__(X1, X2)))).
+fof(declaration28,axiom,
+    real(one)).
+fof(declaration29,axiom,
+    nat(one_0)).
+fof(declaration30,axiom,
+    ! [X1, X2, X3] : ((payments(X1) & bids(X2) & participant(X3))
+                      => real(payment(X1, X2, X3)))).
+fof(declaration31,axiom,
+    ! [X1, X2, X3, X4, X5] : ((valuations(X1) & bids(X2)
+                               & allocation(X3) & payments(X4)
+                               & participant(X5))
+                              => real(payoff(X1, X2, X3, X4, X5)))).
+fof(declaration32,axiom,
+    ! [X1, X2, X3] : ((real(X1) & boolean(X2) & real(X3))
+                      => real(payoff_3(X1, X2, X3)))).
+fof(declaration33,axiom,
+    ! [X1, X2] : ((bids(X1) & participant(X2))
+                  => real(secondPriceAuctionWinnersPayment(X1, X2)))).
+fof(declaration34,axiom,
+    boolean(x_False)).
+fof(declaration35,axiom,
+    boolean(x_True)).
+fof(declaration36,axiom,
+    real(zero)).
+fof(declaration37,axiom,
+    nat(zero_0)).
+fof(disjoint_sorts_allocation_vectorOSqBrRealCSqBr,axiom,
+    ! [Y1, Y2] : ((allocation(Y1) & vectorOSqBrRealCSqBr(Y2))
+                  => ~ Y1 = Y2)).
+fof(disjoint_sorts_allocation_boolean,axiom,
+    ! [Y1, Y2] : ((allocation(Y1) & boolean(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_allocation_nat,axiom,
+    ! [Y1, Y2] : ((allocation(Y1) & nat(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_allocation_payments,axiom,
+    ! [Y1, Y2] : ((allocation(Y1) & payments(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_allocation_real,axiom,
+    ! [Y1, Y2] : ((allocation(Y1) & real(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_vectorOSqBrRealCSqBr_boolean,axiom,
+    ! [Y1, Y2] : ((vectorOSqBrRealCSqBr(Y1) & boolean(Y2))
+                  => ~ Y1 = Y2)).
+fof(disjoint_sorts_vectorOSqBrRealCSqBr_nat,axiom,
+    ! [Y1, Y2] : ((vectorOSqBrRealCSqBr(Y1) & nat(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_vectorOSqBrRealCSqBr_payments,axiom,
+    ! [Y1, Y2] : ((vectorOSqBrRealCSqBr(Y1) & payments(Y2))
+                  => ~ Y1 = Y2)).
+fof(disjoint_sorts_vectorOSqBrRealCSqBr_real,axiom,
+    ! [Y1, Y2] : ((vectorOSqBrRealCSqBr(Y1) & real(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_boolean_nat,axiom,
+    ! [Y1, Y2] : ((boolean(Y1) & nat(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_boolean_payments,axiom,
+    ! [Y1, Y2] : ((boolean(Y1) & payments(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_boolean_real,axiom,
+    ! [Y1, Y2] : ((boolean(Y1) & real(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_nat_payments,axiom,
+    ! [Y1, Y2] : ((nat(Y1) & payments(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_nat_real,axiom,
+    ! [Y1, Y2] : ((nat(Y1) & real(Y2)) => ~ Y1 = Y2)).
+fof(disjoint_sorts_payments_real,axiom,
+    ! [Y1, Y2] : ((payments(Y1) & real(Y2)) => ~ Y1 = Y2)).
+fof(ga_exhaustive_generated_sort_Boolean,axiom,
+    ! [X] : (boolean(X) => (X = x_False | X = x_True))).
+fof(ga_non_empty_sort_allocation,axiom,
+    ? [Y] : allocation(Y)).
+fof(ga_non_empty_sort_bids,axiom,
+    ? [Y] : bids(Y)).
+fof(ga_non_empty_sort_boolean,axiom,
+    ? [Y] : boolean(Y)).
+fof(ga_non_empty_sort_index,axiom,
+    ? [Y] : index(Y)).
+fof(ga_non_empty_sort_length,axiom,
+    ? [Y] : length(Y)).
+fof(ga_non_empty_sort_nat,axiom,
+    ? [Y] : nat(Y)).
+fof(ga_non_empty_sort_participant,axiom,
+    ? [Y] : participant(Y)).
+fof(ga_non_empty_sort_participants,axiom,
+    ? [Y] : participants(Y)).
+fof(ga_non_empty_sort_payments,axiom,
+    ? [Y] : payments(Y)).
+fof(ga_non_empty_sort_real,axiom,
+    ? [Y] : real(Y)).
+fof(ga_non_empty_sort_valuations,axiom,
+    ? [Y] : valuations(Y)).
+fof(ga_non_empty_sort_vectorOSqBrRealCSqBr,axiom,
+    ? [Y] : vectorOSqBrRealCSqBr(Y)).
+fof(ga_total_projection_injectivity_Nat_to_Length,axiom,
+    ! [X, Y] : ((nat(X) & nat(Y))
+                => (((gn_defined_1_p(gn_proj_Nat_Length(X))
+                      & gn_defined_1_p(gn_proj_Nat_Length(Y)))
+                     & gn_proj_Nat_Length(X) = gn_proj_Nat_Length(Y))
+                    => X = Y))).
+fof(ga_total_projection_Nat_to_Length,axiom,
+    ! [X] : (length(X)
+             => (gn_defined_1_p(X) => gn_proj_Nat_Length(X) = X))).
+fof(ga_total_projection_injectivity_Participants_to_Length,axiom,
+    ! [X, Y] : ((participants(X) & participants(Y))
+                => (((gn_defined_1_p(gn_proj_Participants_Length(X))
+                      & gn_defined_1_p(gn_proj_Participants_Length(Y)))
+                     & gn_proj_Participants_Length(X)
+                       = gn_proj_Participants_Length(Y))
+                    => X = Y))).
+fof(ga_total_projection_Participants_to_Length,axiom,
+    ! [X] : (length(X)
+             => (gn_defined_1_p(X) => gn_proj_Participants_Length(X) = X))).
+fof(ga_nonEmpty_Length,axiom,
+    ? [X] : (length(X) & gn_defined_1_p(X))).
+fof(ga_notDefBottom_Length,axiom,
+    ! [X] : (length(X)
+             => (~ gn_defined_1_p(X) <=> X = gn_bottom_Length))).
+fof(ga_nonEmpty_Nat,axiom,
+    ? [X] : (nat(X) & gn_defined_1_p(X))).
+fof(ga_notDefBottom_Nat,axiom,
+    ! [X] : (nat(X) => (~ gn_defined_1_p(X) <=> X = gn_bottom_Nat))).
+fof(ga_total_projection_injectivity_Length_to_Participants,axiom,
+    ! [X, Y] : ((length(X) & length(Y))
+                => (((gn_defined_1_p(gn_proj_Length_Participants(X))
+                      & gn_defined_1_p(gn_proj_Length_Participants(Y)))
+                     & gn_proj_Length_Participants(X)
+                       = gn_proj_Length_Participants(Y))
+                    => X = Y))).
+fof(ga_total_projection_Length_to_Participants,axiom,
+    ! [X] : (participants(X)
+             => (gn_defined_1_p(X) => gn_proj_Length_Participants(X) = X))).
+fof(ga_nonEmpty_Participants,axiom,
+    ? [X] : (participants(X) & gn_defined_1_p(X))).
+fof(ga_notDefBottom_Participants,axiom,
+    ! [X] : (participants(X)
+             => (~ gn_defined_1_p(X) <=> X = gn_bottom_Participants))).
+fof(ga_nonEmpty_Real,axiom,
+    ? [X] : (real(X) & gn_defined_1(X))).
+fof(ga_notDefBottom_Real,axiom,
+    ! [X] : (real(X) => (~ gn_defined_1(X) <=> X = gn_bottom_Real))).
+fof(ga_nonEmpty_VectorOSqBrRealCSqBr,axiom,
+    ? [X] : (vectorOSqBrRealCSqBr(X) & gn_defined(X))).
+fof(ga_notDefBottom_VectorOSqBrRealCSqBr,axiom,
+    ! [X] : (vectorOSqBrRealCSqBr(X)
+             => (~ gn_defined(X) <=> X = gn_bottom_VectorOSqBrRealCSqBr))).
+fof(ga_strictness_0,axiom,
+    gn_defined_1_p(zero_0)).
+fof(ga_strictness_0_1,axiom,
+    gn_defined_1(zero)).
+fof(ga_strictness_1,axiom,
+    gn_defined_1_p(one_0)).
+fof(ga_strictness_1_2,axiom,
+    gn_defined_1(one)).
+fof(ga_strictness___x__,axiom,
+    ! [X_1, X_2] : ((real(X_1) & real(X_2))
+                    => (gn_defined_1(o__x__(X_1, X_2))
+                        <=> (gn_defined_1(X_1) & gn_defined_1(X_2))))).
+fof(ga_strictness___Minus__,axiom,
+    ! [X_1, X_2] : ((real(X_1) & real(X_2))
+                    => (gn_defined_1(o__Minus__(X_1, X_2))
+                        <=> (gn_defined_1(X_1) & gn_defined_1(X_2))))).
+fof(ga_strictness___OSqBr__CSqBr,axiom,
+    ! [X_1, X_2] : ((vectorOSqBrRealCSqBr(X_1) & index(X_2))
+                    => (gn_defined_1(o__OSqBr__CSqBr(X_1, X_2))
+                        => gn_defined(X_1)))).
+fof(ga_strictness_deviation,axiom,
+    ! [X_1, X_2, X_3] : ((vectorOSqBrRealCSqBr(X_1) & real(X_2)
+                          & index(X_3))
+                         => (gn_defined(deviation(X_1, X_2, X_3))
+                             <=> (gn_defined(X_1) & gn_defined_1(X_2))))).
+fof(ga_strictness_deviationVector,axiom,
+    ! [X_1, X_2, X_3] : ((vectorOSqBrRealCSqBr(X_1)
+                          & vectorOSqBrRealCSqBr(X_2) & index(X_3))
+                         => (gn_defined(deviationVector(X_1, X_2, X_3))
+                             <=> (gn_defined(X_1) & gn_defined(X_2))))).
+fof(ga_strictness_length,axiom,
+    ! [X_1] : (vectorOSqBrRealCSqBr(X_1)
+               => (gn_defined_1_p(length_1(X_1)) <=> gn_defined(X_1)))).
+fof(ga_strictness_maximum,axiom,
+    ! [X_1] : (vectorOSqBrRealCSqBr(X_1)
+               => (gn_defined_1(maximum(X_1)) <=> gn_defined(X_1)))).
+fof(ga_strictness_maximumExcept,axiom,
+    ! [X_1, X_2] : ((vectorOSqBrRealCSqBr(X_1) & index(X_2))
+                    => (gn_defined_1(maximumExcept(X_1, X_2))
+                        <=> gn_defined(X_1)))).
+fof(ga_strictness_payment,axiom,
+    ! [X_1, X_2, X_3] : ((payments(X_1) & bids(X_2) & participant(X_3))
+                         => gn_defined_1(payment(X_1, X_2, X_3)))).
+fof(ga_strictness_payoff,axiom,
+    ! [X_1, X_2, X_3] : ((real(X_1) & boolean(X_2) & real(X_3))
+                         => (gn_defined_1(payoff_3(X_1, X_2, X_3))
+                             <=> (gn_defined_1(X_1) & gn_defined_1(X_3))))).
+fof(ga_strictness_payoff_3,axiom,
+    ! [X_1, X_2, X_3, X_4, X_5] : ((valuations(X_1) & bids(X_2)
+                                    & allocation(X_3) & payments(X_4)
+                                    & participant(X_5))
+                                   => gn_defined_1(payoff(X_1, X_2, X_3, X_4,
+                                                          X_5)))).
+fof(ga_strictness_secondPriceAuctionWinnersPayment,axiom,
+    ! [X_1, X_2] : ((bids(X_1) & participant(X_2))
+                    => gn_defined_1(secondPriceAuctionWinnersPayment(X_1,
+                                                                     X_2)))).
+fof(ga_predicate_strictness___Lt__,axiom,
+    ! [X_1, X_2] : ((real(X_1) & real(X_2))
+                    => (p__Lt__(X_1, X_2)
+                        => (gn_defined_1(X_1) & gn_defined_1(X_2))))).
+fof(ga_predicate_strictness___LtEq__,axiom,
+    ! [X_1, X_2] : ((real(X_1) & real(X_2))
+                    => (p__LtEq__(X_1, X_2)
+                        => (gn_defined_1(X_1) & gn_defined_1(X_2))))).
+fof(ga_predicate_strictness___Gt__,axiom,
+    ! [X_1, X_2] : ((nat(X_1) & nat(X_2))
+                    => (p__Gt___2(X_1, X_2)
+                        => (gn_defined_1_p(X_1) & gn_defined_1_p(X_2))))).
+fof(ga_predicate_strictness___Gt___4,axiom,
+    ! [X_1, X_2] : ((real(X_1) & real(X_2))
+                    => (p__Gt__(X_1, X_2)
+                        => (gn_defined_1(X_1) & gn_defined_1(X_2))))).
+fof(ga_predicate_strictness___GtEq__,axiom,
+    ! [X_1, X_2] : ((nat(X_1) & nat(X_2))
+                    => (p__GtEq___2(X_1, X_2)
+                        => (gn_defined_1_p(X_1) & gn_defined_1_p(X_2))))).
+fof(ga_predicate_strictness___GtEq___5,axiom,
+    ! [X_1, X_2] : ((real(X_1) & real(X_2))
+                    => (p__GtEq__(X_1, X_2)
+                        => (gn_defined_1(X_1) & gn_defined_1(X_2))))).
+fof(ga_predicate_strictness_allocatedImpliesSpaWinnerAnt,axiom,
+    ! [X_1, X_2, X_3, X_4, X_5] : ((participants(X_1) & bids(X_2)
+                                    & allocation(X_3) & payments(X_4)
+                                    & participant(X_5))
+                                   => (allocatedImpliesSpaWinnerAnt(X_1, X_2,
+                                                                    X_3, X_4,
+                                                                    X_5)
+                                       => gn_defined_1_p(X_1)))).
+fof(ga_predicate_strictness_allocatedImpliesSpaWinnerCons,axiom,
+    ! [X_1, X_2, X_3, X_4, X_5] : ((participants(X_1) & bids(X_2)
+                                    & allocation(X_3) & payments(X_4)
+                                    & participant(X_5))
+                                   => (allocatedImpliesSpaWinnerCons(X_1, X_2,
+                                                                     X_3, X_4,
+                                                                     X_5)
+                                       => gn_defined_1_p(X_1)))).
+fof(ga_predicate_strictness_inArgMaxSet,axiom,
+    ! [X_1, X_2] : ((vectorOSqBrRealCSqBr(X_1) & index(X_2))
+                    => (inArgMaxSet(X_1, X_2) => gn_defined(X_1)))).
+fof(ga_predicate_strictness_inRange,axiom,
+    ! [X_1, X_2] : ((length(X_1) & index(X_2))
+                    => (inRange(X_1, X_2) => gn_defined_1_p(X_1)))).
+fof(ga_predicate_strictness_notAllocatedImpliesSpaLoserCons,axiom,
+    ! [X_1, X_2, X_3, X_4, X_5] : ((participants(X_1) & bids(X_2)
+                                    & allocation(X_3) & payments(X_4)
+                                    & participant(X_5))
+                                   => (notAllocatedImpliesSpaLoserCons(X_1, X_2,
+                                                                       X_3, X_4,
+                                                                       X_5)
+                                       => gn_defined_1_p(X_1)))).
+fof(ga_predicate_strictness_secondPriceAuction,axiom,
+    ! [X_1, X_2, X_3] : ((participants(X_1) & allocation(X_2)
+                          & payments(X_3))
+                         => (secondPriceAuction(X_1, X_2, X_3)
+                             => gn_defined_1_p(X_1)))).
+fof(ga_predicate_strictness_secondPriceAuctionLoser,axiom,
+    ! [X_1, X_2, X_3, X_4, X_5] : ((participants(X_1) & bids(X_2)
+                                    & allocation(X_3) & payments(X_4)
+                                    & participant(X_5))
+                                   => (secondPriceAuctionLoser(X_1, X_2, X_3,
+                                                               X_4, X_5)
+                                       => gn_defined_1_p(X_1)))).
+fof(ga_predicate_strictness_secondPriceAuctionWinner,axiom,
+    ! [X_1, X_2, X_3, X_4, X_5] : ((participants(X_1) & bids(X_2)
+                                    & allocation(X_3) & payments(X_4)
+                                    & participant(X_5))
+                                   => (secondPriceAuctionWinner(X_1, X_2, X_3,
+                                                                X_4, X_5)
+                                       => gn_defined_1_p(X_1)))).
+fof(second_price_auction_winners_payment_def,axiom,
+    ! [B, Winner] : ((bids(B) & participant(Winner))
+                     => secondPriceAuctionWinnersPayment(B, Winner)
+                        = maximumExcept(B, Winner))).
+fof(second_price_auction_winner_def,axiom,
+    ! [N, X, P, B, I] : ((participants(N) & allocation(X) & payments(P)
+                          & bids(B) & participant(I))
+                         => (gn_defined_1_p(N)
+                             => (secondPriceAuctionWinner(N, B, X, P, I)
+                                 <=> (((inRange(N, I) & inArgMaxSet(B, I))
+                                       & allocated(X, B, I))
+                                      & payment(P, B, I)
+                                        = secondPriceAuctionWinnersPayment(B,
+                                                                           I)))))).
+fof(second_price_auction_loser_def,axiom,
+    ! [N, X, P, B, I] : ((participants(N) & allocation(X) & payments(P)
+                          & bids(B) & participant(I))
+                         => (gn_defined_1_p(N)
+                             => (secondPriceAuctionLoser(N, B, X, P, I)
+                                 <=> ((inRange(N, I) & ~ allocated(X, B, I))
+                                      & payment(P, B, I) = zero))))).
+fof(second_price_auction_def,axiom,
+    ! [N, X, P] : ((participants(N) & allocation(X) & payments(P))
+                   => (gn_defined_1_p(N)
+                       => (secondPriceAuction(N, X, P)
+                           <=> (p__Gt___2(N, one_0)
+                                & ! [B] : (bids(B)
+                                           => (length_1(B) = N
+                                               => ((allocation_2(B, X)
+                                                    & payments_2(B, P))
+                                                   & ? [I] : (participant(I)
+                                                              & ((inRange(N, I)
+                                                                  & secondPriceAuctionWinner(N,
+                                                                                             B,
+                                                                                             X,
+                                                                                             P,
+                                                                                             I))
+                                                                 & ! [J] : (participant(J)
+                                                                            => ((inRange(N,
+                                                                                         J)
+                                                                                 & ~ J
+                                                                                     = I)
+                                                                                => secondPriceAuctionLoser(N,
+                                                                                                           B,
+                                                                                                           X,
+                                                                                                           P,
+                                                                                                           J))))))))))))).
+fof(allocated_implies_spa_winner_cons,axiom,
+    ! [B, N, P, Winner, X] : ((bids(B) & participants(N) & payments(P)
+                               & participant(Winner) & allocation(X))
+                              => (gn_defined_1_p(N)
+                                  => (allocatedImpliesSpaWinnerCons(N, B, X, P,
+                                                                    Winner)
+                                      <=> ((((allocation_2(B, X)
+                                              & payments_2(B, P))
+                                             & N = length_1(B))
+                                            & p__Gt___2(N, one_0))
+                                           & secondPriceAuctionWinner(N, B, X,
+                                                                      P,
+                                                                      Winner)))))).
+fof(not_allocated_implies_spa_loser_cons,axiom,
+    ! [B, N, P, Loser, X] : ((bids(B) & participants(N) & payments(P)
+                              & participant(Loser) & allocation(X))
+                             => (gn_defined_1_p(N)
+                                 => (notAllocatedImpliesSpaLoserCons(N, B, X, P,
+                                                                     Loser)
+                                     <=> (((allocation_2(B, X)
+                                            & payments_2(B, P))
+                                           & N = length_1(B))
+                                          & secondPriceAuctionLoser(N, B, X, P,
+                                                                    Loser)))))).
+fof(payoff_def,axiom,
+    ! [V, P, X] : ((real(V) & real(P) & boolean(X))
+                   => ((gn_defined_1(V) & gn_defined_1(P))
+                       => ((X = x_True
+                            => payoff_3(V, X, P)
+                               = o__Minus__(o__x__(V, one), P))
+                           & (~ X = x_True
+                              => payoff_3(V, X, P)
+                                 = o__Minus__(o__x__(V, zero), P)))))).
+fof(allocation_def,axiom,
+    ! [B, X] : ((bids(B) & allocation(X))
+                => (allocation_2(B, X)
+                    => ? [N] : (participants(N)
+                                & (gn_defined_1_p(N)
+                                   & (N = length_1(B)
+                                      & (? [K] : (participant(K)
+                                                  & (inRange(N, K)
+                                                     & allocated(X, B, K)))
+                                         & ! [K_1, K_2] : ((participant(K_1)
+                                                            & participant(K_2))
+                                                           => (((inRange(N, K_1)
+                                                                 & allocated(X,
+                                                                             B,
+                                                                             K_1))
+                                                                & (inRange(N,
+                                                                           K_2)
+                                                                   & allocated(X,
+                                                                               B,
+                                                                               K_2)))
+                                                               => K_1
+                                                                  = K_2))))))))).
+fof(payoff_vector_def,axiom,
+    ! [V, B, X, P, I] : ((valuations(V) & bids(B) & allocation(X)
+                          & payments(P) & participant(I))
+                         => (((allocation_2(B, X) & payments_2(B, P))
+                              & ? [N] : (participants(N)
+                                         & (gn_defined_1_p(N)
+                                            & (N = length_1(B)
+                                               & N = length_1(V)))))
+                             => ((allocated(X, B, I)
+                                  => payoff(V, B, X, P, I)
+                                     = payoff_3(o__OSqBr__CSqBr(V, I), x_True,
+                                                payment(P, B, I)))
+                                 & (~ allocated(X, B, I)
+                                    => payoff(V, B, X, P, I)
+                                       = payoff_3(o__OSqBr__CSqBr(V, I),
+                                                  x_False,
+                                                  payment(P, B, I))))))).
+fof(allocation_unique,axiom,
+    ! [B, X, N, Winner, Other] : ((bids(B) & allocation(X)
+                                   & participants(N) & participant(Winner)
+                                   & participant(Other))
+                                  => (gn_defined_1_p(N)
+                                      => ((((((allocation_2(B, X)
+                                               & N = length_1(B))
+                                              & inRange(N, Winner))
+                                             & allocated(X, B, Winner))
+                                            & inRange(N, Other))
+                                           & allocated(X, B, Other))
+                                          => Other = Winner)))).
+fof(ga_disjoint_True_False,axiom,
+    ~ x_True = x_False).
+fof(not_False,axiom,
+    not__(x_False) = x_True).
+fof(not_True,axiom,
+    not__(x_True) = x_False).
+fof(and_def1,axiom,
+    o__And__(x_False, x_False) = x_False).
+fof(and_def2,axiom,
+    o__And__(x_False, x_True) = x_False).
+fof(and_def3,axiom,
+    o__And__(x_True, x_False) = x_False).
+fof(and_def4,axiom,
+    o__And__(x_True, x_True) = x_True).
+fof(or_def,axiom,
+    ! [X, Y] : ((boolean(X) & boolean(Y))
+                => o__Or__(X, Y) = not__(o__And__(not__(X), not__(Y))))).
+fof(lt_def,axiom,
+    ! [X, Y] : ((real(X) & real(Y))
+                => ((gn_defined_1(X) & gn_defined_1(Y))
+                    => (p__Lt__(X, Y) <=> (p__LtEq__(X, Y) & ~ X = Y))))).
+fof(gt_def,axiom,
+    ! [X, Y] : ((real(X) & real(Y))
+                => ((gn_defined_1(X) & gn_defined_1(Y))
+                    => (p__Gt__(X, Y) <=> ~ p__LtEq__(X, Y))))).
+fof(ge_def,axiom,
+    ! [X, Y] : ((real(X) & real(Y))
+                => ((gn_defined_1(X) & gn_defined_1(Y))
+                    => (p__GtEq__(X, Y) <=> p__LtEq__(Y, X))))).
+fof(one_mult,axiom,
+    ! [X] : (real(X) => (gn_defined_1(X) => o__x__(X, one) = X))).
+fof(zero_mult,axiom,
+    ! [X] : (real(X) => (gn_defined_1(X) => o__x__(X, zero) = zero))).
+fof(minus_0,axiom,
+    ! [X] : (real(X) => (gn_defined_1(X) => o__Minus__(X, zero) = X))).
+fof(x_ge_y,axiom,
+    ! [X, Y] : ((real(X) & real(Y))
+                => ((gn_defined_1(X) & gn_defined_1(Y))
+                    => (p__GtEq__(X, Y)
+                        => p__GtEq__(o__Minus__(X, Y), zero))))).
+fof(dichotomy_TotalOrder,axiom,
+    ! [X, Y] : ((real(X) & real(Y))
+                => ((gn_defined_1(X) & gn_defined_1(Y))
+                    => (p__LtEq__(X, Y) | p__LtEq__(Y, X))))).
+fof(antisym,axiom,
+    ! [X, Y] : ((real(X) & real(Y))
+                => ((gn_defined_1(X) & gn_defined_1(Y))
+                    => ((p__LtEq__(X, Y) & p__LtEq__(Y, X)) => X = Y)))).
+fof(trans,axiom,
+    ! [X, Y, Z] : ((real(X) & real(Y) & real(Z))
+                   => (((gn_defined_1(X) & gn_defined_1(Y)) & gn_defined_1(Z))
+                       => ((p__LtEq__(X, Y) & p__LtEq__(Y, Z))
+                           => p__LtEq__(X, Z))))).
+fof(refl,axiom,
+    ! [X] : (real(X) => (gn_defined_1(X) => p__LtEq__(X, X)))).
+fof(non_empty_vector_has_elements,axiom,
+    ! [V, I, N] : ((vectorOSqBrRealCSqBr(V) & index(I) & length(N))
+                   => ((gn_defined(V) & gn_defined_1_p(N))
+                       => ((length_1(V) = N & inRange(N, I))
+                           => ? [E] : (real(E)
+                                       & (gn_defined_1(E)
+                                          & o__OSqBr__CSqBr(V, I) = E)))))).
+fof(range_not_empty,axiom,
+    ! [I, N] : ((index(I) & length(N))
+                => (gn_defined_1_p(N)
+                    => (inRange(N, I) => p__Gt___2(N, zero_0))))).
+fof(deviation_range,axiom,
+    ! [V, Dev, Alt, I] : ((vectorOSqBrRealCSqBr(V)
+                           & vectorOSqBrRealCSqBr(Dev) & real(Alt) & index(I))
+                          => (((gn_defined(V) & gn_defined(Dev))
+                               & gn_defined_1(Alt))
+                              => (Dev = deviation(V, Alt, I)
+                                  => ? [N] : (length(N)
+                                              & (gn_defined_1_p(N)
+                                                 & ((length_1(V) = N
+                                                     & inRange(N, I))
+                                                    & length_1(Dev) = N))))))).
+fof(deviation_def_index,axiom,
+    ! [V, Alt, I] : ((vectorOSqBrRealCSqBr(V) & real(Alt) & index(I))
+                     => ((gn_defined(V) & gn_defined_1(Alt))
+                         => o__OSqBr__CSqBr(deviation(V, Alt, I), I) = Alt))).
+fof(deviation_def_otherwise,axiom,
+    ! [V, Alt, I, J] : ((vectorOSqBrRealCSqBr(V) & real(Alt) & index(I)
+                         & index(J))
+                        => ((gn_defined(V) & gn_defined_1(Alt))
+                            => (~ J = I
+                                => o__OSqBr__CSqBr(deviation(V, Alt, I), I)
+                                   = o__OSqBr__CSqBr(V, I))))).
+fof(deviation_vec_range,axiom,
+    ! [V, AltV, I] : ((vectorOSqBrRealCSqBr(V)
+                       & vectorOSqBrRealCSqBr(AltV) & index(I))
+                      => ((gn_defined(V) & gn_defined(AltV))
+                          => length_1(deviationVector(V, AltV, I))
+                             = length_1(AltV)))).
+fof(deviation_vec_def,axiom,
+    ! [V, AltV, I] : ((vectorOSqBrRealCSqBr(V)
+                       & vectorOSqBrRealCSqBr(AltV) & index(I))
+                      => ((gn_defined(V) & gn_defined(AltV))
+                          => deviationVector(V, AltV, I)
+                             = deviation(V, o__OSqBr__CSqBr(AltV, I), I)))).
+fof(arg_max_set_def,axiom,
+    ! [B, I] : ((vectorOSqBrRealCSqBr(B) & index(I))
+                => (gn_defined(B)
+                    => (inArgMaxSet(B, I)
+                        <=> maximum(B) = o__OSqBr__CSqBr(B, I))))).
+fof(maximum_is_greater_or_equal,axiom,
+    ! [B, I, N] : ((vectorOSqBrRealCSqBr(B) & index(I) & length(N))
+                   => ((gn_defined(B) & gn_defined_1_p(N))
+                       => ((length_1(B) = N & inRange(N, I))
+                           => p__LtEq__(o__OSqBr__CSqBr(B, I), maximum(B)))))).
+fof(maximum_is_component,axiom,
+    ! [B, N] : ((vectorOSqBrRealCSqBr(B) & length(N))
+                => ((gn_defined(B) & gn_defined_1_p(N))
+                    => ((length_1(B) = N & p__Gt___2(N, zero_0))
+                        => ? [I] : (index(I)
+                                    & (inRange(N, I)
+                                       & maximum(B)
+                                         = o__OSqBr__CSqBr(B, I))))))).
+fof(maximum_sufficient,axiom,
+    ! [B, N, M] : ((vectorOSqBrRealCSqBr(B) & length(N) & real(M))
+                   => (((gn_defined(B) & gn_defined_1_p(N)) & gn_defined_1(M))
+                       => ((((length_1(B) = N & p__Gt___2(N, zero_0))
+                             & ! [I] : (index(I)
+                                        => (inRange(N, I)
+                                            => p__LtEq__(o__OSqBr__CSqBr(B, I),
+                                                         M))))
+                            & ? [I] : (index(I)
+                                       & (inRange(N, I)
+                                          & M = o__OSqBr__CSqBr(B, I))))
+                           => M = maximum(B))))).
+fof(maximum_except_is_greater_or_equal,axiom,
+    ! [B, I, J, N] : ((vectorOSqBrRealCSqBr(B) & index(I) & index(J)
+                       & length(N))
+                      => ((gn_defined(B) & gn_defined_1_p(N))
+                          => (((((length_1(B) = N & p__Gt___2(N, one_0))
+                                 & inRange(N, J))
+                                & inRange(N, I))
+                               & ~ I = J)
+                              => p__LtEq__(o__OSqBr__CSqBr(B, I),
+                                           maximumExcept(B, J)))))).
+fof(maximum_except_is_component,axiom,
+    ! [B, J, N] : ((vectorOSqBrRealCSqBr(B) & index(J) & length(N))
+                   => ((gn_defined(B) & gn_defined_1_p(N))
+                       => (((length_1(B) = N & p__Gt___2(N, one_0))
+                            & inRange(N, J))
+                           => ? [I] : (index(I)
+                                       & ((inRange(N, I) & ~ I = J)
+                                          & maximumExcept(B, J)
+                                            = o__OSqBr__CSqBr(B, I))))))).
+fof(maximum_greater_or_equal_remaining_maximum,axiom,
+    ! [B, J, N] : ((vectorOSqBrRealCSqBr(B) & index(J) & length(N))
+                   => ((gn_defined(B) & gn_defined_1_p(N))
+                       => (((length_1(B) = N & p__Gt___2(N, one_0))
+                            & inRange(N, J))
+                           => p__LtEq__(maximumExcept(B, J), maximum(B)))))).
+fof(remaining_maximum_invariant,axiom,
+    ! [B, I, N, Alt] : ((vectorOSqBrRealCSqBr(B) & index(I) & length(N)
+                         & real(Alt))
+                        => (((gn_defined(B) & gn_defined_1_p(N))
+                             & gn_defined_1(Alt))
+                            => (((length_1(B) = N & p__Gt___2(N, one_0))
+                                 & inRange(N, I))
+                                => maximumExcept(B, I)
+                                   = maximumExcept(deviation(B, Alt, I), I))))).
+fof(only_one_maximum,axiom,
+    ! [B, I, N] : ((vectorOSqBrRealCSqBr(B) & index(I) & length(N))
+                   => ((gn_defined(B) & gn_defined_1_p(N))
+                       => (((((length_1(B) = N & p__Gt___2(N, one_0))
+                              & inRange(N, I))
+                             & p__LtEq__(maximumExcept(B, I),
+                                         o__OSqBr__CSqBr(B, I)))
+                            & ~ maximumExcept(B, I) = o__OSqBr__CSqBr(B, I))
+                           => (inArgMaxSet(B, I)
+                               & ! [J] : (index(J)
+                                          => ((inRange(N, J) & ~ J = I)
+                                              => ~ inArgMaxSet(B, J)))))))).
+fof(arg_restriction_secondPriceAuctionWinner,axiom,
+    ! [Y0, Y1, Y2, Y3, Y4] : (secondPriceAuctionWinner(Y0, Y1, Y2, Y3,
+                                                       Y4)
+                              => ((((participants(Y0) & bids(Y1))
+                                    & allocation(Y2))
+                                   & payments(Y3))
+                                  & participant(Y4)))).
+fof(arg_restriction_secondPriceAuctionLoser,axiom,
+    ! [Y0, Y1, Y2, Y3, Y4] : (secondPriceAuctionLoser(Y0, Y1, Y2, Y3,
+                                                      Y4)
+                              => ((((participants(Y0) & bids(Y1))
+                                    & allocation(Y2))
+                                   & payments(Y3))
+                                  & participant(Y4)))).
+fof(arg_restriction_secondPriceAuction,axiom,
+    ! [Y0, Y1, Y2] : (secondPriceAuction(Y0, Y1, Y2)
+                      => ((participants(Y0) & allocation(Y1)) & payments(Y2)))).
+fof(arg_restriction_payments_2,axiom,
+    ! [Y0, Y1] : (payments_2(Y0, Y1) => (bids(Y0) & payments(Y1)))).
+fof(arg_restriction_p__Lt__,axiom,
+    ! [Y0, Y1] : (p__Lt__(Y0, Y1) => (real(Y0) & real(Y1)))).
+fof(arg_restriction_p__LtEq__,axiom,
+    ! [Y0, Y1] : (p__LtEq__(Y0, Y1) => (real(Y0) & real(Y1)))).
+fof(arg_restriction_p__Gt___2,axiom,
+    ! [Y0, Y1] : (p__Gt___2(Y0, Y1) => (nat(Y0) & nat(Y1)))).
+fof(arg_restriction_p__Gt__,axiom,
+    ! [Y0, Y1] : (p__Gt__(Y0, Y1) => (real(Y0) & real(Y1)))).
+fof(arg_restriction_p__GtEq___2,axiom,
+    ! [Y0, Y1] : (p__GtEq___2(Y0, Y1) => (nat(Y0) & nat(Y1)))).
+fof(arg_restriction_p__GtEq__,axiom,
+    ! [Y0, Y1] : (p__GtEq__(Y0, Y1) => (real(Y0) & real(Y1)))).
+fof(arg_restriction_notAllocatedImpliesSpaLoserCons,axiom,
+    ! [Y0, Y1, Y2, Y3, Y4] : (notAllocatedImpliesSpaLoserCons(Y0, Y1,
+                                                              Y2, Y3, Y4)
+                              => ((((participants(Y0) & bids(Y1))
+                                    & allocation(Y2))
+                                   & payments(Y3))
+                                  & participant(Y4)))).
+fof(arg_restriction_inRange,axiom,
+    ! [Y0, Y1] : (inRange(Y0, Y1) => (length(Y0) & index(Y1)))).
+fof(arg_restriction_inArgMaxSet,axiom,
+    ! [Y0, Y1] : (inArgMaxSet(Y0, Y1)
+                  => (vectorOSqBrRealCSqBr(Y0) & index(Y1)))).
+fof(arg_restriction_o_gn_defined_1_p,axiom,
+    ! [Y0] : (gn_defined_1_p(Y0)
+              => ((participants(Y0) | nat(Y0)) | length(Y0)))).
+fof(arg_restriction_gn_defined_1,axiom,
+    ! [Y0] : (gn_defined_1(Y0) => real(Y0))).
+fof(arg_restriction_gn_defined,axiom,
+    ! [Y0] : (gn_defined(Y0) => vectorOSqBrRealCSqBr(Y0))).
+fof(arg_restriction_allocation_2,axiom,
+    ! [Y0, Y1] : (allocation_2(Y0, Y1)
+                  => (bids(Y0) & allocation(Y1)))).
+fof(arg_restriction_allocatedImpliesSpaWinnerCons,axiom,
+    ! [Y0, Y1, Y2, Y3, Y4] : (allocatedImpliesSpaWinnerCons(Y0, Y1, Y2,
+                                                            Y3, Y4)
+                              => ((((participants(Y0) & bids(Y1))
+                                    & allocation(Y2))
+                                   & payments(Y3))
+                                  & participant(Y4)))).
+fof(arg_restriction_allocatedImpliesSpaWinnerAnt,axiom,
+    ! [Y0, Y1, Y2, Y3, Y4] : (allocatedImpliesSpaWinnerAnt(Y0, Y1, Y2,
+                                                           Y3, Y4)
+                              => ((((participants(Y0) & bids(Y1))
+                                    & allocation(Y2))
+                                   & payments(Y3))
+                                  & participant(Y4)))).
+fof(arg_restriction_allocated,axiom,
+    ! [Y0, Y1, Y2] : (allocated(Y0, Y1, Y2)
+                      => ((allocation(Y0) & bids(Y1)) & participant(Y2)))).
+fof(only_max_bidder_wins,conjecture,
+    ! [N, X, P, B, MaxBidder] : ((participants(N) & allocation(X)
+                                  & payments(P) & bids(B)
+                                  & participant(MaxBidder))
+                                 => (gn_defined_1_p(N)
+                                     => ((((secondPriceAuction(N, X, P)
+                                            & N = length_1(B))
+                                           & inRange(N, MaxBidder))
+                                          & p__Gt__(o__OSqBr__CSqBr(B,
+                                                                    MaxBidder),
+                                                    maximumExcept(B,
+                                                                  MaxBidder)))
+                                         => secondPriceAuctionWinner(N, B, X, P,
+                                                                     MaxBidder))))).
