@@ -1,17 +1,10 @@
 PREFIX = ..
 include $(PREFIX)/Makefile.vars
 
-SYNC_FILES = \
-	Vickrey.casl \
-	Vickrey-consistency.hpf \
-	Vickrey-SecondPriceAuction-second_price_auction_loser_payoff.hpf \
-	Vickrey-SecondPriceAuction-second_price_auction_winner_payoff.hpf \
-	Vickrey-SecondPriceAuction-winners_payoff_on_deviation_from_valuation.hpf \
-	Vickrey-Vickrey-vickreyA.hpf
-	index.php \
-	sidebar.php
-
 all: sync
+
+# CL: trying to prevent (but doesn't work) that this is misinterpreted as "make Vickrey_SecondPriceAuction.tptp".  Per-goal TPTP files cannot yet be created automatically.
+Vickrey_SecondPriceAuction_only_max_bidder_wins.tptp: Vickrey.casl
 
 include $(PREFIX)/Makefile.in
 

@@ -192,15 +192,28 @@ definition second_price_auction_winner ::
 
 definition second_price_auction_loser ::
     "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
-  where "second_price_auction_loser N b x p i \<longleftrightarrow> i \<in> N \<and> x b i = 0 \<and> p b i = 0"
+  where "second_price_auction_loser N b x p i \<longleftrightarrow> i \<in> N \<and>
+     (* TODO CL: maybe get rid of the following term, as it should be inferrable from 
+                 second_price_auction_def and second_price_auction_winner_def: *)
+     x b i = 0 \<and>
+     p b i = 0"
 
 definition second_price_auction :: "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "second_price_auction N x p \<longleftrightarrow>
       (\<forall>b. bids N b \<longrightarrow>
+        (* TODO CL: maybe get rid of the following line, so that it becomes easier to get the 
+                    definition wrong. *)
         allocation N b x \<and> vickrey_payment N b p \<and>
         (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
           (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N b x p j)))"
+
+definition spa_as_relation :: "(participants * (real vector)) set * (allocation * payments) set"
+  where "spa_as_relation = {((N, b), (x, p)) . True }"
+
+definition Id :: "'a rel"
+where
+  [code del]: "Id = {p. \<exists>x. p = (x, x)}"
 
 lemma spa_allocates_binary :
   fixes N :: participants and x :: allocation and p :: payments and i :: participant

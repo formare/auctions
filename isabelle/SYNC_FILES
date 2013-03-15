@@ -1,0 +1,12 @@
+Auction/output/document/root.pdf
+Auction/Maximum.thy
+Auction/MaximumTest.thy
+Auction/SecondPriceAuction.thy
+Auction/SingleGoodAuction.thy
+Auction/SingleGoodAuctionProperties.thy
+Auction/SingleGoodAuctionTest.thy
+Auction/Vectors.thy
+Auction/Vickrey.thy
+Auction/Vickrey_Short.thy
+graph.pdf
+Makefile

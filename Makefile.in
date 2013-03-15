@@ -1,2 +1,7 @@
-sync:
-	rsync -avzc --delete $(SYNC_FILES) $(DEST)
+SYNC_FILES ?= $(shell cat SYNC_FILES)
+
+sync: $(SYNC_FILES) $(ZIP_FILE) $(WWW_FILES)
+	rsync -avzcR --delete $(SYNC_FILES) $(ZIP_FILE) $(WWW_FILES) $(DEST)
+
+$(ZIP_FILE): $(SYNC_FILES) $(LICENSE_FILES)
+	zip -r $@ $(SYNC_FILES) $(LICENSE_FILES)
