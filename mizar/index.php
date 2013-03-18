@@ -15,10 +15,10 @@ PageStart();
 <ul>
   <li><a href="mizar.zip">all-in-one ZIP archive for download</a></li>
   <li>Mizar formalisation:<ul>
-      <li><a href="dict/vickrey.voc">Vocabulary</a></li>
-      <li><a href="text/vickrey.miz">Formalisation</a></li>
+      <li><a href="dict/vickrey.voc">Vocabulary</a> (names of defined objects)</li>
+      <li><a href="text/vickrey.miz">Formalisation</a> (<a href="text/vickrey-proofless.miz">version stripped of proofs</a>)</li>
   </ul></li>
-  <li><a href="vickrey-proofless.miz">Formalisation without proof</a></li>
+  <li></li>
 </ul>
 <h2>How to run</h2>
 <ol>
