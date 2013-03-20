@@ -2,7 +2,7 @@
 ::  by Marco B. Caminati
 :: February 2013
 :: Copyright (c) 2013 by Marco B. Caminati
-:: Dually licenced under
+:: Dually licensed under
 :: * Creative Commons Attribution (CC-BY) 3.0
 :: * ISC License (1-clause BSD License)
 :: See LICENSE file for details
@@ -14,7 +14,7 @@ environ
 
 vocabularies TARSKI, XBOOLE_0, ZFMISC_1, SUBSET_1, NUMBERS, NAT_1, RELAT_1
 , FUNCT_1, XCMPLX_0, ORDINAL1, XXREAL_0, FINSET_1, ARYTM_1 ,CARD_1, FUNCT_4
-,FUNCOP_1 ,FOMODEL0 ,XBOOLEAN ,XXREAL_2 ,MEMBERED ,VICKREY ,MARGREL1;
+,FUNCOP_1 ,FOMODEL0 ,XBOOLEAN ,XXREAL_2 ,MEMBERED ,VICKREY ,MARGREL1, ORDINAL2;
  
 constructors TARSKI
 ,NAT_1
@@ -82,6 +82,7 @@ registrations FOMODEL0
 ,YELLOW12 :::union -> empty
 ,XXREAL_3
 ,INT_2 :::non natural
+,CARD_1 :::natural -> finite
 ;
 
 equalities FOMODEL0 :::+*1
@@ -90,7 +91,9 @@ equalities FOMODEL0 :::+*1
 ,MARGREL1 :::BOOLEAN
 ,ORDINAL1 :::0
 ;
- 
+
+expansions FOMODEL0;
+
 theorems TARSKI
 ,FUNCT_1
 ,RELAT_1
@@ -108,6 +111,7 @@ theorems TARSKI
 ,CARD_1
 ,ORDINAL1
 ,MEMBERED
+,FINSET_1
 ;
 
 requirements REAL, NUMERALS, SUBSET, BOOLE, ARITHM;
@@ -137,7 +141,13 @@ Subset of NAT by MEMBERED:6; take IT; thus thesis;
 end;
 ::}
 let x be natural number; cluster {x}\NAT -> empty;
-coherence by ORDINAL1:def 12, FOMODEL0:29; 
+coherence by ORDINAL1:def 12, FOMODEL0:29;
+reduce Segm x to x; reducibility; ::useless?
+end;
+registration let X be right_end ext-real-membered set;
+cluster {max X}\X -> empty;
+coherence 
+proof max X in X by XXREAL_2:def 8; hence thesis by FOMODEL0:29; end;
 end;
 
 reserve x,y,z,X,Y,i for set,P,Q,R for Relation,f,g for Function,v for Nat;
@@ -190,7 +200,7 @@ assume f.x<>{}; then x in dom f by FUNCT_1:def 2; hence thesis by FUNCT_1:3;
 end;
 ::}
 
-Lm17: f.x in rng f \/ {{}}
+Lm17: f.x in {{}} \/ rng f 
 ::{
 proof
 set Y=rng f, y=f.x, e={{}}; y={} or y in Y by Lm13; 
@@ -226,6 +236,12 @@ M in XX by XXREAL_2:def 8; then max X c= union X by ZFMISC_1:74;
 hence thesis by XBOOLE_0:def 10, B1;
 end;
 ::}
+
+registration
+let N be right_end Subset of NAT;
+identify union N with max N;
+compatibility by Lm12;
+end;
 
 registration
 let X be non empty set, x be Element of X;
@@ -285,6 +301,8 @@ end;
 registration let P,Q;
 cluster dom (P +*1 Q) \+\ (dom P \/ dom Q) -> empty;
 coherence by Lm15, FOMODEL0:29;
+cluster rng (P +*1 Q) \(rng P \/ rng Q) -> empty;
+coherence by Lm15, FOMODEL0:29;
 end;
 
 registration let x; let f be 2-valued Function;
@@ -327,18 +345,23 @@ end;
 :::works because, by Mizar convention, the type "Element of {}" is 
 :::inhabited by {} alone; and, in turn, 0={}, set-theoretically.
 definition let R;:::R=bids; no need to require it is a sequence,yet 
-func priceof R -> Element of NAT equals the Element of {priceof R}/\NAT;
+func priceof R -> Element of NAT equals 
+the Element of {priceof R} /\ NAT; ::/\ rng (R|losersof R)
 coherence by ORDINAL1:def 12;
 end;
 
-Lm16: priceof R=0 or priceof R=natmax rng (R|losersof R)
-::{
+Lm16b: rng (R|losersof R) c= NAT & rng (R|losersof R) is finite 
+implies priceof R = natmax rng (R|losersof R)
 proof
-set P=priceof R, l=losersof R, RR=R|l, Y=rng RR, PP=natmax Y; 
-assume P<>0; then {PP}/\NAT <> {} by SUBSET_1:def 1; then P in {PP}/\NAT;
-then P in {PP}; hence thesis by TARSKI:def 1;
+set L=losersof R, Q=R|L, rQ=rng Q, P1=natmax rQ, P2=priceof R; 
+assume rQ c= NAT & rQ is finite; then reconsider rQ as finite Subset of NAT;
+rQ={} or rQ is right_end Subset of NAT; then 
+P1=0 or (rQ<>{} & P1=sup rQ) by Lm12; then P1 is natural;
+then {P1} \ NAT={}; then 
+reconsider X={P1} as non empty Subset of NAT by FOMODEL0:29;
+X/\NAT=X null NAT; then P2 = the Element of X .= P1 by TARSKI:def 1;
+hence thesis;
 end;
-::}
 
 Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) 
 implies winnerof R in topbiddersof R
@@ -353,23 +376,9 @@ by ZFMISC_1:48; then O<>{} by RELAT_1:138; hence thesis;
 end;
 ::}
 
-Lm7: winnerof f in topbiddersof f implies 
-(f.(winnerof f)=union rng f & priceof f c= f.(winnerof f))
-::{
-proof
-set w=winnerof f, P=priceof f, I=topbiddersof f, y=f.w, l=losersof f; 
-reconsider r=rng (f|l) as Subset of rng f by RELAT_1:70; 
-assume w in I; then consider z being element such that
-B0: [w,z] in f & z in {natmax rng f} by RELAT_1:def 14; {}\f.w={}; then 
-B1: {} c= f.w & w in dom f & z=f.w by FOMODEL0:29, FUNCT_1:1, B0; 
-hence f.w=natmax rng f by TARSKI:def 1, B0; then 
-union r c= f.w by ZFMISC_1:77; hence thesis by Lm16, B1;
-end;
-::}
-
 definition let R;
 func R-pay ->Function equals [:dom R,{0}:]+*[:{winnerof R},{priceof R}:];
-coherence; :::R-pay gives how much each bidder must pay in the end
+coherence; :::R-pay is how much each bidder must pay in the end
 func R-allocations ->Function equals [:dom R,{0}:]+*[:{winnerof R},{1}:];
 coherence; :::how much of the sold asset each bidder gets in the end
 end;
@@ -386,7 +395,7 @@ set P=priceof R, A={0}, B={P}; A\NAT={} & B\NAT={}; then
 A c= NAT & B c= NAT by FOMODEL0:29; hence thesis;
 end;
 ::}
-end;:::and it's integer in real world; fractional currency'd be overkill 
+end;:::fractional currency'd be overkill and not realistic 
 
 
 
@@ -422,138 +431,296 @@ by ZFMISC_1:50; then PP"{maxQ}={} by RELAT_1:138; hence thesis by B1;
 end;
 ::}
 
-Lm1: natmax rng (P | (dom P\{x})) c< X 
-implies topbiddersof (P +*1 [:{x},{X}:])={x}
+registration let P,Y;
+cluster P"Y \ dom P -> empty;
+coherence by RELAT_1:132, FOMODEL0:29;
+end;
+
+registration
+let Y be trivial non empty set; let X be non empty Subset of Y;
+identify X null Y with Y null X;
+compatibility
 ::{
 proof
-set dP=dom P, maxP=natmax rng P, Q=[:{x},{X}:], dQ=dom Q, 
-PP1=P|(dP\{x}), PP=P|(dP\dQ), maxQ=natmax rng Q, 
-R=P +*1 Q,QQ=[:{X},{x}:]; 
-B0: rng Q={X} & dom Q={x} & rng QQ={x} & dom QQ={X}; 
-assume natmax rng PP1 c< X; then natmax rng PP c< maxQ 
-by ZFMISC_1:25; then topbiddersof R=Q"{maxQ} by Lm0 .= Q"{X} 
-by ZFMISC_1:25 .= dom (Q>*>QQ) by RELAT_1:147, B0 .= 
-dom ([:{x},{x}:]) by FOMODEL0:73; hence thesis;
+consider x being Element of X such that B0: {x}=X 
+by SUBSET_1:46; Y={x} by ZFMISC_1:132; hence thesis by B0;
+end;
+::}
+end;
+
+Lm1: {union X}\X={} & natmax rng (P | (dom P\{x})) c< union X  
+implies topbiddersof (P +*1 [:{x},X:])={x}
+::{
+proof
+assume 
+B2: {union X}\X={}; then reconsider XX=X as non empty set;
+reconsider UX=union XX as Element of XX by B2, FOMODEL0:29; {UX}\XX={}; 
+then reconsider UUX={UX} as non empty Subset of XX by FOMODEL0:29;
+set dP=dom P, rP=rng P, maxP=union rP, Q=[:{x},XX:], dQ=dom Q, rQ=rng Q, 
+PP1=P|(dP\{x}), PP=P|(dP\dQ), maxQ=union rQ, R=P +*1 Q, QQ=[:XX,{x}:];
+:: B0: rQ=X & dom QQ=X; 
+UUX /\ XX= UUX null XX; then 
+B3: {UX} meets rQ by XBOOLE_0:def 7;
+assume natmax rng PP1 c< union X; then 
+natmax rng PP c< maxQ; then 
+B1: topbiddersof R=Q"{maxQ} by Lm0 .= Q"{UX}; reconsider 
+Y={UX} as Subset of rQ by FOMODEL0:29, B2; Q"{UX} \ dom Q={}; 
+then reconsider T=topbiddersof R as Subset of {x} by 
+FOMODEL0:29, B1; Q"{UX}<>{} by B3, RELAT_1:138; then reconsider 
+T as non empty Subset of {x} by B1; T null {x}={x}; hence thesis; 
 end;
 ::}
 
-Lm5: (priceof R<>0 & i=winnerof R & R-pay.i c< y) 
-implies (R +*1 [:{i},{y}:])-pay.i = R-pay.i
+Lm5: 
+R-pay.i c< union Y & rng (R|losersof R) c= NAT & 
+rng (R|losersof R) is finite & i=winnerof R & {union Y}\Y={}
+implies 
+((R +*1 [:{i},Y:])-pay.i = R-pay.i & 
+winnerof (R +*1 [:{i},Y:]) = winnerof R)
 ::{
 proof
-set B=R, x=B-allocations, p=B-pay, P=p.i, f=[:{i},{y}:], 
+assume 
+B1: R-pay.i c< union Y; then union Y <> {} by XBOOLE_1:62; then
+reconsider YY=Y as non empty set;
+set y=union YY;
+set B=R, x=B-allocations, p=B-pay, P=p.i, f=[:{i},YY:], L=losersof R, 
 Bi=B +*1 f, pii=Bi-pay, Pi=pii.i, w=winnerof B, wi=winnerof Bi, 
 D=dom B, Di=dom Bi, l=losersof R, RR=B|l; D\/dom f \+\ Di={}; then 
 D \/ dom f=Di & dom f \+\ {i}={} by FOMODEL0:29; then 
 dom f={i} & Di=D\/{i}; then
 B2: Di\{i} = D\{i} by XBOOLE_1:40; (D\{i}) /\ ({i}/\{i})={}; then 
 B4: D\{i} misses dom f by XBOOLE_0:def 7;
+:: B7: i=w & rng B c= NAT;
 assume 
-B7: priceof B<>0 & i=w; then P=priceof B by Lm3; then 
-B8: P=natmax rng RR by B7, Lm16;
-assume P c< y; then topbiddersof Bi={i} by Lm1, B8, B7; then 
+:: priceof B<>0 
+B7: rng (R|L) c= NAT & rng (R|L) is finite  
+& i=w; then P=priceof B by Lm3; then 
+B8: P=natmax rng RR by B7, Lm16b;
+assume {union Y}\Y={}; then 
+topbiddersof Bi={i} by Lm1, B8, B7, B1; then 
 wi in topbiddersof Bi & topbiddersof Bi={i}; then 
 B0: wi=i & i=w by TARSKI:def 1, B7; then
 Bi|(Di\{wi}) = (B|(D\{i})|(D\{i})) \/ (f|(D\{i})) 
 by B2, FOMODEL0:56 .= (B | (D\{i})) \/ {} by B4, RELAT_1:66 .= 
-B|(D\{w}) by B0; then priceof B=Pi by Lm3, B0; hence P=Pi by Lm3, B0;
+B|(D\{w}) by B0; then priceof B=Pi by Lm3, B0; hence 
+P=(B +*1 [:{i},Y:])-pay.i by Lm3, B0; hence thesis by B0;
 end;
 ::}
 
-Lm4: f is NAT-valued & rng f is finite implies 
-(f+*[:{i},{v}:])-pay.i <= v*((f+*[:{i},{v}:])-allocations.i)
+registration
+let X3 be set; let X2 be Subset of X3; let X1 be Subset of X2;
+cluster X1\X3 -> empty;
+coherence by XBOOLE_1:1, FOMODEL0:29;
+end;
+registration
+let X; let x be Subset of X; let Y;
+cluster x\(X\/Y) -> empty;
+coherence proof X null Y c= X\/Y; hence thesis; end;
+end;
+
+Lm0a: for m,n being Nat holds (m <= n iff m c= n)
+proof
+let m,n be Nat; Segm m=m & Segm n=n; hence thesis by NAT_1:39;
+end;
+
+Lm4b: rng R is finite Subset of NAT & 
+Y is non empty Subset of NAT & union Y c= v 
+implies 
+(R +*1 [:{i},Y:])-pay.i <= (R +*1 [:{i},Y:])-allocations.i*v
 ::{
 proof
-assume f is NAT-valued; then reconsider ff=f as NAT-valued Function;
-set V={v}, g=[:{i},{v}:]; V \ NAT={}; then reconsider V as 
-Subset of NAT by FOMODEL0:29; g is V-valued; then 
-reconsider g as NAT-valued Function; reconsider fi=ff +* g as 
-NAT-valued Function; set pi=fi-pay, xi=fi-allocations, wi=winnerof fi, 
-LH=pi.i, RH=v*(xi.i); reconsider X=rng (f|(dom f \ dom g)) as 
-Subset of rng f by RELAT_1:70;
-B2: rng fi = rng (f|(dom f \ dom g)) \/ rng g by RELAT_1:12;
-assume rng f is finite; then reconsider XX=X as finite set; XX \/ rng g 
-is finite; then rng fi is finite & rng fi c= NAT by B2; then  
-B1: wi in topbiddersof fi by Lm8; fi=f +* (i.-->v); then
-B0: fi.i=v by FUNCT_4:113;
+set Q=[:{i},Y:], Ri=R +*1 Q, pi=Ri-pay, xi=Ri-allocations, rQ=rng Q, 
+wi=winnerof Ri, LH=pi.i, RH=v*(xi.i), P=priceof R, Pi=priceof Ri, ri=rng Ri;
+assume rng R is finite Subset of NAT; then reconsider 
+rR=rng R as finite Subset of NAT; assume Y is non empty Subset of NAT;
+:::Y<>{} not really necessary
+then reconsider YY=Y as non empty Subset of NAT; assume 
+B1: union Y c= v; then reconsider YY as 
+non empty finite ext-real-membered Subset of NAT by FINSET_1:7; 
+rQ \+\ Y={} & ri \ (rR \/ rQ) = {}; then ri c= rR \/ YY by FOMODEL0:29;
+then reconsider ri as finite non empty Subset of NAT by XBOOLE_1:1;
 per cases;
-suppose 
-C0: i=wi; then 
-C2: xi.i=1 & LH = priceof fi by Lm3, Lm9c; Segm LH c= Segm (fi.i) & 
-RH=v by Lm7, C0, B1, C2; hence thesis by B0, NAT_1:39;
+suppose
+C0: i=wi; then xi.i=1 & LH=Pi by Lm3, Lm9c; then 
+C2: RH=v & xi.i=1 & LH=Pi; ri is finite; then
+wi in topbiddersof Ri by Lm8; then consider y being element such that
+C4: [wi,y] in Ri & y in {union ri} by RELAT_1:def 14;
+dom [:{i},YY:] \+\ {i}={}; then i in dom Q by TARSKI:def 1, FOMODEL0:29;
+then not i in dom R \ dom Q by XBOOLE_0:def 5; then 
+C5: not [i,union ri] in R|(dom R \ dom Q) by RELAT_1:def 11; 
+[i,union ri] in Ri by C0, C4, TARSKI:def 1; then
+[i,union ri] in Q by C5, XBOOLE_0:def 3; then  
+C3: union ri in YY by ZFMISC_1:87; then 
+reconsider middle=union ri as Element of NAT;
+middle <= max YY by C3, XXREAL_2:def 8; then 
+middle c= max YY & max YY c= v by Lm0a, Lm12, B1;
+then middle c= v by XBOOLE_1:1; then
+reconsider middle as Subset of v;
+rng (Ri|losersof Ri) \ ri = {} & ri is finite; then 
+C6: rng (Ri|losersof Ri) is finite Subset of ri by FOMODEL0:29; then
+Pi=union rng (Ri|losersof Ri) by Lm16b, XBOOLE_1:1; then 
+reconsider Pi as Subset of middle by ZFMISC_1:77, C6; 
+(Pi /\ middle)\(middle \/ v)={}; then
+Pi null middle c= v null middle by FOMODEL0:29; then 
+Segm priceof Ri c= Segm v; then priceof Ri <= v by NAT_1:39; 
+hence thesis by C2;
 end;
-suppose i<>wi; then i<>wi & (priceof fi<>0 or priceof fi=0); 
-then LH=0 by Lm9b; hence thesis; 
+suppose
+i<>wi; then i<>wi & (priceof Ri<>0 or priceof Ri=0); 
+then LH=0 by Lm9b; hence thesis;
 end;
 end;
 ::}
 
-Lm21: :::Vickrey's theorem, version 1
-f is NAT-valued & rng f is finite & priceof f <> 0 implies 
-(v*(f-allocations.i)) - ((f-pay).i) <= 
-v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
+Lm21: :::generalized Vickrey's theorem
+for V being non empty finite Subset of NAT st  
+rng R is finite Subset of NAT & union V = v holds
+R-allocations.i*v - (R-pay.i) <= 
+(R +*1 [:{i},V:])-allocations.i*v - (R +*1 [:{i},V:])-pay.i
 ::{
 proof
-assume f is NAT-valued; then reconsider R=f as NAT-valued Function; 
-set x=R-allocations, V={v}, p=R-pay, g=[:{i},V:]; V\NAT={}; then 
-V c= NAT by FOMODEL0:29; then reconsider g as NAT-valued Function;
-reconsider Ri=R +*1 g as NAT-valued Function;
+let V be 
+non empty :::admissible
+finite Subset of NAT;
+set x=R-allocations, p=R-pay, g=[:{i},V:], Ri=R +*1 g; 
+reconsider g as NAT-valued Relation; 
+assume
+B11: rng R is finite Subset of NAT; then
+rng Ri \ (rng R \/ rng g)={} & rng R \/ rng g \ NAT={}; then
+rng Ri c= rng R \/ rng g & rng R \/ rng g c= NAT by FOMODEL0:29; then
+reconsider Ri=R +*1 g as NAT-valued Relation by XBOOLE_1:1, RELAT_1:def 19;
 set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R, 
-RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
-assume rng f is finite; then pi.i-(pi.i)<=RH by XREAL_1:9, Lm4; then 
-B0: 0<=RH; assume 
-B9: priceof f<>0;
+L=losersof R, RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, 
+Pi=priceof Ri;
+B10: rng (R|L) \ rng R = {} & xi.wi=1 by Lm9c; assume 
+B12: union V = v; then pi.i-(pi.i)<=RH & rng (R|L) c= rng R 
+by XREAL_1:9, Lm4b, FOMODEL0:29, B10, B11; then 
+B0: 0<=RH & rng (R|L) is finite by B11; rng (R|L)\rng R={}; then 
+rng (R|L) c= rng R by FOMODEL0:29; then
+B9: rng (R|L) c= NAT & rng (R|L) is finite 
+& {union V}\V={} by B11, XBOOLE_1:1;
 per cases;
-suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; hence thesis;
-end;
+suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; hence thesis; end;
 suppose 
 C1: LH > 0; then x.i <> {}; then x.i \+\ 1={}; then 
-C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then v-p.i > (p.i)-(p.i) & 
-x.i<>{} by C1; then v > p.i by XREAL_1:9; then Segm p.i c= Segm v & 
-p.i <> v by NAT_1:39; then p.i c< v & i=w by C0, Lm9c, 
-XBOOLE_0:def 8; then pi.i=p.i & p.i=priceof R by Lm5, Lm3, B9; then 
-C2: pi.i=p.i & pi.i<>{} & Pi<>{} by B9; then 
-i=wi by Lm9b; then xi.i<>{} by Lm9b; 
-then xi.i \+\ 1={}; then pi.i=p.i & xi.i=1 
-by C2, FOMODEL0:29; then LH=RH by C0; hence thesis;
+C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then 
+v-p.i > (p.i)-(p.i) & x.i<>{} by C1; then v > p.i by XREAL_1:9; 
+then Segm p.i c= Segm v & p.i <> v by NAT_1:39; then 
+C3: p.i c< v & i=w by C0, Lm9c, XBOOLE_0:def 8; then pi.i=p.i & w=wi 
+by Lm5, B9, B12; then pi.i=p.i & i=wi by C3; then 
+pi.i=p.i & xi.i=1 by B10; then LH=RH by C0; hence thesis;
 end;
 end;
 ::}
 
-Lm20: (rng R c= NAT & rng R is finite & dom R is non trivial) 
-implies priceof R in rng R
-::{
-proof
-set P=priceof R, p=R-pay, r=rng R, rp=rng p, l=losersof R, 
-D=dom R, RR=R|l, rr=rng RR; assume r c= NAT & r is finite; 
-then reconsider r as finite Subset of NAT; rr \ r={}; then 
-B1: rr c= r & r c= NAT by FOMODEL0:29; then reconsider 
-rr as finite Subset of NAT by XBOOLE_1:1;
-set PP=natmax rr; assume D is non trivial; then 
-l<>{} & l /\ D=l null D; then l meets D by XBOOLE_0:def 7; then 
-RR is non empty by RELAT_1:66; then rr<>{}; then reconsider 
-rr as right_end Subset of NAT; max rr=PP by Lm12; then 
-B0: PP in rr by XXREAL_2:def 8; then PP in NAT; 
-then {PP}\NAT={}; then reconsider X={PP} as Subset of NAT 
-by FOMODEL0:29; X/\NAT=X null NAT; then P in {PP}; then P=PP 
-by TARSKI:def 1; hence thesis by B0, B1;
-end;
-::}
+::$EOF
 
-Lm22: rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
-implies :::Vickrey's theorem, version 2
-(v*(f-allocations.i)) - ((f-pay).i) <= 
-v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
-::{
-proof
-set Y=rng f, X=dom f, p=priceof f; assume 
-B1: Y c= NAT\{0}; then 
-B0: Y c= NAT by XBOOLE_1:1; assume 
-B2: Y is finite & X is non trivial; 
-then p in Y by Lm20, B0; then p in NAT\{0} by B1; then 
-not p in {0} by XBOOLE_0:def 5; then
-p<>0 by TARSKI:def 1; then f is NAT-valued & Y is finite & p<>0 
-by RELAT_1:def 19, B0, B2; hence thesis by Lm21;
-end;
-::}
+:: Lm21: :::Vickrey's theorem, version 1
+:: f is NAT-valued & rng f is finite & rng (f|losersof f) c= NAT implies 
+:: (v*(f-allocations.i)) - ((f-pay).i) <= 
+:: v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
+:: ::{
+:: proof
+:: assume f is NAT-valued; then reconsider R=f as NAT-valued Function; 
+:: set x=R-allocations, V={v}, p=R-pay, g=[:{i},V:]; V\NAT={}; then 
+:: V c= NAT by FOMODEL0:29; then reconsider g as NAT-valued Function;
+:: reconsider Ri=R +*1 g as NAT-valued Function;
+:: set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R, L=losersof f, 
+:: RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
+:: B10: rng (R|L) \ rng R ={} & xi.wi \+\ 1={}; assume 
+:: B11: rng f is finite; then pi.i-(pi.i)<=RH
+:: & rng (f|L) c= rng R by XREAL_1:9, Lm4, FOMODEL0:29, B10; then 
+:: B0: 0<=RH & rng (f|L) is finite by B11; assume 
+:: B9: rng (f|L) c= NAT;
+:: per cases;
+:: suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; hence thesis;
+:: end;
+:: suppose 
+:: C1: LH > 0; then x.i <> {}; then x.i \+\ 1={}; then 
+:: C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then v-p.i > (p.i)-(p.i) & 
+:: x.i<>{} by C1; then v > p.i by XREAL_1:9; then Segm p.i c= Segm v & 
+:: p.i <> v by NAT_1:39; then 
+:: C3: p.i c< v & i=w by C0, Lm9c, 
+:: XBOOLE_0:def 8; then pi.i=p.i & p.i=priceof R & w=wi by Lm5, Lm3, B9, B0; 
+:: then 
+:: C2: pi.i=p.i & i=wi by C3, B9;
+:: then pi.i=p.i & xi.i=1 by B10, FOMODEL0:29; then
+:: :: then 
+:: :: i=wi by Lm9b; then xi.i<>{} by Lm9b; 
+:: :: then xi.i \+\ 1={}; then pi.i=p.i & xi.i=1 
+:: :: by C2, FOMODEL0:29; then 
+:: LH=RH by C0; hence thesis;
+:: end;
+:: end;
+:: ::}
+
+:: Lm20: (rng R c= NAT & rng R is finite & dom R is non trivial) 
+:: implies priceof R in rng R
+:: ::{
+:: proof
+:: set P=priceof R, p=R-pay, r=rng R, rp=rng p, l=losersof R, 
+:: D=dom R, RR=R|l, rr=rng RR; assume r c= NAT & r is finite; 
+:: then reconsider r as finite Subset of NAT; rr \ r={}; then 
+:: B1: rr c= r & r c= NAT by FOMODEL0:29; then reconsider 
+:: rr as finite Subset of NAT by XBOOLE_1:1;
+:: set PP=natmax rr; assume D is non trivial; then 
+:: l<>{} & l /\ D=l null D; then l meets D by XBOOLE_0:def 7; then 
+:: RR is non empty by RELAT_1:66; then rr<>{}; then reconsider 
+:: rr as right_end Subset of NAT; max rr=PP by Lm12; then 
+:: B0: PP in rr by XXREAL_2:def 8; then PP in NAT; 
+:: then {PP}\NAT={}; then reconsider X={PP} as Subset of NAT 
+:: by FOMODEL0:29; X/\NAT=X null NAT; then P in {PP}; then P=PP 
+:: by TARSKI:def 1; hence thesis by B0, B1;
+:: end;
+:: ::}
+
+:: Lm22: rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
+:: implies :::Vickrey's theorem, version 2
+:: (v*(f-allocations.i)) - ((f-pay).i) <= 
+:: v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
+:: ::{
+:: proof
+:: set Y=rng f, X=dom f, p=priceof f; assume 
+:: B1: Y c= NAT\{0}; then 
+:: B0: Y c= NAT by XBOOLE_1:1; assume 
+:: B2: Y is finite & X is non trivial; 
+:: then p in Y by Lm20, B0; then p in NAT\{0} by B1; then 
+:: not p in {0} by XBOOLE_0:def 5; then
+:: p<>0 by TARSKI:def 1; then f is NAT-valued & Y is finite & p<>0 
+:: by RELAT_1:def 19, B0, B2; hence thesis by Lm21;
+:: end;
+:: ::}
+
+:: Lm7: winnerof f in topbiddersof f implies 
+:: (f.(winnerof f)=union rng f & priceof f c= f.(winnerof f))
+:: ::{
+:: proof
+:: set w=winnerof f, P=priceof f, I=topbiddersof f, y=f.w, l=losersof f; 
+:: reconsider r=rng (f|l) as Subset of rng f by RELAT_1:70; 
+:: assume w in I; then consider z being element such that
+:: B0: [w,z] in f & z in {natmax rng f} by RELAT_1:def 14; {}\f.w={}; then 
+:: B1: {} c= f.w & w in dom f & z=f.w by FOMODEL0:29, FUNCT_1:1, B0; 
+:: hence f.w=natmax rng f by TARSKI:def 1, B0; then 
+:: union r c= f.w by ZFMISC_1:77; hence thesis by Lm16, B1;
+:: end;
+:: ::}
+
+
+:: Lm16: priceof R=0 or priceof R=natmax rng (R|losersof R)
+:: ::{
+:: proof
+:: set P=priceof R, l=losersof R, RR=R|l, Y=rng RR, PP=natmax Y; 
+:: assume P<>0; then {PP}/\NAT <> {} by SUBSET_1:def 1; then P in {PP}/\NAT;
+:: then P in {PP}; hence thesis by TARSKI:def 1;
+:: end;
+:: ::}
+
+:: registration
+:: let N be non empty finite Subset of NAT;
+:: cluster sup N -> natural;
+:: coherence;
+:: end;
+
+:: cluster P"{Y\rng P} -> empty;
+:: coherence;
 
