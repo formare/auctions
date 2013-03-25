@@ -218,11 +218,21 @@ definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
   where
       "second_price_auction sga \<longleftrightarrow>
      (\<forall> (N :: participants) (b :: bids) (x :: allocation) (p :: payments) .
-      ((N, b), (x, p)) \<in> sga \<longrightarrow>
+      ((N, b), (x, p)) \<in> sga \<longleftrightarrow>
       bids N b \<and>
       (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j)))"
 
+lemma spa_is_left_total :
+  fixes a :: single_good_auction and N :: participants and b :: bids
+  assumes "second_price_auction a"
+      and "bids N b"
+      and "card N > 1"
+  shows "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> a"
+  using assms  
+  unfolding second_price_auction_def
+  sorry
+  
 lemma spa_is_sga :
   fixes a :: single_good_auction
   assumes "second_price_auction a"
@@ -248,7 +258,7 @@ lemma spa_allocates :
 proof -
   from spa have *: "\<exists> i \<in> N . x i = 1 \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> x j = 0)"
     unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
-    by blast
+    by metis
   then obtain i where i_def: "i \<in> N \<and> x i = 1" by blast
   with * have "\<forall>j \<in> N - {i} . x j = 0" by (metis DiffD1 DiffD2 insertI1 zero_neq_one)
   then have "(\<Sum> k \<in> N . x k) = 1" using finite i_def by (metis comm_monoid_add_class.add.right_neutral eq_iff setsum.remove setsum_nonneg setsum_nonpos)
@@ -269,7 +279,7 @@ proof -
   from spa have *: "\<exists> i \<in> N . p i = maximum (N - {i}) b \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
     unfolding spa_pred_def second_price_auction_def
       second_price_auction_winner_def second_price_auction_loser_def second_price_auction_winners_payment_def
-    by blast
+    by metis
   then obtain i where i_def: "i \<in> N \<and> p i = maximum (N - {i}) b" by blast
   from spa have bids: "bids N b" unfolding spa_pred_def second_price_auction_def by blast
   with maximum_defined have 1: "\<forall> k \<in> N . k \<noteq> i \<longrightarrow> maximum (N - {i}) b \<ge> b k" using maximum_except_is_greater_or_equal by blast
