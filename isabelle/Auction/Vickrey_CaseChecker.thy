@@ -104,22 +104,26 @@ text{* To give the auction designer flexibility (including the possibility to in
   we only constrain the left hand side of the relation, as to cover admissible @{text bids}.
   This definition makes sure that whenever we speak of a single good auction, there is a bid vector
   on the left hand side.  In other words, this predicate returns false for relations having left
-  hand side entries that are known not to be bid vectors. *}
-definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
-  where
-    "single_good_auction sga \<longleftrightarrow>
-     (\<forall> ((N :: participants, b :: bids), (x :: allocation, p :: payments)) \<in> sga .
-       bids N b)"
-
-text{* For talking about most properties related to single good auctions, it is more convenient to 
-  treat the auction as a predicate over all of its arguments, instead of a left-hand-side/right-hand-side
-  relation. *}
+  hand side entries that are known not to be bid vectors.
+  For this and other purposes it is more convenient to treat the auction as a predicate over all of
+  its arguments, instead of a left-hand-side/right-hand-side relation.*}
 definition sga_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
-    "sga_pred N b x p \<longleftrightarrow>
-      (\<exists> sga :: single_good_auction . 
-        single_good_auction sga \<and>
-        ((N, b), (x, p)) \<in> sga)"
+    "sga_pred N b x p \<longleftrightarrow> bids N b"
+
+text{* We construct the relational version of an auction from the predicate version: *}
+definition rel_sat_sga_pred ::
+  "(participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  where "rel_sat_sga_pred pred A \<longleftrightarrow> (\<forall> ((N, b), (x, p)) \<in> A . pred N b x p)"
+
+text{* We construct the relational version of an auction from the predicate version: *}
+definition rel_all_sga_pred ::
+  "(participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  where "rel_all_sga_pred pred A \<longleftrightarrow> (\<forall> N b x p . ((N, b), (x, p)) \<in> A \<longleftrightarrow> pred N b x p)"
+
+text{* Now for the relational version of the single good auction: *}
+definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
+  where "single_good_auction A = rel_sat_sga_pred sga_pred A"
 
 text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
   allocated w.r.t. the definition of an @{text allocation}.  We are not constraining the payments
@@ -130,9 +134,37 @@ definition sga_well_defined_outcome_pred :: "participants \<Rightarrow> bids \<R
 
 definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> bool"
   where
-    "sga_well_defined_outcome sga \<longleftrightarrow>
-      (\<forall> ((N::participants, b::bids), (x::allocation, p::payments)) \<in> sga .
+    "sga_well_defined_outcome A \<longleftrightarrow>
+      (\<forall> ((N::participants, b::bids), (x::allocation, p::payments)) \<in> A .
         sga_well_defined_outcome_pred N b x p)"
+
+type_synonym input_admissibility = "participants \<Rightarrow> bids \<Rightarrow> bool"
+
+text{* Left-totality of an auction defined as a relation: for each admissible bid vector
+  there exists some outcome (not necessarily unique). *}
+definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+  where "sga_left_total A admissible \<longleftrightarrow>
+    (\<forall> (N :: participants) (b :: bids) . admissible N b \<longrightarrow>
+      (\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A))"
+
+text{* Right-uniqueness of an auction defined as a relation: for each admissible bid vector,
+  if there is an outcome, it is unique. *}
+(* TODO CL: same as for allowing an admissibility predicate (instead of considering _all_ 
+   possible inputs), allow for speaking of "uniqueness modulo <something>".
+
+   CL@CR: In the second price auction what could this <something> be, if defined as weakly as possible,
+   i.e. without making the mistake of restating the auction's definition once more?
+   How about "if the good gets allocated to i and i' both must have made the same bid?"
+   and "if the payments of p and p' are non-zero, both must have made the same bid?"  *)
+definition sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+  where "sga_right_unique A admissible \<longleftrightarrow>
+    (\<forall> (N :: participants) (b :: bids) . admissible N b \<longrightarrow>
+      (\<forall> (x :: allocation) (x' :: allocation) (p :: payments) (p' :: payments) .
+        ((N, b), (x, p)) \<in> A \<and> ((N, b), (x', p')) \<in> A \<longrightarrow> (x, p) = (x', p')))"
+
+definition sga_function :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+  where "sga_function A admissible \<longleftrightarrow>
+    sga_left_total A admissible \<and> sga_right_unique A admissible"
 
 subsection {* Maximum *}
 text{* This subsection uses Isabelle's set maximum functions, wrapping them for our use. *}
@@ -162,7 +194,6 @@ lemma maximum_is_greater_or_equal:
 lemma maximum_is_component:
   fixes N :: participants and y :: "real vector"
   assumes defined: "maximum_defined N"
-    and non_negative: "non_negative_real_vector N y"
   shows "\<exists>i \<in> N. maximum N y = y i"
 proof -
   let ?A = "y ` N"
@@ -175,8 +206,7 @@ qed
 
 lemma maximum_sufficient:
   fixes N :: participants and y :: "real vector" and m :: real
-  assumes non_negative: "non_negative_real_vector N y"
-    and defined: "maximum_defined N"
+  assumes defined: "maximum_defined N"
     and greater_or_equal: "\<forall>i \<in> N. m \<ge> y i"
     and is_component: "\<exists>i \<in> N. m = y i"
   shows "maximum N y = m"
@@ -255,29 +285,91 @@ definition spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))"
 
 definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
-  where
-    "second_price_auction sga \<longleftrightarrow>
-     (\<forall> (N :: participants) (b :: bids) (x :: allocation) (p :: payments) .
-      ((N, b), (x, p)) \<in> sga \<longleftrightarrow>
-      spa_pred N b x p)"
+  where "second_price_auction A = rel_sat_sga_pred spa_pred A"
 
+definition spa_admissible_input :: "participants \<Rightarrow> bids \<Rightarrow> bool"
+  where "spa_admissible_input N b \<longleftrightarrow> card N > 1 \<and> bids N b"
+
+text{* Our relational definition of second price auction is left-total. *}
 lemma spa_is_left_total :
-  fixes a :: single_good_auction and N :: participants and b :: bids
-  assumes "second_price_auction a"
-      and "bids N b"
-      and "card N > 1"
-  shows "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> a"
-  using assms  
-  unfolding second_price_auction_def
-  sorry
-  
-lemma spa_is_sga :
-  fixes a :: single_good_auction
-  assumes "second_price_auction a"
-  shows "single_good_auction a"
+  fixes A :: single_good_auction
+ (* A is the set of all second price auctions.
+    Assuming "second_price_auction A" would merely mean that all elements of A are second price auctions,
+    which is not enough here. *)
+  assumes spa: "rel_all_sga_pred spa_pred A"
+  shows "sga_left_total A spa_admissible_input"
+proof -
+  {
+    fix N :: participants and b :: bids
+    assume admissible: "spa_admissible_input N b"
+    (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
+       However we are working with our own wrapped maximum definition anyway. *)
+    then obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
+      using spa_admissible_input_def arg_max_set_def maximum_def maximum_is_component maximum_defined_def
+      by (metis (lifting, mono_tags) comm_monoid_diff_class.diff_cancel less_imp_diff_less mem_Collect_eq)
+    (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
+    def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
+    def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
+    from x_def and p_def and winner_def and admissible
+      have "spa_pred N b x p"
+      using spa_admissible_input_def second_price_auction_winner_def second_price_auction_loser_def spa_pred_def
+      by auto
+    with spa have "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
+      using spa_pred_def rel_all_sga_pred_def by auto
+  }
+  then show ?thesis unfolding sga_left_total_def by blast
+qed
+
+text{* Our relational definition of second price auction is right-unique. *}
+lemma spa_is_right_unique :
+  fixes A :: single_good_auction
+  assumes spa: "rel_all_sga_pred spa_pred A"
+  shows "sga_right_unique A spa_admissible_input"
+proof -
+  {
+    fix N :: participants and b :: bids
+    assume admissible: "spa_admissible_input N b"
+    fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
+    assume "((N, b), (x, p)) \<in> A"
+    with spa have "spa_pred N b x p" unfolding rel_all_sga_pred_def by blast
+    then obtain winner::participant
+      where winner_def: "second_price_auction_winner N b x p winner \<and>
+        (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> second_price_auction_loser N x p j)"
+      unfolding spa_pred_def by blast
+    assume outcome': "((N, b), (x', p')) \<in> A"
+    with spa have "spa_pred N b x' p'" unfolding rel_all_sga_pred_def by blast
+    then obtain winner'::participant
+      where winner'_def: "second_price_auction_winner N b x' p' winner' \<and>
+        (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> second_price_auction_loser N x' p' j)"
+      unfolding spa_pred_def by blast
+    from winner_def and winner'_def have "(x, p) = (x', p')"
+      using second_price_auction_winner_def second_price_auction_loser_def
+      sorry (* TODO CL: Of course this does not yet work as our definitions do not yet specify
+        a unique selection of the winner. *)
+  }
+  then show ?thesis unfolding sga_right_unique_def by blast
+qed
+
+lemma spa_is_sga_pred :
+  fixes N :: participants and b :: bids
+    and x :: allocation and p :: payments
+  assumes "spa_pred N b x p"
+  shows "sga_pred N b x p"
   using assms
-  unfolding second_price_auction_def spa_pred_def single_good_auction_def
-  by blast
+  unfolding spa_pred_def sga_pred_def by blast
+
+lemma spa_is_sga :
+  fixes A :: single_good_auction
+  assumes spa: "second_price_auction A"
+  shows "single_good_auction A"
+proof -
+(*  
+fix N :: participants and b :: bids and x :: allocation and p :: payments
+  assume "((N, b), (x, p)) \<in> A"
+    with spa have "spa_pred N b x p" unfolding second_price_auction_def by blast
+  then have "sga_pred N b x p" using spa_is_sga_pred by blast *)
+  show ?thesis sorry
+qed
 
 text{* definition of a second price auction, projected to the allocation *}
 lemma spa_allocation :
@@ -465,9 +557,9 @@ subsection {* Efficiency *}
 
 definition efficient :: "participants \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool"
   where
-    "efficient N v b sga \<longleftrightarrow>
-      valuations N v \<and> bids N b \<and> single_good_auction sga \<and>
-      (\<forall> x p . ((N, b), (x, p)) \<in> sga
+    "efficient N v b A \<longleftrightarrow>
+      valuations N v \<and> bids N b \<and> single_good_auction A \<and>
+      (\<forall> x p . ((N, b), (x, p)) \<in> A
         (* TODO CL: Is there a way of not naming p, as we don't need it? *)
         \<longrightarrow>
         (\<forall>i \<in> N. x i = 1 \<longrightarrow> i \<in> arg_max_set N v))"
@@ -476,13 +568,13 @@ subsection {* Equilibrium in weakly dominant strategies *}
 
 definition equilibrium_weakly_dominant_strategy ::
   "participants \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool" where
-  "equilibrium_weakly_dominant_strategy N v b sga \<longleftrightarrow>
-    valuations N v \<and> bids N b \<and> single_good_auction sga \<and>
+  "equilibrium_weakly_dominant_strategy N v b A \<longleftrightarrow>
+    valuations N v \<and> bids N b \<and> single_good_auction A \<and>
     (\<forall>i \<in> N.
       (\<forall>whatever_bid . bids N whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
         (let b' = whatever_bid(i := b i)
          in 
-         (\<forall> x p x' p' . ((N, whatever_bid), (x, p)) \<in> sga \<and> ((N, b'), (x', p')) \<in> sga
+         (\<forall> x p x' p' . ((N, whatever_bid), (x, p)) \<in> A \<and> ((N, b'), (x', p')) \<in> A
           \<longrightarrow>
           payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)))))"
 
@@ -492,12 +584,12 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
   strategies if all participants bid their valuation. *}
 
 theorem vickreyA:
-  fixes N :: participants and v :: valuations and sga :: single_good_auction
+  fixes N :: participants and v :: valuations and A :: single_good_auction
   assumes card_N: "card N > 1"
   assumes val: "valuations N v" 
   defines "b \<equiv> v"
-  assumes spa: "second_price_auction sga"
-  shows "equilibrium_weakly_dominant_strategy N v b sga"
+  assumes spa: "second_price_auction A"
+  shows "equilibrium_weakly_dominant_strategy N v b A"
 proof -
   have defined: "maximum_defined N" using card_N
     unfolding maximum_defined_def by (auto simp: card_ge_0_finite)
@@ -528,11 +620,13 @@ proof -
     let ?b_max' = "maximum ?M ?b"
 
     fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
-    assume outcome: "((N, whatever_bid), (x, p)) \<in> sga"
-       and outcome': "((N, ?b), (x', p')) \<in> sga"
+    assume outcome: "((N, whatever_bid), (x, p)) \<in> A"
+       and outcome': "((N, ?b), (x', p')) \<in> A"
 
-    from spa outcome have spa_pred: "spa_pred N whatever_bid x p" using second_price_auction_def by blast
-    from spa outcome' have spa_pred': "spa_pred N ?b x' p'" using second_price_auction_def by blast
+    from spa outcome have spa_pred: "spa_pred N whatever_bid x p"
+      unfolding second_price_auction_def rel_sat_sga_pred_def by blast
+    from spa outcome' have spa_pred': "spa_pred N ?b x' p'"
+      unfolding second_price_auction_def rel_sat_sga_pred_def by blast
 
     from spa_pred finite have allocation: "allocation N x" using spa_allocates by blast
     from spa_pred' finite have allocation': "allocation N x'" using spa_allocates by blast
@@ -640,18 +734,20 @@ qed
 subsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
 
 theorem vickreyB:
-  fixes N :: participants and v :: valuations and sga :: single_good_auction
+  fixes N :: participants and v :: valuations and A :: single_good_auction
   assumes val: "valuations N v"
-  assumes spa: "second_price_auction sga"
+  assumes spa: "second_price_auction A"
   defines "b \<equiv> v"
-  shows "efficient N v b sga"
+  shows "efficient N v b A"
 proof -
   from val have bids: "bids N v" by (rule valuation_is_bid)
   {
     fix k :: participant and x :: allocation and p :: payments
     (* TODO CL: We actually don't need p; is there a way to do without? *)
-    assume range: "k \<in> N" and outcome: "((N, v), (x, p)) \<in> sga" and wins: "x k = 1"
-    from outcome spa have "spa_pred N v x p" unfolding second_price_auction_def by blast
+    assume range: "k \<in> N" and outcome: "((N, v), (x, p)) \<in> A" and wins: "x k = 1"
+    from outcome spa have "spa_pred N v x p"
+      unfolding second_price_auction_def rel_sat_sga_pred_def
+      by blast
     with range and wins have "k \<in> arg_max_set N v"
       using allocated_implies_spa_winner
       unfolding second_price_auction_winner_def by blast
