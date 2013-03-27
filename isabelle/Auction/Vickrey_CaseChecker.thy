@@ -154,7 +154,7 @@ text{* Right-uniqueness of an auction defined as a relation: for each admissible
 (* TODO CL: same as for allowing an admissibility predicate (instead of considering _all_ 
    possible inputs), allow for speaking of "uniqueness modulo <something>".
 
-   CL@CR: In the second price auction what could this <something> be,
+   CL@CR,@PC: In the second price auction what could this <something> be,
    if defined as weakly as possible, and in a practically useful way,
    i.e. without making the mistake of restating the auction's definition once more?
    How about "if the good gets allocated to i and i' both must have made the same bid?"
@@ -335,6 +335,9 @@ lemma spa_payments :
   unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
   by metis
 
+(* TODO CL: In the general auction case it may make sense to check that the payments (including the seller's payment)
+   sum up to 0.
+*)
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome specifies non-negative payments for everyone. *}
 lemma spa_vickrey_payment :
   fixes N :: participants and b :: bids
@@ -360,6 +363,10 @@ qed
 definition spa_admissible_input :: "participants \<Rightarrow> bids \<Rightarrow> bool"
   where "spa_admissible_input N b \<longleftrightarrow> card N > 1 \<and> bids N b"
 
+(* TODO CL: This lemma also works with admissibility defined as "card N > 0" because
+   when we compute the second-highest bid for the payments vector, card N = 0 will 
+   boil down to Max {}, which is fine with Isabelle.  I should learn about explicitly making
+   maximum a partial function. *)
 text{* Our relational definition of second price auction is left-total. *}
 lemma spa_is_left_total :
   fixes A :: single_good_auction
@@ -375,8 +382,8 @@ proof -
     (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
        However we are working with our own wrapped maximum definition anyway. *)
     then obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
-      using spa_admissible_input_def arg_max_set_def maximum_def maximum_is_component maximum_defined_def
-      by (metis (lifting, mono_tags) comm_monoid_diff_class.diff_cancel less_imp_diff_less mem_Collect_eq)
+      using spa_admissible_input_def arg_max_set_def maximum_def maximum_def maximum_is_component maximum_defined_def
+      by (smt mem_Collect_eq)
     (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
     def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
     def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
@@ -394,11 +401,14 @@ text{* We consider two outcomes of a second price auction equivalent if
 \begin{enumerate}
 \item the bids of the participants to which the good is allocated are equal
 \item the bids of the participants with positive payments are equal
-\end{enumerate} *}
+\end{enumerate}
+This should be as weak as possible, as not to restate the definition.
+ *}
 definition spa_equivalent_outcome :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "spa_equivalent_outcome N b x p x' p' \<longleftrightarrow> 
     b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 } \<and>
     b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
+(* This definition is more general in that it allow for divisible goods. *)
 
 text{* Our relational definition of second price auction is right-unique. *}
 lemma spa_is_right_unique :
@@ -429,15 +439,14 @@ proof -
       unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
       by blast
 
-    from range and alloc and range' and alloc'
-      have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
-      sledgehammer [timeout=1000]
-
-    from range and pay and range' and pay'
-      have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
+    have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
+      using range and alloc and range' and alloc'
+      using arg_max_set_def
+      sorry (* by (smt equals0I image_empty image_insert insertI1 insert_absorb insert_compr mem_Collect_eq nonempty_iff singleton_conv zero_neq_one) *)
+    moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
+      using range and pay and range' and pay'
       sorry
-
-    then have "spa_equivalent_outcome N b x p x' p'" sorry
+    ultimately have "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def by blast
     (* TODO CL: provide more information *)
   }
   then show ?thesis unfolding sga_right_unique_def by blast
@@ -456,12 +465,13 @@ lemma spa_is_sga :
   assumes spa: "second_price_auction A"
   shows "single_good_auction A"
 proof -
-(*  
-fix N :: participants and b :: bids and x :: allocation and p :: payments
-  assume "((N, b), (x, p)) \<in> A"
-    with spa have "spa_pred N b x p" unfolding second_price_auction_def by blast
-  then have "sga_pred N b x p" using spa_is_sga_pred by blast *)
-  show ?thesis sorry
+  {
+    fix N :: participants and b :: bids and x :: allocation and p :: payments
+    assume "((N, b), (x, p)) \<in> A"
+    with spa have "spa_pred N b x p" unfolding second_price_auction_def rel_sat_sga_pred_def by blast
+    then have "sga_pred N b x p" using spa_is_sga_pred by blast
+  }
+  then show ?thesis unfolding single_good_auction_def rel_sat_sga_pred_def by blast
 qed
 
 lemma spa_allocates_binary :
