@@ -351,6 +351,10 @@ proof -
     and i_pay: "p i = maximum (N - {i}) b"
     and losers_pay: "\<forall> j \<in> N . j \<noteq> i \<longrightarrow> p j = 0"
     using spa_payments by blast
+  (* Note that if "card N = 1" were allowed, there would be no such k.  This seems fine for now,
+     but in the next step it becomes apparent what we need "card N = 1" and thus this k_def for:
+     for obtaining the fact `greater`, which talks about the second-highest bid and assumes 
+     that it is defined. *)
   from card_N and i_range obtain k where k_def: "k \<in> N \<and> k \<noteq> i" 
     by (metis all_not_in_conv card.insert card_empty ex_least_nat_le finite.emptyI insertCI le0 monoid_add_class.add.right_neutral nonempty_iff not_less)
   from k_def and maximum_defined have greater: "maximum (N - {i}) b \<ge> b k" using maximum_except_is_greater_or_equal by blast
@@ -363,10 +367,35 @@ qed
 definition spa_admissible_input :: "participants \<Rightarrow> bids \<Rightarrow> bool"
   where "spa_admissible_input N b \<longleftrightarrow> card N > 1 \<and> bids N b"
 
-(* TODO CL: This lemma also works with admissibility defined as "card N > 0" because
+(* TODO CL: This lemma also works when admissibility is defined as "card N > 0" because
    when we compute the second-highest bid for the payments vector, card N = 0 will 
-   boil down to Max {}, which is fine with Isabelle.  I should learn about explicitly making
-   maximum a partial function. *)
+   boil down to the question of whether Max {} exists.  Isabelle says that it exists; to see this try
+
+lemma max_exists : "\<exists>x . x = Max {}" by blast
+
+  This is an inherent trait of Isabelle's HOL implementation: all functions are total in principle, 
+  just sometimes underspecified, so that you don't know _what_ "Max {}" is.  To see this try
+
+value "Max {}"
+
+  vs.
+
+value "Max {1::nat, 2}"
+
+  Isabelle supports partial functions.  One can either use explicit undefinedness (using the Option datatype with the None and Some constructors),
+  but that would affect and thus bloat large parts of our formalisation.
+
+  In "isabelle doc functions" section 7 there is also something that looks like a more sophisticated support for 
+  partial functions.
+
+  For now, spa_is_left_total doesn't catch the case "card N = 1", but spa_vickrey_payment, which is
+  part of our checks whether the outcome is well-defined, doesn't work for "case N = 1".  For precise
+  details, see the comment in spa_vickrey_payment.
+
+  So, @CR, this is really a good justification for why we need spa_vickrey_payment.  Indeed the whole
+  battery of case checks now covers: "for each admissible input there is (that's left-totality) a 
+  unique (that's right-uniqueness), well-defined (that's spa_vickrey_payment and spa_allocates) outcome."
+*)
 text{* Our relational definition of second price auction is left-total. *}
 lemma spa_is_left_total :
   fixes A :: single_good_auction
