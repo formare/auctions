@@ -25,15 +25,23 @@ PageStart();
   <li><strong>Elaboration</strong>: a link to the elaborated paper version</li>
   <li>For each <strong>formalisation</strong>: its authors.  The formalisations of all theorems can be accessed via the column header showing the name of the respective language.</li>
 </ul>
-<table style="width: 100%">
+<table style="width:100%; table-layout:fixed; word-wrap:break-word">
+  <colgroup>
+    <col style="width:16%"/>
+    <col style="width:16%"/>
+    <col style="width:17%"/>
+    <col style="width:17%"/>
+    <col style="width:17%"/>
+    <col style="width:17%"/>
+  </colgroup> 
   <thead>
     <tr>
-      <th style="width: 16%">Proposition</th>
-      <th style="width: 16%">Elaboration</th>
-      <th style="width: 17%"><a href="casl">CASL</a></th>
-      <th style="width: 17%"><a href="isabelle">Isabelle</a></th>
-      <th style="width: 17%"><a href="mizar">Mizar</a></th>
-      <th style="width: 17%"><a href="theorema">Theorema</a></th>
+      <th>Proposition (<a href="http://scholar.harvard.edu/maskin/publications/unity-auction-theory">Maskin</a>)</th>
+      <th>Elaboration</th>
+      <th><a href="casl">CASL</a></th>
+      <th><a href="isabelle">Isabelle</a></th>
+      <th><a href="mizar">Mizar</a></th>
+      <th><a href="theorema">Theorema</a></th>
     </tr>
   </thead>
   <tbody>
@@ -41,23 +49,23 @@ PageStart();
       <td>1 (Vickrey)</td>
       <td><a href="source/1.pdf">elaboration</a><!-- this paper is not physically in this svn, but uploaded via https://codex.cs.bham.ac.uk/svn/mmk/KLR/auction-theory/Makefile -->
         (<a href="http://www.socscistaff.bham.ac.uk/rowat/">Rowat</a>/<a href="http://www.cs.bham.ac.uk/~mmk/">Kerber</a>/<a href="http://www.cs.bham.ac.uk/~langec/">Lange</a>)</td>
-      <td>Lange/<a href="http://www.informatik.uni-bremen.de/~till/">Mossakowski</a></td>
-      <td>Lange/<a href="http://www.lri.fr/~wenzel/">Wenzel</a>/Kerber</td>
+      <td>Lange/<wbr/><a href="http://www.informatik.uni-bremen.de/~till/">Mossakowski</a></td>
+      <td>Lange/<wbr/><a href="http://www.lri.fr/~wenzel/">Wenzel</a>/<wbr/>Kerber</td>
       <td><a href="http://uniroma1.academia.edu/MarcoCaminati">Caminati</a></td>
       <td><a href="http://www.risc.jku.at/people/wwindste/">Windsteiger</a></td>
     </tr>
-    <tr><td>2 (Green/Laffont/Holmstr&ouml;m/Maskin)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>3 (Green/Laffont/Maskin)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>4 (d'Aspremont/G&eacute;rard-Varet)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>5 (Laffont/Maskin/Myerson/Satterthwaite)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>6 (Vickrey/Myerson/Riley/Samuelson)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>7 (Myerson/Riley/Samuelson)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>2 (Green/<wbr/>Laffont/<wbr/>Holmstr&ouml;m/<wbr/>Maskin)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>3 (Green/<wbr/>Laffont/<wbr/>Maskin)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>4 (d'Aspremont/<wbr/>G&eacute;rard-Varet)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>5 (Laffont/<wbr/>Maskin/<wbr/>Myerson/<wbr/>Satterthwaite)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>6 (Vickrey/<wbr/>Myerson/<wbr/>Riley/<wbr/>Samuelson)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>7 (Myerson/<wbr/>Riley/<wbr/>Samuelson)</td><td></td><td></td><td></td><td></td><td></td></tr>
     <tr><td>8 (Vickrey)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>9 (Vickrey/Riley/Samuelson/Myerson)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>10 (Riley/Samuelson/Myerson)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>11 (Holt/Maskin/Riley/Matthews)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>12 (Maskin/Jehiel/Moldovanu)</td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>13 (Milgrom/Weber)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>9 (Vickrey/<wbr/>Riley/<wbr/>Samuelson/<wbr/>Myerson)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>10 (Riley/<wbr/>Samuelson/<wbr/>Myerson)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>11 (Holt/<wbr/>Maskin/<wbr/>Riley/<wbr/>Matthews)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>12 (Maskin/<wbr/>Jehiel/<wbr/>Moldovanu)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>13 (Milgrom/<wbr/>Weber)</td><td></td><td></td><td></td><td></td><td></td></tr>
   </tbody>
 </table>
 <p>Unless otherwise stated, the sources of the Auction Theory Toolbox are dually licenced under the <a href="LICENSE-ISC">ISC License</a> and the <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 License</a>.  With a dual licence for source code and creative works, we follow the model of the <a href="http://mizar.org/library/">Mizar Mathematical Library</a>, as suggested by <a href="http://arxiv.org/abs/1107.3212">Alama, Kohlhase, Naumowicz, Rudnicki, Urban and Mamane</a>.</p>
