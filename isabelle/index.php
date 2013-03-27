@@ -15,7 +15,7 @@ PageStart();
 <ul>
   <li><a href="isabelle.zip">all-in-one ZIP archive for download</a></li>
   <li>*.thy: Isabelle formalisation:<ul>
-      <li><a href="Auction/Vickrey_Short.thy">Vickrey_Short.thy</a>: a recent all-in-one version<br/> (the other, per-theory files are older at the time of this writing)</li>
+      <li><a href="Auction/Vickrey_Short.thy">Vickrey_Short.thy</a>: a recent all-in-one version by Makarius Wenzel<br/> (the other, per-theory files are older at the time of this writing)</li>
       <li><a href="Auction/Vectors.thy">Vectors.thy</a>: vectors, implemented as functions</li>
       <li><a href="Auction/Maximum.thy">Maximum.thy</a>: maximum components of vectors, and their properties</li>
       <li><a href="Auction/MaximumTest.thy">MaximumTest.thy</a>: some examples for testing Maximum</li>
