@@ -1,3 +1,6 @@
 dict/vickrey.voc
+text/Makefile
 text/vickrey.miz
 text/vickrey-proofless.miz
+tools/onlycode.sh
+tools/proofcut.sh

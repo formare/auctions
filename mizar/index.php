@@ -18,7 +18,9 @@ PageStart();
       <li><a href="dict/vickrey.voc">Vocabulary</a> (names of defined objects)</li>
       <li><a href="text/vickrey.miz">Formalisation</a> (<a href="text/vickrey-proofless.miz">version stripped of proofs</a>)</li>
   </ul></li>
-  <li></li>
+  <li>Utility scripts:<ul>
+      <li><a href="tools/proofcut.sh">proofcut</a> strips proofs for presentation</li>
+      <li><a href="tools/onlycode.sh">onlycode</a> removes all non-code for statistical analysis (e.g. the <a href="http://www.cs.ru.nl/~freek/factor/">de Bruijn factor</a>)</li></ul></li>
 </ul>
 <h2>How to run</h2>
 <ol>

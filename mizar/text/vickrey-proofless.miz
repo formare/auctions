@@ -1,122 +1,8 @@
-:: Vickrey's theorem on efficiency and equilibrium in second price auctions
-::  by Marco B. Caminati
-:: February 2013
-:: Copyright (c) 2013 by Marco B. Caminati
-:: This code can be distributed under the GNU General Public Licence
-:: version 3.0 or later, or the Creative Commons Attribution-ShareAlike
-:: License version 3.0 or later, subject to the binding interpretation
-:: detailed in file COPYING.interpretation.
-:: See http://www.gnu.org/licenses/gpl.html and
-:: http://creativecommons.org/licenses/by-sa/3.0/.
-:: Successfully and fully verified under 
-:: MML ver. 5.8.1171 for Mizar ver. 8.1.01 (linux i386)
-
-
-begin :::preliminaries
-:::the length of this section testifies for the effort put into
-:::inducing the proven facts to the most common, low-level and desirably
-:::supported entities, rather than proving things about new and particular
-:::mathematical objects
-
-definition func two equals 2; coherence; end;
-registration 
-cluster TRUE -> non empty; coherence; 
-identify BOOLEAN with two; compatibility by CARD_1:50;
-identify two with BOOLEAN; compatibility;
-cluster non natural for number;
-existence proof set n=the non zero Nat; take -n; thus thesis; end;
-cluster boolean for non empty set; 
-existence proof take TRUE; thus thesis; end;
-cluster right_end non empty natural-membered for Subset of NAT;
-existence
-let x be natural number; cluster {x}\NAT -> empty;
-coherence by ORDINAL1:def 12, FOMODEL0:29; 
-end;
-
-reserve x,y,z,X,Y,i for set, P,Q,R for Relation, f,g for Function, 
-v for non zero Nat;
-
-Lm9c: y<>{} implies (x=z iff ([:X,{{}}:]+*[:{z},{y}:]).x=y)
-
-Lm9b: y<>{} implies (x=z iff ([:X,{{}}:]+*[:{z},{y}:]).x<>{})
-
-Lm15: rng(P +*1 Q) c= rng P \/ rng Q & dom(P +*1 Q)=dom P \/ dom Q
-
-Lm13: f.x <> {} implies f.x in rng f
-
-Lm17: f.x in rng f \/ {{}}
-
-Lm14: f is 2-valued implies f.x is boolean
-
-Lm12: for X being right_end Subset of NAT holds max X=union X
-
-registration
-let X be non empty set, x be Element of X;
-cluster {x}\X -> empty; coherence by FOMODEL0:29;
-end;
-
-registration let X,Y; let y be Subset of Y;
-cluster X\Y \ (X\y) -> empty; 
-coherence proof X null X is Subset of X; hence thesis; end;
-end;
-
-registration let X be non trivial set, x be trivial set;
-cluster X\x -> non empty; coherence
-proof X\x={} implies X c= x by FOMODEL0:29; hence thesis; end;
-end;
-
-registration let x be boolean non empty set; 
-cluster x \+\ 1 -> empty;
-coherence proof x=1 by XBOOLEAN:def 3; hence thesis by FOMODEL0:29; end;
-end;
-
-registration 
-let x be non natural number;
-cluster {x}\NAT -> non empty; coherence 
-proof not x in NAT; hence thesis by FOMODEL0:29; end;
-end;
-
-registration let x; 
-cluster union {x} \+\ x -> empty;
-coherence by ZFMISC_1:25, FOMODEL0:29; let f be NAT-valued Function;
-cluster f.x -> natural for number;
-coherence
-end;
-
-registration
-let X,Y; let P be X-valued Relation, Q be Y-valued Relation;
-cluster P +*1 Q -> (X\/Y)-valued for Relation;
-coherence
-end;
-
-registration let P,Q;
-cluster dom (P +*1 Q) \+\ (dom P \/ dom Q) -> empty;
-coherence by Lm15, FOMODEL0:29;
-end;
-
-registration let x; let f be 2-valued Function;
-cluster f.x -> boolean; coherence by Lm14;
-end;
-
-notation let X; synonym natmax X for union X; end; 
-::: to remind that, for a finite subset of NAT, set theoretical union
-::: is equivalent to taking the maximum 
-::: (thanks to von Neumann encoding of ordinals)
-
-
-
-
-
-
-
-
-
-
 begin :::definitions related to second price auctions, and basic facts
 
 definition let R; 
 func topbiddersof R -> Subset of dom R equals R"{natmax rng R};
-coherence by RELAT_1:132; :: R"Y is the preimage of Y under R
+coherence by RELAT_1:132; :::R"Y is the preimage of Y under R
 end;
 
 definition let R; func winnerof R equals 
@@ -127,75 +13,77 @@ dom R \ {winnerof R}; coherence; end;
 definition let R; func priceof R equals natmax rng (R | losersof R); 
 coherence;
 end;
-::: priceof R, defined above, gives the second value, when the bids is
-::: a finite set of natural numbers; the modification below preserves 
-::: its simplicity while  patching the value to zero for bogus cases 
-::: (e.g., non-numerical bids), saving typing-related work.
-::: This works because, by Mizar convention, the types Element of {}
-::: is inhabited by {} alone; and, in turn, 0={}, set theoretically.
-definition let R;::R=bids; no need to require it is a sequence,yet 
-func priceof R -> Element of NAT equals the Element of {priceof R}/\NAT;
+:::priceof R, above, gives the second value, when the bids is a
+:::finite set of natural numbers; the modification below preserves  
+:::its simplicity while  patching the value to zero for bogus cases  
+:::(e.g., non-numerical bids), saving typing-related work. This 
+:::works because, by Mizar convention, the type "Element of {}" is 
+:::inhabited by {} alone; and, in turn, 0={}, set-theoretically.
+definition let R;:::R=bids; no need to require it is a sequence,yet 
+func priceof R -> Element of NAT equals 
+the Element of {priceof R} /\ NAT; ::/\ rng (R|losersof R)
 coherence by ORDINAL1:def 12;
 end;
 
-Lm16: priceof R={} or priceof R=natmax rng (R|losersof R)
+Lm16b: rng (R|losersof R) c= NAT & rng (R|losersof R) is finite 
+implies priceof R = natmax rng (R|losersof R)
+proof
+set L=losersof R, Q=R|L, rQ=rng Q, P1=natmax rQ, P2=priceof R; 
+assume rQ c= NAT & rQ is finite; then reconsider rQ as finite Subset of NAT;
+rQ={} or rQ is right_end Subset of NAT; then 
+P1=0 or (rQ<>{} & P1=sup rQ) by Lm12; then P1 is natural;
+then {P1} \ NAT={}; then 
+reconsider X={P1} as non empty Subset of NAT by FOMODEL0:29;
+X/\NAT=X null NAT; then P2 = the Element of X .= P1 by TARSKI:def 1;
+hence thesis;
+end;
 
-Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) implies 
-winnerof R in topbiddersof R
-
-Lm7: winnerof f in topbiddersof f implies 
-(f.(winnerof f)=union rng f & priceof f c= f.(winnerof f))
+Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) 
+implies winnerof R in topbiddersof R
 
 definition let R;
 func R-pay ->Function equals [:dom R,{0}:]+*[:{winnerof R},{priceof R}:];
-coherence; ::R-pay gives how much each bidder must pay in the end
+coherence; :::R-pay is how much each bidder must pay in the end
 func R-allocations ->Function equals [:dom R,{0}:]+*[:{winnerof R},{1}:];
-coherence; ::how much of the sold asset each bidder gets in the end
+coherence; :::how much of the sold asset each bidder gets in the end
 end;
 
 registration 
 let R; cluster R-allocations -> 2-valued for Function; 
-coherence ::We treat only the case of an indivisible asset
+coherence :::2-valued: we treat only the case of an indivisible asset
 proof R-allocations is BOOLEAN-valued; hence thesis; end;
 let x; cluster R-pay.x -> natural for number; 
-coherence ::The case of integer currency is much simpler to formalize
-end;:::and it's integer in real world; fractional currency'd be overkill 
+coherence :::The case of integer currency is much simpler to formalize
+end;:::fractional currency'd be overkill and not realistic 
 
-
-
-
-
-
-
-
-begin ::: the core theorems
+begin :::the core theorems
 
 Lm3: R-pay.(winnerof R) = priceof R
 
-Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q implies 
-topbiddersof (P +*1 Q)=Q"{natmax rng Q} 
-::: c< is strict set inclusion; thanks to von Neumann encoding 
-::: (see above comments), this translates to <
+Lm0: natmax rng (P | (dom P \ dom Q)) c< natmax rng Q 
+implies topbiddersof (P +*1 Q)=Q"{natmax rng Q} 
+:::c< is strict set inclusion; thanks to von Neumann encoding 
+:::(see above comments), this translates to <
 
-Lm1: natmax rng (P | (dom P\{x})) c< X implies 
-topbiddersof (P +*1 [:{x},{X}:])={x}
+Lm1: {union X}\X={} & natmax rng (P | (dom P\{x})) c< union X  
+implies topbiddersof (P +*1 [:{x},X:])={x}
 
-Lm5: (priceof R<>{} & i=winnerof R & R-pay.i c< y) implies 
-(R +*1 [:{i},{y}:])-pay.i = R-pay.i
+Lm5: R-pay.i c< union Y & rng (R|losersof R) c= NAT & 
+rng (R|losersof R) is finite & i=winnerof R & {union Y}\Y={}
+implies 
+((R +*1 [:{i},Y:])-pay.i = R-pay.i & 
+winnerof (R +*1 [:{i},Y:]) = winnerof R)
 
-Lm4: f is NAT-valued & rng f is finite implies 
-(f+*[:{i},{v}:])-pay.i <= v*((f+*[:{i},{v}:])-allocations.i)
+Lm4: rng R is finite Subset of NAT & 
+Y is non empty Subset of NAT & union Y c= v 
+implies 
+(R +*1 [:{i},Y:])-pay.i <= (R +*1 [:{i},Y:])-allocations.i*v
 
-Lm21: :::Vickrey's theorem, version 1
-f is NAT-valued & rng f is finite & priceof f <> {} implies 
-(v*(f-allocations.i)) - ((f-pay).i) <= 
-v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
+Lm21: :::generalized Vickrey's theorem: 
+::: multiple (distinct) bids per participant and zero-valued bids
+for V being non empty finite Subset of NAT st  
+rng R is finite Subset of NAT & union V = v holds
+R-allocations.i*v - (R-pay.i) <= 
+(R +*1 [:{i},V:])-allocations.i*v - (R +*1 [:{i},V:])-pay.i
 
-Lm20: (rng R c= NAT & rng R is finite & dom R is non trivial) 
-implies priceof R in rng R
-
-Lm22: rng f c= NAT\{0} & rng f is finite & dom f is non trivial   
-implies ::: Vickrey's theorem, version 2
-(v*(f-allocations.i)) - ((f-pay).i) <= 
-v*((f +* [:{i},{v}:])-allocations).i - (f +* [:{i},{v}:])-pay.i
-
+::$EOF
