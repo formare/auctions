@@ -86,8 +86,10 @@ text{* We employ the general definition of an allocation for a divisible single 
   This is to allow for more possibilities of an auction to be not well-defined.
   Also, it is no longer the allocation that we model as a function of the bid, but instead we model
   the \emph{auction} as a relation of bids to a @{text "(allocation \<times> payments)"} outcome. *}
+text_raw{*\snip{allocation_def}{1}{2}{%*}
 definition allocation :: "participants \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation N x \<longleftrightarrow> (\<Sum> i \<in> N . x i) = 1"
+text_raw{*}%endsnip*}
 
 subsection {* Payment *}
 
@@ -111,12 +113,18 @@ definition sga_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation
   where
     "sga_pred N b x p \<longleftrightarrow> bids N b"
 
-text{* We construct the relational version of an auction from the predicate version: *}
+text{* We construct the relational version of an auction from the predicate version: given a 
+  predicate that defines an auction by telling us for all possible arguments whether they 
+  form an (input, outcome) pair according to the auction's definition, we construct a predicate
+  that tells us whether all (input, outcome) pairs in a given relation satisfy that predicate,
+  i.e. whether the given relation is an auction of the desired type. *}
 definition rel_sat_sga_pred ::
   "(participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
   where "rel_sat_sga_pred pred A \<longleftrightarrow> (\<forall> ((N, b), (x, p)) \<in> A . pred N b x p)"
 
-text{* We construct the relational version of an auction from the predicate version: *}
+text{* A variant of @{text rel_sat_sga_pred}: We construct a predicate that tells us whether the
+  given relation comprises all (input, outcome) pairs that satisfy the given auction predicate, 
+  i.e. whether the given relation comprises all possible auctions of the desired type.  *}
 definition rel_all_sga_pred ::
   "(participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
   where "rel_all_sga_pred pred A \<longleftrightarrow> (\<forall> N b x p . ((N, b), (x, p)) \<in> A \<longleftrightarrow> pred N b x p)"
