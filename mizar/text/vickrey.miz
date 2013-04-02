@@ -14,7 +14,11 @@ environ
 
 vocabularies TARSKI, XBOOLE_0, ZFMISC_1, SUBSET_1, NUMBERS, NAT_1, RELAT_1
 , FUNCT_1, XCMPLX_0, ORDINAL1, XXREAL_0, FINSET_1, ARYTM_1 ,CARD_1, FUNCT_4
-,FUNCOP_1 ,FOMODEL0 ,XBOOLEAN ,XXREAL_2 ,MEMBERED ,VICKREY ,MARGREL1, ORDINAL2;
+,FUNCOP_1 ,FOMODEL0 ,XBOOLEAN ,XXREAL_2 ,MEMBERED ,VICKREY ,MARGREL1
+, ORDINAL2
+, ARYTM_3 :::<
+, INT_1
+;
  
 constructors TARSKI
 ,NAT_1
@@ -36,6 +40,7 @@ constructors TARSKI
 ,FOMODEL0 
 ,XREAL_0 :::to access XREAL_1:9
 ,MARGREL1
+,INT_1
 ;
 
 notations TARSKI :::notations directive is order-sensitive!
@@ -58,7 +63,8 @@ notations TARSKI :::notations directive is order-sensitive!
 ,XBOOLEAN
 ,XXREAL_2
 ,MEMBERED
-,MARGREL1 
+,MARGREL1
+,INT_1
 ;
 
 registrations FOMODEL0
@@ -83,6 +89,7 @@ registrations FOMODEL0
 ,XXREAL_3
 ,INT_2 :::non natural
 ,CARD_1 :::natural -> finite
+,INT_1
 ;
 
 equalities FOMODEL0 :::+*1
@@ -567,6 +574,48 @@ end;
 end;
 ::}
 
+Lm18: for V being non empty finite Subset of NAT, 
+LHS, RHS being Integer st rng R is finite Subset of NAT & 
+union V c= v & LHS=R-allocations.i*v - (R-pay.i) &
+RHS=(R +*1 [:{i},V:])-allocations.i*v - (R +*1 [:{i},V:])-pay.i
+holds
+(LHS < 0 implies LHS < RHS) & (LHS=0 implies LHS <= RHS) 
+& (LHS > 0 & v c= union V implies LHS=RHS)
+::{
+proof
+let V be non empty finite Subset of NAT; set x=R-allocations, p=R-pay, 
+gg=[:{i},V:], Ri=R +*1 gg; reconsider g=gg as NAT-valued Relation;
+let LHS, RHS be Integer; assume
+B11: rng R is finite Subset of NAT; then rng Ri\(rng R \/ rng g)={} 
+& rng R \/ rng g \ NAT={}; then rng Ri c= rng R \/ rng g & 
+rng R \/ rng g c= NAT by FOMODEL0:29; then reconsider Ri=R +*1 g as 
+NAT-valued Relation by XBOOLE_1:1, RELAT_1:def 19; set pi=Ri-pay, 
+xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R, L=losersof R, 
+RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, Pi=priceof Ri;
+B10: rng (R|L) \ rng R = {} & xi.wi=1 by Lm9c; assume 
+B12: union V c= v; then pi.i-(pi.i)<=RH & rng (R|L) c= rng R 
+by XREAL_1:9, Lm4, FOMODEL0:29, B10, B11; then 
+B0: 0<=RH & rng (R|L) is finite by B11; rng (R|L)\rng R={}; then 
+rng (R|L) c= rng R by FOMODEL0:29; then
+B9: rng (R|L) c= NAT & rng (R|L) is finite 
+& {union V}\V={} by B11, XBOOLE_1:1; assume LHS=x.i*v - p.i & 
+RHS=(R +*1 gg)-allocations.i*v - (R +*1 gg)-pay.i; then 
+B13: LHS=LH & RHS=RH; hence LHS < 0 implies LHS < RHS by B0;
+thus LHS=0 implies LHS <= RHS by B0, B13;
+assume LHS > 0; then
+C1: LH > 0 by B13; then x.i <> {}; then x.i \+\ 1={}; then 
+C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then 
+v-p.i > (p.i)-(p.i) & x.i<>{} by C1; then v > p.i by XREAL_1:9; 
+then Segm p.i c= Segm v & p.i <> v by NAT_1:39; then 
+C3: p.i c< v & i=w by C0, Lm9c, XBOOLE_0:def 8; assume v c= union V; 
+then v = union V by B12, XBOOLE_0:def 10; then 
+pi.i=p.i & w=wi by Lm5, B9
+:: , B12
+, C3; then pi.i=p.i & i=wi by C3; then 
+pi.i=p.i & xi.i=1 by B10; then LH=RH by C0; hence thesis by B13;
+end;
+::}
+
 Lm21: :::generalized Vickrey's theorem: 
 ::: multiple (distinct) bids per participant and zero-valued bids
 for V being non empty finite Subset of NAT st  
@@ -576,33 +625,12 @@ R-allocations.i*v - (R-pay.i) <=
 ::{
 proof
 let V be non empty finite Subset of NAT; set x=R-allocations, 
-p=R-pay, g=[:{i},V:], Ri=R +*1 g; reconsider g as NAT-valued Relation; 
-assume
-B11: rng R is finite Subset of NAT; then
-rng Ri \ (rng R \/ rng g)={} & rng R \/ rng g \ NAT={}; then
-rng Ri c= rng R \/ rng g & rng R \/ rng g c= NAT by FOMODEL0:29; then
-reconsider Ri=R +*1 g as NAT-valued Relation by XBOOLE_1:1, RELAT_1:def 19;
-set pi=Ri-pay, xi=Ri-allocations, LH=v*(x.i)-(p.i), P=priceof R, 
-L=losersof R, RH=v*(xi.i) - pi.i, w=winnerof R, wi=winnerof Ri, 
-Pi=priceof Ri;
-B10: rng (R|L) \ rng R = {} & xi.wi=1 by Lm9c; assume 
-B12: union V = v; then pi.i-(pi.i)<=RH & rng (R|L) c= rng R 
-by XREAL_1:9, Lm4, FOMODEL0:29, B10, B11; then 
-B0: 0<=RH & rng (R|L) is finite by B11; rng (R|L)\rng R={}; then 
-rng (R|L) c= rng R by FOMODEL0:29; then
-B9: rng (R|L) c= NAT & rng (R|L) is finite 
-& {union V}\V={} by B11, XBOOLE_1:1;
-per cases;
-suppose LH <= 0; then LH <= 0 & RH >= 0 by B0; hence thesis; end;
-suppose 
-C1: LH > 0; then x.i <> {}; then x.i \+\ 1={}; then 
-C0: x.i=1 by FOMODEL0:29; then LH=v-(p.i); then 
-v-p.i > (p.i)-(p.i) & x.i<>{} by C1; then v > p.i by XREAL_1:9; 
-then Segm p.i c= Segm v & p.i <> v by NAT_1:39; then 
-C3: p.i c< v & i=w by C0, Lm9c, XBOOLE_0:def 8; then pi.i=p.i & w=wi 
-by Lm5, B9, B12; then pi.i=p.i & i=wi by C3; then 
-pi.i=p.i & xi.i=1 by B10; then LH=RH by C0; hence thesis;
-end;
+p=R-pay, g=[:{i},V:], Ri=R +*1 g, UV=union V; reconsider 
+LH=x.i*v - p.i, RH=Ri-allocations.i*v - (Ri-pay.i) as Integer; assume 
+B0: rng R is finite Subset of NAT; then reconsider r=rng R as 
+finite Subset of NAT; assume UV = v; then UV c= v & v c= UV; then  
+B1: (LH < 0 implies LH <= RH) & (LH = 0 implies LH <= RH) 
+& (LH > 0 implies LH <= RH) by Lm18, B0; hence thesis;
 end;
 ::}
 
