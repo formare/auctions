@@ -30,11 +30,7 @@
 \newcommand{\lnote}[1]{\reversemarginpar\query{#1}\normalmarginpar}
 \newcommand{\alter}[3]{{#1}_{#2}^{#3}}
 \newcommand{\me}{\Name{}~\Surname{}}
-\newcommand{\E}{Erd\H{o}s}
-\newcommand{\wwwQuine}{http://sourceforge.net/projects/quinessence/}
-\newcommand{\wwwSpline}{http://sourceforge.net/projects/boxspline2d/}
-\newcommand{\wwwSeminarBonn}{http://www.naproche.net/inc/seminar/seminar_2011_SS.php}
-\newcommand{\wwwPrize}{http://mizar.uwb.edu.pl/forum/archive/1112/msg00002.html}
+\newcommand{\I}{Isabelle}
 \newcommand{\M}{Mizar}
 \newcommand{\Phdtitle}{A simplified framework for first-order languages and its formalization in \M{}}
 \newcommand{\Name}{Marco~B.}
@@ -78,6 +74,7 @@
 \DeclareMathOperator{\dom}{dom}
 \urldef{\WwwKernel}\url{http://en.wikipedia.org/wiki/Equivalence_class#Invariants}
 \bibliography{colin}
+\bibliography{mbc}
 
 
 
@@ -93,7 +90,10 @@
 
 Our purpose is the formalization of \cite[Proposition~2]{mas-04}, whose proof's wordiness hide some substantial difficulties when pouring it into formal symbols.
 A major one is that, after showing the independence of a function $t_i^L$ on the $i$-th component of a vector $b$, it is inferred that a function $ t_i $ depending only on the remaining components can be introduced and used instead.
-Besides the minor problem of defining how the remaining components can be extracted, the formal way to do so is quotientation by a suitable equivalence relation.
+Besides the minor problem of defining how the remaining components can be extracted, the formal way to do so is quotientation by a suitable equivalence relation.%
+\footnote{In \M{}, the corresponding gear is already available. 
+With respect to \I{}, maybe \cite{slotosch1997higher} will give hints.
+}%
 A related problem is how the thesis is spelled out: $p_i$ is equated to a branched function whose side conditions read `if buyer $i$ wins' and `if buyer $i$ loses'.
 How to render that? Luckily, thanks to the quotientation approach, a natural way will show up. 
 

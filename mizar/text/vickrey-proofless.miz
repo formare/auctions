@@ -27,16 +27,6 @@ end;
 
 Lm16b: rng (R|losersof R) c= NAT & rng (R|losersof R) is finite 
 implies priceof R = natmax rng (R|losersof R)
-proof
-set L=losersof R, Q=R|L, rQ=rng Q, P1=natmax rQ, P2=priceof R; 
-assume rQ c= NAT & rQ is finite; then reconsider rQ as finite Subset of NAT;
-rQ={} or rQ is right_end Subset of NAT; then 
-P1=0 or (rQ<>{} & P1=sup rQ) by Lm12; then P1 is natural;
-then {P1} \ NAT={}; then 
-reconsider X={P1} as non empty Subset of NAT by FOMODEL0:29;
-X/\NAT=X null NAT; then P2 = the Element of X .= P1 by TARSKI:def 1;
-hence thesis;
-end;
 
 Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) 
 implies winnerof R in topbiddersof R
@@ -78,6 +68,14 @@ Lm4: rng R is finite Subset of NAT &
 Y is non empty Subset of NAT & union Y c= v 
 implies 
 (R +*1 [:{i},Y:])-pay.i <= (R +*1 [:{i},Y:])-allocations.i*v
+
+Lm18: for V being non empty finite Subset of NAT, 
+LHS, RHS being Integer st rng R is finite Subset of NAT & 
+union V c= v & LHS=R-allocations.i*v - (R-pay.i) &
+RHS=(R +*1 [:{i},V:])-allocations.i*v - (R +*1 [:{i},V:])-pay.i
+holds
+(LHS < 0 implies LHS < RHS) & (LHS=0 implies LHS <= RHS) 
+& (LHS > 0 & v c= union V implies LHS=RHS)
 
 Lm21: :::generalized Vickrey's theorem: 
 ::: multiple (distinct) bids per participant and zero-valued bids

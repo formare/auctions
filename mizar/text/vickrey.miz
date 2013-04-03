@@ -389,6 +389,7 @@ end;
 
 Lm16b: rng (R|losersof R) c= NAT & rng (R|losersof R) is finite 
 implies priceof R = natmax rng (R|losersof R)
+::{
 proof
 set L=losersof R, Q=R|L, rQ=rng Q, P1=natmax rQ, P2=priceof R; 
 assume rQ c= NAT & rQ is finite; then reconsider rQ as finite Subset of NAT;
@@ -399,6 +400,7 @@ reconsider X={P1} as non empty Subset of NAT by FOMODEL0:29;
 X/\NAT=X null NAT; then P2 = the Element of X .= P1 by TARSKI:def 1;
 hence thesis;
 end;
+::}
 
 Lm8: (rng R<>{} & rng R c= NAT & rng R is finite) 
 implies winnerof R in topbiddersof R
