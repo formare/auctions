@@ -1,12 +1,14 @@
 <?php
 require_once($_SERVER['DOCUMENT_ROOT'] . '/sys/includes/wwwlib.php'); 
+$formare_root = '../../';
+require_once($formare_root . 'macros.php');
 
 $title = 'Auction Theory Toolbox (ATT)';
 
 SetHeaderTitle($title);
 SetPageTitle($title);
 SetMaintainer('Christoph Lange', 'c.lange@cs.bham.ac.uk');
-AddStylesheet('../../formare.css');
+AddStylesheet($formare_root . 'formare.css');
 
 HTMLHeader();
 PageStart();
@@ -69,6 +71,7 @@ PageStart();
   </tbody>
 </table>
 <p>Unless otherwise stated, the sources of the Auction Theory Toolbox are dually licenced under the <a href="LICENSE-ISC">ISC License</a> and the <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 License</a>.  With a dual licence for source code and creative works, we follow the model of the <a href="http://mizar.org/library/">Mizar Mathematical Library</a>, as suggested by <a href="http://arxiv.org/abs/1107.3212">Alama, Kohlhase, Naumowicz, Rudnicki, Urban and Mamane</a>.</p>
+<p style="text-align:right; font-style:italic"><? echo $timestamp ?></p>
 <?php
 PageEnd();
 HTMLFooter();

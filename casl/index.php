@@ -1,12 +1,14 @@
 <?php
 require_once($_SERVER['DOCUMENT_ROOT'] . '/sys/includes/wwwlib.php'); 
+$formare_root = '../../../';
+require_once($formare_root . 'macros.php');
 
 $title = 'Auction Theory Toolbox (ATT) – CASL';
 
 SetHeaderTitle($title);
 SetPageTitle($title);
 SetMaintainer('Christoph Lange', 'c.lange@cs.bham.ac.uk');
-AddStylesheet('../../../formare.css');
+AddStylesheet($formare_root . 'formare.css');
 
 HTMLHeader();
 PageStart();
@@ -51,6 +53,7 @@ PageStart();
   <li>Running <code>hets -g Vickrey.casl</code> displays the development graph GUI.  In this graph, you can right-click on any theory node with open proof goals (displayed in red) and try to prove them.</li>
   <li>Some theorems cannot be proved in one step.  For proving them, we provide scripts, one per theorem.  You can run them with <code>hets -I &lt; script.hpf</code>.</li>
 </ol>
+<p style="text-align:right; font-style:italic"><? echo $timestamp ?></p>
 <?php
 PageEnd();
 HTMLFooter();

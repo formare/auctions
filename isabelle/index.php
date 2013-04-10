@@ -1,12 +1,14 @@
 <?php
 require_once($_SERVER['DOCUMENT_ROOT'] . '/sys/includes/wwwlib.php'); 
+$formare_root = '../../../';
+require_once($formare_root . 'macros.php');
 
 $title = 'Auction Theory Toolbox – Isabelle';
 
 SetHeaderTitle($title);
 SetPageTitle($title);
 SetMaintainer('Christoph Lange', 'c.lange@cs.bham.ac.uk');
-AddStylesheet('../../../formare.css');
+AddStylesheet($formare_root . 'formare.css');
 
 HTMLHeader();
 PageStart();
@@ -36,6 +38,7 @@ PageStart();
   <li>Interactive mode: run <code>isabelle jedit Auction/Vickrey_Short.thy</code> (or <code>isabelle jedit Auction/Vickrey.thy</code>, and agree to loading all of its dependencies).</li>
   <li>Batch mode: run <code>isabelle build -D Auction</code> and open the generated <code>Auction/output/document/root.pdf</code></li>
 </ol>
+<p style="text-align:right; font-style:italic"><? echo $timestamp ?></p>
 <?php
 PageEnd();
 HTMLFooter();
