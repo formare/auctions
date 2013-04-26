@@ -522,16 +522,6 @@ end
 spec Vickrey =
 SecondPriceAuction then
 SingleGoodAuctionProperties then
-    forall v: Valuations;
-           n: Participants;
-           x: Allocation;
-           p: Payments
-    . secondPriceAuction(n, x, p) /\
-      length(v) = n
-      => equilibriumWeaklyDominantStrategy(n, v, v %[ i.e. b ]%, x, p) %(vickreyA)% %implied
-    . secondPriceAuction(n, x, p) /\
-      length(v) = n
-      => efficient(n, v, v %[ i.e. b ]%, x) %(vickreyB)% %implied
     %[ proved with
        * eprover (same as Isabelle and really nothing else; requires manual minimisation)
        does not work with
@@ -769,3 +759,16 @@ SingleGoodAuctionProperties then
     %[  => %\[ I think this is not necessarily the case, if iSticksWithValuation[i] is not a maximum component.  This is 2a without the assumption that i lost with a truthful bid (which means that iSticksWithValuation[i] is not necessarily a maximum component). ]\%]%
     %[  payoff(v, whateverBid, x, p, i) = iSticksWithValuation[i] - maximumExcept(iSticksWithValuation, i) %(test_equal_payoff_when_non_truthful_wins)% %implied]%
 end
+
+spec Vickrey_proof =
+Vickrey then
+    forall v: Valuations;
+           n: Participants;
+           x: Allocation;
+           p: Payments
+    . secondPriceAuction(n, x, p) /\
+      length(v) = n
+      => equilibriumWeaklyDominantStrategy(n, v, v %[ i.e. b ]%, x, p) %(vickreyA)% %implied
+    . secondPriceAuction(n, x, p) /\
+      length(v) = n
+      => efficient(n, v, v %[ i.e. b ]%, x) %(vickreyB)% %implied

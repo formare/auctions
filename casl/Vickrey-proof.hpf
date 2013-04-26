@@ -1,0 +1,28 @@
+#!hets -I
+
+# $Id: Vickrey-Vickrey-vickreyA.hpf 840 2013-03-11 22:19:46Z till $
+# 
+# Auction Theory Toolbox
+# 
+# Authors:
+# * Christoph Lange <math.semantic.web@gmail.com>
+# * Till Mossakowski <till.mossakowski@dfki.de>
+# 
+# Dually licenced under
+# * Creative Commons Attribution (CC-BY) 3.0
+# * ISC License (1-clause BSD License)
+# See LICENSE file for details
+# (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+
+# Proves Vickrey/Vickrey#vickreyA
+
+use Vickrey.casl
+dg basic Vickrey_proof
+
+# Actual goal
+set goals vickreyA
+prove
+
+set goals vickreyB
+set time-limit 200
+prove

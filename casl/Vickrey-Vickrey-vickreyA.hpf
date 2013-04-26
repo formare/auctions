@@ -14,7 +14,7 @@
 # See LICENSE file for details
 # (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 
-# Proves Vickrey/Vickrey#vickreyA
+# Proves preparation for Vickrey/Vickrey#vickreyA
 
 use Vickrey.casl
 dg basic Vickrey
@@ -68,10 +68,3 @@ set axioms i_sticks_with_valuation_def vickreyA_pre03
 set goals vickreyA_pre04
 prove
 
-# Actual goal
-set goals vickreyA
-prove
-
-set goals vickreyB
-set time-limit 200
-prove
