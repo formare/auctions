@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup ./hets -I $1.hpf > $1.out &
