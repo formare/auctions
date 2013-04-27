@@ -316,14 +316,6 @@ winner : Index; x : Allocation
 . allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
   /\ n = length(v)
   => payoff(v, b, x, p, winner)
-     = payoff(v [ winner ], True, payment(p, b, winner))
-                                  %(test_spa_winner_payoff_0step)% %implied
-
-forall b : Bids; n : Length; p : Payments; v : Bids;
-winner : Index; x : Allocation
-. allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
-  /\ n = length(v)
-  => payoff(v, b, x, p, winner)
      = v [ winner ] - maximumExcept(b, winner)
                                   %(test_spa_winner_payoff_3step)% %implied
 
