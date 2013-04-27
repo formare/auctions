@@ -21,12 +21,15 @@ dg basic Lemmas2
 
 set goals vickreyA_pre01
 #set axioms 
+set time-limit 10000
 prove
 
 set goals vickreyA_pre03
 #set axioms 
+set time-limit 10000
 prove
 
 set goals vickreyA_pre04
 #set axioms 
+set time-limit 10000
 prove

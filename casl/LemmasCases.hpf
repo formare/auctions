@@ -21,13 +21,16 @@ dg basic Lemmas_Cases
 
 set goals case_1a_02
 #set axioms 
+set time-limit 10000
 prove
 
 set goals case_1b_01
+set time-limit 10000
 #set axioms 
 prove
 
 set goals case_2a_03
+set time-limit 10000
 #set axioms 
 prove
 
