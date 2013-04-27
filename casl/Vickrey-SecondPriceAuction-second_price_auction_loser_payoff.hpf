@@ -21,6 +21,7 @@ dg basic SecondPriceAuction
 
 # Preparation
 set goals test_spa_loser_payoff_0step
+set axioms not_allocated_implies_spa_loser_cons second_price_auction_loser_def payoff_vector_def
 prover SPASS
 prove
 

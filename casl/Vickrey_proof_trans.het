@@ -1,0 +1,442 @@
+
+logic CASL.SuleCFOL=
+
+spec Vickrey =
+sorts Allocation, Bids, Boolean, Index, Nat, Length, Payments, Real
+sorts Index, Length < Nat;
+op 0 : Nat
+op 0 : Real
+op 1 : Nat
+op 1 : Real
+op False : Boolean
+op True : Boolean
+op __*__ : Real * Real -> Real
+op __-__ : Real * Real -> Real
+op __[__:=__] : Bids * Index * Real -> Bids
+op __[__<-__] : Bids * Index * Bids -> Bids
+op __[__] : Bids * Index -> Real
+op length : Bids -> Length
+op maximum : Bids -> Real
+op maximumExcept : Bids * Index -> Real
+op payment : Payments * Bids * Index -> Real
+op payoff : Real * Boolean * Real -> Real
+op payoff : Bids * Bids * Allocation * Payments * Index
+            -> Real
+op secondPriceAuctionWinnersPayment : Bids * Index -> Real
+pred __<__ : Real * Real
+pred __<=__ : Real * Real
+pred __>__ : Nat * Nat
+pred __>__ : Real * Real
+pred __>=__ : Nat * Nat
+pred __>=__ : Real * Real
+pred allocated : Allocation * Bids * Index
+pred allocatedImpliesSpaWinnerAnt : Length * Bids *
+                                    Allocation * Payments * Index
+pred allocatedImpliesSpaWinnerCons : Length * Bids *
+                                     Allocation * Payments * Index
+pred allocation : Bids * Allocation
+pred efficient : Length * Bids * Bids * Allocation
+pred equilibriumWeaklyDominantStrategy : Length *
+                                         Bids * Bids * Allocation *
+                                         Payments
+pred inArgMaxSet : Bids * Index
+pred inRange : Length * Index
+pred notAllocatedImpliesSpaLoserCons : Length * Bids *
+                                       Allocation * Payments * Index
+pred payments : Bids * Payments
+pred secondPriceAuction : Length * Allocation * Payments
+pred secondPriceAuctionLoser : Length * Bids * Allocation *
+                               Payments * Index
+pred secondPriceAuctionWinner : Length * Bids * Allocation *
+                                Payments * Index
+pred spaWithTruthfulOrOtherBid : Length * Allocation *
+                                 Payments * Bids * Bids * Index *
+                                 Bids
+
+
+forall n : Length; v : Bids; b : Bids; x : Allocation;
+p : Payments
+. equilibriumWeaklyDominantStrategy(n, v, b, x, p)
+  <=> length(v) = n /\ length(b) = n /\ allocation(b, x)
+      /\ payments(b, p)
+      /\ forall i : Index
+         . inRange(n, i)
+           => forall whateverBid : Bids
+              . not whateverBid [ i ] = b [ i ]
+                => exists b : Bids
+                   . b = whateverBid [ i <- v ]
+                     /\ payoff(v, b, x, p, i) >= payoff(v, whateverBid, x, p, i)
+                      %(equilibrium_weakly_dominant_strategy_def)%
+
+forall n : Length; x : Allocation; p : Payments
+. secondPriceAuction(n, x, p)
+  <=> n > 1
+      /\ forall b : Bids
+         . length(b) = n
+           => allocation(b, x) /\ payments(b, p)
+              /\ exists i : Index
+                 . inRange(n, i) /\ secondPriceAuctionWinner(n, b, x, p, i)
+                   /\ forall j : Index
+                      . inRange(n, j) /\ not j = i
+                        => secondPriceAuctionLoser(n, b, x, p, j)
+                                      %(second_price_auction_def)%
+
+
+
+
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  <=> secondPriceAuction(n, x, p) /\ length(v) = n
+      /\ length(whateverBid) = n /\ inRange(n, i)
+      /\ not whateverBid [ i ] = v [ i ]
+
+      /\ iSticksWithValuation = whateverBid [ i <- v ]
+                                   %(i_sticks_with_valuation_def)%
+
+forall v : Bids; b : Bids; x : Allocation; p : Payments;
+i : Index
+. allocation(b, x) /\ payments(b, p) /\ length(b) = length(v)
+  => payoff(v, b, x, p, i)
+     = payoff(v [ i ], (True when allocated(x, b, i) else False),
+              payment(p, b, i))              %(payoff_vector_def)%
+
+forall v, p : Real; x : Boolean
+. payoff(v, x, p) = (v * (1 when x = True else 0))
+ - p
+                                                    %(payoff_def)%
+
+forall b : Bids; x : Allocation
+. allocation(b, x)
+  => exists n : Length
+     . n = length(b)
+       /\ exists! k : Index . inRange(n, k) /\ allocated(x, b, k)
+                                                %(allocation_def)%
+
+
+forall n : Length; x : Allocation; p : Payments; b : Bids;
+i : Index
+. secondPriceAuctionWinner(n, b, x, p, i)
+  <=> inRange(n, i) /\ inArgMaxSet(b, i) /\ allocated(x, b, i)
+      /\ payment(p, b, i) = secondPriceAuctionWinnersPayment(b, i)
+                               %(second_price_auction_winner_def)%
+
+forall n : Length; x : Allocation; p : Payments; b : Bids;
+i : Index
+. secondPriceAuctionLoser(n, b, x, p, i)
+  <=> inRange(n, i) /\ not allocated(x, b, i) /\ payment(p, b, i) = 0
+                                %(second_price_auction_loser_def)%
+
+
+
+
+forall b : Bids; winner : Index
+. secondPriceAuctionWinnersPayment(b, winner)
+  = maximumExcept(b, winner)
+                      %(second_price_auction_winners_payment_def)%
+
+
+
+
+. not True = False %(ga_disjoint_True_False)%
+
+%% free
+generated type Boolean ::= False | True   %(ga_generated_Boolean)%
+
+forall x, y : Real . x < y <=> x <= y /\ not x = y %(lt_def)%
+
+forall x, y : Real . x > y <=> not x <= y %(gt_def)%
+
+forall x, y : Real . x >= y <=> y <= x %(ge_def)%
+
+forall x : Real . x * 1 = x %(1_mult)%
+
+forall x : Real . x * 0 = 0 %(0_mult)%
+
+forall x : Real . x - 0 = x %(minus_0)%
+
+forall x, y : Real . x >= y => x - y >= 0 %(x_ge_y)%
+
+forall x : Real . exists r : Real . not r = x %(exists_different)%
+
+forall x, y : Real . x <= y \/ y <= x %(dichotomy_TotalOrder)%
+
+forall x, y : Real . x = y if x <= y /\ y <= x %(antisym)%
+
+forall x, y, z : Real . x <= z if x <= y /\ y <= z %(trans)%
+
+forall x : Real . x <= x %(refl)%
+
+forall v, dev : Bids; alt : Real; i : Index
+. dev = v [ i := alt ]
+  => exists n : Length
+     . length(v) = n /\ inRange(n, i) /\ length(dev) = n
+                                               %(deviation_range)%
+
+forall v : Bids; alt : Real; i : Index
+. v [ i := alt ] [ i ] = alt               %(deviation_def_index)%
+
+forall v : Bids; alt : Real; i, j : Index
+. not j = i => v [ i := alt ] [ j ] = v [ j ]
+                                       %(deviation_def_otherwise)%
+
+forall v, altV : Bids; i : Index
+. length(v [ i <- altV ]) = length(altV)   %(deviation_vec_range)%
+
+forall v, altV : Bids; i : Index
+. v [ i <- altV ] = v [ i := altV [ i ] ]    %(deviation_vec_def)%
+
+forall n : Nat . n > 1 => n > 0 %(gt_one_imp_gt_0)%
+
+forall b : Bids; i : Index
+. inArgMaxSet(b, i) <=> maximum(b) = b [ i ]   %(arg_max_set_def)%
+
+forall b : Bids; i : Index; n : Length
+. length(b) = n /\ inRange(n, i) => b [ i ] <= maximum(b)
+                                   %(maximum_is_greater_or_equal)%
+
+forall b : Bids; n : Length
+. length(b) = n /\ n > 0
+  => exists i : Index . inRange(n, i) /\ maximum(b) = b [ i ]
+                                          %(maximum_is_component)%
+
+forall b : Bids; n : Length; m : Real
+. (length(b) = n /\ n > 0
+   /\ (forall i : Index . inRange(n, i) => b [ i ] <= m)
+   /\ exists i : Index . inRange(n, i) /\ m = b [ i ])
+  => m = maximum(b)                         %(maximum_sufficient)%
+
+forall b : Bids; i, j : Index; n : Length
+. length(b) = n /\ n > 1 /\ inRange(n, j) /\ inRange(n, i)
+  /\ not i = j
+  => b [ i ] <= maximumExcept(b, j)
+                            %(maximum_except_is_greater_or_equal)%
+
+forall b : Bids; j : Index; n : Length
+. length(b) = n /\ n > 1 /\ inRange(n, j)
+  => exists i : Index
+     . inRange(n, i) /\ not i = j /\ maximumExcept(b, j) = b [ i ]
+                                   %(maximum_except_is_component)%
+
+forall b : Bids; j : Index; n : Length
+. length(b) = n /\ n > 1 /\ inRange(n, j)
+  => maximumExcept(b, j) <= maximum(b)
+                    %(maximum_greater_or_equal_remaining_maximum)%
+
+forall b : Bids; i : Index; n : Length; alt : Real
+. length(b) = n /\ n > 1 /\ inRange(n, i)
+  => maximumExcept(b, i) = maximumExcept(b [ i := alt ], i)
+                                   %(remaining_maximum_invariant)%
+
+
+
+forall n : Length; v : Bids; b : Bids; x : Allocation
+. efficient(n, v, b, x)
+  <=> length(v) = n /\ length(b) = n
+      /\ forall i : Index
+         . inRange(n, i) /\ allocated(x, b, i) => inArgMaxSet(v, i)
+                                                 %(efficient_def)%
+
+spec Lemmas1 =
+Vickrey then
+forall b : Bids; x : Allocation; n : Length;
+winner, other : Index
+. allocation(b, x) /\ n = length(b) /\ inRange(n, winner)
+  /\ allocated(x, b, winner) /\ inRange(n, other)
+  /\ allocated(x, b, other)
+  => other = winner                          %(allocation_unique)% %implied
+
+forall b : Bids; i : Index; n : Length
+. length(b) = n /\ n > 1 /\ inRange(n, i)
+  /\ maximumExcept(b, i) <= b [ i ]
+  /\ not maximumExcept(b, i) = b [ i ]
+  => inArgMaxSet(b, i)
+     /\ forall j : Index
+        . inRange(n, j) /\ not j = i => not inArgMaxSet(b, j)
+                                              %(only_one_maximum)% %implied
+
+forall n : Length; x : Allocation; p : Payments; b : Bids;
+winner : Index
+. secondPriceAuction(n, x, p) /\ n = length(b)
+  /\ inRange(n, winner) /\ allocated(x, b, winner)
+  => secondPriceAuctionWinner(n, b, x, p, winner)
+                                  %(allocated_implies_spa_winner)% %implied
+
+forall n : Length; x : Allocation; p : Payments; b : Bids;
+loser : Index
+. secondPriceAuction(n, x, p) /\ n = length(b) /\ inRange(n, loser)
+  /\ not allocated(x, b, loser)
+  => secondPriceAuctionLoser(n, b, x, p, loser)
+                               %(not_allocated_implies_spa_loser)% %implied
+
+forall n : Length; x : Allocation; p : Payments; b : Bids;
+maxBidder : Index
+. secondPriceAuction(n, x, p) /\ n = length(b)
+  /\ inRange(n, maxBidder)
+  /\ b [ maxBidder ] > maximumExcept(b, maxBidder)
+  => secondPriceAuctionWinner(n, b, x, p, maxBidder)
+                                          %(only_max_bidder_wins)% %implied
+
+forall b : Bids; n : Length; p : Payments; v : Bids;
+winner : Index; x : Allocation
+. allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
+  /\ n = length(v)
+  => payoff(v, b, x, p, winner)
+     = payoff(v [ winner ], True, payment(p, b, winner))
+                                  %(test_spa_winner_payoff_0step)% %implied
+
+forall n : Length; x : Allocation; p : Payments;
+v : Bids; b : Bids; winner : Index
+. secondPriceAuction(n, x, p) /\ n = length(b) /\ n = length(v)
+  /\ inRange(n, winner) /\ allocated(x, b, winner)
+  => payoff(v, b, x, p, winner)
+     = v [ winner ] - maximumExcept(b, winner)
+                            %(second_price_auction_winner_payoff)% %implied
+
+forall b : Bids; n : Length; p : Payments; v : Bids;
+loser : Index; x : Allocation
+. notAllocatedImpliesSpaLoserCons(n, b, x, p, loser)
+  /\ n = length(v)
+  => payoff(v, b, x, p, loser)
+     = payoff(v [ loser ], False, payment(p, b, loser))
+                                   %(test_spa_loser_payoff_0step)% %implied
+
+forall n : Length; x : Allocation; p : Payments;
+v : Bids; b : Bids; loser : Index
+. secondPriceAuction(n, x, p) /\ n = length(b) /\ n = length(v)
+  /\ inRange(n, loser) /\ not allocated(x, b, loser)
+  => payoff(v, b, x, p, loser) = 0
+                             %(second_price_auction_loser_payoff)% %implied
+
+forall b : Bids; n : Length; p : Payments; v : Bids;
+winner : Index; x : Allocation
+. allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
+  /\ n = length(v)
+  => payoff(v, b, x, p, winner)
+     = payoff(v [ winner ], True, payment(p, b, winner))
+                                  %(test_spa_winner_payoff_0step)% %implied
+
+forall b : Bids; n : Length; p : Payments; v : Bids;
+winner : Index; x : Allocation
+. allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
+  /\ n = length(v)
+  => payoff(v, b, x, p, winner)
+     = v [ winner ] - maximumExcept(b, winner)
+                                  %(test_spa_winner_payoff_3step)% %implied
+
+
+forall n : Length; x : Allocation; p : Payments;
+v : Bids; b : Bids; winner : Index
+. secondPriceAuction(n, x, p) /\ n = length(b) /\ n = length(v)
+  /\ inRange(n, winner) /\ allocated(x, b, winner)
+  => payoff(v, b, x, p, winner)
+     = v [ winner ] - maximumExcept(b [ winner <- v ], winner)
+                    %(winners_payoff_on_deviation_from_valuation)% %implied
+
+spec Lemmas_Cases = 
+Lemmas1 then
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  /\ allocated(x, iSticksWithValuation, i)
+  /\ allocated(x, whateverBid, i)
+  => payoff(v, iSticksWithValuation, x, p, i)
+     >= payoff(v, whateverBid, x, p, i)    %(case_1a_02)% %implied
+
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  /\ allocated(x, iSticksWithValuation, i)
+  /\ not allocated(x, whateverBid, i)
+  => payoff(v, iSticksWithValuation, x, p, i)
+     >= payoff(v, whateverBid, x, p, i)    %(case_1b_01)% %implied
+
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  /\ not allocated(x, iSticksWithValuation, i)
+  /\ allocated(x, whateverBid, i)
+  => payoff(v, iSticksWithValuation, x, p, i)
+     >= payoff(v, whateverBid, x, p, i)     %(case_2a_03)% %implied
+
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  /\ not allocated(x, iSticksWithValuation, i)
+  /\ not allocated(x, whateverBid, i)
+  => payoff(v, iSticksWithValuation, x, p, i) 
+       >= payoff(v, whateverBid, x, p, i)     %(case_2b_01)% %implied
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  => payoff(v, iSticksWithValuation, x, p, i)
+     >= payoff(v, whateverBid, x, p, i)
+                                           %(cases_combined)% %implied
+end
+
+spec Lemmas2 =
+Lemmas_Cases then
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  =>  length(v) = n /\ allocation(v, x)
+       /\ payments(v, p)
+       /\ forall i : Index
+          . inRange(n, i)
+            => forall whateverBid : Bids
+               . not whateverBid [ i ] = v [ i ]
+                 => payoff(v, whateverBid [ i <- v ], x, p, i)
+                         >= payoff(v, whateverBid, x, p, i)
+                                                %(vickreyA_pre01)% %implied
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i,
+                            iSticksWithValuation)
+  => equilibriumWeaklyDominantStrategy(n, v, v, x, p)
+                                                %(vickreyA_pre03)% %implied
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments; i : Index;
+whateverBid, iSticksWithValuation : Bids
+. secondPriceAuction(n, x, p) /\ length(v) = n
+  /\ length(whateverBid) = n /\ inRange(n, i)
+  /\ not whateverBid [ i ] = v [ i ]
+  /\ iSticksWithValuation = whateverBid [ i <- v ]
+  => equilibriumWeaklyDominantStrategy(n, v, v, x, p)
+                                                %(vickreyA_pre04)% %implied
+end
+
+
+spec MainTheorems =
+Lemmas2 then
+forall v : Bids; n : Length; x : Allocation;
+p : Payments
+. secondPriceAuction(n, x, p) /\ length(v) = n
+  => equilibriumWeaklyDominantStrategy(n, v, v, x, p)
+                                             %(vickreyA)% %implied
+
+forall v : Bids; n : Length; x : Allocation;
+p : Payments
+. secondPriceAuction(n, x, p) /\ length(v) = n
+  => efficient(n, v, v, x)                   %(vickreyB)% %implied

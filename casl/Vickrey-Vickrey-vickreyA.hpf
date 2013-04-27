@@ -58,11 +58,13 @@ prove
 set goals vickreyA_pre00 vickreyA_pre01
 prove
  
+# works 
 set axioms equilibrium_weakly_dominant_strategy_def vickreyA_pre01
 set include-theorems false
-set goals vickreyA_pre02 vickreyA_pre03
+set goals vickreyA_pre03 # vickreyA_pre02 
 prove
- 
+
+# works 
 set include-theorems true
 set axioms i_sticks_with_valuation_def vickreyA_pre03
 set goals vickreyA_pre04

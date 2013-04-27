@@ -16,14 +16,17 @@
 
 # Proves Vickrey/Vickrey#vickreyA
 
-use Vickrey.casl
-dg basic Vickrey_proof
+use Vickrey_proof_trans.het
+dg basic Lemmas2
 
-# Actual goal
-set goals vickreyA
-set axioms vickreyA_pre04 deviation_def_index deviation_range exists_different
+set goals vickreyA_pre01
+#set axioms 
 prove
 
-set goals vickreyB
-set time-limit 200
+set goals vickreyA_pre03
+#set axioms 
+prove
+
+set goals vickreyA_pre04
+#set axioms 
 prove
