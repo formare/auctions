@@ -21,22 +21,21 @@ dg basic Lemmas_Cases
 
 set goals case_1a_02
 #set axioms 
-set time-limit 10000
-prove
+set time-limit 30000
+prove #open
 
 set goals case_1b_01
-set time-limit 10000
-#set axioms 
-prove
+set axioms maximum_is_component ga_disjoint_True_False maximum_except_is_component refl equilibrium_weakly_dominant_strategy_def zero_mult gt_one_imp_gt_0 gt_def dichotomy_TotalOrder second_price_auction_winners_payment_def ge_def x_ge_y allocation_def arg_max_set_def second_price_auction_def antisym deviation_def_index deviation_vec_range deviation_vec_def trans maximum_is_greater_or_equal payoff_def deviation_range deviation_def_otherwise second_price_auction_winner_def maximum_greater_or_equal_remaining_maximum second_price_auction_loser_def remaining_maximum_invariant i_sticks_with_valuation_def maximum_except_is_greater_or_equal not_allocated_implies_spa_loser only_one_maximum second_price_auction_loser_payoff payoff_vector_def second_price_auction_winner_payoff winners_payoff_on_deviation_from_valuation
+prove # works
 
 set goals case_2a_03
-set time-limit 10000
+set time-limit 30000
 #set axioms 
 prove
 
 set goals case_2b_01
-#set axioms 
-prove
+set axioms refl equilibrium_weakly_dominant_strategy_def ge_def deviation_vec_range deviation_vec_def deviation_range i_sticks_with_valuation_def second_price_auction_loser_payoff
+prove # works
 
 set goals cases_combined
 set axioms case_1a_02 case_1b_01 case_2a_03 case_2b_01 

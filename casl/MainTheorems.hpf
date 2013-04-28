@@ -24,7 +24,7 @@ prove # works
 
 set goals vickreyB
 #set axioms 
-set time-limit 20000
+set time-limit 40000
 prove
 
 
