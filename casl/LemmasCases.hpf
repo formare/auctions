@@ -21,6 +21,7 @@ dg basic Lemmas_Cases
 
 set goals case_1a_02
 #set axioms 
+prover eprover
 set time-limit 30000
 prove #open
 
@@ -29,6 +30,7 @@ set axioms maximum_is_component ga_disjoint_True_False maximum_except_is_compone
 prove # works
 
 set goals case_2a_03
+prover eprover
 set time-limit 30000
 #set axioms 
 prove
