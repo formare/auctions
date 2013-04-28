@@ -282,6 +282,7 @@ maxBidder : Index
   => secondPriceAuctionWinner(n, b, x, p, maxBidder)
                                           %(only_max_bidder_wins)% %implied
 
+%[
 forall b : Bids; n : Length; p : Payments; v : Bids;
 winner : Index; x : Allocation
 . allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
@@ -289,7 +290,10 @@ winner : Index; x : Allocation
   => payoff(v, b, x, p, winner)
      = payoff(v [ winner ], True, payment(p, b, winner))
                                   %(test_spa_winner_payoff_0step)% %implied
+]%
 
+spec Lemmas1a =
+Lemmas1 then
 forall n : Length; x : Allocation; p : Payments;
 v : Bids; b : Bids; winner : Index
 . secondPriceAuction(n, x, p) /\ n = length(b) /\ n = length(v)
@@ -315,7 +319,7 @@ v : Bids; b : Bids; loser : Index
   => payoff(v, b, x, p, loser) = 0
                              %(second_price_auction_loser_payoff)% %implied
 
-%[
+
 forall b : Bids; n : Length; p : Payments; v : Bids;
 winner : Index; x : Allocation
 . allocatedImpliesSpaWinnerCons(n, b, x, p, winner)
@@ -323,7 +327,7 @@ winner : Index; x : Allocation
   => payoff(v, b, x, p, winner)
      = v [ winner ] - maximumExcept(b, winner)
                                   %(test_spa_winner_payoff_3step)% %implied
-]%
+
 
 forall n : Length; x : Allocation; p : Payments;
 v : Bids; b : Bids; winner : Index
@@ -334,7 +338,7 @@ v : Bids; b : Bids; winner : Index
                     %(winners_payoff_on_deviation_from_valuation)% %implied
 
 spec Lemmas_Cases = 
-Lemmas1 then
+Lemmas1a then
 forall v : Bids; n : Length; x : Allocation;
 p : Payments; i : Index;
 whateverBid, iSticksWithValuation : Bids
