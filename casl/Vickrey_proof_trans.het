@@ -405,6 +405,8 @@ whateverBid, iSticksWithValuation : Bids
                          >= payoff(v, whateverBid, x, p, i)
                                                 %(vickreyA_pre01)% %implied
 
+spec Lemmas3 =
+Lemmas2 then
 forall v : Bids; n : Length; x : Allocation;
 p : Payments; i : Index;
 whateverBid, iSticksWithValuation : Bids
@@ -426,7 +428,7 @@ end
 
 
 spec MainTheorems =
-Lemmas2 then
+Lemmas3 then
 forall v : Bids; n : Length; x : Allocation;
 p : Payments
 . secondPriceAuction(n, x, p) /\ length(v) = n

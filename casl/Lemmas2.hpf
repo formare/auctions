@@ -24,6 +24,8 @@ set goals vickreyA_pre01
 set time-limit 30000
 prove
 
+dg basic Lemmas3
+
 set goals vickreyA_pre03
 #set axioms 
 set time-limit 30000
