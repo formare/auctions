@@ -21,6 +21,7 @@ dg basic Lemmas2
 
 set goals vickreyA_pre01
 #set axioms 
+prover eprover
 set time-limit 30000
 prove
 
@@ -28,10 +29,12 @@ dg basic Lemmas3
 
 set goals vickreyA_pre03
 #set axioms 
+prover eprover
 set time-limit 30000
 prove
 
 set goals vickreyA_pre04
 #set axioms 
+prover eprover
 set time-limit 30000
 prove

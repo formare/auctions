@@ -43,9 +43,8 @@ prove # proved
 
 set goals test_spa_winner_payoff_0step
 prover eprover
-set time-limit 1000
-# prover SPASS
-prove # open
+set time-limit 10000
+prove # proved
 
 dg basic Lemmas1a
 
@@ -60,7 +59,7 @@ prove # proved
 # set goals test_spa_loser_payoff_0step
 # set axioms not_allocated_implies_spa_loser_cons second_price_auction_loser_def payoff_vector_def
 # prover SPASS
-# prove # disproved
+# prove # disproved, but not needed
 
 # Actual goal
 set goals second_price_auction_loser_payoff
@@ -70,7 +69,7 @@ prove # proved
 
 # set goals test_spa_winner_payoff_3step
 # prover eprover
-# prove # open
+# prove # open, but not needed
 
 # Actual goal
 set goals winners_payoff_on_deviation_from_valuation

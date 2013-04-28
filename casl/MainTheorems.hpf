@@ -20,11 +20,12 @@ use Vickrey_proof_trans.het
 dg basic MainTheorems
 set goals vickreyA
 set axioms vickreyA_pre04 deviation_def_index deviation_range exists_different
-prove # works
+prove # proved
 
 set goals vickreyB
 #set axioms 
 set time-limit 40000
-prove
+prover eprover
+prove # proved
 
 
