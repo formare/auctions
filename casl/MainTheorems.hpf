@@ -23,9 +23,7 @@ set axioms vickreyA_pre04 deviation_def_index deviation_range exists_different
 prove # proved
 
 set goals vickreyB
-#set axioms 
-set time-limit 40000
-prover eprover
+set axioms second_price_auction_def allocation_def second_price_auction_winner_def efficient_def
 prove # proved
 
 
