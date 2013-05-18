@@ -454,26 +454,9 @@ definition spa_equivalent_outcome :: "participants \<Rightarrow> bids \<Rightarr
     b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
 (* This definition is more general in that it allow for divisible goods. *)
 
-text{* Under certain conditions we can show that the bids of the participants to which the good is
-  allocated are equal.  This is one direction of the equality. *}
-lemma allocated_bids_eq_suff :
-  fixes N :: participants
-    and winner :: participant
-    and b :: bids
-    and x :: allocation
-    and x' :: allocation
-  assumes range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
-      and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
-      and range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
-      and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
-  shows "b ` { i \<in> N . x i = 1 } \<subseteq> b ` { i \<in> N . x' i = 1 }"
-proof (intro subsetI)
-  fix bid assume "bid \<in> b ` { i \<in> N . x i = 1 }"
-  then have "bid = b winner" using range alloc by (smt imageE mem_Collect_eq)
-  then have "bid = b winner'" using range range' arg_max_set_def by (metis (lifting, full_types) mem_Collect_eq)
-  then show "bid \<in> b ` { i \<in> N . x' i = 1 }" using range' alloc' by (metis (lifting, full_types) imageI mem_Collect_eq)
-qed
-
+text{* Under certain conditions we can show that 
+  the bids of the participants with positive payments are equal
+  (one direction of the equality) *}
 lemma positive_payment_bids_eq_suff :
   fixes N :: participants
     and winner :: participant
@@ -489,11 +472,9 @@ lemma positive_payment_bids_eq_suff :
 proof (intro subsetI)
   from admissible have bids: "bids N b" and ge2: "card N > 1"
     using spa_admissible_input_def by auto
-  fix bid assume 1: "bid \<in> b ` { i \<in> N . p i > 0 }"
-  with range pay have "bid = b winner" by (smt imageE mem_Collect_eq)
-  with range range' have bw': "bid = b winner'"
-    using arg_max_set_def by (metis (lifting, full_types) mem_Collect_eq)
-  from 1 pay have p_positive: "p winner > 0" by (smt image_iff mem_Collect_eq)
+  fix bid assume premise: "bid \<in> b ` { i \<in> N . p i > 0 }"
+  with range pay range' have bw': "bid = b winner'" using arg_max_set_def by auto
+  from premise pay have p_positive: "p winner > 0" by auto
   with ge2 range pay have bwpos: "b winner > 0"
     using arg_max_set_def maximum_except_defined maximum_remaining_maximum by (smt mem_Collect_eq)
   from ge2 range' have md: "maximum_defined (N - {winner'})" using maximum_except_defined by blast
@@ -503,25 +484,25 @@ proof (intro subsetI)
     {
       fix i assume i_range: "i \<in> (N - {winner'})"
       with bids have bipos: "b i \<ge> 0" unfolding bids_def non_negative_real_vector_def by blast
-      with md have "maximum (N - {winner'}) b \<ge> b i" using i_range maximum_is_greater_or_equal by simp
+      from md have "maximum (N - {winner'}) b \<ge> b i" using i_range maximum_is_greater_or_equal by simp
       then have "maximum (N - {winner'}) b = 0" using assm bipos by simp
     }
-    with assm range range' pay have foow': "maximum (N - {winner'}) b = 0" by (metis (full_types) ex_in_conv insert_Diff_single insert_absorb p_positive singleton_iff)
+    with assm range range' pay pay' have foow': "maximum (N - {winner'}) b = 0"
+      using maximum_is_component md by metis
     show False
     proof cases
       assume "winner' = winner"
       then show False using p_positive pay foow' by auto
     next
       assume "winner' \<noteq> winner"
-      with range have "winner \<in> N - {winner'}" by (metis member_remove remove_def)
+      with range have "winner \<in> N - {winner'}" by fast
       then have x: "maximum (N - {winner'}) b \<ge> b winner" using range maximum_is_greater_or_equal md by blast
       with foow' have bwzn: "b winner \<le> 0" by auto
       from range have "maximum N b = b winner" using arg_max_set_def by auto
       with md x maximum_remaining_maximum bwpos bwzn show False by auto
     qed
   qed
-  then have "p' winner' > 0" using pay' by auto
-  then show "bid \<in> b ` { i \<in> N . p' i > 0 }" using range' pay' bw' by (metis (lifting) imageI mem_Collect_eq)
+  then show "bid \<in> b ` { i \<in> N . p' i > 0 }" using range' pay' bw' by auto
 qed
 
 text{* Our relational definition of second price auction is right-unique. *}
@@ -558,10 +539,10 @@ proof -
     have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
     proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
       from range alloc range' alloc' show "b ` { i \<in> N . x i = 1 } \<subseteq> b ` { i \<in> N . x' i = 1 }"
-        using allocated_bids_eq_suff by simp
+        using arg_max_set_def by auto
     next
       from range' alloc' range alloc show "b ` { i \<in> N . x' i = 1 } \<subseteq> b ` { i \<in> N . x i = 1 }"
-        using allocated_bids_eq_suff by simp
+        using arg_max_set_def by auto
     qed
     moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
     proof (intro equalityI)
