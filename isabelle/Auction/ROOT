@@ -2,7 +2,9 @@ session "Auction" = "HOL" +
   options [document = pdf, document_output = "output", document_graph, thy_output_source]
   theories
     Vickrey
+(* CL: When the following line is in place, I'm not getting any output.
   files "document/root.tex"
+*)
 
 session Vickrey_Short = "HOL" +
   theories Vickrey_Short
