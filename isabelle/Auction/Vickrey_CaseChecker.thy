@@ -86,16 +86,16 @@ text{* We employ the general definition of an allocation for a divisible single 
   This is to allow for more possibilities of an auction to be not well-defined.
   Also, it is no longer the allocation that we model as a function of the bid, but instead we model
   the \emph{auction} as a relation of bids to a @{text "(allocation \<times> payments)"} outcome. *}
-text_raw{*\snip{allocation_def}{1}{2}{%*}
+(* text_raw{*\snip{allocation_def}{1}{2}{%*} *)
 definition allocation :: "participants \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation N x \<longleftrightarrow> (\<Sum> i \<in> N . x i) = 1"
-text_raw{*}%endsnip*}
+(* text_raw{*}%endsnip*} *)
 
 subsection {* Payment *}
 
 text{* Same as with the @{text allocation} we now model this as a plain vector. *}
 definition vickrey_payment :: "participants \<Rightarrow> payments \<Rightarrow> bool"
-  where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N. p i \<ge> 0)"
+  where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N . p i \<ge> 0)"
 
 subsection {* Payoff *}
 
@@ -184,6 +184,13 @@ text{* This subsection uses Isabelle's set maximum functions, wrapping them for 
 
 definition maximum_defined :: "participants \<Rightarrow> bool"
   where "maximum_defined N \<longleftrightarrow> card N > 0"
+
+lemma maximum_except_defined:
+  fixes N i
+  assumes "i \<in> N" "card N > 1"
+  shows "maximum_defined (N - {i})"
+  using assms maximum_defined_def
+  by (smt card.remove card_infinite)
 
 definition maximum :: "participants \<Rightarrow> real vector \<Rightarrow> real"
   where "maximum N y = Max (y ` N)"
@@ -407,9 +414,9 @@ value "Max {1::nat, 2}"
 text{* Our relational definition of second price auction is left-total. *}
 lemma spa_is_left_total :
   fixes A :: single_good_auction
- (* A is the set of all second price auctions.
-    Assuming "second_price_auction A" would merely mean that all elements of A are second price auctions,
-    which is not enough here. *)
+  (* A is the set of all second price auctions.
+     Assuming "second_price_auction A" would merely mean that all elements of A are second price auctions,
+     which is not enough here. *)
   assumes spa: "rel_all_sga_pred spa_pred A"
   shows "sga_left_total A spa_admissible_input"
 proof -
@@ -439,7 +446,7 @@ text{* We consider two outcomes of a second price auction equivalent if
 \item the bids of the participants to which the good is allocated are equal
 \item the bids of the participants with positive payments are equal
 \end{enumerate}
-This should be as weak as possible, as not to restate the definition.
+This should be as weak as possible, as not to accidentally restate the full definition of a second price auction.
  *}
 definition spa_equivalent_outcome :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "spa_equivalent_outcome N b x p x' p' \<longleftrightarrow> 
@@ -447,9 +454,82 @@ definition spa_equivalent_outcome :: "participants \<Rightarrow> bids \<Rightarr
     b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
 (* This definition is more general in that it allow for divisible goods. *)
 
+text{* Under certain conditions we can show that the bids of the participants to which the good is
+  allocated are equal.  This is one direction of the equality. *}
+lemma allocated_bids_eq_suff :
+  fixes N :: participants
+    and winner :: participant
+    and b :: bids
+    and x :: allocation
+    and x' :: allocation
+  assumes range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
+      and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
+      and range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
+      and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
+  shows "b ` { i \<in> N . x i = 1 } \<subseteq> b ` { i \<in> N . x' i = 1 }"
+proof (intro subsetI)
+  fix bid assume "bid \<in> b ` { i \<in> N . x i = 1 }"
+  then have "bid = b winner" using range alloc by (smt imageE mem_Collect_eq)
+  then have "bid = b winner'" using range range' arg_max_set_def by (metis (lifting, full_types) mem_Collect_eq)
+  then show "bid \<in> b ` { i \<in> N . x' i = 1 }" using range' alloc' by (metis (lifting, full_types) imageI mem_Collect_eq)
+qed
+
+lemma positive_payment_bids_eq_suff :
+  fixes N :: participants
+    and winner :: participant
+    and b :: bids
+    and p :: payments
+    and p' :: payments
+  assumes admissible: "spa_admissible_input N b"
+      and range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
+      and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
+      and range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
+      and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
+  shows "b ` { i \<in> N . p i > 0 } \<subseteq> b ` { i \<in> N . p' i > 0 }"
+proof (intro subsetI)
+  from admissible have bids: "bids N b" and ge2: "card N > 1"
+    using spa_admissible_input_def by auto
+  fix bid assume 1: "bid \<in> b ` { i \<in> N . p i > 0 }"
+  with range pay have "bid = b winner" by (smt imageE mem_Collect_eq)
+  with range range' have bw': "bid = b winner'"
+    using arg_max_set_def by (metis (lifting, full_types) mem_Collect_eq)
+  from 1 pay have p_positive: "p winner > 0" by (smt image_iff mem_Collect_eq)
+  with ge2 range pay have bwpos: "b winner > 0"
+    using arg_max_set_def maximum_except_defined maximum_remaining_maximum by (smt mem_Collect_eq)
+  from ge2 range' have md: "maximum_defined (N - {winner'})" using maximum_except_defined by blast
+  have "maximum (N - {winner'}) b > 0"
+  proof (rule ccontr)
+    assume assm: "\<not> maximum (N - {winner'}) b > 0"
+    {
+      fix i assume i_range: "i \<in> (N - {winner'})"
+      with bids have bipos: "b i \<ge> 0" unfolding bids_def non_negative_real_vector_def by blast
+      with md have "maximum (N - {winner'}) b \<ge> b i" using i_range maximum_is_greater_or_equal by simp
+      then have "maximum (N - {winner'}) b = 0" using assm bipos by simp
+    }
+    with assm range range' pay have foow': "maximum (N - {winner'}) b = 0" by (metis (full_types) ex_in_conv insert_Diff_single insert_absorb p_positive singleton_iff)
+    show False
+    proof cases
+      assume "winner' = winner"
+      then show False using p_positive pay foow' by auto
+    next
+      assume "winner' \<noteq> winner"
+      with range have "winner \<in> N - {winner'}" by (metis member_remove remove_def)
+      then have x: "maximum (N - {winner'}) b \<ge> b winner" using range maximum_is_greater_or_equal md by blast
+      with foow' have bwzn: "b winner \<le> 0" by auto
+      from range have "maximum N b = b winner" using arg_max_set_def by auto
+      with md x maximum_remaining_maximum bwpos bwzn show False by auto
+    qed
+  qed
+  then have "p' winner' > 0" using pay' by auto
+  then show "bid \<in> b ` { i \<in> N . p' i > 0 }" using range' pay' bw' by (metis (lifting) imageI mem_Collect_eq)
+qed
+
 text{* Our relational definition of second price auction is right-unique. *}
 lemma spa_is_right_unique :
   fixes A :: single_good_auction
+  (* A is the set of all second price auctions.
+     Assuming "second_price_auction A" would merely mean that all elements of A are second price auctions,
+     which is not enough here. *)
   assumes spa: "rel_all_sga_pred spa_pred A"
   shows "sga_right_unique A spa_admissible_input spa_equivalent_outcome"
 proof -
@@ -464,7 +544,7 @@ proof -
       where range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
         and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
         and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-      unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
+      unfolding rel_all_sga_pred_def spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
       by blast
 
     assume "((N, b), (x', p')) \<in> A"
@@ -475,16 +555,23 @@ proof -
         and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
       unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
       by blast
-
     have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
-      using range and alloc and range' and alloc'
-      using arg_max_set_def
-      sorry (* by (smt equals0I image_empty image_insert insertI1 insert_absorb insert_compr mem_Collect_eq nonempty_iff singleton_conv zero_neq_one) *)
+    proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
+      from range alloc range' alloc' show "b ` { i \<in> N . x i = 1 } \<subseteq> b ` { i \<in> N . x' i = 1 }"
+        using allocated_bids_eq_suff by simp
+    next
+      from range' alloc' range alloc show "b ` { i \<in> N . x' i = 1 } \<subseteq> b ` { i \<in> N . x i = 1 }"
+        using allocated_bids_eq_suff by simp
+    qed
     moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
-      using range and pay and range' and pay'
-      sorry
+    proof (intro equalityI)
+      from admissible range pay range' pay' show "b ` { i \<in> N . p i > 0 } \<subseteq> b ` { i \<in> N . p' i > 0 }"
+        using positive_payment_bids_eq_suff by simp
+    next
+      from admissible range' pay' range pay show "b ` { i \<in> N . p' i > 0 } \<subseteq> b ` { i \<in> N . p i > 0 }"
+        using positive_payment_bids_eq_suff by simp
+    qed
     ultimately have "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def by blast
-    (* TODO CL: provide more information *)
   }
   then show ?thesis unfolding sga_right_unique_def by blast
 qed
