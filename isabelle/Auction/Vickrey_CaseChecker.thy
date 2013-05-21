@@ -49,6 +49,7 @@ type_synonym bids = "real vector"
 type_synonym allocation = "real vector"
 type_synonym payments = "real vector"
 
+text{* returns True if the first participant is to be preferred *}
 type_synonym tie_breaker = "participant \<Rightarrow> participant \<Rightarrow> bool"
 
 (* TODO CL: link to "function" theorems from this text *)
@@ -289,7 +290,8 @@ proof -
     {
       fix x assume "i = arg_max_tb {x} t b"
       also have "\<dots> = arg_max_l_tb [x] t b" using arg_max_tb.simps by simp
-      then have "i \<in> arg_max_set {x} b" unfolding arg_max_l_tb_def arg_max_set_def maximum_def sorry
+      from calculation have "i \<in> arg_max_set {x} b"
+        unfolding arg_max_l_tb.simps arg_max_set_def maximum_def by simp
     }
     then show ?case by blast
   next
