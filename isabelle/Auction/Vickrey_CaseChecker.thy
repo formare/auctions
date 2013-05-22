@@ -279,14 +279,24 @@ where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function wi
 fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
 where "arg_max_tb N t b = arg_max_l_tb (sorted_list_of_set N) t b"
 
-lemma sorted_list_ne [simp] : (* CL: Isabelle should really support this. *)
-  assumes "finite S" and "S \<noteq> {}"
-  shows "sorted_list_of_set S \<noteq> []"
-sorry
+(* code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
+lemma sorted_list_of_set_remove': (* TODO CL: sorted_list_of_set_not_empty (for which this is needed) should be in the library in 2014; remove then *)
+  assumes "finite A" "x \<in> A"
+  shows "sorted_list_of_set A = insort x (sorted_list_of_set (A - {x}))"
+proof -
+  from assms have "insert x (A - {x}) = A" by blast
+  then have "sorted_list_of_set A = sorted_list_of_set (insert x (A - {x}))"
+    by simp
+  also have "\<dots> = insort x (sorted_list_of_set (A - {x}))"
+  using assms by simp
+  finally show ?thesis .
+qed
 
-lemma sorted_list_of_set_distinct [simp] : (* CL: Isabelle should really support this. *)
-  shows "distinct (sorted_list_of_set S)"
-sorry
+(* code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
+lemma sorted_list_of_set_eq_Nil_iff [simp] : (* TODO CL: should be in the library in 2014; remove then *)
+  assumes "finite S"
+  shows "sorted_list_of_set S = [] \<longleftrightarrow> S = {}"
+using assms by (auto simp: sorted_list_of_set_remove')
 
 lemma arg_max_tb_imp_arg_max_set :
   fixes N :: participants
@@ -296,10 +306,11 @@ lemma arg_max_tb_imp_arg_max_set :
   shows "arg_max_tb N t b \<in> arg_max_set N b"
 proof -
   def Nsort \<equiv> "sorted_list_of_set N"
-  then have distinct: "distinct Nsort" by simp
-  from defined have "finite N" and "N \<noteq> {}"
+  from defined have finite: "finite N" and ne: "N \<noteq> {}"
     unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
-  with Nsort_def have "Nsort \<noteq> []" by simp
+  (* TODO CL: Isabelle 2014 might be able to do the following step more automatically: *)
+  from finite Nsort_def sorted_list_of_set have distinct: "distinct Nsort" by auto
+  from finite ne Nsort_def have "Nsort \<noteq> []" by simp
   then have stmt_list: "distinct Nsort \<longrightarrow> arg_max_l_tb Nsort t b \<in> arg_max_set (set Nsort) b"
   proof (induct Nsort rule: list_nonempty_induct)
     case single
@@ -1069,4 +1080,5 @@ proof -
     using val unfolding b_def efficient_def using spa_is_sga by blast
 qed
 
+find_consts "'a list \<Rightarrow> 'a \<Rightarrow> bool"
 end
