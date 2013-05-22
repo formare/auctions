@@ -21,7 +21,7 @@ header {* Vickrey's Theorem: second price auctions are
   copy to experiment with ``case checking'' *}
 
 theory Vickrey_CaseChecker
-imports Complex_Main
+imports Complex_Main "~~/src/HOL/Library/Order_Relation"
 begin
 
 section {* Single good auctions *}
@@ -49,20 +49,27 @@ type_synonym bids = "real vector"
 type_synonym allocation = "real vector"
 type_synonym payments = "real vector"
 
-text{* Helps to determine whether one participant should be preferred over another one in the case of a draw. *}
-(* CL: I'd actually like to define this as a function of type "participant \<Rightarrow> participant \<Rightarrow> bool",
-   but I do not currently know how to say of such a function that it has the necessary properties,
-   such as being a linear order.  But see http://stackoverflow.com/questions/16675915/what-isabelle-library-to-reuse-for-expressing-that-some-function-is-a-linear-ord *)
-type_synonym tie_breaker = "participant \<Rightarrow> real"
+text{* Helps to determine whether one participant should be preferred over another one in the case of a draw.
+  t x y = True should result in x being (strictly) preferred. *}
+type_synonym tie_breaker = "participant \<Rightarrow> participant \<Rightarrow> bool"
 
 text{* Is a tie-breaker well-behaved on a given set of participants?  I.e. does it assign a 
   unique value to each participant? *}
-(* CL: Once tie-breakers are functions taking two participant arguments,
-   we also need to check whether they are total orders.
-   For the moment, this is guaranteed by the total order of < on real. *)
 definition wf_tie_breaker_on :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bool"
   where "wf_tie_breaker_on tie_breaker participants \<longleftrightarrow>
-    card (tie_breaker ` participants) = card participants"
+    strict_linear_order_on participants
+      {(a::participant, b::participant) . {a, b} \<subseteq> participants \<and> tie_breaker a b}"
+(* old version for tie_breaker = "participant \<Rightarrow> real", to be used with <
+   "card (tie_breaker ` participants) = card participants" *)
+
+(* CL: code provided by Le_J (http://stackoverflow.com/a/16690357/2397768) –
+   how to prove strict linear order in a concrete case: *)
+(*
+lemma "strict_linear_order_on {1::nat, 2} {(a::nat, b) . {a, b} \<subseteq> {1::nat, 2} \<and> a < b}"
+  unfolding strict_linear_order_on_def partial_order_on_def preorder_on_def
+    irrefl_def total_on_def trans_def antisym_def
+  by auto
+*)
 
 (* TODO CL: link to "function" theorems from this text *)
 text{* Initially we'd like to formalise any single good auction as a relation of bids and outcome.
@@ -273,7 +280,7 @@ where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function wi
       (let y = arg_max_l_tb xs t b in
         if (b x > b y) then x (* TODO CL: Once this works, make 'highest bid' just a special case of tie-breaking,
           and allow for custom chains of tie-breaking functions to be defined. *)
-        else if (b x = b y \<and> t x > t y) then x
+        else if (b x = b y \<and> t x y) then x
         else y)"
 
 fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
@@ -332,10 +339,10 @@ proof -
       with a1 have "i =
         (let y = arg_max_l_tb xs t b in
           if (b x > b y) then x
-          else if (b x = b y \<and> t x > t y) then x
+          else if (b x = b y \<and> t x y) then x
           else y)" by (metis arg_max_l_tb.simps(2) arg_max_l_tb.simps(3) neq_Nil_conv)
       then have i_unf: "i = (let y = arg_max_l_tb xs t b in
-          if (b x > b y \<or> b x = b y \<and> t x > t y) then x
+          if (b x > b y \<or> b x = b y \<and> t x y) then x
           else y)" by smt
       show "i \<in> arg_max_set (set (x # xs)) b"
       proof (cases "i = arg_max_l_tb xs t b")
@@ -343,7 +350,7 @@ proof -
         with a2 distinct' have ams: "i \<in> arg_max_set (set xs) b" by simp
         with mdxs have i_in: "i \<in> (set xs)" unfolding arg_max_set_def using maximum_is_component by simp
         then have i_in': "i \<in> (set (x # xs))" by simp
-        from i_unf True have "\<not> (b x > b i \<or> b x = b i \<and> t x > t i)" by auto (* CL: Interestingly we don't need "x \<noteq> i" here *)
+        from i_unf True have "\<not> (b x > b i \<or> b x = b i \<and> t x i)" by (smt distinct' distinct.simps(2) i_in)
         then have 1: "b x \<le> b i" by auto
         from ams have "b i = maximum (set xs) b" unfolding arg_max_set_def by simp
         with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b i \<ge> b j" by simp
@@ -354,10 +361,10 @@ proof -
         case False (* the newly inserted element x is the maximum *)
         def y \<equiv> "arg_max_l_tb xs t b"
         with i_unf have yi: "
-          i = (if (b x > b y \<or> b x = b y \<and> t x > t y) then x
+          i = (if (b x > b y \<or> b x = b y \<and> t x y) then x
           else y)" by auto
         from y_def False have "i \<noteq> y" unfolding i_def by simp
-        with yi have bi: "(b x > b y \<or> b x = b y \<and> t x > t y) \<and> i = x" by smt
+        with yi have bi: "(b x > b y \<or> b x = b y \<and> t x y) \<and> i = x" by smt
         from y_def a2 distinct' have ams: "y \<in> arg_max_set (set xs) b" by simp
         with mdxs have y_in: "y \<in> (set xs)" unfolding arg_max_set_def using maximum_is_component by simp
         then have y_in': "y \<in> (set (x # xs))" by simp
@@ -456,7 +463,9 @@ lemma spa_allocation :
     second_price_auction_loser_def
   by metis
 
-(* TODO CL: show ("case-check") that this yields a function (somehow need to pass tie-breaker into relational definition of auction) *)
+(* TODO CL: show ("case-check") that this yields a function
+   (somehow need to pass tie-breaker into relational definition of auction,
+   and assume "wf_tie_breaker_on participants") *)
 definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "fs_spa_pred N b t x p \<longleftrightarrow>
