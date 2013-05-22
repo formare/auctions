@@ -49,8 +49,20 @@ type_synonym bids = "real vector"
 type_synonym allocation = "real vector"
 type_synonym payments = "real vector"
 
-text{* returns True if the first participant is to be preferred *}
-type_synonym tie_breaker = "participant \<Rightarrow> participant \<Rightarrow> bool"
+text{* Helps to determine whether one participant should be preferred over another one in the case of a draw. *}
+(* CL: I'd actually like to define this as a function of type "participant \<Rightarrow> participant \<Rightarrow> bool",
+   but I do not currently know how to say of such a function that it has the necessary properties,
+   such as being a linear order.  But see http://stackoverflow.com/questions/16675915/what-isabelle-library-to-reuse-for-expressing-that-some-function-is-a-linear-ord *)
+type_synonym tie_breaker = "participant \<Rightarrow> real"
+
+text{* Is a tie-breaker well-behaved on a given set of participants?  I.e. does it assign a 
+  unique value to each participant? *}
+(* CL: Once tie-breakers are functions taking two participant arguments,
+   we also need to check whether they are total orders.
+   For the moment, this is guaranteed by the total order of < on real. *)
+definition wf_tie_breaker_on :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bool"
+  where "wf_tie_breaker_on tie_breaker participants \<longleftrightarrow>
+    card (tie_breaker ` participants) = card participants"
 
 (* TODO CL: link to "function" theorems from this text *)
 text{* Initially we'd like to formalise any single good auction as a relation of bids and outcome.
@@ -253,64 +265,104 @@ text{* the set of all indices of maximum components of a vector *}
 definition arg_max_set :: "participants \<Rightarrow> real vector \<Rightarrow> participants"
   where "arg_max_set N b = {i. i \<in> N \<and> maximum N b = b i}"
 
-definition arg_max_tb_comp :: "tie_breaker \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> participant \<Rightarrow> participant"
-  (* CL: easier way to write this down? *)
-  where "arg_max_tb_comp t b i j = (
-    if (b i > b j) then i
-    else if (b i = b j \<and> t i j) then i
-    else j)"
-
 text{* the index of the single maximum component *}
 fun arg_max_l_tb :: "(nat list) \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
 where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function with lists of at least one element *)
     | "arg_max_l_tb (x # []) t b = x"
     | "arg_max_l_tb (x # xs) t b =
       (let y = arg_max_l_tb xs t b in
-        if (b x > b y) then x
-        else if (b x = b y \<and> t x y) then x
+        if (b x > b y) then x (* TODO CL: Once this works, make 'highest bid' just a special case of tie-breaking,
+          and allow for custom chains of tie-breaking functions to be defined. *)
+        else if (b x = b y \<and> t x > t y) then x
         else y)"
 
 fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
 where "arg_max_tb N t b = arg_max_l_tb (sorted_list_of_set N) t b"
 
+lemma sorted_list_ne [simp] : (* CL: Isabelle should really support this. *)
+  assumes "finite S" and "S \<noteq> {}"
+  shows "sorted_list_of_set S \<noteq> []"
+sorry
+
+lemma sorted_list_of_set_distinct [simp] : (* CL: Isabelle should really support this. *)
+  shows "distinct (sorted_list_of_set S)"
+sorry
+
 lemma arg_max_tb_imp_arg_max_set :
   fixes N :: participants
     and t :: tie_breaker
     and b :: bids
-    and i :: participant
-  assumes premise: "i = arg_max_tb N t b"
-      and defined: "maximum_defined N"
-  shows "i \<in> arg_max_set N b"
+  assumes defined: "maximum_defined N"
+  shows "arg_max_tb N t b \<in> arg_max_set N b"
 proof -
+  def Nsort \<equiv> "sorted_list_of_set N"
+  then have distinct: "distinct Nsort" by simp
   from defined have "finite N" and "N \<noteq> {}"
     unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
-  then have "i = arg_max_tb N t b \<longrightarrow> i \<in> arg_max_set N b"
-  proof (induct N rule: finite_ne_induct)
-    case singleton
+  with Nsort_def have "Nsort \<noteq> []" by simp
+  then have stmt_list: "distinct Nsort \<longrightarrow> arg_max_l_tb Nsort t b \<in> arg_max_set (set Nsort) b"
+  proof (induct Nsort rule: list_nonempty_induct)
+    case single
     {
-      fix x assume "i = arg_max_tb {x} t b"
-      also have "\<dots> = arg_max_l_tb [x] t b" using arg_max_tb.simps by simp
-      from calculation have "i \<in> arg_max_set {x} b"
-        unfolding arg_max_l_tb.simps arg_max_set_def maximum_def by simp
+      fix x have "arg_max_l_tb [x] t b \<in> arg_max_set (set [x]) b"
+        unfolding arg_max_l_tb.simps arg_max_set_def maximum_def Nsort_def by simp
     }
     then show ?case by blast
   next
-    case (insert j N)
-    {
-      assume a: "i = arg_max_tb (insert j N) t b"
-      have "i \<in> arg_max_set (insert j N) b"
-      proof (cases "i = j")
-        case True (* the newly inserted element j is the maximum *)
-        show ?thesis sorry
+    case cons (* CL: How can I use the cons.* that I'm getting here below? *)
+    fix x xs
+    assume a1: "xs \<noteq> []" and a2: "distinct xs \<longrightarrow> arg_max_l_tb xs t b \<in> arg_max_set (set xs) b"
+    from a1 have mdxs: "maximum_defined (set xs)" using maximum_defined_def by (metis List.finite_set card_gt_0_iff set_empty2)
+    from a1 have mdxs': "maximum_defined (set (x # xs))" using maximum_defined_def by (metis List.finite_set card_gt_0_iff list.distinct(1) set_empty2)
+    show "distinct (x # xs) \<longrightarrow> arg_max_l_tb (x # xs) t b \<in> arg_max_set (set (x # xs)) b"
+    proof
+      assume distinct': "distinct (x # xs)"
+      def i \<equiv> "arg_max_l_tb (x # xs) t b"
+      with a1 have "i =
+        (let y = arg_max_l_tb xs t b in
+          if (b x > b y) then x
+          else if (b x = b y \<and> t x > t y) then x
+          else y)" by (metis arg_max_l_tb.simps(2) arg_max_l_tb.simps(3) neq_Nil_conv)
+      then have i_unf: "i = (let y = arg_max_l_tb xs t b in
+          if (b x > b y \<or> b x = b y \<and> t x > t y) then x
+          else y)" by smt
+      show "i \<in> arg_max_set (set (x # xs)) b"
+      proof (cases "i = arg_max_l_tb xs t b")
+        case True (* the maximum is the same as before *)
+        with a2 distinct' have ams: "i \<in> arg_max_set (set xs) b" by simp
+        with mdxs have i_in: "i \<in> (set xs)" unfolding arg_max_set_def using maximum_is_component by simp
+        then have i_in': "i \<in> (set (x # xs))" by simp
+        from i_unf True have "\<not> (b x > b i \<or> b x = b i \<and> t x > t i)" by auto (* CL: Interestingly we don't need "x \<noteq> i" here *)
+        then have 1: "b x \<le> b i" by auto
+        from ams have "b i = maximum (set xs) b" unfolding arg_max_set_def by simp
+        with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b i \<ge> b j" by simp
+        with 1 have "\<forall> j \<in> (set (x # xs)) . b i \<ge> b j" by simp
+        with maximum_sufficient mdxs' i_in' have "b i = maximum (set (x # xs)) b" by metis
+        with i_in' show ?thesis unfolding arg_max_set_def by simp
       next
-        case False
-        def m \<equiv> "arg_max_tb (insert j N) t b"
-        show ?thesis sorry
+        case False (* the newly inserted element x is the maximum *)
+        def y \<equiv> "arg_max_l_tb xs t b"
+        with i_unf have yi: "
+          i = (if (b x > b y \<or> b x = b y \<and> t x > t y) then x
+          else y)" by auto
+        from y_def False have "i \<noteq> y" unfolding i_def by simp
+        with yi have bi: "(b x > b y \<or> b x = b y \<and> t x > t y) \<and> i = x" by smt
+        from y_def a2 distinct' have ams: "y \<in> arg_max_set (set xs) b" by simp
+        with mdxs have y_in: "y \<in> (set xs)" unfolding arg_max_set_def using maximum_is_component by simp
+        then have y_in': "y \<in> (set (x # xs))" by simp
+        from ams have "b y = maximum (set xs) b" unfolding arg_max_set_def by simp
+        with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b y \<ge> b j" by simp
+        with bi have "\<forall> j \<in> (set xs) . b x \<ge> b j" by auto (* because b x \<ge> b y *)
+        then have "\<forall> j \<in> (set (x # xs)) . b x \<ge> b j" by simp
+        with maximum_sufficient mdxs' have "b x = maximum (set (x # xs)) b" by (metis distinct' distinct.simps(2) distinct_length_2_or_more)
+        with bi show ?thesis unfolding arg_max_set_def by simp
       qed
-    }
-    then show ?case by blast
+    qed
   qed
-  with defined premise show ?thesis by simp
+  from Nsort_def `finite N` have "N = set Nsort" by simp
+  from Nsort_def have "arg_max_tb N t b = arg_max_l_tb Nsort t b" by simp
+  with distinct stmt_list have "arg_max_tb N t b \<in> arg_max_set (set Nsort) b" by simp
+  with `N = set Nsort` show ?thesis by simp
 qed
 
 lemma maximum_except_is_greater_or_equal:
@@ -404,10 +456,11 @@ definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_bre
 lemma fs_spa_is_spa :
   fixes N :: participants
     and b :: bids
-    and t :: tie_breaker (* Anything to assume about the tie breaker?  E.g. that it's not circular? *)
+    and t :: tie_breaker
     and x :: allocation
     and p :: payments
-  assumes "fs_spa_pred N b t x p"
+  assumes premise: "fs_spa_pred N b t x p"
+      and card_N: "card N > 1"
   shows "spa_pred N b x p"
 proof -
   from assms have bids: "bids N b" and
@@ -424,7 +477,8 @@ proof -
       and determination: "winner = arg_max_tb N t b"
       and spa_winner_outcome: "second_price_auction_winner_outcome N b x p winner"
       by auto
-    from determination have "winner \<in> arg_max_set N b" using arg_max_tb_imp_arg_max_set by simp
+    from card_N have maximum_defined: "maximum_defined N" unfolding maximum_defined_def by auto
+    with determination have "winner \<in> arg_max_set N b" using arg_max_tb_imp_arg_max_set by simp
     with range and spa_winner_outcome show ?thesis
       unfolding second_price_auction_winner_def by simp
   qed
