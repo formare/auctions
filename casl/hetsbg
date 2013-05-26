@@ -1,2 +1,6 @@
 #!/bin/bash
+echo "proving $1.hpf in background"
 nohup nice -n 19 ./hets -I $1.hpf > $1.out &
+echo
+echo "tail of the output (press ctrl+c to abort the output, proof will continute)"
+tail -f $1.out
