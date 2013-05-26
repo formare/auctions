@@ -27,7 +27,7 @@ set axioms ga_non_empty_sort_index arg_restriction_p__LtEq__ arg_restriction_p__
 prove # proved
 
 set goals allocated_implies_spa_winner
-#set axioms second_price_auction_def second_price_auction_loser_def
+set axioms second_price_auction_def second_price_auction_loser_def
 prove # proved
 
 set goals not_allocated_implies_spa_loser
