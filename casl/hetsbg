@@ -1,2 +1,2 @@
 #!/bin/bash
-nohup ./hets -I $1.hpf > $1.out &
+nohup nice -n 19 ./hets -I $1.hpf > $1.out &

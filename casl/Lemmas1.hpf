@@ -26,10 +26,9 @@ set goals only_one_maximum
 set axioms ga_non_empty_sort_index arg_restriction_p__LtEq__ arg_restriction_p__Gt___2 arg_restriction_inRange arg_restriction_inArgMaxSet declaration2 gt_one_imp_gt_0 declaration6 declaration7 arg_max_set_def antisym maximum_is_component deviation_range trans maximum_is_greater_or_equal maximum_except_is_greater_or_equal
 prove # proved
 
-# set goals allocated_implies_spa_winner
-# set axioms second_price_auction_def allocation_def allocation_unique second_price_auction_winner_def
-# set time-limit 2000
-# prove # disproved!
+set goals allocated_implies_spa_winner
+#set axioms second_price_auction_def second_price_auction_loser_def
+prove # proved
 
 set goals not_allocated_implies_spa_loser
 set axioms second_price_auction_def second_price_auction_winner_def

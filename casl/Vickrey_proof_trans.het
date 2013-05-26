@@ -258,14 +258,14 @@ forall b : Bids; i : Index; n : Length
         . inRange(n, j) /\ not j = i => not inArgMaxSet(b, j)
                                               %(only_one_maximum)% %implied
 
-%[
+
 forall n : Length; x : Allocation; p : Payments; b : Bids;
 winner : Index
 . secondPriceAuction(n, x, p) /\ n = length(b)
   /\ inRange(n, winner) /\ allocated(x, b, winner)
   => secondPriceAuctionWinner(n, b, x, p, winner)
                                   %(allocated_implies_spa_winner)% %implied
-]%
+
 
 forall n : Length; x : Allocation; p : Payments; b : Bids;
 loser : Index
