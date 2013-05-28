@@ -20,9 +20,7 @@ use Vickrey_proof_trans.het
 dg basic Lemmas2
 
 set goals vickreyA_pre01
-#set axioms 
-prover eprover
-set time-limit 30000
+set axioms cases_combined second_price_auction_def i_sticks_with_valuation_def refl deviation_range deviation_vec_range deviation_vec_def
 prove
 
 dg basic Lemmas3
