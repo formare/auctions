@@ -16,12 +16,15 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+
 header {* Vickrey's Theorem: second price auctions are
   efficient, and truthful bidding is a weakly dominant strategy --
   copy to experiment with ``case checking'' *}
 
 theory Vickrey_CaseChecker
 imports Complex_Main "~~/src/HOL/Library/Order_Relation"
+        "~~/src/HOL/Library/Efficient_Nat"
+
 begin
 
 section {* Single good auctions *}
@@ -311,6 +314,8 @@ lemma arg_max_tb_imp_arg_max_set :
     and b :: bids
   assumes defined: "maximum_defined N"
   shows "arg_max_tb N t b \<in> arg_max_set N b"
+(* A proof could be indirect by assuming that arg_max_tb N t b is not in the set,
+   i.e., that the arg_max_tb offers less or more, and bring this to a contradiction.*)
 proof -
   def Nsort \<equiv> "sorted_list_of_set N"
   from defined have finite: "finite N" and ne: "N \<noteq> {}"
@@ -1089,6 +1094,9 @@ proof -
     using val unfolding b_def efficient_def using spa_is_sga by blast
 qed
 
+code_include Scala ""
+{*package code
+*}
 export_code arg_max_set arg_max_l_tb in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 module_name Vickrey file "code/code.scala"
