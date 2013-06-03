@@ -89,6 +89,8 @@ class Natural private(private val value: BigInt) {
 
 object Vickrey {
 
+def id[A]: A => A = (x: A) => x
+
 trait equal[A] {
   val `Vickrey.equal`: (A, A) => Boolean
 }
@@ -104,27 +106,29 @@ abstract sealed class set[A]
 final case class Set[A](a: List[A]) extends set[A]
 final case class Coset[A](a: List[A]) extends set[A]
 
-def map[A, B](f: A => B, x1: List[A]): List[B] = (f, x1) match {
-  case (f, Nil) => Nil
-  case (f, x :: xs) => f(x) :: map[A, B](f, xs)
+def comp[A, B, C](f: A => B, g: C => A): C => B = (x: C) => f(g(x))
+
+def foldr[A, B](f: A => B => B, x1: List[A]): B => B = (f, x1) match {
+  case (f, Nil) => id[B]
+  case (f, x :: xs) => comp[B, B, B](f(x), foldr[A, B](f, xs))
 }
 
-def fold[A, B](f: A => B => B, x1: List[A], s: B): B = (f, x1, s) match {
-  case (f, x :: xs, s) => fold[A, B](f, xs, (f(x))(s))
-  case (f, Nil, s) => s
+trait ord[A] {
+  val `Vickrey.less_eq`: (A, A) => Boolean
+  val `Vickrey.less`: (A, A) => Boolean
+}
+def less_eq[A](a: A, b: A)(implicit A: ord[A]): Boolean =
+  A.`Vickrey.less_eq`(a, b)
+def less[A](a: A, b: A)(implicit A: ord[A]): Boolean = A.`Vickrey.less`(a, b)
+
+implicit def ord_nat: ord[Nat] = new ord[Nat] {
+  val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Vickrey.less` = (a: Nat, b: Nat) => a < b
 }
 
-def image[A, B](f: A => B, x1: set[A]): set[B] = (f, x1) match {
-  case (f, Set(xs)) => Set[B](map[A, B](f, xs))
-}
-
-def filtera[A](p: A => Boolean, x1: List[A]): List[A] = (p, x1) match {
-  case (p, Nil) => Nil
-  case (p, x :: xs) => (if (p(x)) x :: filtera[A](p, xs) else filtera[A](p, xs))
-}
-
-def filter[A](p: A => Boolean, x1: set[A]): set[A] = (p, x1) match {
-  case (p, Set(xs)) => Set[A](filtera[A](p, xs))
+def member[A : equal](x0: List[A], y: A): Boolean = (x0, y) match {
+  case (Nil, y) => false
+  case (x :: xs, y) => eq[A](x, y) || member[A](xs, y)
 }
 
 abstract sealed class real
@@ -132,6 +136,32 @@ final case class Ratreal(a: rat) extends real
 
 implicit def equal_int: equal[BigInt] = new equal[BigInt] {
   val `Vickrey.equal` = (a: BigInt, b: BigInt) => a == b
+}
+
+def remdups[A : equal](x0: List[A]): List[A] = x0 match {
+  case Nil => Nil
+  case x :: xs =>
+    (if (member[A](xs, x)) remdups[A](xs) else x :: remdups[A](xs))
+}
+
+implicit def equal_nat: equal[Nat] = new equal[Nat] {
+  val `Vickrey.equal` = (a: Nat, b: Nat) => a == b
+}
+
+trait preorder[A] extends ord[A] {
+}
+
+trait order[A] extends preorder[A] {
+}
+
+implicit def preorder_nat: preorder[Nat] = new preorder[Nat] {
+  val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Vickrey.less` = (a: Nat, b: Nat) => a < b
+}
+
+implicit def order_nat: order[Nat] = new order[Nat] {
+  val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Vickrey.less` = (a: Nat, b: Nat) => a < b
 }
 
 def quotient_of(x0: rat): (BigInt, BigInt) = x0 match {
@@ -145,15 +175,20 @@ def less_rat(p: rat, q: rat): Boolean =
     a * d < c * b
   }
 
-trait ord[A] {
-  val `Vickrey.less_eq`: (A, A) => Boolean
-  val `Vickrey.less`: (A, A) => Boolean
+trait linorder[A] extends order[A] {
 }
-def less_eq[A](a: A, b: A)(implicit A: ord[A]): Boolean =
-  A.`Vickrey.less_eq`(a, b)
-def less[A](a: A, b: A)(implicit A: ord[A]): Boolean = A.`Vickrey.less`(a, b)
 
-def max[A : ord](a: A, b: A): A = (if (less_eq[A](a, b)) b else a)
+def insort_key[A, B : linorder](f: A => B, x: A, xa2: List[A]): List[A] =
+  (f, x, xa2) match {
+  case (f, x, Nil) => List(x)
+  case (f, x, y :: ys) =>
+    (if (less_eq[B](f(x), f(y))) x :: y :: ys
+      else y :: insort_key[A, B](f, x, ys))
+}
+
+def sort_key[A, B : linorder](f: A => B, xs: List[A]): List[A] =
+  (foldr[A, List[A]]((a: A) => (b: List[A]) => insort_key[A, B](f, a, b),
+                      xs)).apply(Nil)
 
 def equal_prod[A : equal, B : equal](x0: (A, B), x1: (A, B)): Boolean = (x0, x1)
   match {
@@ -163,63 +198,22 @@ def equal_prod[A : equal, B : equal](x0: (A, B), x1: (A, B)): Boolean = (x0, x1)
 def equal_rat(a: rat, b: rat): Boolean =
   equal_prod[BigInt, BigInt](quotient_of(a), quotient_of(b))
 
-trait preorder[A] extends ord[A] {
-}
-
-trait order[A] extends preorder[A] {
-}
-
-def less_eq_rat(p: rat, q: rat): Boolean =
-  {
-    val (a, c): (BigInt, BigInt) = quotient_of(p)
-    val (b, d): (BigInt, BigInt) = quotient_of(q);
-    a * d <= c * b
-  }
-
-def less_eq_real(x0: real, x1: real): Boolean = (x0, x1) match {
-  case (Ratreal(x), Ratreal(y)) => less_eq_rat(x, y)
+implicit def linorder_nat: linorder[Nat] = new linorder[Nat] {
+  val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Vickrey.less` = (a: Nat, b: Nat) => a < b
 }
 
 def less_real(x0: real, x1: real): Boolean = (x0, x1) match {
   case (Ratreal(x), Ratreal(y)) => less_rat(x, y)
 }
 
-implicit def ord_real: ord[real] = new ord[real] {
-  val `Vickrey.less_eq` = (a: real, b: real) => less_eq_real(a, b)
-  val `Vickrey.less` = (a: real, b: real) => less_real(a, b)
-}
-
-trait linorder[A] extends order[A] {
-}
-
-def maxa[A : linorder](x0: set[A]): A = x0 match {
-  case Set(x :: xs) => fold[A, A]((a: A) => (b: A) => max[A](a, b), xs, x)
-}
-
-implicit def preorder_real: preorder[real] = new preorder[real] {
-  val `Vickrey.less_eq` = (a: real, b: real) => less_eq_real(a, b)
-  val `Vickrey.less` = (a: real, b: real) => less_real(a, b)
-}
-
-implicit def order_real: order[real] = new order[real] {
-  val `Vickrey.less_eq` = (a: real, b: real) => less_eq_real(a, b)
-  val `Vickrey.less` = (a: real, b: real) => less_real(a, b)
-}
-
 def equal_real(x0: real, x1: real): Boolean = (x0, x1) match {
   case (Ratreal(x), Ratreal(y)) => equal_rat(x, y)
 }
 
-implicit def linorder_real: linorder[real] = new linorder[real] {
-  val `Vickrey.less_eq` = (a: real, b: real) => less_eq_real(a, b)
-  val `Vickrey.less` = (a: real, b: real) => less_real(a, b)
+def sorted_list_of_set[A : equal : linorder](x0: set[A]): List[A] = x0 match {
+  case Set(xs) => sort_key[A, A]((x: A) => x, remdups[A](xs))
 }
-
-def maximum(n: set[Nat], y: Nat => real): real =
-  maxa[real](image[Nat, real](y, n))
-
-def arg_max_set(n: set[Nat], b: Nat => real): set[Nat] =
-  filter[Nat]((i: Nat) => equal_real(maximum(n, b), b(i)), n)
 
 def arg_max_l_tb(x0: List[Nat], t: Nat => Nat => Boolean, b: Nat => real): Nat =
   (x0, t, b) match {
@@ -232,5 +226,8 @@ def arg_max_l_tb(x0: List[Nat], t: Nat => Nat => Boolean, b: Nat => real): Nat =
         else (if (equal_real(b(x), b(y)) && (t(x))(y)) x else y))
     }
 }
+
+def arg_max_tb(n: set[Nat], t: Nat => Nat => Boolean, b: Nat => real): Nat =
+  arg_max_l_tb(sorted_list_of_set[Nat](n), t, b)
 
 } /* object Vickrey */

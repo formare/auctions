@@ -1097,7 +1097,7 @@ qed
 code_include Scala ""
 {*package code
 *}
-export_code arg_max_set arg_max_l_tb in Scala
+export_code arg_max_tb in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 module_name Vickrey file "code/code.scala"
 (* A trivial example to try interactively with the generated Scala code:
