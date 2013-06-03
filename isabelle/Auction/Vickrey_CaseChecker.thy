@@ -273,9 +273,9 @@ definition arg_max_set :: "participants \<Rightarrow> real vector \<Rightarrow> 
   where "arg_max_set N b = {i. i \<in> N \<and> maximum N b = b i}"
 
 text{* the index of the single maximum component *}
-fun arg_max_l_tb :: "(nat list) \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
+fun arg_max_l_tb :: "(participant list) \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
 where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function with lists of at least one element *)
-    | "arg_max_l_tb (x # []) t b = x"
+    | "arg_max_l_tb [x] t b = x"
     | "arg_max_l_tb (x # xs) t b =
       (let y = arg_max_l_tb xs t b in
         if (b x > b y) then x (* TODO CL: Once this works, make 'highest bid' just a special case of tie-breaking,
@@ -1089,5 +1089,16 @@ proof -
     using val unfolding b_def efficient_def using spa_is_sga by blast
 qed
 
-find_consts "'a list \<Rightarrow> 'a \<Rightarrow> bool"
+export_code arg_max_set arg_max_l_tb in Scala
+(* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
+module_name Vickrey file "code/code.scala"
+(* A trivial example to try interactively with the generated Scala code:
+
+:load code.scala
+Vickrey.times_int(Vickrey.Zero_int(), Vickrey.Zero_int())
+
+Notes:
+* There are apparently no ready-to-use code-unfold theorems (codegen \<section>2.2) in the library.
+*)
+
 end
