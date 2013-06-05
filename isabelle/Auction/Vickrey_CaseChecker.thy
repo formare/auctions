@@ -195,7 +195,7 @@ definition sga_right_unique :: "single_good_auction \<Rightarrow> input_admissib
       (\<forall> (x :: allocation) (x' :: allocation) (p :: payments) (p' :: payments) .
         ((N, b), (x, p)) \<in> A \<and> ((N, b), (x', p')) \<in> A \<longrightarrow> equivalent N b x p x' p'))"
 
-text{* \<dots> and once for fully specified auctions with tie-breaking, where outcome equivalence
+text{* \<dots> and once for fully specified (“fs”) auctions with tie-breaking, where outcome equivalence
   is defined by equality: *}
 definition fs_sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
   where "fs_sga_right_unique A admissible \<longleftrightarrow>
@@ -273,7 +273,7 @@ qed
 
 text{* the set of all indices of maximum components of a vector *}
 definition arg_max_set :: "participants \<Rightarrow> real vector \<Rightarrow> participants"
-  where "arg_max_set N b = {i. i \<in> N \<and> maximum N b = b i}"
+  where "arg_max_set N b = {i \<in> N . maximum N b = b i}"
 
 text{* the index of the single maximum component *}
 fun arg_max_l_tb :: "(participant list) \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
@@ -286,8 +286,18 @@ where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function wi
         else if (b x = b y \<and> t x y) then x
         else y)"
 
+(* TODO CL: once proving properties of the list-based implementation of this function
+   starts to hurt, follow Lars Noschinski's advice to use the list-based implementation for
+   code generation only, and otherwise use an equivalent set-based definition.
+   http://stackoverflow.com/questions/16702866/defining-an-arg-max-like-function-over-finite-sets-and-proving-some-of-its-pr#comment24451608_16707012 *)
 fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
 where "arg_max_tb N t b = arg_max_l_tb (sorted_list_of_set N) t b"
+
+(* uncomment for testing:
+value "arg_max_tb {2::nat, 4, 6} (* the participant indices *)
+  op> (* the tie breaking function *)
+  (\<lambda> i . nth [27::real, 42, 42] (i div 2 - 1::nat))"
+*)
 
 (* code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
 lemma sorted_list_of_set_remove': (* TODO CL: sorted_list_of_set_not_empty (for which this is needed) should be in the library in 2014; remove then *)
@@ -468,9 +478,10 @@ lemma spa_allocation :
     second_price_auction_loser_def
   by metis
 
-(* TODO CL: show ("case-check") that this yields a function
+(* TODO CL: show ("case-check") that this yields a function (for any given tie breaker)
    (somehow need to pass tie-breaker into relational definition of auction,
    and assume "wf_tie_breaker_on participants") *)
+(* fs = fully specified *)
 definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "fs_spa_pred N b t x p \<longleftrightarrow>
@@ -1108,5 +1119,5 @@ Vickrey.times_int(Vickrey.Zero_int(), Vickrey.Zero_int())
 Notes:
 * There are apparently no ready-to-use code-unfold theorems (codegen \<section>2.2) in the library.
 *)
-
+print_codeproc
 end
