@@ -184,6 +184,17 @@ definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibil
     (\<forall> (N :: participants) (b :: bids) . admissible N b \<longrightarrow>
       (\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A))"
 
+text{* If one relation is left-total on a given set, its superrelations are left-total on that set too. *}
+lemma left_total_suprel:
+  fixes A :: single_good_auction
+    and B :: single_good_auction
+    and admissible :: input_admissibility
+  assumes left_total_subrel: "sga_left_total A admissible"
+      and suprel: "A \<subseteq> B"
+  shows "sga_left_total B admissible"
+using assms sga_left_total_def
+by (metis set_mp)
+
 type_synonym outcome_equivalence = "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
 text{* Right-uniqueness of an auction defined as a relation: for each admissible bid vector,
@@ -318,6 +329,8 @@ lemma sorted_list_of_set_eq_Nil_iff [simp] : (* TODO CL: should be in the librar
   shows "sorted_list_of_set S = [] \<longleftrightarrow> S = {}"
 using assms by (auto simp: sorted_list_of_set_remove')
 
+text{* The highest bidder, determined by tie-breaking using @{term arg_max_tb},
+  is one member of the set of all highest bidders, determined using @{term arg_max_set}. *}
 lemma arg_max_tb_imp_arg_max_set :
   fixes N :: participants
     and t :: tie_breaker
@@ -340,9 +353,9 @@ proof -
       fix x have "arg_max_l_tb [x] t b \<in> arg_max_set (set [x]) b"
         unfolding arg_max_l_tb.simps arg_max_set_def maximum_def Nsort_def by simp
     }
-    then show ?case by blast
+    then show ?case ..
   next
-    case cons (* CL: How can I use the cons.* that I'm getting here below? *)
+    case cons (* CL: How can I use the cons.*, that I'm getting here, below? *)
     fix x xs
     assume a1: "xs \<noteq> []" and a2: "distinct xs \<longrightarrow> arg_max_l_tb xs t b \<in> arg_max_set (set xs) b"
     from a1 have mdxs: "maximum_defined (set xs)" using maximum_defined_def by (metis List.finite_set card_gt_0_iff set_empty2)
@@ -476,11 +489,8 @@ lemma spa_allocation :
   unfolding spa_pred_def second_price_auction_def
     second_price_auction_winner_def second_price_auction_winner_outcome_def
     second_price_auction_loser_def
-  by metis
+  by auto
 
-(* TODO CL: show ("case-check") that this yields a function (for any given tie breaker)
-   (somehow need to pass tie-breaker into relational definition of auction,
-   and assume "wf_tie_breaker_on participants") *)
 (* fs = fully specified *)
 definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
@@ -520,7 +530,7 @@ proof -
   qed
   with bids spa_loser have "bids N b \<and> (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
     (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))" by blast
-  then show ?thesis unfolding spa_pred_def by simp
+  then show ?thesis unfolding spa_pred_def .
 qed
 
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome is an allocation. *}
@@ -535,7 +545,7 @@ proof -
   (* the losers' allocations are all 0 *)
   with spa have "\<forall>j \<in> N - {i} . x j = 0" using spa_allocation by (metis member_remove remove_def)
   then have "(\<Sum> k \<in> N . x k) = 1" using finite i_def by (metis comm_monoid_add_class.add.right_neutral setsum.F_neutral' setsum.remove)
-  then show ?thesis unfolding allocation_def by simp
+  then show ?thesis unfolding allocation_def .
 qed
 
 lemma spa_well_defined_sga :
@@ -554,7 +564,7 @@ lemma spa_payments :
   shows "\<exists> i \<in> N . p i = maximum (N - {i}) b \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
   using assms
   unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
-  by metis
+  by auto
 
 (* TODO CL: In the general auction case it may make sense to check that the payments (including the seller's payment)
    sum up to 0.
@@ -582,7 +592,7 @@ proof -
   also have "\<dots> \<ge> 0" using spa spa_pred_def second_price_auction_def bids_def non_negative_real_vector_def by (smt greater k_def)
   with i_pay and calculation have "p i \<ge> 0" by simp
   with i_range and losers_pay have "\<forall> k \<in> N . p k \<ge> 0" by auto
-  with vickrey_payment_def show ?thesis by blast
+  with vickrey_payment_def show ?thesis ..
 qed
 
 definition spa_admissible_input :: "participants \<Rightarrow> bids \<Rightarrow> bool"
@@ -632,7 +642,7 @@ proof -
     (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
        However we are working with our own wrapped maximum definition anyway. *)
     then obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
-      using spa_admissible_input_def arg_max_set_def maximum_def maximum_def maximum_is_component maximum_defined_def
+      using spa_admissible_input_def arg_max_set_def maximum_def maximum_is_component maximum_defined_def
       by (smt mem_Collect_eq)
     (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
     def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
@@ -758,9 +768,28 @@ proof -
       from admissible range' pay' range pay show "b ` { i \<in> N . p' i > 0 } \<subseteq> b ` { i \<in> N . p i > 0 }"
         using positive_payment_bids_eq_suff by simp
     qed
-    ultimately have "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def by blast
+    ultimately have "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def ..
   }
   then show ?thesis unfolding sga_right_unique_def by blast
+qed
+
+(* TODO CL: show ("case-check") that the fully specified SPA
+   yields a function (for any given tie breaker that satisfies certain conditions)
+   (somehow need to pass tie-breaker into relational definition of auction,
+   and assume "wf_tie_breaker_on participants") *)
+lemma fs_spa_is_left_total :
+  fixes A :: single_good_auction
+    and t :: tie_breaker
+  assumes fs_spa: "rel_all_sga_pred (\<lambda> N b x p . fs_spa_pred N b t x p) A"
+  (* For A \<subseteq> B, left_total_suprel tells us that A is left-total *)
+  shows "sga_left_total A spa_admissible_input"
+proof -
+  {
+    fix B assume "rel_all_sga_pred spa_pred B"
+    with spa_is_left_total have "sga_left_total B spa_admissible_input" .
+    with fs_spa have "A \<subseteq> B" sorry
+  }
+  then show ?thesis sorry
 qed
 
 lemma spa_is_sga_pred :
@@ -769,7 +798,7 @@ lemma spa_is_sga_pred :
   assumes "spa_pred N b x p"
   shows "sga_pred N b x p"
   using assms
-  unfolding spa_pred_def sga_pred_def by blast
+  unfolding spa_pred_def sga_pred_def ..
 
 lemma spa_is_sga :
   fixes A :: single_good_auction
@@ -1015,7 +1044,7 @@ proof -
         with defined spa_pred alternative_is_bid i_range
         have "payoff (v i) (x i) (p i) = v i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
-        also have "\<dots> = payoff (v i) (x' i) (p' i)" using winner_payoff by simp
+        also have "\<dots> = payoff (v i) (x' i) (p' i)" using winner_payoff ..
         finally show ?thesis by (rule eq_refl)
       next -- {* case 1b of the short proof *}
         assume "x i \<noteq> 1"
@@ -1026,7 +1055,7 @@ proof -
         with spa_pred i_range
         have "payoff (v i) (x i) (p i) = 0"
           by (rule second_price_auction_loser_payoff)
-        also have "\<dots> \<le> payoff (v i) (x' i) (p' i)" using non_negative_payoff by simp
+        also have "\<dots> \<le> payoff (v i) (x' i) (p' i)" using non_negative_payoff .
         finally show ?thesis .
       qed
 
@@ -1057,7 +1086,7 @@ proof -
         have "payoff (v i) (x i) (p i) = ?b i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
         also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
-        also have "\<dots> = payoff (v i) (x' i) (p' i)" using loser_payoff by simp
+        also have "\<dots> = payoff (v i) (x' i) (p' i)" using loser_payoff ..
         finally show ?thesis .
       next -- {* case 2b of the short proof *}
         assume "x i \<noteq> 1"
@@ -1068,7 +1097,7 @@ proof -
         with spa_pred i_range
         have "payoff (v i) (x i) (p i) = 0"
           by (rule second_price_auction_loser_payoff)
-        also have "\<dots> = payoff (v i) (x' i) (p' i)" using loser_payoff by simp
+        also have "\<dots> = payoff (v i) (x' i) (p' i)" using loser_payoff ..
         finally show ?thesis by (rule eq_refl)
       qed
     qed
