@@ -502,6 +502,22 @@ definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_bre
       (\<exists>i \<in> N . i = arg_max_tb N t b \<and> second_price_auction_winner_outcome N b x p i \<and>
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))"
 
+text{* convenience function to compute the winner of a fully specified second price auction with tie-breaking *}
+fun fs_spa_winner :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> participant"
+  where "fs_spa_winner N b t = arg_max_tb N t b"
+
+text{* convenience function to compute the allocation of a fully specified second price auction with tie-breaking *}
+(* TODO CL: state and prove the relation of this to fs_spa_pred *)
+fun fs_spa_allocation :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
+  where "fs_spa_allocation N b t = (let winner = fs_spa_winner N b t in
+    (\<lambda> i . if (i = winner) then 1 else 0))"
+
+text{* convenience function to compute the payments of a fully specified second price auction with tie-breaking *}
+(* TODO CL: state and prove the relation of this to fs_spa_pred *)
+fun fs_spa_payments :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
+  where "fs_spa_payments N b t = (let winner = fs_spa_winner N b t in
+    (\<lambda> i . if (i = winner) then maximum (N - {i}) b else 0))"
+
 lemma fs_spa_is_spa :
   fixes N :: participants
     and b :: bids
@@ -621,7 +637,7 @@ qed
 
 lemma fs_spa_is_left_total :
   fixes A :: single_good_auction
-    and t :: tie_breaker (* also assume wf_tie_breaker_on_participants? *)
+    and t :: tie_breaker
   assumes fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
   shows "sga_left_total A spa_admissible_input"
 proof -
@@ -648,6 +664,42 @@ proof -
       using fs_spa_pred'_def spa_pred_def rel_all_sga_pred_def by auto
   }
   then show ?thesis unfolding sga_left_total_def by blast
+qed
+
+(* CL: Neither for fs_spa_is_left_total nor here we needed to assume wf_tie_breaker_on_participants,
+   so what _do_ we need it for? *)
+lemma fs_spa_is_right_unique :
+  fixes A :: single_good_auction
+    and t :: tie_breaker
+  assumes fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
+  shows "fs_sga_right_unique A spa_admissible_input"
+proof -
+  {
+    fix N :: participants and b :: bids
+    assume admissible: "spa_admissible_input N b"
+    fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
+
+    assume "((N, b), (x, p)) \<in> A"
+    with fs_spa have "fs_spa_pred N b t x p" unfolding rel_all_sga_pred_def fs_spa_pred'_def by blast
+    then obtain winner::participant
+      where range: "winner \<in> N \<and> winner = arg_max_tb N t b"
+        and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
+        and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
+      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      by blast
+    
+    assume "((N, b), (x', p')) \<in> A"
+    with fs_spa have "fs_spa_pred N b t x' p'" unfolding rel_all_sga_pred_def fs_spa_pred'_def by blast
+    then obtain winner'::participant
+      where range': "winner' \<in> N \<and> winner' = arg_max_tb N t b"
+        and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
+        and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
+      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      by blast
+
+    from range alloc pay range' alloc' pay' have "vectors_equal N x x' \<and> vectors_equal N p p'" unfolding vectors_equal_def by metis
+  }
+  then show ?thesis unfolding sga_right_unique_def fs_sga_right_unique_def by blast
 qed
 
 (* TODO CL: This lemma also works when admissibility is defined as "card N > 0" because
@@ -688,39 +740,17 @@ lemma spa_is_left_total :
   assumes spa: "rel_all_sga_pred spa_pred A"
   shows "sga_left_total A spa_admissible_input"
 proof -
-  {
-    def t \<equiv> "op>::(participant \<Rightarrow> participant \<Rightarrow> bool)"
-    then obtain B where B_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) B" sorry
-    with spa have sup: "B \<subseteq> A" using rel_all_fs_spa_is_spa by simp
-    from B_fs_spa fs_spa_is_left_total have B_left_total: "sga_left_total B spa_admissible_input" by simp
-    with sup B_left_total have "sga_left_total A spa_admissible_input" using left_total_suprel by simp
-  }
-  then show ?thesis .
+  def t \<equiv> "op>::(participant \<Rightarrow> participant \<Rightarrow> bool)"
+  (* Note that it is not necessary to prove that fs_spa_pred' is satisfiable. *)
+  def fs_spa_pred'' \<equiv> "\<lambda> tup . (\<exists> N b x p . tup = ((N, b), (x, p)) \<and> (fs_spa_pred' t) N b x p)"
+  then have "\<exists> A . (\<forall> tup . tup \<in> A \<longleftrightarrow> fs_spa_pred'' tup)" by (metis mem_Collect_eq)
+  with fs_spa_pred''_def have "\<exists> A . (\<forall> a b c d . ((a, b), (c, d)) \<in> A \<longleftrightarrow> (fs_spa_pred' t) a b c d)" by simp
+  then have "\<exists> B . rel_all_sga_pred (fs_spa_pred' t) B" unfolding rel_all_sga_pred_def .
+  then obtain B where B_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) B" ..
+  with spa have sup: "B \<subseteq> A" using rel_all_fs_spa_is_spa by simp
+  from B_fs_spa fs_spa_is_left_total have B_left_total: "sga_left_total B spa_admissible_input" by simp
+  with sup B_left_total show ?thesis using left_total_suprel by simp
 qed
-
-(* TODO delete once new proof is done
-proof -
-  {
-    fix N :: participants and b :: bids
-    assume admissible: "spa_admissible_input N b"
-    (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
-       However we are working with our own wrapped maximum definition anyway. *)
-    then obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
-      using spa_admissible_input_def arg_max_set_def maximum_def maximum_is_component maximum_defined_def
-      by (smt mem_Collect_eq)
-    (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
-    def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
-    def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
-    from x_def and p_def and winner_def and admissible
-      have "spa_pred N b x p"
-      using spa_admissible_input_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def spa_pred_def
-      by auto
-    with spa have "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
-      using spa_pred_def rel_all_sga_pred_def by auto
-  }
-  then show ?thesis unfolding sga_left_total_def by blast
-qed
-*)
 
 text{* We consider two outcomes of a second price auction equivalent if 
 \begin{enumerate}
@@ -806,7 +836,7 @@ proof -
       where range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
         and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
         and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-      unfolding rel_all_sga_pred_def spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
       by blast
 
     assume "((N, b), (x', p')) \<in> A"
@@ -817,6 +847,7 @@ proof -
         and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
       unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
       by blast
+
     have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
     proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
       from range alloc range' alloc' show "b ` { i \<in> N . x i = 1 } \<subseteq> b ` { i \<in> N . x' i = 1 }"
@@ -1183,7 +1214,7 @@ qed
 code_include Scala ""
 {*package code
 *}
-export_code arg_max_tb in Scala
+export_code fs_spa_winner fs_spa_allocation fs_spa_payments in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 module_name Vickrey file "code/code.scala"
 (* A trivial example to try interactively with the generated Scala code:
