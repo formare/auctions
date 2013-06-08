@@ -507,16 +507,61 @@ fun fs_spa_winner :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker 
   where "fs_spa_winner N b t = arg_max_tb N t b"
 
 text{* convenience function to compute the allocation of a fully specified second price auction with tie-breaking *}
-(* TODO CL: state and prove the relation of this to fs_spa_pred *)
 fun fs_spa_allocation :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
   where "fs_spa_allocation N b t = (let winner = fs_spa_winner N b t in
     (\<lambda> i . if (i = winner) then 1 else 0))"
 
 text{* convenience function to compute the payments of a fully specified second price auction with tie-breaking *}
-(* TODO CL: state and prove the relation of this to fs_spa_pred *)
 fun fs_spa_payments :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
   where "fs_spa_payments N b t = (let winner = fs_spa_winner N b t in
     (\<lambda> i . if (i = winner) then maximum (N - {i}) b else 0))"
+
+text{* The definitions of the computable functions @{text fs_spa_allocation} and @{text fs_spa_payments}
+  are consistent with how we defined the outcome of a fully specified second price auction
+  with tie-breaking in @{text fs_spa_pred}. *}
+lemma fs_spa_pred_allocation_payments:
+  fixes N :: participants
+    and b :: bids
+    and t :: tie_breaker
+    and x :: allocation
+    and p :: payments
+  shows "fs_spa_pred N b t x p \<longleftrightarrow>
+    spa_admissible_input N b \<and>
+    vectors_equal N x (fs_spa_allocation N b t) \<and>
+    vectors_equal N p (fs_spa_payments N b t)"
+proof
+  assume "fs_spa_pred N b t x p"
+  then have "spa_admissible_input N b"
+    and outcome: "\<exists>i \<in> N . i = fs_spa_winner N b t \<and>
+     x i = 1 \<and> (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> x j = 0) \<and>
+     p i = maximum (N - {i}) b \<and> (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
+    unfolding fs_spa_pred_def
+      second_price_auction_winner_outcome_def second_price_auction_loser_def
+     using fs_spa_winner.simps by auto
+  then show "spa_admissible_input N b \<and>
+    vectors_equal N x (fs_spa_allocation N b t) \<and>
+    vectors_equal N p (fs_spa_payments N b t)"
+    using fs_spa_allocation.simps fs_spa_payments.simps vectors_equal_def by smt
+next
+  assume "spa_admissible_input N b \<and>
+    vectors_equal N x (fs_spa_allocation N b t) \<and>
+    vectors_equal N p (fs_spa_payments N b t)"
+  then have admissible: "spa_admissible_input N b"
+    and outcome: "let winner = fs_spa_winner N b t in
+      (\<forall>i \<in> N . x i = (if (i = winner) then 1 else 0)) \<and>
+      (\<forall>i \<in> N . p i = (if (i = winner) then maximum (N - {i}) b else 0))"
+    unfolding vectors_equal_def
+    using fs_spa_allocation.simps fs_spa_payments.simps by simp_all
+  from admissible have winner_range: "fs_spa_winner N b t \<in> N"
+    using arg_max_set_def arg_max_tb_imp_arg_max_set fs_spa_winner.simps maximum_defined_def mem_Collect_eq spa_admissible_input_def
+    by smt
+  with outcome have "let winner = fs_spa_winner N b t in
+      x winner = 1 \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0) \<and>
+      p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)" by metis
+  with admissible winner_range show "fs_spa_pred N b t x p"
+     unfolding fs_spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+     using fs_spa_winner.simps by metis
+qed
 
 lemma fs_spa_is_spa :
   fixes N :: participants
