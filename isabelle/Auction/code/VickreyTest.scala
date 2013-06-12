@@ -3,6 +3,7 @@ import code.Vickrey._
 
 /** run with "scala VickreyTest", or with "java -cp .:/usr/share/scala/lib/scala-library.jar VickreyTest" */
 object VickreyTest {
+  /** This allows us to let a function take a tuple of arguments instead of taking one argument and returning a function. */
   def curry[A,B,C](g: (A,B) => C) = (x:A) => (y:B) => g(x,y)
 
   /* something like this might in some cases allow us to write an Int where Nat is expected
@@ -15,14 +16,17 @@ object VickreyTest {
     case _ => x
   }
   
+  /** translate an Isabelle-friendly vector to a Scala Map */
   def vecToMap[A](v: (Nat => A), n: set[Nat]) =
     n match {
       case Set(xs) => Map(xs.map(i => i -> prettyPrint(v(i))): _*) }
 
   /** reads a decimal number, e.g. "3.14", from standard input */
   def readDecimal(): real = {
-    val Decimal = """(\d+)(?:\.(\d+))?""".r
-    val Decimal(whole, maybeFrac) = Iterator.continually(Console.readLine).dropWhile(!Decimal.unapplySeq(_).isDefined).next
+    val Decimal = """(\d+)(?:\.(\d+))?""".r // a regular expression; (?: ... ) is a non-capturing group
+    val Decimal(whole, maybeFrac) =
+      Iterator.continually(Console.readLine).
+      dropWhile(!Decimal.unapplySeq(_).isDefined /* dropWhile("_ does not match Decimal") */).next
     val power = if (maybeFrac != null) maybeFrac.length else 0
     val frac = if (maybeFrac != null) maybeFrac.toInt else 0
     val commonDen = math.pow(10, power).toInt
@@ -43,14 +47,14 @@ object VickreyTest {
     val bids = Map(participants.map(i => {
         print("Bid for participant " + i + ": ")
         i -> readDecimal()
-      }): _*)
+      }): _*) // ...: _* expands a tuple into a variable-length argument
     println("Bids: " + bids)
     // for hard-coded constants use functions like { case foo => bar case baz => ... }
 
     println("Enter the tie breaker as '>'-separated list of participant IDs:")
     val tmpList = Console.readLine.split(" *> *").toList.map(_.toInt)
     val tbList = if
-      (tmpList.toSet == participants.toSet)
+      (tmpList.toSet == participants.toSet) // equality of (unsorted!) sets
       tmpList
     else {
       print("Invalid or incomplete list entered; falling back to random order: ")
