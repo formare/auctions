@@ -117,7 +117,7 @@ text{* We employ the general definition of an allocation for a divisible single 
   the \emph{auction} as a relation of bids to a @{text "(allocation \<times> payments)"} outcome. *}
 (* text_raw{*\snip{allocation_def}{1}{2}{%*} *)
 definition allocation :: "participants \<Rightarrow> allocation \<Rightarrow> bool"
-  where "allocation N x \<longleftrightarrow> (\<Sum> i \<in> N . x i) = 1"
+  where "allocation N x \<longleftrightarrow> non_negative_real_vector N x \<and> (\<Sum> i \<in> N . x i) = 1"
 (* text_raw{*}%endsnip*} *)
 
 subsection {* Payment *}
@@ -628,9 +628,9 @@ lemma spa_allocates :
 proof -
   from spa obtain i where i_def: "i \<in> N \<and> x i = 1" using spa_allocation by blast
   (* the losers' allocations are all 0 *)
-  with spa have "\<forall>j \<in> N - {i} . x j = 0" using spa_allocation by (metis member_remove remove_def)
+  with spa have j_def: "\<forall>j \<in> N - {i} . x j = 0" using spa_allocation by (metis member_remove remove_def)
   then have "(\<Sum> k \<in> N . x k) = 1" using finite i_def by (metis comm_monoid_add_class.add.right_neutral setsum.F_neutral' setsum.remove)
-  then show ?thesis unfolding allocation_def .
+  then show ?thesis unfolding allocation_def non_negative_real_vector_def by (smt spa spa_allocation)
 qed
 
 lemma spa_well_defined_sga :
