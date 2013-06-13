@@ -54,7 +54,8 @@ object VickreyTest {
     println("Enter the tie breaker as '>'-separated list of participant IDs:")
     val tmpList = Console.readLine.split(" *> *").toList.map(_.toInt)
     val tbList = if
-      (tmpList.toSet == participants.toSet) // equality of (unsorted!) sets
+      (tmpList.length == participants.length
+       && tmpList.toSet == participants.toSet) // equality of (unsorted!) sets
       tmpList
     else {
       print("Invalid or incomplete list entered; falling back to random order: ")
