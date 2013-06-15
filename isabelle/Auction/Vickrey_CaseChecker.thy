@@ -218,6 +218,10 @@ definition sga_function :: "single_good_auction \<Rightarrow> input_admissibilit
   where "sga_function A admissible equivalent \<longleftrightarrow>
     sga_left_total A admissible \<and> sga_right_unique A admissible equivalent"
 
+definition fs_sga_function :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+  where "fs_sga_function A admissible \<longleftrightarrow>
+    sga_left_total A admissible \<and> fs_sga_right_unique A admissible"
+
 subsection {* Maximum *}
 text{* This subsection uses Isabelle's set maximum functions, wrapping them for our use. *}
 
@@ -473,11 +477,16 @@ definition second_price_auction_winner ::
       i \<in> N \<and> i \<in> arg_max_set N b \<and>
       second_price_auction_winner_outcome N b x p i"
 
+definition second_price_auction_loser_outcome ::
+    "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
+  where "second_price_auction_loser_outcome N x p i \<longleftrightarrow>
+     x i = 0 \<and>
+     p i = 0"
+
 definition second_price_auction_loser ::
     "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where "second_price_auction_loser N x p i \<longleftrightarrow> i \<in> N \<and>
-     x i = 0 \<and>
-     p i = 0"
+     second_price_auction_loser_outcome N x p i"
 
 definition spa_admissible_input :: "participants \<Rightarrow> bids \<Rightarrow> bool"
   where "spa_admissible_input N b \<longleftrightarrow> card N > 1 \<and> bids N b"
@@ -486,8 +495,8 @@ definition spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation
   where
     "spa_pred N b x p \<longleftrightarrow>
       spa_admissible_input N b \<and>
-      (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
-        (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))"
+      (\<exists>i \<in> N. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
+        (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
 
 definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
   where "second_price_auction A = rel_sat_sga_pred spa_pred A"
@@ -501,7 +510,7 @@ lemma spa_allocation :
   using assms
   unfolding spa_pred_def second_price_auction_def
     second_price_auction_winner_def second_price_auction_winner_outcome_def
-    second_price_auction_loser_def
+    second_price_auction_loser_def second_price_auction_loser_outcome_def
   by auto
 
 (* fs = fully specified *)
@@ -511,7 +520,7 @@ definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_bre
       wf_tie_breaker_on t N \<and>
       spa_admissible_input N b \<and>
       (\<exists>i \<in> N . i = the (arg_max_tb_req_wf N t b) \<and> second_price_auction_winner_outcome N b x p i \<and>
-        (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))"
+        (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
 
 text{* convenience function to compute the winner of a fully specified second price auction with tie-breaking *}
 fun fs_spa_winner_req_wf :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> participant"
@@ -571,7 +580,7 @@ proof
      x i = 1 \<and> (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> x j = 0) \<and>
      p i = maximum (N - {i}) b \<and> (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
     unfolding fs_spa_pred_def
-      second_price_auction_winner_outcome_def second_price_auction_loser_def
+      second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
      using fs_spa_winner_req_wf.simps by auto
   then show "wf_tie_breaker_on t N \<and> spa_admissible_input N b \<and>
     vectors_equal N x (fs_spa_allocation_req_wf N b t) \<and>
@@ -595,7 +604,8 @@ next
       x winner = 1 \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0) \<and>
       p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)" by metis
   with wf_tie admissible winner_range show "fs_spa_pred N b t x p"
-     unfolding fs_spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+     unfolding fs_spa_pred_def
+       second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
      using fs_spa_winner_req_wf.simps by metis
 qed
 
@@ -610,13 +620,13 @@ lemma fs_spa_is_spa :
 proof -
   from assms have wf_tie: "wf_tie_breaker_on t N" and card: "card N > 1" and bids: "bids N b" and
     def_unfolded: "(\<exists>i \<in> N . i = the (arg_max_tb_req_wf N t b) \<and> second_price_auction_winner_outcome N b x p i \<and>
-      (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))"
+      (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
     unfolding fs_spa_pred_def spa_admissible_input_def by auto
   then obtain winner
     where fs_spa_winner: "winner \<in> N \<and> winner = the (arg_max_tb_req_wf N t b) \<and>
         second_price_auction_winner_outcome N b x p winner"
-      and spa_loser: "\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> second_price_auction_loser N x p j" by blast
-  have spa_winner: "winner \<in> N \<and> second_price_auction_winner N b x p winner"
+      and spa_loser: "\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> second_price_auction_loser_outcome N x p j" by blast
+  have spa_winner: "winner \<in> N \<and> winner \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p winner"
   proof -
     from fs_spa_winner have range: "winner \<in> N"
       and determination: "winner = the (arg_max_tb_req_wf N t b)"
@@ -627,8 +637,8 @@ proof -
     with range and spa_winner_outcome show ?thesis
       unfolding second_price_auction_winner_def by simp
   qed
-  with card bids spa_loser have "card N > 1 \<and> bids N b \<and> (\<exists>i \<in> N. second_price_auction_winner N b x p i \<and>
-    (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))" by blast
+  with card bids spa_loser have "card N > 1 \<and> bids N b \<and> (\<exists>i \<in> N. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
+    (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))" by blast
   then show ?thesis unfolding spa_admissible_input_def spa_pred_def by simp
 qed
 
@@ -684,8 +694,8 @@ lemma spa_payments :
   assumes "spa_pred N b x p"
   shows "\<exists> i \<in> N . p i = maximum (N - {i}) b \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
   using assms
-  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
-  by auto
+  unfolding spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
+  by blast
 
 (* TODO CL: In the general auction case it may make sense to check that the payments (including the seller's payment)
    sum up to 0.
@@ -740,7 +750,7 @@ proof -
     from x_def p_def winner_def wf_tie admissible
       have "fs_spa_pred N b t x p"
       using spa_admissible_input_def
-        second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+        second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
         fs_spa_pred_def
       by auto
     with fs_spa have "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
@@ -766,7 +776,7 @@ proof -
       where range: "winner \<in> N \<and> winner = the (arg_max_tb_req_wf N t b)"
         and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
         and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
       by blast
     
     assume "((N, b), (x', p')) \<in> A"
@@ -775,12 +785,24 @@ proof -
       where range': "winner' \<in> N \<and> winner' = the (arg_max_tb_req_wf N t b)"
         and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
         and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
-      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
       by blast
 
     from range alloc pay range' alloc' pay' have "vectors_equal N x x' \<and> vectors_equal N p p'" unfolding vectors_equal_def by metis
   }
   then show ?thesis unfolding sga_right_unique_def fs_sga_right_unique_def by blast
+qed
+
+lemma fs_spa_is_function :
+  fixes A :: single_good_auction
+    and t :: tie_breaker
+  assumes wf_tie: "\<forall>N . wf_tie_breaker_on t N"
+      and fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
+  shows "fs_sga_function A spa_admissible_input"
+proof -
+  from wf_tie fs_spa have "sga_left_total A spa_admissible_input" using fs_spa_is_left_total by simp
+  moreover from fs_spa have "fs_sga_right_unique A spa_admissible_input" using fs_spa_is_right_unique by simp
+  ultimately show ?thesis unfolding fs_sga_function_def ..
 qed
 
 (* TODO CL: This lemma also works when admissibility is defined as "card N > 0" because
@@ -822,13 +844,8 @@ lemma spa_is_left_total :
   shows "sga_left_total A spa_admissible_input"
 proof -
   (* We define ourselves an arbitrary tie breaker *)
-  (* TODO CL: If the following ever gets deleted _here_, preserve it somewhere else in the toolbox. *)
-  (*
-  def t \<equiv> "op>::(participant \<Rightarrow> participant \<Rightarrow> bool)"
-  then have wf_tie: "\<forall>N . wf_tie_breaker_on t N" unfolding wf_tie_breaker_on_def
-    strict_linear_order_on_def trans_def irrefl_def total_on_def 
-    by (smt bot_least insert_subset mem_Collect_eq prod.cases) *)
   have foo: "\<exists>t . \<forall>N . wf_tie_breaker_on t N"
+  (* TODO CL: If the following ever gets deleted _here_, preserve it somewhere else in the toolbox. *)
   proof -
     def t \<equiv> "op>::(participant \<Rightarrow> participant \<Rightarrow> bool)"
     then have wf_tie: "\<forall>N . wf_tie_breaker_on t N" unfolding wf_tie_breaker_on_def
@@ -933,7 +950,7 @@ proof -
       where range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
         and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
         and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-      unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
       by blast
 
     assume "((N, b), (x', p')) \<in> A"
@@ -942,7 +959,7 @@ proof -
       where range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
         and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
         and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
-      unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+      unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
       by blast
 
     have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
@@ -964,6 +981,16 @@ proof -
     ultimately have "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def ..
   }
   then show ?thesis unfolding sga_right_unique_def by blast
+qed
+
+lemma spa_is_function :
+  fixes A :: single_good_auction
+  assumes spa: "rel_all_sga_pred spa_pred A"
+  shows "sga_function A spa_admissible_input spa_equivalent_outcome"
+proof -
+  from spa have "sga_left_total A spa_admissible_input" using spa_is_left_total by simp
+  moreover from spa have "sga_right_unique A spa_admissible_input spa_equivalent_outcome" using spa_is_right_unique by simp
+  ultimately show ?thesis unfolding sga_function_def ..
 qed
 
 lemma spa_is_sga_pred :
@@ -996,7 +1023,7 @@ lemma spa_allocates_binary :
       and "i \<in> N"
   shows "x i = 0 \<or> x i = 1"
   using assms
-  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_def
+  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
   by fast
 
 lemma allocated_implies_spa_winner:
@@ -1008,7 +1035,7 @@ lemma allocated_implies_spa_winner:
     and "x winner = 1"
   shows "second_price_auction_winner N b x p winner"
   using assms
-  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_def
+  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_outcome_def
     allocation_def
   by (metis zero_neq_one)
     (* CL: With the generalised allocation_def, this proof needed a bit more complexity,
@@ -1026,7 +1053,8 @@ proof -
   from loses have "\<not> second_price_auction_winner N b x p loser"
     unfolding second_price_auction_winner_def second_price_auction_winner_outcome_def by simp
   with spa range show ?thesis
-      unfolding spa_pred_def second_price_auction_def by fast
+    unfolding spa_pred_def second_price_auction_winner_def second_price_auction_loser_def
+    by fast
 qed
 
 lemma only_max_bidder_wins:
@@ -1039,8 +1067,8 @@ lemma only_max_bidder_wins:
   shows "second_price_auction_winner N b x p max_bidder"
 proof -
   from spa have spa_unfolded:
-    "spa_admissible_input N b \<and> (\<exists>i. second_price_auction_winner N b x p i \<and>
-      (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser N x p j))"
+    "spa_admissible_input N b \<and> (\<exists>i. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
+      (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
     unfolding spa_pred_def second_price_auction_def by blast
   {
     fix j :: participant
@@ -1059,8 +1087,8 @@ proof -
       with * show False by simp
     qed
   }
-    with spa_unfolded show ?thesis
-    by (auto simp add: second_price_auction_winner_def)
+  with spa_unfolded show ?thesis
+    by (auto simp add: second_price_auction_winner_def arg_max_set_def)
 qed
 
 lemma second_price_auction_winner_payoff:
@@ -1090,7 +1118,8 @@ lemma second_price_auction_loser_payoff:
     and "x i = 0"
   shows "payoff (v i) (x i) (p i) = 0"
   using assms not_allocated_implies_spa_loser
-  unfolding second_price_auction_loser_def payoff_def by simp
+  unfolding second_price_auction_loser_def second_price_auction_loser_outcome_def payoff_def
+  by simp
 
 lemma winners_payoff_on_deviation_from_valuation:
   fixes N :: participants and v :: valuations and x :: allocation
@@ -1322,5 +1351,7 @@ Vickrey.times_int(Vickrey.Zero_int(), Vickrey.Zero_int())
 Notes:
 * There are apparently no ready-to-use code-unfold theorems (codegen \<section>2.2) in the library.
 *)
+(*
 print_codeproc
+*)
 end
