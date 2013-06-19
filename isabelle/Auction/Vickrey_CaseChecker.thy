@@ -301,21 +301,21 @@ where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function wi
         else if (b x = b y \<and> t x y) then x
         else y)"
 
+fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
+where "arg_max_tb N t b = arg_max_l_tb (sorted_list_of_set N) t b"
+
 (* TODO CL: once proving properties of the list-based implementation of this function
    starts to hurt, follow Lars Noschinski's advice to use the list-based implementation for
    code generation only, and otherwise use an equivalent set-based definition.
    http://stackoverflow.com/questions/16702866/defining-an-arg-max-like-function-over-finite-sets-and-proving-some-of-its-pr#comment24451608_16707012 *)
 fun arg_max_tb_req_wf :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant option"
 where "arg_max_tb_req_wf N t b = (if (wf_tie_breaker_on t N)
-  then Some (arg_max_l_tb (sorted_list_of_set N) t b)
+  then Some (arg_max_tb N t b)
   else None)"
-
-fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
-where "arg_max_tb N t b = arg_max_l_tb (sorted_list_of_set N) t b"
 
 lemma arg_max_tb_wf:
   assumes "wf_tie_breaker_on t N" shows "arg_max_tb N t b = the (arg_max_tb_req_wf N t b)"
-  using assms arg_max_tb.simps arg_max_tb_req_wf.simps by simp
+  using assms by simp
 
 (* uncomment for testing:
 value "arg_max_tb {2::nat, 4, 6} (* the participant indices *)
@@ -365,7 +365,7 @@ proof -
     case single
     {
       fix x have "arg_max_l_tb [x] t b \<in> arg_max_set (set [x]) b"
-        unfolding arg_max_l_tb.simps arg_max_set_def maximum_def Nsort_def by simp
+        unfolding arg_max_set_def maximum_def Nsort_def by simp
     }
     then show ?case ..
   next
@@ -531,7 +531,7 @@ fun fs_spa_winner :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker 
 
 lemma fs_spa_winner_wf:
   assumes "wf_tie_breaker_on t N" shows "fs_spa_winner N b t = fs_spa_winner_req_wf N b t"
-  using assms fs_spa_winner.simps fs_spa_winner_req_wf.simps arg_max_tb_wf by simp
+  using assms by simp
 
 text{* convenience function to compute the allocation of a fully specified second price auction with tie-breaking *}
 fun fs_spa_allocation_req_wf :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
@@ -544,7 +544,7 @@ fun fs_spa_allocation :: "participants \<Rightarrow> bids \<Rightarrow> tie_brea
 
 lemma fs_spa_allocation_wf:
   assumes "wf_tie_breaker_on t N" shows "fs_spa_allocation N b t = fs_spa_allocation_req_wf N b t"
-  using assms fs_spa_allocation.simps fs_spa_allocation_req_wf.simps arg_max_tb_wf by simp
+  using assms by simp
 
 text{* convenience function to compute the payments of a fully specified second price auction with tie-breaking *}
 fun fs_spa_payments_req_wf :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
@@ -557,7 +557,7 @@ fun fs_spa_payments :: "participants \<Rightarrow> bids \<Rightarrow> tie_breake
 
 lemma fs_spa_payments_wf:
   assumes "wf_tie_breaker_on t N" shows "fs_spa_payments N b t = fs_spa_payments_req_wf N b t"
-  using assms fs_spa_payments.simps fs_spa_payments_req_wf.simps arg_max_tb_wf by simp
+  using assms by simp
 
 text{* The definitions of the computable functions @{text fs_spa_allocation} and @{text fs_spa_payments}
   are consistent with how we defined the outcome of a fully specified second price auction
@@ -581,7 +581,7 @@ proof
      p i = maximum (N - {i}) b \<and> (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
     unfolding fs_spa_pred_def
       second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
-     using fs_spa_winner_req_wf.simps by auto
+    by auto
   then show "wf_tie_breaker_on t N \<and> spa_admissible_input N b \<and>
     vectors_equal N x (fs_spa_allocation_req_wf N b t) \<and>
     vectors_equal N p (fs_spa_payments_req_wf N b t)"
@@ -596,9 +596,10 @@ next
       (\<forall>i \<in> N . x i = (if (i = winner) then 1 else 0)) \<and>
       (\<forall>i \<in> N . p i = (if (i = winner) then maximum (N - {i}) b else 0))"
     unfolding vectors_equal_def
-    using fs_spa_allocation_req_wf.simps fs_spa_payments_req_wf.simps by simp_all
+    by simp_all
   from wf_tie admissible have winner_range: "fs_spa_winner_req_wf N b t \<in> N"
-    using arg_max_set_def arg_max_tb_imp_arg_max_set fs_spa_winner_req_wf.simps maximum_defined_def mem_Collect_eq spa_admissible_input_def
+    using arg_max_set_def arg_max_tb_imp_arg_max_set fs_spa_winner_req_wf.simps maximum_defined_def spa_admissible_input_def
+      mem_Collect_eq
     by smt
   with outcome have "let winner = fs_spa_winner_req_wf N b t in
       x winner = 1 \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0) \<and>
@@ -740,21 +741,17 @@ proof -
     (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
        However we are working with our own wrapped maximum definition anyway. *)
     with wf_tie' obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wf N t b)"
-      using spa_admissible_input_def
-        arg_max_set_def arg_max_tb_req_wf.simps arg_max_tb_imp_arg_max_set
-        maximum_def maximum_is_component maximum_defined_def
-      by (smt mem_Collect_eq)
+      by (metis fs_spa_pred_allocation_payments fs_spa_pred_def vectors_equal_def)
     (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
     def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
     def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
     from x_def p_def winner_def wf_tie admissible
       have "fs_spa_pred N b t x p"
-      using spa_admissible_input_def
-        second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
-        fs_spa_pred_def
+      using 
+        second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def fs_spa_pred_def
       by auto
     with fs_spa have "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
-      using fs_spa_pred'_def spa_pred_def rel_all_sga_pred_def by auto
+      using fs_spa_pred'_def rel_all_sga_pred_def by auto
   }
   then show ?thesis unfolding sga_left_total_def by blast
 qed
@@ -776,7 +773,7 @@ proof -
       where range: "winner \<in> N \<and> winner = the (arg_max_tb_req_wf N t b)"
         and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
         and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
+      unfolding fs_spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
       by blast
     
     assume "((N, b), (x', p')) \<in> A"
@@ -785,7 +782,7 @@ proof -
       where range': "winner' \<in> N \<and> winner' = the (arg_max_tb_req_wf N t b)"
         and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
         and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
-      unfolding fs_spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
+      unfolding fs_spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
       by blast
 
     from range alloc pay range' alloc' pay' have "vectors_equal N x x' \<and> vectors_equal N p p'" unfolding vectors_equal_def by metis
