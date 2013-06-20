@@ -653,6 +653,10 @@ text{* alternative definition for easier currying *}
 definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "fs_spa_pred' t N b x p = fs_spa_pred N b t x p"
 
+lemma two_by_two_subrelI [intro!]:
+  "(\<And> a b c d . ((a, b), (c, d)) \<in> A \<Longrightarrow> ((a, b), (c, d)) \<in> B) \<Longrightarrow> A \<subseteq> B"
+  by fast
+
 lemma rel_all_fs_spa_is_spa:
   fixes A :: single_good_auction
     and B :: single_good_auction
@@ -660,15 +664,12 @@ lemma rel_all_fs_spa_is_spa:
   assumes A_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
       and B_spa: "rel_all_sga_pred spa_pred B"
   shows "A \<subseteq> B"
-proof -
-  {
-    fix N b x p assume "((N, b), (x, p)) \<in> A"
-    with A_fs_spa have "fs_spa_pred N b t x p"
-      unfolding rel_all_sga_pred_def fs_spa_pred'_def by simp
-    then have "spa_pred N b x p" using fs_spa_is_spa by simp
-    with B_spa have "((N, b), (x, p)) \<in> B" unfolding rel_all_sga_pred_def by simp
-  }
-  then show ?thesis by auto
+proof
+  fix N b x p assume "((N, b), (x, p)) \<in> A"
+  with A_fs_spa have "fs_spa_pred N b t x p"
+    unfolding rel_all_sga_pred_def fs_spa_pred'_def by simp
+  then have "spa_pred N b x p" using fs_spa_is_spa by simp
+  with B_spa show "((N, b), (x, p)) \<in> B" unfolding rel_all_sga_pred_def by simp
 qed
 
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome is an allocation. *}
