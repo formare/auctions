@@ -798,8 +798,9 @@ theorem fs_spa_case_check :
       and fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
   shows "fs_sga_case_check A spa_admissible_input sga_outcome_allocates"
 proof -
-  from wf_tie fs_spa have "sga_left_total A spa_admissible_input" using fs_spa_is_left_total by simp
-  moreover from fs_spa have "fs_sga_right_unique A spa_admissible_input" using fs_spa_is_right_unique by simp
+  from wf_tie fs_spa have "sga_left_total A spa_admissible_input" by (rule fs_spa_is_left_total)
+  moreover from fs_spa have "fs_sga_right_unique A spa_admissible_input" by (rule fs_spa_is_right_unique)
+  (* TODO CL: roll some of this out to a general lemma *)
   moreover from fs_spa have "sga_well_defined_outcome A sga_outcome_allocates"
     unfolding rel_all_sga_pred_def fs_spa_pred'_def
     using fs_spa_is_spa spa_allocates
@@ -865,7 +866,7 @@ proof -
   then obtain B where B_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) B" ..
   with spa have sup: "B \<subseteq> A" using rel_all_fs_spa_is_spa by simp
   from B_fs_spa wf_tie fs_spa_is_left_total have B_left_total: "sga_left_total B spa_admissible_input" by simp
-  with sup B_left_total show ?thesis using left_total_suprel by simp
+  then show ?thesis using sup by (rule left_total_suprel)
 qed
 
 text{* We consider two outcomes of a second price auction equivalent if 
@@ -975,10 +976,10 @@ proof -
     moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
     proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
       from admissible range pay range' pay' show "b ` { i \<in> N . p i > 0 } \<subseteq> b ` { i \<in> N . p' i > 0 }"
-        using positive_payment_bids_eq_suff by simp
+        by (rule positive_payment_bids_eq_suff)
     next
       from admissible range' pay' range pay show "b ` { i \<in> N . p' i > 0 } \<subseteq> b ` { i \<in> N . p i > 0 }"
-        using positive_payment_bids_eq_suff by simp
+        by (rule positive_payment_bids_eq_suff)
     qed
     ultimately have "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def ..
   }
@@ -990,8 +991,8 @@ theorem spa_case_check :
   assumes spa: "rel_all_sga_pred spa_pred A"
   shows "sga_case_check A spa_admissible_input spa_equivalent_outcome sga_outcome_allocates"
 proof -
-  from spa have "sga_left_total A spa_admissible_input" using spa_is_left_total by simp
-  moreover from spa have "sga_right_unique A spa_admissible_input spa_equivalent_outcome" using spa_is_right_unique by simp
+  from spa have "sga_left_total A spa_admissible_input" by (rule spa_is_left_total)
+  moreover from spa have "sga_right_unique A spa_admissible_input spa_equivalent_outcome" by (rule spa_is_right_unique)
   moreover from spa have "sga_well_defined_outcome A sga_outcome_allocates"
     unfolding rel_all_sga_pred_def
     using spa_allocates
@@ -1085,8 +1086,8 @@ proof -
       assume "j \<in> arg_max_set N b"
       then have maximum: "b j = maximum N b" unfolding arg_max_set_def by simp
 
-      from j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
-        using defined maximum_except_is_greater_or_equal by simp
+      from defined j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
+        using maximum_except_is_greater_or_equal by simp
       with only_max_bidder have *: "b j < b max_bidder" by simp
 
       from defined range maximum have "b j \<ge> b max_bidder"
@@ -1131,10 +1132,10 @@ lemma second_price_auction_loser_payoff:
 lemma winners_payoff_on_deviation_from_valuation:
   fixes N :: participants and v :: valuations and x :: allocation
     and b :: bids and p :: payments and winner :: participant
-  assumes "maximum_defined N"
-    and "spa_pred N b x p"
+  assumes "spa_pred N b x p"
     and "i \<in> N"
     and "x i = 1"
+    and "maximum_defined N"
   shows "payoff (v i) (x i) (p i) = v i - maximum (N - {i}) (b(i := v i))"
   using assms second_price_auction_winner_payoff remaining_maximum_invariant
   by simp
