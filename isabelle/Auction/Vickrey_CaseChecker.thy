@@ -857,14 +857,12 @@ proof -
       by (smt bot_least insert_subset mem_Collect_eq prod.cases)
     then show ?thesis by blast
   qed
-  def t \<equiv> "SOME t::(participant \<Rightarrow> participant \<Rightarrow> bool) . (\<forall>N::participants . wf_tie_breaker_on t N)"
-  with foo have wf_tie: "\<forall>N . wf_tie_breaker_on t N" by (smt someI_ex)
+  then obtain t where wf_tie: "\<forall>N . wf_tie_breaker_on t N" by (smt someI_ex)
   (* Note that it is not necessary to prove that fs_spa_pred' is satisfiable. *)
   def fs_spa_pred'' \<equiv> "\<lambda> tup . (\<exists> N b x p . tup = ((N, b), (x, p)) \<and> (fs_spa_pred' t) N b x p)"
   then have "\<exists> A . (\<forall> tup . tup \<in> A \<longleftrightarrow> fs_spa_pred'' tup)" by (metis mem_Collect_eq)
   with fs_spa_pred''_def have "\<exists> A . (\<forall> a b c d . ((a, b), (c, d)) \<in> A \<longleftrightarrow> (fs_spa_pred' t) a b c d)" by simp
-  then have "\<exists> B . rel_all_sga_pred (fs_spa_pred' t) B" unfolding rel_all_sga_pred_def .
-  then obtain B where B_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) B" ..
+  then obtain B where B_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) B" unfolding rel_all_sga_pred_def ..
   with spa have sup: "B \<subseteq> A" using rel_all_fs_spa_is_spa by simp
   from B_fs_spa wf_tie fs_spa_is_left_total have B_left_total: "sga_left_total B spa_admissible_input" by simp
   then show ?thesis using sup by (rule left_total_suprel)
