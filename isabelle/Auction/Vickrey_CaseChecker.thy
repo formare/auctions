@@ -653,9 +653,12 @@ text{* alternative definition for easier currying *}
 definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "fs_spa_pred' t N b x p = fs_spa_pred N b t x p"
 
-lemma two_by_two_subrelI:
-  "(\<And> a b c d . ((a, b), (c, d)) \<in> A \<Longrightarrow> ((a, b), (c, d)) \<in> B) \<Longrightarrow> A \<subseteq> B"
-  by fast
+lemma sga_pred_imp_lift_to_rel_all:
+  fixes p q A B
+  assumes PA: "rel_all_sga_pred p A"
+      and QB: "rel_all_sga_pred q B"
+      and p_imp_q: "\<And> N b x p' . ((N, b), (x, p')) \<in> A \<Longrightarrow> p N b x p' \<Longrightarrow> q N b x p'"
+    shows "A \<subseteq> B" using PA QB p_imp_q unfolding rel_all_sga_pred_def by force
 
 lemma rel_all_fs_spa_is_spa:
   fixes A :: single_good_auction
@@ -664,13 +667,8 @@ lemma rel_all_fs_spa_is_spa:
   assumes A_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
       and B_spa: "rel_all_sga_pred spa_pred B"
   shows "A \<subseteq> B"
-proof (rule two_by_two_subrelI)
-  fix N b x p assume "((N, b), (x, p)) \<in> A"
-  with A_fs_spa have "fs_spa_pred N b t x p"
-    unfolding rel_all_sga_pred_def fs_spa_pred'_def by simp
-  then have "spa_pred N b x p" using fs_spa_is_spa by simp
-  with B_spa show "((N, b), (x, p)) \<in> B" unfolding rel_all_sga_pred_def by simp
-qed
+using assms fs_spa_pred'_def fs_spa_is_spa sga_pred_imp_lift_to_rel_all
+by metis
 
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome is an allocation. *}
 lemma spa_allocates :
@@ -1008,20 +1006,20 @@ lemma spa_is_sga_pred :
   using assms
   unfolding spa_pred_def spa_admissible_input_def sga_pred_def by simp
 
-lemma sga_pred_imp_lift_to_rel:
+lemma sga_pred_imp_lift_to_rel_sat:
   fixes P Q p q A
   assumes P_def: "P = rel_sat_sga_pred p"
       and Q_def: "Q = rel_sat_sga_pred q"
       and PA: "P A"
       and p_imp_q: "\<And> N b x p' . ((N, b), (x, p')) \<in> A \<Longrightarrow> p N b x p' \<Longrightarrow> q N b x p'"
-  shows "Q A" using PA p_imp_q unfolding rel_sat_sga_pred_def P_def Q_def by blast
+  shows "Q A" using PA p_imp_q unfolding P_def Q_def rel_sat_sga_pred_def by blast
 
 lemma spa_is_sga :
   fixes A :: single_good_auction
   assumes spa: "second_price_auction A"
   shows "single_good_auction A"
 using second_price_auction_def single_good_auction_def spa spa_is_sga_pred
-by (rule sga_pred_imp_lift_to_rel)
+by (rule sga_pred_imp_lift_to_rel_sat)
 
 lemma spa_allocates_binary :
   fixes N :: participants and b :: bids
