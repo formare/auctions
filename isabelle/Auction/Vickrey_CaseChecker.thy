@@ -165,15 +165,17 @@ definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
 text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
   allocated w.r.t. the definition of an @{text allocation}.  We are not constraining the payments
   at this point. *}
-definition sga_well_defined_outcome_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition sga_outcome_allocates :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
-    "sga_well_defined_outcome_pred N b x p \<longleftrightarrow> allocation N x"
+    "sga_outcome_allocates N b x p \<longleftrightarrow> allocation N x"
 
-definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> bool"
+type_synonym outcome_well_definedness = "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+
+definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
   where
-    "sga_well_defined_outcome A \<longleftrightarrow>
+    "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
       (\<forall> ((N::participants, b::bids), (x::allocation, p::payments)) \<in> A .
-        sga_well_defined_outcome_pred N b x p)"
+        well_defined_outcome_pred N b x p)"
 
 type_synonym input_admissibility = "participants \<Rightarrow> bids \<Rightarrow> bool"
 
@@ -214,13 +216,17 @@ definition fs_sga_right_unique :: "single_good_auction \<Rightarrow> input_admis
       (* equivalence by equality: *)
       (\<lambda> N b x p x' p' . vectors_equal N x x' \<and> vectors_equal N p p')"
 
-definition sga_function :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> bool"
-  where "sga_function A admissible equivalent \<longleftrightarrow>
-    sga_left_total A admissible \<and> sga_right_unique A admissible equivalent"
+definition sga_case_check :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+  where "sga_case_check A admissible equivalent well_defined \<longleftrightarrow>
+    sga_left_total A admissible \<and>
+    sga_right_unique A admissible equivalent \<and>
+    sga_well_defined_outcome A well_defined"
 
-definition fs_sga_function :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
-  where "fs_sga_function A admissible \<longleftrightarrow>
-    sga_left_total A admissible \<and> fs_sga_right_unique A admissible"
+definition fs_sga_case_check :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+  where "fs_sga_case_check A admissible well_defined \<longleftrightarrow>
+    sga_left_total A admissible \<and>
+    fs_sga_right_unique A admissible \<and>
+    sga_well_defined_outcome A well_defined"
 
 subsection {* Maximum *}
 text{* This subsection uses Isabelle's set maximum functions, wrapping them for our use. *}
@@ -670,23 +676,17 @@ lemma spa_allocates :
   fixes N :: participants and b :: bids
     and x :: allocation and p :: payments
   assumes spa: "spa_pred N b x p"
-      and finite: "finite N"
   shows "allocation N x"
 proof -
+  from spa have "card N > 0" unfolding spa_pred_def spa_admissible_input_def by simp
   from spa obtain i where i_def: "i \<in> N \<and> x i = 1" using spa_allocation by blast
   (* the losers' allocations are all 0 *)
   with spa have j_def: "\<forall>j \<in> N - {i} . x j = 0" using spa_allocation by (metis member_remove remove_def)
-  then have "(\<Sum> k \<in> N . x k) = 1" using finite i_def by (metis comm_monoid_add_class.add.right_neutral setsum.F_neutral' setsum.remove)
+  then have "(\<Sum> k \<in> N . x k) = 1"
+    using `card N > 0` i_def
+    by (metis (mono_tags) card_ge_0_finite monoid_add_class.add.right_neutral setsum.neutral setsum.remove setsum_infinite)
   then show ?thesis unfolding allocation_def non_negative_real_vector_def by (smt spa spa_allocation)
 qed
-
-lemma spa_well_defined_sga :
-  fixes N :: participants and b :: bids
-    and x :: allocation and p :: payments
-  assumes spa: "spa_pred N b x p"
-      and finite: "finite N"
-  shows "sga_well_defined_outcome_pred N b x p"
-  using assms spa_allocates unfolding allocation_def sga_well_defined_outcome_pred_def by simp
 
 text{* definition of a second price auction, projected to the payments *}
 lemma spa_payments :
@@ -790,16 +790,20 @@ proof -
   then show ?thesis unfolding sga_right_unique_def fs_sga_right_unique_def by blast
 qed
 
-lemma fs_spa_is_function :
+theorem fs_spa_case_check :
   fixes A :: single_good_auction
     and t :: tie_breaker
   assumes wf_tie: "\<forall>N . wf_tie_breaker_on t N"
       and fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
-  shows "fs_sga_function A spa_admissible_input"
+  shows "fs_sga_case_check A spa_admissible_input sga_outcome_allocates"
 proof -
   from wf_tie fs_spa have "sga_left_total A spa_admissible_input" using fs_spa_is_left_total by simp
   moreover from fs_spa have "fs_sga_right_unique A spa_admissible_input" using fs_spa_is_right_unique by simp
-  ultimately show ?thesis unfolding fs_sga_function_def ..
+  moreover from fs_spa have "sga_well_defined_outcome A sga_outcome_allocates"
+    unfolding rel_all_sga_pred_def fs_spa_pred'_def
+    using fs_spa_is_spa spa_allocates
+      sga_outcome_allocates_def sga_well_defined_outcome_def by (smt prod_caseI2 prod_caseI2')
+  ultimately show ?thesis unfolding fs_sga_case_check_def by simp
 qed
 
 (* TODO CL: This lemma also works when admissibility is defined as "card N > 0" because
@@ -980,14 +984,18 @@ proof -
   then show ?thesis unfolding sga_right_unique_def by blast
 qed
 
-lemma spa_is_function :
+theorem spa_case_check :
   fixes A :: single_good_auction
   assumes spa: "rel_all_sga_pred spa_pred A"
-  shows "sga_function A spa_admissible_input spa_equivalent_outcome"
+  shows "sga_case_check A spa_admissible_input spa_equivalent_outcome sga_outcome_allocates"
 proof -
   from spa have "sga_left_total A spa_admissible_input" using spa_is_left_total by simp
   moreover from spa have "sga_right_unique A spa_admissible_input spa_equivalent_outcome" using spa_is_right_unique by simp
-  ultimately show ?thesis unfolding sga_function_def ..
+  moreover from spa have "sga_well_defined_outcome A sga_outcome_allocates"
+    unfolding rel_all_sga_pred_def
+    using spa_allocates
+      sga_outcome_allocates_def sga_well_defined_outcome_def by (smt prod_caseI2 prod_caseI2')
+  ultimately show ?thesis unfolding sga_case_check_def by simp
 qed
 
 lemma spa_is_sga_pred :
