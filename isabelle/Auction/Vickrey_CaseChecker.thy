@@ -160,7 +160,7 @@ definition rel_all_sga_pred ::
 
 text{* Now for the relational version of the single good auction: *}
 definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
-  where "single_good_auction A = rel_sat_sga_pred sga_pred A"
+  where "single_good_auction = rel_sat_sga_pred sga_pred"
 
 text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
   allocated w.r.t. the definition of an @{text allocation}.  We are not constraining the payments
@@ -505,7 +505,7 @@ definition spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
 
 definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
-  where "second_price_auction A = rel_sat_sga_pred spa_pred A"
+  where "second_price_auction = rel_sat_sga_pred spa_pred"
 
 text{* definition of a second price auction, projected to the allocation *}
 lemma spa_allocation :
@@ -653,7 +653,7 @@ text{* alternative definition for easier currying *}
 definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "fs_spa_pred' t N b x p = fs_spa_pred N b t x p"
 
-lemma two_by_two_subrelI [intro!]:
+lemma two_by_two_subrelI:
   "(\<And> a b c d . ((a, b), (c, d)) \<in> A \<Longrightarrow> ((a, b), (c, d)) \<in> B) \<Longrightarrow> A \<subseteq> B"
   by fast
 
@@ -664,7 +664,7 @@ lemma rel_all_fs_spa_is_spa:
   assumes A_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
       and B_spa: "rel_all_sga_pred spa_pred B"
   shows "A \<subseteq> B"
-proof
+proof (rule two_by_two_subrelI)
   fix N b x p assume "((N, b), (x, p)) \<in> A"
   with A_fs_spa have "fs_spa_pred N b t x p"
     unfolding rel_all_sga_pred_def fs_spa_pred'_def by simp
@@ -1006,6 +1006,17 @@ lemma spa_is_sga_pred :
   shows "sga_pred N b x p"
   using assms
   unfolding spa_pred_def spa_admissible_input_def sga_pred_def by simp
+
+(* TODO CL: see whether we can use the following to come up with any rules to simplify proofs. *)
+notepad
+begin
+  fix p q A
+  fix P assume P_def: "P = rel_sat_sga_pred p"
+  fix Q assume Q_def: "Q = rel_sat_sga_pred q"
+  have PA: "P A" sorry
+  have p_imp_q: "\<And> N b x p' . ((N, b), (x, p')) \<in> A \<Longrightarrow> p N b x p' \<Longrightarrow> q N b x p'" sorry
+  with PA have "Q A" unfolding rel_sat_sga_pred_def P_def Q_def by blast
+end
 
 lemma spa_is_sga :
   fixes A :: single_good_auction
