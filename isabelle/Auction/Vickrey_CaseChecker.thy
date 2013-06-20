@@ -1007,30 +1007,20 @@ lemma spa_is_sga_pred :
   using assms
   unfolding spa_pred_def spa_admissible_input_def sga_pred_def by simp
 
-(* TODO CL: see whether we can use the following to come up with any rules to simplify proofs. *)
-notepad
-begin
-  fix p q A
-  fix P assume P_def: "P = rel_sat_sga_pred p"
-  fix Q assume Q_def: "Q = rel_sat_sga_pred q"
-  have PA: "P A" sorry
-  have p_imp_q: "\<And> N b x p' . ((N, b), (x, p')) \<in> A \<Longrightarrow> p N b x p' \<Longrightarrow> q N b x p'" sorry
-  with PA have "Q A" unfolding rel_sat_sga_pred_def P_def Q_def by blast
-end
+lemma sga_pred_imp_lift_to_rel:
+  fixes P Q p q A
+  assumes P_def: "P = rel_sat_sga_pred p"
+      and Q_def: "Q = rel_sat_sga_pred q"
+      and PA: "P A"
+      and p_imp_q: "\<And> N b x p' . ((N, b), (x, p')) \<in> A \<Longrightarrow> p N b x p' \<Longrightarrow> q N b x p'"
+  shows "Q A" using PA p_imp_q unfolding rel_sat_sga_pred_def P_def Q_def by blast
 
 lemma spa_is_sga :
   fixes A :: single_good_auction
   assumes spa: "second_price_auction A"
   shows "single_good_auction A"
-proof -
-  {
-    fix N :: participants and b :: bids and x :: allocation and p :: payments
-    assume "((N, b), (x, p)) \<in> A"
-    with spa have "spa_pred N b x p" unfolding second_price_auction_def rel_sat_sga_pred_def by blast
-    then have "sga_pred N b x p" using spa_is_sga_pred by blast
-  }
-  then show ?thesis unfolding single_good_auction_def rel_sat_sga_pred_def by blast
-qed
+using second_price_auction_def single_good_auction_def spa spa_is_sga_pred
+by (rule sga_pred_imp_lift_to_rel)
 
 lemma spa_allocates_binary :
   fixes N :: participants and b :: bids
