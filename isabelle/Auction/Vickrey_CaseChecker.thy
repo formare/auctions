@@ -186,6 +186,12 @@ definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibil
     (\<forall> (N :: participants) (b :: bids) . admissible N b \<longrightarrow>
       (\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A))"
 
+lemma sga_left_totalI:
+  assumes "\<And> N b . admissible N b \<Longrightarrow> (\<exists> x p . ((N, b), (x, p)) \<in> A)"
+  shows "sga_left_total A admissible"
+using assms unfolding sga_left_total_def
+by blast
+
 text{* If one relation is left-total on a given set, its superrelations are left-total on that set too. *}
 lemma left_total_suprel:
   fixes A :: single_good_auction
@@ -732,27 +738,24 @@ lemma fs_spa_is_left_total :
   assumes wf_tie: "\<forall>N . wf_tie_breaker_on t N"
       and fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
   shows "sga_left_total A spa_admissible_input"
-proof -
-  {
-    fix N :: participants and b :: bids
-    from wf_tie have wf_tie': "wf_tie_breaker_on t N" ..
-    assume admissible: "spa_admissible_input N b"
-    (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
-       However we are working with our own wrapped maximum definition anyway. *)
-    with wf_tie' obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wf N t b)"
-      by (metis fs_spa_pred_allocation_payments fs_spa_pred_def vectors_equal_def)
-    (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
-    def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
-    def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
-    from x_def p_def winner_def wf_tie admissible
-      have "fs_spa_pred N b t x p"
-      using 
-        second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def fs_spa_pred_def
-      by auto
-    with fs_spa have "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
-      using fs_spa_pred'_def rel_all_sga_pred_def by auto
-  }
-  then show ?thesis unfolding sga_left_total_def by blast
+proof (rule sga_left_totalI)
+  fix N :: participants and b :: bids
+  from wf_tie have wf_tie': "wf_tie_breaker_on t N" ..
+  assume admissible: "spa_admissible_input N b"
+  (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
+     However we are working with our own wrapped maximum definition anyway. *)
+  with wf_tie' obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wf N t b)"
+    by (metis fs_spa_pred_allocation_payments fs_spa_pred_def vectors_equal_def)
+  (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
+  def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
+  def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
+  from x_def p_def winner_def wf_tie admissible
+    have "fs_spa_pred N b t x p"
+    using 
+      second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def fs_spa_pred_def
+    by auto
+  with fs_spa show "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
+    using fs_spa_pred'_def rel_all_sga_pred_def by auto
 qed
 
 lemma fs_spa_is_right_unique :
