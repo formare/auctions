@@ -740,12 +740,16 @@ lemma fs_spa_is_left_total :
   shows "sga_left_total A spa_admissible_input"
 proof (rule sga_left_totalI)
   fix N :: participants and b :: bids
-  from wb_tie have wb_tie': "wb_tie_breaker_on t N" ..
   assume admissible: "spa_admissible_input N b"
   (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
      However we are working with our own wrapped maximum definition anyway. *)
-  with wb_tie' obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
-    by (metis fs_spa_pred_allocation_payments fs_spa_pred_def vectors_equal_def)
+  from wb_tie admissible obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
+    using spa_admissible_input_def arg_max_set_def arg_max_tb_imp_arg_max_set maximum_defined_def
+    by (smt mem_Collect_eq) 
+    (* CL: alternative proof, not obvious either:
+       by (metis fs_spa_pred_allocation_payments fs_spa_pred_def vectors_equal_def)
+       But for didactic purposes we prefer the former, as it uses knowledge that can be assumed to be known already,
+       whereas fs_spa_pred_allocation_payments logically comes after case-checking. *)
   (* Now that we know the winner exists, let's construct a suitable allocation and payments. *)
   def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
   def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
