@@ -750,7 +750,7 @@ proof (rule sga_left_totalI)
   assume admissible: "spa_admissible_input N b"
   (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
      However we are working with our own wrapped maximum definition anyway. *)
-  from wb_tie admissible obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
+  with wb_tie obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
     using spa_admissible_input_def arg_max_set_def maximum_defined_def arg_max_tb_imp_arg_max_set
     by (smt mem_Collect_eq) 
     (* CL: alternative proof, not obvious either:
@@ -764,7 +764,7 @@ proof (rule sga_left_totalI)
     have "fs_spa_pred N b t x p"
     unfolding
       second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def fs_spa_pred_def
-    by auto
+    by force
   with fs_spa show "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
     unfolding fs_spa_pred'_def rel_all_sga_pred_def by fast
 qed
@@ -777,9 +777,9 @@ lemma fs_spa_winner_from_rel:
       and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
 proof -
   from assms obtain winner::participant
-    where range: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
-      and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
-      and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
+    where "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
+      and "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
+      and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
     unfolding rel_all_sga_pred_def fs_spa_pred'_def
       fs_spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
     by blast
@@ -897,6 +897,24 @@ proof -
   from B_fs_spa wb_tie fs_spa_is_left_total have B_left_total: "sga_left_total B spa_admissible_input" by simp
   then show ?thesis using sup by (rule left_total_suprel)
 qed
+(* alternative direct proof:
+proof (rule sga_left_totalI)
+  fix N :: participants and b :: bids
+  assume admissible: "spa_admissible_input N b"
+  from admissible obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
+    using spa_admissible_input_def arg_max_set_def maximum_defined_def maximum_is_component
+    by (smt mem_Collect_eq)
+  def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
+  def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
+  from x_def p_def winner_def admissible
+    have "spa_pred N b x p"
+    unfolding
+      second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def spa_pred_def
+    by force
+  with spa show "\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A"
+    unfolding rel_all_sga_pred_def by fast
+qed
+*)
 
 text{* We consider two outcomes of a second price auction equivalent if 
 \begin{enumerate}
@@ -962,6 +980,24 @@ proof (intro subsetI)
   then show "bid \<in> b ` { i \<in> N . p' i > 0 }" using range' pay' bw' by auto
 qed
 
+(* TODO CL: use (is ?...) to get rid of duplication *)
+lemma spa_winner_from_rel:
+  assumes "rel_all_sga_pred spa_pred A"
+      and "((N, b), (x, p)) \<in> A"
+  obtains winner where "winner \<in> N \<and> winner \<in> arg_max_set N b"
+      and "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
+      and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
+proof -
+  from assms obtain winner::participant
+    where "winner \<in> N \<and> winner \<in> arg_max_set N b"
+      and "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
+      and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
+    unfolding rel_all_sga_pred_def 
+      spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
+    by smt (* Interestingly the corresponding step in fs_spa_winner_from_rel works by blast. *)
+  then show ?thesis ..
+qed
+
 text{* Our relational definition of second price auction is right-unique. *}
 lemma spa_is_right_unique :
   fixes A :: single_good_auction
@@ -975,24 +1011,19 @@ proof (rule sga_right_uniqueI)
   assume admissible: "spa_admissible_input N b"
   fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
 
-  (* TODO CL: refactor as in (rule fs_spa_winner_from_rel) *)
   assume "((N, b), (x, p)) \<in> A"
-  with spa have "spa_pred N b x p" unfolding rel_all_sga_pred_def by blast
-  then obtain winner::participant
+  with spa obtain winner::participant
     where range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
       and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
       and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-    unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
-    by blast
+    by (rule spa_winner_from_rel)
 
   assume "((N, b), (x', p')) \<in> A"
-  with spa have "spa_pred N b x' p'" unfolding rel_all_sga_pred_def by blast
-  then obtain winner'::participant
+  with spa obtain winner'::participant
     where range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
       and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
       and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
-    unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
-    by blast
+    by (rule spa_winner_from_rel)
 
   have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
   proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
@@ -1359,7 +1390,7 @@ proof -
   from val have bids: "bids N v" by (rule valuation_is_bid)
   {
     fix k :: participant and x :: allocation and p :: payments
-    (* TODO CL: We actually don't need p; is there a way to do without? *)
+    (* TODO CL: We actually don't need p; is there a way to do without naming it? *)
     assume range: "k \<in> N" and outcome: "((N, v), (x, p)) \<in> A" and wins: "x k = 1"
     from outcome spa have "spa_pred N v x p"
       unfolding second_price_auction_def rel_sat_sga_pred_def
