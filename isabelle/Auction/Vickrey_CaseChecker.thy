@@ -74,7 +74,6 @@ lemma "strict_linear_order_on {1::nat, 2} {(a::nat, b) . {a, b} \<subseteq> {1::
   by auto
 *)
 
-(* TODO CL: link to "function" theorems from this text *)
 text{* Initially we'd like to formalise any single good auction as a relation of bids and outcome.
   Proving the well-definedness of an auction is then a separate step in the auction design process.
   It involves:
@@ -83,8 +82,8 @@ text{* Initially we'd like to formalise any single good auction as a relation of
     as defined by the @{term allocation_def} and @{term vickrey_payment} predicates below
   \item checking that the relation actually is a function, i.e. that it is
     \begin{enumerate}
-    \item left-total: ``for any admissible bids \dots''
-    \item right-unique: ``\dots there is a unique outcome.''
+    \item left-total (@{term sga_left_total}): ``for any admissible bids \dots''
+    \item right-unique (@{term sga_right_unique}): ``\dots there is a unique outcome.''
     \end{enumerate}
   \end{enumerate}
 *}
@@ -776,7 +775,7 @@ lemma fs_spa_winner_from_rel:
   obtains winner where "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
       and "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
       and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-proof - (* TODO CL: see how "proof" without "-" would work *)
+proof -
   from assms obtain winner::participant
     where range: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
       and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
@@ -815,6 +814,17 @@ proof (rule sga_right_uniqueI)
   from range alloc pay range' alloc' pay' show "vectors_equal N x x' \<and> vectors_equal N p p'" unfolding vectors_equal_def by metis
 qed
 
+lemma fs_spa_well_defined_outcome :
+  fixes A :: single_good_auction
+    and t :: tie_breaker
+  assumes "rel_all_sga_pred (fs_spa_pred' t) A"
+  shows "sga_well_defined_outcome A sga_outcome_allocates"
+  using assms
+  unfolding rel_all_sga_pred_def fs_spa_pred'_def
+  using fs_spa_is_spa spa_allocates
+    sga_outcome_allocates_def sga_well_defined_outcome_def
+  by (smt prod_caseI2 prod_caseI2')
+
 theorem fs_spa_case_check :
   fixes A :: single_good_auction
     and t :: tie_breaker
@@ -824,11 +834,8 @@ theorem fs_spa_case_check :
 proof -
   from wb_tie fs_spa have "sga_left_total A spa_admissible_input" by (rule fs_spa_is_left_total)
   moreover from fs_spa have "fs_sga_right_unique A spa_admissible_input" by (rule fs_spa_is_right_unique)
-  (* TODO CL: roll some of this out to a general lemma *)
   moreover from fs_spa have "sga_well_defined_outcome A sga_outcome_allocates"
-    unfolding rel_all_sga_pred_def fs_spa_pred'_def
-    using fs_spa_is_spa spa_allocates
-      sga_outcome_allocates_def sga_well_defined_outcome_def by (smt prod_caseI2 prod_caseI2')
+    by (rule fs_spa_well_defined_outcome)
   ultimately show ?thesis unfolding fs_sga_case_check_def by simp
 qed
 
