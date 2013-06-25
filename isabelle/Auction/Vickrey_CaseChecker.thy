@@ -22,29 +22,17 @@ header {* Vickrey's Theorem: second price auctions are
   copy to experiment with ``case checking'' *}
 
 theory Vickrey_CaseChecker
-imports Complex_Main "~~/src/HOL/Library/Order_Relation"
-        "~~/src/HOL/Library/Efficient_Nat"
-
+imports Complex_Main
+   "~~/src/HOL/Library/Order_Relation"
+   "~~/src/HOL/Library/Efficient_Nat"
+   Vectors
 begin
 
 section {* Single good auctions *}
 
 subsection {* Preliminaries *}
 
-type_synonym participant = nat
-type_synonym participants = "nat set"
-
-type_synonym 'a vector = "participant \<Rightarrow> 'a"
-
-definition non_negative_real_vector :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
-  where "non_negative_real_vector N v \<longleftrightarrow> (\<forall>i \<in> N. v i \<ge> 0)"
-
-definition positive_real_vector :: "participants \<Rightarrow> real vector \<Rightarrow> bool"
-  where "positive_real_vector N v \<longleftrightarrow> (\<forall>i \<in> N. v i > 0)"
-
-text{* equality of vectors is defined component-wise up to the vectors' length *}
-definition vectors_equal :: "participants \<Rightarrow> 'a vector \<Rightarrow> 'a vector \<Rightarrow> bool"
-  where "vectors_equal N v w \<longleftrightarrow> (\<forall>i \<in> N . v i = w i)"
+type_synonym participant = index
 
 text{* convenience type synonyms for most of the basic concepts we are dealing with *}
 type_synonym valuations = "real vector"
@@ -92,15 +80,15 @@ type_synonym single_good_auction = "((participants \<times> bids) \<times> (allo
 subsection {* Valuation *}
 
 definition valuations :: "participants \<Rightarrow> valuations \<Rightarrow> bool"
-  where "valuations N v \<longleftrightarrow> positive_real_vector N v"
+  where "valuations N v \<longleftrightarrow> positive N v"
 
 subsection {* Strategy (bids) *}
 
 definition bids :: "participants \<Rightarrow> bids \<Rightarrow> bool"
-  where "bids N b \<longleftrightarrow> non_negative_real_vector N b"
+  where "bids N b \<longleftrightarrow> non_negative N b"
 
 lemma valuation_is_bid: "valuations N v \<Longrightarrow> bids N v"
-  by (auto simp add: valuations_def positive_real_vector_def bids_def non_negative_real_vector_def)
+  by (auto simp add: valuations_def positive_def bids_def non_negative_def)
 
 subsection {* Allocation *}
 
@@ -116,7 +104,7 @@ text{* We employ the general definition of an allocation for a divisible single 
   the \emph{auction} as a relation of bids to a @{text "(allocation \<times> payments)"} outcome. *}
 (* text_raw{*\snip{allocation_def}{1}{2}{%*} *)
 definition allocation :: "participants \<Rightarrow> allocation \<Rightarrow> bool"
-  where "allocation N x \<longleftrightarrow> non_negative_real_vector N x \<and> (\<Sum> i \<in> N . x i) = 1"
+  where "allocation N x \<longleftrightarrow> non_negative N x \<and> (\<Sum> i \<in> N . x i) = 1"
 (* text_raw{*}%endsnip*} *)
 
 subsection {* Payment *}
@@ -201,7 +189,7 @@ lemma left_total_suprel:
       and suprel: "A \<subseteq> B"
   shows "sga_left_total B admissible"
 using assms sga_left_total_def
-by (metis set_mp)
+by (smt set_rev_mp)
 
 type_synonym outcome_equivalence = "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
@@ -227,7 +215,7 @@ definition fs_sga_right_unique :: "single_good_auction \<Rightarrow> input_admis
   where "fs_sga_right_unique A admissible \<longleftrightarrow>
     sga_right_unique A admissible
       (* equivalence by equality: *)
-      (\<lambda> N b x p x' p' . vectors_equal N x x' \<and> vectors_equal N p p')"
+      (\<lambda> N b x p x' p' . eq N x x' \<and> eq N p p')"
 
 definition sga_case_check :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
   where "sga_case_check A admissible equivalent well_defined \<longleftrightarrow>
@@ -342,16 +330,14 @@ value "arg_max_tb {2::nat, 4, 6} (* the participant indices *)
   (\<lambda> i . nth [27::real, 42, 42] (i div 2 - 1::nat))"
 *)
 
-(* code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
+(* original code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
 lemma sorted_list_of_set_remove': (* TODO CL: sorted_list_of_set_not_empty (for which this is needed) should be in the library in 2014; remove then *)
   assumes "finite A" "x \<in> A"
-  shows "sorted_list_of_set A = insort x (sorted_list_of_set (A - {x}))"
+  shows "sorted_list_of_set A = insort x (sorted_list_of_set (A - {x}))" (is "?lhs = ?rhs")
 proof -
   from assms have "insert x (A - {x}) = A" by blast
-  then have "sorted_list_of_set A = sorted_list_of_set (insert x (A - {x}))"
-    by simp
-  also have "\<dots> = insort x (sorted_list_of_set (A - {x}))"
-  using assms by simp
+  then have "?lhs = sorted_list_of_set (insert x (A - {x}))" by simp
+  also have "\<dots> = ?rhs" using assms by simp
   finally show ?thesis .
 qed
 
@@ -401,7 +387,7 @@ proof -
         (let y = arg_max_l_tb xs t b in
           if (b x > b y) then x
           else if (b x = b y \<and> t x y) then x
-          else y)" by (metis arg_max_l_tb.simps(2) arg_max_l_tb.simps(3) neq_Nil_conv)
+          else y)" by (metis arg_max_l_tb.simps(2,3) neq_Nil_conv)
       then have i_unf: "i = (let y = arg_max_l_tb xs t b in
           if (b x > b y \<or> b x = b y \<and> t x y) then x
           else y)" by smt
@@ -528,8 +514,8 @@ lemma spa_allocation :
   shows "\<exists> i \<in> N . x i = 1 \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> x j = 0)"
   using assms
   unfolding spa_pred_def second_price_auction_def
-    second_price_auction_winner_def second_price_auction_winner_outcome_def
-    second_price_auction_loser_def second_price_auction_loser_outcome_def
+    second_price_auction_winner_outcome_def
+    second_price_auction_loser_outcome_def
   by auto
 
 (* fs = fully specified *)
@@ -590,10 +576,10 @@ lemma fs_spa_pred_allocation_payments:
   shows "fs_spa_pred N b t x p \<longleftrightarrow>
     wb_tie_breaker_on t N \<and>
     spa_admissible_input N b \<and>
-    vectors_equal N x (fs_spa_allocation_req_wb N b t) \<and>
-    vectors_equal N p (fs_spa_payments_req_wb N b t)"
+    eq N x (fs_spa_allocation_req_wb N b t) \<and>
+    eq N p (fs_spa_payments_req_wb N b t)" (is "?fs_spa_pred \<longleftrightarrow> ?alloc_pay")
 proof
-  assume "fs_spa_pred N b t x p"
+  assume "?fs_spa_pred"
   then have "wb_tie_breaker_on t N \<and> spa_admissible_input N b"
     and outcome: "\<exists>i \<in> N . i = fs_spa_winner_req_wb N b t \<and>
      x i = 1 \<and> (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> x j = 0) \<and>
@@ -601,20 +587,16 @@ proof
     unfolding fs_spa_pred_def
       second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
     by auto
-  then show "wb_tie_breaker_on t N \<and> spa_admissible_input N b \<and>
-    vectors_equal N x (fs_spa_allocation_req_wb N b t) \<and>
-    vectors_equal N p (fs_spa_payments_req_wb N b t)"
-    using fs_spa_allocation_req_wb.simps fs_spa_payments_req_wb.simps vectors_equal_def by smt
+  then show "?alloc_pay"
+    using fs_spa_allocation_req_wb.simps fs_spa_payments_req_wb.simps eq_def by smt
 next
-  assume "wb_tie_breaker_on t N \<and> spa_admissible_input N b \<and>
-    vectors_equal N x (fs_spa_allocation_req_wb N b t) \<and>
-    vectors_equal N p (fs_spa_payments_req_wb N b t)"
+  assume "?alloc_pay"
   then have wb_tie: "wb_tie_breaker_on t N"
     and admissible: "spa_admissible_input N b"
     and outcome: "let winner = fs_spa_winner_req_wb N b t in
       (\<forall>i \<in> N . x i = (if (i = winner) then 1 else 0)) \<and>
       (\<forall>i \<in> N . p i = (if (i = winner) then maximum (N - {i}) b else 0))"
-    unfolding vectors_equal_def
+    unfolding eq_def
     by simp_all
   from wb_tie admissible have winner_range: "fs_spa_winner_req_wb N b t \<in> N"
     using arg_max_set_def arg_max_tb_imp_arg_max_set fs_spa_winner_req_wb.simps maximum_defined_def spa_admissible_input_def
@@ -623,7 +605,7 @@ next
   with outcome have "let winner = fs_spa_winner_req_wb N b t in
       x winner = 1 \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0) \<and>
       p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)" by metis
-  with wb_tie admissible winner_range show "fs_spa_pred N b t x p"
+  with wb_tie admissible winner_range show "?fs_spa_pred"
      unfolding fs_spa_pred_def
        second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
      using fs_spa_winner_req_wb.simps by metis
@@ -654,8 +636,7 @@ proof -
       by auto
     from card have maximum_defined: "maximum_defined N" unfolding maximum_defined_def by simp
     with wb_tie determination have "winner \<in> arg_max_set N b" using arg_max_tb_imp_arg_max_set by simp
-    with range and spa_winner_outcome show ?thesis
-      unfolding second_price_auction_winner_def by simp
+    with range and spa_winner_outcome show ?thesis by simp
   qed
   with card bids spa_loser have "card N > 1 \<and> bids N b \<and> (\<exists>i \<in> N. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
     (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))" by blast
@@ -697,7 +678,7 @@ proof -
   then have "(\<Sum> k \<in> N . x k) = 1"
     using `card N > 0` i_def
     by (metis (mono_tags) card_ge_0_finite monoid_add_class.add.right_neutral setsum.neutral setsum.remove setsum_infinite)
-  then show ?thesis unfolding allocation_def non_negative_real_vector_def by (smt spa spa_allocation)
+  then show ?thesis unfolding allocation_def non_negative_def le_def zero_def by (smt spa spa_allocation)
 qed
 
 text{* definition of a second price auction, projected to the payments *}
@@ -730,10 +711,11 @@ proof -
      but in the next step it becomes apparent what we need "card N = 1" and thus this k_def for:
      for obtaining the fact `greater`, which talks about the second-highest bid and assumes 
      that it is defined. *)
-  from card_N and i_range obtain k where k_def: "k \<in> N \<and> k \<noteq> i" 
-    by (metis all_not_in_conv card.insert card_empty ex_least_nat_le finite.emptyI insertCI le0 monoid_add_class.add.right_neutral nonempty_iff not_less)
+  from card_N and i_range obtain k where k_def: "k \<in> N \<and> k \<noteq> i"
+    using  maximum_except_defined maximum_is_component
+    by (metis Diff_iff insertCI)
   from k_def and maximum_defined have greater: "maximum (N - {i}) b \<ge> b k" using maximum_except_is_greater_or_equal by blast
-  also have "\<dots> \<ge> 0" using spa spa_pred_def second_price_auction_def spa_admissible_input_def bids_def non_negative_real_vector_def by (smt greater k_def)
+  also have "\<dots> \<ge> 0" using spa spa_pred_def second_price_auction_def spa_admissible_input_def bids_def non_negative_def le_def zero_def by (smt greater k_def)
   with i_pay and calculation have "p i \<ge> 0" by simp
   with i_range and losers_pay have "\<forall> k \<in> N . p k \<ge> 0" by auto
   with vickrey_payment_def show ?thesis ..
@@ -811,7 +793,7 @@ proof (rule sga_right_uniqueI)
       and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
     by (rule fs_spa_winner_from_rel)
 
-  from range alloc pay range' alloc' pay' show "vectors_equal N x x' \<and> vectors_equal N p p'" unfolding vectors_equal_def by metis
+  from range alloc pay range' alloc' pay' show "eq N x x' \<and> eq N p p'" unfolding eq_def by metis
 qed
 
 lemma fs_spa_well_defined_outcome :
@@ -958,7 +940,7 @@ proof (intro subsetI)
     assume assm: "\<not> maximum (N - {winner'}) b > 0"
     {
       fix i assume i_range: "i \<in> (N - {winner'})"
-      with bids have bipos: "b i \<ge> 0" unfolding bids_def non_negative_real_vector_def by blast
+      with bids have bipos: "b i \<ge> 0" unfolding bids_def non_negative_def le_def zero_def by blast
       from md have "maximum (N - {winner'}) b \<ge> b i" using i_range maximum_is_greater_or_equal by simp
       then have "maximum (N - {winner'}) b = 0" using assm bipos by simp
     }
@@ -980,7 +962,6 @@ proof (intro subsetI)
   then show "bid \<in> b ` { i \<in> N . p' i > 0 }" using range' pay' bw' by auto
 qed
 
-(* TODO CL: use (is ?...) to get rid of duplication *)
 lemma spa_winner_from_rel:
   assumes "rel_all_sga_pred spa_pred A"
       and "((N, b), (x, p)) \<in> A"
@@ -1025,24 +1006,35 @@ proof (rule sga_right_uniqueI)
       and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
     by (rule spa_winner_from_rel)
 
-  have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }"
-  proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
-    from range alloc range' alloc' show "b ` { i \<in> N . x i = 1 } \<subseteq> b ` { i \<in> N . x' i = 1 }"
+  have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }" (is "?lhs = ?rhs")
+  proof (* CL: any way to collapse these two cases into one?  Preferably in Isar style? *)
+    from range alloc range' alloc' show "?lhs \<subseteq> ?rhs"
       using arg_max_set_def by auto
   next
-    from range' alloc' range alloc show "b ` { i \<in> N . x' i = 1 } \<subseteq> b ` { i \<in> N . x i = 1 }"
+    from range' alloc' range alloc show "?rhs \<subseteq> ?lhs"
       using arg_max_set_def by auto
   qed
-  moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
-  proof (intro equalityI) (* CL: any way to collapse these two cases into one? *)
-    from admissible range pay range' pay' show "b ` { i \<in> N . p i > 0 } \<subseteq> b ` { i \<in> N . p' i > 0 }"
+  moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }" (is "?lhs = ?rhs")
+  proof (* CL: any way to collapse these two cases into one?  Preferably in Isar style? *)
+    from admissible range pay range' pay' show "?lhs \<subseteq> ?rhs"
       by (rule positive_payment_bids_eq_suff)
   next
-    from admissible range' pay' range pay show "b ` { i \<in> N . p' i > 0 } \<subseteq> b ` { i \<in> N . p i > 0 }"
+    from admissible range' pay' range pay show "?rhs \<subseteq> ?lhs"
       by (rule positive_payment_bids_eq_suff)
   qed
   ultimately show "spa_equivalent_outcome N b x p x' p'" unfolding spa_equivalent_outcome_def ..
 qed
+
+(* TODO CL: merge with fs_spa_well_defined_outcome *)
+lemma spa_well_defined_outcome :
+  fixes A :: single_good_auction
+  assumes "rel_all_sga_pred spa_pred A"
+  shows "sga_well_defined_outcome A sga_outcome_allocates"
+  using assms
+  unfolding rel_all_sga_pred_def fs_spa_pred'_def
+  using spa_allocates
+    sga_outcome_allocates_def sga_well_defined_outcome_def
+  by (smt prod_caseI2 prod_caseI2')
 
 theorem spa_case_check :
   fixes A :: single_good_auction
@@ -1051,10 +1043,7 @@ theorem spa_case_check :
 proof -
   from spa have "sga_left_total A spa_admissible_input" by (rule spa_is_left_total)
   moreover from spa have "sga_right_unique A spa_admissible_input spa_equivalent_outcome" by (rule spa_is_right_unique)
-  moreover from spa have "sga_well_defined_outcome A sga_outcome_allocates"
-    unfolding rel_all_sga_pred_def
-    using spa_allocates
-      sga_outcome_allocates_def sga_well_defined_outcome_def by (smt prod_caseI2 prod_caseI2')
+  moreover from spa have "sga_well_defined_outcome A sga_outcome_allocates" by (rule spa_well_defined_outcome)
   ultimately show ?thesis unfolding sga_case_check_def by simp
 qed
 
@@ -1089,7 +1078,7 @@ lemma spa_allocates_binary :
       and "i \<in> N"
   shows "x i = 0 \<or> x i = 1"
   using assms
-  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
+  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
   by fast
 
 lemma allocated_implies_spa_winner:
@@ -1261,7 +1250,7 @@ proof -
     
     have is_bid: "bids N ?b"
       using bids alternative_is_bid
-      unfolding bids_def non_negative_real_vector_def by simp
+      unfolding bids_def non_negative_def le_def zero_def by simp
 
     let ?b_max = "maximum N ?b"
     let ?b_max' = "maximum ?M ?b"
@@ -1421,3 +1410,8 @@ Notes:
 print_codeproc
 *)
 end
+
+(*
+How to find overly long expressions (i.e. candidates for abbreviation) in jEdit:
+"[^\n][^"]{35,}"
+*)
