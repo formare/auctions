@@ -46,12 +46,12 @@ type_synonym tie_breaker = "participant \<Rightarrow> participant \<Rightarrow> 
 
 text{* Is a tie-breaker well-behaved on a given set of participants?  I.e. is it a strict
   linear order? *}
-definition wb_tie_breaker_on :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bool"
+definition wb_tie_breaker_on :: "tie_breaker \<Rightarrow> participant set \<Rightarrow> bool"
   where "wb_tie_breaker_on t N \<longleftrightarrow>
     strict_linear_order_on N
       {(a::participant, b::participant) . {a, b} \<subseteq> N \<and> t a b}"
 (* old version for tie_breaker = "participant \<Rightarrow> real", to be used with <
-   "card (tie_breaker ` participants) = card participants" *)
+   "card (tie_breaker ` N) = card N" *)
 
 (* CL: code provided by Le_J (http://stackoverflow.com/a/16690357/2397768) –
    how to prove strict linear order in a concrete case: *)
@@ -75,16 +75,16 @@ text{* Initially we'd like to formalise any single good auction as a relation of
     \end{enumerate}
   \end{enumerate}
 *}
-type_synonym single_good_auction = "((participants \<times> bids) \<times> (allocation \<times> payments)) set"
+type_synonym single_good_auction = "((participant set \<times> bids) \<times> (allocation \<times> payments)) set"
 
 subsection {* Valuation *}
 
-definition valuations :: "participants \<Rightarrow> valuations \<Rightarrow> bool"
+definition valuations :: "participant set \<Rightarrow> valuations \<Rightarrow> bool"
   where "valuations N v \<longleftrightarrow> positive N v"
 
 subsection {* Strategy (bids) *}
 
-definition bids :: "participants \<Rightarrow> bids \<Rightarrow> bool"
+definition bids :: "participant set \<Rightarrow> bids \<Rightarrow> bool"
   where "bids N b \<longleftrightarrow> non_negative N b"
 
 lemma valuation_is_bid: "valuations N v \<Longrightarrow> bids N v"
@@ -103,14 +103,14 @@ text{* We employ the general definition of an allocation for a divisible single 
   Also, it is no longer the allocation that we model as a function of the bid, but instead we model
   the \emph{auction} as a relation of bids to a @{text "(allocation \<times> payments)"} outcome. *}
 (* text_raw{*\snip{allocation_def}{1}{2}{%*} *)
-definition allocation :: "participants \<Rightarrow> allocation \<Rightarrow> bool"
+definition allocation :: "participant set \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation N x \<longleftrightarrow> non_negative N x \<and> (\<Sum> i \<in> N . x i) = 1"
 (* text_raw{*}%endsnip*} *)
 
 subsection {* Payment *}
 
 text{* Same as with the @{text allocation} we now model this as a plain vector. *}
-definition vickrey_payment :: "participants \<Rightarrow> payments \<Rightarrow> bool"
+definition vickrey_payment :: "participant set \<Rightarrow> payments \<Rightarrow> bool"
   where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N . p i \<ge> 0)"
 
 subsection {* Payoff *}
@@ -125,7 +125,7 @@ text{* To give the auction designer flexibility (including the possibility to in
   hand side entries that are known not to be bid vectors.
   For this and other purposes it is more convenient to treat the auction as a predicate over all of
   its arguments, instead of a left-hand-side/right-hand-side relation.*}
-definition sga_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition sga_pred :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "sga_pred N b x p \<longleftrightarrow> bids N b"
 
@@ -135,14 +135,14 @@ text{* We construct the relational version of an auction from the predicate vers
   that tells us whether all (input, outcome) pairs in a given relation satisfy that predicate,
   i.e. whether the given relation is an auction of the desired type. *}
 definition rel_sat_sga_pred ::
-  "(participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  "(participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
   where "rel_sat_sga_pred pred A \<longleftrightarrow> (\<forall> ((N, b), (x, p)) \<in> A . pred N b x p)"
 
 text{* A variant of @{text rel_sat_sga_pred}: We construct a predicate that tells us whether the
   given relation comprises all (input, outcome) pairs that satisfy the given auction predicate, 
   i.e. whether the given relation comprises all possible auctions of the desired type.  *}
 definition rel_all_sga_pred ::
-  "(participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  "(participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
   where "rel_all_sga_pred pred A \<longleftrightarrow> (\<forall> N b x p . ((N, b), (x, p)) \<in> A \<longleftrightarrow> pred N b x p)"
 
 text{* Now for the relational version of the single good auction: *}
@@ -152,25 +152,25 @@ definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
 text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
   allocated w.r.t. the definition of an @{text allocation}.  We are not constraining the payments
   at this point. *}
-definition sga_outcome_allocates :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition sga_outcome_allocates :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "sga_outcome_allocates N b x p \<longleftrightarrow> allocation N x"
 
-type_synonym outcome_well_definedness = "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+type_synonym outcome_well_definedness = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
 definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
   where
     "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
-      (\<forall> ((N::participants, b::bids), (x::allocation, p::payments)) \<in> A .
+      (\<forall> ((N::participant set, b::bids), (x::allocation, p::payments)) \<in> A .
         well_defined_outcome_pred N b x p)"
 
-type_synonym input_admissibility = "participants \<Rightarrow> bids \<Rightarrow> bool"
+type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightarrow> bool"
 
 text{* Left-totality of an auction defined as a relation: for each admissible bid vector
   there exists some outcome (not necessarily unique). *}
 definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
   where "sga_left_total A admissible \<longleftrightarrow>
-    (\<forall> (N :: participants) (b :: bids) . admissible N b \<longrightarrow>
+    (\<forall> (N :: participant set) (b :: bids) . admissible N b \<longrightarrow>
       (\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A))"
 
 text{* introduction rule for @{term sga_left_total} *}
@@ -191,14 +191,14 @@ lemma left_total_suprel:
 using assms sga_left_total_def
 by (smt set_rev_mp)
 
-type_synonym outcome_equivalence = "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
 text{* Right-uniqueness of an auction defined as a relation: for each admissible bid vector,
   if there is an outcome, it is unique.  We define this once for underspecified auctions, i.e.
   where tie-breaking is not specified, \<dots> *}
 definition sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> bool"
   where "sga_right_unique A admissible equivalent \<longleftrightarrow>
-    (\<forall> (N :: participants) (b :: bids) . admissible N b \<longrightarrow>
+    (\<forall> (N :: participant set) (b :: bids) . admissible N b \<longrightarrow>
       (\<forall> (x :: allocation) (x' :: allocation) (p :: payments) (p' :: payments) .
         ((N, b), (x, p)) \<in> A \<and> ((N, b), (x', p')) \<in> A \<longrightarrow> equivalent N b x p x' p'))"
 
@@ -232,7 +232,7 @@ definition fs_sga_case_check :: "single_good_auction \<Rightarrow> input_admissi
 subsection {* Maximum *}
 text{* This subsection uses Isabelle's set maximum functions, wrapping them for our use. *}
 
-definition maximum_defined :: "participants \<Rightarrow> bool"
+definition maximum_defined :: "participant set \<Rightarrow> bool"
   where "maximum_defined N \<longleftrightarrow> card N > 0"
 
 lemma maximum_except_defined:
@@ -242,11 +242,11 @@ lemma maximum_except_defined:
   using assms maximum_defined_def
   by (smt card.remove card_infinite)
 
-definition maximum :: "participants \<Rightarrow> real vector \<Rightarrow> real"
+definition maximum :: "participant set \<Rightarrow> real vector \<Rightarrow> real"
   where "maximum N y = Max (y ` N)"
 
 lemma maximum_equal:
-  fixes N :: participants and y :: "real vector" and z :: "real vector"
+  fixes N :: "participant set" and y :: "real vector" and z :: "real vector"
   assumes "\<forall>i \<in> N. y i = z i"
   shows "maximum N y = maximum N z"
 proof -
@@ -255,14 +255,14 @@ proof -
 qed
 
 lemma maximum_is_greater_or_equal:
-  fixes N :: participants and y :: "real vector" and i :: participant
+  fixes N :: "participant set" and y :: "real vector" and i :: participant
   assumes "maximum_defined N"
     and "i \<in> N"
   shows "maximum N y \<ge> y i"
   using assms unfolding maximum_defined_def maximum_def by (simp add: card_gt_0_iff)
 
 lemma maximum_is_component:
-  fixes N :: participants and y :: "real vector"
+  fixes N :: "participant set" and y :: "real vector"
   assumes defined: "maximum_defined N"
   shows "\<exists>i \<in> N. maximum N y = y i"
 proof -
@@ -275,7 +275,7 @@ proof -
 qed
 
 lemma maximum_sufficient:
-  fixes N :: participants and y :: "real vector" and m :: real
+  fixes N :: "participant set" and y :: "real vector" and m :: real
   assumes defined: "maximum_defined N"
     and greater_or_equal: "\<forall>i \<in> N. m \<ge> y i"
     and is_component: "\<exists>i \<in> N. m = y i"
@@ -294,7 +294,7 @@ proof -
 qed
 
 text{* the set of all indices of maximum components of a vector *}
-definition arg_max_set :: "participants \<Rightarrow> real vector \<Rightarrow> participants"
+definition arg_max_set :: "participant set \<Rightarrow> real vector \<Rightarrow> participant set"
   where "arg_max_set N b = {i \<in> N . maximum N b = b i}"
 
 text{* the index of the single maximum component *}
@@ -308,14 +308,14 @@ where "arg_max_l_tb [] t b = 0" (* in practice we will only call the function wi
         else if (b x = b y \<and> t x y) then x
         else y)"
 
-fun arg_max_tb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
+fun arg_max_tb :: "participant set \<Rightarrow> tie_breaker \<Rightarrow> bids \<Rightarrow> participant"
 where "arg_max_tb N t b = arg_max_l_tb (sorted_list_of_set N) t b"
 
 (* TODO CL: once proving properties of the list-based implementation of this function
    starts to hurt, follow Lars Noschinski's advice to use the list-based implementation for
    code generation only, and otherwise use an equivalent set-based definition.
    http://stackoverflow.com/questions/16702866/defining-an-arg-max-like-function-over-finite-sets-and-proving-some-of-its-pr#comment24451608_16707012 *)
-fun arg_max_tb_req_wb :: "participants \<Rightarrow> tie_breaker \<Rightarrow> bids \<rightharpoonup> participant"
+fun arg_max_tb_req_wb :: "participant set \<Rightarrow> tie_breaker \<Rightarrow> bids \<rightharpoonup> participant"
 where "arg_max_tb_req_wb N t b = (if (wb_tie_breaker_on t N)
   then Some (arg_max_tb N t b)
   else None)"
@@ -350,7 +350,7 @@ using assms by (auto simp: sorted_list_of_set_remove')
 text{* The highest bidder, determined by tie-breaking using @{term arg_max_tb},
   is one member of the set of all highest bidders, determined using @{term arg_max_set}. *}
 lemma arg_max_tb_imp_arg_max_set :
-  fixes N :: participants
+  fixes N :: "participant set"
     and t :: tie_breaker
     and b :: bids
   assumes defined: "maximum_defined N"
@@ -431,7 +431,7 @@ proof -
 qed
 
 lemma maximum_except_is_greater_or_equal:
-  fixes N :: participants and y :: "real vector" and j :: participant and i :: participant
+  fixes N :: "participant set" and y :: "real vector" and j :: participant and i :: participant
   assumes defined: "maximum_defined N"
     and i: "i \<in> N \<and> i \<noteq> j"
   shows "maximum (N - {j}) y \<ge> y i"
@@ -446,7 +446,7 @@ proof -
 qed
 
 lemma maximum_remaining_maximum:
-  fixes N :: participants and y :: "real vector" and j :: participant
+  fixes N :: "participant set" and y :: "real vector" and j :: participant
   assumes defined': "maximum_defined (N - {j})"
     and j_max: "y j = maximum N y"
   shows "y j \<ge> maximum (N - {j}) y"
@@ -459,7 +459,7 @@ proof -
 qed
 
 lemma remaining_maximum_invariant:
-  fixes N :: participants and y :: "real vector" and i :: participant and a :: real
+  fixes N :: "participant set" and y :: "real vector" and i :: participant and a :: real
   shows "maximum (N - {i}) (y(i := a)) = maximum (N - {i}) y"
 proof -
   let ?M = "N - {i}"
@@ -470,33 +470,33 @@ qed
 subsection {* Second price single good auctions and some of their properties *}
 
 definition second_price_auction_winner_outcome ::
-    "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
+    "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where
     "second_price_auction_winner_outcome N b x p i \<longleftrightarrow>
       x i = 1 \<and> p i = maximum (N - {i}) b"
 
 definition second_price_auction_winner ::
-    "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
+    "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where
     "second_price_auction_winner N b x p i \<longleftrightarrow>
       i \<in> N \<and> i \<in> arg_max_set N b \<and>
       second_price_auction_winner_outcome N b x p i"
 
 definition second_price_auction_loser_outcome ::
-    "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
+    "participant set \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where "second_price_auction_loser_outcome N x p i \<longleftrightarrow>
      x i = 0 \<and>
      p i = 0"
 
 definition second_price_auction_loser ::
-    "participants \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
+    "participant set \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where "second_price_auction_loser N x p i \<longleftrightarrow> i \<in> N \<and>
      second_price_auction_loser_outcome N x p i"
 
-definition spa_admissible_input :: "participants \<Rightarrow> bids \<Rightarrow> bool"
+definition spa_admissible_input :: "participant set \<Rightarrow> bids \<Rightarrow> bool"
   where "spa_admissible_input N b \<longleftrightarrow> card N > 1 \<and> bids N b"
 
-definition spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition spa_pred :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "spa_pred N b x p \<longleftrightarrow>
       spa_admissible_input N b \<and>
@@ -508,7 +508,7 @@ definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
 
 text{* definition of a second price auction, projected to the allocation *}
 lemma spa_allocation :
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
   assumes "spa_pred N b x p"
   shows "\<exists> i \<in> N . x i = 1 \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> x j = 0)"
@@ -519,7 +519,7 @@ lemma spa_allocation :
   by auto
 
 (* fs = fully specified *)
-definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition fs_spa_pred :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where
     "fs_spa_pred N b t x p \<longleftrightarrow>
       wb_tie_breaker_on t N \<and>
@@ -528,10 +528,10 @@ definition fs_spa_pred :: "participants \<Rightarrow> bids \<Rightarrow> tie_bre
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
 
 text{* convenience function to compute the winner of a fully specified second price auction with tie-breaking *}
-fun fs_spa_winner_req_wb :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> participant"
+fun fs_spa_winner_req_wb :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> participant"
   where "fs_spa_winner_req_wb N b t = the (arg_max_tb_req_wb N t b)"
 
-fun fs_spa_winner :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> participant"
+fun fs_spa_winner :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> participant"
   where "fs_spa_winner N b t = arg_max_tb N t b"
 
 lemma fs_spa_winner_wb:
@@ -539,11 +539,11 @@ lemma fs_spa_winner_wb:
   using assms by simp
 
 text{* convenience function to compute the allocation of a fully specified second price auction with tie-breaking *}
-fun fs_spa_allocation_req_wb :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
+fun fs_spa_allocation_req_wb :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
   where "fs_spa_allocation_req_wb N b t = (let winner = fs_spa_winner_req_wb N b t in
     (\<lambda> i . if (i = winner) then 1 else 0))"
 
-fun fs_spa_allocation :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
+fun fs_spa_allocation :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> allocation"
   where "fs_spa_allocation N b t = (let winner = fs_spa_winner N b t in
     (\<lambda> i . if (i = winner) then 1 else 0))"
 
@@ -552,11 +552,11 @@ lemma fs_spa_allocation_wb:
   using assms by simp
 
 text{* convenience function to compute the payments of a fully specified second price auction with tie-breaking *}
-fun fs_spa_payments_req_wb :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
+fun fs_spa_payments_req_wb :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
   where "fs_spa_payments_req_wb N b t = (let winner = fs_spa_winner_req_wb N b t in
     (\<lambda> i . if (i = winner) then maximum (N - {i}) b else 0))"
 
-fun fs_spa_payments :: "participants \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
+fun fs_spa_payments :: "participant set \<Rightarrow> bids \<Rightarrow> tie_breaker \<Rightarrow> payments"
   where "fs_spa_payments N b t = (let winner = fs_spa_winner N b t in
     (\<lambda> i . if (i = winner) then maximum (N - {i}) b else 0))"
 
@@ -568,7 +568,7 @@ text{* The definitions of the computable functions @{text fs_spa_allocation} and
   are consistent with how we defined the outcome of a fully specified second price auction
   with tie-breaking in @{text fs_spa_pred}. *}
 lemma fs_spa_pred_allocation_payments:
-  fixes N :: participants
+  fixes N :: "participant set"
     and b :: bids
     and t :: tie_breaker
     and x :: allocation
@@ -612,7 +612,7 @@ next
 qed
 
 lemma fs_spa_is_spa :
-  fixes N :: participants
+  fixes N :: "participant set"
     and b :: bids
     and t :: tie_breaker
     and x :: allocation
@@ -644,7 +644,7 @@ proof -
 qed
 
 text{* alternative definition for easier currying *}
-definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "fs_spa_pred' t N b x p = fs_spa_pred N b t x p"
 
 lemma sga_pred_imp_lift_to_rel_all:
@@ -666,7 +666,7 @@ by metis
 
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome is an allocation. *}
 lemma spa_allocates :
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
   assumes spa: "spa_pred N b x p"
   shows "allocation N x"
@@ -683,7 +683,7 @@ qed
 
 text{* definition of a second price auction, projected to the payments *}
 lemma spa_payments :
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
   assumes "spa_pred N b x p"
   shows "\<exists> i \<in> N . p i = maximum (N - {i}) b \<and> (\<forall> j \<in> N . j \<noteq> i \<longrightarrow> p j = 0)"
@@ -696,7 +696,7 @@ lemma spa_payments :
 *)
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome specifies non-negative payments for everyone. *}
 lemma spa_vickrey_payment :
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
   assumes spa: "spa_pred N b x p"
   shows "vickrey_payment N p"
@@ -728,7 +728,7 @@ lemma fs_spa_is_left_total :
       and fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
   shows "sga_left_total A spa_admissible_input"
 proof (rule sga_left_totalI)
-  fix N :: participants and b :: bids
+  fix N :: "participant set" and b :: bids
   assume admissible: "spa_admissible_input N b"
   (* Note that Isabelle says that "Max {}" exists (but of course can't specify it).
      However we are working with our own wrapped maximum definition anyway. *)
@@ -775,7 +775,7 @@ lemma fs_spa_is_right_unique :
   shows "fs_sga_right_unique A spa_admissible_input"
 unfolding fs_sga_right_unique_def
 proof (rule sga_right_uniqueI)
-  fix N :: participants and b :: bids
+  fix N :: "participant set" and b :: bids
   assume admissible: "spa_admissible_input N b"
   fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
 
@@ -881,7 +881,7 @@ proof -
 qed
 (* alternative direct proof:
 proof (rule sga_left_totalI)
-  fix N :: participants and b :: bids
+  fix N :: "participant set" and b :: bids
   assume admissible: "spa_admissible_input N b"
   from admissible obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
     using spa_admissible_input_def arg_max_set_def maximum_defined_def maximum_is_component
@@ -905,17 +905,17 @@ text{* We consider two outcomes of a second price auction equivalent if
 \end{enumerate}
 This should be as weak as possible, as not to accidentally restate the full definition of a second price auction.
  *}
-definition spa_equivalent_outcome :: "participants \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+definition spa_equivalent_outcome :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "spa_equivalent_outcome N b x p x' p' \<longleftrightarrow> 
     b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 } \<and>
     b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }"
 (* This definition is more general in that it allow for divisible goods. *)
 
 text{* Under certain conditions we can show that 
-  the bids of the participants with positive payments are equal
+  the bids of the participant set with positive payments are equal
   (one direction of the equality) *}
 lemma positive_payment_bids_eq_suff :
-  fixes N :: participants
+  fixes N :: "participant set"
     and winner :: participant
     and b :: bids
     and p :: payments
@@ -988,7 +988,7 @@ lemma spa_is_right_unique :
   assumes spa: "rel_all_sga_pred spa_pred A"
   shows "sga_right_unique A spa_admissible_input spa_equivalent_outcome"
 proof (rule sga_right_uniqueI)
-  fix N :: participants and b :: bids
+  fix N :: "participant set" and b :: bids
   assume admissible: "spa_admissible_input N b"
   fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
 
@@ -1048,7 +1048,7 @@ proof -
 qed
 
 lemma spa_is_sga_pred :
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
   assumes "spa_pred N b x p"
   shows "sga_pred N b x p"
@@ -1071,7 +1071,7 @@ using second_price_auction_def single_good_auction_def spa spa_is_sga_pred
 by (rule sga_pred_imp_lift_to_rel_sat)
 
 lemma spa_allocates_binary :
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
     and i :: participant
   assumes "spa_pred N b x p"
@@ -1082,7 +1082,7 @@ lemma spa_allocates_binary :
   by fast
 
 lemma allocated_implies_spa_winner:
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
      and x :: allocation and p :: payments
      and winner :: participant
   assumes "spa_pred N b x p"
@@ -1097,7 +1097,7 @@ lemma allocated_implies_spa_winner:
          as "x winner = 1" implies "x i = 0" for all other participants is rather implicit now. *)
 
 lemma not_allocated_implies_spa_loser:
-  fixes N :: participants and b :: bids
+  fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
     and loser :: participant
   assumes spa: "spa_pred N b x p"
@@ -1113,7 +1113,7 @@ proof -
 qed
 
 lemma only_max_bidder_wins:
-  fixes N :: participants and max_bidder :: participant
+  fixes N :: "participant set" and max_bidder :: participant
     and b :: bids and x :: allocation and p :: payments
   assumes defined: "maximum_defined N"
     and spa: "spa_pred N b x p"
@@ -1147,7 +1147,7 @@ proof -
 qed
 
 lemma second_price_auction_winner_payoff:
-  fixes N :: participants and v :: valuations and x :: allocation
+  fixes N :: "participant set" and v :: valuations and x :: allocation
     and b :: bids and p :: payments and winner :: participant
   assumes defined: "maximum_defined N"
     and spa: "spa_pred N b x p"
@@ -1166,7 +1166,7 @@ proof -
 qed
 
 lemma second_price_auction_loser_payoff:
-  fixes N :: participants and v :: valuations and x :: allocation
+  fixes N :: "participant set" and v :: valuations and x :: allocation
     and b :: bids and p :: payments and loser :: participant
   assumes "spa_pred N b x p"
     and "i \<in> N"
@@ -1177,7 +1177,7 @@ lemma second_price_auction_loser_payoff:
   by simp
 
 lemma winners_payoff_on_deviation_from_valuation:
-  fixes N :: participants and v :: valuations and x :: allocation
+  fixes N :: "participant set" and v :: valuations and x :: allocation
     and b :: bids and p :: payments and winner :: participant
   assumes "spa_pred N b x p"
     and "i \<in> N"
@@ -1191,7 +1191,7 @@ section {* Some properties that single good auctions can have *}
 
 subsection {* Efficiency *}
 
-definition efficient :: "participants \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool"
+definition efficient :: "participant set \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool"
   where
     "efficient N v b A \<longleftrightarrow>
       valuations N v \<and> bids N b \<and> single_good_auction A \<and>
@@ -1203,7 +1203,7 @@ definition efficient :: "participants \<Rightarrow> valuations \<Rightarrow> bid
 subsection {* Equilibrium in weakly dominant strategies *}
 
 definition equilibrium_weakly_dominant_strategy ::
-  "participants \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool" where
+  "participant set \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool" where
   "equilibrium_weakly_dominant_strategy N v b A \<longleftrightarrow>
     valuations N v \<and> bids N b \<and> single_good_auction A \<and>
     (\<forall>i \<in> N.
@@ -1220,7 +1220,7 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
   strategies if all participants bid their valuation. *}
 
 theorem vickreyA:
-  fixes N :: participants and v :: valuations and A :: single_good_auction
+  fixes N :: "participant set" and v :: valuations and A :: single_good_auction
   assumes val: "valuations N v" 
   defines "b \<equiv> v"
   assumes spa: "second_price_auction A"
@@ -1370,7 +1370,7 @@ qed
 subsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
 
 theorem vickreyB:
-  fixes N :: participants and v :: valuations and A :: single_good_auction
+  fixes N :: "participant set" and v :: valuations and A :: single_good_auction
   assumes val: "valuations N v"
   assumes spa: "second_price_auction A"
   defines "b \<equiv> v"
