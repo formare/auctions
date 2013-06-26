@@ -17,7 +17,6 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-
 header {* Vickrey's Theorem: second price auctions are
   efficient, and truthful bidding is a weakly dominant strategy --
   copy to experiment with ``case checking'' *}
@@ -29,6 +28,7 @@ imports Complex_Main
   "~~/src/HOL/Library/Efficient_Nat"
   Vectors
   Partitions
+  
 begin
 
 section {* Combinatorial auctions *}
@@ -81,17 +81,12 @@ type_synonym valuation = "endowment_subset \<Rightarrow> real"
 type_synonym valuations = "valuation vector"
 *)
 
-(* Bids are of the same type as valuations, but conceptually different. *)
-type_synonym bid = ""
-
 (*
 type_synonym bid = "endowment_subset \<Rightarrow> real"
 (* endowment = (1,2)
    bid = { (0,1) \<rightarrow> 3.45, (1,2) \<rightarrow> 7.42, \<dots> } *)
 *)
-
-type_synonym bids = "bid vector"
-
+(*
 (* A well-formed bid is non-negative for each “subset” of the endowment, i.e. each vector s
    that is component-wise 0 \<le> s \<le> x0. *)
 definition bid :: "bid \<Rightarrow> goods \<Rightarrow> endowment \<Rightarrow> bool"
@@ -117,8 +112,27 @@ non_negative_real_vector N x \<and> (\<Sum> i \<in> N . x i) = 1"
 
 
 type_synonym payments = "real vector"
+*)
+(* MC: Some tries *)
 
+definition h :: "(nat => nat set => nat) => (nat set => nat) => nat set => nat"
+where "h b f y = b (f y) y"
 
+definition bb :: "nat => nat set => nat"
+where "bb x y = x"
+
+definition ff :: "nat set => nat"
+where "ff x = 1"
+
+value "% Y f . setsum ((h b f) :: nat set => nat) Y"
+
+definition F :: "(nat => nat set => nat) => nat set set => (nat set => nat) =>  nat"
+where "F b Y f  = setsum ((h b f) :: nat set => nat) Y"
+
+definition domain :: "nat set => nat set  => (((nat set set) \<times> (nat set => nat)) set)"
+where "domain G N = {(Y,f). Y \<in> allPartitions G & (\<forall> x :: nat set . x \<in> Y \<longrightarrow> f x \<in> N) }"
+
+value "(F bb) ` (domain {x::nat . True} {x::nat . True})"
 
 end
 
