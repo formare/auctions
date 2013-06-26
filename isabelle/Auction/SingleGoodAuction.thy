@@ -20,163 +20,123 @@ header {* Single good auctions *}
 
 theory SingleGoodAuction
 (* TODO CL: This is actually about single _indivisible_ goods; consider renaming theory *)
-imports Vectors
+imports Complex_Main Vectors
 begin
 
 subsection {* Preliminaries *}
 
-text{* some types defined for our convenience *}
-type_synonym participant = "nat"  (* ordinal number *)
-type_synonym participants = "nat" (* cardinal number *)
+text{* convenience type synonyms for most of the basic concepts we are dealing with *}
 
-(* TODO CL: discuss whether it's intuitive to name some types as in the following lines.
-However, being of one such type does not yet imply well-formedness; e.g. we could have an x::allocation, which, for some given n and b does not satisfy "allocation n b x". *)
-(* makarius: This is perfectly normal: these types are just static approximations of the semantic properties that you have in mind.
-   We are not strongly-dependent types in this club. *)
-type_synonym allocation = "real vector \<Rightarrow> participants \<Rightarrow> bool"
-type_synonym payments = "real vector \<Rightarrow> participants \<Rightarrow> real" (* a payment vector is a function of a "real vector" of bids *)
+type_synonym participant = index
+
+type_synonym valuations = "real vector"
+type_synonym bids = "real vector"
+type_synonym allocation = "real vector"
+type_synonym payments = "real vector"
 
 
-subsection {* Strategy (bids) *}
-
-text{*
-Strategy and strategy profile (the vector of the strategies of all participants) are not fully defined below. We ignore the
-distribution and density function, as they do not play a role in the proof of the theorem.
-So, for now, we do not model the random mapping from a participant's valuation to its bid, but simply consider its bid as a
-non-negative number that doesn't depend on anything.
+text{* Initially we'd like to formalise any single good auction as a relation of bids and outcome.
+  Proving the well-definedness of an auction is then a separate step in the auction design process.
+  It involves:
+  \begin{enumerate}
+  \item checking that the allocation and payments vectors actually meet our expectation of an allocation or payment,
+    as defined by the @{term allocation_def} and @{term vickrey_payment} predicates below
+  \item checking that the relation actually is a function, i.e. that it is
+    \begin{enumerate}
+    \item left-total (@{term sga_left_total}): ``for any admissible bids \dots''
+    \item right-unique (@{term sga_right_unique}): ``\dots there is a unique outcome.''
+    \end{enumerate}
+  \end{enumerate}
 *}
-definition bids ::
-  "participants \<Rightarrow> real vector \<Rightarrow> bool" where
-  "bids n b \<longleftrightarrow> non_negative_real_vector n b"
-
-
-subsubsection {* Deviation from a bid *}
-
-text{* A deviation from a bid is still a well-formed bid. *}
-lemma deviated_bid_well_formed :
-  fixes n::participants and bid::"real vector"
-    and alternative_vec::"real vector" and i::participant
-  assumes bids_original: "bids n bid"
-    and bids_alternative: "bids n alternative_vec"
-  shows "bids n (deviation_vec n bid alternative_vec i)"
-proof -
-  let ?dev = "deviation_vec n bid alternative_vec i"
-  {
-    fix k::participant
-    assume k_range: "k \<in> {1..n}"
-    have "?dev k \<ge> 0"
-    proof (cases "?dev k = bid k")
-      case True
-      with k_range bids_original
-        show ?thesis
-        unfolding deviation_def
-        by (simp only: bids_def non_negative_real_vector_def)
-    next
-      case False
-      then have "?dev k = alternative_vec k"
-        by (auto simp add: deviation_vec_def deviation_def)
-           (* "then" \<equiv> "from this", where "this" is the most recently established fact;
-             note that in line with https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2012-October/msg00057.html
-             and for easier general comprehensibility
-             we are not using the abbreviations "hence" \<equiv> "then have" and "thus" \<equiv> "then show" here. *)
-        with k_range bids_alternative show ?thesis
-          unfolding deviation_def by (simp add: bids_def non_negative_real_vector_def)
-    qed
-  }
-  then show "bids n ?dev"
-    unfolding bids_def non_negative_real_vector_def by simp
-qed
-
-text{* A single-good auction is a mechanism specified by a function that maps a strategy profile to an outcome. *}
-
-
-subsection {* Allocation *}
-
-text{* A function @{text x}, which takes a vector of @{text n} bids, is an allocation
-  if it returns @{text True} for one bidder and @{text False} for the others. *}
-(* TODO CL: discuss whether we should use different names for "definition allocation" and "type_synonym allocation", as they denote two different things *)
-(* makarius: I would say this is OK.  Isabelle clearly distinguishes certain categories of formal entities:
-   types, terms, theorems etc., all with a different name space *)
-
-(* TODO CL: record in our notes that the order of arguments of a function matters.
-   Note that I, CL, reordered the arguments on 2012-08-24.
-   When using the function x in a curried way, we can speak of (x b) as a vector of booleans, in a very straightforward way;
-   with a different order of arguments we'd have to use (\<lambda> index::nat . x index b).
-*)
-(* makarius: There is indeed a fine art of natural argument order of curried functions. *)
-definition allocation :: "participants \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool"
-  where "allocation n b x \<longleftrightarrow> bids n b \<and> (\<exists>!i \<in> {1..n}. x b i)"
-
-text{* An allocation function uniquely determines the winner. *}
-lemma allocation_unique :
-  fixes n::participants and x::allocation and b::"real vector" and winner::participant and other::participant
-  assumes "allocation n b x"
-    and "winner \<in> {1..n}" and "x b winner"
-    and "other \<in> {1..n}" and "x b other"
-  shows "other = winner"
-  using assms unfolding allocation_def by blast
-
-
-subsection {* Payment *}
-
-text{* Each participant pays some amount. *}
-definition vickrey_payment ::
-  "participants \<Rightarrow> real vector \<Rightarrow> payments \<Rightarrow> bool" where
-  "vickrey_payment n b p \<longleftrightarrow> bids n b \<and> (\<forall>i::participant \<in> {1..n}. p b i \<ge> 0)"
-
-
-subsection {* Outcome *}
-
-text{* The outcome of an auction is specified an allocation $\{0, 1\}^n$ and a vector of payments $R^n$
- made by each participant; we don't introduce a dedicated definition for this. *}
-
+type_synonym single_good_auction = "((participant set \<times> bids) \<times> (allocation \<times> payments)) set"
 
 subsection {* Valuation *}
 
-text{* Each participant has a positive valuation of the good. *}
-definition valuation ::
-  "participants \<Rightarrow> real vector \<Rightarrow> bool" where
-  "valuation n v \<longleftrightarrow> positive_real_vector n v"
+definition valuations :: "participant set \<Rightarrow> valuations \<Rightarrow> bool"
+  where "valuations N v \<longleftrightarrow> positive N v"
 
-text{* Any well-formed valuation vector is a well-formed bid vector *}
-lemma valuation_is_bid :
-  fixes n::participants and v::"real vector"
-  assumes "valuation n v"
-  shows "bids n v"
-  using assms
-  unfolding valuation_def positive_real_vector_def
-  unfolding bids_def non_negative_real_vector_def
-  by (simp add: order_less_imp_le)
-  (* If we had been searching the library for an applicable theorem, we could have used
-     find_theorems (200) "_ > _ \<Longrightarrow> _ \<ge> _" where 200 is some upper search bound,
-     and would have found less_imp_le and others *)
-  (* NOTE makarius: note that above, any of "auto", "fastforce", "force" would solve it outright *)
+subsection {* Strategy (bids) *}
 
+definition bids :: "participant set \<Rightarrow> bids \<Rightarrow> bool"
+  where "bids N b \<longleftrightarrow> non_negative N b"
+
+lemma valuation_is_bid: "valuations N v \<Longrightarrow> bids N v"
+  by (auto simp add: valuations_def positive_def bids_def non_negative_def)
+
+subsection {* Allocation *}
+
+(* CL: changed for case checker: From now on, we merely assume that an allocation is a vector 
+       of reals that sum up to 1, i.e. this allows for a divisible good,
+       and we no longer assume that it is a function of the bids.
+       This will make it easier for us to ``overlook'' cases in the definitions of concrete auctions ;-)
+   CL@CR: I see that in your paper formalisation you had already defined the allocation as 
+          a vector of {0,1} with exactly one 1.  *)
+text{* We employ the general definition of an allocation for a divisible single good.
+  This is to allow for more possibilities of an auction to be not well-defined.
+  Also, it is no longer the allocation that we model as a function of the bid, but instead we model
+  the \emph{auction} as a relation of bids to a @{text "(allocation \<times> payments)"} outcome. *}
+(* text_raw{*\snip{allocation_def}{1}{2}{%*} *)
+definition allocation :: "participant set \<Rightarrow> allocation \<Rightarrow> bool"
+  where "allocation N x \<longleftrightarrow> non_negative N x \<and> (\<Sum> i \<in> N . x i) = 1"
+(* text_raw{*}%endsnip*} *)
+
+subsection {* Payment *}
+
+text{* Same as with the @{text allocation} we now model this as a plain vector. *}
+definition vickrey_payment :: "participant set \<Rightarrow> payments \<Rightarrow> bool"
+  where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N . p i \<ge> 0)"
 
 subsection {* Payoff *}
 
-(* TODO CL: Maybe define payoff as a vector altogether, and just use one definition. *)
-text{* The payoff of the winner ($x_i=1$), determined by a utility function u, is the difference between its valuation and the actual
-payment. For the losers, it is the negative payment. *}
-(* TODO CL: ask whether there is a built-in function that converts bool to {0,1} *)
-(* makarius: that function is called "If" :-) Note that below you don't need to simulate mathematicians
-   avoiding booleans -- just use "if" directly without the multiplication. *)
-(* CL: good point!  The general definition "payoff := valuation * allocated - payment" in the paper source is more general than we need it here.  OTOH if-then-else (or its curly brace notation) doesn't always look _so_ nice on paper. *)
-(* makarius: Why are the function arguments capitalized? *)
-(* CL: just wanted to visually distinguish them from valuation/allocation/payment _vectors_ as used above *)
-definition payoff ::
-  "real \<Rightarrow> bool \<Rightarrow> real \<Rightarrow> real" where
-  "payoff Valuation Allocation Payment =
-    (if Allocation then Valuation else 0) - Payment"
+definition payoff :: "real \<Rightarrow> real \<Rightarrow> real \<Rightarrow> real"
+  where "payoff v x p = v * x - p"
 
-text{* For convenience in the subsequent formalisation, we also define the payoff as a vector, component-wise. *}
-definition payoff_vector ::
-  "real vector \<Rightarrow> bool vector \<Rightarrow> real vector \<Rightarrow> participant \<Rightarrow> real" where
-  "payoff_vector v concrete_x concrete_p i = payoff (v i) (concrete_x i) (concrete_p i)"
+text{* To give the auction designer flexibility (including the possibility to introduce mistakes),
+  we only constrain the left hand side of the relation, as to cover admissible @{text bids}.
+  This definition makes sure that whenever we speak of a single good auction, there is a bid vector
+  on the left hand side.  In other words, this predicate returns false for relations having left
+  hand side entries that are known not to be bid vectors.
+  For this and other purposes it is more convenient to treat the auction as a predicate over all of
+  its arguments, instead of a left-hand-side/right-hand-side relation.*}
+definition sga_pred :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+  where
+    "sga_pred N b x p \<longleftrightarrow> bids N b"
 
-(* unused theorems (which might nevertheless be useful for the toolbox):
-   * move cursor over the word "unused_thms" for jEdit to display the list
-   * This has to be at the end of the file to make sure that the whole theory has been processed. *)
-unused_thms %invisible
+text{* We construct the relational version of an auction from the predicate version: given a 
+  predicate that defines an auction by telling us for all possible arguments whether they 
+  form an (input, outcome) pair according to the auction's definition, we construct a predicate
+  that tells us whether all (input, outcome) pairs in a given relation satisfy that predicate,
+  i.e. whether the given relation is an auction of the desired type. *}
+definition rel_sat_sga_pred ::
+  "(participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  where "rel_sat_sga_pred pred A \<longleftrightarrow> (\<forall> ((N, b), (x, p)) \<in> A . pred N b x p)"
+
+text{* A variant of @{text rel_sat_sga_pred}: We construct a predicate that tells us whether the
+  given relation comprises all (input, outcome) pairs that satisfy the given auction predicate, 
+  i.e. whether the given relation comprises all possible auctions of the desired type.  *}
+definition rel_all_sga_pred ::
+  "(participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool) \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  where "rel_all_sga_pred pred A \<longleftrightarrow> (\<forall> N b x p . ((N, b), (x, p)) \<in> A \<longleftrightarrow> pred N b x p)"
+
+text{* Now for the relational version of the single good auction: *}
+definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
+  where "single_good_auction = rel_sat_sga_pred sga_pred"
+
+text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
+  allocated w.r.t. the definition of an @{text allocation}.  We are not constraining the payments
+  at this point. *}
+definition sga_outcome_allocates :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+  where
+    "sga_outcome_allocates N b x p \<longleftrightarrow> allocation N x"
+
+type_synonym outcome_well_definedness = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+
+definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+  where
+    "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
+      (\<forall> ((N::participant set, b::bids), (x::allocation, p::payments)) \<in> A .
+        well_defined_outcome_pred N b x p)"
+
+type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightarrow> bool"
 
 end

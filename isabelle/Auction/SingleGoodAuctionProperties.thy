@@ -22,15 +22,81 @@ theory SingleGoodAuctionProperties
 imports SingleGoodAuction Maximum
 begin
 
+text{* Left-totality of an auction defined as a relation: for each admissible bid vector
+  there exists some outcome (not necessarily unique). *}
+definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+  where "sga_left_total A admissible \<longleftrightarrow>
+    (\<forall> (N :: participant set) (b :: bids) . admissible N b \<longrightarrow>
+      (\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A))"
+
+text{* introduction rule for @{term sga_left_total} *}
+lemma sga_left_totalI:
+  assumes "\<And> N b . admissible N b \<Longrightarrow> (\<exists> x p . ((N, b), (x, p)) \<in> A)"
+  shows "sga_left_total A admissible"
+using assms unfolding sga_left_total_def
+by blast
+
+text{* If one relation is left-total on a given set, its superrelations are left-total on that set too. *}
+lemma left_total_suprel:
+  fixes A :: single_good_auction
+    and B :: single_good_auction
+    and admissible :: input_admissibility
+  assumes left_total_subrel: "sga_left_total A admissible"
+      and suprel: "A \<subseteq> B"
+  shows "sga_left_total B admissible"
+using assms sga_left_total_def
+by (smt set_rev_mp)
+
+type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+
+text{* Right-uniqueness of an auction defined as a relation: for each admissible bid vector,
+  if there is an outcome, it is unique.  We define this once for underspecified auctions, i.e.
+  where tie-breaking is not specified, \<dots> *}
+definition sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> bool"
+  where "sga_right_unique A admissible equivalent \<longleftrightarrow>
+    (\<forall> (N :: participant set) (b :: bids) . admissible N b \<longrightarrow>
+      (\<forall> (x :: allocation) (x' :: allocation) (p :: payments) (p' :: payments) .
+        ((N, b), (x, p)) \<in> A \<and> ((N, b), (x', p')) \<in> A \<longrightarrow> equivalent N b x p x' p'))"
+
+text{* introduction rule for @{term sga_right_unique} *}
+lemma sga_right_uniqueI:
+  assumes "\<And> N b x x' p p' . admissible N b \<Longrightarrow> ((N, b), (x, p)) \<in> A \<Longrightarrow> ((N, b), (x', p')) \<in> A \<Longrightarrow> equivalent N b x p x' p'"
+  shows "sga_right_unique A admissible equivalent"
+using assms unfolding sga_right_unique_def
+by simp
+
+text{* \<dots> and once for fully specified (“fs”) auctions with tie-breaking, where outcome equivalence
+  is defined by equality: *}
+definition fs_sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+  where "fs_sga_right_unique A admissible \<longleftrightarrow>
+    sga_right_unique A admissible
+      (* equivalence by equality: *)
+      (\<lambda> N b x p x' p' . eq N x x' \<and> eq N p p')"
+
+definition sga_case_check :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+  where "sga_case_check A admissible equivalent well_defined \<longleftrightarrow>
+    sga_left_total A admissible \<and>
+    sga_right_unique A admissible equivalent \<and>
+    sga_well_defined_outcome A well_defined"
+
+definition fs_sga_case_check :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+  where "fs_sga_case_check A admissible well_defined \<longleftrightarrow>
+    sga_left_total A admissible \<and>
+    fs_sga_right_unique A admissible \<and>
+    sga_well_defined_outcome A well_defined"
+
 subsection {* Efficiency *}
 
 text{* A single good auction (this is the one we are talking about here) is efficient, if the winner is among the participants who have the
 highest valuation of the good. *}
-definition efficient ::
-  "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> bool" where
-  "efficient n v b x \<longleftrightarrow> valuation n v \<and> bids n b \<and>
-      (\<forall>i::participant \<in> {1..n}. x b i \<longrightarrow> i \<in> arg_max_set n v)"
-
+definition efficient :: "participant set \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool"
+  where
+    "efficient N v b A \<longleftrightarrow>
+      valuations N v \<and> bids N b \<and> single_good_auction A \<and>
+      (\<forall> x p . ((N, b), (x, p)) \<in> A
+        (* TODO CL: Is there a way of not naming p, as we don't need it? *)
+        \<longrightarrow>
+        (\<forall>i \<in> N. x i = 1 \<longrightarrow> i \<in> arg_max_set N v))"
 
 subsection {* Equilibrium in weakly dominant strategies *}
 
@@ -38,22 +104,17 @@ text{* Given some auction, a strategy profile supports an equilibrium in weakly 
   if each participant maximises its payoff by playing its component in that profile,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::
-  "participants \<Rightarrow> real vector \<Rightarrow> real vector \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool" where
-  (* TODO CL: note that 'bids n b' is actually redundant, as allocation and vickrey_payment require bids. *)
-  "equilibrium_weakly_dominant_strategy n v b x p \<longleftrightarrow>
-    valuation n v \<and> bids n b \<and> allocation n b x \<and> vickrey_payment n b p \<and> 
-   (\<forall>i::participant \<in> {1..n}.
-     (\<forall>whatever_bid::real vector. bids n whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow> (
-       let i_sticks_with_bid = deviation_vec n whatever_bid b i (* here, all components are (whatever_bid j), just the i-th component remains (b i) *)
-       in payoff_vector v (x i_sticks_with_bid) (p i_sticks_with_bid) i \<ge>
-          payoff_vector v (x whatever_bid) (p whatever_bid) i)))"
+  "participant set \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool" where
+  "equilibrium_weakly_dominant_strategy N v b A \<longleftrightarrow>
+    valuations N v \<and> bids N b \<and> single_good_auction A \<and>
+    (\<forall>i \<in> N.
+      (\<forall>whatever_bid . bids N whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
+        (let b' = whatever_bid(i := b i)
+         in 
+         (\<forall> x p x' p' . ((N, whatever_bid), (x, p)) \<in> A \<and> ((N, b'), (x', p')) \<in> A
+          \<longrightarrow>
+          payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)))))"
 
 (* TODO CL: discuss whether we should define _dominant_ in addition to _weakly_ dominant.  If so, can we refactor the definitions in some way that makes this less redundant? *)
-
-
-(* unused theorems (which might nevertheless be useful for the toolbox):
-   * move cursor over the word "unused_thms" for jEdit to display the list
-   * This has to be at the end of the file to make sure that the whole theory has been processed. *)
-unused_thms %invisible
 
 end
