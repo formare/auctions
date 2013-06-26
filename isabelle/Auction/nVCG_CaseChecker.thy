@@ -129,14 +129,14 @@ where "bb x y = x"
 definition ff :: "goods \<Rightarrow> participant"
 where "ff x = 1"
 
-value "% Y f . setsum ((h b f) :: nat set => nat) Y"
+value "% Y f . setsum ((h b f) :: goods \<Rightarrow> price) Y"
 
-definition F :: "(nat => nat set => nat) => (goods set) \<times> (goods \<Rightarrow> participant) =>  nat"
+definition F :: "(participant \<Rightarrow> goods \<Rightarrow> price) => (goods set) \<times> (goods \<Rightarrow> participant) => price"
 where "F b Yf  = (let Y = fst Yf; f = snd Yf in
-  setsum ((h b f) :: nat set => nat) Y)"
+  setsum ((h b f) :: goods => price) Y)"
 
-definition domain :: "nat set => nat set  => (((nat set set) \<times> (nat set => nat)) set)"
-where "domain G N = {(Y,f). Y \<in> allPartitions G & (\<forall> x :: nat set . x \<in> Y \<longrightarrow> f x \<in> N) }"
+definition domain :: "goods => participant set  => (((goods set) \<times> (goods \<Rightarrow> participant)) set)"
+where "domain G N = {(Y,f). Y \<in> allPartitions G & (\<forall> x :: goods . x \<in> Y \<longrightarrow> f x \<in> N) }"
 
 notepad
 begin
