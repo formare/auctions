@@ -31,6 +31,7 @@ lemma "equiv {1::nat} {(1::nat,1::nat)}" unfolding equiv_def refl_on_def sym_def
 (* This should work (returning {(1::nat,1::nat)}) but doesn't.
    Seems we really need a recursive function that enumerates
    all equivalence relations over a set (or even directly all partitions of the set). *)
+(* This list post seems related: https://groups.google.com/d/msg/fa.isabelle/SwVl-K3bvFs/DKyQDrE917gJ *)
 value "{R \<in> {{(1::nat,1::nat)}} . equiv {1::nat} R}"
 
 (* The following definition is well-defined but not computable: *)
