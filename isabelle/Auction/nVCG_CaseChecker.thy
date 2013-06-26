@@ -28,17 +28,41 @@ imports Complex_Main
   "~~/src/HOL/Library/Order_Relation"
   "~~/src/HOL/Library/Efficient_Nat"
   Vectors
-
+  Partitions
 begin
 
 section {* Combinatorial auctions *}
 
 subsection {* Preliminaries *}
 
-type_synonym participant = nat
-type_synonym participants = "nat set"
-
+type_synonym participant = index
 type_synonym goods = "nat set" (* actually we'd prefer "'a set", as we really don't care about the type *)
+
+(* one participant's bid on a set of goods *)
+definition b :: "participant \<Rightarrow> goods \<Rightarrow> nat" where "b i y = (\<Sum> x \<in> y . x)"
+
+(* for one set of goods in one particular partition of the overall set of goods, \<dots> *)
+definition f :: "goods \<Rightarrow> participant" where "f Y = (if Y = {} then 1 else 0)"
+
+(* *)
+definition h :: "(goods \<Rightarrow> participant) \<Rightarrow> goods \<Rightarrow> nat" where "h F y = b (F y) y"
+
+value "\<lambda> Y f . \<Sum> y \<in> Y . h f y"
+
+value "Max ((\<lambda> Yf::((goods set) \<times> (goods \<Rightarrow> participant)) . let Y = fst Yf; f = snd Yf in \<Sum> y \<in> Y . h f y) ` {(Y, f) . True})"
+
+
+
+(* definition h (f, b) = % y . *)
+
+notepad
+begin
+  def participants \<equiv> "{1::nat, 2}"
+  def goods \<equiv> "{3::nat, 4}"
+  def bids \<equiv> "\<lambda> (y::nat set) . 51::nat"
+  value "\<Sum> x \<in> {{3::nat},{4}} . h x"
+end
+
 
 (* equivalence classes and partitions *)
 
