@@ -18,11 +18,37 @@ theory Partitions
 imports Main
 begin
 
-value "{1::nat} // {(1::nat,1::nat)}"
-
 (* True iff E is the set of all equivalence relations on the set X *)
 definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Rightarrow> bool"
   where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
+
+(* partition of a set w.r.t. an equivalence relation: *)
+value "{1::nat} // {(1::nat,1::nat)}"
+
+(* This is really an equivalence relation. *)
+lemma "equiv {1::nat} {(1::nat,1::nat)}" unfolding equiv_def refl_on_def sym_def trans_def by fast
+
+(* This should work (returning {(1::nat,1::nat)}) but doesn't.
+   Seems we really need a recursive function that enumerates
+   all equivalence relations over a set (or even directly all partitions of the set). *)
+value "{R \<in> {{(1::nat,1::nat)}} . equiv {1::nat} R}"
+
+(* The following definition is well-defined but not computable: *)
+definition allPartitions :: "'a set \<Rightarrow> 'a set set set"
+  where "allPartitions A = { P . (* all sets P such that \<dots> *)
+    P \<in> Pow (Pow A) (* P is a set of subsets of A,
+                       i.e. a subset of the set of all subsets of A,
+                       i.e. a subset of the powerset of A,
+                       i.e. a member of the powerset of the powerset of A.
+                       We need this only for computability; otherwise 'P = A // e' would do the job. *)
+    \<and> (\<exists> R . (* There is an R such that \<dots> *)
+      equiv A R (* R is an equivalence relation on A *)
+      \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
+    ) }" (* CL@MC: I think we need to be able to enumerate
+            the set of all equivalence relations over a given set
+            in a computable way. *)
+
+
 
 (* TODO CL: implement computable function
 fun partition :: "'a list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> 'a set" where
@@ -30,9 +56,6 @@ fun partition :: "'a list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> 'a s
   "partition (x # xs) b = {}" |
   "partition a (x # xs) = {}"
 *)
-
-definition partition :: "'a set \<Rightarrow> ('a \<times> 'a) set \<Rightarrow> 'a set"
-  where "partition G e = { s . s \<subseteq> }"
 
 definition b :: "nat \<Rightarrow> (nat set) \<Rightarrow> nat" where "b i y = (\<Sum> x \<in> y . x)"
 
