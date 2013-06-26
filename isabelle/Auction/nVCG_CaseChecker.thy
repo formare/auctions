@@ -37,7 +37,9 @@ subsection {* Preliminaries *}
 
 type_synonym participant = index
 type_synonym goods = "nat set" (* actually we'd prefer "'a set", as we really don't care about the type *)
+type_synonym price = nat (* or maybe real, later *)
 
+(*
 (* one participant's bid on a set of goods *)
 definition b :: "participant \<Rightarrow> goods \<Rightarrow> nat" where "b i y = (\<Sum> x \<in> y . x)"
 
@@ -48,10 +50,11 @@ definition f :: "goods \<Rightarrow> participant" where "f Y = (if Y = {} then 1
 definition h :: "(goods \<Rightarrow> participant) \<Rightarrow> goods \<Rightarrow> nat" where "h F y = b (F y) y"
 
 value "\<lambda> Y f . \<Sum> y \<in> Y . h f y"
+*)
 
+(*
 value "Max ((\<lambda> Yf::((goods set) \<times> (goods \<Rightarrow> participant)) . let Y = fst Yf; f = snd Yf in \<Sum> y \<in> Y . h f y) ` {(Y, f) . True})"
-
-
+*)
 
 (* definition h (f, b) = % y . *)
 
@@ -60,12 +63,12 @@ begin
   def participants \<equiv> "{1::nat, 2}"
   def goods \<equiv> "{3::nat, 4}"
   def bids \<equiv> "\<lambda> (y::nat set) . 51::nat"
+  (*
   value "\<Sum> x \<in> {{3::nat},{4}} . h x"
+  *)
 end
 
-
 (* equivalence classes and partitions *)
-
 
 (* CL: maybe uncomment and use as an alternative representation
 
@@ -115,24 +118,30 @@ type_synonym payments = "real vector"
 *)
 (* MC: Some tries *)
 
-definition h :: "(nat => nat set => nat) => (nat set => nat) => nat set => nat"
+definition h :: "(participant \<Rightarrow> goods \<Rightarrow> price) => (goods \<Rightarrow> participant) => goods => price"
 where "h b f y = b (f y) y"
 
-definition bb :: "nat => nat set => nat"
+(* a particular example for bids: *)
+definition bb :: "participant \<Rightarrow> goods \<Rightarrow> price"
 where "bb x y = x"
 
-definition ff :: "nat set => nat"
+(* a particular example for the "allocation" function: *)
+definition ff :: "goods \<Rightarrow> participant"
 where "ff x = 1"
 
 value "% Y f . setsum ((h b f) :: nat set => nat) Y"
 
-definition F :: "(nat => nat set => nat) => nat set set => (nat set => nat) =>  nat"
-where "F b Y f  = setsum ((h b f) :: nat set => nat) Y"
+definition F :: "(nat => nat set => nat) => (goods set) \<times> (goods \<Rightarrow> participant) =>  nat"
+where "F b Yf  = (let Y = fst Yf; f = snd Yf in
+  setsum ((h b f) :: nat set => nat) Y)"
 
 definition domain :: "nat set => nat set  => (((nat set set) \<times> (nat set => nat)) set)"
 where "domain G N = {(Y,f). Y \<in> allPartitions G & (\<forall> x :: nat set . x \<in> Y \<longrightarrow> f x \<in> N) }"
 
-value "(F bb) ` (domain {x::nat . True} {x::nat . True})"
+notepad
+begin
+  def foo \<equiv> "(F bb) ` (domain {x::nat . True} {x::nat . True})"
+end
 
 end
 
