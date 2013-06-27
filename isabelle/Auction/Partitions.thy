@@ -94,7 +94,7 @@ fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
       | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
       | "all_partitions_fun_list (x # xs) = (let xs_partitions = all_partitions_fun_list xs in
         concat [  
-          (* inserting x into each equivalence class \<dots> *)
+          (* inserting x into each equivalence class (one at a time) \<dots> *)
           [ P[i := {x} \<union> P ! i] . i \<leftarrow> map nat [0..(int (List.length P) - 1)] ]
         . P \<leftarrow> xs_partitions (* \<dots> of each partition of xs *) ]
         @ [ {x} # P . P \<leftarrow> xs_partitions] (* and adding the {x} singleton equivalence class to each partition of xs: *)
