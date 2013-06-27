@@ -106,7 +106,8 @@ qed
 
 text{* the set of all indices of maximum components of a vector *}
 definition arg_max_set :: "participant set \<Rightarrow> real vector \<Rightarrow> participant set"
-  where "arg_max_set N b = {i . maximum N b = b i}"
+  where "arg_max_set N b = {i \<in> N . maximum N b = b i}"
+  (* need the explicit restriction "i \<in> N" as Isabelle assumes b to also be defined beyond the set N *)
 
 text{* The maximum component that remains after removing one component from a vector is greater
  or equal than the values of all remaining components *}
