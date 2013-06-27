@@ -128,9 +128,6 @@ type_synonym payments = "real vector"
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation = "(goods set) \<times> (goods \<Rightarrow> participant)"
 
-definition h :: "bids => (goods \<Rightarrow> participant) => goods => price"
-where "h b potential_buyer y = b (potential_buyer y) y"
-
 (* a particular example for bids: *)
 definition bb :: "bids"
 where "bb x y = x"
@@ -139,14 +136,16 @@ where "bb x y = x"
 definition ff :: "goods \<Rightarrow> participant"
 where "ff x = 1"
 
-value "% Y potential_buyer . setsum ((h b potential_buyer) :: goods \<Rightarrow> price) Y"
-
 definition F :: "bids => allocation => price"
 where "F b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
   \<Sum> y \<in> Y . b (potential_buyer y) y)"
 
 definition possible_allocations :: "goods => participant set  => allocation set"
-where "possible_allocations G N = {(Y,potential_buyer). Y \<in> allPartitions G & (\<forall> x :: goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> N) }"
+where "possible_allocations G N = { (Y,potential_buyer) .
+  Y \<in> allPartitions G
+  \<and> (\<forall> x :: goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> N) (* range of potential_buyer *)
+  \<and> inj_on potential_buyer Y (* potential_buyer must be injective *)
+ }"
 
 definition max_revenue :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
 where "max_revenue b G N = Max ((F b) ` (possible_allocations G N))"
