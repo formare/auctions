@@ -119,28 +119,35 @@ type_synonym payments = "real vector"
 (* MC: Some tries *)
 
 definition h :: "(participant \<Rightarrow> goods \<Rightarrow> price) => (goods \<Rightarrow> participant) => goods => price"
-where "h b f y = b (f y) y"
+where "h b potential_buyer y = b (potential_buyer y) y"
 
 (* a particular example for bids: *)
 definition bb :: "participant \<Rightarrow> goods \<Rightarrow> price"
 where "bb x y = x"
 
-(* a particular example for the "allocation" function: *)
+(* a particular example for the "potential buyer" function: *)
 definition ff :: "goods \<Rightarrow> participant"
 where "ff x = 1"
 
-value "% Y f . setsum ((h b f) :: goods \<Rightarrow> price) Y"
+value "% Y potential_buyer . setsum ((h b potential_buyer) :: goods \<Rightarrow> price) Y"
 
 definition F :: "(participant \<Rightarrow> goods \<Rightarrow> price) => (goods set) \<times> (goods \<Rightarrow> participant) => price"
-where "F b Yf  = (let Y = fst Yf; f = snd Yf in
-  setsum ((h b f) :: goods => price) Y)"
+where "F b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
+  setsum ((h b potential_buyer) :: goods => price) Y)"
 
-definition domain :: "goods => participant set  => (((goods set) \<times> (goods \<Rightarrow> participant)) set)"
-where "domain G N = {(Y,f). Y \<in> allPartitions G & (\<forall> x :: goods . x \<in> Y \<longrightarrow> f x \<in> N) }"
+fun possible_allocations :: "goods => participant set  => (((goods set) \<times> (goods \<Rightarrow> participant)) set)"
+where "possible_allocations G N = {(Y,potential_buyer). Y \<in> all_partitions_fun G (*& (\<forall> x :: goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> N)*) }"
+
+definition max_revenue 
+where "max_revenue b G N = Max ((F b) ` (possible_allocations G N))"
+
+definition winning_allocations
+where "winning_allocations b G N = 
+{ (Y,potential_buyer) . F b (Y,potential_buyer) = max_revenue b G N}"
 
 notepad
 begin
-  def foo \<equiv> "(F bb) ` (domain {x::nat . True} {x::nat . True})"
+  def foo \<equiv> "(F bb) ` (possible_allocations {x::nat . True} {x::nat . True})"
 end
 
 end
