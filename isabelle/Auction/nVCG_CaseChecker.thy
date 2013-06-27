@@ -140,6 +140,8 @@ definition F :: "bids => allocation => price"
 where "F b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
   \<Sum> y \<in> Y . b (potential_buyer y) y)"
 
+(* TODO CL: for the computational version, reimplement potential_buyer as a relation
+   Then it's easy to show injectivity, to compute the inverse, etc. *)
 definition possible_allocations :: "goods => participant set  => allocation set"
 where "possible_allocations G N = { (Y,potential_buyer) .
   Y \<in> allPartitions G
@@ -154,17 +156,44 @@ definition winning_allocations (* "arg max" *) :: "bids \<Rightarrow> goods \<Ri
 where "winning_allocations b G N = 
 { (Y,potential_buyer) . F b (Y,potential_buyer) = max_revenue b G N}"
 
-type_synonym tie_breaker = "allocation set \<Rightarrow> allocation"
+type_synonym tie_breaker = "(allocation set) \<Rightarrow> allocation"
 
 definition alpha :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "alpha b G N n = max_revenue b G (N - {n})"
+(* \<dots> = Max ((F b) ` (possible_allocations G (N - {n})))
+      = Max ((F b) ` { (Y,potential_buyer) . 
+                       Y \<in> allPartitions G
+                       \<and> (\<forall> x::goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> (N - {n}))
+                       \<and> inj_on potential_buyer Y })
+      = Max ({ F b (Y,potential_buyer) .
+                Y \<in> allPartitions G
+                \<and> (\<forall> x::goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> (N - {n}))
+                \<and> inj_on potential_buyer Y })
+      = Max ({ (\<Sum> y \<in> Y . b (potential_buyer y) y) .
+                Y \<in> allPartitions G
+                \<and> (\<forall> x::goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> (N - {n}))
+                \<and> inj_on potential_buyer Y })
+ *)
 
-definition payments :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker \<Rightarrow> participant \<Rightarrow> price"
-where "payments b G N t n = alpha b G N n - FOO (t (winning_allocations b G N))"
+definition foo :: "bids => goods => participant set => tie_breaker => (goods => participant)" where "foo b G N t = snd (t (winning_allocations b G N))"
+definition bar where "bar N t b G = (the_inv_into (N::participant set) ((snd (***t WHICH TYPE?*** ((winning_allocations (b::bids) (G::goods) (N::participant set))::allocation set)))::participant \<Rightarrow> goods)::goods \<Rightarrow> participant)"
+
+definition payments (* :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker \<Rightarrow> participant \<Rightarrow> price" *)
+where "payments b G N t n = 
+  (let winning_allocation =
+    (the_inv_into N (snd (t (winning_allocations b G N))))
+   in
+     alpha b G N n - 
+     (\<Sum> m \<in> N - {n} . b m winning_allocation m) )"
+
+declare [[show_types]]
+
+
 
 notepad
 begin
   def foo \<equiv> "(F bb) ` (possible_allocations {x::nat . True} {x::nat . True})"
+  def inv \<equiv> "the_inv_into {1::nat} (\<lambda>n::nat . n + 1)"
 end
 
 end
