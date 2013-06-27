@@ -118,11 +118,14 @@ type_synonym payments = "real vector"
 *)
 (* MC: Some tries *)
 
-definition h :: "(participant \<Rightarrow> goods \<Rightarrow> price) => (goods \<Rightarrow> participant) => goods => price"
+type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
+type_synonym allocation = "(goods set) \<times> (goods \<Rightarrow> participant)"
+
+definition h :: "bids => (goods \<Rightarrow> participant) => goods => price"
 where "h b potential_buyer y = b (potential_buyer y) y"
 
 (* a particular example for bids: *)
-definition bb :: "participant \<Rightarrow> goods \<Rightarrow> price"
+definition bb :: "bids"
 where "bb x y = x"
 
 (* a particular example for the "potential buyer" function: *)
@@ -131,19 +134,27 @@ where "ff x = 1"
 
 value "% Y potential_buyer . setsum ((h b potential_buyer) :: goods \<Rightarrow> price) Y"
 
-definition F :: "(participant \<Rightarrow> goods \<Rightarrow> price) => (goods set) \<times> (goods \<Rightarrow> participant) => price"
+definition F :: "bids => allocation => price"
 where "F b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
-  setsum ((h b potential_buyer) :: goods => price) Y)"
+  \<Sum> y \<in> Y . b (potential_buyer y) y)"
 
-fun possible_allocations :: "goods => participant set  => (((goods set) \<times> (goods \<Rightarrow> participant)) set)"
-where "possible_allocations G N = {(Y,potential_buyer). Y \<in> all_partitions_fun G (*& (\<forall> x :: goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> N)*) }"
+definition possible_allocations :: "goods => participant set  => allocation set"
+where "possible_allocations G N = {(Y,potential_buyer). Y \<in> allPartitions G & (\<forall> x :: goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> N) }"
 
-definition max_revenue 
+definition max_revenue :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
 where "max_revenue b G N = Max ((F b) ` (possible_allocations G N))"
 
-definition winning_allocations
+definition winning_allocations (* "arg max" *) :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation set"
 where "winning_allocations b G N = 
 { (Y,potential_buyer) . F b (Y,potential_buyer) = max_revenue b G N}"
+
+type_synonym tie_breaker = "allocation set \<Rightarrow> allocation"
+
+definition alpha :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
+where "alpha b G N n = max_revenue b G (N - {n})"
+
+definition payments :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker \<Rightarrow> participant \<Rightarrow> price"
+where "payments b G N t n = alpha b G N n - FOO (t (winning_allocations b G N))"
 
 notepad
 begin
