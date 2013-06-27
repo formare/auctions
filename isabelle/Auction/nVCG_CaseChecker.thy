@@ -31,6 +31,13 @@ imports Complex_Main
   
 begin
 
+(*
+can assume or not assume free disposal (bid(A u B) >= max{ bid(A), bid(B) })
+
+for now assume that the value to the seller is 0
+free to assume or not to assume Sum xn <= x0 or Sum xn = x0
+*)
+
 section {* Combinatorial auctions *}
 
 subsection {* Preliminaries *}
