@@ -76,6 +76,40 @@ definition allPartitions :: "'a set \<Rightarrow> 'a set set set"
       \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
     ) }"
 
+(* 
+Set: {a}
+Partitions: {{a}}
+
+Set: {a,b}
+Partitions: {{a}, {b}}, {{a, b}}
+
+Set: {a,b,c}
+Partitions: {{a}, {b}, {c}}, {{a,b}, {c}}, {{a,c}, {b}}, {{a}, {c,b}}, {{a,b,c}}
+
+http://en.wikipedia.org/wiki/Bell_number (number of partitions of a set = number of equivalence relations on a set)
+*)
+
+fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
+  where "all_partitions_fun_list [] = []"
+      | "all_partitions_fun_list [x] = [[{x}]]"
+      | "all_partitions_fun_list (x # xs) = (let (xs_partitions::'a set list list) = all_partitions_fun_list xs in
+        concat [  
+          (* inserting x into each equivalence class \<dots> *)
+          [ P[(nat i):={x} \<union> (nth P (nat i))] . i \<leftarrow> [0..(int (List.length P) - 1)] ]
+        . P \<leftarrow> xs_partitions (* \<dots> of each partition of xs *) ]
+        @ [ {x} # P . P \<leftarrow> xs_partitions] (* adding the {x} singleton equivalence class to each partition of xs: *)
+        )"
+
+(* example using the list representation *)
+value "all_partitions_fun_list [1::nat,2,3]"
+
+(* need to turn 'a set list list into 'a set set set *)
+fun all_partitions_fun :: "'a::linorder set \<Rightarrow> 'a set set set"
+  where "all_partitions_fun A = set (map (\<lambda>P . set P) (all_partitions_fun_list (sorted_list_of_set A)))"
+
+(* example using the set representation *)
+value "card (all_partitions_fun {1::nat,2,3,4})"
+
 (* testing allPartitions *)
 (*
 lemma "{{1::nat}} \<in> allPartitions {1::nat}" (is "?P \<in> allPartitions ?A")
@@ -93,5 +127,11 @@ fun partition :: "'a list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> 'a s
   "partition (x # xs) b = {}" |
   "partition a (x # xs) = {}"
 *)
+
+code_include Scala ""
+{*package partition
+*}
+export_code all_partitions_fun in Scala
+module_name Partition file "code/partition.scala"
 
 end
