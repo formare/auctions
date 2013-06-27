@@ -91,13 +91,13 @@ http://en.wikipedia.org/wiki/Bell_number (number of partitions of a set = number
 
 fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
   where "all_partitions_fun_list [] = []"
-      | "all_partitions_fun_list [x] = [[{x}]]"
-      | "all_partitions_fun_list (x # xs) = (let (xs_partitions::'a set list list) = all_partitions_fun_list xs in
+      | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
+      | "all_partitions_fun_list (x # xs) = (let xs_partitions = all_partitions_fun_list xs in
         concat [  
           (* inserting x into each equivalence class \<dots> *)
           [ P[(nat i):={x} \<union> (nth P (nat i))] . i \<leftarrow> [0..(int (List.length P) - 1)] ]
         . P \<leftarrow> xs_partitions (* \<dots> of each partition of xs *) ]
-        @ [ {x} # P . P \<leftarrow> xs_partitions] (* adding the {x} singleton equivalence class to each partition of xs: *)
+        @ [ {x} # P . P \<leftarrow> xs_partitions] (* and adding the {x} singleton equivalence class to each partition of xs: *)
         )"
 
 (* example using the list representation *)
