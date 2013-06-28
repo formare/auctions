@@ -72,7 +72,7 @@ type_synonym allocation = "participant \<Rightarrow> endowment_subset"
 type_synonym payments = "real vector"
 *)
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
-type_synonym allocation_fun = "(goods set) \<times> (goods \<Rightarrow> participant)"
+type_synonym allocation_fun = "(goods set) \<times> (goods \<rightharpoonup> participant)"
 type_synonym allocation_rel = "(goods set) \<times> ((goods \<times> participant) set)"
 type_synonym tie_breaker_rel = "(allocation_rel set) \<Rightarrow> allocation_rel"
 type_synonym tie_breaker_fun = "(allocation_fun set) \<Rightarrow> allocation_fun"
@@ -88,20 +88,24 @@ where "ff = {(g,p) . p = 1}"
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
 where "revenue_rel b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
-  \<Sum> y \<in> Y . b (as_function potential_buyer y) y)"
+  \<Sum> y \<in> Y . (let buyer = as_part_fun potential_buyer y in
+    case buyer of None \<Rightarrow> 0
+                | Some n \<Rightarrow> b n y))"
 
 (* the revenue gained from selling a certain allocation (assuming functional allocations) *)
 definition revenue_fun :: "bids \<Rightarrow> allocation_fun \<Rightarrow> price"
 where "revenue_fun b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
-  \<Sum> y \<in> Y . b (potential_buyer y) y)"
+  \<Sum> y \<in> Y . (let buyer = potential_buyer y in 
+    case buyer of None \<Rightarrow> 0 (* CL@CR: OK to assume a value of 0 for goods not sold? *)
+                | Some n \<Rightarrow> b n y))"
 
 (* the set of possible allocations of a set of goods to a set of participants (assuming relational allocations) *)
 definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
 where "possible_allocations_rel G N = { (Y,potential_buyer) .
   Y \<in> allPartitions G
-  \<and> Domain potential_buyer = Y
+  \<and> Domain potential_buyer \<subseteq> Y
   \<and> Range potential_buyer \<subseteq> N
-  \<and> function_on potential_buyer Y
+  \<and> right_unique potential_buyer (* no longer need totality on Y as we are allowing for goods not to be allocated *)
   \<and> injective potential_buyer
  }"
 
@@ -109,7 +113,7 @@ where "possible_allocations_rel G N = { (Y,potential_buyer) .
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
   Y \<in> allPartitions G
-  \<and> (\<forall> y \<in> Y . potential_buyer y \<in> N)
+  \<and> (\<forall> y \<in> Y . (\<exists> n \<in> N . potential_buyer y = Some n) \<or> potential_buyer y = None)
   \<and> inj_on potential_buyer Y
  }"
 
@@ -150,10 +154,10 @@ where "winning_allocation_fun t b G N  = t (winning_allocations_fun b G N)"
 definition \<alpha> :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha> b G N n = max_revenue b G (N - {n})"
 
-definition w2g :: "tie_breaker_fun => bids => goods => (participant set) => participant => goods" 
+definition w2g :: "tie_breaker_fun => bids => goods => (participant set) => participant option => goods" 
 where "w2g t b G N = inv (snd (winning_allocation_fun t b G N))"
 
-definition foo where "foo t b G N n = b n (w2g t b G N n)" (* won_set *)
+definition foo where "foo t b G N n = b n (w2g t b G N (Some n))" (* won_set *)
 definition bar where "bar t b G N = (%n . foo t b G N n)"
 definition ss :: "tie_breaker_fun => bids => goods => (participant set) => participant => price"
 where "ss t b G N n = setsum (bar t b G N) (N-{n})"
