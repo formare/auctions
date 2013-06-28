@@ -22,6 +22,7 @@ theory SingleGoodAuctionProperties
 imports SingleGoodAuction Maximum
 begin
 
+(* TODO CL: use the generic concepts from RelationProperties *)
 text{* Left-totality of an auction defined as a relation: for each admissible bid vector
   there exists some outcome (not necessarily unique). *}
 definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"

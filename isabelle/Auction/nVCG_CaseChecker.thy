@@ -28,6 +28,7 @@ imports Complex_Main
   "~~/src/HOL/Library/Efficient_Nat"
   Vectors
   Partitions
+  RelationProperties
   
 begin
 
@@ -126,27 +127,27 @@ type_synonym payments = "real vector"
 (* MC: Some tries *)
 
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
-type_synonym allocation = "(goods set) \<times> (goods \<Rightarrow> participant)"
+type_synonym allocation = "(goods set) \<times> ((goods \<times> participant) set)"
 
 (* a particular example for bids: *)
 definition bb :: "bids"
 where "bb x y = x"
 
-(* a particular example for the "potential buyer" function: *)
-definition ff :: "goods \<Rightarrow> participant"
-where "ff x = 1"
+(* a particular example for the "potential buyer" relation: *)
+definition ff :: "(goods \<times> participant) set"
+where "ff = {(g,p) . p = 1}"
 
 definition F :: "bids => allocation => price"
 where "F b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
-  \<Sum> y \<in> Y . b (potential_buyer y) y)"
+  \<Sum> y \<in> Y . b (as_function potential_buyer y) y)"
 
 (* TODO CL: for the computational version, reimplement potential_buyer as a relation
    Then it's easy to show injectivity, to compute the inverse, etc. *)
 definition possible_allocations :: "goods => participant set  => allocation set"
 where "possible_allocations G N = { (Y,potential_buyer) .
   Y \<in> allPartitions G
-  \<and> (\<forall> x :: goods . x \<in> Y \<longrightarrow> potential_buyer x \<in> N) (* range of potential_buyer *)
-  \<and> inj_on potential_buyer Y (* potential_buyer must be injective *)
+  \<and> Range potential_buyer \<subseteq> N
+  \<and> injective potential_buyer
  }"
 
 definition max_revenue :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
@@ -175,16 +176,19 @@ where "alpha b G N n = max_revenue b G (N - {n})"
                 \<and> inj_on potential_buyer Y })
  *)
 
+(*
 definition foo :: "bids => goods => participant set => tie_breaker => (goods => participant)" where "foo b G N t = snd (t (winning_allocations b G N))"
-definition bar where "bar N t b G = (the_inv_into (N::participant set) ((snd (***t WHICH TYPE?*** ((winning_allocations (b::bids) (G::goods) (N::participant set))::allocation set)))::participant \<Rightarrow> goods)::goods \<Rightarrow> participant)"
+(* TODO CL: get this well-typed with t::tie_breaker *)
+definition bar where "bar N t b G = (the_inv_into (G::goods) ((snd (t ((winning_allocations (b::bids) (G::goods) (N::participant set))::allocation set)))::participant \<Rightarrow> goods)::goods \<Rightarrow> participant)"
+*)
 
 definition payments (* :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker \<Rightarrow> participant \<Rightarrow> price" *)
 where "payments b G N t n = 
   (let winning_allocation =
-    (the_inv_into N (snd (t (winning_allocations b G N))))
+    as_function (inverse (snd (t (winning_allocations b G N))))
    in
      alpha b G N n - 
-     (\<Sum> m \<in> N - {n} . b m winning_allocation m) )"
+     (\<Sum> m \<in> N - {n} . b m (winning_allocation m)) )"
 
 declare [[show_types]]
 
