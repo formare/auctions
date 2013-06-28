@@ -55,7 +55,7 @@ definition b :: "participant \<Rightarrow> goods \<Rightarrow> nat" where "b i y
 definition f :: "goods \<Rightarrow> participant" where "f Y = (if Y = {} then 1 else 0)"
 
 (* *)
-definition h :: "(goods \<Rightarrow> participant) \<Rightarrow> goods \<Rightarrow> nat" where "h F y = b (F y) y"
+definition h :participant: "(goods \<Rightarrow> participant) \<Rightarrow> goods \<Rightarrow> nat" where "h F y = b (F y) y"
 
 value "\<lambda> Y f . \<Sum> y \<in> Y . h f y"
 *)
@@ -155,11 +155,36 @@ where "possible_allocations G N = { (Y,potential_buyer) .
 definition max_revenue :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
 where "max_revenue b G N = Max ((F b) ` (possible_allocations G N))"
 
-definition winning_allocations (* "arg max" *) :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation set"
+definition winning_allocations (* "arg max" *) :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> (allocation set)"
 where "winning_allocations b G N = 
 { (Y,potential_buyer) . F b (Y,potential_buyer) = max_revenue b G N}"
 
 type_synonym tie_breaker = "(allocation set) \<Rightarrow> allocation"
+
+definition tt::tie_breaker where "tt x = (THE y . (y \<in> x))"
+
+definition NN::"participant set" where "NN=\<nat>"
+definition GG::"goods" where "GG=\<nat>"
+
+
+definition winning_allocation::"tie_breaker => bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation"
+where "winning_allocation t b G N  = t (winning_allocations b G N)"
+
+definition alpha where "alpha b G N n = max_revenue b G (N - {n})" 
+
+definition w2g::"tie_breaker => bids => goods => (participant set) => participant => goods" 
+where "w2g t b G N = inv (snd (winning_allocation t b G N))"
+definition foo where "foo t b G N n = b n (w2g t b G N n)" (* won_set *)
+definition bar where "bar t b G N = (%n . foo t b G N n)"
+definition ss
+::"tie_breaker => bids => goods => (participant set) => participant => price"
+where 
+"ss t b G N n = setsum (bar t b G N) (N-{n})"
+
+definition prices::"tie_breaker => bids => goods => (participant set) => (participant => price)"
+where "prices t b G N = (alpha b G N) - (ss t b G N)"
+
+end
 
 definition alpha :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "alpha b G N n = max_revenue b G (N - {n})"
@@ -201,6 +226,7 @@ begin
   def foo \<equiv> "(F bb) ` (possible_allocations {x::nat . True} {x::nat . True})"
   def inv \<equiv> "the_inv_into {1::nat} (\<lambda>n::nat . n + 1)"
 end
+
 
 end
 
