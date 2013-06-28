@@ -35,6 +35,11 @@ where "as_part_fun R a = (let im = R `` {a} in
 definition as_function :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
 where "as_function R a = (THE b . b \<in> R `` {a})"
 
+definition as_func_comp :: "('a \<times> ('b::linorder)) set \<Rightarrow> 'a \<Rightarrow> 'b"
+where "as_func_comp R a = hd (sorted_list_of_set (R `` {a}))"
+
+value "as_func_comp {(1::nat, 2::nat), (2::nat, 4::nat)} 1::nat"
+
 lemma "function_on {(1::nat, 2::nat), (2::nat, 4::nat)} {1::nat}"
 unfolding function_on_def left_total_on_def right_unique_def
 oops
