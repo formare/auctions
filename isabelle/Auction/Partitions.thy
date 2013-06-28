@@ -105,7 +105,7 @@ value "all_partitions_fun_list [1::nat,2,3]"
 
 (* need to turn 'a set list list into 'a set set set *)
 fun all_partitions_fun :: "'a::linorder set \<Rightarrow> 'a set set set"
-  where "all_partitions_fun A = set (map (\<lambda>P . set P) (all_partitions_fun_list (sorted_list_of_set A)))"
+  where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
 (* example using the set representation *)
 value "all_partitions_fun {1::nat,2,3,4}"
