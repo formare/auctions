@@ -30,9 +30,6 @@ where "function_on R A \<longleftrightarrow> left_total_on R A \<and> right_uniq
 definition as_function :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
 where "as_function R a = (THE b . b \<in> R `` {a})"
 
-fun as_function_comp :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
-where "as_function_comp R a = snd (the (find (\<lambda>tup . fst tup = a) (sorted_list_of_set R)))"
-
 lemma "function_on {(1::nat, 2::nat), (2::nat, 4::nat)} {1::nat}"
 unfolding function_on_def left_total_on_def right_unique_def
 oops

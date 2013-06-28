@@ -146,6 +146,8 @@ where "F b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
 definition possible_allocations :: "goods => participant set  => allocation set"
 where "possible_allocations G N = { (Y,potential_buyer) .
   Y \<in> allPartitions G
+  \<and> Domain potential_buyer = Y
+  \<and> function_on potential_buyer Y
   \<and> Range potential_buyer \<subseteq> N
   \<and> injective potential_buyer
  }"
