@@ -54,29 +54,26 @@ where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall>
 definition inverse :: "('a \<times> 'b) set \<Rightarrow> ('b \<times> 'a) set"
 where "inverse R = { (y, x) . (x, y) \<in> R }"
 
-fun \<beta> :: "'a \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set \<Rightarrow> ('a \<times> 'b) set set"
-where "\<beta> x Y z = (\<lambda> foo . z \<union> {(x, foo)}) ` (Y - (Range z))"
+(* TODO CL: Now that we can "easily" generate all total functions,
+   maybe let's revert the "option type" stuff in nVCG.thy (which we introduced to allow for non-totality).
+   Or otherwise we might enable this function to generate partial functions.
+   This would have to be done by recursing not just to "xs", but to 
+   all sublists of "x # xs" of length n - 1.
+ *)
+fun injective_functions :: "'a list \<Rightarrow> 'b list \<Rightarrow> ('a \<times> 'b) set set"
+where "injective_functions [] ys = {{}}"
+    | "injective_functions (x # xs) ys = 
+       \<Union> (\<lambda> f . (\<lambda> free_in_range . f \<union> {(x, free_in_range)})
+                 ` ((set ys) - (Range f)))
+          ` (injective_functions xs ys)"
 
-value "\<beta> True {1::nat,2,3} ` {{}, {(False, 1::nat)}}"
+value "injective_functions [False,True] [0::nat, 1, 2]"
 
-(*
-fun \<alpha> :: "'a \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set \<Rightarrow> (('a \<times> 'b) set \<times> 'a \<times> 'b) set" 
-where "\<alpha> x Y f = {f} \<times> ({x} \<times> (Y - (Range f)))"
-
-fun \<beta> where "\<beta> tup = fst tup \<union> { snd tup }"
-
-value "\<beta> (tup::(('a \<times> 'b) set \<times> 'a \<times> 'b) set)"
-
-fun \<gamma> where "\<gamma> x Y f = \<beta> (\<alpha> x Y f)"
-*)
-
-value "\<Union> {{1::nat,2}, {3,4::nat}}"
-
-(* TODO CL: Now that we can "easily" generate all total functions, maybe let's revert the "option type" stuff in nVCG.thy (which we introduced to allow for non-totality) *)
-fun injective_functions_list :: "'a list \<Rightarrow> 'b list \<Rightarrow> ('a \<times> 'b) set set"
-where "injective_functions_list [] ys = {{}}"
+fun injective_functions_list :: "'a list \<Rightarrow> 'b::linorder list \<Rightarrow> ('a \<times> 'b) set list"
+where "injective_functions_list [] ys = [{}]"
     | "injective_functions_list (x # xs) ys = 
-       \<Union> ((\<beta> x (set ys)) ` (injective_functions_list xs ys))"
+      concat [ map (\<lambda> free_in_range . f \<union> {(x, free_in_range)})
+                 (sorted_list_of_set ((set ys) - (Range f))) . f \<leftarrow> injective_functions_list xs ys ]"
 
 value "injective_functions_list [False,True] [0::nat, 1, 2]"
 

@@ -109,6 +109,13 @@ where "possible_allocations_rel G N = { (Y,potential_buyer) .
   \<and> injective potential_buyer
  }"
 
+(* the list of possible allocations of a set of goods to a set of participants (computable version) *)
+fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
+where "possible_allocations_comp G N =
+  concat [
+      [ (set Y, potential_buyer) . potential_buyer \<leftarrow> injective_functions_list Y (sorted_list_of_set N) ]
+    . Y \<leftarrow> all_partitions_fun_list (sorted_list_of_set G) ]"
+
 (* the set of possible allocations of a set of goods to a set of participants (assuming functional allocations) *)
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
@@ -143,7 +150,7 @@ definition NN :: "participant set" where "NN = \<nat>"
 definition GG :: goods where "GG = \<nat>"
 
 (* the unique winning allocation that remains after tie-breaking (assuming relational allocations) *)
-definition winning_allocation_rel :: "tie_breaker_rel => bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_rel"
+fun winning_allocation_rel :: "tie_breaker_rel \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_rel"
 where "winning_allocation_rel t b G N  = t (winning_allocations_rel b G N)"
 
 (* the unique winning allocation that remains after tie-breaking (assuming functional allocations) *)
