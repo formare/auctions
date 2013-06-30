@@ -19,11 +19,11 @@ See LICENSE file for details
 header {* Maximum components of vectors, and their properties *}
 
 theory Maximum
-imports SingleGoodAuction
+imports Vectors
 begin
 
 text{*
-The maximum component value of a vector y of non-negative reals is equal to the value of one of the components, and it is greater or equal than the values of all [other] components.
+The maximum component value of a vector y of non-negative values is equal to the value of one of the components, and it is greater or equal than the values of all [other] components.
 
 We implement this as a computable function, whereas in Theorema we had two axioms:
 \begin{enumerate}
@@ -39,7 +39,7 @@ Having the maximum as a computable function might turn out to be useful when doi
 subsection {* Maximum *}
 text{* This subsection uses Isabelle's set maximum functions, wrapping them for our use. *}
 
-definition maximum_defined :: "participant set \<Rightarrow> bool"
+definition maximum_defined :: "index set \<Rightarrow> bool"
   where "maximum_defined N \<longleftrightarrow> card N > 0"
 
 lemma maximum_except_defined:
@@ -49,12 +49,12 @@ lemma maximum_except_defined:
   using assms maximum_defined_def
   by (smt card.remove card_infinite)
 
-definition maximum :: "participant set \<Rightarrow> real vector \<Rightarrow> real"
+definition maximum :: "index set \<Rightarrow> 'a::linorder vector \<Rightarrow> 'a"
   where "maximum N y = Max (y ` N)"
 
 text{* If two vectors are equal, their maximum components are equal too *}
 lemma maximum_equal:
-  fixes N :: "participant set" and y :: "real vector" and z :: "real vector"
+  fixes N :: "index set" and y :: "'a::linorder vector" and z :: "'a::linorder vector"
   assumes "\<forall>i \<in> N. y i = z i"
   shows "maximum N y = maximum N z"
 proof -
@@ -64,7 +64,7 @@ qed
 
 text{* The maximum component value is greater or equal than the values of all [other] components *}
 lemma maximum_is_greater_or_equal:
-  fixes N :: "participant set" and y :: "real vector" and i :: participant
+  fixes N :: "index set" and y :: "'a::linorder vector" and i :: index
   assumes "maximum_defined N"
     and "i \<in> N"
   shows "maximum N y \<ge> y i"
@@ -72,7 +72,7 @@ lemma maximum_is_greater_or_equal:
 
 text{* The maximum component is one component *}
 lemma maximum_is_component:
-  fixes N :: "participant set" and y :: "real vector"
+  fixes N :: "index set" and y :: "'a::linorder vector"
   assumes defined: "maximum_defined N"
   shows "\<exists>i \<in> N. maximum N y = y i"
 proof -
@@ -81,12 +81,12 @@ proof -
     unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
   then have "Max ?A \<in> ?A" by (rule Max_in)
   then obtain i where "i \<in> N" and "Max ?A = y i" by blast
-  with maximum_def show ?thesis by auto
+  with maximum_def show ?thesis by metis
 qed
 
 text{* Being a component of a non-negative vector and being greater or equal than all other components uniquely defines a maximum component. *}
 lemma maximum_sufficient:
-  fixes N :: "participant set" and y :: "real vector" and m :: real
+  fixes N :: "index set" and y :: "'a::linorder vector" and m :: 'a
   assumes defined: "maximum_defined N"
     and greater_or_equal: "\<forall>i \<in> N. m \<ge> y i"
     and is_component: "\<exists>i \<in> N. m = y i"
@@ -105,14 +105,14 @@ proof -
 qed
 
 text{* the set of all indices of maximum components of a vector *}
-definition arg_max_set :: "participant set \<Rightarrow> real vector \<Rightarrow> participant set"
+definition arg_max_set :: "index set \<Rightarrow> 'a::linorder vector \<Rightarrow> index set"
   where "arg_max_set N b = {i \<in> N . maximum N b = b i}"
-  (* need the explicit restriction "i \<in> N" as Isabelle assumes b to also be defined beyond the set N *)
+  (* need the explicit restriction "i \<in> N" as Isabelle/HOL assumes b to also be defined beyond the set N *)
 
 text{* The maximum component that remains after removing one component from a vector is greater
  or equal than the values of all remaining components *}
 lemma maximum_except_is_greater_or_equal:
-  fixes N :: "participant set" and y :: "real vector" and j :: participant and i :: participant
+  fixes N :: "index set" and y :: "'a::linorder vector" and j :: index and i :: index
   assumes defined: "maximum_defined N"
     and i: "i \<in> N \<and> i \<noteq> j"
   shows "maximum (N - {j}) y \<ge> y i"
@@ -129,7 +129,7 @@ qed
 text{* One component of a vector is a maximum component iff it has a value greater or equal tha
 n the maximum of the remaining values. *}
 lemma maximum_remaining_maximum:
-  fixes N :: "participant set" and y :: "real vector" and j :: participant
+  fixes N :: "index set" and y :: "'a::linorder vector" and j :: index
   assumes defined': "maximum_defined (N - {j})"
     and j_max: "y j = maximum N y"
   shows "y j \<ge> maximum (N - {j}) y"
@@ -144,7 +144,7 @@ qed
 text{* Changing one component in a vector doesn't affect the maximum of the remaining component
 s. *}
 lemma remaining_maximum_invariant:
-  fixes N :: "participant set" and y :: "real vector" and i :: participant and a :: real
+  fixes N :: "index set" and y :: "'a::linorder vector" and i :: index and a :: 'a
   shows "maximum (N - {i}) (y(i := a)) = maximum (N - {i}) y"
 proof -
   let ?M = "N - {i}"
