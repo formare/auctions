@@ -52,6 +52,9 @@ lemma "(as_function {(1::nat, 2::nat), (2::nat, 4::nat)} 1::nat) = (2::nat)"
 unfolding as_function_def
 oops
 
+definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightarrow> ('a \<times> 'b) set"
+where "to_relation f X = {(x, f x) | x . x \<in> X}"
+
 definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
 where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
 

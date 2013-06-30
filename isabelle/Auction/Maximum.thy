@@ -8,6 +8,7 @@ Authors:
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Makarius Wenzel <wenzel@lri.fr>
+* Marco B. Caminati <marco.caminati@gmail.com>
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -120,7 +121,8 @@ fun arg_max_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) 
 (* concerning information entropy it may be stupid to apply this "arg max" to an index set [31,45,99]
    because the same set could be represented as [0,1,2], and then we could implement the whole function
    in a different way: not finding the domain elements at which a function reaches its maximum value,
-   but finding the indices of the maximum elements of a list (which is indexed 0,1,2,\<dots>).
+   but finding the indices of the maximum elements of a list (which is indexed 0,1,2,\<dots>).  The latter is realised
+   by the max_positions function below.
 
    However, in the setting where this function will be applied, this doesn't make much of a difference.
    In an auction with 100 participants all we need to do is to number them in an economic way as 0,\<dots>,99,
@@ -131,6 +133,16 @@ fun arg_max_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) 
 text{* the set of all indices of maximum components of a vector (computable version with same signature as @{term arg_max}) *}
 fun arg_max_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
   where "arg_max_comp N b = set (arg_max_comp_list (sorted_list_of_set N) b)"
+
+text{* the indices of the maximum values of the elements of a list *}
+fun max_positions :: "'a::ord list \<Rightarrow> nat list" 
+where "max_positions [] = []"
+    | "max_positions [x] = [0]"
+    | "max_positions (x # xs) = (let max_pos_xs = max_positions xs; prev_max = xs ! hd max_pos_xs in
+        if x < prev_max then map (op+ 1) max_pos_xs (* increment position indices *)
+        else if x > prev_max then [0] (* start over with new list; currently, maximum is attained at list position 0 *)
+        else 0 # map (op+ 1) max_pos_xs (* prepend 0 and increment other position indices *)
+    )"
 
 fun maximum_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
   where "maximum_comp_list [] b = undefined" (* TODO CL: check how generated code can throw an exception in this case *)
