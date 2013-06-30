@@ -241,8 +241,8 @@ def maxa[A : linorder](x0: set[A]): A = x0 match {
   case Set(x :: xs) => fold[A, A]((a: A) => (b: A) => max[A](a, b), xs, x)
 }
 
-def maximum[A : linorder](n: set[Nat], y: Nat => A): A =
-  maxa[A](image[Nat, A](y, n))
+def maximum[A, B : linorder](n: set[A], y: A => B): B =
+  maxa[B](image[A, B](y, n))
 
 implicit def linorder_nat: linorder[Nat] = new linorder[Nat] {
   val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
@@ -315,7 +315,7 @@ def fs_spa_payments(n: set[Nat], b: Nat => real, t: Nat => Nat => Boolean):
   {
     val winner: Nat = fs_spa_winner(n, b, t);
     (i: Nat) =>
-      (if (i == winner) maximum[real](remove[Nat](i, n), b)
+      (if (i == winner) maximum[Nat, real](remove[Nat](i, n), b)
         else Ratreal(zero_rat))
   }
 
