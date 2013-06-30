@@ -143,11 +143,9 @@ definition winning_allocations_fun :: "bids \<Rightarrow> goods \<Rightarrow> pa
 where "winning_allocations_fun b G N = 
 { (Y,potential_buyer) . revenue_fun b (Y,potential_buyer) = max_revenue b G N}"
 
-(* example: break ties by preferring an arbitrary allocation (assuming relational allocations) *)
-definition tie_breaker_rel_example :: tie_breaker_rel where "tie_breaker_rel_example x = (THE y . y \<in> x)"
-
-(* example: break ties by preferring an arbitrary allocation (assuming functional allocations) *)
-definition tie_breaker_fun_example :: tie_breaker_fun where "tie_breaker_fun_example x = (THE y . y \<in> x)"
+(* example: break ties by preferring an arbitrary allocation (we omit type annotations so that we can use this with 
+   both relational and functional allocation) *)
+definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x = (THE y . y \<in> x)"
 
 (* CL@MC: not sure \<nat> does what we want; and in any case our participants and goods sets are assumed to be finite. *)
 definition participants_example :: "participant set" where "participants_example = \<nat>"
