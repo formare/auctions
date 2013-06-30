@@ -73,7 +73,7 @@ type_synonym payments = "real vector"
 *)
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation_fun = "(goods set) \<times> (goods \<rightharpoonup> participant)"
-type_synonym allocation_rel = "(goods set) \<times> ((goods \<times> participant) set)"
+type_synonym allocation_rel = "((goods \<times> participant) set)" (* goods set not necessary as a function-as-relation-as-set representation carries its own domain :-) *)
 type_synonym tie_breaker_rel = "(allocation_rel set) \<Rightarrow> allocation_rel"
 type_synonym tie_breaker_fun = "(allocation_fun set) \<Rightarrow> allocation_fun"
 
@@ -87,7 +87,7 @@ where "potential_buyer_example = {(g,p) . p = 1}"
 
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
-where "revenue_rel b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
+where "revenue_rel b potential_buyer  = (let Y = Domain potential_buyer in
   \<Sum> y \<in> Y . (let buyer = as_part_fun potential_buyer y in
     case buyer of None \<Rightarrow> 0
                 | Some n \<Rightarrow> b n y))"
@@ -101,9 +101,8 @@ where "revenue_fun b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
 
 (* the set of possible allocations of a set of goods to a set of participants (assuming relational allocations) *)
 definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
-where "possible_allocations_rel G N = { (Y,potential_buyer) .
-  Y \<in> allPartitions G
-  \<and> Domain potential_buyer \<subseteq> Y
+where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> allPartitions G . 
+  Domain potential_buyer \<subseteq> Y
   \<and> Range potential_buyer \<subseteq> N
   \<and> right_unique potential_buyer (* no longer need totality on Y as we are allowing for goods not to be allocated *)
   \<and> injective potential_buyer
@@ -113,7 +112,7 @@ where "possible_allocations_rel G N = { (Y,potential_buyer) .
 fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
 where "possible_allocations_comp G N =
   concat [
-      [ (set Y, potential_buyer) . potential_buyer \<leftarrow> injective_functions_list Y (sorted_list_of_set N) ]
+      [ potential_buyer . potential_buyer \<leftarrow> injective_functions_list Y (sorted_list_of_set N) ]
     . Y \<leftarrow> all_partitions_fun_list (sorted_list_of_set G) ]"
 
 (* example: possibilities to allocate goods {1,2,3} to participants {100,200} *)
@@ -139,7 +138,7 @@ where "max_revenue_comp b G N = maximum_comp_list (possible_allocations_comp G N
 (* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
 definition winning_allocations_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> (allocation_rel set)"
 where "winning_allocations_rel b G N = 
-{ (Y,potential_buyer) . revenue_rel b (Y,potential_buyer) = max_revenue b G N}"
+{ potential_buyer . revenue_rel b potential_buyer = max_revenue b G N}"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming functional allocations). *)
 definition winning_allocations_fun :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> (allocation_fun set)"
@@ -182,7 +181,7 @@ where "payments_fun t b G N = \<alpha> b G N - ss t b G N"
 definition payments_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> participant \<Rightarrow> price"
 where "payments_rel b G N t n = 
   (let winning_allocation =
-    as_function (inverse (snd (t (winning_allocations_rel b G N))))
+    as_function (inverse (t (winning_allocations_rel b G N)))
    in
      \<alpha> b G N n - 
      (\<Sum> m \<in> N - {n} . b m (winning_allocation m)) )"
