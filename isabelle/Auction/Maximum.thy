@@ -111,12 +111,22 @@ definition arg_max :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Ri
 
 text{* the set of all indices of maximum components of a vector (computable version) *}
 fun arg_max_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a list"
-  where "arg_max_comp_list [] b = []"
-      | "arg_max_comp_list [x] b = [x]"
-      | "arg_max_comp_list (x # xs) b = (let arg_max_xs = arg_max_comp_list xs b in
-          if b x > b (hd arg_max_xs) then [x]
-          else if b x = b (hd arg_max_xs) then x # arg_max_xs
+  where "arg_max_comp_list [] f = []"
+      | "arg_max_comp_list [x] f = [x]"
+      | "arg_max_comp_list (x # xs) f = (let arg_max_xs = arg_max_comp_list xs f; prev_max = f (hd arg_max_xs) in
+          if f x > prev_max then [x]
+          else if f x = prev_max then x # arg_max_xs
           else arg_max_xs)"
+(* concerning information entropy it may be stupid to apply this "arg max" to an index set [31,45,99]
+   because the same set could be represented as [0,1,2], and then we could implement the whole function
+   in a different way: not finding the domain elements at which a function reaches its maximum value,
+   but finding the indices of the maximum elements of a list (which is indexed 0,1,2,\<dots>).
+
+   However, in the setting where this function will be applied, this doesn't make much of a difference.
+   In an auction with 100 participants all we need to do is to number them in an economic way as 0,\<dots>,99,
+   and then the winner determination and payment computation will end up calling arg_max with index sets
+   [1,\<dots>,99], [0,2,\<dots>,99], [0,1,3,\<dots>,99], \<dots>
+*)
 
 text{* the set of all indices of maximum components of a vector (computable version with same signature as @{term arg_max}) *}
 fun arg_max_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
