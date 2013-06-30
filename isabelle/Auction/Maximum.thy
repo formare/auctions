@@ -119,8 +119,18 @@ fun arg_max_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) 
           else arg_max_xs)"
 
 text{* the set of all indices of maximum components of a vector (computable version with same signature as @{term arg_max}) *}
-definition arg_max_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
+fun arg_max_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
   where "arg_max_comp N b = set (arg_max_comp_list (sorted_list_of_set N) b)"
+
+fun maximum_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
+  where "maximum_comp_list [] b = undefined" (* TODO CL: check how generated code can throw an exception in this case *)
+      | "maximum_comp_list [x] b = b x"
+      | "maximum_comp_list (x # xs) b = (let max_xs = maximum_comp_list xs b in
+          if b x > max_xs then b x
+          else max_xs)"
+
+fun maximum_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
+  where "maximum_comp N b = maximum_comp_list (sorted_list_of_set N) b"
 
 text{* The maximum component that remains after removing one component from a vector is greater
  or equal than the values of all remaining components *}
