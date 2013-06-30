@@ -152,7 +152,6 @@ text{* alternative definition for easier currying *}
 definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "fs_spa_pred' t N b x p = fs_spa_pred N b t x p"
 
-
 code_include Scala ""
 {*package code
 *}

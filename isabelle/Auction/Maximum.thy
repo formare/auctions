@@ -109,6 +109,19 @@ definition arg_max :: "index set \<Rightarrow> 'a::linorder vector \<Rightarrow>
   where "arg_max N b = {i \<in> N . maximum N b = b i}"
   (* need the explicit restriction "i \<in> N" as Isabelle/HOL assumes b to also be defined beyond the set N *)
 
+text{* the set of all indices of maximum components of a vector (computable version) *}
+fun arg_max_comp_list :: "index list \<Rightarrow> 'b::linorder vector \<Rightarrow> index list"
+  where "arg_max_comp_list [] b = []"
+      | "arg_max_comp_list [x] b = [x]"
+      | "arg_max_comp_list (x # xs) b = (let arg_max_xs = arg_max_comp_list xs b in
+          if b x > b (hd arg_max_xs) then [x]
+          else if b x = b (hd arg_max_xs) then x # arg_max_xs
+          else arg_max_xs)"
+
+text{* the set of all indices of maximum components of a vector (computable version with same signature as @{term arg_max}) *}
+definition arg_max_comp :: "index set \<Rightarrow> 'b::linorder vector \<Rightarrow> index set"
+  where "arg_max_comp N b = set (arg_max_comp_list (sorted_list_of_set N) b)"
+
 text{* The maximum component that remains after removing one component from a vector is greater
  or equal than the values of all remaining components *}
 lemma maximum_except_is_greater_or_equal:
