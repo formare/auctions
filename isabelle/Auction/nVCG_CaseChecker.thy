@@ -88,9 +88,7 @@ where "potential_buyer_example = {(g,p) . p = 1}"
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
 where "revenue_rel b potential_buyer  = (let Y = Domain potential_buyer in
-  \<Sum> y \<in> Y . (let buyer = as_part_fun potential_buyer y in
-    case buyer of None \<Rightarrow> 0
-                | Some n \<Rightarrow> b n y))"
+  \<Sum> y \<in> Y . b (eval_rel potential_buyer y) y)"
 
 (* the revenue gained from selling a certain allocation (assuming functional allocations) *)
 definition revenue_fun :: "bids \<Rightarrow> allocation_fun \<Rightarrow> price"
@@ -167,16 +165,14 @@ where "winning_allocation_fun t b G N  = t (winning_allocations_fun b G N)"
 definition \<alpha> :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha> b G N n = max_revenue b G (N - {n})"
 
-definition winners_goods :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> participant option \<Rightarrow> goods" 
-where "winners_goods t b G N = inv (snd (winning_allocation_fun t b G N))"
+definition winners'_goods_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> participant option \<Rightarrow> goods" 
+where "winners'_goods_fun t b G N = inv (snd (winning_allocation_fun t b G N))"
 
-definition foo where "foo t b G N n = b n (winners_goods t b G N (Some n))" (* won_set *)
-definition bar where "bar t b G N = (%n . foo t b G N n)"
-definition ss :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> participant \<Rightarrow> price"
-where "ss t b G N n = setsum (bar t b G N) (N-{n})"
+definition remaining_value_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> participant \<Rightarrow> price"
+where "remaining_value_fun t b G N n = (\<Sum> m \<in> N - {n} . b m (winners'_goods_fun t b G N (Some m)))"
 
 definition payments_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> (participant \<Rightarrow> price)"
-where "payments_fun t b G N = \<alpha> b G N - ss t b G N"
+where "payments_fun t b G N = \<alpha> b G N - remaining_value_fun t b G N"
 
 definition payments_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> participant \<Rightarrow> price"
 where "payments_rel b G N t n = 
