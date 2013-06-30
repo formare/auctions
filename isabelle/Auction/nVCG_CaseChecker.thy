@@ -87,15 +87,18 @@ where "potential_buyer_example = {(g,p) . p = 1}"
 
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
-where "revenue_rel b potential_buyer  = (let Y = Domain potential_buyer in
-  \<Sum> y \<in> Y . b (eval_rel potential_buyer y) y)"
+where "revenue_rel b buyer  = (let Y = Domain buyer in
+  \<Sum> y \<in> Y . b (eval_rel buyer y) y
+  (* CL@CR: This implicitly assumes a value of 0 for goods not sold.  OK?
+            Goods not sold don't occur in the potential_buyer relation *)
+)"
 
 (* the revenue gained from selling a certain allocation (assuming functional allocations) *)
 definition revenue_fun :: "bids \<Rightarrow> allocation_fun \<Rightarrow> price"
-where "revenue_fun b Yp  = (let Y = fst Yp; potential_buyer = snd Yp in
-  \<Sum> y \<in> Y . (let buyer = potential_buyer y in 
-    case buyer of None \<Rightarrow> 0 (* CL@CR: OK to assume a value of 0 for goods not sold? *)
-                | Some n \<Rightarrow> b n y))"
+where "revenue_fun b Yp  = (let Y = fst Yp; buyer = snd Yp in
+  \<Sum> y \<in> Y . (let n = buyer y in 
+    case n of None \<Rightarrow> 0 (* CL@CR: OK to assume a value of 0 for goods not sold? *)
+            | Some n \<Rightarrow> b n y))"
 
 (* the set of possible allocations of a set of goods to a set of participants (assuming relational allocations) *)
 definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
@@ -134,12 +137,12 @@ fun max_revenue_comp :: "bids \<Rightarrow> goods \<Rightarrow> participant set 
 where "max_revenue_comp b G N = maximum_comp_list (possible_allocations_comp G N) (revenue_rel b)"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
-definition winning_allocations_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> (allocation_rel set)"
+definition winning_allocations_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
 where "winning_allocations_rel b G N = 
 { potential_buyer . revenue_rel b potential_buyer = max_revenue b G N}"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming functional allocations). *)
-definition winning_allocations_fun :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> (allocation_fun set)"
+definition winning_allocations_fun :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "winning_allocations_fun b G N = 
 { (Y,potential_buyer) . revenue_fun b (Y,potential_buyer) = max_revenue b G N}"
 
@@ -163,22 +166,22 @@ where "winning_allocation_fun t b G N  = t (winning_allocations_fun b G N)"
 definition \<alpha> :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha> b G N n = max_revenue b G (N - {n})"
 
-definition winners'_goods_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> participant option \<Rightarrow> goods" 
+definition winners'_goods_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant option \<Rightarrow> goods" 
 where "winners'_goods_fun t b G N = inv (snd (winning_allocation_fun t b G N))"
 
-definition remaining_value_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> participant \<Rightarrow> price"
-where "remaining_value_fun t b G N n = (\<Sum> m \<in> N - {n} . b m (winners'_goods_fun t b G N (Some m)))"
+definition remaining_value_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
+where "remaining_value_fun t b G N n =
+  (\<Sum> m \<in> N - {n} . b m (winners'_goods_fun t b G N (Some m)))"
 
-definition payments_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> (participant set) \<Rightarrow> (participant \<Rightarrow> price)"
+definition remaining_value_rel :: "tie_breaker_rel \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
+where "remaining_value_rel t b G N n =
+  (\<Sum> m \<in> N - {n} . b m ((as_function (inverse (t (winning_allocations_rel b G N)))) m))"
+
+definition payments_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "payments_fun t b G N = \<alpha> b G N - remaining_value_fun t b G N"
 
 definition payments_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> participant \<Rightarrow> price"
-where "payments_rel b G N t n = 
-  (let winning_allocation =
-    as_function (inverse (t (winning_allocations_rel b G N)))
-   in
-     \<alpha> b G N n - 
-     (\<Sum> m \<in> N - {n} . b m (winning_allocation m)) )"
+where "payments_rel b G N t = \<alpha> b G N - remaining_value_rel t b G N"
 
 (*
 declare [[show_types]]
