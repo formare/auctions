@@ -29,7 +29,7 @@ imports Complex_Main
   Vectors
   Partitions
   RelationProperties
-  
+  Maximum
 begin
 
 (*
@@ -116,6 +116,9 @@ where "possible_allocations_comp G N =
       [ (set Y, potential_buyer) . potential_buyer \<leftarrow> injective_functions_list Y (sorted_list_of_set N) ]
     . Y \<leftarrow> all_partitions_fun_list (sorted_list_of_set G) ]"
 
+(* example: possibilities to allocate goods {1,2,3} to participants {100,200} *)
+value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
+
 (* the set of possible allocations of a set of goods to a set of participants (assuming functional allocations) *)
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
@@ -128,6 +131,10 @@ where "possible_allocations_fun G N = { (Y,potential_buyer) .
 definition max_revenue :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
 where "max_revenue b G N = Max ((revenue_rel b) ` (possible_allocations_rel G N))"
 (* we don't need the variant that assumes functional allocations, as it's really just the same *)
+
+(* TODO CL: this is not yet computational; there is some typing problem maybe in revenue_rel_def *)
+fun max_revenue_comp :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
+where "max_revenue_comp b G N = maximum_comp_list (possible_allocations_comp G N) (revenue_rel b)"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
 definition winning_allocations_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> (allocation_rel set)"
