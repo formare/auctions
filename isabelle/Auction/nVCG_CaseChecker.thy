@@ -49,7 +49,7 @@ type_synonym price = nat (* or maybe "real", later *)
 
 (*
 Keeping old initial vector-based bid implementation for reference.
-
+		
 (* one participant's bid on a set of goods *)
 definition b :: "participant \<Rightarrow> goods \<Rightarrow> nat" where "b i y = (\<Sum> x \<in> y . x)"
 
@@ -150,9 +150,8 @@ where "winning_allocations_fun b G N =
    both relational and functional allocation) *)
 definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x = (THE y . y \<in> x)"
 
-(* CL@MC: not sure \<nat> does what we want; and in any case our participants and goods sets are assumed to be finite. *)
-definition participants_example :: "participant set" where "participants_example = \<nat>"
-definition goods_example :: goods where "goods_example = \<nat>"
+definition participants_example :: "participant set" where "participants_example = {0,1::nat}"
+definition goods_example :: goods where "goods_example = {10::nat,11}"
 
 (* the unique winning allocation that remains after tie-breaking (assuming relational allocations) *)
 fun winning_allocation_rel :: "tie_breaker_rel \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_rel"
@@ -195,6 +194,81 @@ where "payments_rel b G N t = \<alpha> b G N - remaining_value_rel t b G N"
 (*
 declare [[show_types]]
 *)
+
+definition evalrel 
+(* :: "('a \<times> linorder) set => 'a => _" booooooh *)
+where "evalrel f x = Max (f `` {x})"
+
+definition rev :: "bids => ((goods set) \<times> ((goods \<times> participant) set)) => price" 
+where "rev b Z = setsum (
+(%y . b (evalrel (snd Z) y) y)) 
+(fst Z)
+"
+
+definition torel :: "('a => 'b) => ('a set) => ('a \<times> 'b) set"
+where "torel f X = {(x, f x) | x . (x::'a) \<in> X}"
+
+fun allall
+:: "goods \<Rightarrow> participant set \<Rightarrow> ((goods \<times> participant) set) list" 
+where "allall G N =
+  concat [
+      [ potential_buyer . potential_buyer \<leftarrow> injective_functions_list Y (sorted_list_of_set N) ]
+    . Y \<leftarrow> all_partitions_fun_list (sorted_list_of_set G) ]"
+
+definition rev2 
+:: "bids => ((goods \<times> participant) set) => price"
+where "rev2 b Z = setsum (
+(%y . b (evalrel Z y) y)) 
+(Domain Z)
+"
+
+value "rev2 bb `(set (allall GG NN))"
+
+definition maxrev where 
+"maxrev b G N = Max (rev bb ` (set (possible_allocations_comp G N)))"
+(*
+value "{set (injective_functions_list Y (sorted_list_of_set NN)) | Y . 
+Y \<in> set (all_partitions_fun_list (sorted_list_of_set GG))}"
+*)
+
+definition inverse :: "('a \<times> 'b) set => ('b \<times> 'a) set" 
+where "inverse R = (%x . (snd x, fst x)) ` R"
+
+value "maxrev bb GG NN"
+
+value "map (op +1) ([1::nat,2])"
+
+fun maxpositions 
+:: "nat list => nat list" 
+where 
+"maxpositions [] = []" | 
+"maxpositions [x] = [0]"|
+"maxpositions (x # xs) = (if x < xs ! (hd (maxpositions xs)) then 
+                          (map (op +1) (maxpositions xs)) 
+                         else if x > xs ! (hd (maxpositions xs)) then [0]
+                         else (0 # (map (op +1) (maxpositions xs)))
+)"
+
+definition NNN where "NNN = {1,2,3::nat}"
+definition GGG where "GGG = {11,12}"
+definition bbb :: bids where "bbb n G = (if (n=2 \<or> n=3) & (G={11} \<or> G={12}) then 2
+                               else if n=1 & G={11,12} then 2
+else 0
+)
+"
+
+definition winning_allocations_list where 
+"winning_allocations_list b G N = map (nth (allall G N)) (maxpositions (map (rev2 b) (allall G N)))"
+
+value "winning_allocations_list bbb GGG NNN"
+
+code_include Scala ""
+{*package win 
+*}
+export_code winning_allocations_list in Scala
+(* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
+module_name Vickrey file "code/win.scala"
+
 
 end
 
