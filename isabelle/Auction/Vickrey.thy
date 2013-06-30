@@ -103,7 +103,7 @@ proof -
         by (rule allocated_implies_spa_winner)
 
       from winner have "?b i = ?b_max"
-        unfolding second_price_auction_winner_def arg_max_set_def by simp
+        unfolding second_price_auction_winner_def arg_max_def by simp
       with defined' have "?b i \<ge> ?b_max'"
         by (rule maximum_remaining_maximum)
 
@@ -209,7 +209,7 @@ proof -
     from outcome spa have "spa_pred N v x p"
       unfolding second_price_auction_def rel_sat_sga_pred_def
       by blast
-    with range and wins have "k \<in> arg_max_set N v"
+    with range and wins have "k \<in> arg_max N v"
       using allocated_implies_spa_winner
       unfolding second_price_auction_winner_def by blast
   }

@@ -237,6 +237,18 @@ def equal_prod[A : equal, B : equal](x0: (A, B), x1: (A, B)): Boolean = (x0, x1)
 def equal_rat(a: rat, b: rat): Boolean =
   equal_prod[BigInt, BigInt](quotient_of(a), quotient_of(b))
 
+def maxa[A : linorder](x0: set[A]): A = x0 match {
+  case Set(x :: xs) => fold[A, A]((a: A) => (b: A) => max[A](a, b), xs, x)
+}
+
+def maximum[A : linorder](n: set[Nat], y: Nat => A): A =
+  maxa[A](image[Nat, A](y, n))
+
+implicit def linorder_nat: linorder[Nat] = new linorder[Nat] {
+  val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Vickrey.less` = (a: Nat, b: Nat) => a < b
+}
+
 def less_eq_rat(p: rat, q: rat): Boolean =
   {
     val (a, c): (BigInt, BigInt) = quotient_of(p)
@@ -267,25 +279,13 @@ implicit def order_real: order[real] = new order[real] {
   val `Vickrey.less` = (a: real, b: real) => less_real(a, b)
 }
 
+def equal_real(x0: real, x1: real): Boolean = (x0, x1) match {
+  case (Ratreal(x), Ratreal(y)) => equal_rat(x, y)
+}
+
 implicit def linorder_real: linorder[real] = new linorder[real] {
   val `Vickrey.less_eq` = (a: real, b: real) => less_eq_real(a, b)
   val `Vickrey.less` = (a: real, b: real) => less_real(a, b)
-}
-
-def maxa[A : linorder](x0: set[A]): A = x0 match {
-  case Set(x :: xs) => fold[A, A]((a: A) => (b: A) => max[A](a, b), xs, x)
-}
-
-def maximum(n: set[Nat], y: Nat => real): real =
-  maxa[real](image[Nat, real](y, n))
-
-implicit def linorder_nat: linorder[Nat] = new linorder[Nat] {
-  val `Vickrey.less_eq` = (a: Nat, b: Nat) => a <= b
-  val `Vickrey.less` = (a: Nat, b: Nat) => a < b
-}
-
-def equal_real(x0: real, x1: real): Boolean = (x0, x1) match {
-  case (Ratreal(x), Ratreal(y)) => equal_rat(x, y)
 }
 
 def sorted_list_of_set[A : equal : linorder](x0: set[A]): List[A] = x0 match {
@@ -315,7 +315,8 @@ def fs_spa_payments(n: set[Nat], b: Nat => real, t: Nat => Nat => Boolean):
   {
     val winner: Nat = fs_spa_winner(n, b, t);
     (i: Nat) =>
-      (if (i == winner) maximum(remove[Nat](i, n), b) else Ratreal(zero_rat))
+      (if (i == winner) maximum[real](remove[Nat](i, n), b)
+        else Ratreal(zero_rat))
   }
 
 def fs_spa_allocation(n: set[Nat], b: Nat => real, t: Nat => Nat => Boolean):

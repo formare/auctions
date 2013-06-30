@@ -27,17 +27,17 @@ value "maximum {1..2} (\<lambda> x::nat . 1)"
 value "maximum {1..5} (\<lambda> x::nat . x)"
 
 (* for testing *)
-lemma test_arg_max_set:
-  shows "{1,2} \<subseteq> arg_max_set {1..3} (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
-apply(unfold arg_max_set_def)
+lemma test_arg_max:
+  shows "{1,2} \<subseteq> arg_max {1..3} (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
+apply(unfold arg_max_def)
 apply(simp add: maximum_def)
 oops (* TODO CL: This is broken since I've changed "primrec maximum" to "fun maximum" *)
 
 text{* an alternative proof of the same lemma -- still too trivial to test how declarative proofs \emph{actually} work *}
-lemma test_arg_max_set_declarative:
-  shows "{1,2} \<subseteq> arg_max_set {1..3} (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
+lemma test_arg_max_declarative:
+  shows "{1,2} \<subseteq> arg_max {1..3} (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
 oops (* TODO CL: This is broken since I've changed "primrec maximum" to "fun maximum" *)
-(* unfolding arg_max_set_def
+(* unfolding arg_max_def
   by (simp add: maximum_def) *)
 
 end

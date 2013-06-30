@@ -93,8 +93,8 @@ proof -
         assume i_wins: "x ?i_sticks_with_strategy i"
         (* i gets the good, so i also satisfies the further properties of an applicant auction winner: *)
         with aa i_sticks_is_bid i_range
-          have "i \<in> arg_max_set n ?i_sticks_with_strategy" by (metis allocated_implies_aa_winner second_price_auction_winner_def)
-        then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy" by (simp add: arg_max_set_def)
+          have "i \<in> arg_max n ?i_sticks_with_strategy" by (metis allocated_implies_aa_winner second_price_auction_winner_def)
+        then have "?i_sticks_with_strategy i = maximum n ?i_sticks_with_strategy" by (simp add: arg_max_def)
         also have "\<dots> \<ge> maximum_except n ?i_sticks_with_strategy i"
           using i_sticks_is_bid bids_def (* \<equiv> non_negative_real_vector n ?i_sticks_with_strategy *)
           non_empty i_range
@@ -144,7 +144,7 @@ proof -
                        = v i - maximum_except n ?i_sticks_with_strategy i"
                 show that this is \<ge> (v i) / n
                   (because maximum_except n ?i_sticks_with_strategy i \<le> maximum n ?i_sticks_with_strategy (by maximum_greater_or_equal_remaining_maximum)
-                           = ?i_sticks_with_strategy i (because i \<in> arg_max_set n ?i_sticks_with_strategy)
+                           = ?i_sticks_with_strategy i (because i \<in> arg_max n ?i_sticks_with_strategy)
                            = (v i) * (n - 1) / n = v i - (v i / n))
                 Case 1b is: i loses by deviating from strategy, i.e.
                 * "payoff_vector v (x whatever_bid) (p whatever_bid) i

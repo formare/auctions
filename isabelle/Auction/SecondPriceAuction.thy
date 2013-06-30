@@ -38,7 +38,7 @@ definition second_price_auction_winner ::
     "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> participant \<Rightarrow> bool"
   where
     "second_price_auction_winner N b x p i \<longleftrightarrow>
-      i \<in> N \<and> i \<in> arg_max_set N b \<and>
+      i \<in> N \<and> i \<in> arg_max N b \<and>
       second_price_auction_winner_outcome N b x p i"
 
 text{* Agent @{text i} being a loser of a second-price auction (see below for complete definition) means
@@ -71,7 +71,7 @@ definition spa_pred :: "participant set \<Rightarrow> bids \<Rightarrow> allocat
   where
     "spa_pred N b x p \<longleftrightarrow>
       spa_admissible_input N b \<and>
-      (\<exists>i \<in> N. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
+      (\<exists>i \<in> N. i \<in> arg_max N b \<and> second_price_auction_winner_outcome N b x p i \<and>
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
 
 definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
@@ -247,16 +247,16 @@ lemma only_max_bidder_wins:
   shows "second_price_auction_winner N b x p max_bidder"
 proof -
   from spa have spa_unfolded:
-    "spa_admissible_input N b \<and> (\<exists>i. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
+    "spa_admissible_input N b \<and> (\<exists>i. i \<in> arg_max N b \<and> second_price_auction_winner_outcome N b x p i \<and>
       (\<forall>j \<in> N. j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
     unfolding spa_pred_def second_price_auction_def by blast
   {
     fix j :: participant
     assume j_not_max: "j \<in> N \<and> j \<noteq> max_bidder"
-    have "j \<notin> arg_max_set N b"
+    have "j \<notin> arg_max N b"
     proof
-      assume "j \<in> arg_max_set N b"
-      then have maximum: "b j = maximum N b" unfolding arg_max_set_def by simp
+      assume "j \<in> arg_max N b"
+      then have maximum: "b j = maximum N b" unfolding arg_max_def by simp
 
       from defined j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
         using maximum_except_is_greater_or_equal by simp
@@ -268,7 +268,7 @@ proof -
     qed
   }
   with spa_unfolded show ?thesis
-    by (auto simp add: second_price_auction_winner_def arg_max_set_def)
+    by (auto simp add: second_price_auction_winner_def arg_max_def)
 qed
 
 text{* a formula for computing the payoff of the winner of a second-price auction *}

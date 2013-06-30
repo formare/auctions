@@ -105,8 +105,8 @@ proof -
 qed
 
 text{* the set of all indices of maximum components of a vector *}
-definition arg_max_set :: "index set \<Rightarrow> 'a::linorder vector \<Rightarrow> index set"
-  where "arg_max_set N b = {i \<in> N . maximum N b = b i}"
+definition arg_max :: "index set \<Rightarrow> 'a::linorder vector \<Rightarrow> index set"
+  where "arg_max N b = {i \<in> N . maximum N b = b i}"
   (* need the explicit restriction "i \<in> N" as Isabelle/HOL assumes b to also be defined beyond the set N *)
 
 text{* The maximum component that remains after removing one component from a vector is greater

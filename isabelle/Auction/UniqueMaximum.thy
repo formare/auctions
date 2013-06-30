@@ -73,14 +73,14 @@ lemma sorted_list_of_set_eq_Nil_iff [simp] : (* TODO CL: should be in the librar
 using assms by (auto simp: sorted_list_of_set_remove')
 
 text{* The highest bidder, determined by tie-breaking using @{term arg_max_tb},
-  is one member of the set of all highest bidders, determined using @{term arg_max_set}. *}
-lemma arg_max_tb_imp_arg_max_set :
+  is one member of the set of all highest bidders, determined using @{term arg_max}. *}
+lemma arg_max_tb_imp_arg_max :
   fixes N :: "participant set"
     and t :: tie_breaker
     and b :: bids
   assumes defined: "maximum_defined N"
       and wb_tie: "wb_tie_breaker_on t N"
-  shows "the (arg_max_tb_req_wb N t b) \<in> arg_max_set N b"
+  shows "the (arg_max_tb_req_wb N t b) \<in> arg_max N b"
 (* A proof could be indirect by assuming that arg_max_tb N t b is not in the set,
    i.e., that the arg_max_tb offers less or more, and bring this to a contradiction.*)
 proof -
@@ -90,21 +90,21 @@ proof -
   (* TODO CL: Isabelle 2014 might be able to do the following step more automatically: *)
   from finite Nsort_def sorted_list_of_set have distinct: "distinct Nsort" by auto
   from finite ne Nsort_def have "Nsort \<noteq> []" by simp
-  then have stmt_list: "distinct Nsort \<longrightarrow> arg_max_l_tb Nsort t b \<in> arg_max_set (set Nsort) b"
+  then have stmt_list: "distinct Nsort \<longrightarrow> arg_max_l_tb Nsort t b \<in> arg_max (set Nsort) b"
   proof (induct Nsort rule: list_nonempty_induct)
     case single
     {
-      fix x have "arg_max_l_tb [x] t b \<in> arg_max_set (set [x]) b"
-        unfolding arg_max_set_def maximum_def Nsort_def by simp
+      fix x have "arg_max_l_tb [x] t b \<in> arg_max (set [x]) b"
+        unfolding arg_max_def maximum_def Nsort_def by simp
     }
     then show ?case ..
   next
     case cons (* CL: How can I use the cons.*, that I'm getting here, below? *)
     fix x xs
-    assume a1: "xs \<noteq> []" and a2: "distinct xs \<longrightarrow> arg_max_l_tb xs t b \<in> arg_max_set (set xs) b"
+    assume a1: "xs \<noteq> []" and a2: "distinct xs \<longrightarrow> arg_max_l_tb xs t b \<in> arg_max (set xs) b"
     from a1 have mdxs: "maximum_defined (set xs)" using maximum_defined_def by (metis List.finite_set card_gt_0_iff set_empty2)
     from a1 have mdxs': "maximum_defined (set (x # xs))" using maximum_defined_def by (metis List.finite_set card_gt_0_iff list.distinct(1) set_empty2)
-    show "distinct (x # xs) \<longrightarrow> arg_max_l_tb (x # xs) t b \<in> arg_max_set (set (x # xs)) b"
+    show "distinct (x # xs) \<longrightarrow> arg_max_l_tb (x # xs) t b \<in> arg_max (set (x # xs)) b"
     proof
       assume distinct': "distinct (x # xs)"
       def i \<equiv> "arg_max_l_tb (x # xs) t b"
@@ -116,19 +116,19 @@ proof -
       then have i_unf: "i = (let y = arg_max_l_tb xs t b in
           if (b x > b y \<or> b x = b y \<and> t x y) then x
           else y)" by smt
-      show "i \<in> arg_max_set (set (x # xs)) b"
+      show "i \<in> arg_max (set (x # xs)) b"
       proof (cases "i = arg_max_l_tb xs t b")
         case True (* the maximum is the same as before *)
-        with a2 distinct' have ams: "i \<in> arg_max_set (set xs) b" by simp
-        with mdxs have i_in: "i \<in> (set xs)" unfolding arg_max_set_def using maximum_is_component by simp
+        with a2 distinct' have ams: "i \<in> arg_max (set xs) b" by simp
+        with mdxs have i_in: "i \<in> (set xs)" unfolding arg_max_def using maximum_is_component by simp
         then have i_in': "i \<in> (set (x # xs))" by simp
         from i_unf True have "\<not> (b x > b i \<or> b x = b i \<and> t x i)" by (smt distinct' distinct.simps(2) i_in)
         then have 1: "b x \<le> b i" by auto
-        from ams have "b i = maximum (set xs) b" unfolding arg_max_set_def by simp
+        from ams have "b i = maximum (set xs) b" unfolding arg_max_def by simp
         with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b i \<ge> b j" by simp
         with 1 have "\<forall> j \<in> (set (x # xs)) . b i \<ge> b j" by simp
         with maximum_sufficient mdxs' i_in' have "b i = maximum (set (x # xs)) b" by metis
-        with i_in' show ?thesis unfolding arg_max_set_def by simp
+        with i_in' show ?thesis unfolding arg_max_def by simp
       next
         case False (* the newly inserted element x is the maximum *)
         def y \<equiv> "arg_max_l_tb xs t b"
@@ -137,21 +137,21 @@ proof -
           else y)" by auto
         from y_def False have "i \<noteq> y" unfolding i_def by simp
         with yi have bi: "(b x > b y \<or> b x = b y \<and> t x y) \<and> i = x" by smt
-        from y_def a2 distinct' have ams: "y \<in> arg_max_set (set xs) b" by simp
-        with mdxs have y_in: "y \<in> (set xs)" unfolding arg_max_set_def using maximum_is_component by simp
+        from y_def a2 distinct' have ams: "y \<in> arg_max (set xs) b" by simp
+        with mdxs have y_in: "y \<in> (set xs)" unfolding arg_max_def using maximum_is_component by simp
         then have y_in': "y \<in> (set (x # xs))" by simp
-        from ams have "b y = maximum (set xs) b" unfolding arg_max_set_def by simp
+        from ams have "b y = maximum (set xs) b" unfolding arg_max_def by simp
         with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b y \<ge> b j" by simp
         with bi have "\<forall> j \<in> (set xs) . b x \<ge> b j" by auto (* because b x \<ge> b y *)
         then have "\<forall> j \<in> (set (x # xs)) . b x \<ge> b j" by simp
         with maximum_sufficient mdxs' have "b x = maximum (set (x # xs)) b" by (metis distinct' distinct.simps(2) distinct_length_2_or_more)
-        with bi show ?thesis unfolding arg_max_set_def by simp
+        with bi show ?thesis unfolding arg_max_def by simp
       qed
     qed
   qed
   from Nsort_def `finite N` have "N = set Nsort" by simp
   from Nsort_def wb_tie have "the (arg_max_tb_req_wb N t b) = arg_max_l_tb Nsort t b" by simp
-  with distinct stmt_list have "the (arg_max_tb_req_wb N t b) \<in> arg_max_set (set Nsort) b" by simp
+  with distinct stmt_list have "the (arg_max_tb_req_wb N t b) \<in> arg_max (set Nsort) b" by simp
   with `N = set Nsort` show ?thesis by simp
 qed
 

@@ -104,7 +104,7 @@ next
     unfolding eq_def
     by simp_all
   from wb_tie admissible have winner_range: "fs_spa_winner_req_wb N b t \<in> N"
-    using arg_max_set_def arg_max_tb_imp_arg_max_set fs_spa_winner_req_wb.simps maximum_defined_def spa_admissible_input_def
+    using arg_max_def arg_max_tb_imp_arg_max fs_spa_winner_req_wb.simps maximum_defined_def spa_admissible_input_def
       mem_Collect_eq
     by smt
   with outcome have "let winner = fs_spa_winner_req_wb N b t in
@@ -133,17 +133,17 @@ proof -
     where fs_spa_winner: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b) \<and>
         second_price_auction_winner_outcome N b x p winner"
       and spa_loser: "\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> second_price_auction_loser_outcome N x p j" by blast
-  have spa_winner: "winner \<in> N \<and> winner \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p winner"
+  have spa_winner: "winner \<in> N \<and> winner \<in> arg_max N b \<and> second_price_auction_winner_outcome N b x p winner"
   proof -
     from fs_spa_winner have range: "winner \<in> N"
       and determination: "winner = the (arg_max_tb_req_wb N t b)"
       and spa_winner_outcome: "second_price_auction_winner_outcome N b x p winner"
       by auto
     from card have maximum_defined: "maximum_defined N" unfolding maximum_defined_def by simp
-    with wb_tie determination have "winner \<in> arg_max_set N b" using arg_max_tb_imp_arg_max_set by simp
+    with wb_tie determination have "winner \<in> arg_max N b" using arg_max_tb_imp_arg_max by simp
     with range and spa_winner_outcome show ?thesis by simp
   qed
-  with card bids spa_loser have "card N > 1 \<and> bids N b \<and> (\<exists>i \<in> N. i \<in> arg_max_set N b \<and> second_price_auction_winner_outcome N b x p i \<and>
+  with card bids spa_loser have "card N > 1 \<and> bids N b \<and> (\<exists>i \<in> N. i \<in> arg_max N b \<and> second_price_auction_winner_outcome N b x p i \<and>
     (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))" by blast
   then show ?thesis unfolding spa_admissible_input_def spa_pred_def by simp
 qed

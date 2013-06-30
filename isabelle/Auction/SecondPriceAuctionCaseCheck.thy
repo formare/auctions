@@ -84,8 +84,8 @@ qed
 proof (rule sga_left_totalI)
   fix N :: "participant set" and b :: bids
   assume admissible: "spa_admissible_input N b"
-  from admissible obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max_set N b"
-    using spa_admissible_input_def arg_max_set_def maximum_defined_def maximum_is_component
+  from admissible obtain winner::participant where winner_def: "winner \<in> N \<and> winner \<in> arg_max N b"
+    using spa_admissible_input_def arg_max_def maximum_defined_def maximum_is_component
     by (smt mem_Collect_eq)
   def x \<equiv> "\<lambda> i::participant . if i = winner then 1::real else 0"
   def p \<equiv> "\<lambda> i::participant . if i = winner then maximum (N - {i}) b else 0"
@@ -122,19 +122,19 @@ lemma positive_payment_bids_eq_suff :
     and p :: payments
     and p' :: payments
   assumes admissible: "spa_admissible_input N b"
-      and range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
+      and range: "winner \<in> N \<and> winner \<in> arg_max N b"
       and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
-      and range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
+      and range': "winner' \<in> N \<and> winner' \<in> arg_max N b"
       and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
   shows "b ` { i \<in> N . p i > 0 } \<subseteq> b ` { i \<in> N . p' i > 0 }"
 proof (intro subsetI)
   from admissible have bids: "bids N b" and ge2: "card N > 1"
     using spa_admissible_input_def by auto
   fix bid assume premise: "bid \<in> b ` { i \<in> N . p i > 0 }"
-  with range pay range' have bw': "bid = b winner'" using arg_max_set_def by auto
+  with range pay range' have bw': "bid = b winner'" using arg_max_def by auto
   from premise pay have p_positive: "p winner > 0" by auto
   with ge2 range pay have bwpos: "b winner > 0"
-    using arg_max_set_def maximum_except_defined maximum_remaining_maximum by (smt mem_Collect_eq)
+    using arg_max_def maximum_except_defined maximum_remaining_maximum by (smt mem_Collect_eq)
   from ge2 range' have md: "maximum_defined (N - {winner'})" using maximum_except_defined by blast
   have "maximum (N - {winner'}) b > 0"
   proof (rule ccontr)
@@ -156,7 +156,7 @@ proof (intro subsetI)
       with range have "winner \<in> N - {winner'}" by fast
       then have x: "maximum (N - {winner'}) b \<ge> b winner" using range maximum_is_greater_or_equal md by blast
       with foow' have bwzn: "b winner \<le> 0" by auto
-      from range have "maximum N b = b winner" using arg_max_set_def by auto
+      from range have "maximum N b = b winner" using arg_max_def by auto
       with md x maximum_remaining_maximum bwpos bwzn show False by auto
     qed
   qed
@@ -166,12 +166,12 @@ qed
 lemma spa_winner_from_rel:
   assumes "rel_all_sga_pred spa_pred A"
       and "((N, b), (x, p)) \<in> A"
-  obtains winner where "winner \<in> N \<and> winner \<in> arg_max_set N b"
+  obtains winner where "winner \<in> N \<and> winner \<in> arg_max N b"
       and "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
       and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
 proof -
   from assms obtain winner::participant
-    where "winner \<in> N \<and> winner \<in> arg_max_set N b"
+    where "winner \<in> N \<and> winner \<in> arg_max N b"
       and "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
       and "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
     unfolding rel_all_sga_pred_def 
@@ -195,14 +195,14 @@ proof (rule sga_right_uniqueI)
 
   assume "((N, b), (x, p)) \<in> A"
   with spa obtain winner::participant
-    where range: "winner \<in> N \<and> winner \<in> arg_max_set N b"
+    where range: "winner \<in> N \<and> winner \<in> arg_max N b"
       and alloc: "x winner = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner \<longrightarrow> x j = 0)"
       and pay: "p winner = maximum (N - {winner}) b \<and> (\<forall>j \<in> N . j \<noteq> winner \<longrightarrow> p j = 0)"
     by (rule spa_winner_from_rel)
 
   assume "((N, b), (x', p')) \<in> A"
   with spa obtain winner'::participant
-    where range': "winner' \<in> N \<and> winner' \<in> arg_max_set N b"
+    where range': "winner' \<in> N \<and> winner' \<in> arg_max N b"
       and alloc': "x' winner' = 1 \<and> (\<forall> j \<in> N . j \<noteq> winner' \<longrightarrow> x' j = 0)"
       and pay': "p' winner' = maximum (N - {winner'}) b \<and> (\<forall>j \<in> N . j \<noteq> winner' \<longrightarrow> p' j = 0)"
     by (rule spa_winner_from_rel)
@@ -210,10 +210,10 @@ proof (rule sga_right_uniqueI)
   have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }" (is "?lhs = ?rhs")
   proof (* CL: any way to collapse these two cases into one?  Preferably in Isar style? *)
     from range alloc range' alloc' show "?lhs \<subseteq> ?rhs"
-      using arg_max_set_def by auto
+      using arg_max_def by auto
   next
     from range' alloc' range alloc show "?rhs \<subseteq> ?lhs"
-      using arg_max_set_def by auto
+      using arg_max_def by auto
   qed
   moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }" (is "?lhs = ?rhs")
   proof (* CL: any way to collapse these two cases into one?  Preferably in Isar style? *)

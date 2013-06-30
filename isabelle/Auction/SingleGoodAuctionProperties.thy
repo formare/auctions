@@ -97,7 +97,7 @@ definition efficient :: "participant set \<Rightarrow> valuations \<Rightarrow> 
       (\<forall> x p . ((N, b), (x, p)) \<in> A
         (* TODO CL: Is there a way of not naming p, as we don't need it? *)
         \<longrightarrow>
-        (\<forall>i \<in> N. x i = 1 \<longrightarrow> i \<in> arg_max_set N v))"
+        (\<forall>i \<in> N. x i = 1 \<longrightarrow> i \<in> arg_max N v))"
 
 subsection {* Equilibrium in weakly dominant strategies *}
 
