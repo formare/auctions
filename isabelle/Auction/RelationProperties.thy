@@ -36,13 +36,13 @@ definition as_function :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> '
 where "as_function R a = (THE b . b \<in> R `` {a})"
 
 (* this is the computational variant of as_function; we call it eval_rel *)
-fun eval_rel :: "('a \<times> ('b::linorder)) set \<Rightarrow> 'a \<Rightarrow> 'b"
-where "eval_rel R a = Max (R `` {a})"
-(* TODO CL: improve by direct application of, say, some Finite_Set.fold* function
-   or if this doesn't work, improve by expanding the following alternative definition:
-   hd (sorted_list_of_set (R `` {a})) *)
+fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
+where "eval_rel R a = the_elem (R `` {a})"
 
 value "eval_rel {(1::nat, 2::nat), (2::nat, 4::nat)} 1::nat"
+
+fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
+where "eval_rel_or R a z = (let B = R `` {a} in if card B = 1 then the_elem B else z)"
 
 lemma "function_on {(1::nat, 2::nat), (2::nat, 4::nat)} {1::nat}"
 unfolding function_on_def left_total_on_def right_unique_def

@@ -73,8 +73,9 @@ type_synonym payments = "real vector"
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation_fun = "(goods set) \<times> (goods \<rightharpoonup> participant)"
 type_synonym allocation_rel = "((goods \<times> participant) set)" (* goods set not necessary as a function-as-relation-as-set representation carries its own domain :-) *)
-type_synonym tie_breaker_rel = "(allocation_rel set) \<Rightarrow> allocation_rel"
-type_synonym tie_breaker_fun = "(allocation_fun set) \<Rightarrow> allocation_fun"
+type_synonym tie_breaker_rel = "allocation_rel set \<Rightarrow> allocation_rel"
+type_synonym tie_breaker_fun = "allocation_fun set \<Rightarrow> allocation_fun"
+type_synonym tie_breaker_comp = "allocation_rel list \<Rightarrow> allocation_rel"
 
 (* a particular example for bids: *)
 definition b_example :: bids
@@ -83,18 +84,23 @@ where "b_example x y = x"
 (* example: break ties by preferring an arbitrary allocation (we omit type annotations so that we can use this with 
    both relational and functional allocation) *)
 definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x = (THE y . y \<in> x)"
+(* trivial tie-breaking for allocation lists: take the first one with "hd list" *)
+definition tie_breaker_example_comp :: tie_breaker_comp where "tie_breaker_example_comp = hd"
 
-definition participants_example :: "participant set" where "participants_example = {0,1::nat}"
-definition goods_example :: goods where "goods_example = {10::nat,11}"
+definition paper_example_participants :: "participant set" where "paper_example_participants = {1::nat, 2, 3}"
+definition paper_example_goods :: goods where "paper_example_goods = {(* A *) 11, (* B *) 12}"
+definition paper_example_bids :: bids where "paper_example_bids bidder goods = (
+      if (bidder = 1 \<and> goods = {11,12}
+          \<or> (bidder = 2 \<or> bidder = 3) \<and> card goods = 1)
+      then 2
+      else 0)"
 
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
-where "revenue_rel b buyer  = (\<Sum> y \<in> Domain buyer . b (eval_rel buyer y) y
+where "revenue_rel b buyer  = (\<Sum> y \<in> Domain buyer . b (eval_rel_or buyer y 0) y
   (* CL@CR: This implicitly assumes a value of 0 for goods not sold.  OK?
             Goods not sold don't occur in the potential_buyer relation *)
 )"
-
-value "revenue_rel b_example ` (set (possible_allocations_comp goods_example participants_example))"
 
 (* the revenue gained from selling a certain allocation (assuming functional allocations) *)
 definition revenue_fun :: "bids \<Rightarrow> allocation_fun \<Rightarrow> price"
@@ -135,9 +141,10 @@ definition max_revenue :: "bids \<Rightarrow> goods \<Rightarrow> participant se
 where "max_revenue b G N = Max ((revenue_rel b) ` (possible_allocations_rel G N))"
 (* we don't need the variant that assumes functional allocations, as it's really just the same *)
 
-(* TODO CL: this is not yet computational; there is some typing problem maybe in revenue_rel_def *)
 fun max_revenue_comp :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> price"
 where "max_revenue_comp b G N = maximum_comp_list (possible_allocations_comp G N) (revenue_rel b)"
+
+value "max_revenue_comp paper_example_bids paper_example_goods paper_example_participants"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
 definition winning_allocations_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
@@ -157,31 +164,21 @@ where "winning_allocation_rel t b G N  = t (winning_allocations_rel b G N)"
 definition winning_allocation_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> allocation_fun"
 where "winning_allocation_fun t b G N  = t (winning_allocations_fun b G N)"
 
-definition paper_example_participants :: "participant set" where "paper_example_participants = {1::nat, 2, 3}"
-definition paper_example_goods :: goods where "paper_example_goods = {(* A *) 11, (* B *) 12}"
-definition paper_example_bids :: bids where "paper_example_bids bidder goods = (
-      if (bidder = 1 \<and> goods = {11,12}
-          \<or> (bidder = 2 \<or> bidder = 3) \<and> card goods = 1)
-      then 2
-      else 0)"
-
-definition winning_allocations_list_CL
-where "winning_allocations_list_CL b G N = (arg_max_comp_list
+definition winning_allocations_comp_CL
+where "winning_allocations_comp_CL b G N = (arg_max_comp_list
     (possible_allocations_comp G N)
     (revenue_rel b))"
 
-value "winning_allocations_list_CL
+value "winning_allocations_comp_CL
   paper_example_bids
   paper_example_goods
   paper_example_participants"
 
-(* trivial tie-breaking for such allocation lists: take the first one with "hd list" *)
-
-definition winning_allocations_list_MC where 
-"winning_allocations_list_MC b G N = (let all = possible_allocations_comp G N in
+definition winning_allocations_comp_MC where 
+"winning_allocations_comp_MC b G N = (let all = possible_allocations_comp G N in
   map (nth all) (max_positions (map (revenue_rel b) all)))"
 
-value "winning_allocations_list_MC 
+value "winning_allocations_comp_MC 
   paper_example_bids
   paper_example_goods
   paper_example_participants"
@@ -189,6 +186,9 @@ value "winning_allocations_list_MC
 (* the value reportedly generated by value maximization problem when solved without n's bids *)
 definition \<alpha> :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha> b G N n = max_revenue b G (N - {n})"
+
+definition \<alpha>_comp :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
+where "\<alpha>_comp b G N n = max_revenue_comp b G (N - {n})"
 
 definition winners'_goods_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant option \<Rightarrow> goods" 
 where "winners'_goods_fun t b G N = inv (snd (winning_allocation_fun t b G N))"
@@ -201,11 +201,32 @@ definition remaining_value_rel :: "tie_breaker_rel \<Rightarrow> bids \<Rightarr
 where "remaining_value_rel t b G N n =
   (\<Sum> m \<in> N - {n} . b m ((as_function (inverse (t (winning_allocations_rel b G N)))) m))"
 
+definition remaining_value_comp :: "tie_breaker_comp \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
+where "remaining_value_comp t b G N n =
+  (\<Sum> m \<in> N - {n} . b m (eval_rel_or (inverse (t (winning_allocations_comp_CL b G N))) m {}))"
+
 definition payments_fun :: "tie_breaker_fun \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
 where "payments_fun t b G N = \<alpha> b G N - remaining_value_fun t b G N"
 
 definition payments_rel :: "bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> participant \<Rightarrow> price"
 where "payments_rel b G N t = \<alpha> b G N - remaining_value_rel t b G N"
+
+definition payments_comp :: "tie_breaker_comp \<Rightarrow> bids \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> participant \<Rightarrow> price"
+where "payments_comp t b G N = \<alpha>_comp b G N - remaining_value_comp t b G N"
+
+value "{(x, payments_comp hd paper_example_bids paper_example_goods paper_example_participants x) | x . x \<in> paper_example_participants}"
+
+(* example for the single-good auction *)
+definition sga_goods :: goods where "sga_goods = {1::nat}"
+definition sga_bids :: "(participant \<Rightarrow> price) \<Rightarrow> bids"
+where "sga_bids b = (\<lambda> bidder goods . (
+      if goods = sga_goods then b bidder else 0))"
+
+value "hd (winning_allocations_comp_CL
+  (sga_bids (nth [23::nat, 42, 31]))
+  sga_goods
+  {0::nat, 1, 2})"
+value "{(x, payments_comp hd (sga_bids (nth [23::nat, 42, 31])) sga_goods {0::nat, 1, 2} x) | x . x \<in> {0::nat, 1, 2}}"
 
 (*
 declare [[show_types]]
@@ -214,7 +235,7 @@ declare [[show_types]]
 code_include Scala ""
 {*package win 
 *}
-export_code winning_allocations_list_MC in Scala
+export_code winning_allocations_comp_MC in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 module_name Vickrey file "code/win.scala"
 
