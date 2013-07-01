@@ -170,7 +170,7 @@ where "winning_allocation_rel G N t b = t (winning_allocations_rel G N b)"
 definition winning_allocation_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> allocation_fun"
 where "winning_allocation_fun G N t b = t (winning_allocations_fun G N b)"
 
-definition winning_allocations_comp_CL
+fun winning_allocations_comp_CL
 where "winning_allocations_comp_CL G N b = (arg_max_comp_list
     (possible_allocations_comp G N)
     (revenue_rel b))"
@@ -236,7 +236,7 @@ where "payments_rel G N t = \<alpha> G N - remaining_value_rel G N t"
 definition payments_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_comp G N t = \<alpha>_comp G N - remaining_value_comp G N t"
 
-value "{(x, payments_comp paper_example_goods paper_example_participants hd paper_example_bids x) | x . x \<in> paper_example_participants}"
+value "{(n, payments_comp paper_example_goods paper_example_participants hd paper_example_bids n) | n . n \<in> paper_example_participants}"
 
 (* example for the single-good Vickrey auction as a special case of the combinatorial Vickrey auction *)
 definition sga_goods :: goods where "sga_goods = {1::nat}"
@@ -261,11 +261,11 @@ definition admissible_input where "admissible_input G N b = True"
    for each admissible input, there is a unique, well-defined outcome. *)
 (* TODO CL: maybe prefer *_fun over *_rel throughout this definition,
             depending on what's easier to do proofs with *)
-definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction"
+definition nVCG_auctions :: "tie_breaker_comp \<Rightarrow> combinatorial_auction"
 where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
   admissible_input G N b
-  \<and> x = t (winning_allocations_rel G N b)
-  \<and> p = payments_rel G N t b }"
+  \<and> x = t (winning_allocations_comp_CL G N b)
+  \<and> p = payments_comp G N t b }"
 
 code_include Scala ""
 {*package win 
