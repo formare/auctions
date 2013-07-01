@@ -76,6 +76,14 @@ definition allPartitions :: "'a set \<Rightarrow> 'a set set set"
       \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
     ) }"
 
+(* compared to the above, the one below is an even more paper-like definition of "all partitions" *)
+definition allPartitionsStandardDefinition :: "'a set \<Rightarrow> 'a set set set"
+where "allPartitionsStandardDefinition A = { Y .
+  \<Union> Y = A
+  \<and> (\<forall> x \<in> Y . \<forall> y \<in> Y . x \<noteq> {}
+                         \<and> y \<noteq> {}
+                         \<and> x \<inter> y = {} ) }"
+
 (* 
 Set: {a}
 Partitions: {{a}}
