@@ -251,9 +251,21 @@ value "hd (winning_allocations_comp_CL
 )"
 value "{(x, payments_comp sga_goods {0::nat, 1, 2} hd (sga_bids (nth [23::nat, 42, 31])) x) | x . x \<in> {0::nat, 1, 2}}"
 
-(*
-type_synonym combinatorial_auction = "((goods \<times> participant set \<times> bids) \<times> (allocation_rel \<times> payments)) set"
-*)
+(* TODO CL: get this right *)
+definition admissible_input where "admissible_input G N b = True"
+
+(* the relation of all (input, outcome) pairs where
+   * input is an admissible input to an nVCG auction, and
+   * outcome is obtained from input according to the definitions above.
+   For this relation we need to show that, given an arbitrary but fixed tie-breaker,
+   for each admissible input, there is a unique, well-defined outcome. *)
+(* TODO CL: maybe prefer *_fun over *_rel throughout this definition,
+            depending on what's easier to do proofs with *)
+definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction"
+where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
+  admissible_input G N b
+  \<and> x = t (winning_allocations_rel G N b)
+  \<and> p = payments_rel G N t b }"
 
 code_include Scala ""
 {*package win 
