@@ -27,30 +27,17 @@ where "right_unique R \<longleftrightarrow> (\<forall> a \<in> Domain R . card (
 definition function_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
 where "function_on R A \<longleftrightarrow> left_total_on R A \<and> right_unique R"
 
-definition as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
+fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
 where "as_part_fun R a = (let im = R `` {a} in 
-        if im = {} then None
-        else Some (THE b . b \<in> im))"
+        if card im = 1 then Some (the_elem im)
+        else None)"
 
-definition as_function :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
-where "as_function R a = (THE b . b \<in> R `` {a})"
-
-(* this is the computational variant of as_function; we call it eval_rel *)
+(* This will only work if R is a total function, i.e. if the image is always a singleton set. *)
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
 where "eval_rel R a = the_elem (R `` {a})"
 
-value "eval_rel {(1::nat, 2::nat), (2::nat, 4::nat)} 1::nat"
-
 fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
 where "eval_rel_or R a z = (let B = R `` {a} in if card B = 1 then the_elem B else z)"
-
-lemma "function_on {(1::nat, 2::nat), (2::nat, 4::nat)} {1::nat}"
-unfolding function_on_def left_total_on_def right_unique_def
-oops
-
-lemma "(as_function {(1::nat, 2::nat), (2::nat, 4::nat)} 1::nat) = (2::nat)"
-unfolding as_function_def
-oops
 
 definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightarrow> ('a \<times> 'b) set"
 where "to_relation f X = {(x, f x) | x . x \<in> X}"

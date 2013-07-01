@@ -128,10 +128,4 @@ fun partition :: "'a list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> 'a s
   "partition a (x # xs) = {}"
 *)
 
-code_include Scala ""
-{*package partition
-*}
-export_code all_partitions_fun in Scala
-module_name Partition file "code/partition.scala"
-
 end
