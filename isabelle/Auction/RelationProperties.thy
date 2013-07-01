@@ -37,7 +37,7 @@ fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
 where "eval_rel R a = the_elem (R `` {a})"
 
 fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
-where "eval_rel_or R a z = (let B = R `` {a} in if card B = 1 then the_elem B else z)"
+where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
 
 definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a set) \<Rightarrow> ('a \<times> 'b) set"
 where "to_relation f X = {(x, f x) | x . x \<in> X}"
