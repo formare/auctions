@@ -118,6 +118,15 @@ fun all_partitions_fun :: "'a::linorder set \<Rightarrow> 'a set set set"
 (* example using the set representation *)
 value "all_partitions_fun {1::nat,2,3,4}"
 
+find_consts "'a list => 'a set"
+
+definition "all_partitions_classical" where 
+"all_partitions_classical XX = {X . \<Union> X = XX & (\<forall> x1 \<in> X . \<forall> x2 \<in> X - {x1}. x1 \<inter> x2 = {})}"
+
+lemma "\<forall> x. (all_partitions_classical {x} = all_partitions_fun {x})"
+proof -
+qed
+
 (* testing allPartitions *)
 (*
 lemma "{{1::nat}} \<in> allPartitions {1::nat}" (is "?P \<in> allPartitions ?A")

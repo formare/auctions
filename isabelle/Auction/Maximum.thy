@@ -137,12 +137,15 @@ fun arg_max_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linord
 text{* the indices of the maximum values of the elements of a list *}
 fun max_positions :: "'a::ord list \<Rightarrow> nat list" 
 where "max_positions [] = []"
-    | "max_positions [x] = [0]"
-    | "max_positions (x # xs) = (let max_pos_xs = max_positions xs; prev_max = xs ! hd max_pos_xs in
-        if x < prev_max then map (op+ 1) max_pos_xs (* increment position indices *)
-        else if x > prev_max then [0] (* start over with new list; currently, maximum is attained at list position 0 *)
-        else 0 # map (op+ 1) max_pos_xs (* prepend 0 and increment other position indices *)
+    (*| "max_positions [x] = [0]" enable the ... = [] condition in the case check below to get rid of this artificial step, but you will slow down computation (?) *)
+    | "max_positions (x # xs) = (let 
+        prevout = max_positions xs; prev_max = xs ! hd prevout; lsucc=map Suc in
+        if x > prev_max \<or> prevout=[] then [0] (* increment position indices *)
+        else if x < prev_max then lsucc prevout (* start over with new list; currently, maximum is attained at list position 0 *)
+        else 0 # lsucc prevout (* prepend 0 and increment other position indices *)
     )"
+
+value "max_positions [1::nat,3,2,3,1::nat]"
 
 fun maximum_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
   where "maximum_comp_list [] b = undefined" (* TODO CL: check how generated code can throw an exception in this case *)
