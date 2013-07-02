@@ -245,7 +245,6 @@ definition sga_goods :: goods where "sga_goods = {1::nat}"
 definition sga_bids :: "(participant \<Rightarrow> price) \<Rightarrow> bids"
 where "sga_bids b = (\<lambda> bidder goods . (
       if goods = sga_goods then b bidder else 0))"
-*)
 
 value "hd (winning_allocations_comp_CL
   sga_goods
