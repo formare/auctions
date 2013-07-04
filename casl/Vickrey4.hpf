@@ -1,0 +1,143 @@
+#!hets -I
+
+# $Id: Vickrey-Vickrey-vickreyA.hpf 840 2013-03-11 22:19:46Z till $
+# 
+# Auction Theory Toolbox
+# 
+# Authors:
+# * Christoph Lange <math.semantic.web@gmail.com>
+# * Till Mossakowski <till.mossakowski@dfki.de>
+# 
+# Dually licenced under
+# * Creative Commons Attribution (CC-BY) 3.0
+# * ISC License (1-clause BSD License)
+# See LICENSE file for details
+# (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+
+use Vickrey.casl
+
+
+###########################
+dg basic Vickrey
+
+set goals case_1_pre06
+set axioms second_price_auction_winners_payment_def ge_def arg_max_set_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids deviation_vec_range deviation_range second_price_auction_winner_def maximum_greater_or_equal_remaining_maximum i_sticks_with_valuation_def allocated_implies_spa_winner
+prove
+
+set goals case_1_pre10
+set axioms refl gt_def second_price_auction_winners_payment_def ge_def x_ge_y arg_max_set_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids antisym deviation_def_index deviation_vec_range deviation_range deviation_vec_def trans maximum_is_greater_or_equal second_price_auction_winner_def remaining_maximum_invariant i_sticks_with_valuation_def allocated_implies_spa_winner only_max_bidder_wins case_1_pre06 second_price_auction_winner_payoff winners_payoff_on_deviation_from_valuation
+prove
+
+set goals case_1a_00
+set axioms refl gt_def second_price_auction_winners_payment_def ge_def arg_max_set_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids antisym deviation_def_index deviation_vec_range deviation_range deviation_vec_def trans maximum_is_greater_or_equal second_price_auction_winner_def maximum_greater_or_equal_remaining_maximum remaining_maximum_invariant i_sticks_with_valuation_def allocated_implies_spa_winner only_max_bidder_wins case_1_pre06 second_price_auction_winner_payoff winners_payoff_on_deviation_from_valuation
+prove
+
+set goals case_1a_01
+set axioms refl gt_def second_price_auction_winners_payment_def ge_def arg_max_set_def antisym deviation_def_index deviation_vec_range deviation_range deviation_vec_def trans maximum_is_greater_or_equal second_price_auction_winner_def i_sticks_with_valuation_def allocated_implies_spa_winner only_max_bidder_wins case_1_pre06 case_1a_00 second_price_auction_winner_payoff
+prove
+
+set goals case_1a_02
+set axioms refl gt_def case_1_pre10 case_1a_01
+prove
+
+set goals case_1b_00
+set axioms i_sticks_with_valuation_def second_price_auction_loser_payoff
+prove
+
+set goals case_1b_01
+set axioms ge_def case_1_pre10 case_1b_00
+prove
+
+set goals case_1z_combined_00
+set axioms case_1b_00 case_1b_01 case_1a_02
+prove
+
+set goals case_1z_combined_01
+set axioms case_1b_00 case_1z_combined_00 case_1a_01
+prove
+
+set goals case_2_pre00
+set axioms deviation_vec_range deviation_range i_sticks_with_valuation_def second_price_auction_loser_payoff
+prove
+
+set goals case_2_pre01_i_bid_at_most_second
+set axioms gt_def second_price_auction_winners_payment_def deviation_vec_range deviation_vec_def deviation_range second_price_auction_winner_def i_sticks_with_valuation_def only_max_bidder_wins
+prove
+
+set goals case_2a_pre_00
+set axioms i_sticks_with_valuation_def
+prove
+
+set goals case_2a_pre_01
+set axioms second_price_auction_winners_payment_def second_price_auction_winner_payoff
+prove
+
+set goals case_2a_pre_02
+set axioms maximum_is_component ga_non_empty_sort_index refl gt_one_imp_gt_0 gt_def second_price_auction_winners_payment_def ge_def arg_max_set_def second_price_auction_def ga_non_empty_sort_bids antisym deviation_def_index deviation_vec_range deviation_vec_def trans maximum_is_greater_or_equal deviation_range deviation_def_otherwise second_price_auction_winner_def maximum_greater_or_equal_remaining_maximum remaining_maximum_invariant i_sticks_with_valuation_def maximum_except_is_greater_or_equal allocated_implies_spa_winner case_2_pre01_i_bid_at_most_second only_max_bidder_wins case_2_pre00 case_1a_01 case_1a_00 second_price_auction_winner_payoff winners_payoff_on_deviation_from_valuation
+prove
+
+set goals case_2a_00
+set axioms second_price_auction_winners_payment_def case_2a_pre_02
+prove
+
+set goals case_2a_01
+set axioms second_price_auction_winners_payment_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids deviation_def_index deviation_vec_def remaining_maximum_invariant i_sticks_with_valuation_def case_2a_pre_02
+prove
+
+set goals case_2a_02
+set axioms
+prove
+
+set goals case_2a_03
+set axioms
+prove
+
+set goals case_2b_00
+set axioms
+prove
+
+set goals case_2b_01
+set axioms refl equilibrium_weakly_dominant_strategy_def ge_def deviation_vec_range deviation_vec_def deviation_range i_sticks_with_valuation_def second_price_auction_loser_payoff
+set axioms
+prove
+
+set goals case_2z_combined_00
+#prover eprover
+set axioms
+prove
+
+set goals case_2z_combined_01
+#prover eprover
+set axioms
+prove
+
+set goals case_2z_combined_02
+#prover eprover
+set axioms
+prove
+
+set goals vickreyA_pre00
+#prover eprover
+set axioms
+prove
+
+set goals vickreyA_pre01
+set axioms cases_combined second_price_auction_def i_sticks_with_valuation_def refl deviation_range deviation_vec_range deviation_vec_def
+#prover eprover
+set axioms
+prove
+
+set goals vickreyA_pre02
+#prover eprover
+set axioms
+prove
+
+set goals vickreyA_pre03
+#prover eprover
+set axioms
+prove
+
+set goals vickreyA_pre04
+set axioms
+prove
+

@@ -1,0 +1,59 @@
+#!hets -I
+
+# $Id: Vickrey-Vickrey-vickreyA.hpf 840 2013-03-11 22:19:46Z till $
+# 
+# Auction Theory Toolbox
+# 
+# Authors:
+# * Christoph Lange <math.semantic.web@gmail.com>
+# * Till Mossakowski <till.mossakowski@dfki.de>
+# 
+# Dually licenced under
+# * Creative Commons Attribution (CC-BY) 3.0
+# * ISC License (1-clause BSD License)
+# See LICENSE file for details
+# (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+
+use Vickrey.casl
+
+###########################
+dg basic SecondPriceAuction
+set goals allocated_implies_spa_winner
+set axioms second_price_auction_def second_price_auction_loser_def
+prove #proved
+
+set goals not_allocated_implies_spa_loser
+set axioms second_price_auction_def second_price_auction_winner_def
+prove #proved
+
+set goals only_max_bidder_wins
+set axioms arg_restriction_p__LtEq__ arg_restriction_p__Gt___2 arg_restriction_p__Gt__ arg_restriction_inRange arg_restriction_inArgMaxSet declaration2 arg_restriction_secondPriceAuction arg_restriction_secondPriceAuctionWinner gt_one_imp_gt_0 gt_def dichotomy_TotalOrder declaration7 arg_max_set_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids antisym maximum_is_component deviation_range trans maximum_is_greater_or_equal second_price_auction_winner_def maximum_except_is_greater_or_equal
+prove #proved
+
+set goals second_price_auction_winner_payoff
+set axioms declaration17 arg_restriction_payments_2 arg_restriction_inRange arg_restriction_secondPriceAuction arg_restriction_allocated one_mult arg_restriction_secondPriceAuctionWinner arg_restriction_secondPriceAuctionLoser declaration6 second_price_auction_winners_payment_def declaration7 declaration12 deviation_vec_range deviation_vec_def deviation_range payoff_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids second_price_auction_loser_def second_price_auction_winner_def payoff_vector_def only_max_bidder_wins
+set time-limit 10000
+prove #open
+
+set goals second_price_auction_loser_payoff
+set axioms ga_disjoint_True_False zero_mult minus_0 payoff_def second_price_auction_def second_price_auction_loser_def not_allocated_implies_spa_loser payoff_vector_def
+set time-limit 10000
+prove #open
+
+set goals winners_payoff_on_deviation_from_valuation
+set axioms declaration0 arg_restriction_inRange arg_restriction_secondPriceAuction arg_restriction_allocated declaration6 second_price_auction_winners_payment_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids deviation_vec_def remaining_maximum_invariant second_price_auction_winner_payoff
+set time-limit 10000
+prove #open
+
+set goals test_spa_winner_payoff_0step
+set axioms allocated_implies_spa_winner_cons second_price_auction_winner_def payoff_vector_def
+prove #proved
+
+set goals test_spa_loser_payoff_0step
+set axioms not_allocated_implies_spa_loser_cons second_price_auction_loser_def payoff_vector_def
+set time-limit 10000
+prove
+
+set goals test_spa_winner_payoff_3step
+set time-limit 10000
+prove

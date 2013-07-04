@@ -14,16 +14,11 @@
 # See LICENSE file for details
 # (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 
-# Proves Vickrey/Vickrey#vickreyA
-
 use Vickrey.casl
-dg basic MainTheorems
-set goals vickreyA
-set axioms vickreyA_pre04 deviation_def_index deviation_range exists_different
-prove # proved
 
-set goals vickreyB
-set axioms second_price_auction_def allocation_def second_price_auction_winner_def efficient_def
-prove # proved
-
+########################### everything proved
+dg basic Maximum
+set goals only_one_maximum
+set axioms ga_non_empty_sort_index arg_restriction_p__LtEq__ arg_restriction_p__Gt___2 arg_restriction_inRange arg_restriction_inArgMaxSet declaration2 gt_one_imp_gt_0 declaration6 declaration7 arg_max_set_def antisym maximum_is_component deviation_range trans maximum_is_greater_or_equal maximum_except_is_greater_or_equal
+prove
 

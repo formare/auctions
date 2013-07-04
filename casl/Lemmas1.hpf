@@ -41,8 +41,9 @@ prove # proved
 # only_max_bidder_wins needed here???
 
 set goals test_spa_winner_payoff_0step
-prover eprover
-set time-limit 10000
+set axioms arg_restriction_payments_2 arg_restriction_allocated arg_restriction_secondPriceAuctionWinner arg_restriction_allocatedImpliesSpaWinnerCons allocated_implies_spa_winner_cons second_price_auction_winner_def payoff_vector_def only_max_bidder_wins not_allocated_implies_spa_loser allocated_implies_spa_winner goals only_one_maximum allocation_unique
+#prover eprover
+set time-limit 80000
 prove # proved
 
 dg basic Lemmas1a
