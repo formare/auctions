@@ -85,25 +85,26 @@ set axioms second_price_auction_winners_payment_def second_price_auction_def ga_
 prove
 
 set goals case_2a_02
-set time-limit 10000
+set time-limit 40000
+prover eprover
 prove
 
 set goals case_2a_03
-set time-limit 10000
+set time-limit 40000
+prover eprover
 prove
 
 set goals case_2b_00
-set time-limit 10000
+set axioms i_sticks_with_valuation_def second_price_auction_loser_payoff
 prove
 
 set goals case_2b_01
-set axioms refl equilibrium_weakly_dominant_strategy_def ge_def deviation_vec_range deviation_vec_def deviation_range i_sticks_with_valuation_def second_price_auction_loser_payoff
-set time-limit 10000
+set axioms case_2_pre00 case_2b_00 case_1b_00
 prove
 
 set goals case_2z_combined_00
-#prover eprover
-set time-limit 10000
+set time-limit 40000
+prover eprover
 prove
 
 set goals case_2z_combined_01
