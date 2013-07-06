@@ -709,6 +709,12 @@ end
 
 spec Vickrey =
 VickreyPre then
+    forall v: Valuations;
+           n: Participants;
+           x: Allocation;
+           p: Payments;
+           i: Participant;
+           whateverBid, iSticksWithValuation: Bids
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
       =>
       length(v) = n /\
