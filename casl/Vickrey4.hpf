@@ -18,7 +18,7 @@ use Vickrey.casl
 
 
 ###########################
-dg basic Vickrey
+dg basic VickreyPre
 
 set goals case_1_pre06
 set axioms second_price_auction_winners_payment_def ge_def arg_max_set_def second_price_auction_def ga_non_empty_sort_index ga_non_empty_sort_bids deviation_vec_range deviation_range second_price_auction_winner_def maximum_greater_or_equal_remaining_maximum i_sticks_with_valuation_def allocated_implies_spa_winner
@@ -114,31 +114,6 @@ prove
 
 set goals case_2z_combined_02
 #prover eprover
-set time-limit 10000
-prove
-
-set goals vickreyA_pre00
-#prover eprover
-set time-limit 10000
-prove
-
-set goals vickreyA_pre01
-set axioms cases_combined second_price_auction_def i_sticks_with_valuation_def refl deviation_range deviation_vec_range deviation_vec_def
-#prover eprover
-set time-limit 10000
-prove
-
-set goals vickreyA_pre02
-#prover eprover
-set time-limit 10000
-prove
-
-set goals vickreyA_pre03
-#prover eprover
-set time-limit 10000
-prove
-
-set goals vickreyA_pre04
 set time-limit 10000
 prove
 

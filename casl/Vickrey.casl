@@ -520,7 +520,7 @@ MaximumReal then
     %[  payoff(v, b, x, p, winner) = v[winner] - maximumExcept(b, winner) %(test_spa_winner_payoff_if_exists)% %implied]%
 end
 
-spec Vickrey =
+spec VickreyPre =
 SecondPriceAuction then
 SingleGoodAuctionProperties then
     %[ proved with
@@ -705,6 +705,10 @@ SingleGoodAuctionProperties then
       not allocated(x, iSticksWithValuation, i) %[ i won by truthful bidding ]%
       =>
       payoff(v, whateverBid, x, p, i) <= payoff(v, iSticksWithValuation, x, p, i) %(case_2z_combined_02)% %implied %[ eprover ]%
+end
+
+spec Vickrey =
+VickreyPre then
     . spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation)
       =>
       length(v) = n /\

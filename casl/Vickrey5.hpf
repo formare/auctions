@@ -16,13 +16,32 @@
 
 use Vickrey.casl
 
-########################### everything proved
 
-dg basic Vickrey_proof
-set goals vickreyA
-set axioms vickreyA_pre04 deviation_def_index deviation_range exists_different
+###########################
+dg basic Vickrey
+
+set goals vickreyA_pre00
+#prover eprover
+set time-limit 20000
 prove
 
-set goals vickreyB
-set axioms second_price_auction_def allocation_def second_price_auction_winner_def efficient_def
+set goals vickreyA_pre01
+set axioms cases_combined second_price_auction_def i_sticks_with_valuation_def refl deviation_range deviation_vec_range deviation_vec_def
+#prover eprover
+set time-limit 20000
 prove
+
+set goals vickreyA_pre02
+#prover eprover
+set time-limit 20000
+prove
+
+set goals vickreyA_pre03
+#prover eprover
+set time-limit 20000
+prove
+
+set goals vickreyA_pre04
+set time-limit 20000
+prove
+
