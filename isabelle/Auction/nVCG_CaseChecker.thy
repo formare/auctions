@@ -81,10 +81,6 @@ type_synonym payments = "participant \<Rightarrow> price"
 
 type_synonym combinatorial_auction = "((goods \<times> participant set \<times> bids) \<times> (allocation_rel \<times> payments)) set"
 
-(* a particular example for bids: *)
-definition b_example :: bids
-where "b_example x y = x"
-
 (* example: break ties by preferring an arbitrary allocation (we omit type annotations so that we can use this with 
    both relational and functional allocation) *)
 definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x = (THE y . y \<in> x)"
@@ -180,7 +176,7 @@ value "winning_allocations_comp_CL
   paper_example_participants
   paper_example_bids"
 
-definition winning_allocations_comp_MC where 
+fun winning_allocations_comp_MC where 
 "winning_allocations_comp_MC G N b = (let all = possible_allocations_comp G N in
   map (nth all) (max_positions (map (revenue_rel b) all)))"
 
@@ -196,7 +192,7 @@ definition \<alpha> :: "goods \<Rightarrow> participant set \<Rightarrow> bids \
 where "\<alpha> G N b n = max_revenue G (N - {n}) b"
 
 (* computational version of \<alpha> *)
-definition \<alpha>_comp :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+fun \<alpha>_comp :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha>_comp G N b n = max_revenue_comp G (N - {n}) b"
 
 (* those goods that are allocated to someone who gets some goods *)
@@ -214,7 +210,7 @@ where "remaining_value_rel G N t b n =
   (\<Sum> m \<in> N - {n} . b m (eval_rel_or (inverse (t (winning_allocations_rel G N b))) m {}))"
 
 (* the value of those goods that one participant wins to the remaining participants (computable version) *)
-definition remaining_value_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+fun remaining_value_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "remaining_value_comp G N t b n =
   (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
@@ -235,8 +231,24 @@ definition payments_rel :: "goods \<Rightarrow> participant set \<Rightarrow> ti
 where "payments_rel G N t = \<alpha> G N - remaining_value_rel G N t"
 
 (* the payments (computational version) *)
-definition payments_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+fun payments_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_comp G N t = \<alpha>_comp G N - remaining_value_comp G N t"
+
+(* the payments (computational version, expanded to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
+   until Isabelle2014 fixes the bug; see https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00024.html) *)
+fun payments_comp_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+where "payments_comp_workaround G N t b n = 
+  (* \<alpha>_comp G N *) max_revenue_comp G (N - {n}) b
+  -
+  (* remaining_value_comp G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
+    (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
+       but we interpret this case as if 'the empty set' had been allocated to the participant. *)
+    (inverse 
+      (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
+      (t (winning_allocations_comp_CL G N b)))
+    m (* evaluate the relation for participant m *)
+    {} (* return the empty set if nothing is in relation with m *)
+  ))"
 
 value "{(n, payments_comp paper_example_goods paper_example_participants hd paper_example_bids n) | n . n \<in> paper_example_participants}"
 
@@ -272,7 +284,7 @@ where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
 code_include Scala ""
 {*package CombinatorialVickreyAuction
 *}
-export_code winning_allocations_comp_CL payments_comp in Scala
+export_code winning_allocations_comp_CL payments_comp_workaround in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 module_name CombinatorialVickreyAuction file "code/CombinatorialVickreyAuction.scala"
 
