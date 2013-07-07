@@ -74,10 +74,17 @@ fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
 fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
-(* classical set theory definition of "all partitions of a set" *)
-definition "all_partitions_classical" where 
-"all_partitions_classical A = {P . \<Union> P = A \<and> (\<forall> ec1 \<in> P . \<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {})}"
+(* definition of a partition (without saying of what set it is a partition) *)
+definition is_partition where
+"is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 
-(* TODO CL: integrate proofs from a.thy and b.thy here *)
+(* checks whether something is a partition of a given set *)
+definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
+
+(* classical set theory definition of "all partitions of a set" *)
+definition all_partitions_classical where 
+"all_partitions_classical A = {P . is_partition_of P A}"
+
+(* TODO CL: integrate further material from a.thy and b.thy here *)
 
 end

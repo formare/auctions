@@ -1,28 +1,29 @@
 theory a
-imports Main 
+imports Main
+  Partitions
 begin
 
-definition is_partition where 
-"is_partition X = (\<forall> x1 \<in> X . x1 \<noteq> {} & (\<forall> x2 \<in> X - {x1}. x1 \<inter> x2 = {}))"
 
-definition is_partition_of where "is_partition_of X XX = ((\<Union> X = XX) & is_partition X)"
-
-lemma a1: fixes XX X assumes "is_partition_of X XX" shows " X \<subseteq> Pow XX"
+lemma partition_contains_subsets:
+  fixes A P
+  assumes "is_partition_of P A"
+  shows "P \<subseteq> Pow A"
 proof -
-(* fix XX X *)
-(* assume 1: "is_partition_of X XX"*)
-have "X \<subseteq> Pow (\<Union> X)" using subset_Pow_Union by blast
-thus "X \<subseteq> Pow XX" using is_partition_of_def assms by (metis Pow_def)
+  have "P \<subseteq> Pow (\<Union> P)" by fast
+  with assms show "P \<subseteq> Pow A" using is_partition_of_def by metis
 qed
 
-lemma a2: fixes x shows "Pow {x} = {{},{x}}" using Pow_insert by (metis Pow_empty Un_empty_left Un_insert_left image_empty image_insert)
+lemma Pow_example: "Pow {x} = {{},{x}}" by fast (* CL@MC: no sledgehammering required *)
 
-lemma a3: fixes x X assumes "is_partition_of X {x}" shows "X={{x}}"
+lemma partition_of_singleton:
+  fixes x A
+  assumes "is_partition_of A {x}"
+  shows "A={{x}}"
 proof -
-have 1: "X \<subseteq> {{},{x}}" using a1 a2 assms by blast
-have 2: "\<not> {} \<in> X" using is_partition_def assms is_partition_of_def by metis
-have 3: "X \<noteq> {}" using 1 2 assms by (metis Collect_mem_eq Sup_empty insert_compr insert_not_empty is_partition_of_def)
-thus "X={{x}}" using 1 2 3 assms by (smt all_not_in_conv empty_subsetI in_mono insert_absorb2 insert_iff insert_mono insert_subset singleton_iff subsetI subset_antisym)
+  have 1: "A \<subseteq> {{},{x}}" using partition_contains_subsets Pow_example assms by blast
+  moreover have 2: "\<not> {} \<in> A" using is_partition_def assms is_partition_of_def by metis
+  moreover have 3: "A \<noteq> {}" using assms by (metis Sup_empty insert_not_empty is_partition_of_def)
+  ultimately show "A={{x}}" using assms by (smt all_not_in_conv empty_subsetI in_mono insert_absorb2 insert_iff insert_mono insert_subset singleton_iff subsetI subset_antisym)
 qed
 
 lemma a5: fixes x shows "is_partition {{x}}" using is_partition_def by auto
@@ -34,7 +35,7 @@ have "\<Union> {{x}} = {x}" by simp *)
 show "is_partition_of {{x}} {x}" using a5 is_partition_of_def by fastforce
 qed
 
-lemma a4: fixes x X shows "is_partition_of X {x} = (X={{x}})" using a3 a6 by fast
+lemma a4: fixes x X shows "is_partition_of X {x} = (X={{x}})" using partition_of_singleton a6 by fast
 
 (* compared to the above, the one below is an even more paper-like definition of "all partitions" *)
 definition all_partitions_classical where "all_partitions_classical XX = 
