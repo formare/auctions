@@ -1,0 +1,7 @@
+# TODO CL: convert to ant script
+
+CombinatorialVickreyAuctionCATS/CombinatorialVickreyAuctionCATS.class: CombinatorialVickreyAuction/CombinatorialVickreyAuction.class
+	scalac CombinatorialVickreyAuctionCATS.scala
+
+CombinatorialVickreyAuction/CombinatorialVickreyAuction.class:
+	scalac CombinatorialVickreyAuction.scala

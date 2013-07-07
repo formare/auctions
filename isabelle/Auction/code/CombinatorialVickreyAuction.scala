@@ -258,12 +258,6 @@ def sup_set[A : equal](x0: set[A], a: set[A]): set[A] = (x0, a) match {
     fold[A, set[A]]((aa: A) => (b: set[A]) => insert[A](aa, b), xs, a)
 }
 
-trait minus[A] {
-  val `CombinatorialVickreyAuction.minus`: (A, A) => A
-}
-def minus[A](a: A, b: A)(implicit A: minus[A]): A =
-  A.`CombinatorialVickreyAuction.minus`(a, b)
-
 implicit def equal_int: equal[BigInt] = new equal[BigInt] {
   val `CombinatorialVickreyAuction.equal` = (a: BigInt, b: BigInt) => a == b
 }
@@ -490,14 +484,6 @@ implicit def zero_real: zero[real] = new zero[real] {
   val `CombinatorialVickreyAuction.zero` = zero_reala
 }
 
-def minus_funa[A, B : minus](a: A => B, b: A => B, x: A): B =
-  minus[B](a(x), b(x))
-
-implicit def minus_fun[A, B : minus]: minus[A => B] = new minus[A => B] {
-  val `CombinatorialVickreyAuction.minus` = (a: A => B, b: A => B, c: A) =>
-    minus_funa[A, B](a, b, c)
-}
-
 def equal_reala(x0: real, x1: real): Boolean = (x0, x1) match {
   case (Ratreal(x), Ratreal(y)) => equal_rat(x, y)
 }
@@ -505,15 +491,6 @@ def equal_reala(x0: real, x1: real): Boolean = (x0, x1) match {
 implicit def equal_real: equal[real] = new equal[real] {
   val `CombinatorialVickreyAuction.equal` = (a: real, b: real) =>
     equal_reala(a, b)
-}
-
-def minus_reala(x0: real, x1: real): real = (x0, x1) match {
-  case (Ratreal(x), Ratreal(y)) => Ratreal(minus_rat(x, y))
-}
-
-implicit def minus_real: minus[real] = new minus[real] {
-  val `CombinatorialVickreyAuction.minus` = (a: real, b: real) =>
-    minus_reala(a, b)
 }
 
 implicit def preorder_real: preorder[real] = new preorder[real] {
@@ -526,6 +503,10 @@ implicit def order_real: order[real] = new order[real] {
   val `CombinatorialVickreyAuction.less_eq` = (a: real, b: real) =>
     less_eq_real(a, b)
   val `CombinatorialVickreyAuction.less` = (a: real, b: real) => less_real(a, b)
+}
+
+def minus_real(x0: real, x1: real): real = (x0, x1) match {
+  case (Ratreal(x), Ratreal(y)) => Ratreal(minus_rat(x, y))
 }
 
 trait ab_semigroup_add[A] extends semigroup_add[A] {
@@ -614,6 +595,18 @@ implicit def comm_monoid_add_real: comm_monoid_add[real] = new
 def eval_rel[A : equal, B](r: set[(A, B)], a: A): B =
   the_elem[B](imagea[A, B](r, insert[A](a, bot_set[A])))
 
+def revenue_rel(b: Nat => (set[Nat]) => real, buyer: set[(set[Nat], Nat)]):
+      real =
+  setsum[set[Nat],
+          real]((y: set[Nat]) => (b(eval_rel[set[Nat], Nat](buyer, y)))(y),
+                 domain[set[Nat], Nat](buyer))
+
+def eval_rel_or[A : equal, B : equal](r: set[(A, B)], a: A, z: B): B =
+  {
+    val im: set[B] = imagea[A, B](r, insert[A](a, bot_set[A]));
+    (if (card[B](im) == Nat(1)) the_elem[B](im) else z)
+  }
+
 def injective_functions_list[A : equal,
                               B : equal : linorder](x0: List[A], ys: List[B]):
       List[set[(A, B)]] =
@@ -666,27 +659,11 @@ def possible_allocations_comp(g: set[Nat], n: set[Nat]):
   injective_functions_list[set[Nat], Nat](y, sorted_list_of_set[Nat](n))),
                       all_partitions_fun_list[Nat](sorted_list_of_set[Nat](g)))
 
-def revenue_rel(b: Nat => (set[Nat]) => real, buyer: set[(set[Nat], Nat)]):
-      real =
-  setsum[set[Nat],
-          real]((y: set[Nat]) => (b(eval_rel[set[Nat], Nat](buyer, y)))(y),
-                 domain[set[Nat], Nat](buyer))
-
 def max_revenue_comp(g: set[Nat], n: set[Nat], b: Nat => (set[Nat]) => real):
       real =
   maximum_comp_list[set[(set[Nat], Nat)],
                      real](possible_allocations_comp(g, n),
                             (a: set[(set[Nat], Nat)]) => revenue_rel(b, a))
-
-def alpha_comp(g: set[Nat], na: set[Nat], b: Nat => (set[Nat]) => real, n: Nat):
-      real =
-  max_revenue_comp(g, remove[Nat](n, na), b)
-
-def eval_rel_or[A : equal, B : equal](r: set[(A, B)], a: A, z: B): B =
-  {
-    val im: set[B] = imagea[A, B](r, insert[A](a, bot_set[A]));
-    (if (card[B](im) == Nat(1)) the_elem[B](im) else z)
-  }
 
 def winning_allocations_comp_CL(g: set[Nat], n: set[Nat],
                                  b: Nat => (set[Nat]) => real):
@@ -695,27 +672,17 @@ def winning_allocations_comp_CL(g: set[Nat], n: set[Nat],
                      real](possible_allocations_comp(g, n),
                             (a: set[(set[Nat], Nat)]) => revenue_rel(b, a))
 
-def remaining_value_comp(g: set[Nat], na: set[Nat],
-                          t: (List[set[(set[Nat], Nat)]]) =>
-                               set[(set[Nat], Nat)],
-                          b: Nat => (set[Nat]) => real, n: Nat):
+def payments_comp_workaround(g: set[Nat], na: set[Nat],
+                              t: (List[set[(set[Nat], Nat)]]) =>
+                                   set[(set[Nat], Nat)],
+                              b: Nat => (set[Nat]) => real, n: Nat):
       real =
-  setsum[Nat, real]((m: Nat) =>
-                      (b(m))(eval_rel_or[Nat,
-  set[Nat]](inverse[set[Nat], Nat](t(winning_allocations_comp_CL(g, na, b))), m,
-             bot_set[Nat])),
-                     remove[Nat](n, na))
-
-def payments_comp(g: set[Nat], n: set[Nat],
-                   t: (List[set[(set[Nat], Nat)]]) => set[(set[Nat], Nat)]):
-      (Nat => (set[Nat]) => real) => Nat => real =
-  (a: Nat => (set[Nat]) => real) =>
-    minus_funa[Nat => (set[Nat]) => real,
-                Nat =>
-                  real]((aa: Nat => (set[Nat]) => real) =>
-                          (b: Nat) => alpha_comp(g, n, aa, b),
-                         (aa: Nat => (set[Nat]) => real) =>
-                           (b: Nat) => remaining_value_comp(g, n, t, aa, b),
-                         a)
+  minus_real(max_revenue_comp(g, remove[Nat](n, na), b),
+              setsum[Nat, real]((m: Nat) =>
+                                  (b(m))(eval_rel_or[Nat,
+              set[Nat]](inverse[set[Nat],
+                                 Nat](t(winning_allocations_comp_CL(g, na, b))),
+                         m, bot_set[Nat])),
+                                 remove[Nat](n, na)))
 
 } /* object CombinatorialVickreyAuction */
