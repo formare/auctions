@@ -29,12 +29,8 @@ definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Righta
 value "{1::nat} // {(1::nat,1::nat)}"
 *)
 
-(* an inference rule needed below *)
-
+(* an inference rule needed below; combines Set.equalityI and Set.subsetI *)
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
-
-
-lemma "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by auto
 
 (* testing a concrete partition, this time not with "value" *)
 (*
