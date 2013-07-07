@@ -27,22 +27,9 @@ definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Righta
 (* an inference rule needed below; combines Set.equalityI and Set.subsetI *)
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
 
-(* The following definition is well-defined but not computable: *)
-definition allPartitions :: "'a set \<Rightarrow> 'a set set set"
-  where "allPartitions A = { P . (* all sets P such that \<dots> *)
-    (* thought we'd need something like this for computability:
-    P \<in> Pow (Pow A) (* P is a set of subsets of A,
-                       i.e. a subset of the set of all subsets of A,
-                       i.e. a subset of the powerset of A,
-                       i.e. a member of the powerset of the powerset of A.
-                       We need this only for computability; otherwise 'P = A // e' would do the job. *)
-    \<and> *)
-    (\<exists> R . (* There is an R such that \<dots> *)
-      equiv A R (* R is an equivalence relation on A *)
-      \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
-    ) }"
+(*
+Enumerating all partitions of a set by example:
 
-(* 
 Set: {a}
 Partitions: {{a}}
 
@@ -54,6 +41,23 @@ Partitions: {{a}, {b}, {c}}, {{a,b}, {c}}, {{a,c}, {b}}, {{a}, {c,b}}, {{a,b,c}}
 
 http://en.wikipedia.org/wiki/Bell_number (number of partitions of a set = number of equivalence relations on a set)
 *)
+
+(* The following definition of "all partitions of a set" (defined as the set of all 
+   quotients of the set by all equivalence relations on the set)
+   is well-defined but not computable: *)
+definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
+  where "all_partitions_wrt_equiv A = { P . (* all sets P such that \<dots> *)
+    (* thought we'd need something like this for computability:
+    P \<in> Pow (Pow A) (* P is a set of subsets of A,
+                       i.e. a subset of the set of all subsets of A,
+                       i.e. a subset of the powerset of A,
+                       i.e. a member of the powerset of the powerset of A.
+                       We need this only for computability; otherwise 'P = A // e' would do the job. *)
+    \<and> *)
+    (\<exists> R . (* There is an R such that \<dots> *)
+      equiv A R (* R is an equivalence relation on A *)
+      \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
+    ) }"
 
 fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
   where "all_partitions_fun_list [] = []"
@@ -70,11 +74,10 @@ fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
 fun all_partitions_fun :: "'a::linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
+(* classical set theory definition of "all partitions of a set" *)
 definition "all_partitions_classical" where 
-"all_partitions_classical XX = {X . \<Union> X = XX & (\<forall> x1 \<in> X . \<forall> x2 \<in> X - {x1}. x1 \<inter> x2 = {})}"
+"all_partitions_classical A = {P . \<Union> P = A \<and> (\<forall> ec1 \<in> P . \<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {})}"
 
-lemma "\<forall> x. (all_partitions_classical {x} = all_partitions_fun {x})"
-proof -
-oops
+(* TODO CL: integrate proofs from a.thy and b.thy here *)
 
 end

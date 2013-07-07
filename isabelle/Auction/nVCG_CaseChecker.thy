@@ -113,7 +113,7 @@ where "revenue_fun b Yp  = (let Y = fst Yp; buyer = snd Yp in
 
 (* the set of possible allocations of a set of goods to a set of participants (assuming relational allocations) *)
 definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
-where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> allPartitions G . 
+where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_partitions_classical G . 
   Domain potential_buyer \<subseteq> Y
   \<and> Range potential_buyer \<subseteq> N
   \<and> right_unique potential_buyer (* no longer need totality on Y as we are allowing for goods not to be allocated *)
@@ -133,7 +133,7 @@ value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
 (* the set of possible allocations of a set of goods to a set of participants (assuming functional allocations) *)
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
-  Y \<in> allPartitions G
+  Y \<in> all_partitions_classical G
   \<and> (\<forall> y \<in> Y . (\<exists> n \<in> N . potential_buyer y = Some n) \<or> potential_buyer y = None)
   \<and> inj_on potential_buyer Y
  }"
