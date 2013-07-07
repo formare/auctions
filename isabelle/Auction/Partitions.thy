@@ -71,7 +71,7 @@ fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
         )"
 
 (* need to turn 'a set list list into 'a set set set *)
-fun all_partitions_fun :: "'a::linorder set \<Rightarrow> 'a set set set"
+fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
 (* classical set theory definition of "all partitions of a set" *)
