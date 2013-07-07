@@ -286,7 +286,7 @@ code_include Scala ""
 *}
 export_code winning_allocations_comp_CL payments_comp_workaround in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
-module_name CombinatorialVickreyAuction file "code/CombinatorialVickreyAuction.scala"
+file "code/CombinatorialVickreyAuction.scala"
 
 end
 
