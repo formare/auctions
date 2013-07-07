@@ -30,9 +30,11 @@ value "{1::nat} // {(1::nat,1::nat)}"
 *)
 
 (* an inference rule needed below *)
-(*
+
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
-*)
+
+
+lemma "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by auto
 
 (* testing a concrete partition, this time not with "value" *)
 (*
@@ -76,14 +78,6 @@ definition allPartitions :: "'a set \<Rightarrow> 'a set set set"
       \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
     ) }"
 
-(* compared to the above, the one below is an even more paper-like definition of "all partitions" *)
-definition allPartitionsStandardDefinition :: "'a set \<Rightarrow> 'a set set set"
-where "allPartitionsStandardDefinition A = { Y .
-  \<Union> Y = A
-  \<and> (\<forall> x \<in> Y . \<forall> y \<in> Y . x \<noteq> {}
-                         \<and> y \<noteq> {}
-                         \<and> x \<inter> y = {} ) }"
-
 (* 
 Set: {a}
 Partitions: {{a}}
@@ -116,7 +110,7 @@ fun all_partitions_fun :: "'a::linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
 (* example using the set representation *)
-value "all_partitions_fun {1::nat,2,3,4}"
+(* value "all_partitions_fun {1::nat,2,3,4}" *) 
 
 definition "all_partitions_classical" where 
 "all_partitions_classical XX = {X . \<Union> X = XX & (\<forall> x1 \<in> X . \<forall> x2 \<in> X - {x1}. x1 \<inter> x2 = {})}"
