@@ -25,13 +25,13 @@ proof -
   ultimately show "A = {{x}}" using assms by (metis subset_insert_iff subset_singletonD)
 qed
 
-lemma a5: fixes x shows "is_partition {{x}}" using is_partition_def by auto
+lemma singleton_partition_ex1: "is_partition {{x}}" unfolding is_partition_def by fast
 
 lemma a6: fixes x shows "is_partition_of {{x}} {x}"
 proof -
 (* fix x
 have "\<Union> {{x}} = {x}" by simp *)
-show "is_partition_of {{x}} {x}" using a5 is_partition_of_def by fastforce
+show "is_partition_of {{x}} {x}" using singleton_partition_ex1 is_partition_of_def by fastforce
 qed
 
 lemma a4: fixes x X shows "is_partition_of X {x} = (X={{x}})" using partition_of_singleton a6 by fast
