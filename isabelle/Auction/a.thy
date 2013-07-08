@@ -1,3 +1,6 @@
+(* Lemmas about partitions
+   TODO CL: (re)integrate into Partitions.thy when done *)
+
 theory a
 imports Main
   Partitions
