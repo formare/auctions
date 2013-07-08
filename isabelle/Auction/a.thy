@@ -3,7 +3,6 @@ imports Main
   Partitions
 begin
 
-
 lemma partition_contains_subsets:
   fixes A P
   assumes "is_partition_of P A"
@@ -18,11 +17,11 @@ lemma Pow_example: "Pow {x} = {{},{x}}" by fast (* CL@MC: no sledgehammering req
 lemma partition_of_singleton:
   fixes x A
   assumes "is_partition_of A {x}"
-  shows "A={{x}}"
+  shows "A = {{x}}"
 proof -
-  have 1: "A \<subseteq> {{},{x}}" using partition_contains_subsets Pow_example assms by blast
-  moreover have 2: "\<not> {} \<in> A" using is_partition_def assms is_partition_of_def by metis
-  moreover have 3: "A \<noteq> {}" using assms by (metis Sup_empty insert_not_empty is_partition_of_def)
+  from assms have "A \<subseteq> {{},{x}}" using partition_contains_subsets Pow_example by blast
+  moreover have "\<not> {} \<in> A" using assms unfolding is_partition_def is_partition_of_def by fast
+  moreover have "A \<noteq> {}" using assms by (metis Sup_empty insert_not_empty is_partition_of_def)
   ultimately show "A={{x}}" using assms by (smt all_not_in_conv empty_subsetI in_mono insert_absorb2 insert_iff insert_mono insert_subset singleton_iff subsetI subset_antisym)
 qed
 
