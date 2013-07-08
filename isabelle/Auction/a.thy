@@ -30,7 +30,8 @@ lemma singleton_partition_ex1: "is_partition {{x}}" unfolding is_partition_def b
 lemma singleton_partition_ex2: "is_partition_of {{x}} {x}"
 using singleton_partition_ex1 is_partition_of_def by fastforce
 
-lemma a4: fixes x X shows "is_partition_of X {x} = (X={{x}})" using partition_of_singleton singleton_partition_ex2 by fast
+lemma singleton_partition_ex3: "is_partition_of X {x} \<longleftrightarrow> (X = {{x}})"
+using partition_of_singleton singleton_partition_ex2 by fast
 
 (* compared to the above, the one below is an even more paper-like definition of "all partitions" *)
 definition all_partitions_classical where "all_partitions_classical XX = 
