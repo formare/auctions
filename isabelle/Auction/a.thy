@@ -22,7 +22,7 @@ proof -
   from assms have "A \<subseteq> {{},{x}}" using partition_contains_subsets Pow_example by blast
   moreover have "\<not> {} \<in> A" using assms unfolding is_partition_def is_partition_of_def by fast
   moreover have "A \<noteq> {}" using assms by (metis Sup_empty insert_not_empty is_partition_of_def)
-  ultimately show "A={{x}}" using assms by (smt all_not_in_conv empty_subsetI in_mono insert_absorb2 insert_iff insert_mono insert_subset singleton_iff subsetI subset_antisym)
+  ultimately show "A = {{x}}" using assms by (metis subset_insert_iff subset_singletonD)
 qed
 
 lemma a5: fixes x shows "is_partition {{x}}" using is_partition_def by auto
