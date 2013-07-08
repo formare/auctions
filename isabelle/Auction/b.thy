@@ -30,9 +30,11 @@ definition all_partitions_set where (* Simplify all these [map, set] occurrences
 (* Approach 2: Everythin's a set, except the very initial input, which is a list (of elements)
 because I don't know how to do recursive definitions on finite sets *)
 
-definition growpart 
-::"'a => ('a set \<times> ('a set set)) => 'a set set" 
-where "growpart e x=snd x - {fst x} \<union> {fst x \<union> {e}}"
+(* CL@MC: please document the intuition behind this!  It would take me a lot of time to figure
+   this out for myself by example. *)
+definition growpart
+::"'a \<Rightarrow> ('a set \<times> ('a set set)) \<Rightarrow> 'a set set" 
+where "growpart elem x=snd x - {fst x} \<union> {fst x \<union> {elem}}"
 
 definition childrenofpartition 
 ::"'a => ('a set set) => ('a set set set)" 
@@ -118,7 +120,7 @@ fix x
 fix n
 show "mypred x n"
 proof (rule nat.induct)
-  show "mypred x 0" using a7 mypred_def sorry
+  show "mypred x 0" using all_partitions_of_singleton mypred_def sorry
 next
   fix m
   assume "mypred x m"
