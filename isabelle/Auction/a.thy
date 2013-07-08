@@ -33,16 +33,12 @@ using singleton_partition_ex1 is_partition_of_def by fastforce
 lemma singleton_partition_ex3: "is_partition_of X {x} \<longleftrightarrow> (X = {{x}})"
 using partition_of_singleton singleton_partition_ex2 by fast
 
-(* compared to the above, the one below is an even more paper-like definition of "all partitions" *)
-definition all_partitions_classical where "all_partitions_classical XX = 
-{X . is_partition_of X XX}"
-
 lemma a7: fixes x shows "all_partitions_classical {x} = {{{x}}}" (* using 
 a1 a2 a3 all_partitions_classical_def *)
 proof -
   have "all_partitions_classical {x} = {X . is_partition_of X {x}}" 
   using all_partitions_classical_def by blast
-  also have "... = {X . X={{x}}}" using a4 by metis
+  also have "... = {X . X={{x}}}" using singleton_partition_ex3 by metis
   finally show ?thesis by force
 qed
 (*
