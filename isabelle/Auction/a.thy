@@ -33,14 +33,14 @@ using singleton_partition_ex1 is_partition_of_def by fastforce
 lemma singleton_partition_ex3: "is_partition_of X {x} \<longleftrightarrow> (X = {{x}})"
 using partition_of_singleton singleton_partition_ex2 by fast
 
-lemma a7: fixes x shows "all_partitions_classical {x} = {{{x}}}" (* using 
-a1 a2 a3 all_partitions_classical_def *)
+lemma all_partitions_of_singleton: "all_partitions_classical {x} = {{{x}}}"
 proof -
   have "all_partitions_classical {x} = {X . is_partition_of X {x}}" 
-  using all_partitions_classical_def by blast
-  also have "... = {X . X={{x}}}" using singleton_partition_ex3 by metis
+    using all_partitions_classical_def .
+  also have "\<dots> = {X . X={{x}}}" using singleton_partition_ex3 by metis
   finally show ?thesis by force
 qed
+
 (*
 lemma a8: fixes X Y assumes "is_partition Y" and "X \<subseteq> Y" shows "is_partition X"
 proof -
@@ -61,13 +61,6 @@ proof -
   moreover have "?A // R = ?P" unfolding R_def using partition_example .
   ultimately show "?thesis" unfolding allPartitions_def by auto
 qed
-*)
-
-(* TODO CL: implement computable function
-fun partition :: "'a list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> 'a set" where
-  "partition [] [] = {}" |
-  "partition (x # xs) b = {}" |
-  "partition a (x # xs) = {}"
 *)
 
 end
