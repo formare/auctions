@@ -22,16 +22,9 @@ PageStart();
   <li>*.hpf: proof scripts for Hets, whenever a lemma/theorem requires a multi-step proof:
     <ul>
       <li>general: <a href="Vickrey-consistency.hpf">consistency of all specs</a>
-      <li><code>spec SecondPriceAuction</code>:
-        <ul>
-          <li><a href="Vickrey-SecondPriceAuction-second_price_auction_loser_payoff.hpf">second_price_auction_loser_payoff</a></li>
-          <li><a href="Vickrey-SecondPriceAuction-second_price_auction_winner_payoff.hpf">second_price_auction_winner_payoff</a></li>
-          <li><a href="Vickrey-SecondPriceAuction-winners_payoff_on_deviation_from_valuation.hpf">winners_payoff_on_deviation_from_valuation</a></li>
-      </ul></li>
-      <li><code>spec Vickrey</code>:
-        <ul>
-          <li><a href="Vickrey-Vickrey-vickreyA.hpf">vickreyA</a> (incomplete)</li>
-      </ul></li>
+      <li><a href="Vickrey1.hpf">SingleGoodAuction.allocation_unique</a></li>
+      <li><a href="Vickrey2.hpf">Maximum.only_one_maximum</a></li>
+      <li>…</li>
     </ul>
   </li>
   <li>further relevant <a href="Makefile">Makefile</a> targets:
