@@ -20,5 +20,7 @@ use Vickrey.casl
 dg basic Maximum
 set goals only_one_maximum
 set axioms ga_non_empty_sort_index arg_restriction_p__LtEq__ arg_restriction_p__Gt___2 arg_restriction_inRange arg_restriction_inArgMaxSet declaration2 gt_one_imp_gt_0 declaration6 declaration7 arg_max_set_def antisym maximum_is_component deviation_range trans maximum_is_greater_or_equal maximum_except_is_greater_or_equal
+# CL@TM: the following is a shorter list, which I obtained by running this script without "set axioms"
+# set axioms ga_non_empty_sort_index maximum_is_component maximum_sufficient gt_one_imp_gt_0 arg_max_set_def antisym deviation_range trans maximum_is_greater_or_equal maximum_greater_or_equal_remaining_maximum maximum_except_is_greater_or_equal
 prove
 
