@@ -25,5 +25,7 @@ set axioms vickreyA_pre04 deviation_def_index deviation_range exists_different
 prove
 
 set goals vickreyB
-set time-limit 200
+# CL: 200 wasn't enough for me
+# set time-limit 200
+set time-limit 1000
 prove
