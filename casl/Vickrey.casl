@@ -290,8 +290,9 @@ MaximumReal then
     . secondPriceAuctionLoser(n, b, x, p, i) <=>
       inRange(n, i) /\
       not allocated(x, b, i) /\
-      payment(p, b, i) = 0 %(second_price_auction_loser_def)%
-    . secondPriceAuction(n, x, p) <=> %[ (x, p) is the outcome of a second price auction with n participants iff … ]%
+      payment(p, b, i) = 0                                       %(second_price_auction_loser_def)%
+    . secondPriceAuction(n, x, p) <=>
+      %[ (x, p) is the outcome of a second price auction with n participants iff … ]%
       n > 1 /\
       (forall b: Bids .
         length(b) = n
@@ -305,7 +306,7 @@ MaximumReal then
             inRange(n, j) /\
             not j = i
             =>
-            secondPriceAuctionLoser(n, b, x, p, j)))) %(second_price_auction_def)%
+            secondPriceAuctionLoser(n, b, x, p, j))))                  %(second_price_auction_def)%
     %[ CL@TM: The following lemmas were needed to enable Isabelle to do the proofs in the Vickrey theory.  If a FOL prover can prove the Vickrey theorems automatically, without further support, what's better:
        * leaving the following lemmas in place and just not proving them with Hets,
        * factoring them out to a separate theory (to make the original theory valid)
