@@ -1,8 +1,12 @@
+hetsbg
+MainTheorems.hpf
 Vickrey.casl
+Vickrey1.hpf
+Vickrey2.hpf
+Vickrey3.hpf
+Vickrey4.hpf
+Vickrey5.hpf
+Vickrey6.hpf
 Vickrey-consistency.hpf
-Vickrey-SecondPriceAuction-second_price_auction_loser_payoff.hpf
-Vickrey-SecondPriceAuction-second_price_auction_winner_payoff.hpf
-Vickrey-SecondPriceAuction-winners_payoff_on_deviation_from_valuation.hpf
-Vickrey-Vickrey-vickreyA.hpf
 Vickrey_SecondPriceAuction_only_max_bidder_wins.tptp
 Makefile
