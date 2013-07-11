@@ -52,6 +52,44 @@ object CombinatorialVickreyAuctionCATS {
 
   /** runs a combinatorial Vickrey auction, processing CATS-formatted data from standard input */
   def main(args: Array[String]) {
+    // http://www.cs.ubc.ca/~kevinlb/CATS/CATS-readme.html#4.%20%20File%20Formats
+
+    // Each program in this suite outputs a file with the following format:
+    
+    // % comments
+    
+    // ...
+    
+    // goods <NUMBER OF GOODS>
+    // bids <NUMBER OF BIDS>
+    // 0   <content of bid 0>
+    // 1   <content of bid 1>
+    // ...
+    // <NUMBER OF BIDS-2>  <content of bid NUMBER OF BIDS - 2>
+    // <NUMBER OF BIDS-1>  <content of bid NUMBER OF BIDS - 1>
+    
+    // where <content of bid i> (i between 0 and NUMBER OF BIDS-1, inclusive) represents:
+    
+    // <real number representing price>  <good i requested>  <good j requested>  ... <good k requested>  #
+    
+    // where each good number is between 0 and NUMBER OF GOODS-1
+    
+    // Informally, the file format is: any number of comment lines beginning with percent sign, the word "goods" followed by the total number of goods, on the next line, the word "bids" followed by the total number of bids.  Then each following line is the bid number, followed by the price, followed by each good-number requested, all terminated by a pound sign.  Each line that represents a bid is tab-delimited.
+
+    // TODO exception handling
+    val nGoodsRE = """goods\s+([0-9]+)""".r
+    val nGoodsRE(nGoods) = Console.readLine
+    val nBidsRE = """bids\s+([0-9]+)""".r
+    val nBidsRE(nBids) = Console.readLine
+    val bidRE = """([0-9])+\s+([0-9 \t])+""".r // TODO allow decimals in addition to integers
+    
+    for (bid <- 0 to nBids) yield
+      Console.readLine match {
+        case bidRE(bidder, content) => if (bidder == bid) else 0 /* throw exception */
+      }
+
+Iterator.continually(Console.readLine).takeWhile(""_ != "").foreach(line => println("read " + line))
+
     // CONVERT TO THE DATA STRUCTURES THE GENERATED CODE NEEDS
     val participantSet = paperExampleParticipants
     val goodsSet = paperExampleGoods
