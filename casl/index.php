@@ -22,11 +22,27 @@ PageStart();
   <li>*.hpf: proof scripts for Hets, whenever a lemma/theorem requires a multi-step proof:
     <ul>
       <li>general: <a href="Vickrey-consistency.hpf">consistency of all specs</a>
-      <li><a href="Vickrey1.hpf">SingleGoodAuction.allocation_unique</a></li>
-      <li><a href="Vickrey2.hpf">Maximum.only_one_maximum</a></li>
-      <li>…</li>
+      <li><a href="Vickrey1.hpf">SingleGoodAuction</a>:
+        <ul><li>allocation_unique</li></ul></li>
+      <li><a href="Vickrey2.hpf">Maximum</a>:
+        <ul><li>only_one_maximum</li></ul></li>
+      <li><a href="Vickrey3.hpf">SecondPriceAuction</a> (with some proofs not working in the current revision, indicated by a <s>stroke</s>):
+        <ul>
+          <li>allocate_implies_spa_winner</li>
+          <li>not_allocated_implies_spa_loser</li>
+          <li>only_max_bidder_wins</li>
+          <li><s>second_price_auction_winner_payoff</s></li>
+          <li>second_price_auction_loser_payoff</li>
+          <li><s>winners_payoff_on_deviation_from_valuation</s></li>
+          <li>… and further intermediate steps: test_spa_winner_payoff_0step, test_spa_loser_payoff_0step, test_spa_winner_payoff_3step</li>
+        </ul>
+      </li>
+      <li><a href="Vickrey4.hpf">VickreyPre</a> (lots of preliminaries and intermediate steps for the weak dominance part of Vickrey's theorem; some of them proved, some open in the current revision)</li>
+      <li><a href="Vickrey5.hpf">Vickrey</a> (preliminaries and intermediate steps for the efficiency part of Vickrey's theorem; open in the current revision)</li>
+      <li><a href="Vickrey6.hpf">Vickrey_proof</a> (the actual proof of Vickrey's theorem; open in the current revision)</li>
     </ul>
   </li>
+  <li><a href="hetsbg">Shell script to run hets in the background, to experiment with long timeouts for provers</a></li>
   <li>further relevant <a href="Makefile">Makefile</a> targets:
     <ul>
       <li>Use, e.g., <code>make Vickrey_Maximum.tptp</code> to export a <a href="http://www.cs.miami.edu/~tptp/">TPTP</a> <a href="http://www.cs.miami.edu/~tptp/TPTP/TR/TPTPTR.shtml">FOF</a> representation of the Maximum specification in Vickrey.casl.  This is suitable for feeding into <a href="http://www.cs.miami.edu/~tptp/cgi-bin/SystemOnTPTP">System on TPTP</a>.<br/>
