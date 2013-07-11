@@ -18,11 +18,23 @@
 
 use Vickrey.casl
 
+dg basic Boolean
+cons-checker darwin
+check-consistency
+
 dg basic Nat
 cons-checker darwin
 check-consistency
 
 dg basic Real
+cons-checker darwin
+check-consistency
+
+dg basic NonNegativeReal
+cons-checker darwin
+check-consistency
+
+dg basic PositiveReal
 cons-checker darwin
 check-consistency
 
@@ -54,6 +66,14 @@ dg basic SecondPriceAuction
 cons-checker darwin
 check-consistency
 
+dg basic VickreyPre
+cons-checker darwin
+check-consistency
+
 dg basic Vickrey
+cons-checker darwin
+check-consistency
+
+dg basic Vickrey_proof
 cons-checker darwin
 check-consistency
