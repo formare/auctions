@@ -13,6 +13,7 @@ object CombinatorialVickreyAuctionCATS {
   /** converts a Scala list to an Isabelle set.
    * Note that converting Int (hardware words) to Nat is OK, as it doesn't lose information, but converting vice versa is problematic when the Nat values are very large; then one should better convert to BigInt. */
   // TODO move to "SetCompanion" module
+  // TODO generalise to Something[Int]
   def intListToNatSet(l: List[Int]): set[Nat] = Seta(l.map(Nat(_)))
 
   /** equality for Isabelle sets (ignoring the order of the underlying List) */
@@ -25,13 +26,16 @@ object CombinatorialVickreyAuctionCATS {
   /** pretty-prints several Isabelle types for display to the user */
   // TODO CL: factor out to a module such as "IsabelleLibraryCompanion"
   def prettyPrint[A](x: A): String = x match {
-    /* tuples */
-    case (fst, snd) => "(%s, %s)".format(prettyPrint(fst), prettyPrint(snd))
     /* Isabelle sets */
     case Seta(l) => "{%s}".format(l.map(prettyPrint(_)).mkString(", "))
     /* Isabelle's reals-from-rationals */
     // matching Frct(num, den) doesn't work, as actually (num, den) is a tuple
     case Ratreal(Frct((num, den))) => (num.toDouble / den.toDouble).toString /* note that this loses precision! */
+    /* some Scala structures */
+    // TODO find common supertype
+    case l: List[Any] => "[%s]".format(l.map(prettyPrint(_)).mkString(", ")) // TODO remove redundancy with case Seta(l)
+    case l: Vector[Any] => "[%s]".format(l.map(prettyPrint(_)).mkString(", ")) // TODO remove redundancy with case Seta(l)
+    case p: Product => "(%s)".format(p.productIterator.toList.map(prettyPrint(_)).mkString(", "))
     /* anything else */
     case _ => x.toString
   }
@@ -47,7 +51,7 @@ object CombinatorialVickreyAuctionCATS {
         || (bidder == Nat(2) || bidder == Nat(3)) && card(goods) == Nat(1))
       // As it happens, code from Set.card was exported.
       // TODO CL: Depending on the implementation of the functions from which we actually _want_ to generate code, we can't rely on this.  What's a good practice for making sure code for certain library functions is always generated?
-      Ratreal(Frct(2, 0))
+      Ratreal(Frct(2, 1))
     else Ratreal(zero_rat)
 
   /** runs a combinatorial Vickrey auction, processing CATS-formatted data from standard input */
@@ -78,26 +82,47 @@ object CombinatorialVickreyAuctionCATS {
 
     // TODO exception handling
     val nGoodsRE = """goods\s+([0-9]+)""".r
-    val nGoodsRE(nGoods) = Console.readLine
+    val nGoodsRE(nGoodsStr) = Console.readLine
+    val nGoods = nGoodsStr.toInt // TODO simplify this "matching regexp to Int"
     val nBidsRE = """bids\s+([0-9]+)""".r
-    val nBidsRE(nBids) = Console.readLine
-    val bidRE = """([0-9])+\s+([0-9 \t])+""".r // TODO allow decimals in addition to integers
+    val nBidsRE(nBidsStr) = Console.readLine
+    val nBids = nBidsStr.toInt // TODO simplify this "matching regexp to Int"
+    val bidRE = """([0-9]+)\s+([0-9]+)\s+((?:[0-9]+\s+)*)#""".r // TODO allow decimal price in addition to integer
     
-    for (bid <- 0 to nBids) yield
+    val bidsLines = (for (expectedBidID <- 0 to nBids) yield
       Console.readLine match {
-        case bidRE(bidder, content) => if (bidder == bid) else 0 /* throw exception */
-      }
-
-Iterator.continually(Console.readLine).takeWhile(""_ != "").foreach(line => println("read " + line))
+        case bidRE(bidID, price, bidContent) =>
+          if (bidID.toInt == expectedBidID) Some(
+            Nat(bidID.toInt),
+            Ratreal(Frct(price.toInt, 1)),
+            intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List])
+          ) else None /* TODO actually throw exception */
+        case _ => None
+      }).flatten
+    println("processed CATS input: " + prettyPrint(bidsLines))
 
     // CONVERT TO THE DATA STRUCTURES THE GENERATED CODE NEEDS
-    val participantSet = paperExampleParticipants
-    val goodsSet = paperExampleGoods
-    val bidFunction = paperExampleBids
+    // val participantSet = paperExampleParticipants
+    // val goodsSet = paperExampleGoods
+    // val bidFunction = paperExampleBids
+    val participantSet = Seta((0 to nBids - 1).map(Nat(_)).to[List])
+    println("Partiticipants: " + prettyPrint(participantSet))
+    val goodsSet = Seta((0 to nGoods - 1).map(Nat(_)).to[List])
+    println("Goods: " + prettyPrint(goodsSet))
+    val bidFunction = (bidder: Nat) => (goods: set[Nat]) => {
+      val bid = bidsLines.find((elem: (Nat, real, set[Nat])) =>
+        elem._1 == bidder
+        && setEquals(goods, elem._3))
+      bid match {
+        case Some(b) => b._2
+        case None => Ratreal(zero_rat)
+      }
+    }
 
     val tieBreaker = trivialTieBreaker[Any] _
 
     val winningAllocations = winning_allocations_comp_CL(goodsSet, participantSet, bidFunction)
-    println("Winner: " + prettyPrint(tieBreaker(winningAllocations)))
+    println("Winning allocations: " + prettyPrint(winningAllocations))
+    println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
   }
 }
