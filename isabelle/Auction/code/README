@@ -1,0 +1,3 @@
+Run the example with:
+
+java -cp scala-library.jar:CombinatorialVickreyAuctionCATS.jar CombinatorialVickreyAuctionCATS < example.cats
