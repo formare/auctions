@@ -106,7 +106,7 @@ object CombinatorialVickreyAuctionCATS {
     // val goodsSet = paperExampleGoods
     // val bidFunction = paperExampleBids
     val participantSet = Seta((0 to nBids - 1).map(Nat(_)).to[List])
-    println("Partiticipants: " + prettyPrint(participantSet))
+    println("Participants: " + prettyPrint(participantSet))
     val goodsSet = Seta((0 to nGoods - 1).map(Nat(_)).to[List])
     println("Goods: " + prettyPrint(goodsSet))
     val bidFunction = (bidder: Nat) => (goods: set[Nat]) => {
