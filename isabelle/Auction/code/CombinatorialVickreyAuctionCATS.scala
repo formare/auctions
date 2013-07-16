@@ -42,6 +42,7 @@ object CombinatorialVickreyAuctionCATS {
 
   /** a trivial tie breaker that takes the head of a List */
   def trivialTieBreaker[T](l: List[T]) = l.head
+  def tieBreakerWithType(l: List[CombinatorialVickreyAuction.Set.set[(CombinatorialVickreyAuction.Set.set[CombinatorialVickreyAuction.Nat], CombinatorialVickreyAuction.Nat)]]) = l.head
 
   /** the paper example */
   def paperExampleParticipants = intListToNatSet(List(1, 2, 3))
@@ -124,5 +125,9 @@ object CombinatorialVickreyAuctionCATS {
     val winningAllocations = winning_allocations_comp_CL(goodsSet, participantSet, bidFunction)
     println("Winning allocations: " + prettyPrint(winningAllocations))
     println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
+
+    val payments = for (participant <- 0 to nBids - 1) yield
+      (participant, payments_comp_workaround(goodsSet, participantSet, tieBreakerWithType, bidFunction, Nat(participant)))
+    println("Payments per participant: " + prettyPrint(payments))
   }
 }

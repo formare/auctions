@@ -1,3 +1,17 @@
-Run the example with:
+This is a command-line program that runs best from the directory in
+which this README file is located, i.e. the directory into which you
+have unzipped the demo package.
+
+On Unix-like systems (Linux, Mac OS), run the example with:
 
 java -cp scala-library.jar:CombinatorialVickreyAuctionCATS.jar CombinatorialVickreyAuctionCATS < example.cats
+
+On Windows, using the CMD shell, use:
+
+java -cp scala-library.jar;CombinatorialVickreyAuctionCATS.jar CombinatorialVickreyAuctionCATS < example.cats
+
+The path separator (";" instead of ":") is the only difference.
+
+I do not currently know how to get this job done using the Windows
+PowerShell; if you do, I'd appreciate if you let me know via
+formare-management@cs.bham.ac.uk.
