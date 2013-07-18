@@ -198,5 +198,20 @@ proof -
   then show ?thesis unfolding maximum_def by simp
 qed
 
+(* MC: Yet another approach below, focusing on reusing stuff (Max, zip, map, filter) 
+rather than doing our own recursion to calculate argmax *)
+
+definition filterpositions 
+(* Non(directly)recursive function generalizing max_positions, 
+probably less efficient. 
+Given a list l, yields the indices of its elements which satisfy a given pred P*)
+:: "('a => bool) => 'a list => nat list"
+where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))"
+
+definition maxpositions 
+:: "'a::linorder list => nat list"
+where
+"maxpositions l = filterpositions (%x . x \<ge> Max (set l)) l"
+
 end
 
