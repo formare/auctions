@@ -20,7 +20,8 @@ See LICENSE file for details
 header {* Maximum components of vectors, and their properties *}
 
 theory Maximum
-imports Main
+imports Main c
+(* "~~/src/HOL/Library/AList" *)
 begin
 
 text{*
@@ -208,10 +209,97 @@ Given a list l, yields the indices of its elements which satisfy a given pred P*
 :: "('a => bool) => 'a list => nat list"
 where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))"
 
-definition maxpositions 
-:: "'a::linorder list => nat list"
-where
-"maxpositions l = filterpositions (%x . x \<ge> Max (set l)) l"
+(* MC: After some experimentations, the following, more expressive equivalent
+writing seems also computable: *)
+
+definition filterpositions2 
+:: "('a => bool) => 'a list => nat list"
+where "filterpositions2 P l = 
+[n. n \<leftarrow> [0..<size l], P (l!n)]"
+
+lemma ll2: fixes l shows "zip l (upt 0 (size l))= [(l!n,n). n \<leftarrow> [0..<size l]]"
+using assms zip_def upt_def 
+by (smt length_map length_zip map_nth nth_equalityI nth_map nth_zip)
+
+definition maxpositions :: "'a::linorder list => nat list" where
+"maxpositions l = filterpositions2 (%x . x \<ge> Max (set l)) l"
+
+lemma ll5: fixes l shows 
+"maxpositions l = [ n . n \<leftarrow> [0..<size l], l!n \<ge> Max (set l)]" 
+using assms maxpositions_def filterpositions2_def by metis
+
+definition argmax
+:: "('a => ('b::linorder)) => 'a list => 'a list"
+where "argmax f l = map (nth l) (maxpositions (map f l))"
+
+lemma ll7: fixes m P shows 
+"[n . n <- [0..<m], P n] = [n . n <- [0..<m], n \<in> set [0..<m], P n]"
+by (smt concat_map_singleton map_ext map_ident)
+
+lemma ll9: fixes f l shows "maxpositions (map f l) =
+[n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]"
+proof -
+  have "maxpositions (map f l) = 
+  (* [n. n <- [0..<size (map f l)],  n<size (map f l), (map f l)!n \<ge> Max (set (map f l))]*)
+  [n. n <- [0..<size (map f l)], n\<in> set[0..<size (map f l)], (map f l)!n \<ge> Max (set (map f l))]
+  (*[n. n <- [0..<size (map f l)], (n<size l), (n<size l \<longrightarrow> (map f l)!n \<ge> Max (set (map f l)))]*)
+  "
+  using ll7  by (metis filterpositions2_def maxpositions_def)
+  also have 
+  "... = 
+  [n . n <- [0..<size l], (n<size l), ((map f l)!n  \<ge> Max (set (map f l)))]
+  " by simp
+  also have
+  "
+  ... = [n . n <- [0..<size l], (n<size l) \<and> (n<size l \<longrightarrow>(map f l)!n  \<ge> Max (set (map f l)))]
+  " by metis
+  also have
+  "
+  ... = [n . n <- [0..<size l], (n<size l) \<and> (n<size l \<longrightarrow>f (l!n)  \<ge> Max (set (map f l)))]
+  "
+  using nth_map by simp
+  also have
+  "... = [n . n <- [0..<size l], (n<size l) \<and> (f (l!n)  \<ge> Max (set (map f l)))]
+  " by metis
+  also have
+  "... = 
+  [n . n <- [0..<size l], (n\<in> set [0..<size l]) \<and> (f (l!n)  \<ge> Max (set (map f l)))]
+  " by simp
+  also have
+  "... = 
+  [n . n <- [0..<size l], (n\<in> set [0..<size l]),(f (l!n)  \<ge> Max (set (map f l)))]
+  " by metis
+  also have
+  "... =  [n . n <- [0..<size l], f (l!n) \<ge> Max (set (map f l))]"
+  using ll7 by presburger finally show ?thesis by auto
+qed
+
+lemma ll10: fixes f m P shows
+"(map f [n . n <- [0..<m], P n]) = [ f n . n <- [0..<m], P n]" 
+by (induct m) auto
+
+lemma ll11: fixes f l shows 
+"argmax f l = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]"
+proof -
+  have "maxpositions (map f l) =
+  [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" using ll9 by fast
+  hence "map (nth l) (maxpositions (map f l)) = 
+  map (nth l) [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" by presburger
+  also have "... = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" 
+  using ll10 by fast finally show ?thesis using argmax_def by metis
+qed
+
+theorem argmaxadequacy: 
+fixes f::"'a => ('b::linorder)"  fixes l::"'a list" shows 
+"argmax f l = [ x <- l. f x \<ge> Max (f`(set l))]"
+proof -
+  let ?lh="argmax f l" let ?P="% y::('b::linorder) . y \<ge> Max (f`(set l))"
+  let ?mh="[nth l n . n <- [0..<size l], ?P (f (nth l n))]"
+  let ?rh="[ x <- (map (nth l) [0..<size l]). ?P (f x)]"
+  have "?lh = ?mh" using ll11 by fast
+  also have "... = ?rh" using map_commutes by fast
+  also have "...= [x <- l. ?P (f x)]" using map_nth by metis
+  finally show ?thesis by force
+qed
 
 end
-

@@ -73,7 +73,7 @@ proof -
 qed
 
 definition parent :: " 'a => 'a set set => 'a set set" 
-(*Reverses childrenofpartition wrt to a fixed element e.
+(*parent e reverses childrenofpartition e.
 children is one-to-many, while this is one-to-one (father is unique)*)
 where "parent e p = ((%x . x - {e}) ` p) - {{}}"
 
@@ -263,21 +263,9 @@ proof -
   thus ?thesis using 11 by (metis `y \<in> q \<and> e \<in> y` insert_Diff_single insert_absorb insert_is_Un)
 qed
 
-(*
-definition mypred
-::" 'a => nat => bool"
-where "mypred x n= (\<forall> X::('a list) . 
-((length X=n+1 \<and> norepetitions X) \<longrightarrow> 
-all_partitions_classical (set X) = allpartitionsoflist X)
-)"
-*)
-
-definition mypred
-::" 'a => nat => bool"
-where "mypred x n= (\<forall> X::('a list) . 
-((length X=n \<and> norepetitions X) \<longrightarrow> 
-all_partitions_classical (set X) = allpartitionsoflist X)
-)"
+definition mypred ::" 'a => nat => bool" where "mypred x n = 
+(\<forall> X::('a list) . (length X=n \<and> norepetitions X \<longrightarrow> 
+all_partitions_classical (set X) = allpartitionsoflist X))"
 
 lemma fixes x shows "mypred x 0" 
 using mypred_def emptyparts by (metis allpartitionsoflist.simps(1) length_0_conv set_empty2)
@@ -297,59 +285,59 @@ proof -
   let ?X1="tl X2" (* could use drop or sublist instead of tl *)
   show "(?n2=Suc n \<and> norepetitions X2) \<longrightarrow> (?c (set X2) = ?l X2)"
   proof
-  assume a10: "?n2 = Suc n \<and> norepetitions X2"
-  hence "X2=[?e]@?X1" 
-  by (metis append_Cons append_Nil hd.simps length_Suc_conv tl.simps(2))
-  hence 2: "X2=?e # ?X1" by fastforce
-  have 13: "length ?X1=n" using a10 2 assms  
-  by (metis diff_Suc_1 length_tl)
-  have a12: "norepetitions ?X1" using a10 noreptl by fast
-  hence "\<not> {?e} \<subseteq> set ?X1" using norepetitions_def tl_def set_def hd_def by 
-  (smt "2" List.set.simps(2) a10 card_length impossible_Cons insert_absorb insert_subset)
-  hence 19: "?e \<notin> set ?X1" by fast
-  have a1: "?c (set X2) \<subseteq> ?l X2"
-  proof
-    fix p2
-    have 16: "\<Union> (?f p2) = \<Union> p2 - {?e}" using l13 by metis
-    assume "p2 \<in> ?c (set X2)"
-    hence "?Q p2 (set X2)" using all_partitions_classical_def by fast
-    hence 14: "?P p2 \<and> ?e \<in> (set X2) \<and> \<Union> p2=(set X2)" 
-    using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
-    have 18: "\<Union> (?f p2)= set ?X1" using 2 16 l13 19 14 by (metis Diff_insert_absorb List.set.simps(2))
-    have "?P (?f p2)" using l3 14 by fast
-    hence "?Q (?f p2) (set ?X1)" using is_partition_of_def 18 by blast
-    hence "(?f p2) \<in> ?c (set ?X1)" using all_partitions_classical_def by blast
-    hence 5: "?f p2 \<in> ?l ?X1" using indhyp mypred_def 13 a12 by blast
-    hence "p2 \<in> (?ch ?e) (?f p2)" using l2a 14 by fast
-    hence "p2 \<in> \<Union> ((?ch ?e) ` (?l ?X1))" using 5 by blast
-    thus "p2 \<in> (?l X2)" using partitionsconstructor_def allpartitionsoflist_def 2 
-    by (metis allpartitionsoflist.simps(2)) 
-  qed
-  have a2: "?l X2 \<subseteq> ?c (set X2)"
-  proof -
-    {
-    fix p2  assume "p2 \<in> ?l X2"
-    hence "p2 \<in> partitionsconstructor ?e (?l ?X1)" using 2 allpartitionsoflist_def 
-    by (metis allpartitionsoflist.simps(2)) 
-    hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using partitionsconstructor_def by metis
-    obtain Y where a4: "Y \<in> (?ch ?e ` (?l ?X1))" and a5: "p2 \<in> Y" using a3 by blast
-    obtain p1 where a6: "p1 \<in> (?l ?X1)" and a7: "Y = (?ch ?e p1)" using a4 by blast
-    have a9: "p2 \<in> (?ch ?e p1)" using a5 a7 by fast
-    have "length ?X1 = n" using 2 a10 by (metis One_nat_def Suc_eq_plus1 diff_Suc_1 list.size(4))
-    hence "?c (set ?X1) = ?l ?X1" using indhyp mypred_def a12 by blast
-    hence "p1 \<in> ?c (set ?X1)" using a6 indhyp mypred_def by blast
-    hence "?Q p1 (set ?X1)" using all_partitions_classical_def by blast
-    hence a11: "?P p1 \<and> \<Union> p1=set ?X1" 
-    using is_partition_of_def by blast
-    hence 22: "?P p2" using l1 a9 19 by fast
-    have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 l12 by fast
-    hence "\<Union> p2 = (set X2)" using 19 by (metis "2" List.set.simps(2) Un_commute insert_is_Un)
-    hence "?Q p2 (set X2)" using 22 is_partition_of_def by blast
-    hence "p2 \<in> ?c (set X2)" using all_partitions_classical_def by fastforce
-    }
-    thus ?thesis by fast
-  qed
-  show "?c (set X2) = ?l X2" using a1 a2 by fastforce
+    assume a10: "?n2 = Suc n \<and> norepetitions X2"
+    hence "X2=[?e]@?X1" 
+    by (metis append_Cons append_Nil hd.simps length_Suc_conv tl.simps(2))
+    hence 2: "X2=?e # ?X1" by fastforce
+    have 13: "length ?X1=n" using a10 2 assms  
+    by (metis diff_Suc_1 length_tl)
+    have a12: "norepetitions ?X1" using a10 noreptl by fast
+    hence "\<not> {?e} \<subseteq> set ?X1" using norepetitions_def tl_def set_def hd_def by 
+    (smt "2" List.set.simps(2) a10 card_length impossible_Cons insert_absorb insert_subset)
+    hence 19: "?e \<notin> set ?X1" by fast
+    have a1: "?c (set X2) \<subseteq> ?l X2"
+    proof
+      fix p2
+      have 16: "\<Union> (?f p2) = \<Union> p2 - {?e}" using l13 by metis
+      assume "p2 \<in> ?c (set X2)"
+      hence "?Q p2 (set X2)" using all_partitions_classical_def by fast
+      hence 14: "?P p2 \<and> ?e \<in> (set X2) \<and> \<Union> p2=(set X2)" 
+      using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
+      have 18: "\<Union> (?f p2)= set ?X1" using 2 16 l13 19 14 by (metis Diff_insert_absorb List.set.simps(2))
+      have "?P (?f p2)" using l3 14 by fast
+      hence "?Q (?f p2) (set ?X1)" using is_partition_of_def 18 by blast
+      hence "(?f p2) \<in> ?c (set ?X1)" using all_partitions_classical_def by blast
+      hence 5: "?f p2 \<in> ?l ?X1" using indhyp mypred_def 13 a12 by blast
+      hence "p2 \<in> (?ch ?e) (?f p2)" using l2a 14 by fast
+      hence "p2 \<in> \<Union> ((?ch ?e) ` (?l ?X1))" using 5 by blast
+      thus "p2 \<in> (?l X2)" using partitionsconstructor_def allpartitionsoflist_def 2 
+      by (metis allpartitionsoflist.simps(2)) 
+    qed
+    have a2: "?l X2 \<subseteq> ?c (set X2)"
+    proof -
+      {
+      fix p2  assume "p2 \<in> ?l X2"
+      hence "p2 \<in> partitionsconstructor ?e (?l ?X1)" using 2 allpartitionsoflist_def 
+      by (metis allpartitionsoflist.simps(2)) 
+      hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using partitionsconstructor_def by metis
+      obtain Y where a4: "Y \<in> (?ch ?e ` (?l ?X1))" and a5: "p2 \<in> Y" using a3 by blast
+      obtain p1 where a6: "p1 \<in> (?l ?X1)" and a7: "Y = (?ch ?e p1)" using a4 by blast
+      have a9: "p2 \<in> (?ch ?e p1)" using a5 a7 by fast
+      have "length ?X1 = n" using 2 a10 by (metis One_nat_def Suc_eq_plus1 diff_Suc_1 list.size(4))
+      hence "?c (set ?X1) = ?l ?X1" using indhyp mypred_def a12 by blast
+      hence "p1 \<in> ?c (set ?X1)" using a6 indhyp mypred_def by blast
+      hence "?Q p1 (set ?X1)" using all_partitions_classical_def by blast
+      hence a11: "?P p1 \<and> \<Union> p1=set ?X1" 
+      using is_partition_of_def by blast
+      hence 22: "?P p2" using l1 a9 19 by fast
+      have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 l12 by fast
+      hence "\<Union> p2 = (set X2)" using 19 by (metis "2" List.set.simps(2) Un_commute insert_is_Un)
+      hence "?Q p2 (set X2)" using 22 is_partition_of_def by blast
+      hence "p2 \<in> ?c (set X2)" using all_partitions_classical_def by fastforce
+      }
+      thus ?thesis by fast
+    qed
+    show "?c (set X2) = ?l X2" using a1 a2 by fastforce
   qed
   qed
   thus ?thesis using mypred_def by fast
@@ -357,51 +345,26 @@ qed
 
 lemma l14: fixes x fixes n shows "mypred x n" 
 proof -
-fix x
-fix n
+fix x fix n
 show "mypred x n"
 proof (rule nat.induct)
   show "mypred x 0" using mypred_def emptyparts 
 by (metis allpartitionsoflist.simps(1) length_0_conv set_empty2)
 next
-  fix m
-  assume "mypred x m"
-  show "mypred x (Suc m)" using indstep by (metis `mypred x m`)
+  fix m assume "mypred x m" thus "mypred x (Suc m)" using indstep by metis
 qed
 qed
 
-theorem fixes l assumes "norepetitions l" shows 
+theorem partadequacy: fixes l assumes "norepetitions l" shows 
 "allpartitionsoflist l = all_partitions_classical (set l)" 
 using l14 mypred_def assms by fast
 
-(*
-theorem "all_partitions_classical (set X) = allpartitionsoflist (X::('a list))"
-proof -
-have 1: "all_partitions_classical (set []) = allpartitionsoflist ([]::('a list))" sorry
-have 2: "\<forall> (x::'a) (Y::('a list)) . 
-(all_partitions_classical (set Y) = allpartitionsoflist Y) \<longrightarrow>
-(all_partitions_classical (set (x#Y)) = allpartitionsoflist (x#Y))
-" sorry
-have "\<forall> Y::('a list) . (all_partitions_classical (set Y) = allpartitionsoflist Y)"
-using 1 2 sorry
-qed
+corollary fixes x assumes "finite x" shows 
+"allpartitionsoflist (sorted_list_of_set x) = all_partitions_classical x" 
+using norepset partadequacy assms by fastforce
 
-lemma fixes X x y assumes "is_partition (X \<union> {x})" and "y \<notin> \<Union> (X \<union> {x})" 
-shows "is_partition (X-{x} \<union> {x \<union> {y}})"
-proof -
-have 1: "is_partition X" using a8 by (metis (full_types) assms(1) sup_ge1)
-hence 2: "\<forall> x1 \<in> X . x1 \<noteq> {}" using is_partition_def by blast
-have 3: "X \<subseteq> X \<union> {x \<union> {y}}" by fast
-{fix x1
-assume "x1 \<in> X \<union> {x \<union> {y}}" 
-hence "x1 \<in> X \<or> x1 \<in> {x \<union> {y}}" by fast
-hence "x1 \<noteq> {}" using 2 by blast
-{
-fix x2
-assume "x2 \<in> X \<union> {x \<union> {y}} - {x1}"
+definition allpartitionsofset where 
+"allpartitionsofset x = allpartitionsoflist (sorted_list_of_set x)"
 
-} 
-}
-qed
-*)
+end
 
