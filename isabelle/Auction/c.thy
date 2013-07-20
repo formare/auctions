@@ -21,80 +21,12 @@ by (metis assms hd_conv_nth length_greater_0_conv sublist_single)
 
 lemma fixes l shows "(hd l)#(map (nth l) (upt 1 (size l)))=l" 
 
-*)
-
-definition norepetitions 
-::"'a list => bool"
-where "norepetitions l \<longleftrightarrow> card (set l) = length l"
-
-lemma fixes l shows "norepetitions l \<longleftrightarrow> (card (set l) \<ge> length l)" 
-using norepetitions_def by (metis card_length le_antisym)
-
-lemma noreptl: fixes l assumes "norepetitions l" shows "norepetitions (tl l)" 
-using assms norepetitions_def by (metis card_distinct distinct_card distinct_tl) 
-
 lemma norepdrop: fixes l n assumes "norepetitions l" shows "norepetitions (drop n l)" 
 using assms norepetitions_def by (metis card_distinct distinct_card distinct_drop)
 
 lemma fixes l assumes "l \<noteq> []" shows "l!0=hd l" using assms by (metis hd_conv_nth)
+*)
 
-lemma cardsize: fixes x assumes "finite x"
-shows "length (sorted_list_of_set x) = card x" 
-using assms by 
-(metis finite_list length_remdups_card_conv length_sort sorted_list_of_set_sort_remdups)
-
-lemma setlistid: fixes x assumes "finite x"
-shows "set (sorted_list_of_set x)=x" using assms by simp
-
-lemma norepset: fixes x assumes "finite x" shows 
-"norepetitions (sorted_list_of_set x)" 
-using assms cardsize setlistid norepetitions_def by metis
-
-lemma map_commutes: fixes f::"'a => 'b" 
-fixes Q::"'b => bool" fixes xs::"'a list" shows
-"[ f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]"
-proof -
-  fix f::"'a => 'b" fix Q
-  let ?g="\<lambda>n. (if Q (f n) then [f n] else [])"
-  let ?lh="%l . concat (map ?g l)" let ?rh="%l . filter Q (map f l)"
-  let ?I="%m . (\<forall> l::('a list) . ((size l=m) \<longrightarrow> (?lh l = ?rh l)))"
-  have 10: "?I 0" by force
-  have 11: "\<forall> m::nat . ((?I m) \<longrightarrow> (?I (Suc m)))"
-  proof 
-    fix m::nat show "(?I m) \<longrightarrow> (?I (Suc m))" 
-    proof
-      assume 1: "?I m"
-      show "?I (Suc m)" 
-      proof -
-        {
-        fix L::"'a list"  let ?A="take 1 L" let ?a="hd L" let ?l="tl L"        
-        assume "size L=Suc m" hence 2: "L=?a#?l \<and> L=[?a]@?l \<and> size ?l=m" 
-by (metis Suc_neq_Zero append_Cons append_Nil append_Nil2 append_eq_conv_conj diff_Suc_1 length_0_conv length_tl take_Suc)
-        hence 0: "concat (map ?g ?l) = filter Q (map f ?l)" using 1 by blast
-        hence "(concat (map ?g (?a#?l))) = (?g ?a)@(concat (map ?g ?l))" by fastforce
-        also have "...= (?g ?a)@(filter Q (map f ?l))" using 0 by force 
-        also have "...= (filter Q [f ?a])@(filter Q (map f ?l))" by fastforce
-        also have "...= (filter Q (map f [?a]))@(filter Q (map f ?l))" by force
-        also have "...= (filter Q ((map f [?a])@(map f ?l)))" by fastforce
-        also have "...= (filter Q (map f ([?a]@?l)))" by auto
-        also have "...= ?rh L" using 2 by presburger
-        finally have "?lh L = ?rh L" using 2 by metis
-        }
-        thus "?I (Suc m)" by fast
-      qed
-    qed
-qed
-{
-fix k have "?I k"
-proof (rule nat.induct)
-  show "?I 0" using 10 by blast
-next fix m assume "?I m" thus "?I (Suc m)" using 11 by blast
-qed
-}
-hence "\<forall> m . (?I m)" by fast
-hence 3: "\<forall> l . (?lh l) = (?rh l)" by blast
-fix xs show "[ f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]" using 3 by blast
-qed
 
 (*
 hence "\<forall> l . ([ f n . n <- l, Q (f n)] = [x <- (map f l). Q x])" by fast

@@ -20,7 +20,7 @@ See LICENSE file for details
 header {* Maximum components of vectors, and their properties *}
 
 theory Maximum
-imports Main c
+imports Main 
 (* "~~/src/HOL/Library/AList" *)
 begin
 
@@ -210,7 +210,7 @@ Given a list l, yields the indices of its elements which satisfy a given pred P*
 where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))"
 
 (* MC: After some experimentations, the following, more expressive equivalent
-writing seems also computable: *)
+writing also appears to be computable:*)
 
 definition filterpositions2 
 :: "('a => bool) => 'a list => nat list"
@@ -289,7 +289,58 @@ proof -
   using ll10 by fast finally show ?thesis using argmax_def by metis
 qed
 
+(* MC: map_commutes, filterpositions are fairly general and should be moved
+elsewhere *)
+lemma map_commutes: fixes f::"'a => 'b" 
+fixes Q::"'b => bool" fixes xs::"'a list" shows
+"[ f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]"
+proof -
+  fix f::"'a => 'b" fix Q
+  let ?g="\<lambda>n. (if Q (f n) then [f n] else [])"
+  let ?lh="%l . concat (map ?g l)" let ?rh="%l . filter Q (map f l)"
+  let ?I="%m . (\<forall> l::('a list) . ((size l=m) \<longrightarrow> (?lh l = ?rh l)))"
+  have 10: "?I 0" by force
+  have 11: "\<forall> m::nat . ((?I m) \<longrightarrow> (?I (Suc m)))"
+  proof 
+    fix m::nat show "(?I m) \<longrightarrow> (?I (Suc m))" 
+    proof
+      assume 1: "?I m"
+      show "?I (Suc m)" 
+      proof -
+        {
+        fix L::"'a list"  let ?A="take 1 L" let ?a="hd L" let ?l="tl L"        
+        assume "size L=Suc m" hence 2: "L=?a#?l \<and> L=[?a]@?l \<and> size ?l=m" 
+by (metis Suc_neq_Zero append_Cons append_Nil append_Nil2 append_eq_conv_conj diff_Suc_1 length_0_conv length_tl take_Suc)
+        hence 0: "concat (map ?g ?l) = filter Q (map f ?l)" using 1 by blast
+        hence "(concat (map ?g (?a#?l))) = (?g ?a)@(concat (map ?g ?l))" by fastforce
+        also have "...= (?g ?a)@(filter Q (map f ?l))" using 0 by force 
+        also have "...= (filter Q [f ?a])@(filter Q (map f ?l))" by fastforce
+        also have "...= (filter Q (map f [?a]))@(filter Q (map f ?l))" by force
+        also have "...= (filter Q ((map f [?a])@(map f ?l)))" by fastforce
+        also have "...= (filter Q (map f ([?a]@?l)))" by auto
+        also have "...= ?rh L" using 2 by presburger
+        finally have "?lh L = ?rh L" using 2 by metis
+        }
+        thus "?I (Suc m)" by fast
+      qed
+    qed
+qed
+{
+fix k have "?I k"
+proof (rule nat.induct)
+  show "?I 0" using 10 by blast
+next fix m assume "?I m" thus "?I (Suc m)" using 11 by blast
+qed
+}
+hence "\<forall> m . (?I m)" by fast
+hence 3: "\<forall> l . (?lh l) = (?rh l)" by blast
+fix xs show "[ f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]" using 3 by blast
+qed
+
 theorem argmaxadequacy: 
+(* MC: RHS of thesis should formally reassure about what argmax does.
+I didn't use it directly as definition of the latter (both appear 
+to be computable) because I find filterpositions of independent interest*)
 fixes f::"'a => ('b::linorder)"  fixes l::"'a list" shows 
 "argmax f l = [ x <- l. f x \<ge> Max (f`(set l))]"
 proof -

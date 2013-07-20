@@ -5,7 +5,7 @@ theory a
 imports Main
   Partitions
 begin
-
+(*
 lemma partition_contains_subsets:
   fixes A P
   assumes "is_partition_of P A"
@@ -44,7 +44,6 @@ proof -
   finally show ?thesis by force
 qed
 
-(*
 lemma a8: fixes X Y assumes "is_partition Y" and "X \<subseteq> Y" shows "is_partition X"
 proof -
 {
@@ -65,15 +64,5 @@ proof -
   ultimately show "?thesis" unfolding allPartitions_def by auto
 qed
 *)
-
-lemma aa1: shows "is_partition_of {} {}" 
-using assms is_partition_def is_partition_of_def by (metis Union_empty empty_iff)
-
-lemma aa2: fixes x assumes "is_partition_of x {}" shows "x={}" 
-using assms is_partition_def is_partition_of_def 
-by fast
-
-lemma emptyparts: shows "all_partitions_classical {} = {{}}" 
-using aa2 aa1 all_partitions_classical_def by blast
 
 end
