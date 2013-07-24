@@ -88,11 +88,12 @@ definition all_partitions_classical where
 
 (* TODO CL: integrate further material from a.thy and b.thy here *)
 (* MC: Here it is. Next step: integrate new partitions definitions into auctions *)
-
-
-
-
-
+(* MC: A further, proof-friendlier way of computing partitions is introduced: 
+everythin's a set, except the very initial input, which is a list 
+(of elements) because I don't know how to do recursive definitions 
+on finite sets. 
+Then equivalence with all_partitions_classical is inductively shown *)
+(* MC: udpate: now I probably would know how to utterly eliminate lists from this. *)
 
 definition growpart
 (* adds an element to a specified set inside a specified partition. 
