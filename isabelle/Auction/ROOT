@@ -6,9 +6,6 @@ session "Auction" = "HOL" +
   files "document/root.tex"
 *)
 
-session Vickrey_Short = "HOL" +
-  theories Vickrey_Short
-
-session Vickrey_CaseChecker = "HOL" +
+session Vickrey = "HOL" +
   options [document = pdf, document_output = "output"]
-  theories Vickrey_CaseChecker
+  theories Vickrey
