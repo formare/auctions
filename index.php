@@ -20,7 +20,8 @@ PageStart();
   <li>re-formalisations in new languages</li>
   <li>improvements to existing formalisations</li>
 </ul>
-<p>If you would like to get access to our <a href="https://codex.cs.bham.ac.uk/svn/langec/formare/code/auction">Subversion repository</a> or have any other questions, please contact us via <a href="mailto:formare-discuss@cs.bham.ac.uk?subject=Auction%20Theory%20Toolbox">formare-discuss@cs.bham.ac.uk</a>.  (You need to <a href="https://mailman.cs.bham.ac.uk/mailman/listinfo/formare-discuss">subscribe</a> first.)</p>
+<p>For any questions, please contact us via <a href="mailto:formare-discuss@cs.bham.ac.uk?subject=Auction%20Theory%20Toolbox">formare-discuss@cs.bham.ac.uk</a>.  (You need to <a href="https://mailman.cs.bham.ac.uk/mailman/listinfo/formare-discuss">subscribe</a> first.)</p>
+<p>Downloadable files are linked below.  If you would like to contribute or to follow the latest developments, please contact us to get access to our <a href="https://codex.cs.bham.ac.uk/svn/langec/formare/code/auction">Subversion repository</a>.</p>
 <p>The table below shows the following information:</p>
 <ul>
   <li><strong>Proposition</strong>: the number of the respective Proposition in Maskin's review article and the original authors of the theorem</li>
@@ -68,6 +69,29 @@ PageStart();
     <tr><td>11 (Holt/<wbr/>Maskin/<wbr/>Riley/<wbr/>Matthews)</td><td></td><td></td><td></td><td></td><td></td></tr>
     <tr><td>12 (Maskin/<wbr/>Jehiel/<wbr/>Moldovanu)</td><td></td><td></td><td></td><td></td><td></td></tr>
     <tr><td>13 (Milgrom/<wbr/>Weber)</td><td></td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+<p>Beyond this book, we are working on combinatorial auctions, guided by some of the chapters of the following book: Peter Cramton, Yoav Shoham, and Richard Steinberg (2006). <a href="http://mitpress.mit.edu/books/combinatorial-auctions">Combinatorial Auctions</a>. MIT Press. ISBN 0-262-03342-9.  Here, we focus on <a href="isabelle">Isabelle</a>.</p>
+<table style="width:100%; table-layout:fixed; word-wrap:break-word">
+  <colgroup>
+    <col style="width:34"/>
+    <col style="width:33"/>
+    <col style="width:33"/>
+  </colgroup> 
+  <thead>
+    <tr>
+      <th>Topic (Chapter)</th>
+      <th>Elaboration</th>
+      <th><a href="isabelle">Isabelle</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Vickrey auction (1)</td>
+      <td>to appear<!-- this paper is not physically in this svn, but uploaded via https://codex.cs.bham.ac.uk/svn/mmk/KLR/auction-theory/Makefile -->
+        (<a href="http://www.socscistaff.bham.ac.uk/rowat/">Rowat</a>/<a href="http://www.cs.bham.ac.uk/~mmk/">Kerber</a>/<a href="http://www.cs.bham.ac.uk/~langec/">Lange</a>)</td>
+      <td>Lange/<wbr/><a href="http://uniroma1.academia.edu/MarcoCaminati">Caminati</a> (in progress)</td>
+    </tr>
   </tbody>
 </table>
 <p>Unless otherwise stated, the sources of the Auction Theory Toolbox are dually licenced under the <a href="LICENSE-ISC">ISC License</a> and the <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 License</a>.  With a dual licence for source code and creative works, we follow the model of the <a href="http://mizar.org/library/">Mizar Mathematical Library</a>, as suggested by <a href="http://arxiv.org/abs/1107.3212">Alama, Kohlhase, Naumowicz, Rudnicki, Urban and Mamane</a>.</p>
