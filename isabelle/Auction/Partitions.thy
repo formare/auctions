@@ -77,7 +77,9 @@ fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
 (* definition of a partition (without saying of what set it is a partition) *)
 definition is_partition where
 "is_partition P = (\<forall> x\<in>P . \<forall> y\<in> P . (x \<inter> y \<noteq> {} \<longleftrightarrow> x=y))"
-(* "is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))" *)
+(* alternative, less concise formalisation:
+"is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
+*)
 
 (* checks whether something is a partition of a given set *)
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
