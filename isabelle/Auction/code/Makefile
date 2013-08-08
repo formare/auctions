@@ -15,6 +15,11 @@
 
 PACKAGE = CombinatorialVickreyAuction
 
+# implicit rule (pattern rule) for compiling Scala classes
+$(PACKAGE)/%.class: %.scala
+	scalac $<
+
+# getting dependencies of main executable class right:
 $(PACKAGE)CATS.class: \
   $(PACKAGE)CATS.scala \
   $(PACKAGE)/nVCG_CaseChecker.class \
@@ -22,10 +27,6 @@ $(PACKAGE)CATS.class: \
   $(PACKAGE)/NatSetWrapper.class \
   $(PACKAGE)/IsabelleLibraryWrapper.class \
   $(PACKAGE)/TieBreaker.class
-	scalac $<
-
-# implicit rule (pattern rule) for compiling Scala classes
-$(PACKAGE)/%.class: %.scala
 	scalac $<
 
 # need to compile all sources at once to avoid missing dependencies
