@@ -11,23 +11,43 @@
 # * ISC License (1-clause BSD License)
 # See LICENSE file for details
 
-# TODO CL: convert to sbt: http://www.scala-sbt.org/
+# TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
 
-CombinatorialVickreyAuctionCATS.class: \
-  CombinatorialVickreyAuctionCATS.scala \
-  CombinatorialVickreyAuction/nVCG_CaseChecker.class
+PACKAGE = CombinatorialVickreyAuction
+
+$(PACKAGE)CATS.class: \
+  $(PACKAGE)CATS.scala \
+  $(PACKAGE)/nVCG_CaseChecker.class \
+  $(PACKAGE)/SetWrapper.class \
+  $(PACKAGE)/NatSetWrapper.class \
+  $(PACKAGE)/IsabelleLibraryWrapper.class \
+  $(PACKAGE)/TieBreaker.class
+	scalac $<
+
+# implicit rule (pattern rule) for compiling Scala classes
+$(PACKAGE)/%.class: %.scala
 	scalac $<
 
 # need to compile all sources at once to avoid missing dependencies
-CombinatorialVickreyAuction/nVCG_CaseChecker.class: CombinatorialVickreyAuction.scala nVCG_CaseChecker.scala
+$(PACKAGE)/nVCG_CaseChecker.class: $(PACKAGE).scala nVCG_CaseChecker.scala
 	scalac $$(perl -lne 'print "$$1.scala" if /^object ([^ ]+) {/' $<)
 
-nVCG_CaseChecker.scala: CombinatorialVickreyAuction.scala
+nVCG_CaseChecker.scala: $(PACKAGE).scala
 	./split-scala-modules.pl < $<
 
-CombinatorialVickreyAuctionCATS.jar: CombinatorialVickreyAuctionCATS.class
-	jar cf $@ CombinatorialVickreyAuction/ CombinatorialVickreyAuctionCATS*.class
+$(PACKAGE)CATS.jar: $(PACKAGE)CATS.class
+	jar cf $@ $(PACKAGE)/ $(PACKAGE)CATS*.class
 
-# TODO CL: automate locating scala-library.jar
-CombinatorialVickreyAuctionCATS.zip: CombinatorialVickreyAuctionCATS.jar example.cats README
-	zip -j $@ /opt/scala-2.10.1/lib/scala-library.jar $^
+# locating scala-library.jar: http://stackoverflow.com/a/7582803/2397768
+$(PACKAGE)CATS.zip: $(PACKAGE)CATS.jar example.cats README
+	zip -j $@ \
+		$$(scala -e 'val so = classOf[ScalaObject].getResource("ScalaObject.class").toString; println(so.substring(so.lastIndexOf(":") + 1, so.lastIndexOf("!")))') \
+		$^
+
+clean:
+	find . -name '*.class' -o \
+	       -name '*.jar' -o \
+	       -name '*.zip' \
+	| xargs rm -f
+
+.PHONY: clean
