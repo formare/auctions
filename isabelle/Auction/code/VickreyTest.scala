@@ -10,7 +10,7 @@ object VickreyTest {
   implicit def intToNat(x:Int) = Nat(x)
   */
   
-  // TODO CL: factor out to a module such as "IsabelleLibraryCompanion"
+  // TODO CL: factor out to a module such as "IsabelleLibraryWrapper"
   def prettyPrint[A](x: A) = x match {
     // matching Frct(num, den) doesn't work, as actually (num, den) is a tuple
     case Ratreal(Frct((num, den))) => num.toDouble / den.toDouble
@@ -18,7 +18,7 @@ object VickreyTest {
   }
   
   /** translate an Isabelle-friendly vector to a Scala Map */
-  // TODO CL: factor out to a module such as "VectorsCompanion"
+  // TODO CL: factor out to a module such as "VectorsWrapper"
   def vecToMap[A](v: (Nat => A), n: set[Nat]) =
     n match {
       case Set(xs) => Map(xs.map(i => i -> prettyPrint(v(i))): _*) }

@@ -1,3 +1,20 @@
+/*
+ * $Id$
+ * 
+ * Auction Theory Toolbox
+ * 
+ * Authors:
+ * * Manfred Kerber <m.kerber@cs.bham.ac.uk>
+ * * Christoph Lange <math.semantic.web@gmail.com>
+ * * Colin Rowat <c.rowat@bham.ac.uk>
+ * 
+ * Licenced under
+ * * ISC License (1-clause BSD License)
+ * See LICENSE file for details
+ *
+ */
+
+/* modules of the generated code (including Isabelle library) */
 import CombinatorialVickreyAuction.Finite_Set._
 import CombinatorialVickreyAuction.Nat
 import CombinatorialVickreyAuction.Nata._
@@ -6,46 +23,18 @@ import CombinatorialVickreyAuction.RealDef._
 import CombinatorialVickreyAuction.Set._
 import CombinatorialVickreyAuction.nVCG_CaseChecker._
 
+/* our wrappers around the Isabelle library */
+import CombinatorialVickreyAuction.SetWrapper._
+import CombinatorialVickreyAuction.NatSetWrapper._
+import CombinatorialVickreyAuction.IsabelleLibraryWrapper._
+
+/* our utility libraries */
+import CombinatorialVickreyAuction.TieBreaker._
+
 /** Runs a combinatorial auction on CATS-generated input
  * (see <a href="http://www.cs.ubc.ca/~kevinlb/CATS/CATS-readme.html#4.%20%20File Formats">CATS README, section “File Formats”</a> */
 // TODO CL: roll out wrappers that only depend on the Isabelle library once https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00028.html has been answered
 object CombinatorialVickreyAuctionCATS {
-  /** converts a Scala list to an Isabelle set.
-   * Note that converting Int (hardware words) to Nat is OK, as it doesn't lose information, but converting vice versa is problematic when the Nat values are very large; then one should better convert to BigInt. */
-  // TODO move to "SetCompanion" module
-  // TODO generalise to Something[Int]
-  def intListToNatSet(l: List[Int]): set[Nat] = Seta(l.map(Nat(_)))
-
-  /** equality for Isabelle sets (ignoring the order of the underlying List) */
-  // TODO move to "SetCompanion" module
-  def setEquals[T](s1: set[T], s2: set[T]) = (s1, s2) match {
-    case (Seta(l1), Seta(l2)) => l1.toSet == l2.toSet
-    case _ => false
-  }
-  
-
-  def seqToPrettyString(s: Seq[Any]): String =
-    s.map(prettyPrint(_)).mkString(", ") 
-
-  /** pretty-prints several Isabelle types for display to the user */
-  // TODO CL: factor out to a module such as "IsabelleLibraryCompanion"
-  def prettyPrint[A](x: A): String = x match {
-    /* Isabelle sets */
-    case Seta(l) => "{%s}".format(seqToPrettyString(l))
-    /* Isabelle's reals-from-rationals */
-    // matching Frct(num, den) doesn't work, as actually (num, den) is a tuple
-    case Ratreal(Frct((num, den))) => (num.toDouble / den.toDouble).toString /* note that this loses precision! */
-    /* some Scala structures */
-    case s: Seq[Any] => "[%s]".format(seqToPrettyString(s)) /* matches, e.g., List and Vector */
-    case p: Product => "(%s)".format(p.productIterator.toList.map(prettyPrint(_)).mkString(", "))
-    /* anything else */
-    case _ => x.toString
-  }
-
-  /** a trivial tie breaker that takes the head of a List */
-  def trivialTieBreaker[T](l: List[T]) = l.head
-  def tieBreakerWithType(l: List[set[(set[Nat], Nat)]]) = l.head
-
   /** the paper example */
   def paperExampleParticipants = intListToNatSet(List(1, 2, 3))
   def paperExampleGoods = intListToNatSet(List(11, 12))
@@ -122,14 +111,15 @@ object CombinatorialVickreyAuctionCATS {
       }
     }
 
-    val tieBreaker = trivialTieBreaker[Any] _
+    val tieBreaker = trivialTieBreaker[set[(set[Nat], Nat)]] _
 
     val winningAllocations = winning_allocations_comp_CL(goodsSet, participantSet, bidFunction)
     println("Winning allocations: " + prettyPrint(winningAllocations))
     println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
 
     val payments = for (participant <- 0 to nBids - 1) yield
-      (participant, payments_comp_workaround(goodsSet, participantSet, tieBreakerWithType, bidFunction, Nat(participant)))
+      // for the following occurrence of tieBreaker, we need the explicit type.  Above, trivialTieBreaker[Any] would also have worked.
+      (participant, payments_comp_workaround(goodsSet, participantSet, tieBreaker, bidFunction, Nat(participant)))
     println("Payments per participant: " + prettyPrint(payments))
   }
 }
