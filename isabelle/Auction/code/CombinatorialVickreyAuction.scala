@@ -1,6 +1,92 @@
 package CombinatorialVickreyAuction
 
 
+object Nat {
+
+  def apply(numeral: BigInt): Nat = new Nat(numeral max 0)
+  def apply(numeral: Int): Nat = Nat(BigInt(numeral))
+  def apply(numeral: String): Nat = Nat(BigInt(numeral))
+
+}
+
+class Nat private(private val value: BigInt) {
+
+  override def hashCode(): Int = this.value.hashCode()
+
+  override def equals(that: Any): Boolean = that match {
+    case that: Nat => this equals that
+    case _ => false
+  }
+
+  override def toString(): String = this.value.toString
+
+  def equals(that: Nat): Boolean = this.value == that.value
+
+  def as_BigInt: BigInt = this.value
+  def as_Int: Int = if (this.value >= scala.Int.MinValue && this.value <= scala.Int.MaxValue)
+      this.value.intValue
+    else error("Int value out of range: " + this.value.toString)
+
+  def +(that: Nat): Nat = new Nat(this.value + that.value)
+  def -(that: Nat): Nat = Nat(this.value - that.value)
+  def *(that: Nat): Nat = new Nat(this.value * that.value)
+
+  def /%(that: Nat): (Nat, Nat) = if (that.value == 0) (new Nat(0), this)
+    else {
+      val (k, l) = this.value /% that.value
+      (new Nat(k), new Nat(l))
+    }
+
+  def <=(that: Nat): Boolean = this.value <= that.value
+
+  def <(that: Nat): Boolean = this.value < that.value
+
+}
+
+
+object Natural {
+
+  def apply(numeral: BigInt): Natural = new Natural(numeral max 0)
+  def apply(numeral: Int): Natural = Natural(BigInt(numeral))
+  def apply(numeral: String): Natural = Natural(BigInt(numeral))
+
+}
+
+class Natural private(private val value: BigInt) {
+
+  override def hashCode(): Int = this.value.hashCode()
+
+  override def equals(that: Any): Boolean = that match {
+    case that: Natural => this equals that
+    case _ => false
+  }
+
+  override def toString(): String = this.value.toString
+
+  def equals(that: Natural): Boolean = this.value == that.value
+
+  def as_BigInt: BigInt = this.value
+  def as_Int: Int = if (this.value >= scala.Int.MinValue && this.value <= scala.Int.MaxValue)
+      this.value.intValue
+    else error("Int value out of range: " + this.value.toString)
+
+  def +(that: Natural): Natural = new Natural(this.value + that.value)
+  def -(that: Natural): Natural = Natural(this.value - that.value)
+  def *(that: Natural): Natural = new Natural(this.value * that.value)
+
+  def /%(that: Natural): (Natural, Natural) = if (that.value == 0) (new Natural(0), this)
+    else {
+      val (k, l) = this.value /% that.value
+      (new Natural(k), new Natural(l))
+    }
+
+  def <=(that: Natural): Boolean = this.value <= that.value
+
+  def <(that: Natural): Boolean = this.value < that.value
+
+}
+
+
 object Fun {
 
 def id[A]: A => A = (x: A) => x
@@ -46,54 +132,128 @@ implicit def equal_prod[A : HOL.equal, B : HOL.equal]: HOL.equal[(A, B)] = new
 
 } /* object Product_Type */
 
-object Power {
+object Num {
 
-trait power[A] extends Groups.one[A] with Groups.times[A] {
+abstract sealed class num
+final case class One() extends num
+final case class Bit0(a: num) extends num
+final case class Bit1(a: num) extends num
+
+} /* object Num */
+
+object Int {
+
+def abs_int(i: BigInt): BigInt = (if (i < BigInt(0)) (- i) else i)
+
+def sgn_int(i: BigInt): BigInt =
+  (if (i == BigInt(0)) BigInt(0)
+    else (if (BigInt(0) < i) BigInt(1) else (- BigInt(1))))
+
+implicit def equal_int: HOL.equal[BigInt] = new HOL.equal[BigInt] {
+  val `HOL.equal` = (a: BigInt, b: BigInt) => a == b
 }
 
-} /* object Power */
+} /* object Int */
 
-object Groups {
+object Divides {
 
-trait one[A] {
-  val `Groups.one`: A
+def divmod_int(k: BigInt, l: BigInt): (BigInt, BigInt) =
+  (if (k == BigInt(0)) (BigInt(0), BigInt(0))
+    else (if (l == BigInt(0)) (BigInt(0), k)
+           else Product_Type.apsnd[BigInt, BigInt,
+                                    BigInt]((a: BigInt) => Int.sgn_int(l) * a,
+     (if (Int.sgn_int(k) == Int.sgn_int(l))
+       ((k: BigInt) => (l: BigInt) => if (l == 0) (BigInt(0), k) else
+         (k.abs /% l.abs)).apply(k).apply(l)
+       else {
+              val (r, s): (BigInt, BigInt) =
+                ((k: BigInt) => (l: BigInt) => if (l == 0) (BigInt(0), k) else
+                  (k.abs /% l.abs)).apply(k).apply(l);
+              (if (s == BigInt(0)) ((- r), BigInt(0))
+                else ((- r) - BigInt(1), Int.abs_int(l) - s))
+            }))))
+
+def div_int(a: BigInt, b: BigInt): BigInt =
+  Product_Type.fst[BigInt, BigInt](divmod_int(a, b))
+
+def mod_int(a: BigInt, b: BigInt): BigInt =
+  Product_Type.snd[BigInt, BigInt](divmod_int(a, b))
+
+} /* object Divides */
+
+object GCD {
+
+def gcd_int(k: BigInt, l: BigInt): BigInt =
+  Int.abs_int((if (l == BigInt(0)) k
+                else gcd_int(l, Divides.mod_int(Int.abs_int(k),
+         Int.abs_int(l)))))
+
+} /* object GCD */
+
+object Rat {
+
+import /*implicits*/ Int.equal_int
+
+abstract sealed class rat
+final case class Frct(a: (BigInt, BigInt)) extends rat
+
+def quotient_of(x0: rat): (BigInt, BigInt) = x0 match {
+  case Frct(x) => x
 }
-def one[A](implicit A: one[A]): A = A.`Groups.one`
 
-trait plus[A] {
-  val `Groups.plus`: (A, A) => A
-}
-def plus[A](a: A, b: A)(implicit A: plus[A]): A = A.`Groups.plus`(a, b)
+def less_rat(p: rat, q: rat): Boolean =
+  {
+    val (a, c): (BigInt, BigInt) = quotient_of(p)
+    val (b, d): (BigInt, BigInt) = quotient_of(q);
+    a * d < c * b
+  }
 
-trait zero[A] {
-  val `Groups.zero`: A
-}
-def zero[A](implicit A: zero[A]): A = A.`Groups.zero`
+def normalize(p: (BigInt, BigInt)): (BigInt, BigInt) =
+  (if (BigInt(0) < Product_Type.snd[BigInt, BigInt](p))
+    {
+      val a: BigInt =
+        GCD.gcd_int(Product_Type.fst[BigInt, BigInt](p),
+                     Product_Type.snd[BigInt, BigInt](p));
+      (Divides.div_int(Product_Type.fst[BigInt, BigInt](p), a),
+        Divides.div_int(Product_Type.snd[BigInt, BigInt](p), a))
+    }
+    else (if (Product_Type.snd[BigInt, BigInt](p) == BigInt(0))
+           (BigInt(0), BigInt(1))
+           else {
+                  val a: BigInt =
+                    (- (GCD.gcd_int(Product_Type.fst[BigInt, BigInt](p),
+                                     Product_Type.snd[BigInt, BigInt](p))));
+                  (Divides.div_int(Product_Type.fst[BigInt, BigInt](p), a),
+                    Divides.div_int(Product_Type.snd[BigInt, BigInt](p), a))
+                }))
 
-trait times[A] {
-  val `Groups.times`: (A, A) => A
-}
-def times[A](a: A, b: A)(implicit A: times[A]): A = A.`Groups.times`(a, b)
+def plus_rat(p: rat, q: rat): rat =
+  Frct({
+         val (a, c): (BigInt, BigInt) = quotient_of(p)
+         val (b, d): (BigInt, BigInt) = quotient_of(q);
+         normalize((a * d + b * c, c * d))
+       })
 
-trait semigroup_add[A] extends plus[A] {
-}
+def zero_rat: rat = Frct((BigInt(0), BigInt(1)))
 
-trait monoid_add[A] extends semigroup_add[A] with zero[A] {
-}
+def equal_rat(a: rat, b: rat): Boolean =
+  Product_Type.equal_proda[BigInt, BigInt](quotient_of(a), quotient_of(b))
 
-trait semigroup_mult[A] extends times[A] {
-}
+def minus_rat(p: rat, q: rat): rat =
+  Frct({
+         val (a, c): (BigInt, BigInt) = quotient_of(p)
+         val (b, d): (BigInt, BigInt) = quotient_of(q);
+         normalize((a * d - b * c, c * d))
+       })
 
-trait monoid_mult[A] extends semigroup_mult[A] with Power.power[A] {
-}
+def less_eq_rat(p: rat, q: rat): Boolean =
+  {
+    val (a, c): (BigInt, BigInt) = quotient_of(p)
+    val (b, d): (BigInt, BigInt) = quotient_of(q);
+    a * d <= c * b
+  }
 
-trait ab_semigroup_add[A] extends semigroup_add[A] {
-}
-
-trait comm_monoid_add[A] extends ab_semigroup_add[A] with monoid_add[A] {
-}
-
-} /* object Groups */
+} /* object Rat */
 
 object Orderings {
 
@@ -116,510 +276,63 @@ trait linorder[A] extends order[A] {
 
 } /* object Orderings */
 
-object Nat {
+object Groups {
 
-abstract sealed class nat
-final case class Zero_nat() extends nat
-final case class Suc(a: nat) extends nat
+trait plus[A] {
+  val `Groups.plus`: (A, A) => A
+}
+def plus[A](a: A, b: A)(implicit A: plus[A]): A = A.`Groups.plus`(a, b)
 
-def of_nat_aux[A : Rings.semiring_1](inc: A => A, x1: nat, i: A): A =
-  (inc, x1, i) match {
-  case (inc, Zero_nat(), i) => i
-  case (inc, Suc(n), i) => of_nat_aux[A](inc, n, inc(i))
+trait zero[A] {
+  val `Groups.zero`: A
+}
+def zero[A](implicit A: zero[A]): A = A.`Groups.zero`
+
+trait semigroup_add[A] extends plus[A] {
 }
 
-def of_nat[A : Rings.semiring_1](n: nat): A =
-  of_nat_aux[A]((i: A) => Groups.plus[A](i, Groups.one[A]), n, Groups.zero[A])
-
-def less_nat(m: nat, x1: nat): Boolean = (m, x1) match {
-  case (m, Suc(n)) => less_eq_nat(m, n)
-  case (n, Zero_nat()) => false
+trait monoid_add[A] extends semigroup_add[A] with zero[A] {
 }
 
-def less_eq_nat(x0: nat, n: nat): Boolean = (x0, n) match {
-  case (Suc(m), n) => less_nat(m, n)
-  case (Zero_nat(), n) => true
+trait ab_semigroup_add[A] extends semigroup_add[A] {
 }
 
-implicit def ord_nat: Orderings.ord[nat] = new Orderings.ord[nat] {
-  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
-  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
+trait comm_monoid_add[A] extends ab_semigroup_add[A] with monoid_add[A] {
 }
 
-def one_nat: nat = Suc(Zero_nat())
+} /* object Groups */
 
-def equal_nata(x0: nat, x1: nat): Boolean = (x0, x1) match {
-  case (Suc(nat), Zero_nat()) => false
-  case (Zero_nat(), Suc(nat)) => false
-  case (Suc(nata), Suc(nat)) => equal_nata(nata, nat)
-  case (Zero_nat(), Zero_nat()) => true
+object Nata {
+
+def suc(n: Nat): Nat = n + Nat(1)
+
+implicit def ord_nat: Orderings.ord[Nat] = new Orderings.ord[Nat] {
+  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Orderings.less` = (a: Nat, b: Nat) => a < b
 }
 
-implicit def equal_nat: HOL.equal[nat] = new HOL.equal[nat] {
-  val `HOL.equal` = (a: nat, b: nat) => equal_nata(a, b)
+implicit def equal_nat: HOL.equal[Nat] = new HOL.equal[Nat] {
+  val `HOL.equal` = (a: Nat, b: Nat) => a == b
 }
 
-implicit def preorder_nat: Orderings.preorder[nat] = new Orderings.preorder[nat]
+implicit def preorder_nat: Orderings.preorder[Nat] = new Orderings.preorder[Nat]
   {
-  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
-  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
+  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Orderings.less` = (a: Nat, b: Nat) => a < b
 }
 
-implicit def order_nat: Orderings.order[nat] = new Orderings.order[nat] {
-  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
-  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
+implicit def order_nat: Orderings.order[Nat] = new Orderings.order[Nat] {
+  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Orderings.less` = (a: Nat, b: Nat) => a < b
 }
 
-def plus_nat(x0: nat, n: nat): nat = (x0, n) match {
-  case (Suc(m), n) => plus_nat(m, Suc(n))
-  case (Zero_nat(), n) => n
-}
-
-implicit def linorder_nat: Orderings.linorder[nat] = new Orderings.linorder[nat]
+implicit def linorder_nat: Orderings.linorder[Nat] = new Orderings.linorder[Nat]
   {
-  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
-  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
+  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
+  val `Orderings.less` = (a: Nat, b: Nat) => a < b
 }
 
-} /* object Nat */
-
-object Rings {
-
-trait semiring[A]
-  extends Groups.ab_semigroup_add[A] with Groups.semigroup_mult[A] {
-}
-
-trait mult_zero[A] extends Groups.times[A] with Groups.zero[A] {
-}
-
-trait semiring_0[A]
-  extends Groups.comm_monoid_add[A] with mult_zero[A] with semiring[A] {
-}
-
-trait zero_neq_one[A] extends Groups.one[A] with Groups.zero[A] {
-}
-
-trait semiring_1[A]
-  extends Num.semiring_numeral[A] with semiring_0[A] with zero_neq_one[A] {
-}
-
-} /* object Rings */
-
-object Num {
-
-abstract sealed class num
-final case class One() extends num
-final case class Bit0(a: num) extends num
-final case class Bit1(a: num) extends num
-
-def bitM(x0: num): num = x0 match {
-  case One() => One()
-  case Bit0(n) => Bit1(bitM(n))
-  case Bit1(n) => Bit1(Bit0(n))
-}
-
-trait numeral[A] extends Groups.one[A] with Groups.semigroup_add[A] {
-}
-
-def less_eq_num(x0: num, n: num): Boolean = (x0, n) match {
-  case (Bit1(m), Bit0(n)) => less_num(m, n)
-  case (Bit1(m), Bit1(n)) => less_eq_num(m, n)
-  case (Bit0(m), Bit1(n)) => less_eq_num(m, n)
-  case (Bit0(m), Bit0(n)) => less_eq_num(m, n)
-  case (Bit1(m), One()) => false
-  case (Bit0(m), One()) => false
-  case (One(), n) => true
-}
-
-def less_num(m: num, x1: num): Boolean = (m, x1) match {
-  case (Bit1(m), Bit0(n)) => less_num(m, n)
-  case (Bit1(m), Bit1(n)) => less_num(m, n)
-  case (Bit0(m), Bit1(n)) => less_eq_num(m, n)
-  case (Bit0(m), Bit0(n)) => less_num(m, n)
-  case (One(), Bit1(n)) => true
-  case (One(), Bit0(n)) => true
-  case (m, One()) => false
-}
-
-def plus_num(x0: num, x1: num): num = (x0, x1) match {
-  case (Bit1(m), Bit1(n)) => Bit0(plus_num(plus_num(m, n), One()))
-  case (Bit1(m), Bit0(n)) => Bit1(plus_num(m, n))
-  case (Bit1(m), One()) => Bit0(plus_num(m, One()))
-  case (Bit0(m), Bit1(n)) => Bit1(plus_num(m, n))
-  case (Bit0(m), Bit0(n)) => Bit0(plus_num(m, n))
-  case (Bit0(m), One()) => Bit1(m)
-  case (One(), Bit1(n)) => Bit0(plus_num(n, One()))
-  case (One(), Bit0(n)) => Bit1(n)
-  case (One(), One()) => Bit0(One())
-}
-
-def equal_num(x0: num, x1: num): Boolean = (x0, x1) match {
-  case (Bit1(numa), Bit0(num)) => false
-  case (Bit0(numa), Bit1(num)) => false
-  case (Bit1(num), One()) => false
-  case (One(), Bit1(num)) => false
-  case (Bit0(num), One()) => false
-  case (One(), Bit0(num)) => false
-  case (Bit1(numa), Bit1(num)) => equal_num(numa, num)
-  case (Bit0(numa), Bit0(num)) => equal_num(numa, num)
-  case (One(), One()) => true
-}
-
-def times_num(m: num, n: num): num = (m, n) match {
-  case (Bit1(m), Bit1(n)) =>
-    Bit1(plus_num(plus_num(m, n), Bit0(times_num(m, n))))
-  case (Bit1(m), Bit0(n)) => Bit0(times_num(Bit1(m), n))
-  case (Bit0(m), Bit1(n)) => Bit0(times_num(m, Bit1(n)))
-  case (Bit0(m), Bit0(n)) => Bit0(Bit0(times_num(m, n)))
-  case (One(), n) => n
-  case (m, One()) => m
-}
-
-def nat_of_num(x0: num): Nat.nat = x0 match {
-  case One() => Nat.Suc(Nat.Zero_nat())
-  case Bit0(x) => Nat.plus_nat(nat_of_num(x), nat_of_num(x))
-  case Bit1(x) => Nat.Suc(Nat.plus_nat(nat_of_num(x), nat_of_num(x)))
-}
-
-trait semiring_numeral[A]
-  extends Groups.monoid_mult[A] with numeral[A] with Rings.semiring[A] {
-}
-
-} /* object Num */
-
-object Int {
-
-abstract sealed class int
-final case class Zero_int() extends int
-final case class Pos(a: Num.num) extends int
-final case class Neg(a: Num.num) extends int
-
-def dup(x0: int): int = x0 match {
-  case Neg(n) => Neg(Num.Bit0(n))
-  case Pos(n) => Pos(Num.Bit0(n))
-  case Zero_int() => Zero_int()
-}
-
-def nat(x0: int): Nat.nat = x0 match {
-  case Pos(k) => Num.nat_of_num(k)
-  case Zero_int() => Nat.Zero_nat()
-  case Neg(k) => Nat.Zero_nat()
-}
-
-def uminus_int(x0: int): int = x0 match {
-  case Neg(m) => Pos(m)
-  case Pos(m) => Neg(m)
-  case Zero_int() => Zero_int()
-}
-
-def minus_int(k: int, l: int): int = (k, l) match {
-  case (Neg(m), Neg(n)) => sub(n, m)
-  case (Neg(m), Pos(n)) => Neg(Num.plus_num(m, n))
-  case (Pos(m), Neg(n)) => Pos(Num.plus_num(m, n))
-  case (Pos(m), Pos(n)) => sub(m, n)
-  case (Zero_int(), l) => uminus_int(l)
-  case (k, Zero_int()) => k
-}
-
-def plus_inta(k: int, l: int): int = (k, l) match {
-  case (Neg(m), Neg(n)) => Neg(Num.plus_num(m, n))
-  case (Neg(m), Pos(n)) => sub(n, m)
-  case (Pos(m), Neg(n)) => sub(m, n)
-  case (Pos(m), Pos(n)) => Pos(Num.plus_num(m, n))
-  case (Zero_int(), l) => l
-  case (k, Zero_int()) => k
-}
-
-def sub(x0: Num.num, x1: Num.num): int = (x0, x1) match {
-  case (Num.Bit0(m), Num.Bit1(n)) => minus_int(dup(sub(m, n)), Pos(Num.One()))
-  case (Num.Bit1(m), Num.Bit0(n)) => plus_inta(dup(sub(m, n)), Pos(Num.One()))
-  case (Num.Bit1(m), Num.Bit1(n)) => dup(sub(m, n))
-  case (Num.Bit0(m), Num.Bit0(n)) => dup(sub(m, n))
-  case (Num.One(), Num.Bit1(n)) => Neg(Num.Bit0(n))
-  case (Num.One(), Num.Bit0(n)) => Neg(Num.bitM(n))
-  case (Num.Bit1(m), Num.One()) => Pos(Num.Bit0(m))
-  case (Num.Bit0(m), Num.One()) => Pos(Num.bitM(m))
-  case (Num.One(), Num.One()) => Zero_int()
-}
-
-def one_inta: int = Pos(Num.One())
-
-implicit def one_int: Groups.one[int] = new Groups.one[int] {
-  val `Groups.one` = one_inta
-}
-
-def less_int(x0: int, x1: int): Boolean = (x0, x1) match {
-  case (Neg(k), Neg(l)) => Num.less_num(l, k)
-  case (Neg(k), Pos(l)) => true
-  case (Neg(k), Zero_int()) => true
-  case (Pos(k), Neg(l)) => false
-  case (Pos(k), Pos(l)) => Num.less_num(k, l)
-  case (Pos(k), Zero_int()) => false
-  case (Zero_int(), Neg(l)) => false
-  case (Zero_int(), Pos(l)) => true
-  case (Zero_int(), Zero_int()) => false
-}
-
-def abs_int(i: int): int = (if (less_int(i, Zero_int())) uminus_int(i) else i)
-
-implicit def plus_int: Groups.plus[int] = new Groups.plus[int] {
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-def equal_inta(x0: int, x1: int): Boolean = (x0, x1) match {
-  case (Neg(k), Neg(l)) => Num.equal_num(k, l)
-  case (Neg(k), Pos(l)) => false
-  case (Neg(k), Zero_int()) => false
-  case (Pos(k), Neg(l)) => false
-  case (Pos(k), Pos(l)) => Num.equal_num(k, l)
-  case (Pos(k), Zero_int()) => false
-  case (Zero_int(), Neg(l)) => false
-  case (Zero_int(), Pos(l)) => false
-  case (Zero_int(), Zero_int()) => true
-}
-
-def sgn_int(i: int): int =
-  (if (equal_inta(i, Zero_int())) Zero_int()
-    else (if (less_int(Zero_int(), i)) Pos(Num.One())
-           else uminus_int(Pos(Num.One()))))
-
-implicit def zero_int: Groups.zero[int] = new Groups.zero[int] {
-  val `Groups.zero` = Zero_int()
-}
-
-implicit def equal_int: HOL.equal[int] = new HOL.equal[int] {
-  val `HOL.equal` = (a: int, b: int) => equal_inta(a, b)
-}
-
-def times_inta(k: int, l: int): int = (k, l) match {
-  case (Neg(m), Neg(n)) => Pos(Num.times_num(m, n))
-  case (Neg(m), Pos(n)) => Neg(Num.times_num(m, n))
-  case (Pos(m), Neg(n)) => Neg(Num.times_num(m, n))
-  case (Pos(m), Pos(n)) => Pos(Num.times_num(m, n))
-  case (Zero_int(), l) => Zero_int()
-  case (k, Zero_int()) => Zero_int()
-}
-
-implicit def times_int: Groups.times[int] = new Groups.times[int] {
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-}
-
-implicit def power_int: Power.power[int] = new Power.power[int] {
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-  val `Groups.one` = one_inta
-}
-
-implicit def semigroup_add_int: Groups.semigroup_add[int] = new
-  Groups.semigroup_add[int] {
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-implicit def numeral_int: Num.numeral[int] = new Num.numeral[int] {
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-  val `Groups.one` = one_inta
-}
-
-def less_eq_int(x0: int, x1: int): Boolean = (x0, x1) match {
-  case (Neg(k), Neg(l)) => Num.less_eq_num(l, k)
-  case (Neg(k), Pos(l)) => true
-  case (Neg(k), Zero_int()) => true
-  case (Pos(k), Neg(l)) => false
-  case (Pos(k), Pos(l)) => Num.less_eq_num(k, l)
-  case (Pos(k), Zero_int()) => false
-  case (Zero_int(), Neg(l)) => false
-  case (Zero_int(), Pos(l)) => true
-  case (Zero_int(), Zero_int()) => true
-}
-
-implicit def ab_semigroup_add_int: Groups.ab_semigroup_add[int] = new
-  Groups.ab_semigroup_add[int] {
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-implicit def semigroup_mult_int: Groups.semigroup_mult[int] = new
-  Groups.semigroup_mult[int] {
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-}
-
-implicit def semiring_int: Rings.semiring[int] = new Rings.semiring[int] {
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-implicit def mult_zero_int: Rings.mult_zero[int] = new Rings.mult_zero[int] {
-  val `Groups.zero` = Zero_int()
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-}
-
-implicit def monoid_add_int: Groups.monoid_add[int] = new Groups.monoid_add[int]
-  {
-  val `Groups.zero` = Zero_int()
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-implicit def comm_monoid_add_int: Groups.comm_monoid_add[int] = new
-  Groups.comm_monoid_add[int] {
-  val `Groups.zero` = Zero_int()
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-implicit def semiring_0_int: Rings.semiring_0[int] = new Rings.semiring_0[int] {
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-  val `Groups.zero` = Zero_int()
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-implicit def monoid_mult_int: Groups.monoid_mult[int] = new
-  Groups.monoid_mult[int] {
-  val `Groups.one` = one_inta
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-}
-
-implicit def semiring_numeral_int: Num.semiring_numeral[int] = new
-  Num.semiring_numeral[int] {
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-  val `Groups.one` = one_inta
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-}
-
-implicit def zero_neq_one_int: Rings.zero_neq_one[int] = new
-  Rings.zero_neq_one[int] {
-  val `Groups.zero` = Zero_int()
-  val `Groups.one` = one_inta
-}
-
-implicit def semiring_1_int: Rings.semiring_1[int] = new Rings.semiring_1[int] {
-  val `Groups.zero` = Zero_int()
-  val `Groups.one` = one_inta
-  val `Groups.times` = (a: int, b: int) => times_inta(a, b)
-  val `Groups.plus` = (a: int, b: int) => plus_inta(a, b)
-}
-
-} /* object Int */
-
-object Divides {
-
-def adjust(b: Int.int): ((Int.int, Int.int)) => (Int.int, Int.int) =
-  (a: (Int.int, Int.int)) =>
-    {
-      val (q, r): (Int.int, Int.int) = a;
-      (if (Int.less_eq_int(Int.Zero_int(), Int.minus_int(r, b)))
-        (Int.plus_inta(Int.times_inta(Int.Pos(Num.Bit0(Num.One())), q),
-                        Int.Pos(Num.One())),
-          Int.minus_int(r, b))
-        else (Int.times_inta(Int.Pos(Num.Bit0(Num.One())), q), r))
-    }
-
-def posDivAlg(a: Int.int, b: Int.int): (Int.int, Int.int) =
-  (if (Int.less_int(a, b) || Int.less_eq_int(b, Int.Zero_int()))
-    (Int.Zero_int(), a)
-    else (adjust(b)).apply(posDivAlg(a, Int.times_inta(Int.Pos(Num.Bit0(Num.One())),
-                b))))
-
-def pdivmod(k: Int.int, l: Int.int): (Int.int, Int.int) =
-  (if (Int.equal_inta(l, Int.Zero_int())) (Int.Zero_int(), Int.abs_int(k))
-    else posDivAlg(Int.abs_int(k), Int.abs_int(l)))
-
-def divmod_int(k: Int.int, l: Int.int): (Int.int, Int.int) =
-  (if (Int.equal_inta(k, Int.Zero_int())) (Int.Zero_int(), Int.Zero_int())
-    else (if (Int.equal_inta(l, Int.Zero_int())) (Int.Zero_int(), k)
-           else Product_Type.apsnd[Int.int, Int.int,
-                                    Int.int]((a: Int.int) =>
-       Int.times_inta(Int.sgn_int(l), a),
-      (if (Int.equal_inta(Int.sgn_int(k), Int.sgn_int(l))) pdivmod(k, l)
-        else {
-               val (r, s): (Int.int, Int.int) = pdivmod(k, l);
-               (if (Int.equal_inta(s, Int.Zero_int()))
-                 (Int.uminus_int(r), Int.Zero_int())
-                 else (Int.minus_int(Int.uminus_int(r), Int.Pos(Num.One())),
-                        Int.minus_int(Int.abs_int(l), s)))
-             }))))
-
-def div_int(a: Int.int, b: Int.int): Int.int =
-  Product_Type.fst[Int.int, Int.int](divmod_int(a, b))
-
-def mod_int(a: Int.int, b: Int.int): Int.int =
-  Product_Type.snd[Int.int, Int.int](divmod_int(a, b))
-
-} /* object Divides */
-
-object GCD {
-
-def gcd_int(k: Int.int, l: Int.int): Int.int =
-  Int.abs_int((if (Int.equal_inta(l, Int.Zero_int())) k
-                else gcd_int(l, Divides.mod_int(Int.abs_int(k),
-         Int.abs_int(l)))))
-
-} /* object GCD */
-
-object Rat {
-
-import /*implicits*/ Int.equal_int
-
-abstract sealed class rat
-final case class Frct(a: (Int.int, Int.int)) extends rat
-
-def quotient_of(x0: rat): (Int.int, Int.int) = x0 match {
-  case Frct(x) => x
-}
-
-def less_rat(p: rat, q: rat): Boolean =
-  {
-    val (a, c): (Int.int, Int.int) = quotient_of(p)
-    val (b, d): (Int.int, Int.int) = quotient_of(q);
-    Int.less_int(Int.times_inta(a, d), Int.times_inta(c, b))
-  }
-
-def normalize(p: (Int.int, Int.int)): (Int.int, Int.int) =
-  (if (Int.less_int(Int.Zero_int(), Product_Type.snd[Int.int, Int.int](p)))
-    {
-      val a: Int.int =
-        GCD.gcd_int(Product_Type.fst[Int.int, Int.int](p),
-                     Product_Type.snd[Int.int, Int.int](p));
-      (Divides.div_int(Product_Type.fst[Int.int, Int.int](p), a),
-        Divides.div_int(Product_Type.snd[Int.int, Int.int](p), a))
-    }
-    else (if (Int.equal_inta(Product_Type.snd[Int.int, Int.int](p),
-                              Int.Zero_int()))
-           (Int.Zero_int(), Int.Pos(Num.One()))
-           else {
-                  val a: Int.int =
-                    Int.uminus_int(GCD.gcd_int(Product_Type.fst[Int.int,
-                         Int.int](p),
-        Product_Type.snd[Int.int, Int.int](p)));
-                  (Divides.div_int(Product_Type.fst[Int.int, Int.int](p), a),
-                    Divides.div_int(Product_Type.snd[Int.int, Int.int](p), a))
-                }))
-
-def plus_rat(p: rat, q: rat): rat =
-  Frct({
-         val (a, c): (Int.int, Int.int) = quotient_of(p)
-         val (b, d): (Int.int, Int.int) = quotient_of(q);
-         normalize((Int.plus_inta(Int.times_inta(a, d), Int.times_inta(b, c)),
-                     Int.times_inta(c, d)))
-       })
-
-def zero_rat: rat = Frct((Int.Zero_int(), Int.Pos(Num.One())))
-
-def equal_rat(a: rat, b: rat): Boolean =
-  Product_Type.equal_proda[Int.int, Int.int](quotient_of(a), quotient_of(b))
-
-def minus_rat(p: rat, q: rat): rat =
-  Frct({
-         val (a, c): (Int.int, Int.int) = quotient_of(p)
-         val (b, d): (Int.int, Int.int) = quotient_of(q);
-         normalize((Int.minus_int(Int.times_inta(a, d), Int.times_inta(b, c)),
-                     Int.times_inta(c, d)))
-       })
-
-def less_eq_rat(p: rat, q: rat): Boolean =
-  {
-    val (a, c): (Int.int, Int.int) = quotient_of(p)
-    val (b, d): (Int.int, Int.int) = quotient_of(q);
-    Int.less_eq_int(Int.times_inta(a, d), Int.times_inta(c, b))
-  }
-
-} /* object Rat */
+} /* object Nata */
 
 object Lista {
 
@@ -632,9 +345,8 @@ def map[A, B](f: A => B, x1: List[A]): List[B] = (f, x1) match {
   case (f, x :: xs) => f(x) :: map[A, B](f, xs)
 }
 
-def nth[A](x0: List[A], x1: Nat.nat): A = (x0, x1) match {
-  case (x :: xs, Nat.Suc(n)) => nth[A](xs, n)
-  case (x :: xs, Nat.Zero_nat()) => x
+def nth[A](x0: List[A], n: Nat): A = (x0, n) match {
+  case (x :: xs, n) => (if (n == Nat(0)) x else nth[A](xs, n - Nat(1)))
 }
 
 def fold[A, B](f: A => B => B, x1: List[A], s: B): B = (f, x1, s) match {
@@ -647,9 +359,8 @@ def maps[A, B](f: A => List[B], x1: List[A]): List[B] = (f, x1) match {
   case (f, x :: xs) => f(x) ++ maps[A, B](f, xs)
 }
 
-def upto(i: Int.int, j: Int.int): List[Int.int] =
-  (if (Int.less_eq_int(i, j)) i :: upto(Int.plus_inta(i, Int.Pos(Num.One())), j)
-    else Nil)
+def upto(i: BigInt, j: BigInt): List[BigInt] =
+  (if (i <= j) i :: upto(i + BigInt(1), j) else Nil)
 
 def foldr[A, B](f: A => B => B, x1: List[A]): B => B = (f, x1) match {
   case (f, Nil) => Fun.id[B]
@@ -703,13 +414,12 @@ def removeAll[A : HOL.equal](x: A, xa1: List[A]): List[A] = (x, xa1) match {
     (if (HOL.eq[A](x, y)) removeAll[A](x, xs) else y :: removeAll[A](x, xs))
 }
 
-def gen_length[A](n: Nat.nat, x1: List[A]): Nat.nat = (n, x1) match {
-  case (n, x :: xs) => gen_length[A](Nat.Suc(n), xs)
+def gen_length[A](n: Nat, x1: List[A]): Nat = (n, x1) match {
+  case (n, x :: xs) => gen_length[A](Nata.suc(n), xs)
   case (n, Nil) => n
 }
 
-def size_list[A]: (List[A]) => Nat.nat =
-  (a: List[A]) => gen_length[A](Nat.Zero_nat(), a)
+def size_list[A]: (List[A]) => Nat = (a: List[A]) => gen_length[A](Nat(0), a)
 
 def map_filter[A, B](f: A => Option[B], x1: List[A]): List[B] = (f, x1) match {
   case (f, Nil) => Nil
@@ -720,10 +430,10 @@ def map_filter[A, B](f: A => Option[B], x1: List[A]): List[B] = (f, x1) match {
      })
 }
 
-def list_update[A](x0: List[A], i: Nat.nat, y: A): List[A] = (x0, i, y) match {
-  case (x :: xs, Nat.Suc(i), y) => x :: list_update[A](xs, i, y)
-  case (x :: xs, Nat.Zero_nat(), y) => y :: xs
+def list_update[A](x0: List[A], i: Nat, y: A): List[A] = (x0, i, y) match {
   case (Nil, i, y) => Nil
+  case (x :: xs, i, y) =>
+    (if (i == Nat(0)) y :: xs else x :: list_update[A](xs, i - Nat(1), y))
 }
 
 def map_project[A, B](f: A => Option[B], x1: Set.set[A]): Set.set[B] = (f, x1)
@@ -935,15 +645,13 @@ def domain[A, B](r: Set.set[(A, B)]): Set.set[A] =
 
 object Finite_Set {
 
-def card[A : HOL.equal](x0: Set.set[A]): Nat.nat = x0 match {
+def card[A : HOL.equal](x0: Set.set[A]): Nat = x0 match {
   case Set.Seta(xs) => Lista.size_list[A].apply(Lista.remdups[A](xs))
 }
 
 } /* object Finite_Set */
 
 object Partitions {
-
-import /*implicits*/ Int.semiring_1_int
 
 def all_partitions_fun_list[A : HOL.equal](x0: List[A]):
       List[List[Set.set[A]]] =
@@ -956,16 +664,15 @@ def all_partitions_fun_list[A : HOL.equal](x0: List[A]):
         all_partitions_fun_list[A](v :: va);
       Lista.maps[List[Set.set[A]],
                   List[Set.set[A]]]((p: List[Set.set[A]]) =>
-                                      Lista.map[Nat.nat,
-         List[Set.set[A]]]((i: Nat.nat) =>
+                                      Lista.map[Nat,
+         List[Set.set[A]]]((i: Nat) =>
                              Lista.list_update[Set.set[A]](p, i,
                     Set.sup_set[A](Set.insert[A](x, Set.bot_set[A]),
                                     Lista.nth[Set.set[A]](p, i))),
-                            Lista.map[Int.int,
-                                       Nat.nat]((a: Int.int) => Int.nat(a),
-         Lista.upto(Int.Zero_int(),
-                     Int.minus_int(Nat.of_nat[Int.int](Lista.size_list[Set.set[A]].apply(p)),
-                                    Int.Pos(Num.One()))))),
+                            Lista.map[BigInt,
+                                       Nat]((a: BigInt) => Nat(a),
+     Lista.upto(BigInt(0),
+                 Lista.size_list[Set.set[A]].apply(p).as_BigInt - BigInt(1)))),
                                      xs_partitions) ++
         Lista.map[List[Set.set[A]],
                    List[Set.set[A]]]((a: List[Set.set[A]]) =>
@@ -1008,8 +715,7 @@ def eval_rel_or[A : HOL.equal, B : HOL.equal](r: Set.set[(A, B)], a: A, z: B):
   {
     val im: Set.set[B] =
       Relation.image[A, B](r, Set.insert[A](a, Set.bot_set[A]));
-    (if (Nat.equal_nata(Finite_Set.card[B](im), Nat.one_nat))
-      Set.the_elem[B](im) else z)
+    (if (Finite_Set.card[B](im) == Nat(1)) Set.the_elem[B](im) else z)
   }
 
 def injective_functions_list[A : HOL.equal,
@@ -1034,63 +740,58 @@ def injective_functions_list[A : HOL.equal,
 
 object nVCG_CaseChecker {
 
-import /*implicits*/ RealDef.equal_real, Nat.linorder_nat,
+import /*implicits*/ RealDef.equal_real, Nata.linorder_nat,
   RealDef.linorder_real, RealDef.comm_monoid_add_real, Set.equal_set,
-  Nat.equal_nat
+  Nata.equal_nat
 
-def revenue_rel(b: Nat.nat => (Set.set[Nat.nat]) => RealDef.real,
-                 buyer: Set.set[(Set.set[Nat.nat], Nat.nat)]):
+def revenue_rel(b: Nat => (Set.set[Nat]) => RealDef.real,
+                 buyer: Set.set[(Set.set[Nat], Nat)]):
       RealDef.real =
-  Big_Operators.setsum[Set.set[Nat.nat],
-                        RealDef.real]((y: Set.set[Nat.nat]) =>
-(b(RelationProperties.eval_rel[Set.set[Nat.nat], Nat.nat](buyer, y)))(y),
-                                       Relation.domain[Set.set[Nat.nat],
-                Nat.nat](buyer))
+  Big_Operators.setsum[Set.set[Nat],
+                        RealDef.real]((y: Set.set[Nat]) =>
+(b(RelationProperties.eval_rel[Set.set[Nat], Nat](buyer, y)))(y),
+                                       Relation.domain[Set.set[Nat],
+                Nat](buyer))
 
-def possible_allocations_comp(g: Set.set[Nat.nat], n: Set.set[Nat.nat]):
-      List[Set.set[(Set.set[Nat.nat], Nat.nat)]] =
-  Lista.maps[List[Set.set[Nat.nat]],
-              Set.set[(Set.set[Nat.nat],
-                        Nat.nat)]]((y: List[Set.set[Nat.nat]]) =>
-                                     Lista.map[Set.set[(Set.set[Nat.nat],
-                 Nat.nat)],
-        Set.set[(Set.set[Nat.nat],
-                  Nat.nat)]]((potential_buyer:
-                                Set.set[(Set.set[Nat.nat], Nat.nat)])
-                               => potential_buyer,
-                              RelationProperties.injective_functions_list[Set.set[Nat.nat],
-                                   Nat.nat](y,
-     Lista.sorted_list_of_set[Nat.nat](n))),
-                                    Partitions.all_partitions_fun_list[Nat.nat](Lista.sorted_list_of_set[Nat.nat](g)))
+def possible_allocations_comp(g: Set.set[Nat], n: Set.set[Nat]):
+      List[Set.set[(Set.set[Nat], Nat)]] =
+  Lista.maps[List[Set.set[Nat]],
+              Set.set[(Set.set[Nat],
+                        Nat)]]((y: List[Set.set[Nat]]) =>
+                                 Lista.map[Set.set[(Set.set[Nat], Nat)],
+    Set.set[(Set.set[Nat],
+              Nat)]]((potential_buyer: Set.set[(Set.set[Nat], Nat)]) =>
+                       potential_buyer,
+                      RelationProperties.injective_functions_list[Set.set[Nat],
+                           Nat](y, Lista.sorted_list_of_set[Nat](n))),
+                                Partitions.all_partitions_fun_list[Nat](Lista.sorted_list_of_set[Nat](g)))
 
-def max_revenue_comp(g: Set.set[Nat.nat], n: Set.set[Nat.nat],
-                      b: Nat.nat => (Set.set[Nat.nat]) => RealDef.real):
+def max_revenue_comp(g: Set.set[Nat], n: Set.set[Nat],
+                      b: Nat => (Set.set[Nat]) => RealDef.real):
       RealDef.real =
-  Maximum.maximum_comp_list[Set.set[(Set.set[Nat.nat], Nat.nat)],
+  Maximum.maximum_comp_list[Set.set[(Set.set[Nat], Nat)],
                              RealDef.real](possible_allocations_comp(g, n),
-    (a: Set.set[(Set.set[Nat.nat], Nat.nat)]) => revenue_rel(b, a))
+    (a: Set.set[(Set.set[Nat], Nat)]) => revenue_rel(b, a))
 
-def winning_allocations_comp_CL(g: Set.set[Nat.nat], n: Set.set[Nat.nat],
-                                 b: Nat.nat =>
-                                      (Set.set[Nat.nat]) => RealDef.real):
-      List[Set.set[(Set.set[Nat.nat], Nat.nat)]] =
-  Maximum.arg_max_comp_list[Set.set[(Set.set[Nat.nat], Nat.nat)],
+def winning_allocations_comp_CL(g: Set.set[Nat], n: Set.set[Nat],
+                                 b: Nat => (Set.set[Nat]) => RealDef.real):
+      List[Set.set[(Set.set[Nat], Nat)]] =
+  Maximum.arg_max_comp_list[Set.set[(Set.set[Nat], Nat)],
                              RealDef.real](possible_allocations_comp(g, n),
-    (a: Set.set[(Set.set[Nat.nat], Nat.nat)]) => revenue_rel(b, a))
+    (a: Set.set[(Set.set[Nat], Nat)]) => revenue_rel(b, a))
 
-def payments_comp_workaround(g: Set.set[Nat.nat], na: Set.set[Nat.nat],
-                              t: (List[Set.set[(Set.set[Nat.nat], Nat.nat)]]) =>
-                                   Set.set[(Set.set[Nat.nat], Nat.nat)],
-                              b: Nat.nat => (Set.set[Nat.nat]) => RealDef.real,
-                              n: Nat.nat):
+def payments_comp_workaround(g: Set.set[Nat], na: Set.set[Nat],
+                              t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
+                                   Set.set[(Set.set[Nat], Nat)],
+                              b: Nat => (Set.set[Nat]) => RealDef.real, n: Nat):
       RealDef.real =
-  RealDef.minus_real(max_revenue_comp(g, Set.remove[Nat.nat](n, na), b),
-                      Big_Operators.setsum[Nat.nat,
-    RealDef.real]((m: Nat.nat) =>
-                    (b(m))(RelationProperties.eval_rel_or[Nat.nat,
-                   Set.set[Nat.nat]](RelationProperties.inverse[Set.set[Nat.nat],
-                         Nat.nat](t(winning_allocations_comp_CL(g, na, b))),
-                                      m, Set.bot_set[Nat.nat])),
-                   Set.remove[Nat.nat](n, na)))
+  RealDef.minus_real(max_revenue_comp(g, Set.remove[Nat](n, na), b),
+                      Big_Operators.setsum[Nat,
+    RealDef.real]((m: Nat) =>
+                    (b(m))(RelationProperties.eval_rel_or[Nat,
+                   Set.set[Nat]](RelationProperties.inverse[Set.set[Nat],
+                     Nat](t(winning_allocations_comp_CL(g, na, b))),
+                                  m, Set.bot_set[Nat])),
+                   Set.remove[Nat](n, na)))
 
 } /* object nVCG_CaseChecker */
