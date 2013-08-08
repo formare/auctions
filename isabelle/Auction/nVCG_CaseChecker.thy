@@ -22,10 +22,9 @@ header {* Vickrey's Theorem: second price auctions are
 
 theory nVCG_CaseChecker
 imports Complex_Main
-  (* "~~/src/HOL/Library/Function_Algebras" (* was needed when we added vectors component-wise *)
-  "~~/src/HOL/Library/Order_Relation"
-  "~~/src/HOL/Library/Efficient_Nat"
-*)
+  (* "~~/src/HOL/Library/Function_Algebras" was needed when we added vectors component-wise *)
+  (* "~~/src/HOL/Library/Order_Relation" *)
+  "~~/src/HOL/Library/Efficient_Nat" (* needed for code generation.  TODO CL: factor code generation into separate *.thy file *)
   Vectors
   Partitions
   RelationProperties
