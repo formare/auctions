@@ -23,18 +23,20 @@ object CombinatorialVickreyAuctionCATS {
     case _ => false
   }
   
+
+  def seqToPrettyString(s: Seq[Any]): String =
+    s.map(prettyPrint(_)).mkString(", ") 
+
   /** pretty-prints several Isabelle types for display to the user */
   // TODO CL: factor out to a module such as "IsabelleLibraryCompanion"
   def prettyPrint[A](x: A): String = x match {
     /* Isabelle sets */
-    case Seta(l) => "{%s}".format(l.map(prettyPrint(_)).mkString(", "))
+    case Seta(l) => "{%s}".format(seqToPrettyString(l))
     /* Isabelle's reals-from-rationals */
     // matching Frct(num, den) doesn't work, as actually (num, den) is a tuple
     case Ratreal(Frct((num, den))) => (num.toDouble / den.toDouble).toString /* note that this loses precision! */
     /* some Scala structures */
-    // TODO find common supertype
-    case l: List[Any] => "[%s]".format(l.map(prettyPrint(_)).mkString(", ")) // TODO remove redundancy with case Seta(l)
-    case l: Vector[Any] => "[%s]".format(l.map(prettyPrint(_)).mkString(", ")) // TODO remove redundancy with case Seta(l)
+    case s: Seq[Any] => "[%s]".format(seqToPrettyString(s)) /* matches, e.g., List and Vector */
     case p: Product => "(%s)".format(p.productIterator.toList.map(prettyPrint(_)).mkString(", "))
     /* anything else */
     case _ => x.toString
@@ -42,7 +44,7 @@ object CombinatorialVickreyAuctionCATS {
 
   /** a trivial tie breaker that takes the head of a List */
   def trivialTieBreaker[T](l: List[T]) = l.head
-  def tieBreakerWithType(l: List[CombinatorialVickreyAuction.Set.set[(CombinatorialVickreyAuction.Set.set[CombinatorialVickreyAuction.Nat], CombinatorialVickreyAuction.Nat)]]) = l.head
+  def tieBreakerWithType(l: List[set[(set[Nat], Nat)]]) = l.head
 
   /** the paper example */
   def paperExampleParticipants = intListToNatSet(List(1, 2, 3))
