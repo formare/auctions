@@ -48,6 +48,7 @@ object CombinatorialVickreyAuctionCAB {
     // Informally, the file format is: any number of comment lines beginning with percent sign, the word "goods" followed by the total number of goods, on the next line, the word "bids" followed by the total number of bids.  Then each following line is the bid number, followed by the price, followed by each good-number requested, all terminated by a pound sign.  Each line that represents a bid is tab-delimited.
 
     // regular expressions that match input lines
+    // TODO change to parser combinators
     val nGoodsRE = """goods\s+(\d+)""".r
     val nBiddersRE = """bidders\s+(\d+)""".r
     val bidRE = """(\d+)\s+(\d+)(?:\.(\d+))?\s+((?:\d+\s+)*)#""".r // (?: ... ) is a non-capturing group
@@ -55,12 +56,24 @@ object CombinatorialVickreyAuctionCAB {
     // iterator over all non-comment lines from standard input
     val contentLines = scala.io.Source.stdin.getLines().filter(_(0) != '%')
 
-    // TODO exception handling
-    val nGoodsRE(nGoodsStr) = contentLines.next
-    val nGoods = nGoodsStr.toInt
+    val nGoods = contentLines.next match {
+      case nGoodsRE(nGoodsStr) => nGoodsStr.toInt
+      case instead => {
+        // TODO output input line number
+        Console.err.printf("Expected \"goods <number>\"; found \"%s\"\n", instead)
+        System.exit(1)
+        0 // fallback return value; never needed
+      }
+    }
     
-    val nBiddersRE(nBidsStr) = contentLines.next
-    val nBidders = nBidsStr.toInt
+    val nBidders = contentLines.next match {
+      case nBiddersRE(nBidsStr) => nBidsStr.toInt
+      case instead => {
+        Console.err.println("Expected \"bids <number>\"; found \"%s\"\n", instead)
+        System.exit(2)
+        0
+      }
+    }
 
     val bidsLines = (contentLines collect {
       case bidRE(bidderID, priceWhole, priceMaybeFrac, bidContent) => {
@@ -68,18 +81,24 @@ object CombinatorialVickreyAuctionCAB {
         val power = if (priceMaybeFrac != null) priceMaybeFrac.length else 0
         val frac = if (priceMaybeFrac != null) priceMaybeFrac.toInt else 0
         val commonDen = math.pow(10, power).toInt
+        // TODO check whether values are in range
         (Nat(bidderID.toInt),
          Ratreal(decToFrct(priceWhole, Option(priceMaybeFrac))),
          intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List]))
+      }
+      case instead => {
+        Console.err.printf("Expected \"<bidderID> <price> <good> ... <good> #\"; found \"%s\"\n", instead)
+        System.exit(3)
+        (null, null, null) // TODO find better fallback value
       }
     }).toList
     println("processed CAB input: " + prettyPrint(bidsLines))
 
     // CONVERT TO THE DATA STRUCTURES THE GENERATED CODE NEEDS
     val participantSet = Seta((0 to nBidders - 1).map(Nat(_)).to[List])
-    println("Participants: " + prettyPrint(participantSet))
+    println("Participants: ", prettyPrint(participantSet))
     val goodsSet = Seta((0 to nGoods - 1).map(Nat(_)).to[List])
-    println("Goods: " + prettyPrint(goodsSet))
+    println("Goods: ", prettyPrint(goodsSet))
     val bidFunction = (bidder: Nat) => (goods: set[Nat]) => {
       val bid = bidsLines.find((elem: (Nat, Ratreal, set[Nat])) =>
         elem._1 == bidder
@@ -93,12 +112,12 @@ object CombinatorialVickreyAuctionCAB {
     val tieBreaker = trivialTieBreaker[set[(set[Nat], Nat)]] _
 
     val winningAllocations = winning_allocations_comp_CL(goodsSet, participantSet, bidFunction)
-    println("Winning allocations: " + prettyPrint(winningAllocations))
-    println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
+    println("Winning allocations: ", prettyPrint(winningAllocations))
+    println("Winner after tie-breaking: ", prettyPrint(tieBreaker(winningAllocations)))
 
     val payments = for (participant <- 0 to nBidders - 1) yield
       // for the following occurrence of tieBreaker, we need the explicit type.  Above, trivialTieBreaker[Any] would also have worked.
       (participant, payments_comp_workaround(goodsSet, participantSet, tieBreaker, bidFunction, Nat(participant)))
-    println("Payments per participant: " + prettyPrint(payments))
+    println("Payments per participant: ", prettyPrint(payments))
   }
 }
