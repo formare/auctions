@@ -25,6 +25,10 @@ imports Main
   SingleGoodAuction
 begin
 
+(*
+CL: CR commented that a tie-breaker may even be employed on the highest level of ranking bids:
+There's nothing, in principle, to prevent design of an auction in which the value of a bid is not the first element in the lexicographical order - or even, presumably - in which the scoring rule calculates a weighted average of a number of factors.
+*)
 
 text{* Helps to determine whether one participant should be preferred over another one in the case of a draw.
   t x y = True should result in x being (strictly) preferred. *}
