@@ -14,10 +14,14 @@
 # TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
 
 PACKAGE = CombinatorialVickreyAuction
+
 EXECUTABLES = \
 $(PACKAGE)CATS.class \
 $(PACKAGE)CAB.class \
 $(PACKAGE)HardCoded.class
+
+# locating scala-library.jar: http://stackoverflow.com/a/7582803/2397768
+SCALA_LIBRARY = $$(scala -e 'val so = classOf[ScalaObject].getResource("ScalaObject.class").toString; println(so.substring(so.lastIndexOf(":") + 1, so.lastIndexOf("!")))')
 
 all: $(EXECUTABLES)
 
@@ -43,14 +47,14 @@ $(PACKAGE)/nVCG_CaseChecker.class: generated/$(PACKAGE).scala nVCG_CaseChecker.s
 nVCG_CaseChecker.scala: generated/$(PACKAGE).scala
 	./split-scala-modules.pl < $<
 
-$(PACKAGE)CATS.jar: $(PACKAGE)CATS.class
-	jar cf $@ $(PACKAGE)/ $(PACKAGE)CATS*.class
+%.jar: %.class
+	jar cf $@ $(PACKAGE)/ $(patsubst %.class,%*.class,$<)
 
-# locating scala-library.jar: http://stackoverflow.com/a/7582803/2397768
+$(PACKAGE)CAB.zip: $(PACKAGE)CAB.jar example.cab README
+	zip -j $@ $(SCALA_LIBRARY) $^
+
 $(PACKAGE)CATS.zip: $(PACKAGE)CATS.jar example.cats README
-	zip -j $@ \
-		$$(scala -e 'val so = classOf[ScalaObject].getResource("ScalaObject.class").toString; println(so.substring(so.lastIndexOf(":") + 1, so.lastIndexOf("!")))') \
-		$^
+	zip -j $@ $(SCALA_LIBRARY) $^
 
 clean:
 	find . -name '*.class' -o \

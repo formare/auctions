@@ -69,7 +69,7 @@ object CombinatorialVickreyAuctionCAB {
     val nBidders = contentLines.next match {
       case nBiddersRE(nBidsStr) => nBidsStr.toInt
       case instead => {
-        Console.err.println("Expected \"bids <number>\"; found \"%s\"\n", instead)
+        Console.err.printf("Expected \"bids <number>\"; found \"%s\"\n", instead)
         System.exit(2)
         0
       }
@@ -96,9 +96,9 @@ object CombinatorialVickreyAuctionCAB {
 
     // CONVERT TO THE DATA STRUCTURES THE GENERATED CODE NEEDS
     val participantSet = Seta((0 to nBidders - 1).map(Nat(_)).to[List])
-    println("Participants: ", prettyPrint(participantSet))
+    println("Participants: " + prettyPrint(participantSet))
     val goodsSet = Seta((0 to nGoods - 1).map(Nat(_)).to[List])
-    println("Goods: ", prettyPrint(goodsSet))
+    println("Goods: " + prettyPrint(goodsSet))
     val bidFunction = (bidder: Nat) => (goods: set[Nat]) => {
       val bid = bidsLines.find((elem: (Nat, Ratreal, set[Nat])) =>
         elem._1 == bidder
@@ -112,12 +112,12 @@ object CombinatorialVickreyAuctionCAB {
     val tieBreaker = trivialTieBreaker[set[(set[Nat], Nat)]] _
 
     val winningAllocations = winning_allocations_comp_CL(goodsSet, participantSet, bidFunction)
-    println("Winning allocations: ", prettyPrint(winningAllocations))
-    println("Winner after tie-breaking: ", prettyPrint(tieBreaker(winningAllocations)))
+    println("Winning allocations: " + prettyPrint(winningAllocations))
+    println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
 
     val payments = for (participant <- 0 to nBidders - 1) yield
       // for the following occurrence of tieBreaker, we need the explicit type.  Above, trivialTieBreaker[Any] would also have worked.
       (participant, payments_comp_workaround(goodsSet, participantSet, tieBreaker, bidFunction, Nat(participant)))
-    println("Payments per participant: ", prettyPrint(payments))
+    println("Payments per participant: " + prettyPrint(payments))
   }
 }

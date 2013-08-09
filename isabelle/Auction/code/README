@@ -1,14 +1,22 @@
 This is a command-line program that runs best from the directory in
 which this README file is located, i.e. the directory into which you
-have unzipped the demo package.
+have unzipped the demo archive.
+
+The following instructions apply to the case that you downloaded an
+archive containing files named example.cab and ...CAB.jar.  If you see
+example.cats and ...CATS.jar instead; please modify the subsequent
+command lines accordingly.
 
 On Unix-like systems (Linux, Mac OS), run the example with:
 
-java -cp scala-library.jar:CombinatorialVickreyAuctionCATS.jar CombinatorialVickreyAuctionCATS < example.cats
+java -cp scala-library.jar:CombinatorialVickreyAuctionCAB.jar CombinatorialVickreyAuctionCAB < example.cab
+
+The program accepts other input, too; have a look into example.cab to
+understand the input format.
 
 On Windows, using the CMD shell, use:
 
-java -cp scala-library.jar;CombinatorialVickreyAuctionCATS.jar CombinatorialVickreyAuctionCATS < example.cats
+java -cp scala-library.jar;CombinatorialVickreyAuctionCAB.jar CombinatorialVickreyAuctionCAB < example.cab
 
 The path separator (";" instead of ":") is the only difference.
 
