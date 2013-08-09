@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: CombinatorialVickreyAuctionCATS.scala 1453 2013-08-08 21:55:52Z langec $
  * 
  * Auction Theory Toolbox
  * 
@@ -31,63 +31,49 @@ import CombinatorialVickreyAuction.IsabelleLibraryWrapper._
 /* our utility libraries */
 import CombinatorialVickreyAuction.TieBreaker._
 
-/** Runs a combinatorial auction on CATS-generated input
- * (see <a href="http://www.cs.ubc.ca/~kevinlb/CATS/CATS-readme.html#4.%20%20File Formats">CATS README, section “File Formats”</a>) */
-object CombinatorialVickreyAuctionCATS {
+/** Runs a combinatorial auction on a CATS-like input format with bidder IDs
+ * (see <a href="http://www.cs.ubc.ca/~kevinlb/CATS/CATS-readme.html#4.%20%20File Formats">CATS README, section “File Formats”</a> and local file <code>example.cab</code> */
+object CombinatorialVickreyAuctionCAB {
   /** runs a combinatorial Vickrey auction, processing CATS-formatted data from standard input */
   def main(args: Array[String]) {
-    // http://www.cs.ubc.ca/~kevinlb/CATS/CATS-readme.html#4.%20%20File%20Formats
-
-    // Each program in this suite outputs a file with the following format:
-    
     // % comments
     
-    // ...
-    
     // goods <NUMBER OF GOODS>
-    // bids <NUMBER OF BIDS>
-    // 0   <content of bid 0>
-    // 1   <content of bid 1>
-    // ...
-    // <NUMBER OF BIDS-2>  <content of bid NUMBER OF BIDS - 2>
-    // <NUMBER OF BIDS-1>  <content of bid NUMBER OF BIDS - 1>
-    
-    // where <content of bid i> (i between 0 and NUMBER OF BIDS-1, inclusive) represents:
-    
-    // <real number representing price>  <good i requested>  <good j requested>  ... <good k requested>  #
-    
-    // where each good number is between 0 and NUMBER OF GOODS-1
+    // bidders <NUMBER OF BIDDERS>
+    // <BIDDER-ID> <real number representing price>  <good i requested>  <good j requested>  ... <good k requested>  #
+    // where each bidder ID is between 0 and NUMBER OF BIDDERS-1
+    // and each good number is between 0 and NUMBER OF GOODS-1
     
     // Informally, the file format is: any number of comment lines beginning with percent sign, the word "goods" followed by the total number of goods, on the next line, the word "bids" followed by the total number of bids.  Then each following line is the bid number, followed by the price, followed by each good-number requested, all terminated by a pound sign.  Each line that represents a bid is tab-delimited.
 
-    // TODO exception handling
     val nGoodsRE = """goods\s+([0-9]+)""".r
-    val nGoodsRE(nGoodsStr) = Console.readLine
-    val nGoods = nGoodsStr.toInt // TODO simplify this "matching regexp to Int"
-    val nBidsRE = """bids\s+([0-9]+)""".r
-    val nBidsRE(nBidsStr) = Console.readLine
-    val nBids = nBidsStr.toInt // TODO simplify this "matching regexp to Int"
+    val nBiddersRE = """bidders\s+([0-9]+)""".r
     val bidRE = """([0-9]+)\s+([0-9]+)\s+((?:[0-9]+\s+)*)#""".r // TODO allow decimal price in addition to integer
+
+    val contentLines = scala.io.Source.stdin.getLines().filter(_(0) != '%')
+
+    // TODO exception handling
+    val nGoodsRE(nGoodsStr) = contentLines.next
+    val nGoods = nGoodsStr.toInt
     
-    val bidsLines = (for (expectedBidID <- 0 to nBids) yield
-      Console.readLine match {
-        case bidRE(bidID, price, bidContent) =>
-          if (bidID.toInt == expectedBidID) Some(
-            Nat(bidID.toInt),
-            Ratreal(Frct(price.toInt, 1)),
-            intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List])
-          ) else None /* TODO actually throw exception */
-        case _ => None
-      }).flatten
-    println("processed CATS input: " + prettyPrint(bidsLines))
+    val nBiddersRE(nBidsStr) = contentLines.next
+    val nBidders = nBidsStr.toInt
+
+    val bidsLines = (contentLines collect {
+      case bidRE(bidderID, price, bidContent) =>
+        (Nat(bidderID.toInt),
+         Ratreal(Frct(price.toInt, 1)),
+         intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List]))
+    }).toList
+    println("processed CAB input: " + prettyPrint(bidsLines))
 
     // CONVERT TO THE DATA STRUCTURES THE GENERATED CODE NEEDS
-    val participantSet = Seta((0 to nBids - 1).map(Nat(_)).to[List])
+    val participantSet = Seta((0 to nBidders - 1).map(Nat(_)).to[List])
     println("Participants: " + prettyPrint(participantSet))
     val goodsSet = Seta((0 to nGoods - 1).map(Nat(_)).to[List])
     println("Goods: " + prettyPrint(goodsSet))
     val bidFunction = (bidder: Nat) => (goods: set[Nat]) => {
-      val bid = bidsLines.find((elem: (Nat, real, set[Nat])) =>
+      val bid = bidsLines.find((elem: (Nat, Ratreal, set[Nat])) =>
         elem._1 == bidder
         && setEquals(goods, elem._3))
       bid match {
@@ -102,7 +88,7 @@ object CombinatorialVickreyAuctionCATS {
     println("Winning allocations: " + prettyPrint(winningAllocations))
     println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
 
-    val payments = for (participant <- 0 to nBids - 1) yield
+    val payments = for (participant <- 0 to nBidders - 1) yield
       // for the following occurrence of tieBreaker, we need the explicit type.  Above, trivialTieBreaker[Any] would also have worked.
       (participant, payments_comp_workaround(goodsSet, participantSet, tieBreaker, bidFunction, Nat(participant)))
     println("Payments per participant: " + prettyPrint(payments))

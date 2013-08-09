@@ -19,6 +19,7 @@ package CombinatorialVickreyAuction
 import Set._
 
 object SetWrapper {
+
   /** equality for Isabelle sets (ignoring the order of the underlying List) */
   def setEquals[T](s1: set[T], s2: set[T]) = (s1, s2) match {
     case (Seta(l1), Seta(l2)) => l1.toSet == l2.toSet

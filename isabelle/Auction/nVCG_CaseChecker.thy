@@ -16,15 +16,12 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Vickrey's Theorem: second price auctions are
-  efficient, and truthful bidding is a weakly dominant strategy --
-  copy to experiment with ``case checking'' *}
+header {* soundness verification of combinatorial Vickrey auction *}
 
 theory nVCG_CaseChecker
 imports Complex_Main
   (* "~~/src/HOL/Library/Function_Algebras" was needed when we added vectors component-wise *)
   (* "~~/src/HOL/Library/Order_Relation" *)
-  "~~/src/HOL/Library/Efficient_Nat" (* needed for code generation.  TODO CL: factor code generation into separate *.thy file *)
   Vectors
   Partitions
   RelationProperties
@@ -166,6 +163,7 @@ fun max_revenue_comp :: "goods \<Rightarrow> participant set \<Rightarrow> bids 
 where "max_revenue_comp G N b = maximum_comp_list (possible_allocations_comp G N) (revenue_rel b)"
 
 value "max_revenue_comp paper_example_goods paper_example_participants paper_example_bids"
+value "max_revenue_comp cats_example_goods cats_example_participants cats_example_bids"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
 definition winning_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel set"
@@ -198,6 +196,11 @@ value "winning_allocations_comp_CL
   paper_example_goods
   paper_example_participants
   paper_example_bids"
+
+value "winning_allocations_comp_CL
+  cats_example_goods
+  cats_example_participants
+  cats_example_bids"
 
 fun winning_allocations_comp_MC where 
 "winning_allocations_comp_MC G N b = (let all = possible_allocations_comp G N in
@@ -280,6 +283,10 @@ where "payments_comp_workaround G N t b n =
   ))"
 
 value "{(n, payments_comp paper_example_goods paper_example_participants hd paper_example_bids n) | n . n \<in> paper_example_participants}"
+value "{(n, \<alpha>_comp paper_example_goods paper_example_participants paper_example_bids n) | n . n \<in> paper_example_participants}"
+
+value "{(n, payments_comp cats_example_goods cats_example_participants hd cats_example_bids n) | n . n \<in> cats_example_participants}"
+value "{(n, \<alpha>_comp cats_example_goods cats_example_participants cats_example_bids n) | n . n \<in> cats_example_participants}"
 
 (* example for the single-good Vickrey auction as a special case of the combinatorial Vickrey auction *)
 definition sga_goods :: goods where "sga_goods = {1::nat}"
@@ -309,13 +316,6 @@ where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
   admissible_input G N b
   \<and> x = t (winning_allocations_comp_CL G N b)
   \<and> p = payments_comp G N t b }"
-
-code_include Scala ""
-{*package CombinatorialVickreyAuction
-*}
-export_code winning_allocations_comp_CL payments_comp_workaround in Scala
-(* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
-file "code/CombinatorialVickreyAuction.scala"
 
 end
 

@@ -14,14 +14,14 @@
 # TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
 
 PACKAGE = CombinatorialVickreyAuction
+EXECUTABLES = $(PACKAGE)CATS.class \
+$(PACKAGE)HardCoded.class
 
-# implicit rule (pattern rule) for compiling Scala classes
-$(PACKAGE)/%.class: %.scala
-	scalac $<
+all: $(EXECUTABLES)
 
-# getting dependencies of main executable class right:
-$(PACKAGE)CATS.class: \
-  $(PACKAGE)CATS.scala \
+# getting dependencies of executable classes right
+$(EXECUTABLES): %.class: \
+  %.scala \
   $(PACKAGE)/nVCG_CaseChecker.class \
   $(PACKAGE)/SetWrapper.class \
   $(PACKAGE)/NatSetWrapper.class \
@@ -29,11 +29,15 @@ $(PACKAGE)CATS.class: \
   $(PACKAGE)/TieBreaker.class
 	scalac $<
 
+# implicit rule (pattern rule) for compiling Scala classes
+$(PACKAGE)/%.class: %.scala
+	scalac $<
+
 # need to compile all sources at once to avoid missing dependencies
-$(PACKAGE)/nVCG_CaseChecker.class: $(PACKAGE).scala nVCG_CaseChecker.scala
+$(PACKAGE)/nVCG_CaseChecker.class: generated/$(PACKAGE).scala nVCG_CaseChecker.scala
 	scalac $$(perl -lne 'print "$$1.scala" if /^object ([^ ]+) {/' $<)
 
-nVCG_CaseChecker.scala: $(PACKAGE).scala
+nVCG_CaseChecker.scala: generated/$(PACKAGE).scala
 	./split-scala-modules.pl < $<
 
 $(PACKAGE)CATS.jar: $(PACKAGE)CATS.class
@@ -51,4 +55,4 @@ clean:
 	       -name '*.zip' \
 	| xargs rm -f
 
-.PHONY: clean
+.PHONY: all clean

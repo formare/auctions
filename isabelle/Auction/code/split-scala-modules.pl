@@ -38,5 +38,5 @@ if (/^(object ([^ ]+)) {/) {
     # from now on, redirect output to a new per-object Scala source file
     open STDOUT, '>', "$2.scala";
     # first print package declaration (assuming it exists)
-    say "$package_decl\n";
+    say "$package_decl\n" if $package_decl;
 }
