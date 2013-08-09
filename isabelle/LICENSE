@@ -1,8 +1,10 @@
-This formalisation is dually licenced under licences whose details you find in the following files:
+This formalisation is released under licences whose details you find in the following files:
 
 LICENSE-ISC: ISC (Internet Systems Consortium) License (effectively a 1-clause BSD licence)
 LICENSE-CC-BY: Creative Commons Attribution 3.0 License (see also http://creativecommons.org/licenses/by/3.0/)
 
-Rationale for dual licencing:
-Jesse Alama, Michael Kohlhase, Adam Naumowicz, Piotr Rudnicki, Josef Urban, Lionel Mamane: Licensing the Mizar Mathematical Library.  In: Intelligent Computer Mathematics 2011, Springer, LNCS 6824, pp. 133-148
+We use:
+* ISC for software source code
+* CC-BY for documents and other creative works
+* both ISC and CC-BY for formalisations, as they have a dual nature.  For further background, see: Jesse Alama, Michael Kohlhase, Adam Naumowicz, Piotr Rudnicki, Josef Urban, Lionel Mamane: Licensing the Mizar Mathematical Library.  In: Intelligent Computer Mathematics 2011, Springer, LNCS 6824, pp. 133-148
 http://arxiv.org/abs/1107.3212 [cs.DL]
