@@ -24,6 +24,7 @@ import CombinatorialVickreyAuction.Set._
 import CombinatorialVickreyAuction.nVCG_CaseChecker._
 
 /* our wrappers around the Isabelle library */
+import CombinatorialVickreyAuction.RatWrapper._
 import CombinatorialVickreyAuction.SetWrapper._
 import CombinatorialVickreyAuction.NatSetWrapper._
 import CombinatorialVickreyAuction.IsabelleLibraryWrapper._
@@ -46,10 +47,12 @@ object CombinatorialVickreyAuctionCAB {
     
     // Informally, the file format is: any number of comment lines beginning with percent sign, the word "goods" followed by the total number of goods, on the next line, the word "bids" followed by the total number of bids.  Then each following line is the bid number, followed by the price, followed by each good-number requested, all terminated by a pound sign.  Each line that represents a bid is tab-delimited.
 
-    val nGoodsRE = """goods\s+([0-9]+)""".r
-    val nBiddersRE = """bidders\s+([0-9]+)""".r
-    val bidRE = """([0-9]+)\s+([0-9]+)\s+((?:[0-9]+\s+)*)#""".r // TODO allow decimal price in addition to integer
+    // regular expressions that match input lines
+    val nGoodsRE = """goods\s+(\d+)""".r
+    val nBiddersRE = """bidders\s+(\d+)""".r
+    val bidRE = """(\d+)\s+(\d+)(?:\.(\d+))?\s+((?:\d+\s+)*)#""".r // (?: ... ) is a non-capturing group
 
+    // iterator over all non-comment lines from standard input
     val contentLines = scala.io.Source.stdin.getLines().filter(_(0) != '%')
 
     // TODO exception handling
@@ -60,10 +63,15 @@ object CombinatorialVickreyAuctionCAB {
     val nBidders = nBidsStr.toInt
 
     val bidsLines = (contentLines collect {
-      case bidRE(bidderID, price, bidContent) =>
+      case bidRE(bidderID, priceWhole, priceMaybeFrac, bidContent) => {
+        // turn a decimal number into a fraction
+        val power = if (priceMaybeFrac != null) priceMaybeFrac.length else 0
+        val frac = if (priceMaybeFrac != null) priceMaybeFrac.toInt else 0
+        val commonDen = math.pow(10, power).toInt
         (Nat(bidderID.toInt),
-         Ratreal(Frct(price.toInt, 1)),
+         Ratreal(decToFrct(priceWhole, Option(priceMaybeFrac))),
          intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List]))
+      }
     }).toList
     println("processed CAB input: " + prettyPrint(bidsLines))
 

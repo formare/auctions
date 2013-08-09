@@ -14,7 +14,9 @@
 # TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
 
 PACKAGE = CombinatorialVickreyAuction
-EXECUTABLES = $(PACKAGE)CATS.class \
+EXECUTABLES = \
+$(PACKAGE)CATS.class \
+$(PACKAGE)CAB.class \
 $(PACKAGE)HardCoded.class
 
 all: $(EXECUTABLES)
@@ -23,9 +25,10 @@ all: $(EXECUTABLES)
 $(EXECUTABLES): %.class: \
   %.scala \
   $(PACKAGE)/nVCG_CaseChecker.class \
-  $(PACKAGE)/SetWrapper.class \
-  $(PACKAGE)/NatSetWrapper.class \
   $(PACKAGE)/IsabelleLibraryWrapper.class \
+  $(PACKAGE)/NatSetWrapper.class \
+  $(PACKAGE)/RatWrapper.class \
+  $(PACKAGE)/SetWrapper.class \
   $(PACKAGE)/TieBreaker.class
 	scalac $<
 
