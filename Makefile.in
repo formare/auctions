@@ -5,3 +5,11 @@ sync: $(SYNC_FILES) $(ZIP_FILE) $(WWW_FILES)
 
 $(ZIP_FILE): $(SYNC_FILES) $(LICENSE_FILES)
 	zip -r $@ $(SYNC_FILES) $(LICENSE_FILES)
+
+subdirs: $(SUBDIRS)
+
+$(SUBDIRS): force-make
+	$(MAKE) -C $@
+
+force-make:
+	true

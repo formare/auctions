@@ -7,13 +7,20 @@ $title = 'Auction Theory Toolbox (ATT)';
 
 SetHeaderTitle($title);
 SetPageTitle($title);
-SetMaintainer('Christoph Lange', 'c.lange@cs.bham.ac.uk');
+SetMaintainer('Christoph Lange', 'math.semantic.web@gmail.com');
 AddStylesheet($formare_root . 'formare.css');
 
 HTMLHeader();
 PageStart();
 ?>
-<p>This is an output of the <a href="../..">ForMaRE</a> research project.  For the research background and first results, please see our paper “<a href="../../publications.php#cicm2013-comparison">A Qualitative Comparison of the Suitability of Four Theorem Provers for Basic Auction Theory</a>” (in: Conference on Intelligent Computer Mathematics, 2013).  In particular, our formalisation is guided by Eric Maskin's 2004 review article “<a href="http://scholar.harvard.edu/maskin/publications/unity-auction-theory">The unity of auction theory: Milgrom's master class</a>” (Journal of Economic Literature 42.4, p.&nbsp;1102–1115).  As this article makes rather high-level statements, we have elaborated them to more detail on paper.</p>
+<p>This is an output of the <a href="../..">ForMaRE</a> research project.  For the research background and first results, please see our paper “<a href="../../publications.php#cicm2013-comparison">A Qualitative Comparison of the Suitability of Four Theorem Provers for Basic Auction Theory</a>” (in: Conference on Intelligent Computer Mathematics, 2013).  We particularly focus on</p>
+<ul>
+  <li><a href="#maskin">proving theorems about static single-good auctions</a></li>
+  <li><a href="#sound-verif">checking the soundness of more complex auctions and generating verified software.</a></li>
+</ul>
+<p>Both will be detailed below.</p>
+<h2 id="maskin">Proving theorems about static single-good auctions</h2>
+<p>Our formalisation is guided by Eric Maskin's 2004 review article “<a href="http://scholar.harvard.edu/maskin/publications/unity-auction-theory">The unity of auction theory: Milgrom's master class</a>” (Journal of Economic Literature 42.4, p.&nbsp;1102–1115).  As this article makes rather high-level statements, we have elaborated them to more detail on paper.</p>
 <p>We have used different languages for the formalisation.  The table below lists the current state of formalising the propositions given in Maskin's review article.  Further contributions are highly welcome; this includes</p>
 <ul>
   <li>formalisations of propositions not yet covered</li>
@@ -21,7 +28,7 @@ PageStart();
   <li>improvements to existing formalisations</li>
 </ul>
 <p>For any questions, please contact us via <a href="mailto:formare-discuss@cs.bham.ac.uk?subject=Auction%20Theory%20Toolbox">formare-discuss@cs.bham.ac.uk</a>.  (You need to <a href="https://mailman.cs.bham.ac.uk/mailman/listinfo/formare-discuss">subscribe</a> first.)</p>
-<p>Downloadable files are linked below.  If you would like to contribute or to follow the latest developments, please contact us to get access to our <a href="https://codex.cs.bham.ac.uk/svn/langec/formare/code/auction">Subversion repository</a>.</p>
+<p>Downloadable files are linked below.  If you would like to contribute to the latest developments, please contact us to get access to our <a href="https://codex.cs.bham.ac.uk/svn/langec/formare/code/auction">Subversion repository</a>.  You can browse the repository as user <code>guest</code> with password <code>guest</code>.</p>
 <p>The table below shows the following information:</p>
 <ul>
   <li><strong>Proposition</strong>: the number of the respective Proposition in Maskin's review article and the original authors of the theorem</li>
@@ -71,7 +78,8 @@ PageStart();
     <tr><td>13 (Milgrom/<wbr/>Weber)</td><td></td><td></td><td></td><td></td><td></td></tr>
   </tbody>
 </table>
-<p>Beyond this book, we are working on combinatorial auctions, guided by some of the chapters of the following book: Peter Cramton, Yoav Shoham, and Richard Steinberg (2006). <a href="http://mitpress.mit.edu/books/combinatorial-auctions">Combinatorial Auctions</a>. MIT Press. ISBN 0-262-03342-9.  Here, we focus on <a href="isabelle">Isabelle</a>.</p>
+<h2 id="sound-verif">Soundness of complex auctions; verified auction software</h2>
+<p>In this effort, we prove that auctions are soundly specified, i.e. assign a unique, well-defined outcome to each well-formed bid input.  This is easier to prove than certain other properties of auctions studied <a href="#maskin">above</a>, but we deal with more complex auctions, at the moment with static combinatorial auctions.  Once the soundness of an auction has been proved, we generate verified software code from the formalisation.  Our work is guided by some of the chapters of the following book: Peter Cramton, Yoav Shoham, and Richard Steinberg (2006). <a href="http://mitpress.mit.edu/books/combinatorial-auctions">Combinatorial Auctions</a>. MIT Press. ISBN 0-262-03342-9.  Here, we focus on <a href="isabelle">Isabelle</a> as a formalisation tool.</p>
 <table style="width:100%; table-layout:fixed; word-wrap:break-word">
   <colgroup>
     <col style="width:34"/>
@@ -88,7 +96,7 @@ PageStart();
   <tbody>
     <tr>
       <td>Vickrey auction (1)</td>
-      <td>to appear<!-- this paper is not physically in this svn, but uploaded via https://codex.cs.bham.ac.uk/svn/mmk/KLR/auction-theory/Makefile -->
+      <td><a href="http://arxiv.org/abs/1308.1779">see section 4</a>
         (<a href="http://www.socscistaff.bham.ac.uk/rowat/">Rowat</a>/<a href="http://www.cs.bham.ac.uk/~mmk/">Kerber</a>/<a href="http://www.cs.bham.ac.uk/~langec/">Lange</a>)</td>
       <td>Lange/<wbr/><a href="http://uniroma1.academia.edu/MarcoCaminati">Caminati</a> (in progress)</td>
     </tr>
