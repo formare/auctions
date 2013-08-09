@@ -13,6 +13,14 @@
 
 # TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
 
+# rules for copying to the web site
+PREFIX = ../../..
+include $(PREFIX)/Makefile.vars
+
+# If we wanted to rewrite the copy destination path (but we don't want):
+# DEST := $(DEST:Auction/code=code)
+
+# Scala-related rules start here
 PACKAGE = CombinatorialVickreyAuction
 
 EXECUTABLES = \
@@ -21,9 +29,11 @@ $(PACKAGE)CAB.class \
 $(PACKAGE)HardCoded.class
 
 # locating scala-library.jar: http://stackoverflow.com/a/7582803/2397768
-SCALA_LIBRARY = $$(scala -e 'val so = classOf[ScalaObject].getResource("ScalaObject.class").toString; println(so.substring(so.lastIndexOf(":") + 1, so.lastIndexOf("!")))')
+SCALA_LIBRARY = $(shell scala -e 'val so = classOf[ScalaObject].getResource("ScalaObject.class").toString; println(so.substring(so.lastIndexOf(":") + 1, so.lastIndexOf("!")))')
 
-all: $(EXECUTABLES)
+all: sync subdirs $(EXECUTABLES)
+
+include $(PREFIX)/Makefile.in
 
 # getting dependencies of executable classes right
 $(EXECUTABLES): %.class: \
@@ -42,7 +52,7 @@ $(PACKAGE)/%.class: %.scala
 
 # need to compile all sources at once to avoid missing dependencies
 $(PACKAGE)/nVCG_CaseChecker.class: generated/$(PACKAGE).scala nVCG_CaseChecker.scala
-	scalac $$(perl -lne 'print "$$1.scala" if /^object ([^ ]+) {/' $<)
+	scalac $(shell perl -lne 'print "$$1.scala" if /^object ([^ ]+) {/' $<)
 
 nVCG_CaseChecker.scala: generated/$(PACKAGE).scala
 	./split-scala-modules.pl < $<

@@ -3,7 +3,10 @@ include $(PREFIX)/Makefile.vars
 
 BROWSER_INFO = $(shell isabelle getenv -b ISABELLE_BROWSER_INFO)
 
-all: sync
+SUBDIRS = \
+	Auction/code
+
+all: sync subdirs
 
 include $(PREFIX)/Makefile.in
 

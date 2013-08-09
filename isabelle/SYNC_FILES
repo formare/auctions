@@ -1,8 +1,6 @@
-Auction/code/code.scala
-Auction/code/CombinatorialVickreyAuction.scala
-Auction/code/CombinatorialVickreyAuctionCATS.scala
 Auction/output/document/root.pdf
 Auction/All.thy
+Auction/CombinatorialVickreyAuction.thy
 Auction/FullySpecifiedSecondPriceAuctionCaseCheck.thy
 Auction/FullySpecifiedSecondPriceAuction.thy
 Auction/FullySpecifiedSingleGoodAuction.thy
