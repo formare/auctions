@@ -17,6 +17,9 @@
 PREFIX = ../../..
 include $(PREFIX)/Makefile.vars
 
+# TODO change to standard README; introduce make target to auto-insert the right directory URL into README; put instructions from _this_ README on the web page
+WWW_FILES += README
+
 # If we wanted to rewrite the copy destination path (but we don't want):
 # DEST := $(DEST:Auction/code=code)
 

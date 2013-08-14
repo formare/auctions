@@ -1,3 +1,4 @@
+(*
 session "Auction" = "HOL" +
   options [document = pdf, document_output = "output", document_graph, thy_output_source]
   theories
@@ -9,3 +10,7 @@ session "Auction" = "HOL" +
 session Vickrey = "HOL" +
   options [document = pdf, document_output = "output"]
   theories Vickrey
+*)
+
+session CombinatorialVickreyAuction = HOL +
+  theories CombinatorialVickreyAuction
