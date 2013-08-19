@@ -1,0 +1,29 @@
+\begin{tikzpicture}[scale=0.045]
+  % labelling nodes
+  \draw (28,6) node [left] {$\bm{t}^1$}; 
+  \draw (132,6) node [right] {$\bm{t}^2$};
+  \draw (80,6) ++(90:52cm) node [above] {$\bm{q}^3 = \bm{r}$};
+  \draw (80,96) node {$\bm{t}^3$};
+  \draw (107,49) node [right] {$\bm{s}^{23}$};
+  \filldraw[fill=gray!20!white, draw=black, dashed] (30,6) -- (80,6) arc (240:180:50cm);
+  \filldraw[fill=gray!30!white, draw=black, dashed] (55,49) -- (105,49) -- (80,6) arc (240:180:50cm);
+  \draw (92.5,27.5) -- (105,49) -- (80,49) ; % would prefer to combine with previous filldraw
+  \draw (51,17) node {$D \left( \bm{t}^1 \right)$};
+  \draw (80,36) node {$D \left( \bm{s}^{23} \right)$};
+  % now draw simplex itself
+  \begin{scope}[very thick]
+    \draw (30,6) -- (130,6) -- (80,92) -- cycle;
+  \end{scope}
+  % finally, indicate the elements of the stable set
+  \filldraw [gray] (30,6) circle (1cm) % t^1
+                   (80,6) circle (1cm) % s^{12}
+                   (130,6) circle (1cm) % t^2
+                   (80,92) circle (1cm) % t^3
+                   (105,49) circle (1cm) % s^{23}
+                   (55,49) circle (1cm) % s^{13}
+                   (80,6) ++(90:50cm) circle (1cm) % places circle at position updated to with ++ from initial
+                   (105,49) ++(210:50cm) circle (1cm)
+                   (55,49) ++(330:50cm) circle (1cm);
+%                  (105,49)  (67.5,27.5) circle (1cm) 
+%                   (92.5,27.5) circle (1cm); 
+\end{tikzpicture} 

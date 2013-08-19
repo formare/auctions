@@ -1,0 +1,21 @@
+\begin{tikzpicture}[scale=0.045]
+  % labelling nodes
+  \draw (28,6) node [left] {$\bm{t}^1$}; 
+  \draw (132,6) node [right] {$\bm{t}^2$};
+  \draw (80,96) node {$\bm{t}^3$};
+  \draw (107,49) node [right] {$\bm{s}^{23}$};
+  % dominance zones
+%  \filldraw[fill=gray!20!white, draw=black, dashed] (42.5,27.5) -- (55,6) -- (30,6) -- cycle; 
+  \filldraw[fill=gray!30!white, draw=black, dashed] (30,6) -- (80,6) -- (105,49) -- (55,49)  -- cycle;
+  \draw (92.5,27.5) -- (105,49) -- (80,49) ; % would prefer to combine with previous filldraw
+%  \draw (30,6) node [above right] {$D \left( \bm{t}^1 \right)$};
+  \draw (80,36) node {$D \left( \bm{s}^{23} \right)$};
+  % now draw simplex itself
+  \begin{scope}[very thick]
+    \draw (30,6) -- (130,6) -- (80,92) -- cycle;
+  \end{scope}
+  % finally, indicate the elements of the stable set
+  \filldraw [gray] (80,6) circle (1cm) % s^12
+                   (105,49) circle (1cm) % s^23
+                   (55,49) circle (1cm); % s^13
+\end{tikzpicture} 

@@ -1,0 +1,4261 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 7.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[    160723,       4252]
+NotebookOptionsPosition[    133347,       3444]
+NotebookOutlinePosition[    140944,       3659]
+CellTagsIndexPosition[    139384,       3618]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Pillage Games", "Title",
+ CellChangeTimes->{{3.506925755783074*^9, 3.506925759421575*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Theorema`\>\"", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506764785050395*^9, 3.506764798907949*^9}, {
+   3.506765148806548*^9, 3.506765208348384*^9}, {3.506765253977303*^9, 
+   3.506765286273971*^9}, {3.506765378798304*^9, 3.5067654577568073`*^9}, 
+   3.5067655006002398`*^9, 3.50685195021733*^9},
+ CellTags->"Definition (agents)"],
+
+Cell[TextData[{
+ "These formalisations have originally been presented in the following \
+publication:\[LineSeparator]Manfred Kerber, Colin Rowat, Wolfgang \
+Windsteiger. ",
+ ButtonBox["Using Theorema in the Formalization of Theoretical Economics",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+   "ftp://ftp.cs.bham.ac.uk/pub/authors/M.Kerber/11-calculemus.pdf", None}],
+ ". Conference on Intelligent Computer Mathematics, 2011 (Calculemus track). \
+No. 6824 in Lecture Notes in Computer Science, Springer, pp. 58\[Dash]73, \
+2011 "
+}], "Text",
+ CellChangeTimes->{{3.5518697796277742`*^9, 3.5518698341053658`*^9}, {
+  3.5518699349157867`*^9, 3.5518699863333073`*^9}, {3.551961239524304*^9, 
+  3.551961242227642*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Basic Definitions", "Section",
+ CellChangeTimes->{{3.506925909940444*^9, 3.506925913163527*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["An unrelated test function", "Subsection",
+ CellChangeTimes->{{3.551869740506246*^9, 3.551869744529417*^9}, {
+  3.5518896500092993`*^9, 3.551889651401286*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Just a simple test function to get started with Theorema and Mathematica\
+\[Ellipsis]\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551869614756834*^9, 3.551869660584092*^9}, {
+  3.551869692393044*^9, 3.551869699137671*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<1\>\"", ",", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"f", "[", "]"}], ":="}], "\"\<Hello World!\>\""}]}], " ", 
+  "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.506860457218003*^9, 3.506860507333424*^9}, {
+  3.551869604746194*^9, 3.5518696400338697`*^9}},
+ CellTags->"Definition (1)"],
+
+Cell[BoxData[
+ RowBox[{"Compute", "[", 
+  RowBox[{
+   RowBox[{"f", "[", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"Definition", "[", "\"\<1\>\"", "]"}]}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.506860512129658*^9, 3.506860545182001*^9}, 
+   3.55186964003397*^9}],
+
+Cell[BoxData["\<\"Hello World!\"\>"], "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{3.506860546405154*^9, 3.55186964003407*^9}]
+}, Closed]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Agents", "Subsection",
+ CellChangeTimes->{{3.551869766526651*^9, 3.5518697675176888`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "We introduce the set of ",
+ StyleBox["agents",
+  FontWeight->"Bold"],
+ ", also called players. Subsets of this set are called ",
+ StyleBox["coalitions",
+  FontWeight->"Bold"],
+ "."
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.5518696693276453`*^9, 3.5518696815861893`*^9}, 
+   3.551869712377555*^9, {3.551872420774392*^9, 3.551872432889694*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<agents\>\"", ",", " ", 
+   RowBox[{"any", "[", "n", "]"}], ",", " ", 
+   RowBox[{
+    RowBox[{"I", "[", "n", "]"}], ":=", 
+    RowBox[{"{", 
+     RowBox[{"i", " ", 
+      UnderscriptBox["|", 
+       RowBox[{
+        RowBox[{"i", "=", "1"}], ",", "\[Ellipsis]", ",", "n"}]]}], "}"}]}]}],
+   "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.506764785050395*^9, 3.506764798907949*^9}, {
+   3.506765148806548*^9, 3.506765208348384*^9}, {3.506765253977303*^9, 
+   3.506765286273971*^9}, {3.506765378798304*^9, 3.5067654577568073`*^9}, 
+   3.5067655006002398`*^9, 3.50685195021733*^9, {3.506860901647647*^9, 
+   3.506860925330644*^9}, {3.506861038753456*^9, 3.506861049441857*^9}, {
+   3.55186970646523*^9, 3.5518697123776693`*^9}},
+ CellTags->"Definition (agents)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Example: computing a concrete set of agents", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.552160816762534*^9, 3.552160831856173*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Compute", "[", 
+  RowBox[{
+   RowBox[{"I", "[", "10", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"Definition", "[", "\"\<agents\>\"", "]"}]}], ",", 
+   RowBox[{"built\[Dash]in", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Built\[Dash]in", "[", "\"\<Sets\>\"", "]"}], ",", 
+      RowBox[{"Built\[Dash]in", "[", "\"\<Quantifiers\>\"", "]"}], ",", 
+      RowBox[{"Built\[Dash]in", "[", "\"\<Numbers\>\"", "]"}]}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.50676552134975*^9, 3.5067656208840723`*^9}, 
+   3.5068614346271772`*^9, {3.506861495324797*^9, 3.506861506832565*^9}, 
+   3.552160831856234*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "1", ",", "2", ",", "3", ",", "4", ",", "5", ",", "6", ",", "7", ",", "8", 
+   ",", "9", ",", "10"}], "}"}]], "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.506861451106666*^9, 3.506861463365585*^9}, 
+   3.506861508173056*^9, 3.5521608318562717`*^9}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Pillage games have at least two agents; we formalize this as an additional \
+condition on any number n. This check is intended to be made whenever a set \
+of agents occurs.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.5518701356782722`*^9, 3.551870178677699*^9}, {
+  3.551870379011661*^9, 3.551870395981244*^9}, {3.552153760543213*^9, 
+  3.55215379808829*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<appropriateLength\>\"", ",", " ", 
+   RowBox[{"any", "[", "n", "]"}], ",", " ", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"appropriateLength", "[", "n", "]"}], ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"n", "\[Element]", "\[DoubleStruckCapitalN]"}], "\[And]", 
+       RowBox[{"n", "\[GreaterEqual]", "2"}]}], ")"}]}]}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.507290953693247*^9, 3.507290984710874*^9}, 
+   3.5518701682173758`*^9, {3.5521537229708033`*^9, 3.5521537229769573`*^9}},
+ CellTags->"Definition (appropriateLength)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["A simple lemma and its proof", "Subsubsection",
+ CellChangeTimes->{{3.551870973020177*^9, 3.551870978057981*^9}, {
+  3.551871287514102*^9, 3.55187129332141*^9}}],
+
+Cell["\<\
+The set of agents of a pillage game contains at least agents 1 and 2:\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.5518703587187567`*^9, 3.551870369142295*^9}, {
+  3.551870412681857*^9, 3.551870446812304*^9}}],
+
+Cell["\<\
+Theorema doesn't know that this is the same as \[OpenCurlyDoubleQuote]1\
+\[Element]I[n]\[CloseCurlyDoubleQuote], and this is the formulation that we \
+need for the proof of Lemma 2.\
+\>", "Text",
+ CellChangeTimes->{{3.551995632582302*^9, 3.551995664441474*^9}, {
+  3.551995923361183*^9, 3.551995931065063*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<1inI\>\"", ",", 
+   RowBox[{"any", "[", "n", "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{"appropriateLength", "[", "n", "]"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", "1", "}"}], "\[SubsetEqual]", 
+    RowBox[{"I", "[", "n", "]"}]}]}], " ", "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.506945642136053*^9, 3.5069457468304653`*^9}, {
+   3.506949184039867*^9, 3.506949191054998*^9}, {3.5070147291774683`*^9, 
+   3.507014737379073*^9}, {3.507014922688484*^9, 3.507014937607644*^9}, 
+   3.507015003800777*^9, {3.5070156509407253`*^9, 3.5070156719467983`*^9}, {
+   3.507290989731678*^9, 3.507290996340012*^9}, {3.507293898158519*^9, 
+   3.5072939120181828`*^9}, 3.5518701682174397`*^9, {3.551870446812401*^9, 
+   3.551870461399768*^9}, {3.55187053559433*^9, 3.551870544101179*^9}, {
+   3.551995582130682*^9, 3.551995617395681*^9}, 3.552153722989512*^9},
+ CellTags->"Lemma (1inI)"],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<2inI\>\"", ",", 
+   RowBox[{"any", "[", "n", "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{"appropriateLength", "[", "n", "]"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", "2", "}"}], "\[SubsetEqual]", 
+    RowBox[{"I", "[", "n", "]"}]}]}], " ", "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.506945642136053*^9, 3.5069457468304653`*^9}, {
+   3.506949184039867*^9, 3.506949191054998*^9}, {3.5070147291774683`*^9, 
+   3.507014737379073*^9}, {3.507014922688484*^9, 3.507014937607644*^9}, 
+   3.507015003800777*^9, {3.5070156509407253`*^9, 3.5070156719467983`*^9}, {
+   3.507287872166996*^9, 3.507287877891943*^9}, 3.50729101217107*^9, 
+   3.551870168217502*^9, 3.5518704468124657`*^9, {3.5518705474944763`*^9, 
+   3.551870551814456*^9}, {3.5519955970869913`*^9, 3.551995614027297*^9}, 
+   3.5521537230007353`*^9},
+ CellTags->"Lemma (2inI)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["The proof:", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.552153964028962*^9, 3.552153966766757*^9}, 
+   3.552154006258106*^9}],
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<1inI\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Definition", "[", "\"\<appropriateLength\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<agents\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"built\[Dash]in", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Built\[Dash]in", "[", "\"\<Numbers\>\"", "]"}], "}"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+   RowBox[{"ProverOptions", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"SimplifyFormula", "\[Rule]", "True"}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.507014545198882*^9, 3.507014619835384*^9}, {
+   3.5070147565169973`*^9, 3.5070147756546087`*^9}, {3.507014829484551*^9, 
+   3.5070148765007563`*^9}, {3.507014954857214*^9, 3.5070149550475473`*^9}, 
+   3.507293917824665*^9, {3.5072940230667067`*^9, 3.507294029652534*^9}, 
+   3.551870168217566*^9, {3.551870289300454*^9, 3.551870326941113*^9}, 
+   3.5518704468125353`*^9, {3.551870663331914*^9, 3.551870674441102*^9}, 
+   3.552153723009294*^9, 3.5521540062581587`*^9}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{3.551870706880601*^9, 3.551870957798208*^9, 
+  3.551995970447711*^9, 3.552153827599416*^9, 3.552154006258197*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+The proof object contains some redundant steps; here is how to get rid of \
+them by cleaning up the proof object:\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ CellChangeTimes->{{3.552153968770041*^9, 3.552154012045986*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"$RecursionLimit", "=", "\[Infinity]"}], "}"}], ",", 
+   RowBox[{"Transform", "[", 
+    RowBox[{"%", ",", 
+     RowBox[{"TransformerOptions", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"branches", "\[Rule]", "Proved"}], ",", 
+        RowBox[{"steps", "\[Rule]", "Useful"}]}], "}"}]}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ CellChangeTimes->{
+  3.552153926870689*^9, {3.552154006258253*^9, 3.55215401204606*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ CellChangeTimes->{
+  3.552153930295664*^9, {3.552154006258284*^9, 3.552154012046122*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+The following lemma is just slightly more complex, but proving it exceeds the \
+default search depth of 30, so we have to increase it. 33 works, 32 won't.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551870809648699*^9, 3.551870835032875*^9}, {
+  3.551870927234338*^9, 3.551870957798295*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<1and2inI\>\"", ",", 
+   RowBox[{"any", "[", "n", "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{"appropriateLength", "[", "n", "]"}], "]"}], ",", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}], "\[SubsetEqual]", 
+    RowBox[{"I", "[", "n", "]"}]}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.5518704870486803`*^9, 3.5518705683651237`*^9}, 
+   3.551870957798397*^9, 3.5521537230130777`*^9},
+ CellTags->"Lemma (1and2inI)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.5521611291870604`*^9, 3.552161129471601*^9}, 
+   3.552161175270681*^9},
+ TextAlignment->Right],
+
+Cell[TextData[{
+ "CL: After running a successful proof with, say, a search depth higher than \
+necessary, can we determine the search depth that was ",
+ StyleBox["actually",
+  FontSlant->"Italic"],
+ " needed?"
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.},
+ CellChangeTimes->{{3.552161132358694*^9, 3.5521611752707233`*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<1and2inI\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Definition", "[", "\"\<appropriateLength\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<agents\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"built\[Dash]in", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Built\[Dash]in", "[", "\"\<Numbers\>\"", "]"}], "}"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+   RowBox[{"ProverOptions", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"SimplifyFormula", "\[Rule]", "True"}], "}"}]}], ",", 
+   RowBox[{"SearchDepth", "\[Rule]", "33"}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.507014545198882*^9, 3.507014619835384*^9}, {
+   3.5070147565169973`*^9, 3.5070147756546087`*^9}, {3.507014829484551*^9, 
+   3.5070148765007563`*^9}, {3.507014954857214*^9, 3.5070149550475473`*^9}, 
+   3.507293917824665*^9, {3.5072940230667067`*^9, 3.507294029652534*^9}, 
+   3.551870168217566*^9, {3.551870289300454*^9, 3.551870326941113*^9}, 
+   3.5518704468125353`*^9, {3.551870663331914*^9, 3.55187069921992*^9}, {
+   3.55187074312614*^9, 3.551870795824728*^9}, {3.5518708671881723`*^9, 
+   3.551870888215741*^9}, {3.551870923954851*^9, 3.55187092403685*^9}, 
+   3.5521537230170403`*^9, {3.552161018364058*^9, 3.55216102253876*^9}, {
+   3.5521611143376617`*^9, 3.5521611170989532`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551870728608341*^9, 3.551870747708064*^9}, {
+   3.551870777797464*^9, 3.551870783728258*^9}, 3.551870870865851*^9, {
+   3.5518709040975533`*^9, 3.551870927669992*^9}, 3.551870957798459*^9, 
+   3.552161068547761*^9, 3.552161121898821*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Allocations", "Subsection",
+ CellChangeTimes->{{3.551871275588839*^9, 3.5518712802798223`*^9}}],
+
+Cell[TextData[{
+ "An ",
+ StyleBox["allocation",
+  FontWeight->"Bold"],
+ " is a vector of ",
+ StyleBox["n",
+  FontSlant->"Italic"],
+ " non-negative numbers, which sum to 1 (where ",
+ StyleBox["n",
+  FontSlant->"Italic"],
+ " is the number of agents). The allocation represents the possessions of \
+each agent."
+}], "Text",
+ CellChangeTimes->{{3.551872232235002*^9, 3.551872233358506*^9}, {
+  3.5518722784408092`*^9, 3.551872318639576*^9}, {3.551891645907378*^9, 
+  3.5518916617548313`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.5518727328022757`*^9, 3.551872783782956*^9}, {
+  3.5521542265107403`*^9, 3.552154253019477*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[{
+ StyleBox["CL: can we simplify this using ",
+  FontWeight->"Bold"],
+ StyleBox["bound[i\[Element]I[n]]",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ StyleBox["? Figure out from looking at how this definition appears in a \
+proof object!",
+  FontWeight->"Bold"]
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.5518727328022757`*^9, 3.551872783782956*^9}, {
+  3.5521542265107403`*^9, 3.5521542530195217`*^9}}],
+
+Cell["MK: Don't know what you mean.", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552111979193739*^9, 3.552111984293677*^9}, {
+  3.552154239151271*^9, 3.552154253019546*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551901628868466*^9, 3.55190165239602*^9}, {
+  3.55215426058007*^9, 3.552154283312896*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[{
+ StyleBox["CL: Is is\[Dash]tuple a ",
+  FontWeight->"Bold"],
+ StyleBox["Mathematica",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ StyleBox[", or a Theorema built-in? What other useful built\[Dash]ins exist?",
+  FontWeight->"Bold"]
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551901628868466*^9, 3.55190165239602*^9}, {
+  3.55215426058007*^9, 3.552154283312937*^9}}],
+
+Cell[TextData[StyleBox["MK: Theorema knows to deal with some tuples. I \
+remember talks about this, since typically theorem provers can't.",
+ FontSlant->"Italic"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.552111568316009*^9, 3.552111611730401*^9}, {
+  3.552154265334179*^9, 3.552154283312961*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<allocation\>\"", ",", " ", 
+   RowBox[{"any", "[", 
+    RowBox[{"x", ",", "n"}], "]"}], ",", " ", 
+   RowBox[{
+    RowBox[{
+     SubscriptBox["allocation", "n"], "[", "x", "]"}], " ", ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"n", "\[Element]", "\[DoubleStruckCapitalN]"}], "\[And]", 
+       RowBox[{"is\[Dash]tuple", "[", "x", "]"}], "\[And]", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"\[LeftBracketingBar]", "x", "\[RightBracketingBar]"}], "=", 
+         "n"}], ")"}], "\[And]", " ", 
+       RowBox[{
+        UnderscriptBox["\[ForAll]", 
+         RowBox[{"i", "\[Element]", 
+          RowBox[{"I", "[", "n", "]"}]}]], 
+        RowBox[{
+         SubscriptBox["x", "i"], "\[GreaterEqual]", "0"}]}], " ", "\[And]", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          UnderscriptBox["\[Sum]", 
+           RowBox[{"i", "\[Element]", 
+            RowBox[{"I", "[", "n", "]"}]}]], 
+          SubscriptBox["x", "i"]}], " ", "=", " ", "1"}], ")"}]}], 
+      ")"}]}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.5067656569623404`*^9, 3.506765706541358*^9}, {
+   3.506765761174485*^9, 3.5067658657249603`*^9}, {3.506765938971032*^9, 
+   3.5067659760758543`*^9}, {3.506766027353683*^9, 3.506766131068019*^9}, {
+   3.506766199038516*^9, 3.506766223387211*^9}, {3.5067662539128*^9, 
+   3.506766266687023*^9}, {3.506766318827201*^9, 3.5067663304828463`*^9}, {
+   3.5067666878597603`*^9, 3.506766691667922*^9}, {3.50676678498272*^9, 
+   3.506766804147559*^9}, {3.506766879741762*^9, 3.5067668835514917`*^9}, {
+   3.506766922214952*^9, 3.5067669290750523`*^9}, 3.506766962060203*^9, {
+   3.5067670017292433`*^9, 3.506767031271801*^9}, {3.5067678293287153`*^9, 
+   3.506767895191325*^9}, {3.506771895062779*^9, 3.5067719077230253`*^9}, {
+   3.506858192506604*^9, 3.506858201800869*^9}, {3.507293945094878*^9, 
+   3.5072939528914633`*^9}},
+ CellTags->"Definition (allocation)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Monotonicity axioms", "Subsection",
+ CellChangeTimes->{{3.551872356884274*^9, 3.551872394279141*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Weak Coalition Monotonicity", "Subsubsection",
+ CellChangeTimes->{{3.551872398288912*^9, 3.551872416967615*^9}}],
+
+Cell["\<\
+Taking a new member into a coalition does not decrease the coalition's power \
+(where \[Pi] is the power function).\
+\>", "Text",
+ CellChangeTimes->{{3.551872381055629*^9, 3.5518723833408117`*^9}, {
+  3.551872462734091*^9, 3.551872464878603*^9}, {3.551872576444831*^9, 
+  3.551872611371023*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"Definition", "[", 
+   RowBox[{"\"\<WC\>\"", ",", " ", 
+    RowBox[{"any", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", 
+    RowBox[{"bound", "[", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}], "]"}], ",", 
+    RowBox[{
+     RowBox[{"WC", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+     RowBox[{"\[DoubleLeftRightArrow]", 
+      RowBox[{
+       UnderscriptBox[
+        UnderscriptBox["\[ForAll]", 
+         RowBox[{"C1", ",", "C2"}]], 
+        RowBox[{
+         RowBox[{"C1", " ", "\[Subset]", " ", "C2"}], " ", "\[And]", " ", 
+         RowBox[{"C2", "\[SubsetEqual]", 
+          RowBox[{"I", "[", "n", "]"}]}]}]], 
+       RowBox[{
+        UnderscriptBox["\[ForAll]", "x"], 
+        RowBox[{
+         RowBox[{"\[Pi]", "[", 
+          RowBox[{"C2", ",", "x"}], "]"}], "\[GreaterEqual]", 
+         RowBox[{"\[Pi]", "[", 
+          RowBox[{"C1", ",", "x"}], "]"}]}]}]}]}]}]}], "]"}], " "}]], "Input",\
+
+ InitializationCell->True,
+ CellChangeTimes->{{3.506767096257584*^9, 3.5067671318054457`*^9}, {
+  3.506767235367222*^9, 3.506767360929676*^9}, {3.5067674533493834`*^9, 
+  3.506767525811517*^9}, {3.506767715447095*^9, 3.50676775214865*^9}, {
+  3.506767793835054*^9, 3.5067678198521137`*^9}, {3.5067679096706333`*^9, 
+  3.506767947224246*^9}, {3.506858225851787*^9, 3.506858228201108*^9}, {
+  3.506862617592757*^9, 3.50686264086697*^9}, {3.506862726775665*^9, 
+  3.506862728573283*^9}},
+ CellTags->"Definition (WC)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Weak Resource Monotonicity", "Subsubsection",
+ CellChangeTimes->{{3.551872693664452*^9, 3.551872698654214*^9}}],
+
+Cell["\<\
+Weakly increasing the holdings of a coalition's members does not decrease the \
+coalition's power.\
+\>", "Text",
+ CellChangeTimes->{{3.551873126721798*^9, 3.551873171435554*^9}, 
+   3.551873703234445*^9}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.5518732019313517`*^9, 3.5518732273923903`*^9}, {
+  3.551896941974265*^9, 3.5518969476617804`*^9}, {3.55189698534949*^9, 
+  3.551897020725294*^9}, {3.55215430563085*^9, 3.5521543205490513`*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["CL: Why does this definition explicitly say n\
+\[Element]\[DoubleStruckCapitalN], whereas WC doesn't? (In the Theorema \
+listing shown in the paper, WC does actually include n\[Element]\
+\[DoubleStruckCapitalN].)",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.5518732019313517`*^9, 3.5518732273923903`*^9}, {
+  3.551896941974265*^9, 3.5518969476617804`*^9}, {3.55189698534949*^9, 
+  3.551897020725294*^9}, {3.55215430563085*^9, 3.552154320549095*^9}}],
+
+Cell["\<\
+MK: I assume an oversight. I do not know the ramifications and wouldn't \
+change it before tomorrow.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552112005357691*^9, 3.552112026329921*^9}, {
+  3.552154315528974*^9, 3.55215432054912*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"Definition", "[", 
+   RowBox[{"\"\<WR\>\"", ",", " ", 
+    RowBox[{"any", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", 
+    RowBox[{"bound", "[", 
+     RowBox[{
+      RowBox[{
+       SubscriptBox["allocation", "n"], "[", "x", "]"}], ",", " ", 
+      RowBox[{
+       SubscriptBox["allocation", "n"], "[", "y", "]"}]}], "]"}], ",", 
+    RowBox[{
+     RowBox[{"WR", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+     RowBox[{"\[DoubleLeftRightArrow]", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"n", "\[Element]", "\[DoubleStruckCapitalN]"}], "\[And]", 
+        RowBox[{
+         UnderscriptBox[
+          UnderscriptBox["\[ForAll]", "C"], 
+          RowBox[{"C", "\[SubsetEqual]", 
+           RowBox[{"I", "[", "n", "]"}]}]], 
+         RowBox[{
+          UnderscriptBox["\[ForAll]", 
+           RowBox[{"x", ",", "y"}]], 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{
+              UnderscriptBox["\[ForAll]", 
+               RowBox[{"i", "\[Element]", "C"}]], 
+              RowBox[{
+               SubscriptBox["y", "i"], "\[GreaterEqual]", " ", 
+               SubscriptBox["x", "i"]}]}], ")"}], "\[Implies]", 
+            RowBox[{
+             RowBox[{"\[Pi]", "[", 
+              RowBox[{"C", ",", "y"}], "]"}], "\[GreaterEqual]", 
+             RowBox[{"\[Pi]", "[", 
+              RowBox[{"C", ",", "x"}], "]"}]}]}], ")"}]}]}]}], ")"}]}]}]}], 
+   "]"}], " "}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506767096257584*^9, 3.5067671318054457`*^9}, {
+  3.506767235367222*^9, 3.506767360929676*^9}, {3.5067674533493834`*^9, 
+  3.506767525811517*^9}, {3.506767715447095*^9, 3.50676775214865*^9}, {
+  3.506767793835054*^9, 3.5067678198521137`*^9}, {3.5067679096706333`*^9, 
+  3.506767947224246*^9}, {3.506768000966984*^9, 3.506768015674625*^9}, {
+  3.506768051561461*^9, 3.5067681070885353`*^9}, {3.5067681549826307`*^9, 
+  3.506768174221417*^9}, {3.5067682462334023`*^9, 3.5067684036361227`*^9}, {
+  3.5067684435386877`*^9, 3.5067684873446293`*^9}, {3.506858234737724*^9, 
+  3.506858242492646*^9}, {3.506862562475504*^9, 3.506862589936392*^9}, {
+  3.507294179902615*^9, 3.5072941891104927`*^9}},
+ CellTags->"Definition (WR)"],
+
+Cell["\<\
+To make things easier for Theorema, we additionally state the contrapositive \
+of this axiom.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551873348012529*^9, 3.5518733622538433`*^9}, {
+   3.551873430514929*^9, 3.551873434510026*^9}, 3.551873672448927*^9}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551873444805326*^9, 3.55187346627929*^9}, 
+   3.5518736724489813`*^9, {3.552155192958119*^9, 3.552155197934126*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["CL: Why exactly is this needed? Can't Theorema \
+[easily] find out on its own?",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551873444805326*^9, 3.55187346627929*^9}, 
+   3.5518736724489813`*^9, {3.552155192958119*^9, 3.5521551979341707`*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<WR contrapositive\>\"", ",", " ", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", 
+   RowBox[{"bound", "[", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}], ",", " ", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "y", "]"}]}], "]"}], ",", 
+   RowBox[{
+    RowBox[{"WR", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"n", "\[Element]", "\[DoubleStruckCapitalN]"}], "\[And]", 
+       RowBox[{
+        UnderscriptBox[
+         UnderscriptBox["\[ForAll]", "C"], 
+         RowBox[{"C", "\[SubsetEqual]", 
+          RowBox[{"I", "[", "n", "]"}]}]], 
+        RowBox[{
+         UnderscriptBox["\[ForAll]", 
+          RowBox[{"x", ",", "y"}]], 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"\[Pi]", "[", 
+             RowBox[{"C", ",", "x"}], "]"}], ">", 
+            RowBox[{"\[Pi]", "[", 
+             RowBox[{"C", ",", "y"}], "]"}]}], "\[Implies]", 
+           RowBox[{"(", 
+            RowBox[{
+             UnderscriptBox["\[Exists]", 
+              RowBox[{"i", "\[Element]", "C"}]], 
+             RowBox[{
+              SubscriptBox["x", "i"], ">", " ", 
+              SubscriptBox["y", "i"]}]}], ")"}]}], ")"}]}]}]}], ")"}]}]}]}], 
+  "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.5070304617157393`*^9, 3.507030474106701*^9}, {
+   3.5070305198100348`*^9, 3.5070305596707363`*^9}, {3.507030594796607*^9, 
+   3.507030614333146*^9}, {3.507030701738305*^9, 3.5070307969512243`*^9}, {
+   3.50703417881071*^9, 3.507034195305189*^9}, {3.507269679122716*^9, 
+   3.507269680004644*^9}, {3.507294060807041*^9, 3.507294068326055*^9}, {
+   3.507294205629446*^9, 3.5072942116044817`*^9}, 3.551873672449051*^9},
+ CellTags->"Definition (WR contrapositive)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Strong Resource Monotonicity", "Subsubsection",
+ CellChangeTimes->{{3.551873566429945*^9, 3.5518735778439703`*^9}}],
+
+Cell["\<\
+Strictly increasing the holdings of a coalition's members strictly increases \
+the coalition's power. (This only really makes sense for non-empty \
+coalitions.)\
+\>", "Text",
+ CellChangeTimes->{{3.5518736488673363`*^9, 3.551873695944826*^9}, {
+  3.551873820889333*^9, 3.551873835209126*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551873932796523*^9, 3.551873963299144*^9}, {
+  3.5521543828849707`*^9, 3.552154389213497*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[{
+ StyleBox["CL: does weak resource monotonicity actually make sense for empty \
+coalitions? Why didn't we say ",
+  FontWeight->"Bold"],
+ StyleBox["C \[NotEqual] \[EmptySet]",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ StyleBox[" there?",
+  FontWeight->"Bold"]
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551873932796523*^9, 3.551873963299144*^9}, {
+  3.5521543828849707`*^9, 3.552154389213529*^9}, {3.5521544314548283`*^9, 
+  3.552154431732164*^9}}],
+
+Cell["\<\
+MK: You have less to prove when you don't have to prove that a coalition is \
+non-empty. It doesn't make much sense, however, it doesn't hurt for empty \
+coalitions.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552112085549732*^9, 3.55211212676804*^9}, 
+   3.552154389213561*^9, {3.552154433569542*^9, 3.5521544339654903`*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"Definition", "[", 
+   RowBox[{"\"\<SR\>\"", ",", " ", 
+    RowBox[{"any", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", 
+    RowBox[{"bound", "[", 
+     RowBox[{
+      RowBox[{
+       SubscriptBox["allocation", "n"], "[", "x", "]"}], " ", ",", " ", 
+      RowBox[{
+       SubscriptBox["allocation", "n"], "[", "y", "]"}]}], "]"}], ",", 
+    RowBox[{
+     RowBox[{"SR", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+     RowBox[{"\[DoubleLeftRightArrow]", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"n", "\[Element]", "\[DoubleStruckCapitalN]"}], "\[And]", 
+        RowBox[{
+         UnderscriptBox[
+          UnderscriptBox["\[ForAll]", "C"], 
+          RowBox[{
+           RowBox[{"C", "\[SubsetEqual]", 
+            RowBox[{"I", "[", "n", "]"}]}], "\[And]", 
+           RowBox[{"C", "\[NotEqual]", "\[EmptySet]"}]}]], 
+         RowBox[{
+          UnderscriptBox["\[ForAll]", 
+           RowBox[{"x", ",", "y"}]], 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{
+              UnderscriptBox["\[ForAll]", 
+               RowBox[{"i", "\[Element]", "C"}]], 
+              RowBox[{
+               SubscriptBox["y", "i"], ">", " ", 
+               SubscriptBox["x", "i"]}]}], ")"}], "\[Implies]", 
+            RowBox[{
+             RowBox[{"\[Pi]", "[", 
+              RowBox[{"C", ",", "y"}], "]"}], ">", 
+             RowBox[{"\[Pi]", "[", 
+              RowBox[{"C", ",", "x"}], "]"}]}]}], ")"}]}]}]}], ")"}]}]}]}], 
+   "]"}], " "}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.5067685299113503`*^9, 3.5067685524990187`*^9}, {
+  3.506768619342689*^9, 3.506768687450642*^9}, {3.50685824734766*^9, 
+  3.506858256119167*^9}, {3.506862505009913*^9, 3.50686252007144*^9}, {
+  3.5072942156124763`*^9, 3.5072942215728416`*^9}},
+ CellTags->"Definition (SR)"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Power function", "Subsection",
+ CellChangeTimes->{{3.551873989247095*^9, 3.5518739974355593`*^9}}],
+
+Cell[TextData[{
+ "The ",
+ StyleBox["power function",
+  FontWeight->"Bold"],
+ " of a pillage game satisfies the three axioms stated above."
+}], "Text",
+ CellChangeTimes->{{3.5518739995529213`*^9, 3.551874019048809*^9}, {
+  3.5518740561162*^9, 3.55187405824506*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"Definition", "[", 
+   RowBox[{"\"\<powerfunction\>\"", ",", " ", 
+    RowBox[{"any", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"powerfunction", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+     RowBox[{"\[DoubleLeftRightArrow]", " ", 
+      RowBox[{"\[And]", 
+       RowBox[{
+        StyleBox["{",
+         SpanMaxSize->Infinity], GridBox[{
+          {
+           RowBox[{"WC", "[", 
+            RowBox[{"\[Pi]", ",", "n"}], "]"}]},
+          {
+           RowBox[{"WR", "[", 
+            RowBox[{"\[Pi]", ",", "n"}], "]"}]},
+          {
+           RowBox[{"SR", "[", 
+            RowBox[{"\[Pi]", ",", "n"}], "]"}]}
+         },
+         GridBoxAlignment->{
+          "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, 
+           "Rows" -> {{Baseline}}, "RowsIndexed" -> {}}], 
+        StyleBox["}",
+         ShowContents->False]}]}]}]}]}], " ", "]"}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506768814004135*^9, 3.506768946624731*^9}, {
+  3.5072941494571667`*^9, 3.507294164849217*^9}},
+ CellTags->"Definition (powerfunction)"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "For convenient reuse, we package the definition of a power function and its \
+dependencies into a ",
+ StyleBox["theory",
+  FontSlant->"Italic"],
+ "."
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551874086097953*^9, 3.551874114565851*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Theory",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<powerfunction\>\"", ",", "\[IndentingNewLine]", GridBox[{
+     {
+      RowBox[{"Definition", "[", "\"\<agents\>\"", "]"}]},
+     {
+      RowBox[{"Definition", "[", "\"\<allocation\>\"", "]"}]},
+     {
+      RowBox[{"Definition", "[", "\"\<WC\>\"", "]"}]},
+     {
+      RowBox[{"Definition", "[", "\"\<WR\>\"", "]"}]},
+     {
+      RowBox[{"Definition", "[", "\"\<SR\>\"", "]"}]},
+     {
+      RowBox[{"Definition", "[", "\"\<powerfunction\>\"", "]"}]}
+    },
+    GridBoxAlignment->{
+     "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+      "RowsIndexed" -> {}}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.5067690068404512`*^9, 3.506769112617694*^9}, {
+   3.506769146007533*^9, 3.5067691628202*^9}, {3.506769843875011*^9, 
+   3.506769885365534*^9}, 3.551874114565939*^9},
+ CellTags->"Theory (powerfunction)"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Lemma 1", "Section",
+ CellChangeTimes->{{3.506925924794942*^9, 3.506925926762836*^9}}],
+
+Cell[TextData[{
+ "The power of a coalition depends only on the holdings of its members, not \
+on the holdings of the other agents. I.e. any power function \[Pi](C,x) can \
+be represented by another, ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{"\[Pi]", "'"}], 
+    RowBox[{"(", 
+     RowBox[{"C", ",", 
+      SubscriptBox[
+       RowBox[{"{", 
+        SubscriptBox["x", "i"], "}"}], 
+       RowBox[{"i", "\[Element]", "C"}]]}], ")"}]}], TraditionalForm]]],
+ ", which depends only on the resource holdings of its coalition members."
+}], "Text",
+ CellChangeTimes->{{3.5518976575286283`*^9, 3.551897677544155*^9}, {
+  3.551945340238409*^9, 3.5519454178668203`*^9}}],
+
+Cell["\<\
+Note the precedences of \[ForAll] vs. \[Implies]!\
+\>", "Text",
+ CellChangeTimes->{{3.5518977884637337`*^9, 3.551897806383562*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<powerfunction-independent\>\"", ",", " ", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Pi]", ",", "n", ",", "C", ",", "x", ",", "y"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}], " ", "\[And]", " ", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "y", "]"}], "\[And]", 
+     RowBox[{"C", "\[SubsetEqual]", " ", 
+      RowBox[{"I", "[", "n", "]"}]}], "\[And]", " ", 
+     RowBox[{"powerfunction", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}]}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     UnderscriptBox["\[ForAll]", 
+      RowBox[{"i", "\[Element]", " ", "C"}]], 
+     RowBox[{"(", 
+      RowBox[{
+       SubscriptBox["x", "i"], "=", " ", 
+       SubscriptBox["y", "i"]}], ")"}]}], " ", "\[Implies]", " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"\[Pi]", "[", 
+       RowBox[{"C", ",", "x"}], "]"}], " ", "=", " ", 
+      RowBox[{"\[Pi]", "[", 
+       RowBox[{"C", ",", "y"}], "]"}]}], ")"}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506842447708849*^9, 3.506842461183073*^9}, {
+  3.5068425553143587`*^9, 3.506842572256068*^9}, {3.506852074638102*^9, 
+  3.506852094215778*^9}, {3.506858269449849*^9, 3.50685827729484*^9}},
+ CellTags->"Lemma (powerfunction-independent)"],
+
+Cell[CellGroupData[{
+
+Cell["Auxiliary axiom: trichotomy of the real numbers", "Subsection",
+ CellChangeTimes->{{3.5519000588873034`*^9, 3.5519000705032043`*^9}, {
+  3.551900100751238*^9, 3.551900120663825*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+For proving these, we need one axiom for the trichotomy of \[LessEqual], =, \
+and \[GreaterEqual] on the real numbers.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551898369931451*^9, 3.551898415003084*^9}, 
+   3.55189889270401*^9}],
+
+Cell["\<\
+There is a potential problem in the next axiom, since it should be stated for \
+real numbers only.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.506863223152865*^9, 3.50686325881177*^9}, {
+   3.506863479132212*^9, 3.50686351313309*^9}, 3.5518988927040567`*^9, 
+   3.552154415360734*^9}],
+
+Cell[BoxData[
+ RowBox[{"Axiom", "[", 
+  RowBox[{"\"\<trichotomy\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"a", ",", "b"}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"a", "=", "b"}], ")"}], "\[DoubleLeftRightArrow]", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"a", "\[GreaterEqual]", "b"}], "\[And]", 
+      RowBox[{"b", "\[GreaterEqual]", "a"}]}], ")"}]}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.506771935550907*^9, 3.50677198751926*^9}, {
+   3.5067720899855547`*^9, 3.5067721008169947`*^9}, {3.506774291635831*^9, 
+   3.5067742985300417`*^9}, {3.506775330136063*^9, 3.506775346334223*^9}, {
+   3.506863165244764*^9, 3.506863180137137*^9}, 3.551898892704112*^9},
+ CellTags->"Axiom (trichotomy)"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Proof", "Subsection",
+ CellChangeTimes->{{3.551900082503194*^9, 3.551900092783189*^9}}],
+
+Cell["\<\
+The only axiom about power functions that we actually need for this proof is \
+the weak resource monotonicity.\
+\>", "Text",
+ CellChangeTimes->{{3.551898900136549*^9, 3.551898921095552*^9}}],
+
+Cell["\<\
+Note once more that the search depth has been fine-tuned manually.\
+\>", "Text",
+ CellChangeTimes->{{3.551898925383334*^9, 3.5518989352076187`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemma1", "=", 
+  RowBox[{"Prove", "[", 
+   RowBox[{
+    RowBox[{"Lemma", "[", "\"\<powerfunction-independent\>\"", "]"}], ",", 
+    RowBox[{"using", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Definition", "[", "\"\<powerfunction\>\"", "]"}], ",", 
+       RowBox[{"Definition", "[", "\"\<WR\>\"", "]"}], ",", 
+       RowBox[{"Axiom", "[", "\"\<trichotomy\>\"", "]"}]}], "}"}]}], ",", 
+    RowBox[{"by", "\[Rule]", "PredicateProver"}], ",", 
+    RowBox[{"SearchDepth", "\[Rule]", "86"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.506842503262663*^9, 3.506842510423135*^9}, {
+   3.506850391498334*^9, 3.506850417877563*^9}, {3.506850467968981*^9, 
+   3.506850489203189*^9}, {3.506850889418005*^9, 3.506850909135724*^9}, {
+   3.506851017541546*^9, 3.5068510219155083`*^9}, {3.506851110713386*^9, 
+   3.506851141471715*^9}, {3.506851211212487*^9, 3.506851216134984*^9}, {
+   3.506852118862835*^9, 3.506852133892618*^9}, {3.506852642506065*^9, 
+   3.506852644715143*^9}, 3.506865790704405*^9, {3.506919396975357*^9, 
+   3.5069194017178507`*^9}, {3.551898515001828*^9, 3.5518985201589003`*^9}, {
+   3.551898562168552*^9, 3.551898563294611*^9}, {3.551898732655632*^9, 
+   3.5518987385894327`*^9}, {3.551898960092637*^9, 3.5518989609399443`*^9}, {
+   3.551899155212058*^9, 3.551899155315537*^9}, {3.551899413346362*^9, 
+   3.551899413824429*^9}, {3.551899466713902*^9, 3.5518994668162537`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{
+  3.506850505678748*^9, 3.506850979663845*^9, 3.506851031950296*^9, {
+   3.506851126624155*^9, 3.5068511515171423`*^9}, 3.506852549881079*^9, 
+   3.506864050276268*^9, 3.506865706426963*^9, 3.551898403096472*^9, 
+   3.551898583997229*^9, 3.5518991817590218`*^9, 3.5518994570687037`*^9, 
+   3.551899583303337*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899671818275*^9, 3.551899722985774*^9}, {
+  3.552154487498761*^9, 3.552154493144225*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["CL: What does actually end up in this file?",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899671818275*^9, 3.551899722985774*^9}, {
+  3.552154487498761*^9, 3.5521544931442747`*^9}}],
+
+Cell["MK: I assume the datastructure representing it.", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552112181492059*^9, 3.552112188773489*^9}, {
+  3.55215448533053*^9, 3.552154493144512*^9}}],
+
+Cell["\<\
+CL: OK, then my next question is: Can this file be used in any way for \
+showing the proof object? (So far I don't see it's useful for that.)\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552154456223777*^9, 3.5521544931445427`*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{"Save", "[", 
+  RowBox[{"\"\<eco1.m\>\"", ",", 
+   RowBox[{"{", "PLemma1", "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.50686580891384*^9, 3.506865864697132*^9}, {
+   3.506865948671307*^9, 3.506865972286097*^9}, 3.50692219698341*^9}],
+
+Cell[CellGroupData[{
+
+Cell["Alternative proof using the whole theory", "Subsubsection",
+ CellChangeTimes->{{3.5519001427026453`*^9, 3.5519001479025583`*^9}}],
+
+Cell["\<\
+We can also use the whole power functions theory to do the proof.\
+\>", "Text",
+ CellChangeTimes->{{3.551899434144617*^9, 3.55189945555571*^9}}],
+
+Cell["\<\
+This requires a higher search depth: The more redundant information you give \
+to a theorem prover, the more difficult you make its task.\
+\>", "Text",
+ CellChangeTimes->{{3.551899802057275*^9, 3.551899809425022*^9}, {
+  3.551901136328208*^9, 3.5519011376557503`*^9}, {3.552154515177145*^9, 
+  3.552154532565629*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemma2", "=", 
+  RowBox[{"Prove", "[", 
+   RowBox[{
+    RowBox[{"Lemma", "[", "\"\<powerfunction-independent\>\"", "]"}], ",", 
+    RowBox[{"using", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Theory", "[", "\"\<powerfunction\>\"", "]"}], ",", 
+       RowBox[{"Axiom", "[", "\"\<trichotomy\>\"", "]"}]}], "}"}]}], ",", 
+    RowBox[{"by", "\[Rule]", "PredicateProver"}], ",", 
+    RowBox[{"SearchDepth", "\[Rule]", "250"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.506919426198002*^9, 3.5069194566407747`*^9}, 
+   3.551874081697274*^9, {3.551898696933838*^9, 3.55189869912534*^9}}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.506920467465446*^9, 3.551899943606153*^9, 
+  3.551901011877207*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Save", "[", 
+  RowBox[{"\"\<eco1full.m\>\"", ",", 
+   RowBox[{"{", "PLemma2", "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.506921787786009*^9, 3.506921790993926*^9}, {
+  3.506922202304195*^9, 3.506922213254467*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Simplifying the proofs to show only the necessary steps", \
+"Subsubsection",
+ CellChangeTimes->{{3.5519001615985107`*^9, 3.55190018871054*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899819488966*^9, 3.551899825377*^9}, {
+  3.55215454553074*^9, 3.552154552568062*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["CL: What does the following command do?",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899819488966*^9, 3.551899825377*^9}, {
+  3.55215454553074*^9, 3.55215455256811*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"?", "branches"}]], "Input",
+ CellChangeTimes->{{3.506852768470722*^9, 3.506852778366592*^9}, {
+  3.506852823956297*^9, 3.506852825523565*^9}}],
+
+Cell[BoxData[
+ StyleBox["\<\"Option of ProofSimplifier with possible values: Proved, \
+Pending, Failed, Disproved and list combinations of these. All (default) \
+means list of all.\"\>", "MSG"]], "Print", "PrintUsage",
+ CellChangeTimes->{3.50685282680192*^9},
+ CellTags->"Info3506852826-6246626"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemma1Simp", "=", 
+  RowBox[{"Block", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"$RecursionLimit", "=", "Infinity"}], "}"}], ",", 
+    RowBox[{"Transform", "[", 
+     RowBox[{"PLemma1", ",", 
+      RowBox[{"by", "\[Rule]", "ProofSimplifier"}], ",", 
+      RowBox[{"TransformerOptions", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"branches", "\[Rule]", "Proved"}], ",", 
+         RowBox[{"steps", "\[Rule]", "Useful"}]}], "}"}]}]}], "]"}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.506852680916765*^9, 3.506852759089452*^9}, {
+  3.506852794165301*^9, 3.506852901992004*^9}, {3.506852932059957*^9, 
+  3.50685293309543*^9}, {3.506866060472954*^9, 3.506866077965694*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.506852845337674*^9, 3.506852880126028*^9, 
+  3.506852929114357*^9, 3.5068530270318*^9, 3.506866180878202*^9, 
+  3.551901197312768*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Save", "[", 
+  RowBox[{"\"\<ecosimp1.m\>\"", ",", 
+   RowBox[{"{", "PLemma1Simp", "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.50686580891384*^9, 3.506865864697132*^9}, {
+   3.506865948671307*^9, 3.506865972286097*^9}, {3.506866116832453*^9, 
+   3.506866117652036*^9}, {3.506921860580834*^9, 3.506921866209983*^9}, {
+   3.50692205748659*^9, 3.506922095171371*^9}, {3.5069221653510933`*^9, 
+   3.506922184525881*^9}, 3.551900002058961*^9}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899959792097*^9, 3.5518999956638107`*^9}, {
+  3.5521545718105993`*^9, 3.552154601822907*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["CL: Check whether, after simplification, the two \
+proofs are equivalent",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899959792097*^9, 3.5518999956638107`*^9}, {
+  3.5521545718105993`*^9, 3.55215460182295*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemma2Simp", "=", 
+  RowBox[{"Block", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"$RecursionLimit", "=", "Infinity"}], "}"}], ",", 
+    RowBox[{"Transform", "[", 
+     RowBox[{"PLemma2", ",", 
+      RowBox[{"by", "\[Rule]", "ProofSimplifier"}], ",", 
+      RowBox[{"TransformerOptions", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"branches", "\[Rule]", "Proved"}], ",", 
+         RowBox[{"steps", "\[Rule]", "Useful"}]}], "}"}]}]}], "]"}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.506920712614287*^9, 3.506920712687869*^9}, {
+  3.5069207446287394`*^9, 3.506920744712467*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Not used: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Definition (allocation)\"\>", ",", "\<\"Definition (WC)\"\>",
+      ",", "\<\"Definition (SR)\"\>"}], "}"}]}],
+  SequenceForm[
+  "Not used: ", {
+   "Definition (allocation)", "Definition (WC)", "Definition (SR)"}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.5069208749817333`*^9, 3.5069211987362556`*^9}],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Not used: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Definition (allocation)\"\>", ",", "\<\"Definition (WC)\"\>",
+      ",", "\<\"Definition (SR)\"\>"}], "}"}]}],
+  SequenceForm[
+  "Not used: ", {
+   "Definition (allocation)", "Definition (WC)", "Definition (SR)"}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.5069208749817333`*^9, 3.506921210473675*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Save", "[", 
+  RowBox[{"\"\<ecosimp1full.m\>\"", ",", 
+   RowBox[{"{", "PLemma2Simp", "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.506921894171359*^9, 3.5069218966586237`*^9}, {
+  3.506922272172188*^9, 3.506922274514884*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Reference: prover options", "Subsection",
+ CellChangeTimes->{{3.551900211086298*^9, 3.55190021632616*^9}, {
+  3.551900281669263*^9, 3.5519002842559433`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Options", "[", "SetTheoryPCSProver", "]"}]], "Input",
+ CellChangeTimes->{{3.5067734786075897`*^9, 3.506773487631867*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"DisableProver", "\[Rule]", 
+    RowBox[{"{", "PND", "}"}]}], ",", 
+   RowBox[{"EarlyRewriting", "\[Rule]", "False"}], ",", 
+   RowBox[{"TransformRanges", "\[Rule]", "True"}], ",", 
+   RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "False"}], ",", 
+   RowBox[{"ApplyBuiltIns", "\[Rule]", "True"}], ",", 
+   RowBox[{"BackChaining", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingDisjunction", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingEquivalence", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingImplication", "\[Rule]", "False"}], ",", 
+   RowBox[{"ChooseFromFiniteSet", "\[Rule]", "False"}], ",", 
+   RowBox[{"DisableInferenceRule", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<KBComposeIntersection\>\"", ",", "\"\<KBFiniteChoice\>\"", ",", 
+      "\"\<KBInferNonEmpty\>\""}], "}"}]}], ",", 
+   RowBox[{"EarlyCaseDistinction", "\[Rule]", "True"}], ",", 
+   RowBox[{"GRWTarget", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\"\<kb\>\"", ",", "\"\<goal\>\""}], "}"}]}], ",", 
+   RowBox[{"InferMembershipIntersection", "\[Rule]", "False"}], ",", 
+   RowBox[{"KBRWOnlySimplification", "\[Rule]", "False"}], ",", 
+   RowBox[{"MatchExistential", "\[Rule]", "\"\<TryAllAtOnce\>\""}], ",", 
+   RowBox[{"ModusPonensException", "\[Rule]", "None"}], ",", 
+   RowBox[{"ModusPonensKB", "\[Rule]", "True"}], ",", 
+   RowBox[{"PNDLevel", "\[Rule]", "1"}], ",", 
+   RowBox[{"RWBooleanLiteralCombinations", "\[Rule]", "True"}], ",", 
+   RowBox[{"RWCombine", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWExistentialGoal", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWHigherOrder", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWInnermost", "\[Rule]", "True"}], ",", 
+   RowBox[{"RWInsideQuantifiers", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWSetOperators", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWTuples", "\[Rule]", "True"}], ",", 
+   RowBox[{"SemanticMatch", "\[Rule]", "True"}], ",", 
+   RowBox[{"SimplifyFormula", "\[Rule]", "False"}], ",", 
+   RowBox[{"STPFunctionProperties", "\[Rule]", "True"}], ",", 
+   RowBox[{"STPLevel", "\[Rule]", "100"}], ",", 
+   RowBox[{"STPMembershipByInclusion", "\[Rule]", "False"}], ",", 
+   RowBox[{"TryAlternatives", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoal", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalDisjunction", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalEquivalence", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalImplication", "\[Rule]", "False"}], ",", 
+   RowBox[{"UseCyclicRules", "\[Rule]", "False"}], ",", 
+   RowBox[{"UseEqualitiesFirst", "\[Rule]", "True"}], ",", 
+   RowBox[{"UseNonMembership", "\[Rule]", "True"}]}], "}"}]], "Input",
+ CellChangeTimes->{{3.551870274487965*^9, 3.551870276934767*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Options", "[", "PredicateProver", "]"}]], "Input",
+ CellChangeTimes->{{3.5067734786075897`*^9, 3.506773487631867*^9}, {
+  3.5068507347515297`*^9, 3.5068507405790367`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"TryAlternatives", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChaining", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingDisjunction", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingImplication", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingEquivalence", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalDisjunction", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalImplication", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalEquivalence", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoal", "\[Rule]", "False"}], ",", 
+   RowBox[{"PNDLevel", "\[Rule]", "1"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.5068507417939796`*^9}]
+}, Closed]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Show the most recent proof (including aborted ones)", "Subsection",
+ CellChangeTimes->{{3.551900227334167*^9, 3.551900248149929*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ProofShow", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.506771781421344*^9, 3.506771785254037*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"$RecursionLimit", "::", "\<\"reclim\"\>"}], 
+  RowBox[{
+  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Recursion depth of \
+\\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(256\\), \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" exceeded.\\\\\\\"\\\", \
+\\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/$RecursionLimit/reclim\\\", ButtonNote -> \
+\\\"$RecursionLimit::reclim\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.552205695933585*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"$RecursionLimit", "::", "\<\"reclim\"\>"}], 
+  RowBox[{
+  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Recursion depth of \
+\\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(256\\), \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" exceeded.\\\\\\\"\\\", \
+\\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/$RecursionLimit/reclim\\\", ButtonNote -> \
+\\\"$RecursionLimit::reclim\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.552205695948956*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"$RecursionLimit", "::", "\<\"reclim\"\>"}], 
+  RowBox[{
+  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Recursion depth of \
+\\\\\\\"\\\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\(256\\), \
+\\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" exceeded.\\\\\\\"\\\", \
+\\\"MT\\\"]\\) \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/$RecursionLimit/reclim\\\", ButtonNote -> \
+\\\"$RecursionLimit::reclim\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.552205695963382*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"General", "::", "\<\"stop\"\>"}], 
+  RowBox[{
+  ":", " "}], "\<\"\\!\\(\\*StyleBox[\\\"\\\\\\\"Further output of \\\\\\\"\\\
+\", \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\!\\($RecursionLimit :: \
+\\\"reclim\\\"\\), \\\"MT\\\"]\\)\[NoBreak]\\!\\(\\*StyleBox[\\\"\\\\\\\" \
+will be suppressed during this calculation.\\\\\\\"\\\", \\\"MT\\\"]\\) \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/stop\\\", \
+ButtonNote -> \\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.5522056959996223`*^9}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.552205749001297*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Statistics about the proof objects", "Subsection",
+ CellChangeTimes->{{3.551900252533949*^9, 3.551900257165917*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899751201551*^9, 3.551899768169541*^9}, {
+  3.552155212931316*^9, 3.5521552173997383`*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["This seems to be different from the optimal \
+SearchDepth value given to Prove, so what is it?",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551899751201551*^9, 3.551899768169541*^9}, {
+  3.552155212931316*^9, 3.552155217399768*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Depth", "[", "PLemma1", "]"}]], "Input",
+ CellChangeTimes->{{3.506924201879426*^9, 3.506924221795068*^9}}],
+
+Cell[BoxData["190"], "Output",
+ CellChangeTimes->{3.5069242112983007`*^9, 3.5069242578785877`*^9, 
+  3.5518997402114677`*^9}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Depth", "[", "PLemma2", "]"}]], "Input",
+ CellChangeTimes->{{3.5069242872444344`*^9, 3.506924312260186*^9}}],
+
+Cell[BoxData["372"], "Output",
+ CellChangeTimes->{3.506924313989258*^9}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Depth", "[", "PLemma1Simp", "]"}]], "Input",
+ CellChangeTimes->{{3.506924432371065*^9, 3.5069244560016127`*^9}}],
+
+Cell[BoxData["70"], "Output",
+ CellChangeTimes->{{3.506924437109577*^9, 3.506924457437461*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Depth", "[", "PLemma2Simp", "]"}]], "Input",
+ CellChangeTimes->{{3.5069244661210012`*^9, 3.5069244696492977`*^9}}],
+
+Cell[BoxData["74"], "Output",
+ CellChangeTimes->{3.5069244708493853`*^9}]
+}, Closed]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Auxiliary Concepts", "Section",
+ CellChangeTimes->{{3.507024587663949*^9, 3.507024592903311*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Permuted Allocation", "Subsection",
+ CellChangeTimes->{{3.507024738806017*^9, 3.507024751508747*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Allocation permutation operator", "Subsubsection",
+ CellChangeTimes->{{3.5519461278580027`*^9, 3.551946133381081*^9}}],
+
+Cell[TextData[{
+ "We define an operator that returns the k-th element of an ",
+ StyleBox["allocation permuted",
+  FontWeight->"Bold"],
+ " by \[Sigma]:"
+}], "Text",
+ CellChangeTimes->{{3.551946096807188*^9, 3.55194612198985*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<perm\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"x", ",", "\[Sigma]", ",", "k"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    SubscriptBox[
+     RowBox[{"perm", "[", 
+      RowBox[{"x", ",", "\[Sigma]"}], "]"}], "k"], ":=", 
+    SubscriptBox["x", 
+     RowBox[{"\[Sigma]", "[", "k", "]"}]]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506959239877286*^9, 3.506959296431407*^9}},
+ CellTags->"Definition (perm)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Permutation", "Subsubsection",
+ CellChangeTimes->{{3.551946592386633*^9, 3.551946593540831*^9}}],
+
+Cell[TextData[{
+ "A ",
+ StyleBox["permutation",
+  FontWeight->"Bold"],
+ " is a bijective function from a set onto itself."
+}], "Text",
+ CellChangeTimes->{{3.551946597308461*^9, 3.551946608722217*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<permutation\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Sigma]", ",", "A"}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"permutation", "[", 
+     RowBox[{"\[Sigma]", ",", "A"}], "]"}], ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", GridBox[{
+       {"\[Sigma]", "\[Proportion]", "A", 
+        OverscriptBox["\[RightArrow]", 
+         RowBox[{"bij", "."}]], 
+        RowBox[{"A", "  "}]}
+      },
+      GridBoxAlignment->{
+       "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+        "RowsIndexed" -> {}},
+      GridBoxSpacings->{"Columns" -> {
+          Offset[0.27999999999999997`], 
+          Offset[0.06999999999999999], 
+          Offset[0.27999999999999997`], {
+           Offset[0.21]}, 
+          Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+          Offset[0.2], {
+           Offset[0.04]}, 
+          Offset[0.2]}, "RowsIndexed" -> {}},
+      GridDefaultElement:>""]}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.5069250814579268`*^9, 3.50692515050823*^9}, {
+  3.5070106109552794`*^9, 3.5070106185222197`*^9}},
+ CellTags->"Definition (permutation)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Allocations are closed unter permutation", "Subsubsection",
+ CellChangeTimes->{{3.55194646874292*^9, 3.551946474301669*^9}}],
+
+Cell["If you permute an allocation, it's still an allocation:", "Text",
+ CellChangeTimes->{{3.551946476374628*^9, 3.551946484943429*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Proposition", "[", 
+  RowBox[{"\"\<alloc perm\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "\[Sigma]", ",", "x"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}], "\[And]", 
+     RowBox[{"permutation", "[", 
+      RowBox[{"\[Sigma]", ",", 
+       RowBox[{"I", "[", "n", "]"}]}], "]"}]}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    SubscriptBox["allocation", "n"], "[", 
+    RowBox[{"perm", "[", 
+     RowBox[{"x", ",", "\[Sigma]"}], "]"}], "]"}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506959433106436*^9, 3.506959493203115*^9}, {
+   3.506959868784143*^9, 3.506959905774426*^9}, {3.506960013492038*^9, 
+   3.506960022403439*^9}, {3.507013306388925*^9, 3.507013395342524*^9}, {
+   3.507015049485821*^9, 3.5070150542790833`*^9}, {3.507015528914877*^9, 
+   3.507015545740818*^9}, 3.5070156226340313`*^9, {3.507015727609164*^9, 
+   3.507015734075194*^9}, {3.507016459148714*^9, 3.5070164611545153`*^9}, 
+   3.507016507464838*^9, {3.507024276189747*^9, 3.5070242769060583`*^9}, 
+   3.5072942794109783`*^9},
+ CellTags->"Proposition (alloc perm)"],
+
+Cell["\<\
+Making one aspect of the above explicit: Permuting an allocation doesn't \
+change the sum of the agents' holdings.\
+\>", "Text",
+ CellChangeTimes->{{3.551946502696763*^9, 3.551946508436131*^9}, {
+  3.5519465499612703`*^9, 3.5519465623068113`*^9}, {3.551946916293404*^9, 
+  3.5519469192210503`*^9}, {3.5519475121685047`*^9, 3.551947521290126*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Proposition", "[", 
+  RowBox[{"\"\<sum perm\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Sigma]", ",", "A", ",", "x"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{"permutation", "[", 
+     RowBox[{"\[Sigma]", ",", "A"}], "]"}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     UnderscriptBox["\[Sum]", 
+      RowBox[{"i", "\[Element]", "A"}]], 
+     SubscriptBox["x", 
+      RowBox[{"\[Sigma]", "[", "i", "]"}]]}], "=", 
+    RowBox[{
+     UnderscriptBox["\[Sum]", 
+      RowBox[{"i", "\[Element]", "A"}]], 
+     SubscriptBox["x", "i"]}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506959433106436*^9, 3.506959493203115*^9}, {
+   3.506959868784143*^9, 3.506959905774426*^9}, {3.506960013492038*^9, 
+   3.506960022403439*^9}, {3.507013306388925*^9, 3.507013395342524*^9}, {
+   3.507015049485821*^9, 3.5070150542790833`*^9}, {3.507015528914877*^9, 
+   3.507015545740818*^9}, 3.5070156226340313`*^9, {3.507015727609164*^9, 
+   3.507015734075194*^9}, {3.507016459148714*^9, 3.5070164611545153`*^9}, 
+   3.507016507464838*^9, {3.507024276189747*^9, 3.5070242769060583`*^9}, {
+   3.507027852956159*^9, 3.507027956776348*^9}},
+ CellTags->"Proposition (sum perm)"],
+
+Cell["\<\
+To make it easier to prove that allocations are closed under permutation, we \
+take it for granted that permutations don't change the sum of an allocation.\
+\>", "Text",
+ CellChangeTimes->{{3.5519469284317408`*^9, 3.551946992102265*^9}, {
+  3.551947527260487*^9, 3.5519475323602057`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.55194699327029*^9, 3.551947009915679*^9}, {
+  3.551948421838661*^9, 3.551948431391403*^9}, {3.552154638898087*^9, 
+  3.552154648394002*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["CL: Would it also be easily possible to prove \
+Proposition[\"sum perm\"]? Or is it problematic due to the computation \
+involved?",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.55194699327029*^9, 3.551947009915679*^9}, {
+  3.551948421838661*^9, 3.551948431391403*^9}, {3.552154638898087*^9, 
+  3.5521546483940496`*^9}}],
+
+Cell["MK: I assume you need an inductive argument.", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552112334763493*^9, 3.552112345838282*^9}, {
+  3.552154643466365*^9, 3.552154648394074*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.5519471098347187`*^9, 3.551947113017425*^9}, {
+  3.5521546585917683`*^9, 3.552154664419335*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["this proof doesn't work!",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.5519471098347187`*^9, 3.551947113017425*^9}, {
+  3.5521546585917683`*^9, 3.5521546644193697`*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Proposition", "[", "\"\<alloc perm\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Proposition", "[", "\"\<sum perm\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<allocation\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<perm\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+   RowBox[{"ProverOptions", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "True"}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.507027532760673*^9, 3.507027606206552*^9}, {
+  3.5070279692887697`*^9, 3.5070279713036213`*^9}, {3.5070280976727448`*^9, 
+  3.507028100284483*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.507027592129346*^9, 3.507027636135694*^9, 
+  3.507028001129819*^9, 3.507028156314899*^9, 3.5519470716316757`*^9, 
+  3.5519483782352133`*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Allocation Swap", "Subsection",
+ CellChangeTimes->{{3.507024771515579*^9, 3.507024773965075*^9}, {
+  3.507024844182954*^9, 3.507024850678088*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["The \[OpenCurlyDoubleQuote]swap\[CloseCurlyDoubleQuote] permutation", \
+"Subsubsection",
+ CellChangeTimes->{{3.551947555083572*^9, 3.55194755994417*^9}}],
+
+Cell["\<\
+This permutation swaps the i-th and j-th components of a tuple.\
+\>", "Text",
+ CellChangeTimes->{{3.55194756684568*^9, 3.551947584117936*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Definition",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<swap\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"i", ",", "j", ",", "k"}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     SubscriptBox["\[Sigma]", 
+      RowBox[{"i", ",", "j"}]], "[", "k", "]"}], ":=", 
+    RowBox[{
+     StyleBox["{",
+      SpanMaxSize->Infinity], GridBox[{
+       {"j", "\[DoubleLeftArrow]", 
+        RowBox[{"k", "=", "i"}]},
+       {"i", "\[DoubleLeftArrow]", 
+        RowBox[{"k", "=", "j"}]},
+       {"k", "\[DoubleLeftArrow]", "otherwise"}
+      },
+      GridBoxAlignment->{
+       "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+        "RowsIndexed" -> {}}], 
+     StyleBox["}",
+      ShowContents->False]}]}]}], " ", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506940354324541*^9, 3.5069403971472063`*^9}, {
+  3.506940682490678*^9, 3.506940688686472*^9}, {3.506940731042651*^9, 
+  3.5069407913804903`*^9}, {3.506941147160016*^9, 3.5069411539785137`*^9}, {
+  3.506945163756529*^9, 3.506945188433766*^9}, {3.506956887515983*^9, 
+  3.506956909752265*^9}},
+ CellTags->"Definition (swap)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\[OpenCurlyDoubleQuote]swap\[CloseCurlyDoubleQuote] is a permutation", \
+"Subsubsection",
+ CellChangeTimes->{{3.5519483622382*^9, 3.551948366460527*^9}}],
+
+Cell["\<\
+The permutation that swaps agent 1 and 2 really is a permutation, on any \
+admissible set of agents (which always has at least 2 agents).\
+\>", "Text",
+ CellChangeTimes->{{3.551947979125538*^9, 3.551948040491788*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Proposition",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<swapperm\>\"", ",", 
+   RowBox[{"any", "[", "n", "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{"appropriateLength", "[", "n", "]"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"permutation", "[", 
+    RowBox[{
+     SubscriptBox["\[Sigma]", 
+      RowBox[{"1", ",", "2"}]], ",", 
+     RowBox[{"I", "[", "n", "]"}]}], "]"}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506940892898264*^9, 3.506940933707852*^9}, {
+   3.506944131940786*^9, 3.506944145447302*^9}, {3.506945199420024*^9, 
+   3.5069452018185062`*^9}, {3.50694816245673*^9, 3.50694816728043*^9}, {
+   3.506956961661833*^9, 3.506956995816933*^9}, {3.506957375055657*^9, 
+   3.506957384146275*^9}, {3.506957867695489*^9, 3.506957872241341*^9}, {
+   3.507294319576221*^9, 3.507294333439652*^9}, 3.552153723062662*^9},
+ CellTags->"Proposition (swapperm)"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551949415033724*^9, 3.551949418702434*^9}, {
+  3.552154774320661*^9, 3.552154779390552*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["This proof doesn't work!",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551949415033724*^9, 3.551949418702434*^9}, {
+  3.552154774320661*^9, 3.552154779390583*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Proposition", "[", "\"\<swapperm\>\"", "]"}], ",", 
+   RowBox[{"using", "->", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Definition", "[", "\"\<swap\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<permutation\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"by", "->", "SetTheoryPCSProver"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5069409769413013`*^9, 3.506941081037017*^9}, {
+   3.5519487058079433`*^9, 3.5519487109990883`*^9}, 3.551949336257728*^9, {
+   3.552155640322548*^9, 3.552155641642352*^9}}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.507026550902659*^9, 3.551948103416874*^9, 
+  3.551948707910825*^9, 3.551948791035132*^9, 3.5519492443033037`*^9, 
+  3.552155969236693*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Swapping is idempotent", "Subsubsection",
+ CellChangeTimes->{{3.551948344081036*^9, 3.5519483759154387`*^9}}],
+
+Cell["Swapping twice restores the same permutation.", "Text",
+ CellChangeTimes->{{3.551948547053719*^9, 3.551948555821168*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Proposition", "[", 
+  RowBox[{"\"\<swap idempotent\>\"", ",", 
+   RowBox[{"any", "[", "i", "]"}], ",", 
+   RowBox[{
+    RowBox[{
+     SubscriptBox["\[Sigma]", 
+      RowBox[{"1", ",", "2"}]], "[", 
+     RowBox[{
+      SubscriptBox["\[Sigma]", 
+       RowBox[{"1", ",", "2"}]], "[", "i", "]"}], "]"}], "=", "i"}]}], 
+  "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506959433106436*^9, 3.506959493203115*^9}, {
+  3.50702488376364*^9, 3.5070248893841753`*^9}},
+ CellTags->"Proposition (swap idempotent)"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551949415033724*^9, 3.551949418702434*^9}, {
+  3.5521547864179287`*^9, 3.552154792205386*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["This proof doesn't work!",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551949415033724*^9, 3.551949418702434*^9}, {
+  3.5521547864179287`*^9, 3.55215479220542*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Proposition", "[", "\"\<swap idempotent\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"Definition", "[", "\"\<swap\>\"", "]"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5070255104793673`*^9, 3.507025540814952*^9}, {
+   3.551948645004258*^9, 3.551948649619072*^9}, 3.5519493476331797`*^9}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.5070255451464567`*^9, 3.507027053986376*^9, 
+  3.5519485607196283`*^9, 3.551948669397423*^9}]
+}, Open  ]],
+
+Cell["\<\
+When swapping the first two elements in a tuple, the second element in the \
+new tuple is equal to the first of the original.\
+\>", "Text",
+ CellChangeTimes->{{3.5519459262094927`*^9, 3.551945952453888*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<perm swap\>\"", ",", 
+   RowBox[{"any", "[", "x", "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    SubscriptBox[
+     RowBox[{"perm", "[", 
+      RowBox[{"x", ",", 
+       SubscriptBox["\[Sigma]", 
+        RowBox[{"1", ",", "2"}]]}], "]"}], "2"], "=", 
+    SubscriptBox["x", "1"]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.507283530271516*^9, 3.5072836445687437`*^9}},
+ CellTags->"Lemma (perm swap)"],
+
+Cell["\<\
+It is instructive to try the proof first without letting Theorema know about \
+equality of numbers, and then with this built-in knowledge.\
+\>", "Text",
+ CellChangeTimes->{{3.552156422328498*^9, 3.552156452891471*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Theorema's provers apply purely logical inference rules.", "Item",
+ CellChangeTimes->{{3.552156477937977*^9, 3.5521565109857283`*^9}}],
+
+Cell["\<\
+Any additional knowledge beyond that has to be provided explicitly: either by \
+\[OpenCurlyDoubleQuote]using\[CloseCurlyDoubleQuote] additional axioms or \
+previously established results, or by letting Theorema know that it should \
+make use of some computational built-ins.\
+\>", "Item",
+ CellChangeTimes->{{3.55215649643316*^9, 3.5521565370192423`*^9}, {
+  3.552156603017494*^9, 3.5521566038526382`*^9}, {3.552156656981454*^9, 
+  3.552156663367034*^9}, {3.552156696202527*^9, 3.5521566987873173`*^9}, {
+  3.552156786433405*^9, 3.552156793787278*^9}}],
+
+Cell["\<\
+Activating the \[OpenCurlyDoubleQuote]=\[CloseCurlyDoubleQuote] built-in \
+connective means that Theorema will understand that \
+\[OpenCurlyDoubleQuote]2=1\[CloseCurlyDoubleQuote] is false.\
+\>", "Item",
+ CellChangeTimes->{{3.552156806790093*^9, 3.552156829780217*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<perm swap\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Definition", "[", "\"\<perm\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<swap\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}]}], 
+  RowBox[{"(*", 
+   RowBox[{",", 
+    RowBox[{"built\[Dash]in", "\[Rule]", 
+     RowBox[{
+      RowBox[{"Built\[Dash]in", "[", "\"\<Connectives\>\"", "]"}], "[", 
+      "\"\<=\>\"", "]"}]}]}], "*)"}], "]"}]], "Input",
+ CellChangeTimes->{{3.5070255104793673`*^9, 3.507025540814952*^9}, {
+  3.507294393356101*^9, 3.507294442698621*^9}, {3.552155786662781*^9, 
+  3.5521557937060623`*^9}, {3.5521560236672497`*^9, 3.552156031966021*^9}, {
+  3.552156131708449*^9, 3.552156158828451*^9}, {3.552156219528453*^9, 
+  3.5521562241145897`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{{3.507294431037848*^9, 3.5072944447327213`*^9}, 
+   3.551949581109166*^9, 3.551949626189136*^9, 3.552155687362101*^9, {
+   3.55215576811937*^9, 3.552155796788762*^9}, 3.55215597495644*^9, {
+   3.552156012325943*^9, 3.5521560343125763`*^9}, {3.552156146306944*^9, 
+   3.5521561693500433`*^9}, 3.552156226718196*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Additional Axioms", "Section",
+ CellChangeTimes->{{3.50692595722532*^9, 3.506925960981398*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Anonymity", "Subsection",
+ CellChangeTimes->{{3.55190168391608*^9, 3.551901687955784*^9}}],
+
+Cell["\<\
+Power is invariant under permutations of the agents, i.e. an agent's identity \
+is irrelevant to a coalition's power; all that matters is its presence or \
+absence, and its holdings. (Consequently, dominance and the stable set are \
+invariant under permutations of the agents.)\
+\>", "Text",
+ CellChangeTimes->{{3.55190177038728*^9, 3.551901867482966*^9}}],
+
+Cell["\<\
+Formalization: From a coalition Cx and an allocation x, obtain Cy and y by \
+permuting the agents using a permutation \[Sigma]. Then, Cy is as powerful at \
+y as Cx is at x.\
+\>", "Text",
+ CellChangeTimes->{{3.5519019844341927`*^9, 3.5519021208412743`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{"Definition", "[", 
+   RowBox[{"\"\<AN\>\"", ",", 
+    RowBox[{"any", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", 
+    RowBox[{"bound", "[", 
+     RowBox[{
+      RowBox[{
+       SubscriptBox["allocation", "n"], "[", "x", "]"}], ",", 
+      RowBox[{
+       SubscriptBox["allocation", "n"], "[", "y", "]"}]}], "]"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"AN", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+     RowBox[{"\[DoubleLeftRightArrow]", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"n", "\[Element]", "\[DoubleStruckCapitalN]"}], "\[And]", 
+        RowBox[{"(", " ", 
+         RowBox[{
+          RowBox[{
+           UnderscriptBox[
+            UnderscriptBox["\[ForAll]", "\[Sigma]"], 
+            RowBox[{"permutation", "[", 
+             RowBox[{"\[Sigma]", ",", 
+              RowBox[{"I", "[", "n", "]"}]}], "]"}]], 
+           RowBox[{
+            UnderscriptBox[
+             UnderscriptBox["\[ForAll]", 
+              RowBox[{"Cx", ",", "Cy", ",", "x", ",", "y"}]], 
+             RowBox[{
+              RowBox[{"Cx", "\[SubsetEqual]", 
+               RowBox[{"I", "[", "n", "]"}]}], "\[And]", 
+              RowBox[{"Cy", "\[SubsetEqual]", 
+               RowBox[{"I", "[", "n", "]"}]}]}]], 
+            RowBox[{
+             UnderscriptBox["\[ForAll]", "i"], 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{"i", "\[Element]", " ", "Cx"}], ")"}], " ", 
+                 "\[DoubleLeftRightArrow]", " ", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"\[Sigma]", "[", "i", "]"}], "\[Element]", " ", 
+                   "Cy"}], ")"}]}], ")"}], " ", "\[And]", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 SubscriptBox["x", "i"], " ", "=", " ", 
+                 SubscriptBox["y", 
+                  RowBox[{"\[Sigma]", "[", "i", "]"}]]}], ")"}]}], 
+              ")"}]}]}]}], " ", "\[Implies]", " ", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"\[Pi]", "[", 
+             RowBox[{"Cx", ",", "x"}], "]"}], " ", "=", " ", 
+            RowBox[{"\[Pi]", "[", 
+             RowBox[{"Cy", ",", "y"}], "]"}]}], ")"}]}], ")"}]}], ")"}]}]}]}],
+    "]"}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506854217264552*^9, 3.506854251350109*^9}, 
+   3.506854447116809*^9, {3.506854478833916*^9, 3.50685452750713*^9}, {
+   3.506854831097189*^9, 3.506854877325369*^9}, {3.506854936896478*^9, 
+   3.50685514907044*^9}, {3.50685517981332*^9, 3.506855260463507*^9}, {
+   3.506855327406644*^9, 3.506855344202516*^9}, {3.506855394301443*^9, 
+   3.506855472745921*^9}, {3.506855509704411*^9, 3.506855542950796*^9}, {
+   3.50685563372819*^9, 3.506855636329211*^9}, {3.506855667577254*^9, 
+   3.506855770578513*^9}, {3.506855801054892*^9, 3.506855824032857*^9}, {
+   3.506856037527842*^9, 3.506856039313683*^9}, {3.506858344871888*^9, 
+   3.506858473987156*^9}, {3.506858517875556*^9, 3.506858562443481*^9}, {
+   3.506925189458227*^9, 3.506925198514957*^9}, {3.5069265255996323`*^9, 
+   3.506926547657765*^9}, {3.5069445418773518`*^9, 3.506944542475313*^9}, {
+   3.506946070434066*^9, 3.5069461059192533`*^9}, {3.552154914352438*^9, 
+   3.552154950327219*^9}, {3.55215600265707*^9, 3.552156005128351*^9}, {
+   3.552157476705031*^9, 3.55215750346819*^9}, {3.552159131905381*^9, 
+   3.552159169963472*^9}},
+ CellTags->"Definition (AN)"],
+
+Cell["\<\
+The power of one agent does not change under a permutation that swaps agents \
+1 and 2 (i.e. the concrete instance of the anonymity axiom for two agents, in \
+the non-trivial case):\
+\>", "Text",
+ CellChangeTimes->{{3.551961266945228*^9, 3.551961278881036*^9}, {
+  3.551961309617803*^9, 3.5519613213369493`*^9}, {3.551961356288497*^9, 
+  3.5519613640166063`*^9}, {3.552209137514482*^9, 3.552209169443246*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<AN swap\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "\[Pi]", ",", "x"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{"appropriateLength", "[", "n", "]"}], "\[And]", 
+     RowBox[{"AN", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}], "\[And]", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}]}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\[Pi]", "[", 
+     RowBox[{
+      RowBox[{"{", "1", "}"}], ",", "x"}], "]"}], "=", 
+    RowBox[{"\[Pi]", "[", 
+     RowBox[{
+      RowBox[{"{", "2", "}"}], ",", 
+      RowBox[{"perm", "[", 
+       RowBox[{"x", ",", 
+        SubscriptBox["\[Sigma]", 
+         RowBox[{"1", ",", "2"}]]}], "]"}]}], "]"}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506956282287553*^9, 3.506956465668375*^9}, {
+   3.506957492127157*^9, 3.506957520581968*^9}, {3.506957822290739*^9, 
+   3.506957840839575*^9}, {3.507010445090186*^9, 3.507010445221341*^9}, {
+   3.507015245659315*^9, 3.507015257618792*^9}, {3.507015572473824*^9, 
+   3.507015577348556*^9}, {3.5070157465811043`*^9, 3.507015748683649*^9}, {
+   3.507296077735772*^9, 3.5072960804272547`*^9}, {3.551961222081333*^9, 
+   3.551961249825995*^9}, {3.551962064305612*^9, 3.551962076171671*^9}, 
+   3.5521537230887337`*^9},
+ CellTags->"Lemma (AN swap)"],
+
+Cell["\<\
+This proof takes a very long time to run (gave up after several hours)\
+\>", "Text",
+ CellChangeTimes->{{3.552205106140967*^9, 3.552205133851309*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemmaANperm", "=", 
+  RowBox[{"Prove", "[", 
+   RowBox[{
+    RowBox[{"Lemma", "[", "\"\<AN swap\>\"", "]"}], ",", 
+    RowBox[{"using", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Proposition", "[", "\"\<swapperm\>\"", "]"}], ",", 
+       RowBox[{"Proposition", "[", "\"\<swap idempotent\>\"", "]"}], ",", 
+       RowBox[{"Proposition", "[", "\"\<alloc perm\>\"", "]"}], ",", 
+       RowBox[{"Lemma", "[", "\"\<1inI\>\"", "]"}], ",", 
+       RowBox[{"Lemma", "[", "\"\<2inI\>\"", "]"}], ",", 
+       RowBox[{"Definition", "[", "\"\<AN\>\"", "]"}], ",", 
+       RowBox[{"Definition", "[", "\"\<perm\>\"", "]"}], ",", 
+       RowBox[{"Definition", "[", "\"\<swap\>\"", "]"}]}], "}"}]}], ",", 
+    RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+    RowBox[{"SearchDepth", "\[Rule]", "80"}], ",", 
+    RowBox[{"ProverOptions", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "True"}], ",", 
+       RowBox[{"UseCyclicRules", "\[Rule]", "False"}], ",", 
+       RowBox[{"EarlyRewriting", "\[Rule]", "False"}], ",", 
+       RowBox[{"GRWTarget", "->", 
+        RowBox[{"{", 
+         RowBox[{"\"\<goal\>\"", ",", "\"\<kb\>\""}], "}"}]}], ",", " ", 
+       RowBox[{"DisableProver", "\[Rule]", 
+        RowBox[{"{", "STC", "}"}]}]}], "}"}]}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.506927957944723*^9, 3.50692800258237*^9}, {
+   3.506928045745928*^9, 3.506928151949905*^9}, {3.506937576184993*^9, 
+   3.506937602435305*^9}, {3.506937637640936*^9, 3.506937641643176*^9}, {
+   3.506937680030279*^9, 3.506937691829617*^9}, {3.5069424556674*^9, 
+   3.506942513075306*^9}, {3.506942822700458*^9, 3.5069428461026077`*^9}, {
+   3.506943301145946*^9, 3.506943301575967*^9}, {3.5069434565628967`*^9, 
+   3.506943474487363*^9}, {3.5069436667495117`*^9, 3.506943684396344*^9}, {
+   3.506945972628375*^9, 3.506945989722612*^9}, {3.506946212974103*^9, 
+   3.5069462150043716`*^9}, {3.506946431703599*^9, 3.506946448149518*^9}, {
+   3.506946772299632*^9, 3.506946788527381*^9}, {3.506946856214273*^9, 
+   3.5069468584838333`*^9}, {3.5069475029704*^9, 3.506947537096293*^9}, {
+   3.50694758037049*^9, 3.506947585327794*^9}, {3.5069479345385933`*^9, 
+   3.506947938444824*^9}, {3.506948174839213*^9, 3.5069481749690437`*^9}, {
+   3.506949778289583*^9, 3.506949778961549*^9}, {3.506956499144109*^9, 
+   3.506956604656727*^9}, {3.506956731524045*^9, 3.506956733479369*^9}, {
+   3.506957027601255*^9, 3.506957028077575*^9}, {3.506958346256771*^9, 
+   3.506958377073835*^9}, {3.506958493714967*^9, 3.506958504420861*^9}, {
+   3.506959221428024*^9, 3.506959226003088*^9}, {3.506959309266335*^9, 
+   3.506959312481775*^9}, {3.506959504904211*^9, 3.506959509325653*^9}, {
+   3.50695962576609*^9, 3.506959626305641*^9}, {3.506959783609428*^9, 
+   3.506959802720718*^9}, {3.506959916324465*^9, 3.506959920711989*^9}, {
+   3.5070110095786543`*^9, 3.507011009849494*^9}, {3.5070112849663267`*^9, 
+   3.507011286009057*^9}, {3.5070127593175087`*^9, 3.507012759446144*^9}, {
+   3.5070131415523787`*^9, 3.5070131559885*^9}, {3.507013251264112*^9, 
+   3.507013274888541*^9}, {3.507013449396022*^9, 3.507013462600684*^9}, {
+   3.5070138582334213`*^9, 3.507013861322288*^9}, {3.507015768938471*^9, 
+   3.5070157694216633`*^9}, {3.5070159468767776`*^9, 
+   3.5070159470189123`*^9}, {3.507016534928417*^9, 3.507016540264236*^9}, {
+   3.507020803142733*^9, 3.507020820213099*^9}, 3.50702490080779*^9, {
+   3.507296094722674*^9, 3.507296100287788*^9}, {3.507296185234379*^9, 
+   3.5072961862300167`*^9}, {3.507296511083165*^9, 3.5072965120899773`*^9}, {
+   3.507296622206127*^9, 3.5072966237162933`*^9}, 3.551962076981676*^9}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.5519969507786303`*^9, 3.551998402367628*^9, 
+  3.552205687639629*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Transform", "[", 
+  RowBox[{"PLemmaANperm", ",", 
+   RowBox[{"TransformerOptions", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"branches", "\[Rule]", "Proved"}], ",", 
+      RowBox[{"steps", "\[Rule]", "Useful"}]}], "}"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.507024336659318*^9, 3.507024403289794*^9}, {
+  3.507025483776821*^9, 3.507025484199494*^9}}],
+
+Cell[BoxData[
+ RowBox[{"ProofShow", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.50695677629765*^9, 3.506956780306397*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Continuity in resources", "Subsection",
+ CellChangeTimes->{{3.551964921343297*^9, 3.5519649479189587`*^9}}],
+
+Cell["\<\
+Continuous2 means that the function is continuous in its 2nd component.\
+\>", "Text",
+ CellChangeTimes->{{3.506856721224188*^9, 3.506856738806799*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<CX\>\"", ",", " ", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"CX", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", " ", 
+     RowBox[{"continuous2", "[", "\[Pi]", "]"}]}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.50685623501577*^9, 3.506856278032903*^9}, {
+  3.506856364355156*^9, 3.506856369802378*^9}, {3.506856425695606*^9, 
+  3.506856511482621*^9}, {3.506856611744898*^9, 3.506856613333957*^9}, {
+  3.506856667526933*^9, 3.506856683943719*^9}},
+ CellTags->"Definition (CX)"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Responsiveness", "Subsection",
+ CellChangeTimes->{{3.551964929591148*^9, 3.551964932110874*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<RE\>\"", ",", " ", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Pi]", ",", "n"}], "]"}], ",", 
+   RowBox[{"bound", "[", 
+    RowBox[{
+     SubscriptBox["allocation", "n"], "[", "x", "]"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"RE", "[", 
+     RowBox[{"\[Pi]", ",", "n"}], "]"}], " ", ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", " ", 
+     RowBox[{
+      UnderscriptBox[
+       UnderscriptBox["\[ForAll]", 
+        RowBox[{"C", ",", "i", ",", "x"}]], 
+       RowBox[{"C", "\[SubsetEqual]", 
+        RowBox[{"I", "[", "n", "]"}]}]], 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"i", "\[NotElement]", "C"}], " ", "\[And]", " ", 
+         RowBox[{
+          RowBox[{"\[Pi]", "[", 
+           RowBox[{
+            RowBox[{"{", "i", "}"}], ",", "x"}], "]"}], ">", "0"}]}], " ", 
+        "\[Implies]", " ", 
+        RowBox[{
+         RowBox[{"\[Pi]", "[", 
+          RowBox[{
+           RowBox[{"C", "\[Union]", 
+            RowBox[{"{", "i", "}"}]}], ",", "x"}], "]"}], ">", 
+         RowBox[{"\[Pi]", "[", 
+          RowBox[{"C", ",", "x"}], "]"}]}]}], ")"}]}]}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506856823573156*^9, 3.506856878158224*^9}, {
+  3.506856992078324*^9, 3.506857010541254*^9}, {3.506857275947779*^9, 
+  3.506857340973162*^9}, {3.506857412638485*^9, 3.506857448328287*^9}, {
+  3.5068575546341*^9, 3.50685768333032*^9}, {3.506857747114555*^9, 
+  3.506857752900428*^9}, {3.506858002877203*^9, 3.506858034703371*^9}, {
+  3.506858115190637*^9, 3.506858123782167*^9}, {3.506858601793366*^9, 
+  3.506858616863022*^9}, {3.506858700820354*^9, 3.506858720214576*^9}, {
+  3.506926580147172*^9, 3.5069265815882*^9}, {3.506944595754406*^9, 
+  3.506944596492169*^9}},
+ CellTags->"Definition (RE)"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Domination", "Subsection",
+ CellChangeTimes->{{3.551900770419636*^9, 3.551900778650167*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Preliminary: Win and Lose Set", "Subsubsection",
+ CellChangeTimes->{{3.5519006377314463`*^9, 3.551900646659292*^9}, {
+  3.551900766091172*^9, 3.551900790882213*^9}}],
+
+Cell[TextData[{
+ "For any transition from an allocation x to an allocation y, the ",
+ StyleBox["win set",
+  FontWeight->"Bold"],
+ " W is the set of agents who benefit from the transition, whereas the ",
+ StyleBox["lose set",
+  FontWeight->"Bold"],
+ " L is the set of agents who suffer from the transition. We define both of \
+them at once."
+}], "Text",
+ CellChangeTimes->{{3.5519006519788313`*^9, 3.551900744834396*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   StyleBox["Definition",
+    FontWeight->"Bold"], "[", 
+   RowBox[{"\"\<WinLose\>\"", ",", " ", 
+    RowBox[{"any", "[", 
+     RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", "\[IndentingNewLine]", 
+    GridBox[{
+      {
+       RowBox[{
+        RowBox[{"W", "[", 
+         RowBox[{"n", ",", "x", ",", "y"}], "]"}], " ", ":=", " ", 
+        RowBox[{"{", 
+         RowBox[{"i", 
+          UnderscriptBox["\[VerticalSeparator]", 
+           RowBox[{"i", "\[Element]", 
+            RowBox[{"I", "[", "n", "]"}]}]], 
+          RowBox[{
+           SubscriptBox["y", "i"], ">", 
+           SubscriptBox["x", "i"]}]}], "}"}]}], "\"\<W\>\""},
+      {
+       RowBox[{
+        RowBox[{"L", "[", 
+         RowBox[{"n", ",", "x", ",", "y"}], "]"}], " ", ":=", " ", 
+        RowBox[{"{", 
+         RowBox[{"i", 
+          UnderscriptBox["\[VerticalSeparator]", 
+           RowBox[{"i", "\[Element]", 
+            RowBox[{"I", "[", "n", "]"}]}]], 
+          RowBox[{
+           SubscriptBox["x", "i"], ">", 
+           SubscriptBox["y", "i"]}]}], "}"}]}], "\"\<L\>\""}
+     },
+     GridBoxAlignment->{
+      "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+       "RowsIndexed" -> {}}]}], "]"}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.5069267517322903`*^9, 3.506926789441003*^9}, {
+  3.506926865092436*^9, 3.506926947617235*^9}, {3.50692701653271*^9, 
+  3.506927112340502*^9}, {3.506927156064917*^9, 3.5069272242095327`*^9}, {
+  3.5073713655902967`*^9, 3.507371385706786*^9}},
+ CellTags->"Definition (WinLose)"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Domination", "Subsubsection",
+ CellChangeTimes->{{3.551900784154142*^9, 3.551900785562128*^9}}],
+
+Cell[TextData[{
+ "An allocation x ",
+ StyleBox["dominates",
+  FontWeight->"Bold"],
+ " an allocation y if the coalition given by the win set of the transition x\
+\[RightArrow]y is more powerful in x than the lose set is."
+}], "Text",
+ CellChangeTimes->{{3.5519008395223703`*^9, 3.551900876137635*^9}, {
+  3.551900907321423*^9, 3.5519009739931793`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Definition",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<dominates\>\"", ",", " ", 
+   RowBox[{"any", "[", 
+    RowBox[{"\[Pi]", ",", "n", ",", "x", ",", " ", "y"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"dominates", "[", 
+     RowBox[{"y", ",", "x", ",", "\[Pi]", ",", "n"}], "]"}], " ", ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", " ", 
+     RowBox[{
+      RowBox[{"\[Pi]", "[", 
+       RowBox[{
+        RowBox[{"W", "[", 
+         RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", "x"}], "]"}], " ", 
+      ">", " ", 
+      RowBox[{"\[Pi]", "[", 
+       RowBox[{
+        RowBox[{"L", "[", 
+         RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", "x"}], "]"}]}]}]}]}], 
+  "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506926062694996*^9, 3.506926106704052*^9}, {
+   3.506926432811517*^9, 3.50692646620774*^9}, {3.50692661956026*^9, 
+   3.5069266739076223`*^9}, {3.506927308884897*^9, 3.506927430976969*^9}, 
+   3.5069274777250147`*^9, {3.506944723325837*^9, 3.506944724921277*^9}},
+ CellTags->"Definition (dominates)"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Lemma 2", "Section",
+ CellChangeTimes->{{3.551901314518528*^9, 3.551901316030546*^9}}],
+
+Cell["\<\
+When the opposing coalitions consist of one element each and the power \
+function is anonymous then the coalition which wins is the one with the \
+bigger holdings.\
+\>", "Text",
+ CellChangeTimes->{{3.5519450862763147`*^9, 3.551945111357111*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Direct statement (just \[OpenCurlyDoubleQuote]\[Implies]\
+\[CloseCurlyDoubleQuote] part)\
+\>", "Subsection",
+ CellChangeTimes->{{3.551964400090932*^9, 3.551964413362939*^9}}],
+
+Cell["\<\
+For some arbitrary transition x\[RightArrow]y we assume wlog that agent 1 \
+wins and agent 2 loses. \
+\>", "Text",
+ CellChangeTimes->{{3.551945140508133*^9, 3.551945195985594*^9}, {
+  3.551945302625308*^9, 3.551945302776164*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551945748640472*^9, 3.551945796012199*^9}, {
+  3.5521550285529413`*^9, 3.552155051571735*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[StyleBox["the statement is actually not just \
+\[OpenCurlyDoubleQuote]\[Implies]\[CloseCurlyDoubleQuote] but \
+\[OpenCurlyDoubleQuote]\[DoubleLeftRightArrow]\[CloseCurlyDoubleQuote] (both \
+the way it's phrased above, and in the paper \[Dash] but actually this is not \
+how we are going to prove it anyway).",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551945748640472*^9, 3.551945796012199*^9}, {
+  3.5521550285529413`*^9, 3.552155075898981*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Lemma",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<ANdominates\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{"appropriateLength", "[", "n", "]"}], "\[And]", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}], " ", "\[And]", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "y", "]"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"W", "[", 
+        RowBox[{"n", ",", "x", ",", "y"}], "]"}], "=", 
+       RowBox[{"{", "1", "}"}]}], ")"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"L", "[", 
+        RowBox[{"n", ",", "x", ",", "y"}], "]"}], "=", 
+       RowBox[{"{", "2", "}"}]}], ")"}]}], "]"}], ",", "\[IndentingNewLine]", 
+   
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", "\[Pi]"], 
+     RowBox[{
+      RowBox[{"AN", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}], "\[And]", 
+      RowBox[{"powerfunction", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}]}]], 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"dominates", "[", 
+       RowBox[{"y", ",", "x", ",", " ", "\[Pi]", ",", "n"}], "]"}], " ", 
+      "\[DoubleLeftRightArrow]", " ", 
+      RowBox[{
+       SubscriptBox["x", "1"], ">", " ", 
+       SubscriptBox["x", "2"]}]}], ")"}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506927568367779*^9, 3.506927573586246*^9}, {
+   3.506927608900363*^9, 3.506927816689975*^9}, {3.506927846829548*^9, 
+   3.506927904812873*^9}, {3.506928209675296*^9, 3.50692823228806*^9}, {
+   3.506928824987121*^9, 3.506928841863646*^9}, {3.506938294565242*^9, 
+   3.5069384072330647`*^9}, {3.506939247108214*^9, 3.50693926209116*^9}, {
+   3.506940717536791*^9, 3.5069407239845533`*^9}, {3.506943283882753*^9, 
+   3.506943291394986*^9}, {3.506948152493761*^9, 3.5069481565139437`*^9}, {
+   3.506957338732588*^9, 3.506957356075435*^9}, {3.507028730520751*^9, 
+   3.5070287338220863`*^9}, {3.507030107020282*^9, 3.507030114215085*^9}, {
+   3.5070304069878893`*^9, 3.5070304104275303`*^9}, {3.50727107053885*^9, 
+   3.507271096957713*^9}, {3.507271133191079*^9, 3.507271137143898*^9}, {
+   3.551901355864662*^9, 3.551901362181532*^9}, 3.5521537231073723`*^9, {
+   3.5522084178199263`*^9, 3.5522084221228323`*^9}},
+ CellTags->"Lemma (ANdominates)"],
+
+Cell["\<\
+Without auxiliary theory, Theorema can't prove this within reasonable time.\
+\>", "Text",
+ CellChangeTimes->{{3.5519467397816887`*^9, 3.551946740084408*^9}, {
+   3.551946773527382*^9, 3.551946790569675*^9}, {3.552155112376041*^9, 
+   3.552155132171379*^9}, 3.552205321742827*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemmaANdominates", "=", 
+  RowBox[{"Prove", "[", 
+   RowBox[{
+    RowBox[{"Lemma", "[", "\"\<ANdominates\>\"", "]"}], ",", 
+    RowBox[{"using", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Definition", "[", "\"\<dominates\>\"", "]"}], ",", " ", 
+       RowBox[{"Definition", "[", "\"\<powerfunction\>\"", "]"}], ",", " ", 
+       RowBox[{"Definition", "[", "\"\<SR\>\"", "]"}]}], "}"}]}], ",", 
+    RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+    RowBox[{"SearchDepth", "\[Rule]", "50"}], ",", 
+    RowBox[{"ProverOptions", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "True"}], ",", 
+       RowBox[{"UseCyclicRules", "\[Rule]", "True"}], ",", 
+       RowBox[{"EarlyRewriting", "\[Rule]", "False"}], ",", 
+       RowBox[{"DisableProver", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"STKBR", ",", "STC"}], "}"}]}]}], "}"}]}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.506927957944723*^9, 3.50692800258237*^9}, {
+   3.506928045745928*^9, 3.506928151949905*^9}, {3.506937576184993*^9, 
+   3.506937602435305*^9}, {3.506937637640936*^9, 3.506937641643176*^9}, {
+   3.506937680030279*^9, 3.506937691829617*^9}, {3.5069424556674*^9, 
+   3.506942513075306*^9}, {3.506942822700458*^9, 3.5069428461026077`*^9}, {
+   3.506943301145946*^9, 3.506943301575967*^9}, {3.5069434565628967`*^9, 
+   3.506943474487363*^9}, {3.5069436667495117`*^9, 3.506943684396344*^9}, {
+   3.506945972628375*^9, 3.506945989722612*^9}, {3.506946212974103*^9, 
+   3.5069462150043716`*^9}, {3.506946431703599*^9, 3.506946448149518*^9}, {
+   3.506946772299632*^9, 3.506946788527381*^9}, {3.506946856214273*^9, 
+   3.5069468584838333`*^9}, {3.5069475029704*^9, 3.506947537096293*^9}, {
+   3.50694758037049*^9, 3.506947585327794*^9}, {3.5069479345385933`*^9, 
+   3.506947938444824*^9}, {3.506948174839213*^9, 3.5069481749690437`*^9}, {
+   3.506949778289583*^9, 3.506949778961549*^9}, {3.5070284951359673`*^9, 
+   3.507028538749881*^9}, 3.551962077629344*^9, 3.552208440931056*^9}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.5072704951230803`*^9, 3.551946659783621*^9, 
+  3.5522084636171083`*^9, 3.552208529102974*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"ProofShow", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.507270518278966*^9, 3.507270521227583*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Alternative formulation (incomplete)", "Subsection",
+ CellChangeTimes->{{3.551964425986857*^9, 3.551964442938491*^9}, {
+  3.5519645085224752`*^9, 3.551964510577943*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["TODO",
+ FontWeight->"Bold"]], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551901454029646*^9, 3.551901481877228*^9}, {
+  3.551963447705739*^9, 3.551963493377194*^9}, {3.551963581193934*^9, 
+  3.55196358872064*^9}, {3.552155234108583*^9, 3.552155243698015*^9}},
+ TextAlignment->Right],
+
+Cell[TextData[{
+ StyleBox["CL: This, I think, wouldn't work in any case, as ",
+  FontWeight->"Bold"],
+ StyleBox["i",
+  FontWeight->"Bold",
+  FontSlant->"Italic"],
+ StyleBox[" is not bound. (I won't investigate further, for now, as it \
+doesn't seem to be used below)",
+  FontWeight->"Bold"]
+}], "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551901454029646*^9, 3.551901481877228*^9}, {
+  3.551963447705739*^9, 3.551963493377194*^9}, {3.551963581193934*^9, 
+  3.55196358872064*^9}, {3.552155234108583*^9, 3.552155243698051*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Lemma",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<ANdominates-aux\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "x", "]"}], " ", "\[And]", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "y", "]"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        SubscriptBox["y", "i"], ">", 
+        SubscriptBox["x", "i"]}], "\[DoubleLeftRightArrow]", 
+       RowBox[{"(", 
+        RowBox[{"i", "=", "1"}], ")"}]}], ")"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        SubscriptBox["y", "i"], "<", 
+        SubscriptBox["x", "i"]}], "\[DoubleLeftRightArrow]", 
+       RowBox[{"(", 
+        RowBox[{"i", "=", "2"}], ")"}]}], ")"}]}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", "\[Pi]"], 
+     RowBox[{
+      RowBox[{"powerfunction", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}], "\[And]", 
+      RowBox[{"AN", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}]}]], 
+    RowBox[{
+     RowBox[{"dominates", "[", 
+      RowBox[{"y", ",", "x", ",", " ", "\[Pi]", ",", "n"}], "]"}], " ", 
+     "\[DoubleLeftRightArrow]", " ", 
+     RowBox[{
+      SubscriptBox["x", "1"], ">", " ", 
+      SubscriptBox["x", "2"]}]}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.506938255168254*^9, 3.506938257097848*^9}, {
+  3.5069392393532143`*^9, 3.506939268762321*^9}},
+ CellTags->"Lemma (ANdominates-aux)"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["A technical approach that works", "Subsection",
+ CellChangeTimes->{{3.5519644927543507`*^9, 3.551964496466063*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Preliminaries", "Subsubsection",
+ CellChangeTimes->{{3.5519645439378643`*^9, 3.551964545793703*^9}}],
+
+Cell["\<\
+convenience definition of an allocation with an admissible number of agents:\
+\>", "Text",
+ CellChangeTimes->{{3.551964617841503*^9, 3.5519646357211113`*^9}, {
+  3.551964834513937*^9, 3.551964841607633*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<appAlloc\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "x"}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"appAlloc", "[", 
+     RowBox[{"n", ",", "x"}], "]"}], ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"appropriateLength", "[", "n", "]"}], "\[And]", 
+       RowBox[{
+        SubscriptBox["allocation", "n"], "[", "x", "]"}]}], ")"}]}]}]}], 
+  "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.507290264091158*^9, 3.507290374021286*^9}, {
+   3.50729049107001*^9, 3.507290512492702*^9}, {3.5072909067134132`*^9, 
+   3.50729091951971*^9}, 3.552153723116246*^9},
+ CellTags->"Definition (appAlloc)"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+convenience definition of a well-defined pair of allocation and anonymous \
+power function (not used below):\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.551964969407089*^9, 3.551965014750572*^9}, {
+  3.5519653518369007`*^9, 3.551965358508048*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<appPowAlloc\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "\[Pi]", ",", "x"}], "]"}], ",", "\[IndentingNewLine]", 
+   
+   RowBox[{
+    RowBox[{"appPowAlloc", "[", 
+     RowBox[{"n", ",", "\[Pi]", ",", "x"}], "]"}], ":", 
+    RowBox[{"\[DoubleLeftRightArrow]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"appAlloc", "[", 
+        RowBox[{"n", ",", "x"}], "]"}], "\[And]", 
+       RowBox[{"AN", "[", 
+        RowBox[{"\[Pi]", ",", "n"}], "]"}]}], ")"}]}]}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.507290264091158*^9, 3.507290374021286*^9}, 
+   3.5072905293357964`*^9, 3.551965358508108*^9},
+ CellTags->"Definition (appPowAlloc)"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+A straightforward result that combines several preliminaries we need:\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551965548585916*^9, 3.5519655717384787`*^9}}],
+
+Cell["\<\
+The power of one agent does not change under a permutation that swaps agents \
+1 and 2, and\
+\>", "Item",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551965226429392*^9, 3.551965229309041*^9}, {
+   3.551965388925433*^9, 3.55196546297173*^9}, 3.551965571738757*^9}],
+
+Cell["\<\
+the permutation of an allocation by swapping agents 1 and 2 is still an \
+allocation\
+\>", "Item",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ CellChangeTimes->{{3.551965467843398*^9, 3.551965495667083*^9}, 
+   3.5519655717388277`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<AN all\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "\[Pi]", ",", "x"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{"appAlloc", "[", 
+      RowBox[{"n", ",", "x"}], "]"}], "\[And]", 
+     RowBox[{"AN", "[", 
+      RowBox[{"\[Pi]", ",", "n"}], "]"}]}], "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"\[And]", 
+    RowBox[{"{", GridBox[{
+       {
+        RowBox[{
+         RowBox[{"\[Pi]", "[", 
+          RowBox[{
+           RowBox[{"{", "1", "}"}], ",", "x"}], "]"}], "=", 
+         RowBox[{"\[Pi]", "[", 
+          RowBox[{
+           RowBox[{"{", "2", "}"}], ",", 
+           RowBox[{"perm", "[", 
+            RowBox[{"x", ",", 
+             SubscriptBox["\[Sigma]", 
+              RowBox[{"1", ",", "2"}]]}], "]"}]}], "]"}]}]},
+       {
+        RowBox[{
+         SubscriptBox["allocation", "n"], "[", 
+         RowBox[{"perm", "[", 
+          RowBox[{"x", ",", 
+           SubscriptBox["\[Sigma]", 
+            RowBox[{"1", ",", "2"}]]}], "]"}], "]"}]}
+      },
+      GridBoxAlignment->{
+       "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+        "RowsIndexed" -> {}}], 
+     StyleBox["}",
+      ShowContents->False]}]}]}], " ", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506956282287553*^9, 3.506956465668375*^9}, {
+   3.506957492127157*^9, 3.506957520581968*^9}, {3.506957822290739*^9, 
+   3.506957840839575*^9}, {3.507010445090186*^9, 3.507010445221341*^9}, {
+   3.507015245659315*^9, 3.507015257618792*^9}, {3.507015572473824*^9, 
+   3.507015577348556*^9}, {3.5070157465811043`*^9, 3.507015748683649*^9}, {
+   3.507272581900523*^9, 3.507272619713846*^9}, 3.5072726611906023`*^9, {
+   3.507272735120311*^9, 3.5072727604166183`*^9}, 3.5072727971249857`*^9, {
+   3.507272880188998*^9, 3.5072728914730883`*^9}, {3.507273433477469*^9, 
+   3.507273441284377*^9}, {3.507273617497322*^9, 3.5072736180703*^9}, {
+   3.5072808117411823`*^9, 3.507280821337102*^9}, 3.507281319448903*^9, {
+   3.5072848049131393`*^9, 3.5072848207634687`*^9}, {3.507285415083185*^9, 
+   3.5072854267085123`*^9}, {3.507285486289852*^9, 3.507285496870797*^9}, {
+   3.5072866586591377`*^9, 3.507286695639552*^9}, {3.5072867891798763`*^9, 
+   3.507286803510429*^9}, {3.507287134746646*^9, 3.507287135297554*^9}, {
+   3.507290207176672*^9, 3.507290258659196*^9}, 3.5072903902508707`*^9, 
+   3.5072908575414667`*^9, {3.551965183053087*^9, 3.551965201413534*^9}},
+ CellTags->"Lemma (AN all)"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<AN all\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Lemma", "[", "\"\<AN swap\>\"", "]"}], ",", 
+      RowBox[{"Proposition", "[", "\"\<alloc perm\>\"", "]"}], ",", 
+      RowBox[{"Proposition", "[", "\"\<swapperm\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<appAlloc\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "PredicateProver"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.507030418126762*^9, 3.507030425109923*^9}, {
+   3.50703049124822*^9, 3.50703050041626*^9}, 3.507031918616014*^9, {
+   3.507270060071971*^9, 3.507270079614396*^9}, {3.5072716468675137`*^9, 
+   3.507271662113749*^9}, {3.507271852938815*^9, 3.507271854279544*^9}, {
+   3.507272213049666*^9, 3.5072722132006683`*^9}, {3.507272956487986*^9, 
+   3.5072729784176407`*^9}, {3.50727412313416*^9, 3.507274146787479*^9}, {
+   3.507274673204813*^9, 3.507274673753437*^9}, {3.5072799530891943`*^9, 
+   3.507279958570097*^9}, {3.507280140533289*^9, 3.507280143360014*^9}, {
+   3.507280622018545*^9, 3.507280622862681*^9}, {3.507280829129526*^9, 
+   3.5072808328024473`*^9}, {3.507280863240294*^9, 3.507280907312361*^9}, {
+   3.5072814985700207`*^9, 3.5072815012330227`*^9}, {3.50728157155352*^9, 
+   3.5072815725456047`*^9}, {3.507281849557016*^9, 3.5072818767267447`*^9}, {
+   3.5072822478045607`*^9, 3.5072822577201633`*^9}, {3.5072824982639933`*^9, 
+   3.507282505797963*^9}, {3.507282816594829*^9, 3.5072828173422117`*^9}, 
+   3.507283432209906*^9, {3.5072836675522633`*^9, 3.507283676074415*^9}, 
+   3.507283963589917*^9, {3.507285402012167*^9, 3.507285436529038*^9}, {
+   3.5072863443687553`*^9, 3.507286345337384*^9}, {3.507287139726327*^9, 
+   3.5072871441294727`*^9}, {3.507287440080839*^9, 3.507287440350685*^9}, 
+   3.507287896354911*^9, {3.507288085453*^9, 3.507288101859661*^9}, {
+   3.507288629739106*^9, 3.507288633391478*^9}, {3.507291142048369*^9, 
+   3.507291209472229*^9}, {3.507291319396329*^9, 3.5072913268695393`*^9}, {
+   3.50729192246035*^9, 3.507291922609354*^9}, {3.507355782321158*^9, 
+   3.507355788593568*^9}, {3.507355860261266*^9, 3.507355905823167*^9}, {
+   3.507355947210292*^9, 3.507355966817727*^9}, {3.507356013043873*^9, 
+   3.50735602019238*^9}, {3.50735640371486*^9, 3.507356415298364*^9}, 
+   3.551962078251115*^9, 3.551965201413759*^9}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.507355990408595*^9, 3.507356047039557*^9, 
+  3.507356419426721*^9, 3.551965580987915*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["The actual lemma (\[OpenCurlyDoubleQuote]\[Implies]\
+\[CloseCurlyDoubleQuote] part)", "Subsubsection",
+ CellChangeTimes->{{3.551965019558587*^9, 3.551965027670354*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["TODO", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552158387088788*^9, 3.552158415129045*^9}},
+ TextAlignment->Right,
+ FontWeight->"Bold"],
+
+Cell["\<\
+CL: removed \
+\[OpenCurlyDoubleQuote]\[And]appAlloc[n,y]\[CloseCurlyDoubleQuote] \[Dash] \
+interestingly, this causes the proof to take ages.\
+\>", "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellChangeTimes->{{3.552158389469268*^9, 3.552158415129095*^9}, {
+  3.552158838674615*^9, 3.552158862289053*^9}}]
+}, Closed]],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Lemma",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<ANdominates 1\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{"appAlloc", "[", 
+      RowBox[{"n", ",", "x"}], "]"}], "\[And]", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "y", "]"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"W", "[", 
+        RowBox[{"n", ",", "x", ",", "y"}], "]"}], "=", 
+       RowBox[{"{", "1", "}"}]}], ")"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"L", "[", 
+        RowBox[{"n", ",", "x", ",", "y"}], "]"}], "=", 
+       RowBox[{"{", "2", "}"}]}], ")"}]}], "]"}], ",", "\[IndentingNewLine]", 
+   
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", "\[Pi]"], 
+     RowBox[{
+      RowBox[{"AN", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}], "\[And]", 
+      RowBox[{"powerfunction", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}]}]], 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"dominates", "[", 
+       RowBox[{"y", ",", "x", ",", " ", "\[Pi]", ",", "n"}], "]"}], " ", 
+      "\[Implies]", " ", 
+      RowBox[{
+       SubscriptBox["x", "1"], ">", " ", 
+       SubscriptBox["x", "2"]}]}], ")"}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506927568367779*^9, 3.506927573586246*^9}, {
+   3.506927608900363*^9, 3.506927816689975*^9}, {3.506927846829548*^9, 
+   3.506927904812873*^9}, {3.506928209675296*^9, 3.50692823228806*^9}, {
+   3.506928824987121*^9, 3.506928841863646*^9}, {3.506938294565242*^9, 
+   3.5069384072330647`*^9}, {3.506939247108214*^9, 3.50693926209116*^9}, {
+   3.506940717536791*^9, 3.5069407239845533`*^9}, {3.506943283882753*^9, 
+   3.506943291394986*^9}, {3.506948152493761*^9, 3.5069481565139437`*^9}, {
+   3.506957338732588*^9, 3.506957356075435*^9}, {3.507028730520751*^9, 
+   3.5070287338220863`*^9}, {3.507030107020282*^9, 3.507030114215085*^9}, {
+   3.5070304069878893`*^9, 3.5070304104275303`*^9}, {3.50727107053885*^9, 
+   3.507271096957713*^9}, {3.507271133191079*^9, 3.507271137143898*^9}, {
+   3.5072900295406437`*^9, 3.5072900769228687`*^9}, {3.507290458588477*^9, 
+   3.507290475008874*^9}, 3.507290550830061*^9, {3.507356478692774*^9, 
+   3.507356478805077*^9}, {3.552155165789933*^9, 3.5521551716089983`*^9}, {
+   3.5521583778583393`*^9, 3.552158380342852*^9}, {3.5521587300665216`*^9, 
+   3.5521587352131977`*^9}, 3.552158867842732*^9},
+ CellTags->"Lemma (ANdominates 1)"],
+
+Cell["The proof and its post-processing:", "Text",
+ CellChangeTimes->{{3.5519657271296053`*^9, 3.5519657341374474`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"PLemmaANdominates", "=", 
+  RowBox[{"Prove", "[", 
+   RowBox[{
+    RowBox[{"Lemma", "[", "\"\<ANdominates 1\>\"", "]"}], ",", 
+    RowBox[{"using", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Definition", "[", "\"\<dominates\>\"", "]"}], ",", " ", 
+       RowBox[{"Lemma", "[", "\"\<AN all\>\"", "]"}], " ", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+         RowBox[{"power", " ", "of", " ", "agents", " ", 
+          RowBox[{"doesn", "'"}], "t", " ", "change", " ", "under", " ", 
+          "swap", 
+          RowBox[{"(", 
+           RowBox[{"1", ",", "2"}], ")"}]}], ";", " ", 
+         RowBox[{"swap", 
+          RowBox[{"(", 
+           RowBox[{"1", ",", "2"}], ")"}], " ", "of", " ", "allocation", " ", 
+          "is", " ", "still", " ", "allocation"}]}], " ", "*)"}], ",", 
+       RowBox[{"Definition", "[", "\"\<WR contrapositive\>\"", "]"}], ",", 
+       RowBox[{"Lemma", "[", "\"\<2inI\>\"", "]"}], ",", 
+       RowBox[{"Definition", "[", "\"\<powerfunction\>\"", "]"}], ",", 
+       RowBox[{"Lemma", "[", "\"\<perm swap\>\"", "]"}], ",", 
+       RowBox[{"Definition", "[", "\"\<appAlloc\>\"", "]"}]}], "}"}]}], ",", 
+    RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+    RowBox[{"SearchDepth", "\[Rule]", "80"}], ",", 
+    RowBox[{"ProverOptions", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "False"}], ",", 
+       RowBox[{"RWCombine", "\[Rule]", "True"}], ",", 
+       RowBox[{"DisableProver", "\[Rule]", 
+        RowBox[{"{", "STC", "}"}]}], ",", 
+       RowBox[{"DisableInferenceRule", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"\[Cent]KBSetEquality", ",", "\[Cent]KBInclusion"}], 
+         "}"}]}]}], "}"}]}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.507030418126762*^9, 3.507030425109923*^9}, {
+   3.50703049124822*^9, 3.50703050041626*^9}, 3.507031918616014*^9, {
+   3.507270060071971*^9, 3.507270079614396*^9}, {3.5072716468675137`*^9, 
+   3.507271662113749*^9}, {3.507271852938815*^9, 3.507271854279544*^9}, {
+   3.507272213049666*^9, 3.5072722132006683`*^9}, {3.507272956487986*^9, 
+   3.5072729784176407`*^9}, {3.50727412313416*^9, 3.507274146787479*^9}, {
+   3.507274673204813*^9, 3.507274673753437*^9}, {3.5072799530891943`*^9, 
+   3.507279958570097*^9}, {3.507280140533289*^9, 3.507280143360014*^9}, {
+   3.507280622018545*^9, 3.507280622862681*^9}, {3.507280829129526*^9, 
+   3.5072808328024473`*^9}, {3.507280863240294*^9, 3.507280907312361*^9}, {
+   3.5072814985700207`*^9, 3.5072815012330227`*^9}, {3.50728157155352*^9, 
+   3.5072815725456047`*^9}, {3.507281849557016*^9, 3.5072818767267447`*^9}, {
+   3.5072822478045607`*^9, 3.5072822577201633`*^9}, {3.5072824982639933`*^9, 
+   3.507282505797963*^9}, {3.507282816594829*^9, 3.5072828173422117`*^9}, 
+   3.507283432209906*^9, {3.5072836675522633`*^9, 3.507283676074415*^9}, 
+   3.507283963589917*^9, {3.507285402012167*^9, 3.507285436529038*^9}, {
+   3.5072863443687553`*^9, 3.507286345337384*^9}, {3.507287139726327*^9, 
+   3.5072871441294727`*^9}, {3.507287440080839*^9, 3.507287440350685*^9}, 
+   3.507287896354911*^9, {3.507288085453*^9, 3.507288101859661*^9}, {
+   3.507288629739106*^9, 3.507288633391478*^9}, {3.507291142048369*^9, 
+   3.507291209472229*^9}, {3.507291319396329*^9, 3.5072913268695393`*^9}, {
+   3.50729192246035*^9, 3.507291922609354*^9}, {3.507355782321158*^9, 
+   3.507355788593568*^9}, {3.507356522538956*^9, 3.507356522599161*^9}, {
+   3.552205923716095*^9, 3.552206002582695*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.507291252290164*^9, 3.5072913520142736`*^9, 
+  3.507293733008481*^9, 3.507359761125112*^9, 3.551972454081771*^9, 
+  3.551995441255834*^9, 3.551995954371106*^9, 3.551996010214566*^9, 
+  3.5521575504576*^9, 3.552158335487012*^9, 3.552158448615757*^9, 
+  3.552158646301812*^9, 3.5521588304961767`*^9, 3.552159208709343*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"$RecursionLimit", "=", "\[Infinity]"}], "}"}], ",", 
+   RowBox[{"ProofShow", "[", "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{3.507285118075651*^9}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.5522057828217583`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"$RecursionLimit", "=", "\[Infinity]"}], "}"}], ",", 
+   RowBox[{"Transform", "[", 
+    RowBox[{"PLemmaANdominates", ",", 
+     RowBox[{"TransformerOptions", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"branches", "\[Rule]", "Proved"}], ",", 
+        RowBox[{"steps", "\[Rule]", "Useful"}]}], "}"}]}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{3.507284710879627*^9}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{
+  3.507284726097062*^9, 3.5072937492177153`*^9, 3.5519961212629128`*^9, {
+   3.552158674738154*^9, 3.552158689068729*^9}, 3.552159237384091*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"$RecursionLimit", "=", "\[Infinity]"}], "}"}], ",", 
+   RowBox[{"ProofShow", "[", "PLemmaANdominates", "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.507270518278966*^9, 3.507270521227583*^9}, {
+   3.507273526657194*^9, 3.5072735498435087`*^9}, 3.507285081753708*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["The actual lemma (\[OpenCurlyDoubleQuote]\[DoubleLeftArrow]\
+\[CloseCurlyDoubleQuote] part)", "Subsubsection",
+ CellChangeTimes->{{3.551965019558587*^9, 3.551965055374679*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox["Lemma",
+   FontWeight->"Bold"], "[", 
+  RowBox[{"\"\<ANdominates 2\>\"", ",", 
+   RowBox[{"any", "[", 
+    RowBox[{"n", ",", "x", ",", "y"}], "]"}], ",", 
+   RowBox[{"with", "[", 
+    RowBox[{
+     RowBox[{"appAlloc", "[", 
+      RowBox[{"n", ",", "x"}], "]"}], "\[And]", 
+     RowBox[{
+      SubscriptBox["allocation", "n"], "[", "y", "]"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"W", "[", 
+        RowBox[{"n", ",", "x", ",", "y"}], "]"}], "=", 
+       RowBox[{"{", "1", "}"}]}], ")"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"L", "[", 
+        RowBox[{"n", ",", "x", ",", "y"}], "]"}], "=", 
+       RowBox[{"{", "2", "}"}]}], ")"}]}], "]"}], ",", "\[IndentingNewLine]", 
+   
+   RowBox[{
+    UnderscriptBox[
+     UnderscriptBox["\[ForAll]", "\[Pi]"], 
+     RowBox[{
+      RowBox[{"AN", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}], "\[And]", 
+      RowBox[{"powerfunction", "[", 
+       RowBox[{"\[Pi]", ",", "n"}], "]"}]}]], 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{
+       SubscriptBox["x", "1"], ">", " ", 
+       SubscriptBox["x", "2"]}], "\[Implies]", 
+      RowBox[{"dominates", "[", 
+       RowBox[{"y", ",", "x", ",", " ", "\[Pi]", ",", "n"}], "]"}]}], 
+     ")"}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506927568367779*^9, 3.506927573586246*^9}, {
+   3.506927608900363*^9, 3.506927816689975*^9}, {3.506927846829548*^9, 
+   3.506927904812873*^9}, {3.506928209675296*^9, 3.50692823228806*^9}, {
+   3.506928824987121*^9, 3.506928841863646*^9}, {3.506938294565242*^9, 
+   3.5069384072330647`*^9}, {3.506939247108214*^9, 3.50693926209116*^9}, {
+   3.506940717536791*^9, 3.5069407239845533`*^9}, {3.506943283882753*^9, 
+   3.506943291394986*^9}, {3.506948152493761*^9, 3.5069481565139437`*^9}, {
+   3.506957338732588*^9, 3.506957356075435*^9}, {3.507028730520751*^9, 
+   3.5070287338220863`*^9}, {3.507030107020282*^9, 3.507030114215085*^9}, {
+   3.5070304069878893`*^9, 3.5070304104275303`*^9}, {3.50727107053885*^9, 
+   3.507271096957713*^9}, {3.507271133191079*^9, 3.507271137143898*^9}, {
+   3.5072900295406437`*^9, 3.5072900769228687`*^9}, {3.507290458588477*^9, 
+   3.507290475008874*^9}, 3.507290550830061*^9, {3.507356478692774*^9, 
+   3.507356507488104*^9}},
+ CellTags->"Lemma (ANdominates 2)"],
+
+Cell["The proof:", "Text",
+ CellChangeTimes->{{3.551965739313444*^9, 3.551965740369316*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<ANdominates 2\>\"", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Definition", "[", "\"\<dominates\>\"", "]"}], ",", " ", 
+      RowBox[{"Lemma", "[", "\"\<AN all\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<SR\>\"", "]"}], ",", 
+      RowBox[{"Lemma", "[", "\"\<2inI\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<powerfunction\>\"", "]"}], ",", 
+      RowBox[{"Lemma", "[", "\"\<perm swap\>\"", "]"}], ",", 
+      RowBox[{"Definition", "[", "\"\<appAlloc\>\"", "]"}]}], "}"}]}], ",", 
+   RowBox[{"built\[Dash]in", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Built\[Dash]in", "[", "\"\<Operators\>\"", "]"}], "[", 
+      RowBox[{"\"\<\[Not]\>\"", ",", "\"\<=\>\""}], "]"}], "}"}]}], ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}], ",", 
+   RowBox[{"SearchDepth", "\[Rule]", "80"}], ",", 
+   RowBox[{"ProverOptions", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "False"}], ",", 
+      RowBox[{"RWCombine", "\[Rule]", "True"}], ",", 
+      RowBox[{"DisableProver", "\[Rule]", 
+       RowBox[{"{", "STP", "}"}]}], ",", 
+      RowBox[{"DisableInferenceRule", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"\[Cent]KBSetEquality", ",", "\[Cent]KBInclusion"}], 
+        "}"}]}]}], "}"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.507030418126762*^9, 3.507030425109923*^9}, {
+   3.50703049124822*^9, 3.50703050041626*^9}, 3.507031918616014*^9, {
+   3.507270060071971*^9, 3.507270079614396*^9}, {3.5072716468675137`*^9, 
+   3.507271662113749*^9}, {3.507271852938815*^9, 3.507271854279544*^9}, {
+   3.507272213049666*^9, 3.5072722132006683`*^9}, {3.507272956487986*^9, 
+   3.5072729784176407`*^9}, {3.50727412313416*^9, 3.507274146787479*^9}, {
+   3.507274673204813*^9, 3.507274673753437*^9}, {3.5072799530891943`*^9, 
+   3.507279958570097*^9}, {3.507280140533289*^9, 3.507280143360014*^9}, {
+   3.507280622018545*^9, 3.507280622862681*^9}, {3.507280829129526*^9, 
+   3.5072808328024473`*^9}, {3.507280863240294*^9, 3.507280907312361*^9}, {
+   3.5072814985700207`*^9, 3.5072815012330227`*^9}, {3.50728157155352*^9, 
+   3.5072815725456047`*^9}, {3.507281849557016*^9, 3.5072818767267447`*^9}, {
+   3.5072822478045607`*^9, 3.5072822577201633`*^9}, {3.5072824982639933`*^9, 
+   3.507282505797963*^9}, {3.507282816594829*^9, 3.5072828173422117`*^9}, 
+   3.507283432209906*^9, {3.5072836675522633`*^9, 3.507283676074415*^9}, 
+   3.507283963589917*^9, {3.507285402012167*^9, 3.507285436529038*^9}, {
+   3.5072863443687553`*^9, 3.507286345337384*^9}, {3.507287139726327*^9, 
+   3.5072871441294727`*^9}, {3.507287440080839*^9, 3.507287440350685*^9}, 
+   3.507287896354911*^9, {3.507288085453*^9, 3.507288101859661*^9}, {
+   3.507288629739106*^9, 3.507288633391478*^9}, {3.507291142048369*^9, 
+   3.507291209472229*^9}, {3.507291319396329*^9, 3.5072913268695393`*^9}, {
+   3.50729192246035*^9, 3.507291922609354*^9}, {3.507355782321158*^9, 
+   3.507355788593568*^9}, {3.507356522538956*^9, 3.50735655035779*^9}, 
+   3.507356990518166*^9, {3.507357042625808*^9, 3.507357078279493*^9}, {
+   3.507357833169088*^9, 3.507357852912644*^9}, {3.507357965383832*^9, 
+   3.507358002452907*^9}, {3.507361497403367*^9, 3.507361531478368*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.507356554957305*^9, 3.507356607797063*^9, 
+  3.507357069173449*^9, 3.507357272647439*^9, 3.507357873668164*^9, 
+  3.507358027769579*^9, 3.507359163976926*^9, 3.5519962348061028`*^9, 
+  3.552159315055743*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"$RecursionLimit", "=", "\[Infinity]"}], "}"}], ",", 
+   RowBox[{"ProofShow", "[", "]"}]}], "]"}]], "Input",
+ CellChangeTimes->{3.507356616217678*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Block", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"$RecursionLimit", "=", "\[Infinity]"}], "}"}], ",", 
+   RowBox[{"Transform", "[", 
+    RowBox[{"%", ",", 
+     RowBox[{"TransformerOptions", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"branches", "\[Rule]", "Proved"}], ",", 
+        RowBox[{"steps", "\[Rule]", "Useful"}]}], "}"}]}]}], "]"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{
+  3.507284710879627*^9, {3.552159340452881*^9, 3.552159341654319*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.552159347119969*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Options", "[", "SetTheoryPCSProver", "]"}]], "Input",
+ CellChangeTimes->{{3.507357467221719*^9, 3.50735747725082*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"DisableProver", "\[Rule]", 
+    RowBox[{"{", "PND", "}"}]}], ",", 
+   RowBox[{"EarlyRewriting", "\[Rule]", "False"}], ",", 
+   RowBox[{"TransformRanges", "\[Rule]", "True"}], ",", 
+   RowBox[{"AllowIntroduceQuantifiers", "\[Rule]", "False"}], ",", 
+   RowBox[{"ApplyBuiltIns", "\[Rule]", "True"}], ",", 
+   RowBox[{"BackChaining", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingDisjunction", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingEquivalence", "\[Rule]", "False"}], ",", 
+   RowBox[{"BackChainingImplication", "\[Rule]", "False"}], ",", 
+   RowBox[{"ChooseFromFiniteSet", "\[Rule]", "False"}], ",", 
+   RowBox[{"DisableInferenceRule", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"KBComposeIntersection\"\>", ",", "\<\"KBFiniteChoice\"\>", 
+      ",", "\<\"KBInferNonEmpty\"\>"}], "}"}]}], ",", 
+   RowBox[{"EarlyCaseDistinction", "\[Rule]", "True"}], ",", 
+   RowBox[{"GRWTarget", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"kb\"\>", ",", "\<\"goal\"\>"}], "}"}]}], ",", 
+   RowBox[{"InferMembershipIntersection", "\[Rule]", "False"}], ",", 
+   RowBox[{"KBRWOnlySimplification", "\[Rule]", "False"}], ",", 
+   RowBox[{"MatchExistential", "\[Rule]", "\<\"TryAllAtOnce\"\>"}], ",", 
+   RowBox[{"ModusPonensException", "\[Rule]", "None"}], ",", 
+   RowBox[{"ModusPonensKB", "\[Rule]", "True"}], ",", 
+   RowBox[{"PNDLevel", "\[Rule]", "1"}], ",", 
+   RowBox[{"RWBooleanLiteralCombinations", "\[Rule]", "True"}], ",", 
+   RowBox[{"RWCombine", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWExistentialGoal", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWHigherOrder", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWInnermost", "\[Rule]", "True"}], ",", 
+   RowBox[{"RWInsideQuantifiers", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWSetOperators", "\[Rule]", "False"}], ",", 
+   RowBox[{"RWTuples", "\[Rule]", "True"}], ",", 
+   RowBox[{"SemanticMatch", "\[Rule]", "True"}], ",", 
+   RowBox[{"SimplifyFormula", "\[Rule]", "False"}], ",", 
+   RowBox[{"STPFunctionProperties", "\[Rule]", "True"}], ",", 
+   RowBox[{"STPLevel", "\[Rule]", "100"}], ",", 
+   RowBox[{"STPMembershipByInclusion", "\[Rule]", "False"}], ",", 
+   RowBox[{"TryAlternatives", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoal", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalDisjunction", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalEquivalence", "\[Rule]", "False"}], ",", 
+   RowBox[{"TrySubgoalImplication", "\[Rule]", "False"}], ",", 
+   RowBox[{"UseCyclicRules", "\[Rule]", "False"}], ",", 
+   RowBox[{"UseEqualitiesFirst", "\[Rule]", "True"}], ",", 
+   RowBox[{"UseNonMembership", "\[Rule]", "True"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.507357478235822*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"ResetComputation", "[", "]"}]], "Input",
+ CellChangeTimes->{{3.507357898577427*^9, 3.507357903260072*^9}}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+AutoGeneratedPackage->None,
+WindowSize->{679, 741},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+ShowSelection->True,
+Magnification->1.5,
+FrontEndVersion->"7.0 for Linux x86 (64-bit) (February 25, 2009)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "Axiom (trichotomy)"->{
+  Cell[39717, 1078, 824, 18, 96, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10000.},
+   InitializationCell->True,
+   CellTags->"Axiom (trichotomy)"]},
+ "Definition (agents)"->{
+  Cell[666, 25, 398, 7, 46, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (agents)"],
+  Cell[3866, 119, 888, 20, 127, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10001.},
+   InitializationCell->True,
+   CellTags->"Definition (agents)"]},
+ "Definition (allocation)"->{
+  Cell[19063, 520, 2037, 44, 238, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (allocation)"]},
+ "Definition (AN)"->{
+  Cell[79426, 2143, 3553, 80, 478, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (AN)"]},
+ "Definition (appAlloc)"->{
+  Cell[106225, 2814, 750, 19, 126, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (appAlloc)"]},
+ "Definition (appPowAlloc)"->{
+  Cell[107305, 2845, 786, 20, 126, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10000.},
+   InitializationCell->True,
+   CellTags->"Definition (appPowAlloc)"]},
+ "Definition (appropriateLength)"->{
+  Cell[6473, 188, 724, 15, 96, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10000.},
+   InitializationCell->True,
+   CellTags->"Definition (appropriateLength)"]},
+ "Definition (CX)"->{
+  Cell[89644, 2369, 690, 15, 870, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (CX)"]},
+ "Definition (dominates)"->{
+  Cell[95161, 2523, 1101, 28, 126, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (dominates)"]},
+ "Definition (permutation)"->{
+  Cell[61434, 1660, 1214, 30, 101, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (permutation)"]},
+ "Definition (perm)"->{
+  Cell[60578, 1630, 511, 14, 96, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (perm)"]},
+ "Definition (powerfunction)"->{
+  Cell[34004, 912, 1177, 32, 183, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (powerfunction)"]},
+ "Definition (RE)"->{
+  Cell[90476, 2392, 1834, 45, 1417, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (RE)"]},
+ "Definition (SR)"->{
+  Cell[31684, 845, 1897, 49, 383, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (SR)"]},
+ "Definition (swap)"->{
+  Cell[69198, 1862, 1175, 31, 150, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (swap)"]},
+ "Definition (WC)"->{
+  Cell[21698, 585, 1518, 37, 227, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (WC)"]},
+ "Definition (WinLose)"->{
+  Cell[93067, 2463, 1599, 42, 214, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (WinLose)"]},
+ "Definition (WR contrapositive)"->{
+  Cell[28051, 746, 1979, 49, 342, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10000.},
+   InitializationCell->True,
+   CellTags->"Definition (WR contrapositive)"]},
+ "Definition (WR)"->{
+  Cell[24813, 666, 2277, 53, 372, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (WR)"]},
+ "Definition (1)"->{
+  Cell[2401, 71, 386, 10, 1750, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10000.},
+   CellTags->"Definition (1)"]},
+ "Info3506852826-6246626"->{
+  Cell[46915, 1267, 296, 5, 116, "Print",
+   CellTags->"Info3506852826-6246626"]},
+ "Lemma (AN all)"->{
+  Cell[108923, 2893, 2500, 55, 156, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (AN all)"]},
+ "Lemma (AN swap)"->{
+  Cell[83404, 2234, 1384, 33, 156, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (AN swap)"]},
+ "Lemma (ANdominates 1)"->{
+  Cell[114850, 3023, 2515, 57, 228, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (ANdominates 1)"]},
+ "Lemma (ANdominates 2)"->{
+  Cell[123199, 3216, 2328, 55, 239, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (ANdominates 2)"]},
+ "Lemma (ANdominates)"->{
+  Cell[97945, 2603, 2368, 55, 258, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (ANdominates)"]},
+ "Lemma (ANdominates-aux)"->{
+  Cell[104148, 2750, 1565, 45, 220, "Input",
+   CellTags->"Lemma (ANdominates-aux)"]},
+ "Lemma (perm swap)"->{
+  Cell[75382, 2036, 484, 13, 96, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (perm swap)"]},
+ "Lemma (powerfunction-independent)"->{
+  Cell[37482, 1018, 1366, 33, 209, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (powerfunction-independent)"]},
+ "Lemma (1and2inI)"->{
+  Cell[13251, 359, 574, 14, 96, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10001.},
+   InitializationCell->True,
+   CellTags->"Lemma (1and2inI)"]},
+ "Lemma (1inI)"->{
+  Cell[8015, 229, 1037, 20, 126, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10001.},
+   InitializationCell->True,
+   CellTags->"Lemma (1inI)"]},
+ "Lemma (2inI)"->{
+  Cell[9055, 251, 993, 20, 126, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10001.},
+   InitializationCell->True,
+   CellTags->"Lemma (2inI)"]},
+ "Proposition (alloc perm)"->{
+  Cell[62958, 1701, 1192, 26, 156, "Input",
+   InitializationCell->True,
+   CellTags->"Proposition (alloc perm)"]},
+ "Proposition (sum perm)"->{
+  Cell[64512, 1737, 1236, 27, 160, "Input",
+   InitializationCell->True,
+   CellTags->"Proposition (sum perm)"]},
+ "Proposition (swap idempotent)"->{
+  Cell[73378, 1978, 545, 15, 96, "Input",
+   InitializationCell->True,
+   CellTags->"Proposition (swap idempotent)"]},
+ "Proposition (swapperm)"->{
+  Cell[70802, 1908, 942, 21, 126, "Input",
+   InitializationCell->True,
+   CellTags->"Proposition (swapperm)"]},
+ "Theory (powerfunction)"->{
+  Cell[35507, 958, 1002, 26, 234, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10000.},
+   InitializationCell->True,
+   CellTags->"Theory (powerfunction)"]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"Axiom (trichotomy)", 133711, 3457},
+ {"Definition (agents)", 133900, 3462},
+ {"Definition (allocation)", 134196, 3470},
+ {"Definition (AN)", 134332, 3474},
+ {"Definition (appAlloc)", 134467, 3478},
+ {"Definition (appPowAlloc)", 134611, 3482},
+ {"Definition (appropriateLength)", 134819, 3487},
+ {"Definition (CX)", 135014, 3492},
+ {"Definition (dominates)", 135149, 3496},
+ {"Definition (permutation)", 135294, 3500},
+ {"Definition (perm)", 135434, 3504},
+ {"Definition (powerfunction)", 135574, 3508},
+ {"Definition (RE)", 135713, 3512},
+ {"Definition (SR)", 135843, 3516},
+ {"Definition (swap)", 135973, 3520},
+ {"Definition (WC)", 136104, 3524},
+ {"Definition (WinLose)", 136237, 3528},
+ {"Definition (WR contrapositive)", 136386, 3532},
+ {"Definition (WR)", 136584, 3537},
+ {"Definition (1)", 136711, 3541},
+ {"Info3506852826-6246626", 136869, 3545},
+ {"Lemma (AN all)", 136973, 3548},
+ {"Lemma (AN swap)", 137102, 3552},
+ {"Lemma (ANdominates 1)", 137237, 3556},
+ {"Lemma (ANdominates 2)", 137379, 3560},
+ {"Lemma (ANdominates)", 137519, 3564},
+ {"Lemma (ANdominates-aux)", 137660, 3568},
+ {"Lemma (perm swap)", 137771, 3571},
+ {"Lemma (powerfunction-independent)", 137918, 3575},
+ {"Lemma (1and2inI)", 138066, 3579},
+ {"Lemma (1inI)", 138245, 3584},
+ {"Lemma (2inI)", 138421, 3589},
+ {"Proposition (alloc perm)", 138608, 3594},
+ {"Proposition (sum perm)", 138753, 3598},
+ {"Proposition (swap idempotent)", 138903, 3602},
+ {"Proposition (swapperm)", 139051, 3606},
+ {"Theory (powerfunction)", 139193, 3610}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[567, 22, 96, 1, 125, "Title"],
+Cell[666, 25, 398, 7, 46, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (agents)"],
+Cell[1067, 34, 712, 14, 209, "Text"],
+Cell[CellGroupData[{
+Cell[1804, 52, 102, 1, 107, "Section"],
+Cell[CellGroupData[{
+Cell[1931, 57, 165, 2, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[2121, 63, 277, 6, 1683, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[2401, 71, 386, 10, 1750, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ CellTags->"Definition (1)"],
+Cell[2790, 83, 332, 8, 1750, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[3125, 93, 163, 2, 1702, "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[3337, 101, 96, 1, 42, "Subsection"],
+Cell[CellGroupData[{
+Cell[3458, 106, 405, 11, 74, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[3866, 119, 888, 20, 127, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellTags->"Definition (agents)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4791, 144, 178, 2, 44, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}],
+Cell[4972, 148, 714, 16, 205, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}],
+Cell[5689, 166, 330, 7, 67, "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[6056, 178, 414, 8, 92, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[6473, 188, 724, 15, 96, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellTags->"Definition (appropriateLength)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7234, 208, 167, 2, 42, "Subsubsection"],
+Cell[7404, 212, 263, 5, 72, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[7670, 219, 320, 6, 99, "Text"],
+Cell[CellGroupData[{
+Cell[8015, 229, 1037, 20, 126, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellTags->"Lemma (1inI)"],
+Cell[9055, 251, 993, 20, 126, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellTags->"Lemma (2inI)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10085, 276, 171, 3, 44, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}],
+Cell[10259, 281, 1195, 24, 197, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}],
+Cell[11457, 307, 297, 5, 45, "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11791, 317, 256, 5, 72, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.}],
+Cell[12050, 324, 557, 15, 217, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.}],
+Cell[12610, 341, 255, 5, 216, "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[12902, 351, 346, 6, 92, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[13251, 359, 574, 14, 96, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.},
+ InitializationCell->True,
+ CellTags->"Lemma (1and2inI)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13862, 378, 231, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}],
+Cell[14096, 385, 342, 8, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10002.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[14475, 398, 1469, 27, 216, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[15947, 427, 424, 7, 45, "Output",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16432, 441, 101, 1, 56, "Subsection"],
+Cell[16536, 444, 488, 15, 100, "Text"],
+Cell[CellGroupData[{
+Cell[17049, 463, 256, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[17308, 470, 464, 12, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[17775, 484, 213, 3, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[18025, 492, 250, 5, 38, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[18278, 499, 427, 11, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[18708, 512, 340, 5, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}]
+}, Closed]],
+Cell[19063, 520, 2037, 44, 238, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (allocation)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21137, 569, 107, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[21269, 574, 118, 1, 42, "Subsubsection"],
+Cell[21390, 577, 305, 6, 72, "Text"],
+Cell[21698, 585, 1518, 37, 227, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (WC)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23253, 627, 117, 1, 42, "Subsubsection"],
+Cell[23373, 630, 214, 5, 72, "Text"],
+Cell[CellGroupData[{
+Cell[23612, 639, 353, 6, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[23968, 647, 536, 8, 249, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[24507, 657, 291, 6, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[24813, 666, 2277, 53, 372, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (WR)"],
+Cell[27093, 721, 310, 6, 72, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[CellGroupData[{
+Cell[27428, 731, 276, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[27707, 738, 329, 5, 111, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}]
+}, Closed]],
+Cell[28051, 746, 1979, 49, 342, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellTags->"Definition (WR contrapositive)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[30067, 800, 121, 1, 42, "Subsubsection"],
+Cell[30191, 803, 301, 6, 99, "Text"],
+Cell[CellGroupData[{
+Cell[30517, 813, 254, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[30774, 820, 511, 13, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[31288, 835, 381, 7, 243, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[31684, 845, 1897, 49, 383, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (SR)"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[33630, 900, 104, 1, 56, "Subsection"],
+Cell[33737, 903, 264, 7, 73, "Text"],
+Cell[34004, 912, 1177, 32, 183, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (powerfunction)"],
+Cell[CellGroupData[{
+Cell[35206, 948, 298, 8, 72, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[35507, 958, 1002, 26, 234, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellTags->"Theory (powerfunction)"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[36570, 991, 92, 1, 107, "Section"],
+Cell[36665, 994, 670, 17, 154, "Text"],
+Cell[37338, 1013, 141, 3, 44, "Text"],
+Cell[37482, 1018, 1366, 33, 209, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (powerfunction-independent)"],
+Cell[CellGroupData[{
+Cell[38873, 1055, 188, 2, 84, "Subsection"],
+Cell[CellGroupData[{
+Cell[39086, 1061, 286, 6, 72, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[39375, 1069, 339, 7, 72, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[39717, 1078, 824, 18, 96, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellTags->"Axiom (trichotomy)"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[40590, 1102, 93, 1, 56, "Subsection"],
+Cell[40686, 1105, 200, 4, 72, "Text"],
+Cell[40889, 1111, 158, 3, 72, "Text"],
+Cell[CellGroupData[{
+Cell[41072, 1118, 1430, 24, 167, "Input"],
+Cell[42505, 1144, 444, 8, 45, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[42986, 1157, 252, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[43241, 1164, 270, 4, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[43514, 1170, 230, 3, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[43747, 1175, 286, 5, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[44048, 1183, 259, 5, 35, "Input"],
+Cell[CellGroupData[{
+Cell[44332, 1192, 135, 1, 42, "Subsubsection"],
+Cell[44470, 1195, 154, 3, 72, "Text"],
+Cell[44627, 1200, 327, 6, 99, "Text"],
+Cell[CellGroupData[{
+Cell[44979, 1210, 625, 13, 167, "Input"],
+Cell[45607, 1225, 124, 2, 45, "Output"]
+}, Open  ]],
+Cell[45746, 1230, 242, 5, 46, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[46025, 1240, 149, 2, 42, "Subsubsection"],
+Cell[CellGroupData[{
+Cell[46199, 1246, 248, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[46450, 1253, 259, 4, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[46746, 1262, 166, 3, 35, "Input"],
+Cell[46915, 1267, 296, 5, 116, "Print",
+ CellTags->"Info3506852826-6246626"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[47248, 1277, 728, 17, 167, "Input"],
+Cell[47979, 1296, 267, 5, 45, "Output"]
+}, Open  ]],
+Cell[48261, 1304, 465, 8, 46, "Input"],
+Cell[CellGroupData[{
+Cell[48751, 1316, 256, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[49010, 1323, 300, 5, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[49347, 1333, 636, 16, 156, "Input"],
+Cell[CellGroupData[{
+Cell[50008, 1353, 434, 10, 65, "Print"],
+Cell[50445, 1365, 432, 10, 65, "Print"]
+}, Open  ]]
+}, Open  ]],
+Cell[50904, 1379, 252, 5, 46, "Input"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[51205, 1390, 163, 2, 56, "Subsection"],
+Cell[51371, 1394, 145, 2, 46, "Input"],
+Cell[51519, 1398, 2737, 50, 1007, "Input"],
+Cell[CellGroupData[{
+Cell[54281, 1452, 195, 3, 46, "Input"],
+Cell[54479, 1457, 700, 13, 2868, "Output"]
+}, Closed]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[55228, 1476, 139, 1, 84, "Subsection"],
+Cell[CellGroupData[{
+Cell[55392, 1481, 123, 2, 65, "Input"],
+Cell[55518, 1485, 606, 11, 61, "Message"],
+Cell[56127, 1498, 606, 11, 61, "Message"],
+Cell[56736, 1511, 606, 11, 61, "Message"],
+Cell[57345, 1524, 641, 11, 88, "Message"],
+Cell[57989, 1537, 77, 1, 64, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[58115, 1544, 122, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[58262, 1549, 254, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[58519, 1556, 319, 5, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[58875, 1566, 130, 2, 35, "Input"],
+Cell[59008, 1570, 125, 2, 778, "Output"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[59170, 1577, 132, 2, 35, "Input"],
+Cell[59305, 1581, 72, 1, 778, "Output"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[59414, 1587, 136, 2, 35, "Input"],
+Cell[59553, 1591, 95, 1, 778, "Output"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[59685, 1597, 138, 2, 35, "Input"],
+Cell[59826, 1601, 73, 1, 778, "Output"]
+}, Closed]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[59960, 1609, 103, 1, 107, "Section"],
+Cell[CellGroupData[{
+Cell[60088, 1614, 107, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[60220, 1619, 124, 1, 42, "Subsubsection"],
+Cell[60347, 1622, 228, 6, 73, "Text"],
+Cell[60578, 1630, 511, 14, 96, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (perm)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[61126, 1649, 102, 1, 42, "Subsubsection"],
+Cell[61231, 1652, 200, 6, 45, "Text"],
+Cell[61434, 1660, 1214, 30, 101, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (permutation)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[62685, 1695, 130, 1, 42, "Subsubsection"],
+Cell[62818, 1698, 137, 1, 44, "Text"],
+Cell[62958, 1701, 1192, 26, 156, "Input",
+ InitializationCell->True,
+ CellTags->"Proposition (alloc perm)"],
+Cell[64153, 1729, 356, 6, 72, "Text"],
+Cell[64512, 1737, 1236, 27, 160, "Input",
+ InitializationCell->True,
+ CellTags->"Proposition (sum perm)"],
+Cell[65751, 1766, 298, 5, 99, "Text"],
+Cell[CellGroupData[{
+Cell[66074, 1775, 300, 6, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[66377, 1783, 405, 7, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[66785, 1792, 228, 3, 148, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[67050, 1800, 256, 5, 38, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[67309, 1807, 255, 4, 100, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[67601, 1816, 766, 17, 216, "Input"],
+Cell[68370, 1835, 273, 5, 45, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[68704, 1847, 152, 2, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[68881, 1853, 159, 2, 42, "Subsubsection"],
+Cell[69043, 1857, 152, 3, 72, "Text"],
+Cell[69198, 1862, 1175, 31, 150, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (swap)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[70410, 1898, 159, 2, 42, "Subsubsection"],
+Cell[70572, 1902, 227, 4, 99, "Text"],
+Cell[70802, 1908, 942, 21, 126, "Input",
+ InitializationCell->True,
+ CellTags->"Proposition (swapperm)"],
+Cell[CellGroupData[{
+Cell[71769, 1933, 252, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[72024, 1940, 249, 4, 100, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[72310, 1949, 573, 12, 126, "Input"],
+Cell[72886, 1963, 195, 3, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[73130, 1972, 115, 1, 42, "Subsubsection"],
+Cell[73248, 1975, 127, 1, 44, "Text"],
+Cell[73378, 1978, 545, 15, 96, "Input",
+ InitializationCell->True,
+ CellTags->"Proposition (swap idempotent)"],
+Cell[CellGroupData[{
+Cell[73948, 1997, 254, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[74205, 2004, 250, 4, 150, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[74492, 2013, 426, 8, 96, "Input"],
+Cell[74921, 2023, 226, 4, 45, "Output"]
+}, Open  ]],
+Cell[75162, 2030, 217, 4, 99, "Text"],
+Cell[75382, 2036, 484, 13, 96, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (perm swap)"],
+Cell[75869, 2051, 228, 4, 99, "Text"],
+Cell[CellGroupData[{
+Cell[76122, 2059, 140, 1, 60, "Item"],
+Cell[76265, 2062, 562, 9, 133, "Item"],
+Cell[76830, 2073, 279, 5, 60, "Item"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[77146, 2083, 895, 20, 167, "Input"],
+Cell[78044, 2105, 445, 7, 45, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[78562, 2120, 101, 1, 107, "Section"],
+Cell[CellGroupData[{
+Cell[78688, 2125, 96, 1, 56, "Subsection"],
+Cell[78787, 2128, 366, 6, 154, "Text"],
+Cell[79156, 2136, 267, 5, 99, "Text"],
+Cell[79426, 2143, 3553, 80, 478, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (AN)"],
+Cell[82982, 2225, 419, 7, 127, "Text"],
+Cell[83404, 2234, 1384, 33, 156, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (AN swap)"],
+Cell[84791, 2269, 160, 3, 72, "Text"],
+Cell[CellGroupData[{
+Cell[84976, 2276, 3686, 60, 456, "Input"],
+Cell[88665, 2338, 126, 2, 64, "Output"]
+}, Open  ]],
+Cell[88806, 2343, 396, 9, 107, "Input"],
+Cell[89205, 2354, 122, 2, 46, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[89364, 2361, 113, 1, 56, "Subsection"],
+Cell[89480, 2364, 161, 3, 499, "Text"],
+Cell[89644, 2369, 690, 15, 870, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (CX)"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[90371, 2389, 102, 1, 42, "Subsection"],
+Cell[90476, 2392, 1834, 45, 1417, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (RE)"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[92347, 2442, 98, 1, 42, "Subsection"],
+Cell[CellGroupData[{
+Cell[92470, 2447, 171, 2, 42, "Subsubsection"],
+Cell[92644, 2451, 420, 10, 129, "Text"],
+Cell[93067, 2463, 1599, 42, 214, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (WinLose)"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[94703, 2510, 101, 1, 42, "Subsubsection"],
+Cell[94807, 2513, 351, 8, 100, "Text"],
+Cell[95161, 2523, 1101, 28, 126, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (dominates)"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[96323, 2558, 92, 1, 107, "Section"],
+Cell[96418, 2561, 255, 5, 99, "Text"],
+Cell[CellGroupData[{
+Cell[96698, 2570, 184, 4, 56, "Subsection"],
+Cell[96885, 2576, 239, 5, 72, "Text"],
+Cell[CellGroupData[{
+Cell[97149, 2585, 254, 5, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[97406, 2592, 524, 8, 249, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[97945, 2603, 2368, 55, 258, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (ANdominates)"],
+Cell[100316, 2660, 289, 5, 72, "Text"],
+Cell[CellGroupData[{
+Cell[100630, 2669, 2062, 37, 366, "Input"],
+Cell[102695, 2708, 150, 2, 64, "Output"]
+}, Open  ]],
+Cell[102860, 2713, 123, 2, 65, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[103020, 2720, 175, 2, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[103220, 2726, 346, 6, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[103569, 2734, 564, 13, 102, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[104148, 2750, 1565, 45, 220, "Input",
+ CellTags->"Lemma (ANdominates-aux)"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[105750, 2800, 121, 1, 42, "Subsection"],
+Cell[CellGroupData[{
+Cell[105896, 2805, 106, 1, 42, "Subsubsection"],
+Cell[106005, 2808, 217, 4, 72, "Text"],
+Cell[106225, 2814, 750, 19, 126, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (appAlloc)"],
+Cell[CellGroupData[{
+Cell[107000, 2837, 302, 6, 99, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[107305, 2845, 786, 20, 126, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.},
+ InitializationCell->True,
+ CellTags->"Definition (appPowAlloc)"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[108128, 2870, 214, 4, 65, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[108345, 2876, 305, 6, 60, "Item",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}],
+Cell[108653, 2884, 255, 6, 60, "Item",
+ CellGroupingRules->{GroupTogetherGrouping, 10001.}]
+}, Open  ]],
+Cell[108923, 2893, 2500, 55, 156, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (AN all)"],
+Cell[CellGroupData[{
+Cell[111448, 2952, 2395, 37, 197, "Input"],
+Cell[113846, 2991, 222, 4, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[114117, 3001, 174, 2, 42, "Subsubsection"],
+Cell[CellGroupData[{
+Cell[114316, 3007, 183, 4, 45, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}],
+Cell[114502, 3013, 333, 7, 66, "Text",
+ CellGroupingRules->{GroupTogetherGrouping, 10000.}]
+}, Closed]],
+Cell[114850, 3023, 2515, 57, 228, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (ANdominates 1)"],
+Cell[117368, 3082, 120, 1, 44, "Text"],
+Cell[CellGroupData[{
+Cell[117513, 3087, 3511, 62, 587, "Input"],
+Cell[121027, 3151, 453, 7, 45, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[121517, 3163, 228, 6, 65, "Input"],
+Cell[121748, 3171, 79, 1, 64, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[121864, 3177, 472, 13, 137, "Input"],
+Cell[122339, 3192, 276, 5, 45, "Output"]
+}, Open  ]],
+Cell[122630, 3200, 347, 7, 77, "Input"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[123014, 3212, 182, 2, 42, "Subsubsection"],
+Cell[123199, 3216, 2328, 55, 239, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (ANdominates 2)"],
+Cell[125530, 3273, 92, 1, 44, "Text"],
+Cell[CellGroupData[{
+Cell[125647, 3278, 3341, 57, 467, "Input"],
+Cell[128991, 3337, 340, 6, 45, "Output"]
+}, Open  ]],
+Cell[129346, 3346, 228, 6, 46, "Input"],
+Cell[CellGroupData[{
+Cell[129599, 3356, 505, 14, 107, "Input"],
+Cell[130107, 3372, 153, 3, 45, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[130297, 3380, 142, 2, 46, "Input"],
+Cell[130442, 3384, 2708, 49, 1090, "Output"]
+}, Open  ]],
+Cell[133165, 3436, 130, 2, 46, "Input"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

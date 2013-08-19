@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Lessons Learned from Formalisation with Theorema</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta name="title" content="Lessons Learned from Formalisation with Theorema"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-07-20 20:30:56 BST"/>
+<meta name="author" content="Christoph Lange, Manfred Kerber, Colin Rowat"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  div.inlinetask {
+    padding:10px;
+    border:2px solid gray;
+    margin:10px;
+    background: #ffffcc;
+  }
+  textarea { overflow-x: auto; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<style type="text/css"> .timestamp { color: purple; font-weight: bold; } </style>
+<script type="text/javascript" src="../../lib/scripts/org-info.js"></script>
+<script type="text/javascript" >
+<!--/*--><![CDATA[/*><!--*/
+org_html_manager.set("TOC_DEPTH", "1");
+org_html_manager.set("LINK_HOME", "");
+org_html_manager.set("LINK_UP", "");
+org_html_manager.set("LOCAL_TOC", "1");
+org_html_manager.set("VIEW_BUTTONS", "1");
+org_html_manager.set("MOUSE_HINT", "underline");
+org_html_manager.set("FIXED_TOC", "0");
+org_html_manager.set("TOC", "1");
+org_html_manager.set("VIEW", "showall");
+org_html_manager.setup();  // activate after the parameters are set
+/*]]>*///-->
+</script>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Lessons Learned from Formalisation with Theorema</h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Defining the basic concepts</a></li>
+<li><a href="#sec-2">2 What can you prove from the basics?</a></li>
+<li><a href="#sec-3">3 A simple proof</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Defining the basic concepts</h2>
+<div class="outline-text-2" id="text-1">
+
+<ul>
+<li id="sec-1-1">Definitions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="concept">concept</span></span><br/>
+<ul>
+<li id="sec-1-1-1">Definition["name", definition] &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-2">can use spaces; names are arbitrary strings &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-3">when there are multiple definitions/axioms about something, don't use enumerated names ("def1", "def2") but always try to be descriptive &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-4">give any semantic unit a name (instead of writing large expressions), so that you can refer to it from somewhere else &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+<ul>
+<li id="sec-1-1-4-1">in subsequent steps it will prove necessary to refactor existing semantic units into smaller ones, as there will be a need to reuse the smaller ones<br/>
+<ul>
+<li id="sec-1-1-4-1-1">We first had range, antisymmetry and transitivity defined for a whole preference profile (and thus &forall; v &isin; {1, …, N}), but then needed to say that these also hold for a constitution function.  So we refactored the "preference profile *" axioms into "preference function *" axioms (removing the &forall; v) and one new axiom that states that a preference profile is a set of N preference functions.<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-4-1-2">often this will even look more concise<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-4-2">refactoring for reuse may lead to the insight that we actually don't <i>need</i> multiple occurrences of the same thing<br/>
+     We had this example in Maskin/Milgrom's version of Vickrey's theorem on second-price auctions (Colin's definition 7, x<sub>j</sub> = p<sub>j</sub> = 0):
+<ol>
+<li>On paper, this expression occurred twice.
+</li>
+<li>So we thought, let's give this concept a name: “loser of an auction := one who doesn't get the good, and who doesn't pay anything”
+</li>
+<li>Then we realized: Why do we have to say that all j &isin; N\M are losers, <i>and</i> that all but one j &isin; M are <i>also</i> losers?  I.e. why not just say that all but one j &isin; N are losers?
+</li>
+</ol>
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-5">try to think of everything you may need to define &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+<ul>
+<li id="sec-1-1-5-1">if you don't, then things won't work, and you will be forced to give more definitions<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-6">introduce locally-scoped variables in definitions with “any[variable-name]” &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-7">syntax is case-sensitive &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2">create new cells for new expressions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+<ul>
+<li id="sec-1-2-1">Mathematica can fold cells &nbsp;&nbsp;&nbsp;<span class="tag"><span class="interaction">interaction</span></span><br/>
+<ul>
+<li id="sec-1-2-1-1">can select part of a cell but then can't extend selection into sibling cell &nbsp;&nbsp;&nbsp;<span class="tag"><span class="bug">bug</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-1-2">Ctrl+Shift+} closes all folds<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-2">can highlight cell with left mouse button, set its type from context menu<br/>
+<ul>
+<li id="sec-1-2-2-1">e.g. initialization cell<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-2-2">can evaluate them via “Evaluation → Evaluate Initialization Cells”<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-3">Can select multiple cells and group them into a higher-level cell<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-4">just one undo step :-( &nbsp;&nbsp;&nbsp;<span class="tag"><span class="bug">bug</span>&nbsp;<span class="interaction">interaction</span></span><br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-3">selecting expressions: useful for copy/paste into other e.g. definitions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="interaction">interaction</span></span><br/>
+<ul>
+<li id="sec-1-3-1">can sequentially click on something to enlarge the selection expression-wise<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-4">test often, with small units (cells) of evaluation (unforgiving) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologySW">methodologySW</span></span><br/>
+<ul>
+<li id="sec-1-4-1">use Compute &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologySW">methodologySW</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-4-2">mistakes we made: &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+<ul>
+<li id="sec-1-4-2-1">in transitivity, used k as an alternative index and for the overall number of alternatives (now M)<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-4-2-2">in transitivity, quantified over i and j but forgot to quantify over k<br/>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-5">save often (sometimes loses data or crashes) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologySW">methodologySW</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-6">copy/paste cells or subexpressions and then adapt them &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologySW">methodologySW</span></span><br/>
+<ul>
+<li>maintain a “template” document with tricky expressions, or copy/paste from any existing document
+</li>
+</ul>
+
+</li>
+</ul>
+<ul>
+<li id="sec-1-7">instead of {1, …, n} one can have indexed sets such as {v<sub>1</sub>, …, v<sub>n</sub>} for disambiguation and “type-safety” &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span>&nbsp;<span class="syntax">syntax</span></span><br/>
+<ul>
+<li id="sec-1-7-1">trade-offs involved here:<br/>
+<ul>
+<li id="sec-1-7-1-1">trade-off between precision (v<sub>1</sub>) and conciseness (simply 1)<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-7-1-2">trade-off between using sets (e.g. f(x) &isin; {a, b, c} – more concise but computationally more complex) vs. expanding it into logic (f(x) = a &or; f(x) = b &or; f(x) = c) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="complexity">complexity</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-7-1-3">general notes:<br/>
+<ul>
+<li id="sec-1-7-1-3-1">Without internal knowledge of Theorema, you don't know the computational consequences of choosing some approach &nbsp;&nbsp;&nbsp;<span class="tag"><span class="complexity">complexity</span></span><br/>
+      &forall;<sub>i&isin; A[m]</sub> is computationally inefficient!
+</li>
+</ul>
+<ul>
+<li id="sec-1-7-1-3-2">if you once introduced an indexed set, use it consistently!<br/>
+      E.g. in the formalisation of Geanakoplos' proofs of Arrow's theorem we had defined {v<sub>1</sub>, …, v<sub>n</sub>} as above but then indexed a preference profile &pi;t with integers (e.g. &pi;t<sub>1</sub> instead of &pi;t<sub>v<sub>1</sub></sub>)
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8">notation:<br/>
+<ul>
+<li id="sec-1-8-1">can't arbitrarily mess with built-in operators, e.g. use subscripts like &lt;<sub>k</sub> &nbsp;&nbsp;&nbsp;<span class="tag"><span class="paper">paper</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2">input syntax: &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+<ul>
+<li id="sec-1-8-2-1">syntax for index: Ctrl+_<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-2">leave subscript part: Ctrl+Space<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-3">Esc "pi" Esc → &pi;<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-4">TeX names work most of the time<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-5">input “&forall; x” as a box with &forall; on top and variables below it<br/>
+<ul>
+<li id="sec-1-8-2-5-1">if in doubt, use separate quantifiers for all variables<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-6">if in doubt, use additional brackets<br/>
+<ul>
+<li id="sec-1-8-2-6-1">in particular, &forall; binds stronger than = (which is the value assignment operator in Mathematica, overloaded with logical equivalence in Theorema) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="bug">bug</span></span><br/>
+<ul>
+<li id="sec-1-8-2-6-1-1">one can find out using structural selection<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-6-1-2">even from the proof it wasn't clear that this was wrong<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-8-2-6-1-3">Theorema 2 will introduce a separate operator for logical equivalence<br/>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-9">Can't always use quantifiers with conditions (or can one, in Theorema?), therefore need to rewrite &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+<ul>
+<li id="sec-1-9-1">&forall; x &isin; M . p(x) ↝ &forall; x . x &isin; M &rArr; p(x)<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-9-2">&exist; x &isin; M . p(x) ↝ &exist; x . x &isin; M &and; p(x)<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-10">make all dependencies of a definition explicit &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+<ul>
+<li id="sec-1-10-1">a lot tend to be implicit on paper &nbsp;&nbsp;&nbsp;<span class="tag"><span class="paper">paper</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-10-2">on the other hand, not all information is <i>relevant</i> for a proof<br/>
+<ul>
+<li>e.g. properties of something:
+<ul>
+<li>that a number is real (x &isin; ℝ), with all of the properties of the real numbers
+</li>
+<li>instead it may be a sufficient prerequisite for the proof to know that x &ge; 0.
+</li>
+</ul>
+
+</li>
+<li>or additional observations that can be made about something, or conditions that hold for something, but merely serve explanatory purposes (e.g. in our Maskin/Milgrom/Vickrey second-price auction formalisation, that a [bidding] strategy involves a random variable, whose distribution is described by a density function – apparently the proof does not rely on this)
+</li>
+</ul>
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-11">it's often useful to make definitions as predicates instead of functions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+   That is:
+<ul>
+<li>instead of e.g. f(0) := 1
+</li>
+<li>write my-predicate(f) := ⊤ if f(0) ≡ 1
+</li>
+</ul>
+
+<p>   Rationale: Proofs often don't deal with numerical values (such as f(0) = 1), but with <i>conditions</i> on such values, e.g. “if x &ge; 0 then f(x) = …”.
+</p></li>
+</ul>
+<ul>
+<li id="sec-1-12">Complexity and computational efficiency &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span>&nbsp;<span class="complexity">complexity</span></span><br/>
+<ul>
+<li id="sec-1-12-1">Typical patterns that make paper notation concise are not necessarily computationally efficient &nbsp;&nbsp;&nbsp;<span class="tag"><span class="paper">paper</span></span><br/>
+<ul>
+<li>indicator functions/index functions, and sums involving them (can better be phrased as conditional expressions)
+</li>
+</ul>
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-13">Paper formalisations may be insufficient &nbsp;&nbsp;&nbsp;<span class="tag"><span class="paper">paper</span></span><br/>
+<ul>
+<li>e.g. Inequality (1) in Maskin/Milgrom/Vickrey is represented in terms of “u<sub>i</sub>(b)” on paper, rather than making explicit that an auction maps b ↦ &lt;x,p&gt; (bids to outcome, i.e. allocation and prices).  Also note that u<sub>i</sub> had previously been defined without arguments!
+</li>
+</ul>
+
+</li>
+</ul>
+<ul>
+<li id="sec-1-14">Theories &nbsp;&nbsp;&nbsp;<span class="tag"><span class="concept">concept</span></span><br/>
+<ul>
+<li id="sec-1-14-1">group a number of related definitions/axioms into a theory<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-14-2">second argument (list of statements) probably needs to be a column vector &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+<ul>
+<li id="sec-1-14-2-1"><span class="todo TODO">TODO</span> ask Wolfgang: didn't work for us &nbsp;&nbsp;&nbsp;<span class="tag"><span class="task">task</span></span><br/>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> What can you prove from the basics?</h2>
+<div class="outline-text-2" id="text-2">
+
+<ul>
+<li id="sec-2-1">Stating a simple lemma &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+<ul>
+<li id="sec-2-1-1">looking at &pi; t<sub>1</sub>(a<sub>1</sub>, a<sub>1</sub>) = 0, we came up with the idea to state &pi;(i, i) = 0 as a lemma<br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> A simple proof</h2>
+<div class="outline-text-2" id="text-3">
+
+<ul>
+<li id="sec-3-1">Proofs &nbsp;&nbsp;&nbsp;<span class="tag"><span class="concept">concept</span></span><br/>
+<ul>
+<li id="sec-3-1-1">need to make explicit what a proof should use &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-2">if a proper <i>proof</i> doesn't work, then use Compute &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologySW">methodologySW</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-3">if you can't use definitions from a theory (because you got the syntax of the theory wrong), enumerate them explicitly in the Compute's "using". &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologySW">methodologySW</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-4">Compute needs "using" (your relevant definitions) and "built-in" parameters (any relevant Theorema functionality) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="syntax">syntax</span></span><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-5">if a computation of a complex expression doesn't work, try a smaller one &nbsp;&nbsp;&nbsp;<span class="tag"><span class="methodologyTP">methodologyTP</span></span><br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-07-20 20:30:56 BST</p>
+<p class="author">Author: Christoph Lange, Manfred Kerber, Colin Rowat</p>
+<p class="creator">Org version 7.8.11 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>

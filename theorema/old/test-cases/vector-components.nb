@@ -1,0 +1,574 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 7.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[     22830,        565]
+NotebookOptionsPosition[     18262,        428]
+NotebookOutlinePosition[     20407,        486]
+CellTagsIndexPosition[     19978,        475]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Components of a vector", "Title",
+ CellChangeTimes->{{3.506925755783074*^9, 3.506925759421575*^9}, {
+  3.546749972933335*^9, 3.546749986810466*^9}, {3.548927573392846*^9, 
+  3.548927584532722*^9}, {3.55232298234936*^9, 3.5523229837042437`*^9}, {
+  3.552324672100203*^9, 3.5523246884906807`*^9}, {3.552326446977099*^9, 
+  3.552326449952676*^9}, {3.5523264951489363`*^9, 3.552326496634674*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Theorema`\>\"", "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.506764785050395*^9, 3.506764798907949*^9}, {
+   3.506765148806548*^9, 3.506765208348384*^9}, {3.506765253977303*^9, 
+   3.506765286273971*^9}, {3.506765378798304*^9, 3.5067654577568073`*^9}, 
+   3.5067655006002398`*^9, 3.50685195021733*^9},
+ CellTags->"Definition (agents)"],
+
+Cell[BoxData[
+ RowBox[{"Definition", "[", 
+  RowBox[{"\"\<sample vector\>\"", ",", 
+   RowBox[{"v", ":=", 
+    RowBox[{"{", 
+     RowBox[{"a", ",", "b", ",", "c"}], "}"}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.552326757943578*^9, 3.552326768995689*^9}, {
+  3.552327386845603*^9, 3.552327408814834*^9}},
+ CellTags->"Definition (sample vector)"],
+
+Cell[CellGroupData[{
+
+Cell["Subscripts", "Section",
+ CellChangeTimes->{{3.552480914227367*^9, 3.552480915538177*^9}}],
+
+Cell["\<\
+Given a defined vector, we can't use a subscript to access its components. \
+Both \[OpenCurlyDoubleQuote]Compute\[CloseCurlyDoubleQuote] and \
+\[OpenCurlyDoubleQuote]Prove\[CloseCurlyDoubleQuote] fail.\
+\>", "Text",
+ CellChangeTimes->{{3.5523274171514463`*^9, 3.552327430938046*^9}, {
+  3.552327484233614*^9, 3.55232749046036*^9}, {3.55248085386734*^9, 
+  3.552480858300259*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Compute", "Subsection",
+ CellChangeTimes->{{3.552480920071109*^9, 3.552480920843545*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Compute", "[", 
+  RowBox[{
+   SubscriptBox["v", "2"], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Definition", "[", "\"\<sample vector\>\"", "]"}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.55232723688756*^9, 3.552327258374131*^9}, {
+  3.552327317560466*^9, 3.5523273449277143`*^9}, {3.5523274408427134`*^9, 
+  3.552327445165254*^9}}],
+
+Cell[BoxData[
+ SubscriptBox[
+  RowBox[{"{", 
+   RowBox[{"a", ",", "b", ",", "c"}], "}"}], "2"]], "Output",
+ CellChangeTimes->{
+  3.5523272592259617`*^9, {3.5523273254586153`*^9, 3.552327329728614*^9}}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Prove", "Subsection",
+ CellChangeTimes->{{3.552480932860737*^9, 3.552480933425623*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<component of a vector (subscript)\>\"", ",", 
+   RowBox[{
+    SubscriptBox["v", "2"], "=", "b"}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.551810956739284*^9, 3.551810974884199*^9}, 
+   3.551813021323951*^9, {3.551813398885078*^9, 3.5518134101955*^9}, {
+   3.551815249321228*^9, 3.5518153284232597`*^9}, {3.551815404502782*^9, 
+   3.551815429861617*^9}, {3.551815490975425*^9, 3.551815492748815*^9}, {
+   3.552323535849806*^9, 3.552323546863954*^9}, {3.552324693578539*^9, 
+   3.552324725676097*^9}, {3.552324783453491*^9, 3.552324798254341*^9}, {
+   3.5523248459414053`*^9, 3.5523248523062143`*^9}, {3.552326777508361*^9, 
+   3.5523267930171337`*^9}, {3.552327168465255*^9, 3.5523272163851767`*^9}, {
+   3.5524810704260597`*^9, 3.5524810723362703`*^9}},
+ CellTags->"Lemma (component of a vector (subscript))"],
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<component of a vector (subscript)\>\"", "]"}], 
+   ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Definition", "[", "\"\<sample vector\>\"", "]"}], "}"}]}], ",", 
+   
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ CellChangeTimes->{{3.551559181901924*^9, 3.551559191724334*^9}, {
+   3.551559259718582*^9, 3.5515592966964817`*^9}, {3.5515593329133587`*^9, 
+   3.551559340996788*^9}, {3.551559416448516*^9, 3.551559421348054*^9}, {
+   3.55155949698097*^9, 3.5515595356253233`*^9}, {3.5515595986703053`*^9, 
+   3.551559649670968*^9}, {3.551559771152954*^9, 3.551559798552387*^9}, {
+   3.5515598366273003`*^9, 3.5515598442433357`*^9}, {3.5515598815036077`*^9, 
+   3.551559886125297*^9}, {3.551560077001267*^9, 3.551560096855444*^9}, 
+   3.5515602443584223`*^9, {3.55156062375159*^9, 3.5515606595108557`*^9}, {
+   3.551562049634646*^9, 3.551562055749777*^9}, 3.551589480769662*^9, 
+   3.551594189736673*^9, {3.551594227374021*^9, 3.551594242285158*^9}, {
+   3.551594283141805*^9, 3.5515942919436*^9}, {3.551594771712013*^9, 
+   3.55159481077775*^9}, {3.551595051002102*^9, 3.551595060425435*^9}, {
+   3.551595182434302*^9, 3.551595189577614*^9}, 3.55159522497013*^9, {
+   3.551598247575231*^9, 3.551598262936796*^9}, {3.551688779917728*^9, 
+   3.551688783351474*^9}, {3.551688904015826*^9, 3.55168894015182*^9}, {
+   3.551689053387108*^9, 3.5516890562562723`*^9}, {3.551689111484087*^9, 
+   3.5516891136737947`*^9}, 3.551705464572321*^9, {3.551756637850763*^9, 
+   3.55175667351518*^9}, {3.551756890506464*^9, 3.551756898175318*^9}, {
+   3.551756935011989*^9, 3.551756961983266*^9}, {3.551757093324193*^9, 
+   3.551757094579616*^9}, {3.551757220925316*^9, 3.551757225413146*^9}, {
+   3.5517573684117*^9, 3.551757397297032*^9}, {3.551757477324813*^9, 
+   3.551757483998465*^9}, {3.551757668164819*^9, 3.551757747569444*^9}, {
+   3.551757795793284*^9, 3.551757834120177*^9}, {3.551758495847026*^9, 
+   3.551758515336587*^9}, {3.551773864605146*^9, 3.551773866499712*^9}, {
+   3.551802769184647*^9, 3.55180277484099*^9}, {3.551803979374268*^9, 
+   3.551804199122548*^9}, {3.5518061871415663`*^9, 3.551806192684285*^9}, {
+   3.551808302160614*^9, 3.5518083341688843`*^9}, {3.551808563337997*^9, 
+   3.5518085651292048`*^9}, {3.551808785424624*^9, 3.551808800166079*^9}, {
+   3.551808931952298*^9, 3.551808935372838*^9}, {3.551809035109725*^9, 
+   3.5518090376041393`*^9}, {3.5518091419963503`*^9, 3.551809145988325*^9}, {
+   3.551809466586111*^9, 3.551809487529725*^9}, {3.5518095291180763`*^9, 
+   3.551809597209792*^9}, {3.551809736635268*^9, 3.551809747887093*^9}, {
+   3.5518099452110357`*^9, 3.551809948320592*^9}, {3.551810084474131*^9, 
+   3.5518100934157457`*^9}, {3.5518102853518*^9, 3.551810290248575*^9}, {
+   3.5518104231262197`*^9, 3.5518104238148527`*^9}, {3.551810679228332*^9, 
+   3.551810721068624*^9}, 3.551810865351212*^9, {3.551810938795537*^9, 
+   3.55181094128218*^9}, {3.5518109902100782`*^9, 3.5518109984330053`*^9}, {
+   3.551813197905615*^9, 3.551813201993884*^9}, {3.551813328404201*^9, 
+   3.551813330664228*^9}, {3.551813692839121*^9, 3.55181369394902*^9}, {
+   3.551815104516448*^9, 3.551815137379202*^9}, {3.551815442122006*^9, 
+   3.55181544452992*^9}, {3.551815477756013*^9, 3.551815482187702*^9}, {
+   3.551815552554717*^9, 3.551815553888208*^9}, {3.552310250790263*^9, 
+   3.5523102514144382`*^9}, {3.55232351987978*^9, 3.552323577823214*^9}, {
+   3.5523248048416977`*^9, 3.552324812382326*^9}, {3.552324943916555*^9, 
+   3.5523249512744427`*^9}, {3.552326805015789*^9, 3.5523269458702497`*^9}, {
+   3.5523278047861357`*^9, 3.5523278054297867`*^9}, 3.5524810779727707`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{
+  3.552323523316691*^9, {3.5523235573558617`*^9, 3.552323578955104*^9}, 
+   3.552324855664826*^9, 3.552324955925665*^9, 3.552325176513788*^9, 
+   3.55232683818992*^9, {3.5523268788818607`*^9, 3.552326946762533*^9}, {
+   3.552327209818282*^9, 3.5523272194549522`*^9}, 3.552481232198406*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Arguments (as in functions)", "Section",
+ CellChangeTimes->{{3.5524809402488003`*^9, 3.552480949186531*^9}}],
+
+Cell["\<\
+We can't use an argument either.  Both \[OpenCurlyDoubleQuote]Compute\
+\[CloseCurlyDoubleQuote] and \[OpenCurlyDoubleQuote]Prove\
+\[CloseCurlyDoubleQuote] fail.\
+\>", "Text",
+ CellChangeTimes->{{3.552327455752372*^9, 3.552327465830329*^9}, {
+  3.552327497248122*^9, 3.552327498304627*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Compute", "Subsection",
+ CellChangeTimes->{{3.552480952917776*^9, 3.552480954547044*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Compute", "[", 
+  RowBox[{
+   RowBox[{"v", "[", "2", "]"}], ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Definition", "[", "\"\<sample vector\>\"", "]"}], "}"}]}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.55232723688756*^9, 3.552327258374131*^9}, {
+  3.552327317560466*^9, 3.5523273449277143`*^9}, {3.5523274408427134`*^9, 
+  3.552327471455912*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{"a", ",", "b", ",", "c"}], "}"}], "[", "2", "]"}]], "Output",
+ CellChangeTimes->{
+  3.5523272592259617`*^9, {3.5523273254586153`*^9, 3.552327329728614*^9}, 
+   3.552327473117817*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Prove", "Subsection",
+ CellChangeTimes->{{3.55248096384228*^9, 3.552480964367049*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<component of a vector (argument)\>\"", ",", 
+   RowBox[{
+    RowBox[{"v", "[", "2", "]"}], "=", "b"}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ InitializationCell->True,
+ CellChangeTimes->{{3.551810956739284*^9, 3.551810974884199*^9}, 
+   3.551813021323951*^9, {3.551813398885078*^9, 3.5518134101955*^9}, {
+   3.551815249321228*^9, 3.5518153284232597`*^9}, {3.551815404502782*^9, 
+   3.551815429861617*^9}, {3.551815490975425*^9, 3.551815492748815*^9}, {
+   3.552323535849806*^9, 3.552323546863954*^9}, {3.552324693578539*^9, 
+   3.552324725676097*^9}, {3.552324783453491*^9, 3.552324798254341*^9}, {
+   3.5523248459414053`*^9, 3.5523248523062143`*^9}, {3.552326777508361*^9, 
+   3.5523267930171337`*^9}, {3.552327168465255*^9, 3.5523272163851767`*^9}, {
+   3.552327476682807*^9, 3.55232747926521*^9}, {3.55248111680192*^9, 
+   3.552481118619817*^9}},
+ CellTags->"Lemma (component of a vector (argument))"],
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{"Lemma", "[", "\"\<component of a vector (argument)\>\"", "]"}], 
+   ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Definition", "[", "\"\<sample vector\>\"", "]"}], "}"}]}], ",", 
+   
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}]}], "]"}]], "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ CellChangeTimes->{{3.551559181901924*^9, 3.551559191724334*^9}, {
+   3.551559259718582*^9, 3.5515592966964817`*^9}, {3.5515593329133587`*^9, 
+   3.551559340996788*^9}, {3.551559416448516*^9, 3.551559421348054*^9}, {
+   3.55155949698097*^9, 3.5515595356253233`*^9}, {3.5515595986703053`*^9, 
+   3.551559649670968*^9}, {3.551559771152954*^9, 3.551559798552387*^9}, {
+   3.5515598366273003`*^9, 3.5515598442433357`*^9}, {3.5515598815036077`*^9, 
+   3.551559886125297*^9}, {3.551560077001267*^9, 3.551560096855444*^9}, 
+   3.5515602443584223`*^9, {3.55156062375159*^9, 3.5515606595108557`*^9}, {
+   3.551562049634646*^9, 3.551562055749777*^9}, 3.551589480769662*^9, 
+   3.551594189736673*^9, {3.551594227374021*^9, 3.551594242285158*^9}, {
+   3.551594283141805*^9, 3.5515942919436*^9}, {3.551594771712013*^9, 
+   3.55159481077775*^9}, {3.551595051002102*^9, 3.551595060425435*^9}, {
+   3.551595182434302*^9, 3.551595189577614*^9}, 3.55159522497013*^9, {
+   3.551598247575231*^9, 3.551598262936796*^9}, {3.551688779917728*^9, 
+   3.551688783351474*^9}, {3.551688904015826*^9, 3.55168894015182*^9}, {
+   3.551689053387108*^9, 3.5516890562562723`*^9}, {3.551689111484087*^9, 
+   3.5516891136737947`*^9}, 3.551705464572321*^9, {3.551756637850763*^9, 
+   3.55175667351518*^9}, {3.551756890506464*^9, 3.551756898175318*^9}, {
+   3.551756935011989*^9, 3.551756961983266*^9}, {3.551757093324193*^9, 
+   3.551757094579616*^9}, {3.551757220925316*^9, 3.551757225413146*^9}, {
+   3.5517573684117*^9, 3.551757397297032*^9}, {3.551757477324813*^9, 
+   3.551757483998465*^9}, {3.551757668164819*^9, 3.551757747569444*^9}, {
+   3.551757795793284*^9, 3.551757834120177*^9}, {3.551758495847026*^9, 
+   3.551758515336587*^9}, {3.551773864605146*^9, 3.551773866499712*^9}, {
+   3.551802769184647*^9, 3.55180277484099*^9}, {3.551803979374268*^9, 
+   3.551804199122548*^9}, {3.5518061871415663`*^9, 3.551806192684285*^9}, {
+   3.551808302160614*^9, 3.5518083341688843`*^9}, {3.551808563337997*^9, 
+   3.5518085651292048`*^9}, {3.551808785424624*^9, 3.551808800166079*^9}, {
+   3.551808931952298*^9, 3.551808935372838*^9}, {3.551809035109725*^9, 
+   3.5518090376041393`*^9}, {3.5518091419963503`*^9, 3.551809145988325*^9}, {
+   3.551809466586111*^9, 3.551809487529725*^9}, {3.5518095291180763`*^9, 
+   3.551809597209792*^9}, {3.551809736635268*^9, 3.551809747887093*^9}, {
+   3.5518099452110357`*^9, 3.551809948320592*^9}, {3.551810084474131*^9, 
+   3.5518100934157457`*^9}, {3.5518102853518*^9, 3.551810290248575*^9}, {
+   3.5518104231262197`*^9, 3.5518104238148527`*^9}, {3.551810679228332*^9, 
+   3.551810721068624*^9}, 3.551810865351212*^9, {3.551810938795537*^9, 
+   3.55181094128218*^9}, {3.5518109902100782`*^9, 3.5518109984330053`*^9}, {
+   3.551813197905615*^9, 3.551813201993884*^9}, {3.551813328404201*^9, 
+   3.551813330664228*^9}, {3.551813692839121*^9, 3.55181369394902*^9}, {
+   3.551815104516448*^9, 3.551815137379202*^9}, {3.551815442122006*^9, 
+   3.55181544452992*^9}, {3.551815477756013*^9, 3.551815482187702*^9}, {
+   3.551815552554717*^9, 3.551815553888208*^9}, {3.552310250790263*^9, 
+   3.5523102514144382`*^9}, {3.55232351987978*^9, 3.552323577823214*^9}, {
+   3.5523248048416977`*^9, 3.552324812382326*^9}, {3.552324943916555*^9, 
+   3.5523249512744427`*^9}, {3.552326805015789*^9, 3.5523269458702497`*^9}, {
+   3.5523277989890757`*^9, 3.5523277996328983`*^9}, 3.552481123551387*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{
+  3.552323523316691*^9, {3.5523235573558617`*^9, 3.552323578955104*^9}, 
+   3.552324855664826*^9, 3.552324955925665*^9, 3.552325176513788*^9, 
+   3.55232683818992*^9, {3.5523268788818607`*^9, 3.552326946762533*^9}, {
+   3.552327209818282*^9, 3.5523272194549522`*^9}, 3.5524812470221157`*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Explicit tuple declaration; then Prove", "Section",
+ CellChangeTimes->{{3.552481001422949*^9, 3.55248102493899*^9}}],
+
+Cell["\<\
+Now what if we explicitly say that this is a tuple of n components?\
+\>", "Text",
+ CellChangeTimes->{{3.5523276717328043`*^9, 3.552327681395075*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Axiom", "[", 
+  RowBox[{"\"\<sample vector/n-tuple\>\"", ",", 
+   RowBox[{"v", "=", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"a", ",", "b", ",", "c"}], "}"}], "\[And]", 
+     RowBox[{"is\[Dash]tuple", "[", "v", "]"}], "\[And]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"\[LeftBracketingBar]", "x", "\[RightBracketingBar]"}], "=", 
+       "3"}], ")"}]}]}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.552327668243711*^9, 3.552327749047595*^9}},
+ CellTags->"Axiom (sample vector/n-tuple)"],
+
+Cell[CellGroupData[{
+
+Cell["Subscript", "Subsection",
+ CellChangeTimes->{{3.5524810285400248`*^9, 3.552481029951975*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<component of a vector/n-tuple (subscript)\>\"", ",", 
+   RowBox[{
+    SubscriptBox["v", "2"], "=", "b"}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.552327734182616*^9, 3.552327767134901*^9}, {
+  3.552481129606991*^9, 3.5524811320875998`*^9}},
+ CellTags->"Lemma (component of a vector/n-tuple (subscript))"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{
+   "Lemma", "[", "\"\<component of a vector/n-tuple (subscript)\>\"", "]"}], 
+   ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Axiom", "[", "\"\<sample vector/n-tuple\>\"", "]"}], "}"}]}], 
+   ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5523277810760517`*^9, 3.552327795738038*^9}, 
+   3.552481137631504*^9}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.5523278325234213`*^9, 3.5524812550578012`*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Argument", "Subsection",
+ CellChangeTimes->{{3.55248104791572*^9, 3.552481048928396*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Lemma", "[", 
+  RowBox[{"\"\<component of a vector/n-tuple (argument)\>\"", ",", 
+   RowBox[{
+    RowBox[{"v", "[", "2", "]"}], "=", "b"}]}], "]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.552327734182616*^9, 3.552327767134901*^9}, {
+  3.55248114276473*^9, 3.552481156386819*^9}},
+ CellTags->"Lemma (component of a vector/n-tuple (argument))"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Prove", "[", 
+  RowBox[{
+   RowBox[{
+   "Lemma", "[", "\"\<component of a vector/n-tuple (argument)\>\"", "]"}], 
+   ",", 
+   RowBox[{"using", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"Axiom", "[", "\"\<sample vector/n-tuple\>\"", "]"}], "}"}]}], 
+   ",", 
+   RowBox[{"by", "\[Rule]", "SetTheoryPCSProver"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5523277810760517`*^9, 3.552327795738038*^9}, {
+  3.552481148373214*^9, 3.552481149931384*^9}}],
+
+Cell[BoxData[
+ RowBox[{"\[SkeletonIndicator]", " ", "ProofObject", " ", 
+  "\[SkeletonIndicator]"}]], "Output",
+ CellChangeTimes->{3.5523278325234213`*^9, 3.552481261208625*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+AutoGeneratedPackage->None,
+WindowSize->{1362, 741},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+ShowSelection->True,
+Magnification:>FEPrivate`If[
+  FEPrivate`Equal[FEPrivate`$VersionNumber, 6.], 1.5, 1.5 Inherited],
+FrontEndVersion->"7.0 for Linux x86 (64-bit) (February 25, 2009)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "Definition (agents)"->{
+  Cell[968, 29, 398, 7, 46, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (agents)"]},
+ "Definition (sample vector)"->{
+  Cell[1369, 38, 375, 9, 46, "Input",
+   InitializationCell->True,
+   CellTags->"Definition (sample vector)"]},
+ "Lemma (component of a vector (subscript))"->{
+  Cell[3167, 98, 943, 16, 46, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10003.},
+   InitializationCell->True,
+   CellTags->"Lemma (component of a vector (subscript))"]},
+ "Lemma (component of a vector (argument))"->{
+  Cell[9741, 235, 991, 17, 46, "Input",
+   CellGroupingRules->{GroupTogetherGrouping, 10003.},
+   InitializationCell->True,
+   CellTags->"Lemma (component of a vector (argument))"]},
+ "Axiom (sample vector/n-tuple)"->{
+  Cell[15285, 334, 550, 14, 46, "Input",
+   InitializationCell->True,
+   CellTags->"Axiom (sample vector/n-tuple)"]},
+ "Lemma (component of a vector/n-tuple (subscript))"->{
+  Cell[15962, 355, 385, 8, 46, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (component of a vector/n-tuple (subscript))"]},
+ "Lemma (component of a vector/n-tuple (argument))"->{
+  Cell[17149, 393, 386, 8, 97, "Input",
+   InitializationCell->True,
+   CellTags->"Lemma (component of a vector/n-tuple (argument))"]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"Definition (agents)", 18707, 442},
+ {"Definition (sample vector)", 18844, 446},
+ {"Lemma (component of a vector (subscript))", 19004, 450},
+ {"Lemma (component of a vector (argument))", 19234, 455},
+ {"Axiom (sample vector/n-tuple)", 19453, 460},
+ {"Lemma (component of a vector/n-tuple (subscript))", 19627, 464},
+ {"Lemma (component of a vector/n-tuple (argument))", 19819, 468}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[567, 22, 398, 5, 125, "Title"],
+Cell[968, 29, 398, 7, 46, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (agents)"],
+Cell[1369, 38, 375, 9, 46, "Input",
+ InitializationCell->True,
+ CellTags->"Definition (sample vector)"],
+Cell[CellGroupData[{
+Cell[1769, 51, 95, 1, 107, "Section"],
+Cell[1867, 54, 389, 7, 44, "Text"],
+Cell[CellGroupData[{
+Cell[2281, 65, 95, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[2401, 70, 395, 10, 46, "Input"],
+Cell[2799, 82, 201, 5, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3049, 93, 93, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[3167, 98, 943, 16, 46, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ InitializationCell->True,
+ CellTags->"Lemma (component of a vector (subscript))"],
+Cell[4113, 116, 3779, 56, 77, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.}]
+}, Open  ]],
+Cell[7907, 175, 421, 7, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8377, 188, 114, 1, 107, "Section"],
+Cell[8494, 191, 299, 6, 44, "Text"],
+Cell[CellGroupData[{
+Cell[8818, 201, 95, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[8938, 206, 401, 10, 46, "Input"],
+Cell[9342, 218, 233, 6, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9624, 230, 92, 1, 56, "Subsection"],
+Cell[CellGroupData[{
+Cell[9741, 235, 991, 17, 46, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.},
+ InitializationCell->True,
+ CellTags->"Lemma (component of a vector (argument))"],
+Cell[10735, 254, 3776, 56, 77, "Input",
+ CellGroupingRules->{GroupTogetherGrouping, 10003.}]
+}, Open  ]],
+Cell[14526, 313, 423, 7, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14998, 326, 122, 1, 107, "Section"],
+Cell[15123, 329, 159, 3, 44, "Text"],
+Cell[15285, 334, 550, 14, 46, "Input",
+ InitializationCell->True,
+ CellTags->"Axiom (sample vector/n-tuple)"],
+Cell[CellGroupData[{
+Cell[15860, 352, 99, 1, 56, "Subsection"],
+Cell[15962, 355, 385, 8, 46, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (component of a vector/n-tuple (subscript))"],
+Cell[CellGroupData[{
+Cell[16372, 367, 448, 12, 77, "Input"],
+Cell[16823, 381, 179, 3, 45, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17051, 390, 95, 1, 84, "Subsection"],
+Cell[17149, 393, 386, 8, 97, "Input",
+ InitializationCell->True,
+ CellTags->"Lemma (component of a vector/n-tuple (argument))"],
+Cell[CellGroupData[{
+Cell[17560, 405, 470, 12, 144, "Input"],
+Cell[18033, 419, 177, 3, 96, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
