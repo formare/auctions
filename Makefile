@@ -1,8 +1,6 @@
 PREFIX = .
 include Makefile.vars
 
-SYNC_FILES = \
-	$(LICENSE_FILES)
 SUBDIRS = \
 	casl \
 	isabelle \

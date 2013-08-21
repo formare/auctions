@@ -1,0 +1,186 @@
+% to compile, PDFTeXify
+\documentclass[12pt,a4paper]{scrartcl}
+\usepackage{algorithm} % float package, ideally used to wrap algorithmic
+\usepackage{algorithmic} % describes algorithms; ideally wrapped by algorithm
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{bm}
+\usepackage{comment}
+\usepackage{currfile} % fink obsolete since 2011; use currfile instead
+\usepackage{hyperref}
+\usepackage{paralist} % must precede enumitem to not interfere
+\usepackage{enumitem} % allows complicated labelling in enumerate
+\usepackage{txfonts}
+\usepackage{tikz} % for TikZ and PGF, graphics packages compatible with beamer
+% \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black]{hyperref} % even when last in list of packages to prevent conflicts somehow problems with using both tabular, algorithmic
+\usepackage[style=authoryear,backend=bibtex]{biblatex} % can't use natbib in beamer mode, but can in article
+%% TODO add this to Github
+\addbibresource{colin}
+\usepackage{verbatim}
+
+% sTeX
+\usepackage{modules}
+\usepackage{stex-logo}
+
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\theoremstyle{remark} % uses amsthm package - see http://www.math.ucsd.edu/~jeggers/latex/amsthdoc.pdf
+\newtheorem{remark}{Remark}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}} % avoids hyperref conflict - see http://en.wikibooks.org/wiki/LaTeX/Algorithms_and_Pseudocode
+
+\makeatletter % code block to allow custom labels to be cross-ref'ed; see comp.text.tex "customized display labels cross-ref'd"
+\newcommand{\displabel}[1]{(#1)\hfill}
+\newenvironment{disp}
+  {\begin{list}{}%
+    {\renewcommand{\makelabel}{\displabel}%
+     \let\olditem=\item%
+     \renewcommand*{\item}[1][]{%<<add test for empty arg (ifmtarg.sty)
+        \protected@edef\@currentlabel{##1}%
+        \olditem[##1]}
+     \setlength{\leftmargin}{.5in}
+     \setlength{\rightmargin}{.5in}}}%
+  {\end{list}}
+  \makeatother
+
+\begin{document}
+
+\title{Vickrey auctions}
+
+\author{
+  Colin Rowat\footnote{Department of Economics, University of Birmingham; c.rowat@bham.ac.uk}
+  \and Manfred Kerber\footnote{School of Computer Science, University of Birmingham; m.kerber@cs.bham.ac.uk}
+  \and Christoph Lange\footnote{School of Computer Science, University of Birmingham; c.lange@cs.bham.ac.uk}
+}
+
+\maketitle
+
+We tend to follow \cite[\S3]{mas-04}, defining restricted versions of the more general objects in \cite{mil-04}.  In particular, we consider sealed-bid auctions with independently and identically distributed private values -- according to a commonly known distribution -- for a single indivisible good.\footnote{Definition~\ref{def:strategy} may be more general than is needed here but helps to understand the term ``\emph{strategy} profile''.}
+
+\begin{module}[id=vectors]
+  % This module introduces some general notions of vectors, without creating visible output.
+  \symdef{component}[2]{{#1}_{#2}}
+  \symdef{devVec}[3]{{#1}^{{#2}{\leftarrow}{#3}}}
+\end{module}
+
+\begin{module}[id=single-good-auction]
+  \importmodule{vectors}
+  % Defining the following as formal terms (which scope like mathematical symbols) is rather an experiment, to see whether we are using them consistently below, and whether our module structure is right.
+  \termdef{participant}{participant}
+  \termdef{seller}{seller}
+  \termdef{bidder}{bidder}
+  \begin{definition}
+    $N = \left\{ 1, \ldots, n \right\}$ is a set of \emph{{\participant}s} (also referred to as \emph{bidders}), often indexed by $i$.\footnote{We start indexing at $1$, as the seller may be added as $i=0$ when it is useful to do so.  For Vickrey's theorem it is not.}
+  \end{definition}
+
+  \symdef{alloc}[1]{\component{x}{#1}} % TODO CL: Is it reasonable to unconditionally name the allocation x?
+  \termdef{allocation}{allocation}
+  \begin{definition}
+    An \emph{\allocation} is a vector $\bm{x} \in \left\{ 0, 1 \right\}^n$ such that $\alloc{i} = 1$ denotes \participant $i$'s award of the indivisible good to be auctioned, and $\alloc{j} = 0$ otherwise.
+  \end{definition}
+
+  \symdef{pay}[1]{\component{p}{#1}} % TODO CL: Is it reasonable to unconditionally call the payments p?
+  \termdef{payment}{payment}
+  \begin{definition}
+    An \emph{outcome}, $\left( \bm{x}, \bm{p} \right)$, specifies both an \allocation and a vector of {\payment}s, $\bm{p} \in \mathbb{R}^n$, made by each \participant $i$.
+  \end{definition}
+
+  \symdef{val}[1]{\component{v}{#1}} % TODO CL: Is it reasonable to unconditionally call the valuation v?
+  \begin{definition}
+    \capitalize\participant $i$'s \emph{payoff} is $u_i \equiv \val{i} \cdot \alloc{i} - \pay{i}$, where $\val{i} \in \mathbb{R}_+$ is \participant $i$'s valuation of the good.
+  \end{definition}
+
+  \begin{definition}\label{def:strategy}
+    Let it be common knowledge that each $\val{i}$ is an independent realization of a random variable, $\tilde{v}$, whose distribution is described by density function $f$.  Then a \emph{strategy} for \bidder $i$ is a mapping $g_i$ such that $\component{b}{i} = g_i \left( \val{i}, f \right) \ge 0$, where $\component{b}{i}$ is called $i$'s \emph{bid}.  A \emph{strategy profile} is the full vector of bids, $\bm{b} \in \mathbb{R}^n$
+  \end{definition}
+\end{module}
+
+\begin{module}[id=maximum]
+  \importmodule{vectors}
+  \symdef{maximum}[1]{\overline{#1}}
+  \symdef{maximumExcept}[2]{\overline{#1}_{-#2}}
+  \begin{definition}
+    Given some $n$-vector $\bm{y} = \left( \component{y}{1}, \ldots, \component{y}{n} \right) \in \mathbb{R}^n$, let
+    \begin{align*}
+      \maximum{y} & \equiv \max_{j \in N} \component{y}{j}; \\
+      \maximumExcept{y}{i} & \equiv \max_{j \in N \backslash \left\{ i \right\}} \component{y}{j}.
+    \end{align*}
+  \end{definition}
+\end{module}
+
+\begin{module}[id=second-price-auction]
+  \importmodule{single-good-auction}
+  \importmodule{maximum}
+  \begin{definition}
+    Let $M \equiv \left\{ i \in N : \component{b}{i} = \maximum{b} \right\}$. Then a \emph{second-price auction} (or \emph{Vickrey auction}) is an outcome, $\left( \bm{x}, \bm{p} \right)$ satisfying:
+    \begin{enumerate}
+    \item $\forall j \in N \backslash M, \alloc{j} = \component{p}{j} = 0$; and
+    \item for one $i \in M$, selected according to any randomization device, $\alloc{i} = 1$ and $\pay{i} = \maximumExcept{b}{i}$, while, $\forall j \in M \backslash \left\{ i \right\}, \alloc{j} = \component{p}{j} = 0$.
+    \end{enumerate}
+  \end{definition}
+\end{module}
+
+\begin{module}[id=auction-properties]
+  \importmodule{single-good-auction}
+  \importmodule{maximum}
+  \begin{definition} \label{def:eff}
+    In the single good case, an auction is \emph{efficient} if $\alloc{1} = 1 \Rightarrow \val{i} = \maximum{v}$.
+  \end{definition}
+
+  \begin{definition} \label{def:WDS}
+    Given some auction, a strategy profile $\bm{b}$ supports an \emph{equilibrium in weakly dominant strategies} if, for each $i \in N$ and any $\hat{\bm{b}} \in \mathbb{R}^n$ such that $\component{\hat{b}}{i} \ne \component{b}{i}$,
+    \begin{equation} \label{in:WDS}
+      u_i \left( \component{\hat{b}}{1}, \ldots, \component{\hat{b}}{{i-1}}, \component{b}{i}, \component{\hat{b}}{i+1}, \ldots, \component{\hat{b}}{n} \right) \ge u_i \left( \hat{\bm{b}} \right).
+    \end{equation}
+    That is, whatever others do, $i$ will not be better off by deviating from the original bid $\component{b}{i}$.
+
+  \end{definition}
+
+  \begin{remark}
+    The notation $u_i \left( \bm{b} \right)$ is standard within economics, but misleading for formal systems.  A more careful notation is $u_i \left( \alloc{i}, \val{i}, \pay{i} \right)$, where $\alloc{i}$ and $\pay{i}$ depend on $\bm{b}$ and the auction type.
+  \end{remark}
+\end{module}
+
+\begin{module}[id=vickrey]
+  \importmodule{second-price-auction}
+  \importmodule{auction-properties}
+  \begin{theorem}[Vickrey 1961; Milgrom 2.1]
+    In a second-price auction, the strategy profile $\bm{b} = \bm{v}$ supports an equilibrium in weakly dominant strategies.  Furthermore, the auction is efficient.
+  \end{theorem}
+
+
+  \begin{proof}
+    Suppose that \participant $i$ bids $\component{b}{i} = \val{i}$, whatever bids $\hat{b}_j$ the others may submit.  We abbreviate the overall bid vector $\left( \hat{b}_1, \ldots, \hat{b}_{i-1}, \component{v}{i}, \hat{b}_{i+1}, \ldots, \hat{b}_n \right)$ as $\devVec{\hat{\bm{b}}}{i}{v}$.  There are two cases:
+    \begin{enumerate}
+    \item {\capitalize\participant} $i$ wins. From this follows  $\component{b}{i}  = \val{i} = \maximum{\devVec{\hat{\bm{b}}}{i}{v}}$, $\pay{i} = \maximumExcept{\devVec{\hat{\bm{b}}}{i}{v}}{i}$,
+      and $u_i(\devVec{\hat{\bm{b}}}{i}{v}) = \val{i} - \pay{i} = \component{\devVec{\hat{\bm{b}}}{i}{v}}{i} - \maximumExcept{\devVec{\hat{\bm{b}}}{i}{v}}{i} \ge 0$.  Now consider $i$ submitting an arbitrary bid $\component{\hat{b}}{i} \ne \component{b}{i}$, i.e.\ assume an overall bid vector $\hat{\bm{b}}$.  This has two sub-cases:
+      \begin{enumerate}
+      \item $i$ wins with the new bid, that is, $u_i(\hat{\bm{b}}) = u_i(\devVec{\hat{\bm{b}}}{i}{v})$,
+        since the second highest bid has not changed.
+      \item $i$ loses with the new bid, that is, $u_i(\hat{\bm{b}}) = 0 \le u_i(\devVec{\hat{\bm{b}}}{i}{v})$.
+      \end{enumerate}
+
+    \item {\capitalize\participant} $i$ loses. From this follows  $\pay{i} = 0$, $u_i(\devVec{\hat{\bm{b}}}{i}{v}) = 0$, and
+      $\component{b}{i} \le \maximumExcept{\devVec{\hat{\bm{b}}}{i}{v}}{i}$; otherwise $i$ would have won. This yields
+      again two cases:
+      \begin{enumerate}
+      \item $i$ wins with the new bid, that is,
+        $u_i(\hat{\bm{b}}) = \val{i} - \maximumExcept{\hat{\bm{b}}}{i} = \component{b}{i} - \maximumExcept{\devVec{\hat{\bm{b}}}{i}{v}}{i}  \le 0 = u_i(\devVec{\hat{\bm{b}}}{i}{v})$
+      \item $i$ loses with the new bid, that is, $u_i(\hat{\bm{b}}) = 0 = u_i(\devVec{\hat{\bm{b}}}{i}{v})$.
+      \end{enumerate}
+   \end{enumerate}
+
+    Applying this reasoning to all {\bidder}s establishes that $\bm{b} = \bm{v}$ supports an equilibrium in weakly dominant strategies.
+
+    Efficiency is immediate: when $\bm{b} = \bm{v}$, the highest bid belongs to the \bidder with the highest valuation.
+  \end{proof}
+
+\end{module}
+
+\printbibliography
+
+\end{document}

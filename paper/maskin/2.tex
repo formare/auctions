@@ -1,0 +1,442 @@
+
+\newcommand{\emp}{\emptyset}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\U}{\bigcup}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\subseteq}
+\newcommand{\pair}[2]{\left( {#1}, {#2} \right) }
+\newcommand{\powset}[1]{2^{#1}}
+\newcommand{\strip}[1]{e_{#1}}
+\newcommand{\relcomp}{\bullet}
+\newcommand{\funccomp}{\circ}
+\newcommand{\Classes}[2]{{#1}/{#2}}
+\newcommand{\peel}[1]{\}\{_{#1}}
+\newcommand{\toClass}[1]{\pi_{#1}}
+\newcommand{\comp}[2]{$\left( #1, #2 \right)$-compatible}
+\newcommand{\new}[2]{\mathcal{P}_{#1,#2}}
+\newcommand{\id}[1]{\mathcal{I}_{#1}}
+\newcommand{\restrict}[2]{{\left. #1 \right|}_{#2}}
+\newcommand{\quotient}[3]{\frac{\hphantom{#2}#1\hphantom{#3}}{#2\hphantom{#1}#3}}
+\newcommand{\cartprod}{\times}
+\newcommand{\sdiff}{\backslash}
+\newcommand{\im}[2]{#1 \left[ #2 \right]}
+\newcommand{\iter}[2]{{#1}^{\left({#2} \right)}}
+\newcommand{\inv}[1]{\iter{#1}{-1}}
+\newcommand{\query}[1]{\marginnote{\raggedright\footnotesize\itshape\hrule\smallskip{#1}\smallskip\hrule}}
+%to print a margin note on a side: \query{...} 
+%to print it on the other side of page: \reversemarginpar\query{ ... }\normalmarginpar
+% \renewcommand{\query}[1]{} % Uncomment to turn off marginnotes
+\newcommand{\rnote}[1]{\query{#1}}
+\newcommand{\lnote}[1]{\reversemarginpar\query{#1}\normalmarginpar}
+\newcommand{\alter}[3]{{#1}_{#2}^{#3}}
+\newcommand{\me}{\Name{}~\Surname{}}
+\newcommand{\I}{Isabelle}
+\newcommand{\M}{Mizar}
+\newcommand{\Phdtitle}{A simplified framework for first-order languages and its formalization in \M{}}
+\newcommand{\Name}{Marco~B.}
+\newcommand{\Surname}{Caminati}
+\newcommand{\wwwMbc}{http://caminati.net.tf/}
+\newcommand{\paste}{\lhd}
+\newcommand{\mapsFromTo}[2]{{#2}^{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\per}{}
+
+%LaTeX starts here%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[oneside
+% twoside
+% ,binding=0.6cm
+% ,draft
+]
+{article}
+
+\usepackage{amsmath}
+% \usepackage{amsmidx}
+\usepackage{amsthm}
+\usepackage{amssymb} %loads amsfonts
+% \usepackage{hyperref} % Note that hyperref is much slower than the url package.
+\usepackage[bibstyle=alphabetic,citestyle=alphabetic,firstinits=true]{biblatex}
+\usepackage[]{marginnote} %mbc
+\usepackage[]{url}
+
+\theoremstyle{plain}
+\newtheorem{Cor}{Corollary}[subsection]
+\newtheorem{Lm}[Cor]{Lemma}
+\newtheorem{Prop}[Cor]{Proposition}
+\newtheorem{Thm}[Cor]{Theorem}
+\theoremstyle{definition}
+\newtheorem{Def}[Cor]{Definition}
+\newtheorem{Rem}[Cor]{Remark}
+\newtheorem{Not}[Cor]{Notation}
+\newtheorem{Ex}[Cor]{Example}
+\DeclareMathOperator{\rng}{rng}
+\DeclareMathOperator{\dom}{dom}
+\urldef{\WwwKernel}\url{http://en.wikipedia.org/wiki/Equivalence_class#Invariants}
+\bibliography{colin}
+\bibliography{mbc}
+
+
+
+
+
+%Document starts here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+\section{Introduction}
+
+Our purpose is the formalization of \cite[Proposition~2]{mas-04}, whose proof's wordiness hide some substantial difficulties when pouring it into formal symbols.
+A major one is that, after showing the independence of a function $t_i^L$ on the $i$-th component of a vector $b$, it is inferred that a function $ t_i $ depending only on the remaining components can be introduced and used instead.
+Besides the minor problem of defining how the remaining components can be extracted, the formal way to do so is quotientation by a suitable equivalence relation.%
+\footnote{In \M{}, the corresponding gear is already available. 
+With respect to \I{}, maybe \cite{slotosch1997higher} will give hints.
+}%
+A related problem is how the thesis is spelled out: $p_i$ is equated to a branched function whose side conditions read `if buyer $i$ wins' and `if buyer $i$ loses'.
+How to render that? Luckily, thanks to the quotientation approach, a natural way will show up. 
+
+Secondarily, the mathematical definition of payoff is never spelled out.
+\section{General results}
+
+This section recalls the abstract notions of compatibility (a generalization of morphism, or class invariance, see \WwwKernel{}) and of quotient. 
+These, although in varying forms and generality, are standard/mainstream mathematical matters, and are expected to be present in any decent library; any not including those should.
+The treatment here is somehow low-level and is leaning towards set theoretical foundations, but I hope that anyhow it will give the reader, besides the writer, a guide towards real formalization.
+It is an excerpt of my Ph.D. thesis, which indeed described a \M{} formalization.
+
+\subsection{Notations}
+
+\label{RefNotationZero}
+\hfill
+\begin{enumerate}
+% \item
+% $\card{X}$ is the cardinality of the set $X$.
+\item
+$X \cartprod Y$ is the cartesian product of the sets $X$ and $Y$:
+\begin{align*}
+X \cartprod Y = & \left\{ \pair{x}{y}: x \in X, y \in Y \right\}.
+\end{align*}
+\item
+$\N$, $\Z$ are the sets of natural numbers (including $0 = \emptyset$) and of the integers, respectively. We also write $\Z^+$ for $\N \sdiff \left\{ 0 \right\}$.
+% \rnote{0914: Aggiunto $Z^+$.}
+\item
+% \lnote{Aggiunta precisazione su $\projL$ versus $\dom$.}
+$\dom P$ and $\rng P$ denote the domain and range of a given relation $P$.
+% They are synonyms, adopted only when applied to relations, for $\projL \left( P \right)$ and $\projR \left( P \right)$ respectively.
+\item
+We will use the terms function, map and mapping interchangeably.
+\item
+\label{RefEq31}
+$\mapsFromTo{X}{Y}$ is the set of the maps from $X$ into $Y$.
+\item
+$\powset{X}$ is the power set of $X$.
+\item
+$\peel{X}$ is the map: 
+\begin{align*}
+\left\{ x \right\} \mapsto x \in X.
+\end{align*}
+\item
+$\id{X}$ is the identity map on the set $X$: $\id{X} := \U_{x \in X} \left\{ x \right\} \cartprod \left\{ x \right\}$.
+\end{enumerate}
+
+\begin{Not}
+Consider a relation $P$ and a set $X$. 
+We write
+$ \restrict{P}{X}$ for the restriction of $P$ to $X$:
+\begin{align*}
+\restrict{P}{X} := \left( X \cartprod \rng P \right) \cap P,
+\end{align*}
+and 
+$\im{P}{X}$ for the set of those  elements of $\rng{P}$ corresponding through $P$ to some element of $X$:
+\begin{align*}
+\im{P}{X} := \rng \left( \restrict{P}{X} \right).
+\end{align*}
+\end{Not}
+
+\begin{Not}
+\label{RefNotationCompositions}
+$\relcomp$ is the infix symbol for the composition of relations:
+$ \im{\left( Q \relcomp P \right)}{X} = \im{P}{\im{Q}{X}} $.
+\\
+$\funccomp$ is the infix symbol for the composition of functions:
+$ g \funccomp f: x \mapsto g \left( f \left( x \right) \right).$
+\end{Not}
+
+\begin{Rem}
+Note that $\relcomp$ and $\funccomp$ operate in reverse order: $ f \relcomp g = g \funccomp f$. 
+\end{Rem}
+
+\begin{Not}
+% \label{RefNotationIter}
+If $P$ is a relation such that $\rng P \C \dom P $, we can refer to the $n$-th iteration of $P$ for any given $n \in \N$.
+We write it as
+\begin{align*}
+\iter{P}{n}.
+\end{align*}
+\end{Not}
+\begin{Not}
+Given any relation $P$, it is natural to denote with $\inv{P}$ its inverse relation, and with $\iter{P}{-n}$ the relation $ \iter{\inv{P}}{n}$.
+\end{Not}
+
+\begin{Not}[`Functional pasting with right-hand precedence{}']
+\label{RefDefPaste}
+Given relations $Q$, $P$, set
+\begin{align*}
+Q \paste P := Q \sdiff \left( \dom P \cartprod \left( \rng Q \right) \right) \cup P.
+\end{align*}
+\end{Not}
+
+\begin{Rem}
+Given two functions $f$, $g$: 
+\begin{itemize}
+\item
+$f \paste g$ is a function;
+\item
+if $f$ and $g$ agree on $\dom f \cap \left( \dom g \right)$, then $ f \paste g$ $= f \cup g $.
+\end{itemize}
+\end{Rem}
+
+\begin{Not}[Pointwise function alteration]
+Given $x,y$ and a relation $P$, denote:
+$\alter{P}{x}{y} := P \paste \left( \left\{ x \right\}\cartprod \left\{ y \right\} \right)$. 
+\end{Not}
+
+\subsection{Quotients}
+\label{RefSectQuotients}
+\begin{Def}
+\label{RefDefCompatible}
+Let $P, Q$ be relations, $f$ be a function. We say that $f$ is \comp{P}{Q} if, given  
+$\pair{x}{y} \in \dom f \cartprod \left( \dom f \right) \cap P$, it is  
+$\pair{f\left( x \right)}{f \left( y \right)} \in Q$.
+\end{Def}
+
+\begin{Def}
+% \lnote{20110930: In \M ho limitato questa definizione alle sole relazioni di equivalenza \ldots}
+% \rnote{ \ldots probabilmente per lavorare meno, ora non ricordo.}
+Given a non empty relation $P$, we consider the map
+\begin{align*}
+\toClass{P} : \dom P \ni x \mapsto \im{P}{\left\{ x \right\}} \in \powset{\rng P}.
+\end{align*}
+Given a set $X$ and a relation $P$ such that $X = \dom P$, we set
+\begin{align*}
+\Classes{X}{P} := \rng \left( \toClass {P} \right).
+\end{align*}
+\end{Def}
+
+\begin{Rem}
+If $P$ is an equivalence relation over $X$, $\Classes{X}{P}$ is the set of the equivalence classes of $P$ (hence a partition of $X$), and $\toClass{P}$ maps each element of the domain of $P$ to the unique equivalence class including it.
+\end{Rem}
+
+\begin{Def}[Quotient of a relation]
+\label{RefDefQuotient}
+% \lnote{Anche qui: in \M $P$ e $Q$ erano relazioni di equivalenza non vuote}
+% \rnote{Mi sono limitato a conservare la richiesta di non vuotezza}
+Let $O, P, Q$ be relations, with $P$ and $Q$ non empty. 
+The quotient of $O$ by $\pair{P}{Q}$ is defined as:
+\begin{align*}
+\quotient{O}{P}{Q} := \left\{
+\pair{p}{q} \in \rng \left( \toClass{P} \right) \cartprod \left( \rng \left( \toClass{Q} \right) \right) : 
+% \exists x, y \st \quad \pair{x}{y} \in 
+p \cartprod q \cap O \neq \emp 
+\right\}.
+\end{align*}
+\end{Def}
+
+\begin{Prop}
+\label{RefThmCompatibleFunction}
+% \lnote{Probabilmente si potrebbero indebolire le richieste su $E$, $F$, $f$.}
+Let  $E, F$ be non empty equivalence relations.
+\\
+If $f \in$ 
+$\mapsFromTo{\dom E}{\left( \dom F \right)}$ 
+is \comp{E}{F}, then
+\begin{align*}
+\quotient{f}{E}{F} \in \mapsFromTo{\rng  \toClass{E} }{ \left( \rng  \toClass{F} \right)}.
+\end{align*}
+\end{Prop}
+
+\begin{proof}
+Set 
+$
+g := \quotient{f}{E}{F}
+$.
+Since $g \C \rng \toClass{E} \cartprod \rng \toClass{F}$ by \ref{RefDefQuotient}, it is $\rng g \C \rng \toClass{F}$, hence we are left with two points to prove:
+\begin{enumerate}
+\item
+$ g $ is a function.
+\item
+$ \rng \toClass{E} \C \dom g $.
+\end{enumerate}
+The two corresponding proofs are given.
+\begin{enumerate}
+\item
+Consider sets $X$, $Y_1$, $Y_2$ such that 
+$ \left\{ \pair {X} {Y_1}, \pair{X} {Y_2} \right\} \C g$. 
+The goal is to show $Y_1 = Y_2$.
+By \ref{RefDefQuotient}, consider $x_1, x_2, y_1, y_2$ such that 
+$\pair{x_1}{y_1} \in X \cartprod Y_1 \cap f$ and
+$\pair{x_2}{y_2} \in X \cartprod Y_2 \cap f$.
+Since $X$ is an equivalence class of $E$, this implies $\pair{x_1}{x_2} \in E$ which in turn, by \ref{RefDefCompatible}, gives $ \pair{y_1}{y_2} \in F$.
+Hence $y_1$ and $y_2$ must belong to the same equivalence class of $F$, which gives $Y_1 = Y_2$.
+\item
+Let $X \in \rng \toClass{E}$. 
+$X$ being an equivalence class of the non empty equivalence relation $E$, there is $x \in X \C \dom E$.
+Set
+\begin{align}
+\label{RefEq32}
+y := & f \left( x \right) \in \dom F
+\\
+\notag
+Y := & \toClass{F} \left( y \right) \in \rng F.
+\end{align}
+Since $\pair {x} {y} \in f$ by \eqref{RefEq32}, and $y \in Y$, we draw $\pair {X}{Y} \in g$ by \ref{RefDefQuotient}.
+\end{enumerate}
+\end{proof}
+
+
+
+% \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Application to auctions}
+
+Let $I$ be a set (of indices), $R$ be an ordered ring (e.g., $\R{}$), and $x, p \in \mapsFromTo{
+\left( 
+\mapsFromTo{I}{R}
+\right)
+}{R}
+$ satisfying 
+\begin{align}
+\label{RefWeakDom}
+r \per x \left( b \right) - p \left( b \right) \leq r \per x \left( \alter{b}{i}{r} \right) - 
+p \left( \alter {b}{i}{r} \right)
+\end{align}
+for any $b \in \mapsFromTo{I}{R}, r \in R$.
+
+\begin{Def}
+Consider the map 
+$ \strip{i} := \mapsFromTo{I}{R} \ni b \mapsto 
+\pair{b \sdiff \left( \left\{ i \right\} \cartprod \rng b \right)}{ x \left( b \right)} 
+\in \mapsFromTo{I \sdiff {i}}{R} \cartprod \rng {x}, 
+$
+and denote with $E_i$ its kernel%
+\footnote{See \WwwKernel{}.}%
+% Consider the kernel of $\strip{i}$, 
+, i.e., the equivalence relation given by $ b \sim b'$ iff 
+$
+b \sdiff \left( \left\{ i \right\} \cartprod \rng b \right)
+=
+b' \sdiff \left( \left\{ i \right\} \cartprod \rng b' \right)
+$
+and 
+$ x \left( b \right) = x \left( b' \right)$.
+% call $E_i$ its restriction to $D:=\im{\inv{x}}{\left\{ 0_R \right\}}$. 
+\end{Def}
+
+\begin{Lm}
+\label{RefLmComp}
+\eqref{RefWeakDom} implies that $p$ is \comp{E_i}{\id{R}}{}.
+\end{Lm}
+
+\begin{proof}
+It is to be shown that, given $b$, $b'$ satisfying $ x \left( b \right) = x \left( b' \right)$ and  
+$ b \sdiff \left(\left\{ i \right\} \cartprod \rng b \right) = b' \sdiff \left( \left\{ i \right\} \cartprod \rng b' \right) , $ 
+we have 
+$ p \left( b \right) = p \left( b' \right)$. 
+This is easily done by applying \eqref{RefWeakDom} twice to get 
+\begin{align*}
+b'\left( i \right) \per x \left( b \right) - p \left( b \right) 
+& \leq 
+b'\left( i \right) \per x \left( b' \right) - p \left( b' \right)
+\\ 
+b\left( i \right) \per x \left( b' \right) - p \left( b' \right) 
+& \leq 
+b\left( i \right) \per x \left( b \right) - p \left( b \right)
+\end{align*}
+which, thanks to $x \left( b \right) = x \left( b' \right)$, reduce to
+$ -p \left( b \right) \leq -p \left( b' \right) \leq -p \left( b \right).$
+\end{proof}
+
+
+% \begin{Def}
+% $$
+% \end{Def}
+
+
+By \ref{RefLmComp} and \ref{RefThmCompatibleFunction}, $\quotient{p}{E_i}{\id{R}} \in
+\mapsFromTo
+ {\left(\rng{\toClass{E_i}} \right)}  
+{ \left( \rng{\toClass{\left( \id{R}  \right) }} \right) },
+$ 
+so that 
+$ 
+% \mapsFromTo{I \sdiff \left\{ i \right\}}{R} \ni b \mapsto
+\new{p}{i} := 
+\toClass{
+\left( 
+\inv{\strip{i}}
+ \right)
+} \relcomp \quotient{p}{E_i}{\id{R}} \relcomp \peel{R}
+$
+maps $ \mapsFromTo{I \sdiff \left\{ i \right\}}{R} \cartprod \rng {x} $ to $R$ and $ p \left( b \right) = \new{p}{i} \left( \strip{i} \left( b \right) \right)$.
+% We refer to this mapping as $ \mathcal{Q}_{p,i}$.
+% $ \toClass{E_i} \relcomp \new{p}{i} \relcomp \peel{R}$ maps $ \mapsFromTo{I}{R}$ to $R$.
+
+Above, we have shown that, if $i$ changes his bid, the price he pays does not change as long as the allocation of the good to $i$ does not change. 
+This is a good part of \cite[Proposition~2]{mas-04}.
+It remains to show that the winning price also has the property of being the sum of the losing price and of the second price.
+This, of course, imposes requirements on $x$. 
+A first requirement is that a bid vector whose $i$-th component is the second price is a sort of accumulation point:
+
+\begin{Lm}
+Consider $b \in \mapsFromTo{I}{R}, r \in R$, and assume that for any $\delta > 0_R$ there are $\delta > \epsilon_1, \epsilon_2 > 0_R$ such that
+\begin{enumerate}
+\item
+$ \alter{b}{i}{b \left( i \right) - \epsilon_1} \in \im{\inv x}{\left\{ 0 \right\}},$ and
+\item
+$ \alter{b}{i}{b \left( i \right) + \epsilon_2} \in \im{\inv x}{\left\{ r \right\}} .$
+\end{enumerate}
+Then \eqref{RefWeakDom} implies that
+\begin{align*}
+\new{p}{i} \left( b \sdiff \left( \left\{ i \right\} \cartprod \rng b \right), r \right) 
+=
+r \per b \left( i \right) + 
+\new{p}{i} \left( b \sdiff \left( \left\{ i \right\} \cartprod \rng b \right), 0_R \right).
+\end{align*}
+\end{Lm}
+
+\begin{proof}
+\ldots
+\end{proof}
+
+Now, the wanted completion of \cite[Proposition~2]{mas-04} is easily obtained by realizing that, upon requiring efficiency and truthfulness, the above accumulation properties are satisfied by any bid vector $b$ whose $i$-th component is the second price. 
+
+\printbibliography
+
+\end{document}
