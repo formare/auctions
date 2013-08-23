@@ -28,7 +28,7 @@ PageStart();
   <li>improvements to existing formalisations</li>
 </ul>
 <p>For any questions, please contact us via <a href="mailto:formare-discuss@cs.bham.ac.uk?subject=Auction%20Theory%20Toolbox">formare-discuss@cs.bham.ac.uk</a>.  (You need to <a href="https://mailman.cs.bham.ac.uk/mailman/listinfo/formare-discuss">subscribe</a> first.)</p>
-<p>Downloadable files are linked below.  If you would like to contribute to the latest developments, please contact us to get access to our <a href="https://codex.cs.bham.ac.uk/svn/langec/formare/code/auction">Subversion repository</a>.  You can browse the repository as user <code>guest</code> with password <code>guest</code>.</p>
+<p>Downloadable files are linked below.  If you would like to contribute to the latest developments, please have a look at our <a href="https://github.com/formare/auctions">Github repository</a>.</p>
 <p>The table below shows the following information:</p>
 <ul>
   <li><strong>Proposition</strong>: the number of the respective Proposition in Maskin's review article and the original authors of the theorem</li>
@@ -57,7 +57,7 @@ PageStart();
   <tbody>
     <tr>
       <td>1 (Vickrey)</td>
-      <td><a href="paper/maskin/1.pdf">elaboration</a><!-- this paper is not physically in this svn, but uploaded via https://codex.cs.bham.ac.uk/svn/mmk/KLR/auction-theory/Makefile -->
+      <td><a href="paper/maskin/1.pdf">elaboration</a>
         (<a href="http://www.socscistaff.bham.ac.uk/rowat/">Rowat</a>/<a href="http://www.cs.bham.ac.uk/~mmk/">Kerber</a>/<a href="http://www.cs.bham.ac.uk/~langec/">Lange</a>)</td>
       <td>Lange/<wbr/><a href="http://www.informatik.uni-bremen.de/~till/">Mossakowski</a></td>
       <td>Lange/<wbr/><a href="http://www.lri.fr/~wenzel/">Wenzel</a>/<wbr/>Kerber</td>

@@ -15,7 +15,7 @@ PageStart();
 ?>
 <h2>Files relevant to the Isabelle formalisation</h2>
 <ul>
-  <li><a href="https://codex.cs.bham.ac.uk/svn/langec/formare/code/auction/isabelle">Source repository (Subversion)</a>.  You can browse the repository as user <code>guest</code> with password <code>guest</code>.</li>
+  <li><a href="https://github.com/formare/auctions/tree/master/isabelle">Source repository on Github</a>.</li>
   <li><a href="isabelle.zip">all-in-one ZIP archive for download</a></li>
   <li>*.thy: Isabelle formalisation:<ul>
       <li>General foundations of static single good auctions, and Vickrey's theorem:
@@ -56,7 +56,7 @@ PageStart();
 </ul>
 <h2>How to run</h2>
 <ol>
-  <li>Obtain <a href="https://isabelle.in.tum.de/">Isabelle</a>.  Our formalisation is known to work with Isabelle2013.</li>
+  <li>Obtain <a href="https://isabelle.in.tum.de/">Isabelle</a>.  Our code is known to work with Isabelle2013.</li>
   <li>Interactive mode: run <code>isabelle jedit Auction/Vickrey.thy</code>, and agree to loading all of its dependencies.</li>
   <li>Batch mode: run <code>isabelle build -D Auction</code> and open the generated <code>Auction/output/document/root.pdf</code></li>
 </ol>
