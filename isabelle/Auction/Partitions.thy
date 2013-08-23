@@ -24,7 +24,7 @@ definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Righta
   where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
 *)
 
-(* an inference rule needed below; combines Set.equalityI and Set.subsetI *)
+text {* This inference rule is needed below; it combines Set.equalityI and Set.subsetI to a single step. *}
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
 
 (*
@@ -102,11 +102,18 @@ definition all_partitions_classical where
 (* MC: update: now I probably would know how to utterly eliminate lists from this.
    CL@MC: Is this comment still up to date? *)
 
+text {* adds an element to a specified set inside the given set of sets *}
 definition growpart
-(* adds an element to a specified set inside a specified partition. 
-If this element is fresh, we obtain again a partition *)
-:: "'a => 'a set set => 'a set => 'a set set"
-where "growpart newel part Subset = part - {Subset} \<union> {Subset \<union> {newel}}"
+(* CL@MC: you had originally referred to the given set of sets as a partition, and then stated:
+   if the element (i.e. new_el) is fresh, we obtain again a partition.  The argument that I 
+   have now renamed into "Sets" is not necessarily a partition, so you probably meant:
+   If "Sets" is a partition of a set "Set",
+   and S \<in> Sets,
+   and new_el \<notin> Set,
+   then "growpart new_el Sets S" is a partition of "Set \<union> {new_el}".
+   Would it make sense to state this as a lemma and prove it? *)
+:: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
+where "growpart new_el Sets S = Sets - {S} \<union> {S \<union> {new_el}}"
 
 definition childrenofpartition ::"'a => ('a set set) => ('a set set set)"
 (* Yields all the possible partitions coarser than part and 
