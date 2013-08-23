@@ -103,19 +103,19 @@ definition all_partitions_classical where
    CL@MC: Is this comment still up to date? *)
 
 text {* inserts an element into a specified set inside the given set of sets *}
-definition growpart
+definition insert_into_member
 (* CL@MC: you had originally referred to the given set of sets as a partition, and then stated:
    if the element (i.e. new_el) is fresh, we obtain again a partition.  The argument that I 
    have now renamed into "Sets" is not necessarily a partition, so you probably meant:
    If "Sets" is a partition of a set "Set",
    and S \<in> Sets is an equivalence class,
    and new_el \<notin> Set,
-   then "growpart new_el Sets S" is a partition of "Set \<union> {new_el}".
+   then "insert_into_member new_el Sets S" is a partition of "Set \<union> {new_el}".
    Would it make sense to state this as a lemma and prove it? *)
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
-where "growpart new_el Sets S = Sets - {S} \<union> {S \<union> {new_el}}"
+where "insert_into_member new_el Sets S = Sets - {S} \<union> {S \<union> {new_el}}"
 
-(* TODO CL: as with growpart above, what does the following function do when the given set of sets
+(* TODO CL: as with insert_into_member above, what does the following function do when the given set of sets
    is not a partition?  And should we prove that, when the given set is a partition, this function 
    does what it is supposed to do? *)
 text {* Assuming that @{text P} is a partition of a set @{text S}, and @{text "new_el \<notin> S"}, this function yields
@@ -123,8 +123,8 @@ text {* Assuming that @{text P} is a partition of a set @{text S}, and @{text "n
   (i.e. not splitting equivalence classes that already exist in @{text P}).  These comprise one partition 
   with an equivalence class @{text "{new_el}"} and all other equivalence classes unchanged,
   as well as all partitions obtained by inserting @{text new_el} into one equivalence class of @{text P} at a time. *}
-definition childrenofpartition ::"'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set set"
-where "childrenofpartition new_el P = 
+definition coarser_partitions_with ::"'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set set"
+where "coarser_partitions_with new_el P = 
   insert
   (* Let 'part' be a partition of a set 'Set',
      and suppose new_el \<notin> Set, i.e. {new_el} \<notin> part,
@@ -136,18 +136,18 @@ where "childrenofpartition new_el P =
      then the following constructs
      the set of those partitions of 'Set \<union> {new_el}' obtained by
      inserting new_el into one equivalence class of 'part' at a time. *)
-  ((growpart new_el P) ` P)"
+  ((insert_into_member new_el P) ` P)"
 
-lemma l12: fixes e p assumes "q\<in>(childrenofpartition e p)" shows 
+lemma l12: fixes e p assumes "q\<in>(coarser_partitions_with e p)" shows 
   "\<Union> q = insert e (\<Union> p)"
 proof -
-  let ?ch="childrenofpartition e" let ?Q="\<Union> q" let ?g="growpart e" let ?P="\<Union> p"
+  let ?ch="coarser_partitions_with e" let ?Q="\<Union> q" let ?g="insert_into_member e" let ?P="\<Union> p"
   have 3: "q\<in>(?g p)`p \<or> q=insert {e} p"
-  using childrenofpartition_def assms by (smt insertE)
+  using coarser_partitions_with_def assms by (smt insertE)
   have 4: "\<Union> (insert {e} p)= insert e (\<Union> p)" by auto
   {
     fix x assume 1: "x \<in> p"
-    hence 2: "\<Union> ((?g p) x) = \<Union> (p - {x}) \<union> (x \<union> {e})" using growpart_def 
+    hence 2: "\<Union> ((?g p) x) = \<Union> (p - {x}) \<union> (x \<union> {e})" using insert_into_member_def 
     by (metis Sup_insert Un_commute insert_is_Un)
     have "\<Union> (p - {x}) \<union> (x \<union> {e}) = \<Union> p \<union> (x \<union> {e})" by blast
     hence "\<Union> (p - {x}) \<union> (x \<union> {e}) = \<Union> p \<union> {e}" using 1 by blast
@@ -157,7 +157,7 @@ proof -
 qed
 
 definition parent :: " 'a => 'a set set => 'a set set" 
-(*parent e reverses childrenofpartition e.
+(*parent e reverses coarser_partitions_with e.
 children is one-to-many, while this is one-to-one (father is unique)*)
 where "parent e p = ((%x . x - {e}) ` p) - {{}}"
 
@@ -208,7 +208,7 @@ qed
 
 definition partitionsconstructor 
 :: " 'a => 'a set set set => 'a set set set"
-where "partitionsconstructor e P = \<Union> (childrenofpartition e ` P)"
+where "partitionsconstructor e P = \<Union> (coarser_partitions_with e ` P)"
 
 fun allpartitionsoflist 
 (* input is a list representing a set (see comment above), 
@@ -265,25 +265,25 @@ qed
 
 lemma l4: fixes newel part Subset assumes "newel \<notin> \<Union> part" and "Subset \<in> part"
 and "is_partition part"
-shows "is_partition (growpart newel part Subset)" 
+shows "is_partition (insert_into_member newel part Subset)" 
 proof -
-  let ?g="growpart newel" let ?q="part"  let ?X="Subset"
+  let ?g="insert_into_member newel" let ?q="part"  let ?X="Subset"
   let ?p="?q - {?X}" let ?Y="insert newel ?X" let ?P="is_partition"
   have 1: "is_partition ?p" using l5 assms by blast
   have "?X \<inter> \<Union> ?p = {}" using assms l7 by metis
   hence "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> ?p={}" using assms by blast
   hence "?P (insert ?Y ?p)" using l6 assms 1 by metis
   hence "?P (?p \<union> {?X \<union> {newel}})" by fastforce
-  thus "?P (?g ?q ?X)" using growpart_def by metis
+  thus "?P (?g ?q ?X)" using insert_into_member_def by metis
 qed
 
 lemma l1: fixes e p assumes "is_partition p1" and 
-"p2 \<in> (childrenofpartition e p1)" and "e \<notin> \<Union> p1"
+"p2 \<in> (coarser_partitions_with e p1)" and "e \<notin> \<Union> p1"
 shows "is_partition p2"
 proof -
-  let ?g = "growpart e" let ?q="insert {e} p1" let ?P="is_partition"
+  let ?g = "insert_into_member e" let ?q="insert {e} p1" let ?P="is_partition"
   have 1: "p2 \<in> insert (insert {e} p1) ((?g p1)`p1)" 
-  using assms childrenofpartition_def by metis
+  using assms coarser_partitions_with_def by metis
   have 2: "?P ?q" using l6 assms by fastforce
   {
   assume "\<not> ?thesis"
@@ -302,9 +302,9 @@ lemma l11: fixes p assumes "is_partition p" shows "{} \<notin> p"
 using assms is_partition_def by fast
 
 lemma l2a: fixes e q assumes "is_partition q" assumes "e \<in> \<Union> q" 
-shows "q \<in> childrenofpartition e (parent e q)"
+shows "q \<in> coarser_partitions_with e (parent e q)"
 proof -
-  let ?c="childrenofpartition e" let ?p="parent e q" let ?g="growpart e"
+  let ?c="coarser_partitions_with e" let ?p="parent e q" let ?g="insert_into_member e"
   let ?f="%x . x - {e}" let ?P="is_partition"
   obtain y where 1: "y \<in> q \<and> e \<in> y" using assms by (metis UnionE)
   let ?q2="q-{y}" let ?x="y-{e}"
@@ -326,7 +326,7 @@ proof -
     have "insert {e} ?q2 = insert y ?q2" using 9 by fast
     hence "insert {e} ?q2 = q" using 1 by auto
     hence "insert {e} ?p = q" using 10 by presburger
-    hence "q \<in> ?c ?p" using childrenofpartition_def by (metis insertI1)    
+    hence "q \<in> ?c ?p" using coarser_partitions_with_def by (metis insertI1)    
   } 
   hence 11: "?x \<notin> ?p \<longrightarrow> ?thesis" by fast
   have "?x={} \<or> ?x \<notin> q" using l6 1 assms is_partition_def 
@@ -338,13 +338,13 @@ proof -
   hence "?x \<noteq> {}" using l11 l3 assms by metis
   hence 12: "?q2 \<union> {?x} - {{}} = ?q2 \<union> {?x}" using l11 8 assms by blast
   have "?g ({?x} \<union> ?q2) (?x) = ({?x} \<union> ?q2) - {?x} \<union> {?x \<union> {e}} " 
-  using growpart_def assms 0 by metis
+  using insert_into_member_def assms 0 by metis
   hence "?g ({?x} \<union> ?q2) ?x = ({} \<union> ?q2) \<union> {?x \<union> {e}}" 
   using 0 by force
   hence "?g ({?x} \<union> ?q2) ?x = ?q2 \<union> {y}" using 1 by blast
   hence "?q2 \<union> {y} = ?g ?p ?x" using 7 12 parent_def by force
   hence "{y} \<union> ?q2 \<in> ?g ?p ` ?p" using 2 image_def by blast
-  hence "{y} \<union> ?q2 \<in> ?c ?p" using childrenofpartition_def by (metis insertCI)
+  hence "{y} \<union> ?q2 \<in> ?c ?p" using coarser_partitions_with_def by (metis insertCI)
 }
   thus ?thesis using 11 by (metis `y \<in> q \<and> e \<in> y` insert_Diff_single insert_absorb insert_is_Un)
 qed
@@ -366,7 +366,7 @@ all_partitions_classical (set X) = allpartitionsoflist X))"
 lemma indstep: fixes x::"'a" fixes n::nat assumes "mypred x n" shows "mypred x (Suc n)"   
 proof -
   let ?l = "allpartitionsoflist" let ?c = "all_partitions_classical" 
-  let ?ch = "childrenofpartition" let ?P="is_partition" let ?Q="is_partition_of"
+  let ?ch = "coarser_partitions_with" let ?P="is_partition" let ?Q="is_partition_of"
   have indhyp: "\<forall> X::('a list) . length X = n \<and> norepetitions X \<longrightarrow> (?c (set X) = ?l X)" 
   using mypred_def assms by fast
   (* what's the difference with def l == "allpartitionsoflist" (which doesn't work)?? *)
