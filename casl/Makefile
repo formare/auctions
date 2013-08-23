@@ -6,6 +6,14 @@ all: sync
 # CL: trying to prevent (but doesn't work) that this is misinterpreted as "make Vickrey_SecondPriceAuction.tptp".  Per-goal TPTP files cannot yet be created automatically.
 Vickrey_SecondPriceAuction_only_max_bidder_wins.tptp: Vickrey.casl
 
+%_DeBruijn.casl: %.casl
+	hets -o pp.stripped.het $< ;\
+	mv -fv $(patsubst %.casl,%,$<){.pp.stripped.het,_DeBruijn.casl}
+
+# TODO update to the *.hpf scripts actually used
+Vickrey_DeBruijn.xz: Vickrey_DeBruijn.casl
+	tar cf - Vickrey-SecondPriceAuction-*hpf Vickrey-Vickrey-vickreyA.hpf $< | xz -9 > $@
+
 include $(PREFIX)/Makefile.in
 
 .SECONDEXPANSION:
