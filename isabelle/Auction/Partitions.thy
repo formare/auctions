@@ -102,24 +102,41 @@ definition all_partitions_classical where
 (* MC: update: now I probably would know how to utterly eliminate lists from this.
    CL@MC: Is this comment still up to date? *)
 
-text {* adds an element to a specified set inside the given set of sets *}
+text {* inserts an element into a specified set inside the given set of sets *}
 definition growpart
 (* CL@MC: you had originally referred to the given set of sets as a partition, and then stated:
    if the element (i.e. new_el) is fresh, we obtain again a partition.  The argument that I 
    have now renamed into "Sets" is not necessarily a partition, so you probably meant:
    If "Sets" is a partition of a set "Set",
-   and S \<in> Sets,
+   and S \<in> Sets is an equivalence class,
    and new_el \<notin> Set,
    then "growpart new_el Sets S" is a partition of "Set \<union> {new_el}".
    Would it make sense to state this as a lemma and prove it? *)
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "growpart new_el Sets S = Sets - {S} \<union> {S \<union> {new_el}}"
 
-definition childrenofpartition ::"'a => ('a set set) => ('a set set set)"
-(* Yields all the possible partitions coarser than part and 
-obtainable by adding a fixed new element newel *)
-where "childrenofpartition newel part = 
-insert (insert {newel} part) ((growpart newel part) ` part)"
+(* TODO CL: as with growpart above, what does the following function do when the given set of sets
+   is not a partition?  And should we prove that, when the given set is a partition, this function 
+   does what it is supposed to do? *)
+text {* Assuming that @{text P} is a partition of a set @{text S}, and @{text "new_el \<notin> S"}, this function yields
+  all possible partitions of @{text "S \<union> {new_el}"} that are coarser than @{text P}
+  (i.e. not splitting equivalence classes that already exist in @{text P}).  These comprise one partition 
+  with an equivalence class @{text "{new_el}"} and all other equivalence classes unchanged,
+  as well as all partitions obtained by inserting @{text new_el} into one equivalence class of @{text P} at a time. *}
+definition childrenofpartition ::"'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set set"
+where "childrenofpartition new_el P = 
+  insert
+  (* Let 'part' be a partition of a set 'Set',
+     and suppose new_el \<notin> Set, i.e. {new_el} \<notin> part,
+     then the following constructs a partition of 'Set \<union> {new_el}' obtained by
+     inserting a new equivalence class {new_el} and leaving all previous equivalence classes unchanged. *)
+  (insert {new_el} P)
+  (* Let 'part' be a partition of a set 'Set',
+     and suppose new_el \<notin> Set,
+     then the following constructs
+     the set of those partitions of 'Set \<union> {new_el}' obtained by
+     inserting new_el into one equivalence class of 'part' at a time. *)
+  ((growpart new_el P) ` P)"
 
 lemma l12: fixes e p assumes "q\<in>(childrenofpartition e p)" shows 
   "\<Union> q = insert e (\<Union> p)"
