@@ -59,6 +59,7 @@ definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
       \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
     ) }"
 
+(* algorithmic function that computes all partitions of a set, based on lists *)
 fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
   where "all_partitions_fun_list [] = []"
       | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
@@ -88,14 +89,18 @@ definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> i
 definition all_partitions_classical where 
 "all_partitions_classical A = {P . is_partition_of P A}"
 
-(* TODO CL: integrate further material from a.thy and b.thy here *)
-(* MC: Here it is. Next step: integrate new partitions definitions into auctions *)
+(* MC: Here is some new material.  Next step: integrate new partitions definitions into auctions 
+   (i.e. nVCG_CaseChecker.thy) *)
 (* MC: A further, proof-friendlier way of computing partitions is introduced: 
-everythin's a set, except the very initial input, which is a list 
-(of elements) because I don't know how to do recursive definitions 
-on finite sets. 
-Then equivalence with all_partitions_classical is inductively shown *)
-(* MC: udpate: now I probably would know how to utterly eliminate lists from this. *)
+   everything's a set, except the very initial input, which is a list 
+   (of elements) because I don't know how to do recursive definitions 
+   on finite sets.
+   CL@MC: There is a predicate Finite_Set.finite, which is defined inductively (search for 
+   "inductive finite" in Finite_Set.thy, but it is not defined as an algebraic _datatype_ and 
+   therefore doesn't work with recursive _functions_.
+   Then equivalence with all_partitions_classical is inductively shown *)
+(* MC: update: now I probably would know how to utterly eliminate lists from this.
+   CL@MC: Is this comment still up to date? *)
 
 definition growpart
 (* adds an element to a specified set inside a specified partition. 
