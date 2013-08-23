@@ -138,20 +138,25 @@ where "coarser_partitions_with new_el P =
      inserting new_el into one equivalence class of 'part' at a time. *)
   ((insert_into_member new_el P) ` P)"
 
-lemma l12: fixes e p assumes "q\<in>(coarser_partitions_with e p)" shows 
-  "\<Union> q = insert e (\<Union> p)"
+lemma l12:
+  fixes e::'a and P::"'a set set"
+  assumes "q \<in> coarser_partitions_with e P"
+  shows "\<Union> q = insert e (\<Union> P)"
 proof -
-  let ?ch="coarser_partitions_with e" let ?Q="\<Union> q" let ?g="insert_into_member e" let ?P="\<Union> p"
-  have 3: "q\<in>(?g p)`p \<or> q=insert {e} p"
-  using coarser_partitions_with_def assms by (smt insertE)
-  have 4: "\<Union> (insert {e} p)= insert e (\<Union> p)" by auto
+  let ?ch = "coarser_partitions_with e"
+  let ?Q = "\<Union> q"
+  let ?g = "insert_into_member e"
+  let ?P = "\<Union> P"
+  have 3: "q \<in> (?g P) ` P \<or> q = insert {e} P"
+    using coarser_partitions_with_def assms by (smt insertE)
+  have 4: "\<Union> insert {e} P = insert e (\<Union> P)" by auto
   {
-    fix x assume 1: "x \<in> p"
-    hence 2: "\<Union> ((?g p) x) = \<Union> (p - {x}) \<union> (x \<union> {e})" using insert_into_member_def 
+    fix x assume 1: "x \<in> P"
+    hence 2: "\<Union> ((?g P) x) = \<Union> (P - {x}) \<union> (x \<union> {e})" using insert_into_member_def 
     by (metis Sup_insert Un_commute insert_is_Un)
-    have "\<Union> (p - {x}) \<union> (x \<union> {e}) = \<Union> p \<union> (x \<union> {e})" by blast
-    hence "\<Union> (p - {x}) \<union> (x \<union> {e}) = \<Union> p \<union> {e}" using 1 by blast
-    hence "\<Union> ((?g p) x) = \<Union> p \<union> {e}" using 2 by presburger
+    have "\<Union> (P - {x}) \<union> (x \<union> {e}) = \<Union> P \<union> (x \<union> {e})" by blast
+    hence "\<Union> (P - {x}) \<union> (x \<union> {e}) = \<Union> P \<union> {e}" using 1 by blast
+    hence "\<Union> ((?g P) x) = \<Union> P \<union> {e}" using 2 by presburger
   }
   thus ?thesis using 3 4 by blast
 qed
