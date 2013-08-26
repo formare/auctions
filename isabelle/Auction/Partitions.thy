@@ -282,19 +282,23 @@ proof -
   then show ?thesis unfolding is_partition_def by force
 qed
 
-lemma l7: fixes q X assumes "is_partition q" assumes "X\<in>q" shows
-"X \<inter> \<Union> (q - {X})={}" 
+lemma disj_eq_classes:
+  fixes P::"'a set set"
+    and X::"'a set"
+  assumes "is_partition P"
+      and "X \<in> P"
+  shows "X \<inter> \<Union> (P - {X}) = {}" 
 proof -
-  let ?p="q-{X}" 
   {
-    fix x assume 
-    0:"x\<in> X \<inter> \<Union> ?p" then obtain Y where 
-    1: "Y\<in>?p \<and> x\<in>Y" by blast
-    have "x \<in> X \<inter> Y \<and> Y\<in>q" using 0 1 by force
-    hence "X=Y" using assms is_partition_def by fast
-    hence "False" using 1 by fast
+    fix x
+    assume x_in_two_eq_classes: "x \<in> X \<inter> \<Union> (P - {X})"
+    then obtain Y where other_eq_class: "Y \<in> P - {X} \<and> x \<in> Y" by blast
+    have "x \<in> X \<inter> Y \<and> Y \<in> P"
+      using x_in_two_eq_classes other_eq_class by force
+    then have "X = Y" using assms is_partition_def by fast
+    then have "x \<in> {}" using other_eq_class by fast
   }
-  thus ?thesis by blast
+  then show ?thesis by blast
 qed
 
 lemma l4: fixes newel part Subset assumes "newel \<notin> \<Union> part" and "Subset \<in> part"
