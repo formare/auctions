@@ -174,53 +174,61 @@ proof -
   then show ?thesis using Q_cases by blast
 qed
 
-definition parent :: " 'a => 'a set set => 'a set set" 
-(*parent e reverses coarser_partitions_with e.
-children is one-to-many, while this is one-to-one (father is unique)*)
-where "parent e p = ((%x . x - {e}) ` p) - {{}}"
+text {* @{text "partition_without e"} reverses @{text "coarser_partitions_with e"}.
+@{text coarser_partitions_with} is one-to-many, while this is one-to-one, so we can think of a tree relation,
+where coarser partitions of a set @{text "S \<union> {elem}"} are child nodes of one partition of @{text S}. *}
+definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
+where "partition_without elem P = { x - {elem} | x . x \<in> P } - {{}}"
 
-lemma l13: fixes e q shows "\<Union> (parent e q)=\<Union> q - {e}"
+(* TODO give it some name with "image", "Collect", "mem" *)
+lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
+
+lemma partition_without_covers:
+  fixes elem::'a
+    and P::"'a set set"
+  shows "\<Union> partition_without elem P = \<Union> P - {elem}"
 proof -
-  let ?E="{e}" let ?f="%x . (x - ?E)" let ?p="parent e q" 
-  have "\<forall> x \<in> ?f ` q . x \<subseteq> \<Union> q - ?E" using image_def by fast
-  hence "\<Union> (?f ` q) = \<Union> q - ?E" by blast
-  thus ?thesis using parent_def by (metis Sup_insert Un_empty_left insert_Diff_single)
+  have "\<Union> partition_without elem P = \<Union> (((\<lambda>x . x - {elem}) ` P) - {{}})"
+    unfolding partition_without_def
+    using image_Collect_mem by metis
+  also have "\<dots> = \<Union> P - {elem}" by blast
+  finally show ?thesis .
 qed
 
-lemma l3: fixes e q assumes "is_partition q" shows "is_partition (parent e q)"
+lemma partition_without_is_partition:
+  fixes elem::'a
+    and P::"'a set set"
+  assumes "is_partition P"
+  shows "is_partition (partition_without elem P)"
 proof - 
-  let ?p = "parent e q"  let ?f="%x . (x - {e})" 
-  show "is_partition (parent e q)"
+  let ?Q = "partition_without elem P"
+  show ?thesis
   proof -   
-    have 10: "\<forall> x1 \<in> ?p. \<forall> x2 \<in> ?p. (x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1=x2)"
+    have "\<forall> x1 \<in> ?Q. \<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2"
     proof 
-      fix x1 assume 7: "x1 \<in> ?p"
-      hence "x1 \<in> ?f ` q" using parent_def by (metis (full_types) Diff_iff)
-      then obtain z1 where 1: "z1 \<in> q \<and> x1 = ?f z1" using image_def by blast 
-      have 3: "z1 \<in> q \<and> x1 = z1 - {e}" using 1 by fast
-      have 6: "x1 \<noteq> {}" using 7 parent_def by fast
-      show "\<forall> x2 \<in> ?p. (x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1=x2" 
+      fix x1 assume x1_in_Q: "x1 \<in> ?Q"
+      then obtain z1 where z1_in_P: "z1 \<in> P" and z1_sup: "x1 = z1 - {elem}"
+        unfolding partition_without_def
+        by (smt mem_Collect_eq set_diff_eq)
+      have x1_non_empty: "x1 \<noteq> {}" using x1_in_Q partition_without_def by fast
+      show "\<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2" 
       proof
-        fix x2 assume "x2 \<in> ?p"
-        hence "x2 \<in> ?f ` q" using parent_def by (metis (full_types) Diff_iff)
-        then obtain z2 where 2: "z2 \<in> q \<and> x2 = ?f z2" using image_def by blast
-        have 4: "z2 \<in> q \<and> x2 = z2 - {e}" using 2 by fast
-        hence 7: "x2 \<subseteq> z2" by fast
-        have 11: "x1 \<inter> x2 \<noteq> {} \<longrightarrow> x1=x2" 
+        fix x2 assume "x2 \<in> ?Q"
+        then obtain z2 where z2_in_P: "z2 \<in> P" and z2_sup: "x2 = z2 - {elem}"
+          unfolding partition_without_def
+          by (smt mem_Collect_eq set_diff_eq)
+        have "x1 \<inter> x2 \<noteq> {} \<longrightarrow> x1 = x2"
         proof
-          assume "x1 \<inter> x2 \<noteq> {}" hence "z1 \<inter> z2 \<noteq> {}" using 3 4 by fast
-          hence "z1 = z2" using assms 3 4 is_partition_def by metis
-          thus "x1=x2" using 3 4 by fast
+          assume "x1 \<inter> x2 \<noteq> {}"
+          then have "z1 \<inter> z2 \<noteq> {}" using z1_sup z2_sup by fast
+          then have "z1 = z2" using z1_in_P z2_in_P assms by (metis is_partition_def)
+          then show "x1 = x2" using z1_sup z2_sup by fast
         qed
-        have "x1=x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}"
-        proof 
-          assume "x1=x2" 
-          thus "x1 \<inter> x2 \<noteq>{}" using 6 by (metis inf_idem)
-        qed
-      thus "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1=x2" using 11 by linarith     
+        moreover have "x1 = x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}" using x1_non_empty by auto
+        ultimately show "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1 = x2" by blast
       qed
-    qed (*10*)
-    thus ?thesis using is_partition_def by auto
+    qed
+    then show ?thesis using is_partition_def by auto
   qed
 qed
 
@@ -320,9 +328,9 @@ lemma l11: fixes p assumes "is_partition p" shows "{} \<notin> p"
 using assms is_partition_def by fast
 
 lemma l2a: fixes e q assumes "is_partition q" assumes "e \<in> \<Union> q" 
-shows "q \<in> coarser_partitions_with e (parent e q)"
+shows "q \<in> coarser_partitions_with e (partition_without e q)"
 proof -
-  let ?c="coarser_partitions_with e" let ?p="parent e q" let ?g="insert_into_member e"
+  let ?c="coarser_partitions_with e" let ?p="partition_without e q" let ?g="insert_into_member e"
   let ?f="%x . x - {e}" let ?P="is_partition"
   obtain y where 1: "y \<in> q \<and> e \<in> y" using assms by (metis UnionE)
   let ?q2="q-{y}" let ?x="y-{e}"
@@ -335,9 +343,9 @@ proof -
   hence "\<forall> w \<in> ?q2 . ?f w = id w" by simp
   hence "?f ` ?q2 = id ` ?q2" by blast
   hence "?f ` ?q2 = ?q2 \<and> q=?q2 \<union> {y}" using 1 by force
-  hence 7: "?p=?q2 \<union> {?x} - {{}}" using 1 parent_def l10 5 by metis
+  hence 7: "?p=?q2 \<union> {?x} - {{}}" using 1 partition_without_def l10 5 by metis
   {
-    assume "?x \<notin> ?p" hence "?x \<in> {{}}" using 4 parent_def by force
+    assume "?x \<notin> ?p" hence "?x \<in> {{}}" using 4 partition_without_def by force
     hence 9: "?x={} \<and> y={e}" using 1 by fast
     hence "?p = ?q2 - {{}}" using 7 is_partition_def assms by force
     hence 10: "?p = ?q2" using l11 8 by blast
@@ -360,7 +368,7 @@ proof -
   hence "?g ({?x} \<union> ?q2) ?x = ({} \<union> ?q2) \<union> {?x \<union> {e}}" 
   using 0 by force
   hence "?g ({?x} \<union> ?q2) ?x = ?q2 \<union> {y}" using 1 by blast
-  hence "?q2 \<union> {y} = ?g ?p ?x" using 7 12 parent_def by force
+  hence "?q2 \<union> {y} = ?g ?p ?x" using 7 12 partition_without_def by force
   hence "{y} \<union> ?q2 \<in> ?g ?p ` ?p" using 2 image_def by blast
   hence "{y} \<union> ?q2 \<in> ?c ?p" using coarser_partitions_with_def by (metis insertCI)
 }
@@ -392,7 +400,7 @@ proof -
   (all_partitions_classical (set X) = allpartitionsoflist X))" 
   proof 
   fix X2::"'a list"
-  let ?e = "hd X2" let ?f = "parent ?e" let ?n2 = "length X2" 
+  let ?e = "hd X2" let ?f = "partition_without ?e" let ?n2 = "length X2" 
   let ?X1="tl X2" (* could use drop or sublist instead of tl *)
   show "(?n2=Suc n \<and> norepetitions X2) \<longrightarrow> (?c (set X2) = ?l X2)"
   proof
@@ -409,12 +417,12 @@ proof -
     have a1: "?c (set X2) \<subseteq> ?l X2"
     proof
       fix p2
-      have 16: "\<Union> (?f p2) = \<Union> p2 - {?e}" using l13 by metis
+      have 16: "\<Union> (?f p2) = \<Union> p2 - {?e}" using partition_without_partition1 by metis
       assume "p2 \<in> ?c (set X2)"
       hence "?Q p2 (set X2)" using all_partitions_classical_def by fast
       hence 14: "?P p2 \<and> ?e \<in> (set X2) \<and> \<Union> p2=(set X2)" 
       using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
-      have 18: "\<Union> (?f p2)= set ?X1" using 2 16 l13 19 14 by (metis Diff_insert_absorb List.set.simps(2))
+      have 18: "\<Union> (?f p2)= set ?X1" using 2 16 partition_without_partition1 19 14 by (metis Diff_insert_absorb List.set.simps(2))
       have "?P (?f p2)" using l3 14 by fast
       hence "?Q (?f p2) (set ?X1)" using is_partition_of_def 18 by blast
       hence "(?f p2) \<in> ?c (set ?X1)" using all_partitions_classical_def by blast
