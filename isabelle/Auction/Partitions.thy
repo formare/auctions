@@ -115,6 +115,15 @@ definition insert_into_member
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "insert_into_member new_el Sets S = Sets - {S} \<union> {S \<union> {new_el}}"
 
+lemma insert_into_member_partition1:
+  fixes elem::'a
+    and P::"'a set set"
+    and eq_class::"'a set"
+  (* no need to assume "eq_class \<in> P" *)
+  shows "\<Union> insert_into_member elem P eq_class = \<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem})"
+    unfolding insert_into_member_def
+    by (metis Sup_insert Un_commute insert_is_Un)
+
 (* TODO CL: as with insert_into_member above, what does the following function do when the given set of sets
    is not a partition?  And should we prove that, when the given set is a partition, this function 
    does what it is supposed to do? *)
@@ -138,27 +147,31 @@ where "coarser_partitions_with new_el P =
      inserting new_el into one equivalence class of 'part' at a time. *)
   ((insert_into_member new_el P) ` P)"
 
-lemma l12:
-  fixes e::'a and P::"'a set set"
-  assumes "q \<in> coarser_partitions_with e P"
-  shows "\<Union> q = insert e (\<Union> P)"
+text {* Let @{text P} be a partition of a set @{text S}, and @{text elem} an element (which may or may not be
+  in @{text S} already).  Then, any member of @{text "coarser_partitions_with elem P"} is a set of sets
+  whose union is @{text "S \<union> {elem}"}, i.e.\ it satisfies a necessary criterion for being a partition of @{text "S \<union> {elem}"}.
+*}
+lemma coarser_partitions_covers:
+  fixes elem::'a
+    and P::"'a set set"
+    and Q::"'a set set"
+  assumes "Q \<in> coarser_partitions_with elem P"
+  shows "\<Union> Q = insert elem (\<Union> P)"
 proof -
-  let ?ch = "coarser_partitions_with e"
-  let ?Q = "\<Union> q"
-  let ?g = "insert_into_member e"
-  let ?P = "\<Union> P"
-  have 3: "q \<in> (?g P) ` P \<or> q = insert {e} P"
+  let ?S = "\<Union> P"
+  have Q_cases: "Q \<in> (insert_into_member elem P) ` P \<or> Q = insert {elem} P"
     using coarser_partitions_with_def assms by (smt insertE)
-  have 4: "\<Union> insert {e} P = insert e (\<Union> P)" by auto
   {
-    fix x assume 1: "x \<in> P"
-    hence 2: "\<Union> ((?g P) x) = \<Union> (P - {x}) \<union> (x \<union> {e})" using insert_into_member_def 
-    by (metis Sup_insert Un_commute insert_is_Un)
-    have "\<Union> (P - {x}) \<union> (x \<union> {e}) = \<Union> P \<union> (x \<union> {e})" by blast
-    hence "\<Union> (P - {x}) \<union> (x \<union> {e}) = \<Union> P \<union> {e}" using 1 by blast
-    hence "\<Union> ((?g P) x) = \<Union> P \<union> {e}" using 2 by presburger
+    fix eq_class assume eq_class_in_P: "eq_class \<in> P"
+    have "\<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem}) = ?S \<union> (eq_class \<union> {elem})"
+      using insert_into_member_partition1
+      by blast
+    with eq_class_in_P have "\<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem}) = ?S \<union> {elem}" by blast
+    then have "\<Union> insert_into_member elem P eq_class = ?S \<union> {elem}"
+      using insert_into_member_partition1
+      by (rule subst)
   }
-  thus ?thesis using 3 4 by blast
+  then show ?thesis using Q_cases by blast
 qed
 
 definition parent :: " 'a => 'a set set => 'a set set" 
@@ -428,7 +441,7 @@ proof -
       hence a11: "?P p1 \<and> \<Union> p1=set ?X1" 
       using is_partition_of_def by blast
       hence 22: "?P p2" using l1 a9 19 by fast
-      have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 l12 by fast
+      have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 coarser_partitions_covers by fast
       hence "\<Union> p2 = (set X2)" using 19 by (metis "2" List.set.simps(2) Un_commute insert_is_Un)
       hence "?Q p2 (set X2)" using 22 is_partition_of_def by blast
       hence "p2 \<in> ?c (set X2)" using all_partitions_classical_def by fastforce
