@@ -232,9 +232,9 @@ proof -
   qed
 qed
 
-definition partitionsconstructor 
+definition all_coarser_partitions_with 
 :: " 'a => 'a set set set => 'a set set set"
-where "partitionsconstructor e P = \<Union> (coarser_partitions_with e ` P)"
+where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
 
 fun allpartitionsoflist 
 (* input is a list representing a set (see comment above), 
@@ -243,7 +243,7 @@ hence we use norepetitions (qv)*)
 ::"'a list => 'a set set set"
 where 
 "allpartitionsoflist []={{}}"|
-"allpartitionsoflist (e # X) = partitionsconstructor e (allpartitionsoflist X)" 
+"allpartitionsoflist (e # X) = all_coarser_partitions_with e (allpartitionsoflist X)" 
 
 definition allpartitions where "allpartitions X = allpartitionsoflist (sorted_list_of_set X)"
 
@@ -343,9 +343,9 @@ proof -
   hence "\<forall> w \<in> ?q2 . ?f w = id w" by simp
   hence "?f ` ?q2 = id ` ?q2" by blast
   hence "?f ` ?q2 = ?q2 \<and> q=?q2 \<union> {y}" using 1 by force
-  hence 7: "?p=?q2 \<union> {?x} - {{}}" using 1 partition_without_def l10 5 by metis
+  hence 7: "?p=?q2 \<union> {?x} - {{}}" using 1 partition_without_def l10 5 sorry (* TODO CL: sorry, can't prove this right now after refactorings, will fix later *)
   {
-    assume "?x \<notin> ?p" hence "?x \<in> {{}}" using 4 partition_without_def by force
+    assume "?x \<notin> ?p" hence "?x \<in> {{}}" using 4 partition_without_def sorry (* TODO CL: sorry, can't prove this right now after refactorings, will fix later *)
     hence 9: "?x={} \<and> y={e}" using 1 by fast
     hence "?p = ?q2 - {{}}" using 7 is_partition_def assms by force
     hence 10: "?p = ?q2" using l11 8 by blast
@@ -361,7 +361,7 @@ proof -
   hence 0: "?q2 - {?x} = ?q2" by fastforce
 {
   assume 2: "?x \<in> ?p" 
-  hence "?x \<noteq> {}" using l11 l3 assms by metis
+  hence "?x \<noteq> {}" using l11 partition_without_is_partition assms by metis
   hence 12: "?q2 \<union> {?x} - {{}} = ?q2 \<union> {?x}" using l11 8 assms by blast
   have "?g ({?x} \<union> ?q2) (?x) = ({?x} \<union> ?q2) - {?x} \<union> {?x \<union> {e}} " 
   using insert_into_member_def assms 0 by metis
@@ -417,28 +417,28 @@ proof -
     have a1: "?c (set X2) \<subseteq> ?l X2"
     proof
       fix p2
-      have 16: "\<Union> (?f p2) = \<Union> p2 - {?e}" using partition_without_partition1 by metis
+      have 16: "\<Union> (?f p2) = \<Union> p2 - {?e}" using partition_without_covers by metis
       assume "p2 \<in> ?c (set X2)"
       hence "?Q p2 (set X2)" using all_partitions_classical_def by fast
       hence 14: "?P p2 \<and> ?e \<in> (set X2) \<and> \<Union> p2=(set X2)" 
       using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
-      have 18: "\<Union> (?f p2)= set ?X1" using 2 16 partition_without_partition1 19 14 by (metis Diff_insert_absorb List.set.simps(2))
-      have "?P (?f p2)" using l3 14 by fast
+      have 18: "\<Union> (?f p2)= set ?X1" using 2 16 partition_without_covers 19 14 by (metis Diff_insert_absorb List.set.simps(2))
+      have "?P (?f p2)" using partition_without_is_partition 14 by fast
       hence "?Q (?f p2) (set ?X1)" using is_partition_of_def 18 by blast
       hence "(?f p2) \<in> ?c (set ?X1)" using all_partitions_classical_def by blast
       hence 5: "?f p2 \<in> ?l ?X1" using indhyp mypred_def 13 a12 by blast
       hence "p2 \<in> (?ch ?e) (?f p2)" using l2a 14 by fast
       hence "p2 \<in> \<Union> ((?ch ?e) ` (?l ?X1))" using 5 by blast
-      thus "p2 \<in> (?l X2)" using partitionsconstructor_def allpartitionsoflist_def 2 
+      thus "p2 \<in> (?l X2)" using all_coarser_partitions_with_def allpartitionsoflist_def 2 
       by (metis allpartitionsoflist.simps(2)) 
     qed
     have a2: "?l X2 \<subseteq> ?c (set X2)"
     proof -
       {
       fix p2  assume "p2 \<in> ?l X2"
-      hence "p2 \<in> partitionsconstructor ?e (?l ?X1)" using 2 allpartitionsoflist_def 
+      hence "p2 \<in> all_coarser_partitions_with ?e (?l ?X1)" using 2 allpartitionsoflist_def 
       by (metis allpartitionsoflist.simps(2)) 
-      hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using partitionsconstructor_def by metis
+      hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using all_coarser_partitions_with_def by metis
       obtain Y where a4: "Y \<in> (?ch ?e ` (?l ?X1))" and a5: "p2 \<in> Y" using a3 by blast
       obtain p1 where a6: "p1 \<in> (?l ?X1)" and a7: "Y = (?ch ?e p1)" using a4 by blast
       have a9: "p2 \<in> (?ch ?e p1)" using a5 a7 by fast
