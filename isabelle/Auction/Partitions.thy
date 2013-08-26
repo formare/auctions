@@ -15,7 +15,7 @@ See LICENSE file for details
 *)
 
 theory Partitions
-imports Main Complete_Lattices
+imports Main SetUtils
 begin
 
 (* don't need the following for now; just thought we might need it for computability:
@@ -179,9 +179,6 @@ text {* @{text "partition_without e"} reverses @{text "coarser_partitions_with e
 where coarser partitions of a set @{text "S \<union> {elem}"} are child nodes of one partition of @{text S}. *}
 definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
 where "partition_without elem P = { x - {elem} | x . x \<in> P } - {{}}"
-
-(* TODO give it some name with "image", "Collect", "mem" *)
-lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
 lemma partition_without_covers:
   fixes elem::'a
@@ -351,8 +348,6 @@ proof -
   qed
 qed
 
-lemma image_union: fixes f X Y shows "f ` (X \<union> Y) = f ` X \<union> f ` Y" by auto
-
 lemma no_empty_eq_class:
   assumes "is_partition p"
   shows "{} \<notin> p" 
@@ -423,44 +418,33 @@ proof -
   qed
 qed
 
-(* MC: norepetitions stuff could be moved to a 
-separate thy of more general material*)
-definition norepetitions where "norepetitions l \<longleftrightarrow> card (set l) = length l"
-
-lemma fixes l shows "norepetitions l \<longleftrightarrow> (card (set l) \<ge> length l)" 
-using norepetitions_def by (metis card_length le_antisym)
-
-lemma noreptl: fixes l assumes "norepetitions l" shows "norepetitions (tl l)" 
-using assms norepetitions_def by (metis card_distinct distinct_card distinct_tl) 
-
 definition mypred ::" 'a => nat => bool" where "mypred x n = 
-(\<forall> X::('a list) . (length X=n \<and> norepetitions X \<longrightarrow> 
+(\<forall> X::('a list) . (length X=n \<and> distinct X \<longrightarrow> 
 all_partitions_classical (set X) = all_partitions_of_list X))"
 
 lemma indstep: fixes x::"'a" fixes n::nat assumes "mypred x n" shows "mypred x (Suc n)"   
 proof -
   let ?l = "all_partitions_of_list" let ?c = "all_partitions_classical" 
   let ?ch = "coarser_partitions_with" let ?P="is_partition" let ?Q="is_partition_of"
-  have indhyp: "\<forall> X::('a list) . length X = n \<and> norepetitions X \<longrightarrow> (?c (set X) = ?l X)" 
+  have indhyp: "\<forall> X::('a list) . length X = n \<and> distinct X \<longrightarrow> (?c (set X) = ?l X)" 
   using mypred_def assms by fast
   (* what's the difference with def l == "allpartitionsoflist" (which doesn't work)?? *)
-  have "\<forall> X::('a list) . ((length X=Suc n \<and> norepetitions X) \<longrightarrow> 
+  have "\<forall> X::('a list) . ((length X=Suc n \<and> distinct X) \<longrightarrow> 
   (all_partitions_classical (set X) = all_partitions_of_list X))" 
   proof 
   fix X2::"'a list"
   let ?e = "hd X2" let ?f = "partition_without ?e" let ?n2 = "length X2" 
   let ?X1="tl X2" (* could use drop or sublist instead of tl *)
-  show "(?n2=Suc n \<and> norepetitions X2) \<longrightarrow> (?c (set X2) = ?l X2)"
+  show "(?n2=Suc n \<and> distinct X2) \<longrightarrow> (?c (set X2) = ?l X2)"
   proof
-    assume a10: "?n2 = Suc n \<and> norepetitions X2"
+    assume a10: "?n2 = Suc n \<and> distinct X2"
     hence "X2=[?e]@?X1" 
     by (metis append_Cons append_Nil hd.simps length_Suc_conv tl.simps(2))
     hence 2: "X2=?e # ?X1" by fastforce
     have 13: "length ?X1=n" using a10 2 assms  
     by (metis diff_Suc_1 length_tl)
-    have a12: "norepetitions ?X1" using a10 noreptl by fast
-    hence "\<not> {?e} \<subseteq> set ?X1" using norepetitions_def tl_def set_def hd_def by 
-    (smt "2" List.set.simps(2) a10 card_length impossible_Cons insert_absorb insert_subset)
+    have a12: "distinct ?X1" using a10 by (metis distinct_tl)
+    hence "\<not> {?e} \<subseteq> set ?X1" using 2 a10 by (metis distinct.simps(2) insert_subset)
     hence 19: "?e \<notin> set ?X1" by fast
     have a1: "?c (set X2) \<subseteq> ?l X2"
     proof
@@ -531,27 +515,16 @@ next
 qed
 qed
 
-theorem partadequacy: fixes l assumes "norepetitions l" shows 
+theorem partadequacy: fixes l assumes "distinct l" shows 
 "all_partitions_of_list l = all_partitions_classical (set l)" 
 using l14 mypred_def assms by fast
-
-lemma cardsize: fixes x assumes "finite x"
-shows "length (sorted_list_of_set x) = card x" using assms by 
-(metis finite_list length_remdups_card_conv length_sort sorted_list_of_set_sort_remdups)
-
-lemma setlistid: fixes x assumes "finite x"
-shows "set (sorted_list_of_set x)=x" using assms by simp
-
-lemma norepset: fixes x assumes "finite x" shows 
-"norepetitions (sorted_list_of_set x)" 
-using assms cardsize setlistid norepetitions_def by metis
 
 definition all_partitions where "all_partitions X = all_partitions_of_list (sorted_list_of_set X)"
 
 corollary fixes X assumes "finite X" shows 
 "all_partitions X = all_partitions_classical X" 
 unfolding all_partitions_def
-using norepset partadequacy assms by fastforce
+using partadequacy assms by (metis sorted_list_of_set)
 (* all_partitions internally works with a list representing a set
    (this allows us to use the recursive function all_partitions_of_list).
    For a list with repetitions we can only guarantee compliance
