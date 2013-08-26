@@ -232,30 +232,26 @@ proof -
   qed
 qed
 
-definition all_coarser_partitions_with 
-:: " 'a => 'a set set set => 'a set set set"
+definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
 where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
 
-fun allpartitionsoflist 
-(* input is a list representing a set (see comment above), 
-thus output from a list with repetitions is not guaranteed compliance;
-hence we use norepetitions (qv)*)
-::"'a list => 'a set set set"
+fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
 where 
-"allpartitionsoflist []={{}}"|
-"allpartitionsoflist (e # X) = all_coarser_partitions_with e (allpartitionsoflist X)" 
+"all_partitions_of_list [] = {{}}" |
+"all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)" 
 
-definition allpartitions where "allpartitions X = allpartitionsoflist (sorted_list_of_set X)"
-
-lemma l5: fixes p q assumes "is_partition q" assumes "p \<subseteq> q" shows "is_partition p"
+text {* A subset of a partition is also a partition (but, note: only of a subset of the original set) *}
+lemma subset_is_partition:
+  assumes subset: "P \<subseteq> Q"
+      and partition: "is_partition Q"
+  shows "is_partition P"
 proof -
-  let ?Q = "is_partition" let ?P="%x . %y . (x \<inter> y \<noteq> {} \<longleftrightarrow> x=y)"
   {
-    fix x y assume "x\<in>p \<and> y\<in>p"     
-    hence "x\<in>q \<and> y\<in>q" using assms by fast    
-    hence "?P x y" using assms is_partition_def by metis
+    fix x y assume "x \<in> P \<and> y \<in> P"
+    then have "x \<in> Q \<and> y \<in> Q" using subset by fast
+    then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition is_partition_def by metis
   }
-  thus "?Q p" using is_partition_def by blast
+  then show "is_partition P" using is_partition_def by blast
 qed
 
 lemma l6: fixes p X assumes "is_partition p" assumes "X \<inter> \<Union> p = {}" 
@@ -295,7 +291,7 @@ shows "is_partition (insert_into_member newel part Subset)"
 proof -
   let ?g="insert_into_member newel" let ?q="part"  let ?X="Subset"
   let ?p="?q - {?X}" let ?Y="insert newel ?X" let ?P="is_partition"
-  have 1: "is_partition ?p" using l5 assms by blast
+  have 1: "is_partition ?p" using subset_is_partition assms by blast
   have "?X \<inter> \<Union> ?p = {}" using assms l7 by metis
   hence "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> ?p={}" using assms by blast
   hence "?P (insert ?Y ?p)" using l6 assms 1 by metis
@@ -334,7 +330,7 @@ proof -
   let ?f="%x . x - {e}" let ?P="is_partition"
   obtain y where 1: "y \<in> q \<and> e \<in> y" using assms by (metis UnionE)
   let ?q2="q-{y}" let ?x="y-{e}"
-  have 8: "?P ?q2" using l5 assms by blast
+  have 8: "?P ?q2" using subset_is_partition assms by blast
   have 5: "?x = ?f y \<and> ?f`{y}={?x} " by fast hence 
   4: "?x \<in> ?f ` q " using 1 by blast
   have "\<forall> w \<in> ?q2 . w \<inter> y = {}" using is_partition_def assms 1 4 
@@ -387,17 +383,17 @@ using assms norepetitions_def by (metis card_distinct distinct_card distinct_tl)
 
 definition mypred ::" 'a => nat => bool" where "mypred x n = 
 (\<forall> X::('a list) . (length X=n \<and> norepetitions X \<longrightarrow> 
-all_partitions_classical (set X) = allpartitionsoflist X))"
+all_partitions_classical (set X) = all_partitions_of_list X))"
 
 lemma indstep: fixes x::"'a" fixes n::nat assumes "mypred x n" shows "mypred x (Suc n)"   
 proof -
-  let ?l = "allpartitionsoflist" let ?c = "all_partitions_classical" 
+  let ?l = "all_partitions_of_list" let ?c = "all_partitions_classical" 
   let ?ch = "coarser_partitions_with" let ?P="is_partition" let ?Q="is_partition_of"
   have indhyp: "\<forall> X::('a list) . length X = n \<and> norepetitions X \<longrightarrow> (?c (set X) = ?l X)" 
   using mypred_def assms by fast
   (* what's the difference with def l == "allpartitionsoflist" (which doesn't work)?? *)
   have "\<forall> X::('a list) . ((length X=Suc n \<and> norepetitions X) \<longrightarrow> 
-  (all_partitions_classical (set X) = allpartitionsoflist X))" 
+  (all_partitions_classical (set X) = all_partitions_of_list X))" 
   proof 
   fix X2::"'a list"
   let ?e = "hd X2" let ?f = "partition_without ?e" let ?n2 = "length X2" 
@@ -429,15 +425,15 @@ proof -
       hence 5: "?f p2 \<in> ?l ?X1" using indhyp mypred_def 13 a12 by blast
       hence "p2 \<in> (?ch ?e) (?f p2)" using l2a 14 by fast
       hence "p2 \<in> \<Union> ((?ch ?e) ` (?l ?X1))" using 5 by blast
-      thus "p2 \<in> (?l X2)" using all_coarser_partitions_with_def allpartitionsoflist_def 2 
-      by (metis allpartitionsoflist.simps(2)) 
+      thus "p2 \<in> (?l X2)" using all_coarser_partitions_with_def 2 
+      by (metis all_partitions_of_list.simps(2)) 
     qed
     have a2: "?l X2 \<subseteq> ?c (set X2)"
     proof -
       {
       fix p2  assume "p2 \<in> ?l X2"
-      hence "p2 \<in> all_coarser_partitions_with ?e (?l ?X1)" using 2 allpartitionsoflist_def 
-      by (metis allpartitionsoflist.simps(2)) 
+      hence "p2 \<in> all_coarser_partitions_with ?e (?l ?X1)" using 2 
+      by (metis all_partitions_of_list.simps(2)) 
       hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using all_coarser_partitions_with_def by metis
       obtain Y where a4: "Y \<in> (?ch ?e ` (?l ?X1))" and a5: "p2 \<in> Y" using a3 by blast
       obtain p1 where a6: "p1 \<in> (?l ?X1)" and a7: "Y = (?ch ?e p1)" using a4 by blast
@@ -477,14 +473,14 @@ fix x fix n
 show "mypred x n"
 proof (rule nat.induct)
   show "mypred x 0" using mypred_def emptyparts 
-by (metis allpartitionsoflist.simps(1) length_0_conv set_empty2)
+by (metis all_partitions_of_list.simps(1) length_0_conv set_empty2)
 next
   fix m assume "mypred x m" thus "mypred x (Suc m)" using indstep by metis
 qed
 qed
 
 theorem partadequacy: fixes l assumes "norepetitions l" shows 
-"allpartitionsoflist l = all_partitions_classical (set l)" 
+"all_partitions_of_list l = all_partitions_classical (set l)" 
 using l14 mypred_def assms by fast
 
 lemma cardsize: fixes x assumes "finite x"
@@ -498,11 +494,15 @@ lemma norepset: fixes x assumes "finite x" shows
 "norepetitions (sorted_list_of_set x)" 
 using assms cardsize setlistid norepetitions_def by metis
 
-corollary fixes x assumes "finite x" shows 
-"allpartitionsoflist (sorted_list_of_set x) = all_partitions_classical x" 
-using norepset partadequacy assms by fastforce
+definition all_partitions where "all_partitions X = all_partitions_of_list (sorted_list_of_set X)"
 
-definition allpartitionsofset where 
-"allpartitionsofset x = allpartitionsoflist (sorted_list_of_set x)"
+corollary fixes X assumes "finite X" shows 
+"all_partitions X = all_partitions_classical X" 
+unfolding all_partitions_def
+using norepset partadequacy assms by fastforce
+(* all_partitions internally works with a list representing a set
+   (this allows us to use the recursive function all_partitions_of_list).
+   For a list with repetitions we can only guarantee compliance
+   once we establish norepetitions. *)
 
 end
