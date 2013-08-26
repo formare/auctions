@@ -251,23 +251,35 @@ proof -
     then have "x \<in> Q \<and> y \<in> Q" using subset by fast
     then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition is_partition_def by metis
   }
-  then show "is_partition P" using is_partition_def by blast
+  then show ?thesis using is_partition_def by blast
 qed
 
-lemma l6: fixes p X assumes "is_partition p" assumes "X \<inter> \<Union> p = {}" 
-assumes "X \<noteq> {} " shows "is_partition (insert X p)"
+lemma partition_extension:
+  fixes P::"'a set set"
+    and X::"'a set"
+  assumes partition: "is_partition P"
+      and disjoint: "X \<inter> \<Union> P = {}" 
+      and non_empty: "X \<noteq> {}"
+  shows "is_partition (insert X P)"
 proof -
-  let ?P="is_partition" let ?Y="insert X p" let ?p="%a . %b . (a \<inter> b \<noteq> {} \<longleftrightarrow> a=b)"
   {
-    fix x y assume 1: "x\<in>?Y \<and> y\<in>?Y"
-    have 2: "(x=X \<and> y\<in>p) \<longrightarrow> ?p x y" using assms is_partition_def by blast
-    hence 4: "((x=X \<and> y\<in>p) \<or> (y=X \<and> x\<in>p)) \<longrightarrow> ?p x y" using assms by blast
-    have 3: "x=X \<and> y=X \<longrightarrow> ?p x y" using assms by fastforce
-    hence 5: "x=X \<or> y=X \<longrightarrow> ?p x y" using assms 1 4 by fast
-    have "(\<not> (x=X \<or> y=X)) \<longrightarrow> ?p x y" using assms is_partition_def 1 by (metis insertE)
-    hence "?p x y" using 5 by fastforce
+    fix x y assume x_y_in_ext: "x \<in> insert X P \<and> y \<in> insert X P"
+    have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y"
+    proof
+      assume "x \<inter> y \<noteq> {}"
+      then show "x = y"
+        using x_y_in_ext partition disjoint
+        unfolding is_partition_def
+        by fast
+    next
+      assume "x = y"
+      then show "x \<inter> y \<noteq> {}"
+        using x_y_in_ext partition non_empty
+        unfolding is_partition_def
+        by auto
+    qed
   }
-  thus "?P ?Y" using is_partition_def by metis
+  then show ?thesis unfolding is_partition_def by force
 qed
 
 lemma l7: fixes q X assumes "is_partition q" assumes "X\<in>q" shows
@@ -294,7 +306,7 @@ proof -
   have 1: "is_partition ?p" using subset_is_partition assms by blast
   have "?X \<inter> \<Union> ?p = {}" using assms l7 by metis
   hence "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> ?p={}" using assms by blast
-  hence "?P (insert ?Y ?p)" using l6 assms 1 by metis
+  hence "?P (insert ?Y ?p)" using partition_extension assms 1 by metis
   hence "?P (?p \<union> {?X \<union> {newel}})" by fastforce
   thus "?P (?g ?q ?X)" using insert_into_member_def by metis
 qed
@@ -306,7 +318,7 @@ proof -
   let ?g = "insert_into_member e" let ?q="insert {e} p1" let ?P="is_partition"
   have 1: "p2 \<in> insert (insert {e} p1) ((?g p1)`p1)" 
   using assms coarser_partitions_with_def by metis
-  have 2: "?P ?q" using l6 assms by fastforce
+  have 2: "?P ?q" using partition_extension assms by fastforce
   {
   assume "\<not> ?thesis"
   hence "p2 \<noteq> ?q" using 2 by fast
@@ -351,7 +363,7 @@ proof -
     hence "q \<in> ?c ?p" using coarser_partitions_with_def by (metis insertI1)    
   } 
   hence 11: "?x \<notin> ?p \<longrightarrow> ?thesis" by fast
-  have "?x={} \<or> ?x \<notin> q" using l6 1 assms is_partition_def 
+  have "?x={} \<or> ?x \<notin> q" using partition_extension 1 assms is_partition_def 
   by (smt Diff_Int_distrib2 Diff_iff Int_absorb empty_Diff insert_iff)
   hence "?x \<notin> q" using is_partition_def by (metis Int_empty_left assms(1))
   hence 0: "?q2 - {?x} = ?q2" by fastforce
