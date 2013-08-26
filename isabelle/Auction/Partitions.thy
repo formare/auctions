@@ -254,7 +254,7 @@ proof -
   then show ?thesis using is_partition_def by blast
 qed
 
-lemma partition_extension:
+lemma partition_extension1:
   fixes P::"'a set set"
     and X::"'a set"
   assumes partition: "is_partition P"
@@ -301,18 +301,27 @@ proof -
   then show ?thesis by blast
 qed
 
-lemma l4: fixes newel part Subset assumes "newel \<notin> \<Union> part" and "Subset \<in> part"
-and "is_partition part"
-shows "is_partition (insert_into_member newel part Subset)" 
+lemma partition_extension2:
+  fixes new_el::'a
+    and P::"'a set set"
+    and X::"'a set"
+  assumes partition: "is_partition P"
+      and eq_class: "X \<in> P"
+      and new: "new_el \<notin> \<Union> P"
+shows "is_partition (insert_into_member new_el P X)"
 proof -
-  let ?g="insert_into_member newel" let ?q="part"  let ?X="Subset"
-  let ?p="?q - {?X}" let ?Y="insert newel ?X" let ?P="is_partition"
-  have 1: "is_partition ?p" using subset_is_partition assms by blast
-  have "?X \<inter> \<Union> ?p = {}" using assms l7 by metis
-  hence "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> ?p={}" using assms by blast
-  hence "?P (insert ?Y ?p)" using partition_extension assms 1 by metis
-  hence "?P (?p \<union> {?X \<union> {newel}})" by fastforce
-  thus "?P (?g ?q ?X)" using insert_into_member_def by metis
+  let ?Y = "insert new_el X"
+  have rest_is_partition: "is_partition (P - {X})"
+    using partition subset_is_partition by blast
+  have "X \<inter> \<Union> (P - {X}) = {}"
+   using eq_class partition disj_eq_classes
+   by metis
+  then have "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> (P - {X}) = {}" using new by blast
+  then have "is_partition (insert ?Y (P - {X}))"
+    using rest_is_partition partition_extension1
+    by metis
+  then have "is_partition (P - {X} \<union> {X \<union> {new_el}})" by simp
+  then show ?thesis using insert_into_member_def by metis
 qed
 
 lemma l1: fixes e p assumes "is_partition p1" and 
@@ -322,13 +331,13 @@ proof -
   let ?g = "insert_into_member e" let ?q="insert {e} p1" let ?P="is_partition"
   have 1: "p2 \<in> insert (insert {e} p1) ((?g p1)`p1)" 
   using assms coarser_partitions_with_def by metis
-  have 2: "?P ?q" using partition_extension assms by fastforce
+  have 2: "?P ?q" using partition_extension1 assms by fastforce
   {
   assume "\<not> ?thesis"
   hence "p2 \<noteq> ?q" using 2 by fast
   hence "p2 \<in> (?g p1)`p1" using 1 assms by fastforce
   then obtain X where 2: "X \<in> p1 \<and> p2 = (?g p1) X" by fast
-  hence "?P p2" using l4 2 assms by fast
+  hence "?P p2" using partition_extension2 2 assms by fast
   }
   thus ?thesis by fast
 qed
@@ -367,7 +376,7 @@ proof -
     hence "q \<in> ?c ?p" using coarser_partitions_with_def by (metis insertI1)    
   } 
   hence 11: "?x \<notin> ?p \<longrightarrow> ?thesis" by fast
-  have "?x={} \<or> ?x \<notin> q" using partition_extension 1 assms is_partition_def 
+  have "?x={} \<or> ?x \<notin> q" using partition_extension1 1 assms is_partition_def 
   by (smt Diff_Int_distrib2 Diff_iff Int_absorb empty_Diff insert_iff)
   hence "?x \<notin> q" using is_partition_def by (metis Int_empty_left assms(1))
   hence 0: "?q2 - {?x} = ?q2" by fastforce
