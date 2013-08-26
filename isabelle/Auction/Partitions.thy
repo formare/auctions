@@ -324,22 +324,31 @@ proof -
   then show ?thesis using insert_into_member_def by metis
 qed
 
-lemma l1: fixes e p assumes "is_partition p1" and 
-"p2 \<in> (coarser_partitions_with e p1)" and "e \<notin> \<Union> p1"
-shows "is_partition p2"
+lemma partition_extension3:
+  fixes elem::'a
+    and P::"'a set set"
+    and Q::"'a set set"
+  assumes P_partition: "is_partition P"
+      and new_elem: "elem \<notin> \<Union> P"
+      and Q_coarser: "Q \<in> coarser_partitions_with elem P"
+  shows "is_partition Q"
 proof -
-  let ?g = "insert_into_member e" let ?q="insert {e} p1" let ?P="is_partition"
-  have 1: "p2 \<in> insert (insert {e} p1) ((?g p1)`p1)" 
-  using assms coarser_partitions_with_def by metis
-  have 2: "?P ?q" using partition_extension1 assms by fastforce
-  {
-  assume "\<not> ?thesis"
-  hence "p2 \<noteq> ?q" using 2 by fast
-  hence "p2 \<in> (?g p1)`p1" using 1 assms by fastforce
-  then obtain X where 2: "X \<in> p1 \<and> p2 = (?g p1) X" by fast
-  hence "?P p2" using partition_extension2 2 assms by fast
-  }
-  thus ?thesis by fast
+  let ?q = "insert {elem} P"
+  have Q_coarser_unfolded: "Q \<in> insert ?q (insert_into_member elem P ` P)" 
+    using Q_coarser 
+    unfolding coarser_partitions_with_def
+    by fast
+  show ?thesis
+  proof (cases "Q = ?q")
+    case True
+    then show ?thesis
+      using P_partition new_elem partition_extension1
+      by fastforce
+  next
+    case False
+    then have "Q \<in> (insert_into_member elem P) ` P" using Q_coarser_unfolded by fastforce
+    then show ?thesis using partition_extension2 P_partition new_elem by fast
+  qed
 qed
 
 lemma l10: fixes f X Y shows "f`(X \<union> Y) = f`X \<union> (f`Y)" 
@@ -469,7 +478,7 @@ proof -
       hence "?Q p1 (set ?X1)" using all_partitions_classical_def by blast
       hence a11: "?P p1 \<and> \<Union> p1=set ?X1" 
       using is_partition_of_def by blast
-      hence 22: "?P p2" using l1 a9 19 by fast
+      hence 22: "?P p2" using partition_extension3 a9 19 by fast
       have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 coarser_partitions_covers by fast
       hence "\<Union> p2 = (set X2)" using 19 by (metis "2" List.set.simps(2) Un_commute insert_is_Un)
       hence "?Q p2 (set X2)" using 22 is_partition_of_def by blast
