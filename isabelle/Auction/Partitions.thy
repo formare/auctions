@@ -351,58 +351,62 @@ proof -
   qed
 qed
 
-lemma l10: fixes f X Y shows "f`(X \<union> Y) = f`X \<union> (f`Y)" 
-using Set.image_def by blast
+lemma image_union: fixes f X Y shows "f ` (X \<union> Y) = f ` X \<union> f ` Y" by auto
 
-lemma l11: fixes p assumes "is_partition p" shows "{} \<notin> p" 
-using assms is_partition_def by fast
+lemma no_empty_eq_class:
+  assumes "is_partition p"
+  shows "{} \<notin> p" 
+  using assms is_partition_def by fast
 
-lemma l2a: fixes e q assumes "is_partition q" assumes "e \<in> \<Union> q" 
-shows "q \<in> coarser_partitions_with e (partition_without e q)"
+lemma l2a:
+  fixes elem::'a
+    and P::"'a set set"
+  assumes partition: "is_partition P"
+      and elem: "elem \<in> \<Union> P" 
+  shows "P \<in> coarser_partitions_with elem (partition_without elem P)"
+    (is "P \<in> coarser_partitions_with elem ?Q")
 proof -
-  let ?c="coarser_partitions_with e" let ?p="partition_without e q" let ?g="insert_into_member e"
-  let ?f="%x . x - {e}" let ?P="is_partition"
-  obtain y where 1: "y \<in> q \<and> e \<in> y" using assms by (metis UnionE)
-  let ?q2="q-{y}" let ?x="y-{e}"
-  have 8: "?P ?q2" using subset_is_partition assms by blast
-  have 5: "?x = ?f y \<and> ?f`{y}={?x} " by fast hence 
-  4: "?x \<in> ?f ` q " using 1 by blast
-  have "\<forall> w \<in> ?q2 . w \<inter> y = {}" using is_partition_def assms 1 4 
-  by (metis Diff_iff insertI1)
-  hence "\<forall> w \<in> ?q2 . e \<notin> w" using is_partition_def assms 1 4 by blast
-  hence "\<forall> w \<in> ?q2 . ?f w = id w" by simp
-  hence "?f ` ?q2 = id ` ?q2" by blast
-  hence "?f ` ?q2 = ?q2 \<and> q=?q2 \<union> {y}" using 1 by force
-  hence 7: "?p=?q2 \<union> {?x} - {{}}" using 1 partition_without_def l10 5 sorry (* TODO CL: sorry, can't prove this right now after refactorings, will fix later *)
+  let ?remove = "%x . x - {elem}"
+  obtain Y where 1: "Y \<in> P \<and> elem \<in> Y" using elem by blast
+  let ?P_rest = "P - {Y}"
+  let ?x="Y-{elem}"
+  have 8: "is_partition ?P_rest" using subset_is_partition assms by blast
+  have 5: "?x = ?remove Y \<and> ?remove ` {Y} = {?x}" by fast
+  hence 4: "?x \<in> ?remove ` P " using 1 by blast
+  have "\<forall> w \<in> ?P_rest . w \<inter> Y = {}" using is_partition_def assms 1 4 
+    by (metis Diff_iff insertI1)
+  hence "\<forall> w \<in> ?P_rest . elem \<notin> w" using is_partition_def assms 1 4 by blast
+  hence "\<forall> w \<in> ?P_rest . ?remove w = id w" by simp
+  hence "?remove ` ?P_rest = id ` ?P_rest" by blast
+  hence "?remove ` ?P_rest = ?P_rest \<and> P = ?P_rest \<union> {Y}" using 1 by force
+  hence 7: "?Q = ?P_rest \<union> {?x} - {{}}" using 1 partition_without_def image_union 5 sorry (* TODO CL: sorry, can't prove this right now after refactorings, will fix later *)
   {
-    assume "?x \<notin> ?p" hence "?x \<in> {{}}" using 4 partition_without_def sorry (* TODO CL: sorry, can't prove this right now after refactorings, will fix later *)
-    hence 9: "?x={} \<and> y={e}" using 1 by fast
-    hence "?p = ?q2 - {{}}" using 7 is_partition_def assms by force
-    hence 10: "?p = ?q2" using l11 8 by blast
-    have "insert {e} ?q2 = insert y ?q2" using 9 by fast
-    hence "insert {e} ?q2 = q" using 1 by auto
-    hence "insert {e} ?p = q" using 10 by presburger
-    hence "q \<in> ?c ?p" using coarser_partitions_with_def by (metis insertI1)    
+    assume "?x \<notin> ?Q" hence "?x \<in> {{}}" using 4 partition_without_def sorry (* TODO CL: sorry, can't prove this right now after refactorings, will fix later *)
+    hence 9: "?x = {} \<and> Y = {elem}" using 1 by fast
+    hence "?Q = ?P_rest - {{}}" using 7 is_partition_def assms by force
+    hence 10: "?Q = ?P_rest" using no_empty_eq_class 8 by blast
+    then have "insert {elem} ?Q = P" using 9 1 by fast
+    hence "P \<in> coarser_partitions_with elem ?Q" using coarser_partitions_with_def by (metis insertI1)    
   } 
-  hence 11: "?x \<notin> ?p \<longrightarrow> ?thesis" by fast
-  have "?x={} \<or> ?x \<notin> q" using partition_extension1 1 assms is_partition_def 
+  hence 11: "?x \<notin> ?Q \<longrightarrow> ?thesis" by fast
+  have "?x={} \<or> ?x \<notin> P" using partition_extension1 1 assms is_partition_def 
   by (smt Diff_Int_distrib2 Diff_iff Int_absorb empty_Diff insert_iff)
-  hence "?x \<notin> q" using is_partition_def by (metis Int_empty_left assms(1))
-  hence 0: "?q2 - {?x} = ?q2" by fastforce
+  hence "?x \<notin> P" using is_partition_def by (metis Int_empty_left assms(1))
+  hence 0: "?P_rest - {?x} = ?P_rest" by fastforce
 {
-  assume 2: "?x \<in> ?p" 
-  hence "?x \<noteq> {}" using l11 partition_without_is_partition assms by metis
-  hence 12: "?q2 \<union> {?x} - {{}} = ?q2 \<union> {?x}" using l11 8 assms by blast
-  have "?g ({?x} \<union> ?q2) (?x) = ({?x} \<union> ?q2) - {?x} \<union> {?x \<union> {e}} " 
+  assume 2: "?x \<in> ?Q" 
+  hence "?x \<noteq> {}" using no_empty_eq_class partition_without_is_partition assms by metis
+  hence 12: "?P_rest \<union> {?x} - {{}} = ?P_rest \<union> {?x}" using no_empty_eq_class 8 assms by blast
+  have "insert_into_member elem ({?x} \<union> ?P_rest) (?x) = ({?x} \<union> ?P_rest) - {?x} \<union> {?x \<union> {elem}} " 
   using insert_into_member_def assms 0 by metis
-  hence "?g ({?x} \<union> ?q2) ?x = ({} \<union> ?q2) \<union> {?x \<union> {e}}" 
+  hence "insert_into_member elem ({?x} \<union> ?P_rest) ?x = ({} \<union> ?P_rest) \<union> {?x \<union> {elem}}" 
   using 0 by force
-  hence "?g ({?x} \<union> ?q2) ?x = ?q2 \<union> {y}" using 1 by blast
-  hence "?q2 \<union> {y} = ?g ?p ?x" using 7 12 partition_without_def by force
-  hence "{y} \<union> ?q2 \<in> ?g ?p ` ?p" using 2 image_def by blast
-  hence "{y} \<union> ?q2 \<in> ?c ?p" using coarser_partitions_with_def by (metis insertCI)
+  hence "insert_into_member elem ({?x} \<union> ?P_rest) ?x = ?P_rest \<union> {Y}" using 1 by blast
+  hence "?P_rest \<union> {Y} = insert_into_member elem ?Q ?x" using 7 12 partition_without_def by force
+  hence "{Y} \<union> ?P_rest \<in> insert_into_member elem ?Q ` ?Q" using 2 image_def by blast
+  hence "{Y} \<union> ?P_rest \<in> coarser_partitions_with elem ?Q" using coarser_partitions_with_def by (metis insertCI)
 }
-  thus ?thesis using 11 by (metis `y \<in> q \<and> e \<in> y` insert_Diff_single insert_absorb insert_is_Un)
+  thus ?thesis using 11 by (metis 1 insert_Diff_single insert_absorb insert_is_Un)
 qed
 
 (* MC: norepetitions stuff could be moved to a 
