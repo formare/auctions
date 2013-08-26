@@ -353,7 +353,7 @@ lemma no_empty_eq_class:
   shows "{} \<notin> p" 
   using assms is_partition_def by fast
 
-lemma l2a:
+lemma coarser_partitions_inv_without:
   fixes elem::'a
     and P::"'a set set"
   assumes partition: "is_partition P"
@@ -361,27 +361,33 @@ lemma l2a:
   shows "P \<in> coarser_partitions_with elem (partition_without elem P)"
     (is "P \<in> coarser_partitions_with elem ?Q")
 proof -
-  let ?remove = "%X . X - {elem}" (* function that removes elem out of a set *)
+  let ?remove_elem = "\<lambda>X . X - {elem}" (* function that removes elem out of a set *)
   obtain Y (* the equivalence class of elem *)
     where elem_eq_class: "elem \<in> Y" and elem_eq_class': "Y \<in> P" using elem by blast
   let ?elem_neq_classes = "P - {Y}" (* those equivalence classes in which elem is not *)
   have P_wrt_elem: "P = ?elem_neq_classes \<union> {Y}" using elem_eq_class' by blast
   let ?elem_eq = "Y - {elem}" (* other elements equivalent to elem *)
-  have Y_elem_eq: "?remove ` {Y} = {?elem_eq}" by fast
+  have Y_elem_eq: "?remove_elem ` {Y} = {?elem_eq}" by fast
   (* those equivalence classes, in which elem is not, form a partition *)
-  have elem_neq_classes_part: "is_partition ?elem_neq_classes" using subset_is_partition partition by blast
-  have elem_eq_wrt_P: "?elem_eq \<in> ?remove ` P" using elem_eq_class' by blast
+  have elem_neq_classes_part: "is_partition ?elem_neq_classes"
+    using subset_is_partition partition
+    by blast
+  have elem_eq_wrt_P: "?elem_eq \<in> ?remove_elem ` P" using elem_eq_class' by blast
   
-  {
-    (* consider an equivalence class W, in which elem is not *)
+  { (* consider an equivalence class W, in which elem is not *)
     fix W assume W_eq_class: "W \<in> ?elem_neq_classes"
-    then have "elem \<notin> W" using elem_eq_class elem_eq_class' partition is_partition_def by fast
-    then have "?remove W = W" by simp
+    then have "elem \<notin> W"
+      using elem_eq_class elem_eq_class' partition is_partition_def
+      by fast
+    then have "?remove_elem W = W" by simp
   }
-  then have elem_neq_classes_id: "?remove ` ?elem_neq_classes = ?elem_neq_classes" by fastforce
+  then have elem_neq_classes_id: "?remove_elem ` ?elem_neq_classes = ?elem_neq_classes" by fastforce
 
-  have Q_unfolded: "?Q = (?remove ` P) - {{}}" unfolding partition_without_def using image_Collect_mem by blast
-  also have "\<dots> = (?remove ` (?elem_neq_classes \<union> {Y})) - {{}}" using P_wrt_elem by presburger
+  have Q_unfolded: "?Q = ?remove_elem ` P - {{}}"
+    unfolding partition_without_def
+    using image_Collect_mem
+    by blast
+  also have "\<dots> = ?remove_elem ` (?elem_neq_classes \<union> {Y}) - {{}}" using P_wrt_elem by presburger
   also have "\<dots> = ?elem_neq_classes \<union> {?elem_eq} - {{}}"
     using elem_eq_class' partition_without_def image_union Y_elem_eq elem_neq_classes_id
     by smt
@@ -390,30 +396,43 @@ proof -
   have "?elem_eq = {} \<or> ?elem_eq \<notin> P"
     using elem_eq_class elem_eq_class' partition is_partition_def
     by (smt Diff_Int_distrib2 Diff_iff Int_absorb empty_Diff insert_iff)
-  then have "?elem_eq \<notin> P" using partition no_empty_eq_class by metis
-  then have 0: "?elem_neq_classes - {?elem_eq} = ?elem_neq_classes" by fastforce
+  then have "?elem_eq \<notin> P"
+    using partition no_empty_eq_class
+    by metis
+  then have elem_neq_classes: "?elem_neq_classes - {?elem_eq} = ?elem_neq_classes" by fastforce
 
   show ?thesis
   proof cases
-    assume "?elem_eq \<notin> ?Q"
-    hence "?elem_eq \<in> {{}}" using elem_eq_wrt_P Q_unfolded by (metis DiffI)
-    hence 9: "?elem_eq = {} \<and> Y = {elem}" using elem_eq_class by fast
-    hence "?Q = ?elem_neq_classes - {{}}" using Q_wrt_elem is_partition_def assms by force
-    hence 10: "?Q = ?elem_neq_classes" using no_empty_eq_class elem_neq_classes_part by blast
-    then have "insert {elem} ?Q = P" using 9 elem_eq_class' by fast
-    then show ?thesis using coarser_partitions_with_def by (metis insertI1)    
+    assume "?elem_eq \<notin> ?Q" (* the equivalence class of elem is not a member of ?Q = partition_without elem P *)
+    then have "?elem_eq \<in> {{}}"
+      using elem_eq_wrt_P Q_unfolded
+      by (metis DiffI)
+    then have Y_singleton: "Y = {elem}" using elem_eq_class by fast
+    then have "?Q = ?elem_neq_classes - {{}}"
+      using Q_wrt_elem is_partition_def partition
+      by force
+    then have "?Q = ?elem_neq_classes"
+      using no_empty_eq_class elem_neq_classes_part
+      by blast
+    then have "insert {elem} ?Q = P"
+      using Y_singleton elem_eq_class'
+      by fast
+    then show ?thesis using coarser_partitions_with_def by (metis insertI1)
   next
     assume True: "\<not> ?elem_eq \<notin> ?Q"
-    hence "?elem_eq \<noteq> {}" using no_empty_eq_class partition_without_is_partition assms by metis
-    hence 12: "?elem_neq_classes \<union> {?elem_eq} - {{}} = ?elem_neq_classes \<union> {?elem_eq}" using no_empty_eq_class elem_neq_classes_part assms by blast
-    have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) (?elem_eq) = ({?elem_eq} \<union> ?elem_neq_classes) - {?elem_eq} \<union> {?elem_eq \<union> {elem}} " 
-    using insert_into_member_def assms 0 by metis
-    hence "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ({} \<union> ?elem_neq_classes) \<union> {?elem_eq \<union> {elem}}" 
-      using 0 by force
-    hence "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ?elem_neq_classes \<union> {Y}" using elem_eq_class by blast
-    hence "?elem_neq_classes \<union> {Y} = insert_into_member elem ?Q ?elem_eq" using Q_wrt_elem 12 partition_without_def by force
-    hence "{Y} \<union> ?elem_neq_classes \<in> insert_into_member elem ?Q ` ?Q" using True by blast
-    hence "{Y} \<union> ?elem_neq_classes \<in> coarser_partitions_with elem ?Q" using coarser_partitions_with_def by (metis insertCI)
+    hence Y': "?elem_neq_classes \<union> {?elem_eq} - {{}} = ?elem_neq_classes \<union> {?elem_eq}"
+      using no_empty_eq_class partition partition_without_is_partition
+      by force
+    have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ({?elem_eq} \<union> ?elem_neq_classes) - {?elem_eq} \<union> {?elem_eq \<union> {elem}}" 
+      unfolding insert_into_member_def by blast
+    also have "\<dots> = ({} \<union> ?elem_neq_classes) \<union> {?elem_eq \<union> {elem}}" using elem_neq_classes by force
+    also have "\<dots> = ?elem_neq_classes \<union> {Y}" using elem_eq_class by blast
+    finally have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ?elem_neq_classes \<union> {Y}" .
+    then have "?elem_neq_classes \<union> {Y} = insert_into_member elem ?Q ?elem_eq"
+      using Q_wrt_elem Y' partition_without_def
+      by force
+    then have "{Y} \<union> ?elem_neq_classes \<in> insert_into_member elem ?Q ` ?Q" using True by blast
+    then have "{Y} \<union> ?elem_neq_classes \<in> coarser_partitions_with elem ?Q" using coarser_partitions_with_def by force
     then show ?thesis using P_wrt_elem by simp
   qed
 qed
@@ -459,7 +478,7 @@ proof -
       hence "?Q (?f p2) (set ?X1)" using is_partition_of_def 18 by blast
       hence "(?f p2) \<in> ?c (set ?X1)" using all_partitions_classical_def by blast
       hence 5: "?f p2 \<in> ?l ?X1" using indhyp mypred_def 13 a12 by blast
-      hence "p2 \<in> (?ch ?e) (?f p2)" using l2a 14 by fast
+      hence "p2 \<in> (?ch ?e) (?f p2)" using coarser_partitions_inv_without 14 by fast
       hence "p2 \<in> \<Union> ((?ch ?e) ` (?l ?X1))" using 5 by blast
       thus "p2 \<in> (?l X2)" using all_coarser_partitions_with_def 2 
       by (metis all_partitions_of_list.simps(2)) 
