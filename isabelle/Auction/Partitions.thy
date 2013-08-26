@@ -476,8 +476,8 @@ proof -
       have a12: "distinct ?X1" using a10 by (metis distinct_tl)
       hence "\<not> {?e} \<subseteq> set ?X1" using 2 a10 by (metis distinct.simps(2) insert_subset)
       hence 19: "?e \<notin> set ?X1" by fast
-      have a1: "?c (set X2) \<subseteq> ?l X2"
-      proof
+      show "?c (set X2) = ?l X2"
+      proof (rule equalitySubsetI)
         fix p2
         have 16: "\<Union> ?f p2 = \<Union> p2 - {?e}" using partition_without_covers by metis
         assume "p2 \<in> ?c (set X2)"
@@ -492,33 +492,27 @@ proof -
         hence "p2 \<in> (?ch ?e) (?f p2)" using coarser_partitions_inv_without 14 by fast
         hence "p2 \<in> \<Union> (?ch ?e) ` (?l ?X1)" using 5 by blast
         thus "p2 \<in> ?l X2" using all_coarser_partitions_with_def 2 
+          by (metis all_partitions_of_list.simps(2))
+      next
+        fix p2  assume "p2 \<in> ?l X2"
+        hence "p2 \<in> all_coarser_partitions_with ?e (?l ?X1)" using 2 
           by (metis all_partitions_of_list.simps(2)) 
+        hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using all_coarser_partitions_with_def by metis
+        obtain Y where a4: "Y \<in> (?ch ?e ` (?l ?X1))" and a5: "p2 \<in> Y" using a3 by blast
+        obtain p1 where a6: "p1 \<in> (?l ?X1)" and a7: "Y = (?ch ?e p1)" using a4 by blast
+        have a9: "p2 \<in> (?ch ?e p1)" using a5 a7 by fast
+        have "length ?X1 = n" using 2 a10 by (metis One_nat_def Suc_eq_plus1 diff_Suc_1 list.size(4))
+        hence "?c (set ?X1) = ?l ?X1" using indhyp mypred_def a12 by blast
+        hence "p1 \<in> ?c (set ?X1)" using a6 indhyp mypred_def by blast
+        hence "?Q p1 (set ?X1)" using all_partitions_classical_def by blast
+        hence a11: "?P p1 \<and> \<Union> p1=set ?X1" 
+        using is_partition_of_def by blast
+        hence 22: "?P p2" using partition_extension3 a9 19 by fast
+        have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 coarser_partitions_covers by fast
+        hence "\<Union> p2 = (set X2)" using 19 by (metis 2 List.set.simps(2) Un_commute insert_is_Un)
+        hence "?Q p2 (set X2)" using 22 is_partition_of_def by blast
+        then show "p2 \<in> ?c (set X2)" using all_partitions_classical_def by fastforce
       qed
-      have a2: "?l X2 \<subseteq> ?c (set X2)"
-      proof -
-        {
-          fix p2  assume "p2 \<in> ?l X2"
-          hence "p2 \<in> all_coarser_partitions_with ?e (?l ?X1)" using 2 
-          by (metis all_partitions_of_list.simps(2)) 
-          hence a3: "p2 \<in> \<Union> (?ch ?e ` (?l ?X1))" using all_coarser_partitions_with_def by metis
-          obtain Y where a4: "Y \<in> (?ch ?e ` (?l ?X1))" and a5: "p2 \<in> Y" using a3 by blast
-          obtain p1 where a6: "p1 \<in> (?l ?X1)" and a7: "Y = (?ch ?e p1)" using a4 by blast
-          have a9: "p2 \<in> (?ch ?e p1)" using a5 a7 by fast
-          have "length ?X1 = n" using 2 a10 by (metis One_nat_def Suc_eq_plus1 diff_Suc_1 list.size(4))
-          hence "?c (set ?X1) = ?l ?X1" using indhyp mypred_def a12 by blast
-          hence "p1 \<in> ?c (set ?X1)" using a6 indhyp mypred_def by blast
-          hence "?Q p1 (set ?X1)" using all_partitions_classical_def by blast
-          hence a11: "?P p1 \<and> \<Union> p1=set ?X1" 
-          using is_partition_of_def by blast
-          hence 22: "?P p2" using partition_extension3 a9 19 by fast
-          have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 coarser_partitions_covers by fast
-          hence "\<Union> p2 = (set X2)" using 19 by (metis 2 List.set.simps(2) Un_commute insert_is_Un)
-          hence "?Q p2 (set X2)" using 22 is_partition_of_def by blast
-          hence "p2 \<in> ?c (set X2)" using all_partitions_classical_def by fastforce
-        }
-        thus ?thesis by fast
-      qed
-      show "?c (set X2) = ?l X2" using a1 a2 by fastforce
     qed
   qed
   thus ?thesis using mypred_def by fast
