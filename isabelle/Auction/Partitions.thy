@@ -160,7 +160,7 @@ lemma coarser_partitions_covers:
 proof -
   let ?S = "\<Union> P"
   have Q_cases: "Q \<in> (insert_into_member elem P) ` P \<or> Q = insert {elem} P"
-    using coarser_partitions_with_def assms by (smt insertE)
+    using assms unfolding coarser_partitions_with_def by fast
   {
     fix eq_class assume eq_class_in_P: "eq_class \<in> P"
     have "\<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem}) = ?S \<union> (eq_class \<union> {elem})"
@@ -218,14 +218,14 @@ proof -
         proof
           assume "x1 \<inter> x2 \<noteq> {}"
           then have "z1 \<inter> z2 \<noteq> {}" using z1_sup z2_sup by fast
-          then have "z1 = z2" using z1_in_P z2_in_P assms by (metis is_partition_def)
+          then have "z1 = z2" using z1_in_P z2_in_P assms unfolding is_partition_def by fast
           then show "x1 = x2" using z1_sup z2_sup by fast
         qed
         moreover have "x1 = x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}" using x1_non_empty by auto
         ultimately show "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1 = x2" by blast
       qed
     qed
-    then show ?thesis using is_partition_def by auto
+    then show ?thesis unfolding is_partition_def .
   qed
 qed
 
@@ -246,9 +246,9 @@ proof -
   {
     fix x y assume "x \<in> P \<and> y \<in> P"
     then have "x \<in> Q \<and> y \<in> Q" using subset by fast
-    then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition is_partition_def by metis
+    then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition unfolding is_partition_def by force
   }
-  then show ?thesis using is_partition_def by blast
+  then show ?thesis unfolding is_partition_def by force
 qed
 
 lemma partition_extension1:
@@ -318,7 +318,7 @@ proof -
     using rest_is_partition partition_extension1
     by metis
   then have "is_partition (P - {X} \<union> {X \<union> {new_el}})" by simp
-  then show ?thesis using insert_into_member_def by metis
+  then show ?thesis unfolding insert_into_member_def .
 qed
 
 lemma partition_extension3:
@@ -363,7 +363,7 @@ lemma coarser_partitions_inv_without:
 proof -
   let ?remove_elem = "\<lambda>X . X - {elem}" (* function that removes elem out of a set *)
   obtain Y (* the equivalence class of elem *)
-    where elem_eq_class: "elem \<in> Y" and elem_eq_class': "Y \<in> P" using elem by blast
+    where elem_eq_class: "elem \<in> Y" and elem_eq_class': "Y \<in> P" using elem ..
   let ?elem_neq_classes = "P - {Y}" (* those equivalence classes in which elem is not *)
   have P_wrt_elem: "P = ?elem_neq_classes \<union> {Y}" using elem_eq_class' by blast
   let ?elem_eq = "Y - {elem}" (* other elements equivalent to elem *)
@@ -394,7 +394,7 @@ proof -
   finally have Q_wrt_elem: "?Q = ?elem_neq_classes \<union> {?elem_eq} - {{}}" .
 
   have "?elem_eq = {} \<or> ?elem_eq \<notin> P"
-    using elem_eq_class elem_eq_class' partition is_partition_def
+    using elem_eq_class elem_eq_class' partition unfolding is_partition_def
     by (smt Diff_Int_distrib2 Diff_iff Int_absorb empty_Diff insert_iff)
   then have "?elem_eq \<notin> P"
     using partition no_empty_eq_class
@@ -409,7 +409,7 @@ proof -
       by (metis DiffI)
     then have Y_singleton: "Y = {elem}" using elem_eq_class by fast
     then have "?Q = ?elem_neq_classes - {{}}"
-      using Q_wrt_elem is_partition_def partition
+      using Q_wrt_elem
       by force
     then have "?Q = ?elem_neq_classes"
       using no_empty_eq_class elem_neq_classes_part
@@ -417,14 +417,14 @@ proof -
     then have "insert {elem} ?Q = P"
       using Y_singleton elem_eq_class'
       by fast
-    then show ?thesis using coarser_partitions_with_def by (metis insertI1)
+    then show ?thesis unfolding coarser_partitions_with_def by auto
   next
     assume True: "\<not> ?elem_eq \<notin> ?Q"
     hence Y': "?elem_neq_classes \<union> {?elem_eq} - {{}} = ?elem_neq_classes \<union> {?elem_eq}"
       using no_empty_eq_class partition partition_without_is_partition
       by force
     have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ({?elem_eq} \<union> ?elem_neq_classes) - {?elem_eq} \<union> {?elem_eq \<union> {elem}}" 
-      unfolding insert_into_member_def by blast
+      unfolding insert_into_member_def ..
     also have "\<dots> = ({} \<union> ?elem_neq_classes) \<union> {?elem_eq \<union> {elem}}" using elem_neq_classes by force
     also have "\<dots> = ?elem_neq_classes \<union> {Y}" using elem_eq_class by blast
     finally have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ?elem_neq_classes \<union> {Y}" .
@@ -432,7 +432,7 @@ proof -
       using Q_wrt_elem Y' partition_without_def
       by force
     then have "{Y} \<union> ?elem_neq_classes \<in> insert_into_member elem ?Q ` ?Q" using True by blast
-    then have "{Y} \<union> ?elem_neq_classes \<in> coarser_partitions_with elem ?Q" using coarser_partitions_with_def by force
+    then have "{Y} \<union> ?elem_neq_classes \<in> coarser_partitions_with elem ?Q" unfolding coarser_partitions_with_def by simp
     then show ?thesis using P_wrt_elem by simp
   qed
 qed
@@ -476,41 +476,41 @@ proof -
         fix p2
         have 16: "\<Union> ?f p2 = \<Union> p2 - {?e}" using partition_without_covers by metis
         assume "p2 \<in> all_partitions_classical (set X2)"
-        hence "is_partition_of p2 (set X2)" using all_partitions_classical_def by fast
+        hence "is_partition_of p2 (set X2)" unfolding all_partitions_classical_def ..
         hence 14: "is_partition p2 \<and> ?e \<in> set X2 \<and> \<Union> p2 = set X2" 
           using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
         have 18: "\<Union> ?f p2= set ?X1" using 2 16 partition_without_covers 19 14 by (metis Diff_insert_absorb List.set.simps(2))
         have "is_partition (?f p2)" using partition_without_is_partition 14 by fast
-        hence "is_partition_of (?f p2) (set ?X1)" using is_partition_of_def 18 by blast
-        hence "(?f p2) \<in> all_partitions_classical (set ?X1)" using all_partitions_classical_def by blast
-        hence 5: "?f p2 \<in> all_partitions_of_list ?X1" using indhyp mypred_def 13 a12 by blast
+        hence "is_partition_of (?f p2) (set ?X1)" using 18 unfolding is_partition_of_def by fast
+        hence "(?f p2) \<in> all_partitions_classical (set ?X1)" unfolding all_partitions_classical_def ..
+        hence 5: "?f p2 \<in> all_partitions_of_list ?X1" using indhyp 13 a12 by fast
         hence "p2 \<in> (coarser_partitions_with ?e) (?f p2)" using coarser_partitions_inv_without 14 by fast
         hence "p2 \<in> \<Union> (coarser_partitions_with ?e) ` (all_partitions_of_list ?X1)" using 5 by blast
-        thus "p2 \<in> all_partitions_of_list X2" using all_coarser_partitions_with_def 2 
+        thus "p2 \<in> all_partitions_of_list X2" using 2 all_coarser_partitions_with_def
           by (metis all_partitions_of_list.simps(2))
       next
         fix p2  assume "p2 \<in> all_partitions_of_list X2"
         hence "p2 \<in> all_coarser_partitions_with ?e (all_partitions_of_list ?X1)" using 2 
-          by (metis all_partitions_of_list.simps(2)) 
-        hence a3: "p2 \<in> \<Union> (coarser_partitions_with ?e ` (all_partitions_of_list ?X1))" using all_coarser_partitions_with_def by metis
-        obtain Y where a4: "Y \<in> (coarser_partitions_with ?e ` (all_partitions_of_list ?X1))" and a5: "p2 \<in> Y" using a3 by blast
-        obtain p1 where a6: "p1 \<in> (all_partitions_of_list ?X1)" and a7: "Y = (coarser_partitions_with ?e p1)" using a4 by blast
+          by (metis all_partitions_of_list.simps(2))
+        hence a3: "p2 \<in> \<Union> (coarser_partitions_with ?e ` (all_partitions_of_list ?X1))" unfolding all_coarser_partitions_with_def .
+        obtain Y where a4: "Y \<in> (coarser_partitions_with ?e ` (all_partitions_of_list ?X1))" and a5: "p2 \<in> Y" using a3 ..
+        obtain p1 where a6: "p1 \<in> (all_partitions_of_list ?X1)" and a7: "Y = (coarser_partitions_with ?e p1)" using a4 ..
         have a9: "p2 \<in> (coarser_partitions_with ?e p1)" using a5 a7 by fast
-        have "length ?X1 = n" using 2 a10 by (metis One_nat_def Suc_eq_plus1 diff_Suc_1 list.size(4))
-        hence "all_partitions_classical (set ?X1) = all_partitions_of_list ?X1" using indhyp mypred_def a12 by blast
-        hence "p1 \<in> all_partitions_classical (set ?X1)" using a6 indhyp mypred_def by blast
-        hence "is_partition_of p1 (set ?X1)" using all_partitions_classical_def by blast
+        have "length ?X1 = n" using 2 a10 13 by fast
+        hence "all_partitions_classical (set ?X1) = all_partitions_of_list ?X1" using indhyp a12 by blast
+        hence "p1 \<in> all_partitions_classical (set ?X1)" using a6 indhyp by blast
+        hence "is_partition_of p1 (set ?X1)" unfolding all_partitions_classical_def ..
         hence a11: "is_partition p1 \<and> \<Union> p1=set ?X1" 
-        using is_partition_of_def by blast
+          unfolding is_partition_of_def by simp
         hence 22: "is_partition p2" using partition_extension3 a9 19 by fast
         have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 coarser_partitions_covers by fast
         hence "\<Union> p2 = (set X2)" using 19 by (metis 2 List.set.simps(2) Un_commute insert_is_Un)
-        hence "is_partition_of p2 (set X2)" using 22 is_partition_of_def by blast
-        then show "p2 \<in> all_partitions_classical (set X2)" using all_partitions_classical_def by fastforce
+        hence "is_partition_of p2 (set X2)" using 22 unfolding is_partition_of_def by blast
+        then show "p2 \<in> all_partitions_classical (set X2)" unfolding all_partitions_classical_def ..
       qed
     qed
   qed
-  thus ?thesis using mypred_def by fast
+  thus ?thesis unfolding mypred_def .
 qed
 
 lemma emptyparts1:
