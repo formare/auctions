@@ -48,7 +48,8 @@ lemma maximum_except_defined:
   fixes N i
   assumes "i \<in> N" "card N > 1"
   shows "maximum_defined (N - {i})"
-  using assms maximum_defined_def
+  using assms
+  unfolding maximum_defined_def
   by (smt card.remove card_infinite)
 
 definition maximum :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
@@ -83,7 +84,7 @@ proof -
     unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
   then have "Max ?A \<in> ?A" by (rule Max_in)
   then obtain i where "i \<in> N" and "Max ?A = y i" by blast
-  with maximum_def show ?thesis by metis
+  then show ?thesis unfolding maximum_def by fast
 qed
 
 text{* Being a component of a non-negative vector and being greater or equal than all other components uniquely defines a maximum component. *}
@@ -199,6 +200,8 @@ proof -
   then show ?thesis unfolding maximum_def by simp
 qed
 
+(* TODO CL: revise the following *)
+
 (* MC: Yet another approach below, focusing on reusing stuff (Max, zip, map, filter) 
 rather than doing our own recursion to calculate argmax *)
 
@@ -226,7 +229,7 @@ definition maxpositions :: "'a::linorder list => nat list" where
 
 lemma ll5: fixes l shows 
 "maxpositions l = [ n . n \<leftarrow> [0..<size l], l!n \<ge> Max (set l)]" 
-using assms maxpositions_def filterpositions2_def by metis
+using assms unfolding maxpositions_def filterpositions2_def by fastforce
 
 definition argmax
 :: "('a => ('b::linorder)) => 'a list => 'a list"
@@ -244,7 +247,7 @@ proof -
   [n. n <- [0..<size (map f l)], n\<in> set[0..<size (map f l)], (map f l)!n \<ge> Max (set (map f l))]
   (*[n. n <- [0..<size (map f l)], (n<size l), (n<size l \<longrightarrow> (map f l)!n \<ge> Max (set (map f l)))]*)
   "
-  using ll7  by (metis filterpositions2_def maxpositions_def)
+  using ll7 unfolding filterpositions2_def maxpositions_def .
   also have 
   "... = 
   [n . n <- [0..<size l], (n<size l), ((map f l)!n  \<ge> Max (set (map f l)))]
@@ -286,7 +289,7 @@ proof -
   hence "map (nth l) (maxpositions (map f l)) = 
   map (nth l) [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" by presburger
   also have "... = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" 
-  using ll10 by fast finally show ?thesis using argmax_def by metis
+  using ll10 by fast finally show ?thesis unfolding argmax_def .
 qed
 
 (* MC: map_commutes, filterpositions are fairly general and should be moved
