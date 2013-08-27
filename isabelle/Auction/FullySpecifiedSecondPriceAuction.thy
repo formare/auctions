@@ -93,7 +93,7 @@ proof
       second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
     by auto
   then show "?alloc_pay"
-    using fs_spa_allocation_req_wb.simps fs_spa_payments_req_wb.simps eq_def by smt
+    using fs_spa_allocation_req_wb.simps fs_spa_payments_req_wb.simps unfolding eq_def by smt
 next
   assume "?alloc_pay"
   then have wb_tie: "wb_tie_breaker_on t N"
