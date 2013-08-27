@@ -450,7 +450,7 @@ lemma indstep:
   shows "mypred x (Suc n)"   
 proof -
   have indhyp: "\<forall> X::'a list . length X = n \<and> distinct X \<longrightarrow> all_partitions_classical (set X) = all_partitions_of_list X"
-  using mypred_def assms by fast
+    using mypred_def assms by fast
   (* MC: what's the difference with def l == "allpartitionsoflist" (which doesn't work)?? *)
   have "\<forall> X::'a list . length X = Suc n \<and> distinct X \<longrightarrow> 
     all_partitions_classical (set X) = all_partitions_of_list X" 
