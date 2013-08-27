@@ -30,8 +30,8 @@ lemma rel_all_fs_spa_is_spa:
   assumes A_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) A"
       and B_spa: "rel_all_sga_pred spa_pred B"
   shows "A \<subseteq> B"
-using assms fs_spa_pred'_def fs_spa_is_spa sga_pred_imp_lift_to_rel_all
-by metis
+using assms fs_spa_is_spa sga_pred_imp_lift_to_rel_all
+by (metis fs_spa_pred'_def)
 
 lemma fs_spa_is_left_total :
   fixes A :: single_good_auction
