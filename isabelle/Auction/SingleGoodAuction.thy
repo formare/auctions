@@ -61,7 +61,7 @@ definition bids :: "participant set \<Rightarrow> bids \<Rightarrow> bool"
   where "bids N b \<longleftrightarrow> non_negative N b"
 
 lemma valuation_is_bid: "valuations N v \<Longrightarrow> bids N v"
-  by (auto simp add: valuations_def positive_def bids_def non_negative_def)
+  by (simp only: valuations_def positive_def bids_def non_negative_def)
 
 subsection {* Allocation *}
 
