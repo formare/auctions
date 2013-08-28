@@ -34,45 +34,6 @@ BTW, the number of partitions of a set (same as the number of equivalence relati
 \href{http://en.wikipedia.org/wiki/Bell_number}{Bell number}.
 *}
 
-(* don't need the following for now; just thought we might need it for algorithmic definition:
-(* True iff E is the set of all equivalence relations on the set X *)
-definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Rightarrow> bool"
-  where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
-*)
-
-(* The following definition of "all partitions of a set" (defined as the set of all 
-   quotients of the set by all equivalence relations on the set)
-   is well-defined but not computable: *)
-definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
-  where "all_partitions_wrt_equiv A = { P . (* all sets P such that \<dots> *)
-    (* thought we'd need something like this for computability:
-    P \<in> Pow (Pow A) (* P is a set of subsets of A,
-                       i.e. a subset of the set of all subsets of A,
-                       i.e. a subset of the powerset of A,
-                       i.e. a member of the powerset of the powerset of A.
-                       We need this only for computability; otherwise 'P = A // e' would do the job. *)
-    \<and> *)
-    (\<exists> R . (* There is an R such that \<dots> *)
-      equiv A R (* R is an equivalence relation on A *)
-      \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
-    ) }"
-
-(* algorithmic function that computes all partitions of a set, based on lists *)
-fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
-  where "all_partitions_fun_list [] = []"
-      | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
-      | "all_partitions_fun_list (x # xs) = (let xs_partitions = all_partitions_fun_list xs in
-        concat [
-          (* inserting x into each equivalence class (one at a time) \<dots> *)
-          [ P[i := {x} \<union> P ! i] . i \<leftarrow> map nat [0..(int (List.length P) - 1)] ]
-        . P \<leftarrow> xs_partitions (* \<dots> of each partition of xs *) ]
-        @ [ {x} # P . P \<leftarrow> xs_partitions] (* and adding the {x} singleton equivalence class to each partition of xs: *)
-        )"
-
-(* need to turn 'a set list list into 'a set set set *)
-fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
-  where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
-
 text {* @{text P} is a partition of some set. *}
 definition is_partition where
 "is_partition P = (\<forall> x\<in>P . \<forall> y\<in> P . (x \<inter> y \<noteq> {} \<longleftrightarrow> x=y))"
@@ -556,8 +517,9 @@ proof -
   then show ?thesis using assms by simp
 qed
 
-text {* The function that we will be using in practice to compute all partitions of a set *}
-definition all_partitions
+text {* The function that we will be using in practice to compute all partitions of a set,
+  a set-oriented frontend to @{text all_partitions_of_list} *}
+definition all_partitions :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
 where "all_partitions X = all_partitions_of_list (sorted_list_of_set X)"
 
 corollary (* TODO CL: add some [code] annotation *)
@@ -570,5 +532,46 @@ corollary (* TODO CL: add some [code] annotation *)
    (this allows us to use the recursive function all_partitions_of_list).
    For a list with repetitions we can only guarantee compliance
    once we establish norepetitions. *)
+
+section {* Unused alternative definitions *}
+
+text {* @{text E} is the set of all equivalence relations on the set @{text X}. *}
+definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Rightarrow> bool"
+  where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
+
+text {* another set-theoretical, non-computable definition of ``all partitions of a set @{text A}'':
+  the set of all quotients of @{text A} w.r.t.\ some equivalence relation @{text R} *}
+definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
+  where "all_partitions_wrt_equiv A = { P . (* all sets P such that \<dots> *)
+    (* thought we'd need something like this for computability:
+    P \<in> Pow (Pow A) (* P is a set of subsets of A,
+                       i.e. a subset of the set of all subsets of A,
+                       i.e. a subset of the powerset of A,
+                       i.e. a member of the powerset of the powerset of A.
+                       We need this only for computability; otherwise 'P = A // e' would do the job. *)
+    \<and> *)
+    (\<exists> R . (* There is an R such that \<dots> *)
+      equiv A R (* R is an equivalence relation on A *)
+      \<and> P = A // R (* and P is the partition of A w.r.t. R. *)
+    ) }"
+
+text {* an entirely list-based algorithm, which serves as an alternative to 
+  @{text all_partitions_of_list}, @{text all_coarser_partitions_with}, 
+  @{text coarser_partitions_with}, @{text insert_into_member} *}
+fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
+  where "all_partitions_fun_list [] = []"
+      | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
+      | "all_partitions_fun_list (x # xs) = (let xs_partitions = all_partitions_fun_list xs in
+        concat [
+          (* inserting x into each equivalence class (one at a time) \<dots> *)
+          [ P[i := {x} \<union> P ! i] . i \<leftarrow> map nat [0..(int (List.length P) - 1)] ]
+        . P \<leftarrow> xs_partitions (* \<dots> of each partition of xs *) ]
+        @ [ {x} # P . P \<leftarrow> xs_partitions] (* and adding the {x} singleton equivalence class to each partition of xs: *)
+        )"
+
+text {* frontend to @{text all_partitions_fun_list}, turns the @{text "'a set list list"}
+  returned by that function into a @{text "'a set set set"} *}
+fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
+  where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
 end
