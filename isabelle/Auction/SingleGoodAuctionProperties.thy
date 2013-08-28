@@ -34,8 +34,7 @@ text{* introduction rule for @{term sga_left_total} *}
 lemma sga_left_totalI:
   assumes "\<And> N b . admissible N b \<Longrightarrow> (\<exists> x p . ((N, b), (x, p)) \<in> A)"
   shows "sga_left_total A admissible"
-using assms unfolding sga_left_total_def
-by blast
+using assms unfolding sga_left_total_def by fast
 
 text{* If one relation is left-total on a given set, its superrelations are left-total on that set too. *}
 lemma left_total_suprel:
@@ -45,8 +44,7 @@ lemma left_total_suprel:
   assumes left_total_subrel: "sga_left_total A admissible"
       and suprel: "A \<subseteq> B"
   shows "sga_left_total B admissible"
-using assms sga_left_total_def
-by (smt set_rev_mp)
+using assms unfolding sga_left_total_def by fast
 
 type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
@@ -63,8 +61,7 @@ text{* introduction rule for @{term sga_right_unique} *}
 lemma sga_right_uniqueI:
   assumes "\<And> N b x x' p p' . admissible N b \<Longrightarrow> ((N, b), (x, p)) \<in> A \<Longrightarrow> ((N, b), (x', p')) \<in> A \<Longrightarrow> equivalent N b x p x' p'"
   shows "sga_right_unique A admissible equivalent"
-using assms unfolding sga_right_unique_def
-by simp
+using assms unfolding sga_right_unique_def by force
 
 text{* \<dots> and once for fully specified (“fs”) auctions with tie-breaking, where outcome equivalence
   is defined by equality: *}
