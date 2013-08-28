@@ -131,18 +131,18 @@ proof (intro subsetI)
   from admissible have bids: "bids N b" and ge2: "card N > 1"
     using spa_admissible_input_def by auto
   fix bid assume premise: "bid \<in> b ` { i \<in> N . p i > 0 }"
-  with range pay range' have bw': "bid = b winner'" using arg_max_def by auto
+  with range pay range' have bw': "bid = b winner'" unfolding arg_max_def by force
   from premise pay have p_positive: "p winner > 0" by auto
   with ge2 range pay have bwpos: "b winner > 0"
     using arg_max_def maximum_except_defined maximum_remaining_maximum by (smt mem_Collect_eq)
-  from ge2 range' have md: "maximum_defined (N - {winner'})" using maximum_except_defined by blast
+  from ge2 range' have md: "maximum_defined (N - {winner'})" using maximum_except_defined by (auto simp only: conjE)
   have "maximum (N - {winner'}) b > 0"
   proof (rule ccontr)
     assume assm: "\<not> maximum (N - {winner'}) b > 0"
     {
       fix i assume i_range: "i \<in> (N - {winner'})"
       with bids have bipos: "b i \<ge> 0" unfolding bids_def non_negative_def le_def zero_def by blast
-      from md have "maximum (N - {winner'}) b \<ge> b i" using i_range maximum_is_greater_or_equal by simp
+      from md have "maximum (N - {winner'}) b \<ge> b i" using i_range by (rule maximum_is_greater_or_equal)
       then have "maximum (N - {winner'}) b = 0" using assm bipos by simp
     }
     with assm range range' pay pay' have foow': "maximum (N - {winner'}) b = 0"
@@ -154,9 +154,9 @@ proof (intro subsetI)
     next
       assume "winner' \<noteq> winner"
       with range have "winner \<in> N - {winner'}" by fast
-      then have x: "maximum (N - {winner'}) b \<ge> b winner" using range maximum_is_greater_or_equal md by blast
+      then have x: "maximum (N - {winner'}) b \<ge> b winner" using range md by (simp only: maximum_is_greater_or_equal)
       with foow' have bwzn: "b winner \<le> 0" by auto
-      from range have "maximum N b = b winner" using arg_max_def by auto
+      from range have "maximum N b = b winner" unfolding arg_max_def by auto
       with md x maximum_remaining_maximum bwpos bwzn show False by auto
     qed
   qed
@@ -210,10 +210,10 @@ proof (rule sga_right_uniqueI)
   have "b ` { i \<in> N . x i = 1 } = b ` { i \<in> N . x' i = 1 }" (is "?lhs = ?rhs")
   proof (* CL: any way to collapse these two cases into one?  Preferably in Isar style? *)
     from range alloc range' alloc' show "?lhs \<subseteq> ?rhs"
-      using arg_max_def by auto
+      unfolding arg_max_def by auto
   next
     from range' alloc' range alloc show "?rhs \<subseteq> ?lhs"
-      using arg_max_def by auto
+      unfolding arg_max_def by auto
   qed
   moreover have "b ` { i \<in> N . p i > 0 } = b ` { i \<in> N . p' i > 0 }" (is "?lhs = ?rhs")
   proof (* CL: any way to collapse these two cases into one?  Preferably in Isar style? *)
@@ -233,8 +233,7 @@ lemma spa_well_defined_outcome :
   shows "sga_well_defined_outcome A sga_outcome_allocates"
   using assms
   unfolding rel_all_sga_pred_def fs_spa_pred'_def
-  using spa_allocates
-    sga_outcome_allocates_def sga_well_defined_outcome_def
+  using spa_allocates sga_outcome_allocates_def sga_well_defined_outcome_def
   by (smt prod_caseI2 prod_caseI2')
 
 theorem spa_case_check :
