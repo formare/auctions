@@ -455,58 +455,54 @@ proof -
   have "\<forall> X::'a list . length X = Suc n \<and> distinct X \<longrightarrow> 
     all_partitions_classical (set X) = all_partitions_of_list X" 
   proof 
-    fix X2 :: "'a list"
-    let ?e = "hd X2"
-    let ?f = "partition_without ?e"
-    let ?n2 = "length X2" 
-    let ?X1 = "tl X2" (* MC: could use drop or sublist instead of tl *)
-    show "?n2 = Suc n \<and> distinct X2 \<longrightarrow> all_partitions_classical (set X2) = all_partitions_of_list X2"
+    fix X :: "'a list"
+    show "length X = Suc n \<and> distinct X \<longrightarrow> all_partitions_classical (set X) = all_partitions_of_list X"
     proof
-      assume a10: "?n2 = Suc n \<and> distinct X2"
-      hence "X2 = [?e] @ ?X1" 
-        by (metis append_Cons append_Nil hd.simps length_Suc_conv tl.simps(2))
-      hence 2: "X2 = ?e # ?X1" by fastforce
-      have 13: "length ?X1 = n" using a10 2 assms  
+      assume "length X = Suc n \<and> distinct X"
+      then have length: "length X = Suc n" and distinct: "distinct X" by simp_all
+      from length have 2: "X = (hd X) # tl X" by (metis Zero_neq_Suc hd.simps length_0_conv list.exhaust tl.simps(2))
+      have 13: "length (tl X) = n" using length 2 assms  
         by (metis diff_Suc_1 length_tl)
-      have a12: "distinct ?X1" using a10 by (metis distinct_tl)
-      hence "\<not> {?e} \<subseteq> set ?X1" using 2 a10 by (metis distinct.simps(2) insert_subset)
-      hence 19: "?e \<notin> set ?X1" by fast
-      show "all_partitions_classical (set X2) = all_partitions_of_list X2"
+      have a12: "distinct (tl X)" using distinct by (metis distinct_tl)
+      hence "\<not> {hd X} \<subseteq> set (tl X)" using 2 distinct by (metis distinct.simps(2) insert_subset)
+      hence 19: "hd X \<notin> set (tl X)" by fast
+      show "all_partitions_classical (set X) = all_partitions_of_list X"
       proof (rule equalitySubsetI)
         fix p2
-        have 16: "\<Union> ?f p2 = \<Union> p2 - {?e}" using partition_without_covers by metis
-        assume "p2 \<in> all_partitions_classical (set X2)"
-        hence "is_partition_of p2 (set X2)" unfolding all_partitions_classical_def ..
-        hence 14: "is_partition p2 \<and> ?e \<in> set X2 \<and> \<Union> p2 = set X2" 
+        let ?f = "partition_without (hd X)"
+        have 16: "\<Union> ?f p2 = \<Union> p2 - {hd X}" using partition_without_covers by metis
+        assume "p2 \<in> all_partitions_classical (set X)"
+        hence "is_partition_of p2 (set X)" unfolding all_partitions_classical_def ..
+        hence 14: "is_partition p2 \<and> hd X \<in> set X \<and> \<Union> p2 = set X" 
           using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
-        have 18: "\<Union> ?f p2= set ?X1" using 2 16 partition_without_covers 19 14 by (metis Diff_insert_absorb List.set.simps(2))
+        have 18: "\<Union> ?f p2= set (tl X)" using 2 16 partition_without_covers 19 14 by (metis Diff_insert_absorb List.set.simps(2))
         have "is_partition (?f p2)" using partition_without_is_partition 14 by fast
-        hence "is_partition_of (?f p2) (set ?X1)" using 18 unfolding is_partition_of_def by fast
-        hence "(?f p2) \<in> all_partitions_classical (set ?X1)" unfolding all_partitions_classical_def ..
-        hence 5: "?f p2 \<in> all_partitions_of_list ?X1" using indhyp 13 a12 by fast
-        hence "p2 \<in> (coarser_partitions_with ?e) (?f p2)" using coarser_partitions_inv_without 14 by fast
-        hence "p2 \<in> \<Union> (coarser_partitions_with ?e) ` (all_partitions_of_list ?X1)" using 5 by blast
-        thus "p2 \<in> all_partitions_of_list X2" using 2 all_coarser_partitions_with_def
+        hence "is_partition_of (?f p2) (set (tl X))" using 18 unfolding is_partition_of_def by fast
+        hence "(?f p2) \<in> all_partitions_classical (set (tl X))" unfolding all_partitions_classical_def ..
+        hence 5: "?f p2 \<in> all_partitions_of_list (tl X)" using indhyp 13 a12 by fast
+        hence "p2 \<in> (coarser_partitions_with (hd X)) (?f p2)" using coarser_partitions_inv_without 14 by fast
+        hence "p2 \<in> \<Union> (coarser_partitions_with (hd X)) ` (all_partitions_of_list (tl X))" using 5 by blast
+        thus "p2 \<in> all_partitions_of_list X" using 2 all_coarser_partitions_with_def
           by (metis all_partitions_of_list.simps(2))
       next
-        fix p2  assume "p2 \<in> all_partitions_of_list X2"
-        hence "p2 \<in> all_coarser_partitions_with ?e (all_partitions_of_list ?X1)" using 2 
+        fix p2  assume "p2 \<in> all_partitions_of_list X"
+        hence "p2 \<in> all_coarser_partitions_with (hd X) (all_partitions_of_list (tl X))" using 2 
           by (metis all_partitions_of_list.simps(2))
-        hence a3: "p2 \<in> \<Union> (coarser_partitions_with ?e ` (all_partitions_of_list ?X1))" unfolding all_coarser_partitions_with_def .
-        obtain Y where a4: "Y \<in> (coarser_partitions_with ?e ` (all_partitions_of_list ?X1))" and a5: "p2 \<in> Y" using a3 ..
-        obtain p1 where a6: "p1 \<in> (all_partitions_of_list ?X1)" and a7: "Y = (coarser_partitions_with ?e p1)" using a4 ..
-        have a9: "p2 \<in> (coarser_partitions_with ?e p1)" using a5 a7 by fast
-        have "length ?X1 = n" using 2 a10 13 by fast
-        hence "all_partitions_classical (set ?X1) = all_partitions_of_list ?X1" using indhyp a12 by blast
-        hence "p1 \<in> all_partitions_classical (set ?X1)" using a6 indhyp by blast
-        hence "is_partition_of p1 (set ?X1)" unfolding all_partitions_classical_def ..
-        hence a11: "is_partition p1 \<and> \<Union> p1=set ?X1" 
+        hence a3: "p2 \<in> \<Union> (coarser_partitions_with (hd X) ` (all_partitions_of_list (tl X)))" unfolding all_coarser_partitions_with_def .
+        obtain Y where a4: "Y \<in> (coarser_partitions_with (hd X) ` (all_partitions_of_list (tl X)))" and a5: "p2 \<in> Y" using a3 ..
+        obtain p1 where a6: "p1 \<in> (all_partitions_of_list (tl X))" and a7: "Y = (coarser_partitions_with (hd X) p1)" using a4 ..
+        have a9: "p2 \<in> (coarser_partitions_with (hd X) p1)" using a5 a7 by fast
+        have "length (tl X) = n" using 2 length 13 by fast
+        hence "all_partitions_classical (set (tl X)) = all_partitions_of_list (tl X)" using indhyp a12 by blast
+        hence "p1 \<in> all_partitions_classical (set (tl X))" using a6 indhyp by blast
+        hence "is_partition_of p1 (set (tl X))" unfolding all_partitions_classical_def ..
+        hence a11: "is_partition p1 \<and> \<Union> p1=set (tl X)" 
           unfolding is_partition_of_def by simp
         hence 22: "is_partition p2" using partition_extension3 a9 19 by fast
-        have "\<Union> p2 = (set ?X1) \<union> {?e}" using a11 a5 a7 coarser_partitions_covers by fast
-        hence "\<Union> p2 = (set X2)" using 19 by (metis 2 List.set.simps(2) Un_commute insert_is_Un)
-        hence "is_partition_of p2 (set X2)" using 22 unfolding is_partition_of_def by blast
-        then show "p2 \<in> all_partitions_classical (set X2)" unfolding all_partitions_classical_def ..
+        have "\<Union> p2 = (set (tl X)) \<union> {hd X}" using a11 a5 a7 coarser_partitions_covers by fast
+        hence "\<Union> p2 = (set X)" using 19 by (metis 2 List.set.simps(2) Un_commute insert_is_Un)
+        hence "is_partition_of p2 (set X)" using 22 unfolding is_partition_of_def by blast
+        then show "p2 \<in> all_partitions_classical (set X)" unfolding all_partitions_classical_def ..
       qed
     qed
   qed
