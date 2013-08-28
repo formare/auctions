@@ -127,7 +127,7 @@ where "revenue_fun b Yp  = (let Y = fst Yp; buyer = snd Yp in
 
 (* the set of possible allocations of a set of goods to a set of participants (assuming relational allocations) *)
 definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
-where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_partitions_classical G . 
+where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_partitions G . 
   Domain potential_buyer \<subseteq> Y
   \<and> Range potential_buyer \<subseteq> N
   \<and> right_unique potential_buyer (* no longer need totality on Y as we are allowing for goods not to be allocated *)

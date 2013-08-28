@@ -522,10 +522,10 @@ text {* The function that we will be using in practice to compute all partitions
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
 where "all_partitions_alg X = all_partitions_of_list (sorted_list_of_set X)"
 
-corollary (* TODO CL: add some [code] annotation *)
+corollary [code_unfold]:
   fixes X
   assumes "finite X"
-  shows "all_partitions_alg X = all_partitions X" 
+  shows "all_partitions X = all_partitions_alg X"
   unfolding all_partitions_alg_def
   using all_partitions_paper_equiv_alg assms by (metis sorted_list_of_set)
 (* all_partitions internally works with a list representing a set
