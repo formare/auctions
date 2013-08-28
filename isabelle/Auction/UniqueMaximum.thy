@@ -102,8 +102,8 @@ proof -
     case cons (* CL: How can I use the cons.*, that I'm getting here, below? *)
     fix x xs
     assume a1: "xs \<noteq> []" and a2: "distinct xs \<longrightarrow> arg_max_l_tb xs t b \<in> arg_max (set xs) b"
-    from a1 have mdxs: "maximum_defined (set xs)" using maximum_defined_def by (metis List.finite_set card_gt_0_iff set_empty2)
-    from a1 have mdxs': "maximum_defined (set (x # xs))" using maximum_defined_def by (metis List.finite_set card_gt_0_iff list.distinct(1) set_empty2)
+    from a1 have mdxs: "maximum_defined (set xs)" unfolding maximum_defined_def by (metis List.finite_set card_gt_0_iff set_empty2)
+    from a1 have mdxs': "maximum_defined (set (x # xs))" unfolding maximum_defined_def by (metis List.finite_set card_gt_0_iff list.distinct(1) set_empty)
     show "distinct (x # xs) \<longrightarrow> arg_max_l_tb (x # xs) t b \<in> arg_max (set (x # xs)) b"
     proof
       assume distinct': "distinct (x # xs)"
@@ -125,7 +125,7 @@ proof -
         from i_unf True have "\<not> (b x > b i \<or> b x = b i \<and> t x i)" by (smt distinct' distinct.simps(2) i_in)
         then have 1: "b x \<le> b i" by auto
         from ams have "b i = maximum (set xs) b" unfolding arg_max_def by simp
-        with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b i \<ge> b j" by simp
+        with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b i \<ge> b j" by (metis (full_types))
         with 1 have "\<forall> j \<in> (set (x # xs)) . b i \<ge> b j" by simp
         with maximum_sufficient mdxs' i_in' have "b i = maximum (set (x # xs)) b" by metis
         with i_in' show ?thesis unfolding arg_max_def by simp
@@ -141,7 +141,7 @@ proof -
         with mdxs have y_in: "y \<in> (set xs)" unfolding arg_max_def using maximum_is_component by simp
         then have y_in': "y \<in> (set (x # xs))" by simp
         from ams have "b y = maximum (set xs) b" unfolding arg_max_def by simp
-        with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b y \<ge> b j" by simp
+        with maximum_is_greater_or_equal mdxs have "\<forall> j \<in> (set xs) . b y \<ge> b j" by (metis (full_types))
         with bi have "\<forall> j \<in> (set xs) . b x \<ge> b j" by auto (* because b x \<ge> b y *)
         then have "\<forall> j \<in> (set (x # xs)) . b x \<ge> b j" by simp
         with maximum_sufficient mdxs' have "b x = maximum (set (x # xs)) b" by (metis distinct' distinct.simps(2) distinct_length_2_or_more)
