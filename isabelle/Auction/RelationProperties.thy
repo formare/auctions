@@ -54,21 +54,21 @@ where "inverse R = { (y, x) . (x, y) \<in> R }"
    This would have to be done by recursing not just to "xs", but to 
    all sublists of "x # xs" of length n - 1.
  *)
-fun injective_functions :: "'a list \<Rightarrow> 'b list \<Rightarrow> ('a \<times> 'b) set set"
+fun injective_functions :: "'a list \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
 where "injective_functions [] ys = {{}}"
     | "injective_functions (x # xs) ys = 
        \<Union> (\<lambda> f . (\<lambda> free_in_range . f \<union> {(x, free_in_range)})
-                 ` ((set ys) - (Range f)))
+                 ` (ys - (Range f)))
           ` (injective_functions xs ys)"
 
-value "injective_functions [False,True] [0::nat, 1, 2]"
+value "injective_functions [False,True] {0::nat, 1, 2}"
 
-fun injective_functions_list :: "'a list \<Rightarrow> 'b::linorder list \<Rightarrow> ('a \<times> 'b) set list"
+fun injective_functions_list :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
 where "injective_functions_list [] ys = [{}]"
     | "injective_functions_list (x # xs) ys = 
       concat [ map (\<lambda> free_in_range . f \<union> {(x, free_in_range)})
-                 (sorted_list_of_set ((set ys) - (Range f))) . f \<leftarrow> injective_functions_list xs ys ]"
+                 (sorted_list_of_set (ys - (Range f))) . f \<leftarrow> injective_functions_list xs ys ]"
 
-value "injective_functions_list [False,True] [0::nat, 1, 2]"
+value "injective_functions_list [False,True] {0::nat, 1, 2}"
 
 end
