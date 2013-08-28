@@ -40,9 +40,6 @@ definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Righta
   where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
 *)
 
-text {* This inference rule is needed below; it combines Set.equalityI and Set.subsetI to a single step. *}
-lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
-
 (* The following definition of "all partitions of a set" (defined as the set of all 
    quotients of the set by all equivalence relations on the set)
    is well-defined but not computable: *)
