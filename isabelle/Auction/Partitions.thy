@@ -18,7 +18,23 @@ theory Partitions
 imports Main SetUtils
 begin
 
-(* don't need the following for now; just thought we might need it for computability:
+text {*
+The algorithmic computation of all partitions of a set in @{text all_partitions_of_list} works as
+in the following example:
+\begin{itemize}
+\item Set: $\{\a}$\\
+  Partitions: $\{\{a\}\}$
+\item Set: $\{a,b\}$
+  Partitions: $\{\{a\}, \{b\}\}, \{\{a, b\}\}$
+\item Set: $\{a,b,c\}$
+  Partitions: $\{\{a\}, \{b\}, \{c\}\}, \{\{a,b\}, \{c\}\}, \{\{a,c\}, \{b\}\}, \{\{a\}, \{c,b\}\}, \{\{a,b,c\}\}$
+\end{itemize}
+
+BTW, the number of partitions of a set (same as the number of equivalence relations on the set) is known as 
+\href{http://en.wikipedia.org/wiki/Bell_number}{Bell number}.
+*}
+
+(* don't need the following for now; just thought we might need it for algorithmic definition:
 (* True iff E is the set of all equivalence relations on the set X *)
 definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Rightarrow> bool"
   where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
@@ -26,21 +42,6 @@ definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Righta
 
 text {* This inference rule is needed below; it combines Set.equalityI and Set.subsetI to a single step. *}
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
-
-(*
-Enumerating all partitions of a set by example:
-
-Set: {a}
-Partitions: {{a}}
-
-Set: {a,b}
-Partitions: {{a}, {b}}, {{a, b}}
-
-Set: {a,b,c}
-Partitions: {{a}, {b}, {c}}, {{a,b}, {c}}, {{a,c}, {b}}, {{a}, {c,b}}, {{a,b,c}}
-
-http://en.wikipedia.org/wiki/Bell_number (number of partitions of a set = number of equivalence relations on a set)
-*)
 
 (* The following definition of "all partitions of a set" (defined as the set of all 
    quotients of the set by all equivalence relations on the set)
@@ -75,17 +76,17 @@ fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
 fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
-(* definition of a partition (without saying of what set it is a partition) *)
+text {* @{text P} is a partition of some set. *}
 definition is_partition where
 "is_partition P = (\<forall> x\<in>P . \<forall> y\<in> P . (x \<inter> y \<noteq> {} \<longleftrightarrow> x=y))"
 (* alternative, less concise formalisation:
 "is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
 
-(* checks whether something is a partition of a given set *)
+text {* @{text P} is a partition of the set @{text A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
-(* classical set theory definition of "all partitions of a set" *)
+text {* classical set-theoretical definition of ``all partitions of a set @{text A}'' *}
 definition all_partitions_classical where 
 "all_partitions_classical A = {P . is_partition_of P A}"
 
