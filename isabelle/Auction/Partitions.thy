@@ -174,7 +174,9 @@ proof -
   then show ?thesis using Q_cases by blast
 qed
 
-text {* @{text "partition_without e"} reverses @{text "coarser_partitions_with e"}.
+text {* Removes the element @{text elem} from every set in @{text P}, and removes from @{text P} any
+  remaining empty sets.  This function is intended to be applied to partitions, i.e. @{text elem}
+  occurs in at most one set.  @{text "partition_without e"} reverses @{text "coarser_partitions_with e"}.
 @{text coarser_partitions_with} is one-to-many, while this is one-to-one, so we can think of a tree relation,
 where coarser partitions of a set @{text "S \<union> {elem}"} are child nodes of one partition of @{text S}. *}
 definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
@@ -451,58 +453,76 @@ lemma indstep:
 proof -
   have indhyp: "\<forall> X::'a list . length X = n \<and> distinct X \<longrightarrow> all_partitions_classical (set X) = all_partitions_of_list X"
     using assms unfolding mypred_def by fast
-  (* MC: what's the difference with def l == "allpartitionsoflist" (which doesn't work)?? *)
   have "\<forall> X::'a list . length X = Suc n \<and> distinct X \<longrightarrow> 
     all_partitions_classical (set X) = all_partitions_of_list X" 
   proof 
     fix X :: "'a list"
     show "length X = Suc n \<and> distinct X \<longrightarrow> all_partitions_classical (set X) = all_partitions_of_list X"
     proof
-      assume "length X = Suc n \<and> distinct X"
+      assume assm: "length X = Suc n \<and> distinct X"
       then have length: "length X = Suc n" and distinct: "distinct X" by simp_all
-      from length have 2: "X = (hd X) # tl X" by (metis Zero_neq_Suc hd.simps length_0_conv list.exhaust tl.simps(2))
-      have 13: "length (tl X) = n" using length 2 assms  
-        by (metis diff_Suc_1 length_tl)
-      have a12: "distinct (tl X)" using distinct by (metis distinct_tl)
-      hence "\<not> {hd X} \<subseteq> set (tl X)" using 2 distinct by (metis distinct.simps(2) insert_subset)
-      hence 19: "hd X \<notin> set (tl X)" by fast
+      from length have split_hd_tl: "X = (hd X) # tl X"
+        by (metis Zero_neq_Suc hd.simps length_0_conv list.exhaust tl.simps(2))
+      then have length_tl: "length (tl X) = n"
+        using length assms by simp
+      have distinct_tl: "distinct (tl X)" using distinct by (rule distinct_tl)
+      then have hd_notin_tl: "hd X \<notin> set (tl X)"
+        using split_hd_tl distinct by (metis distinct.simps(2))
+
       show "all_partitions_classical (set X) = all_partitions_of_list X"
       proof (rule equalitySubsetI)
-        fix p2
-        let ?f = "partition_without (hd X)"
-        have 16: "\<Union> ?f p2 = \<Union> p2 - {hd X}" using partition_without_covers by metis
-        assume "p2 \<in> all_partitions_classical (set X)"
-        hence "is_partition_of p2 (set X)" unfolding all_partitions_classical_def ..
-        hence 14: "is_partition p2 \<and> hd X \<in> set X \<and> \<Union> p2 = set X" 
-          using is_partition_of_def 2 by (metis hd_in_set list.distinct(1))
-        have 18: "\<Union> ?f p2= set (tl X)" using 2 16 partition_without_covers 19 14 by (metis Diff_insert_absorb List.set.simps(2))
-        have "is_partition (?f p2)" using partition_without_is_partition 14 by fast
-        hence "is_partition_of (?f p2) (set (tl X))" using 18 unfolding is_partition_of_def by fast
-        hence "(?f p2) \<in> all_partitions_classical (set (tl X))" unfolding all_partitions_classical_def ..
-        hence 5: "?f p2 \<in> all_partitions_of_list (tl X)" using indhyp 13 a12 by fast
-        hence "p2 \<in> (coarser_partitions_with (hd X)) (?f p2)" using coarser_partitions_inv_without 14 by fast
-        hence "p2 \<in> \<Union> (coarser_partitions_with (hd X)) ` (all_partitions_of_list (tl X))" using 5 by blast
-        thus "p2 \<in> all_partitions_of_list X" using 2 all_coarser_partitions_with_def
+        fix P
+        let ?P_without_hd_X = "partition_without (hd X) P"
+        have P_partitions_exc_hd: "\<Union> ?P_without_hd_X = \<Union> P - {hd X}" using partition_without_covers .
+
+        assume "P \<in> all_partitions_classical (set X)"
+        then have is_partition_of: "is_partition_of P (set X)" unfolding all_partitions_classical_def ..
+        then have is_partition: "is_partition P" by (metis is_partition_of_def)
+        from is_partition_of have P_covers: "\<Union> P = set X" unfolding is_partition_of_def by simp
+        have "is_partition_of ?P_without_hd_X (set (tl X))"
+          unfolding is_partition_of_def
+          using is_partition partition_without_is_partition split_hd_tl P_partitions_exc_hd partition_without_covers hd_notin_tl P_covers
+          by (metis Diff_insert_absorb List.set.simps(2))
+        then have p_list: "?P_without_hd_X \<in> all_partitions_of_list (tl X)"
+          using indhyp all_partitions_classical_def length_tl distinct_tl by fast
+        then have "P \<in> (coarser_partitions_with (hd X)) ?P_without_hd_X"
+          using coarser_partitions_inv_without is_partition P_covers assm split_hd_tl
+          by (metis (full_types) not_Cons_self2 remove1.simps(2) remove1_idem)
+        then have "P \<in> \<Union> coarser_partitions_with (hd X) ` all_partitions_of_list (tl X)" using p_list by blast
+        then show "P \<in> all_partitions_of_list X"
+          using split_hd_tl all_coarser_partitions_with_def
           by (metis all_partitions_of_list.simps(2))
       next
-        fix p2  assume "p2 \<in> all_partitions_of_list X"
-        hence "p2 \<in> all_coarser_partitions_with (hd X) (all_partitions_of_list (tl X))" using 2 
-          by (metis all_partitions_of_list.simps(2))
-        hence a3: "p2 \<in> \<Union> (coarser_partitions_with (hd X) ` (all_partitions_of_list (tl X)))" unfolding all_coarser_partitions_with_def .
-        obtain Y where a4: "Y \<in> (coarser_partitions_with (hd X) ` (all_partitions_of_list (tl X)))" and a5: "p2 \<in> Y" using a3 ..
-        obtain p1 where a6: "p1 \<in> (all_partitions_of_list (tl X))" and a7: "Y = (coarser_partitions_with (hd X) p1)" using a4 ..
-        have a9: "p2 \<in> (coarser_partitions_with (hd X) p1)" using a5 a7 by fast
-        have "length (tl X) = n" using 2 length 13 by fast
-        hence "all_partitions_classical (set (tl X)) = all_partitions_of_list (tl X)" using indhyp a12 by blast
-        hence "p1 \<in> all_partitions_classical (set (tl X))" using a6 indhyp by blast
-        hence "is_partition_of p1 (set (tl X))" unfolding all_partitions_classical_def ..
-        hence a11: "is_partition p1 \<and> \<Union> p1=set (tl X)" 
-          unfolding is_partition_of_def by simp
-        hence 22: "is_partition p2" using partition_extension3 a9 19 by fast
-        have "\<Union> p2 = (set (tl X)) \<union> {hd X}" using a11 a5 a7 coarser_partitions_covers by fast
-        hence "\<Union> p2 = (set X)" using 19 by (metis 2 List.set.simps(2) Un_commute insert_is_Un)
-        hence "is_partition_of p2 (set X)" using 22 unfolding is_partition_of_def by blast
-        then show "p2 \<in> all_partitions_classical (set X)" unfolding all_partitions_classical_def ..
+        fix P
+        assume "P \<in> all_partitions_of_list X"
+        then have "P \<in> all_coarser_partitions_with (hd X) (all_partitions_of_list (tl X))"
+          using split_hd_tl by (metis all_partitions_of_list.simps(2))
+        then have "P \<in> \<Union> coarser_partitions_with (hd X) ` (all_partitions_of_list (tl X))"
+          unfolding all_coarser_partitions_with_def .
+        then obtain Y
+          where P_in_Y: "P \<in> Y"
+          and Y_coarser: "Y \<in> coarser_partitions_with (hd X) ` (all_partitions_of_list (tl X))" ..
+        from Y_coarser obtain Q
+          where Q_part_tl: "Q \<in> all_partitions_of_list (tl X)"
+          and Y_coarser': "Y = coarser_partitions_with (hd X) Q" ..
+        from P_in_Y Y_coarser' have P_wrt_Q: "P \<in> coarser_partitions_with (hd X) Q" by fast
+        have "all_partitions_classical (set (tl X)) = all_partitions_of_list (tl X)"
+          using indhyp distinct_tl split_hd_tl length length_tl by presburger
+        then have "Q \<in> all_partitions_classical (set (tl X))"
+          using Q_part_tl indhyp by blast
+        then have "is_partition_of Q (set (tl X))" unfolding all_partitions_classical_def ..
+        then have "is_partition Q" and Q_covers: "\<Union> Q = set (tl X)" 
+          unfolding is_partition_of_def by simp_all
+        then have P_partition: "is_partition P"
+          using partition_extension3 P_wrt_Q hd_notin_tl by fast
+        have "\<Union> P = (set (tl X)) \<union> {hd X}"
+          using Q_covers P_in_Y Y_coarser' coarser_partitions_covers by fast
+        then have "\<Union> P = set X"
+          using hd_notin_tl split_hd_tl P_wrt_Q Q_covers coarser_partitions_covers
+          by (metis (full_types) List.set.simps(2))
+        then have "is_partition_of P (set X)"
+          using P_partition unfolding is_partition_of_def by blast
+        then show "P \<in> all_partitions_classical (set X)" unfolding all_partitions_classical_def ..
       qed
     qed
   qed
