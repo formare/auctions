@@ -529,28 +529,31 @@ proof -
   thus ?thesis unfolding mypred_def .
 qed
 
-lemma emptyparts1:
+text {* The empty set is a partition of the empty set. *}
+lemma emptyset_part_emptyset1:
   shows "is_partition_of {} {}" 
-  using assms is_partition_def is_partition_of_def
-  by (metis Union_empty empty_iff)
+  unfolding is_partition_of_def is_partition_def by fast
 
-lemma emptyparts2:
-  assumes "is_partition_of x {}"
-  shows "x = {}"
+text {* Any partition of the empty set is empty. *}
+lemma emptyset_part_emptyset2:
+  assumes "is_partition_of P {}"
+  shows "P = {}"
   using assms is_partition_def is_partition_of_def by fast
 
-lemma emptyparts:
-  shows "all_partitions_classical {} = {{}}" 
-  using emptyparts1 emptyparts2 all_partitions_classical_def
-  by blast
+text {* The set of all partitions of the empty set only contains the empty set. *}
+lemma emptyset_part_emptyset3:
+  shows "all_partitions_classical {} = {{}}"
+  unfolding all_partitions_classical_def
+  using emptyset_part_emptyset1 emptyset_part_emptyset2
+  by fast
 
 lemma l14:
   fixes x
   fixes n
   shows "mypred x n" 
 proof (rule nat.induct)
-  show "mypred x 0" using mypred_def emptyparts 
-    by (metis all_partitions_of_list.simps(1) length_0_conv set_empty2)
+  show "mypred x 0" unfolding mypred_def using emptyset_part_emptyset3
+    by (metis all_partitions_of_list.simps(1) empty_set length_0_conv)
 next
   fix m assume "mypred x m" thus "mypred x (Suc m)" using indstep by metis
 qed
