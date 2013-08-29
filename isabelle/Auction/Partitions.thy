@@ -122,20 +122,20 @@ where "coarser_partitions_with new_el P =
   ((insert_into_member new_el P) ` P)"
 
 (* TODO CL: if we end up preferring this over coarser_partitions_with, document it *)
-definition coarser_partitions_with_list ::"'a \<Rightarrow> 'a set list \<Rightarrow> 'a set set list"
+definition coarser_partitions_with_list ::"'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list list"
 where "coarser_partitions_with_list new_el P = 
   (* Let 'part' be a partition of a set 'Set',
      and suppose new_el \<notin> Set, i.e. {new_el} \<notin> part,
      then the following constructs a partition of 'Set \<union> {new_el}' obtained by
      inserting a new equivalence class {new_el} and leaving all previous equivalence classes unchanged. *)
-  (insert {new_el} (set P))
+  ({new_el} # P)
   #
   (* Let 'part' be a partition of a set 'Set',
      and suppose new_el \<notin> Set,
      then the following constructs
      the set of those partitions of 'Set \<union> {new_el}' obtained by
      inserting new_el into one equivalence class of 'part' at a time. *)
-  (map (set \<circ> (insert_into_member_list new_el P)) P)"
+  (map ((insert_into_member_list new_el P)) P)"
 
 text {* Let @{text P} be a partition of a set @{text S}, and @{text elem} an element (which may or may not be
   in @{text S} already).  Then, any member of @{text "coarser_partitions_with elem P"} is a set of sets
@@ -169,20 +169,20 @@ lemma coarser_partitions_covers_list:
   fixes elem::'a
     and P::"'a set list"
     and Q::"'a set list"
-  assumes Q_coarser: "set Q \<in> set (coarser_partitions_with_list elem P)"
+  assumes Q_coarser: "Q \<in> set (coarser_partitions_with_list elem P)"
       and distinctP: "distinct P"
       and distinctQ: "distinct Q"
   shows "\<Union> set Q = insert elem (\<Union> set P)"
   proof -
   let ?S = "\<Union> set P"
-  have Q_cases: "set Q \<in> set (map (set \<circ> insert_into_member_list elem P) P) \<or> set Q = insert {elem} (set P)"
+  have Q_cases: "Q \<in> set (map (insert_into_member_list elem P) P) \<or> set Q = insert {elem} (set P)"
     using Q_coarser unfolding coarser_partitions_with_list_def by force
   show ?thesis
-  proof (cases "set Q \<in> set (map (set \<circ> insert_into_member_list elem P) P)")
+  proof (cases "Q \<in> set (map (insert_into_member_list elem P) P)")
     case True
     have mayRemoveAll: "\<And> X . insert_into_member_list elem P X = (X \<union> {elem}) # (removeAll X P)"
       unfolding insert_into_member_list_def using distinctP by (metis distinct_remove1_removeAll)
-    from True have "set Q \<in> (set \<circ> insert_into_member_list elem P) ` (set P)" by simp
+    from True have "Q \<in> (insert_into_member_list elem P) ` (set P)" by simp
     then have *: "set Q \<in> { insert (X \<union> {elem}) (set P - {X}) | X . X \<in> set P }"
       using mayRemoveAll remove_list_to_set by (smt mem_Collect_eq comp_def image_Collect_mem)
     then have "set Q \<in> { insert_into_member elem (set P) X | X . X \<in> set P }" unfolding insert_into_member_def .
@@ -264,6 +264,9 @@ qed
 
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
 where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
+
+definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set set list \<Rightarrow> 'a set set list"
+where "all_coarser_partitions_with_list elem P = concat (map (coarser_partitions_with_list elem) P)"
 
 fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
 where 
