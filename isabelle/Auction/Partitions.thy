@@ -187,24 +187,6 @@ definition insert_into_member_list
 :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set \<Rightarrow> 'a set list"
 where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 S Sets)"
 
-(* TODO CL: If we end up using this, document it *)
-lemma insert_into_member_list_distinct:
-  fixes new_el::'a
-    and P::"'a set list"
-    and X::"'a set"
-  assumes distinct: "distinct P"
-      and new: "new_el \<notin> \<Union> set P"
-      (* no need to assume the following, which will also hold when we are using 
-         insert_into_member_list in practice:
-      and partition: "is_partition (set P)"
-      and eq_class: "X \<in> set P"
-      *)
-  shows "distinct (insert_into_member_list new_el P X)"
-proof - (* would also work as a one-liner, but the following is faster: *)
-  from new distinct have "distinct ((X \<union> {new_el}) # (remove1 X P))" by fastforce
-  then show ?thesis unfolding insert_into_member_list_def .
-qed
-
 lemma insert_into_member_partition1:
   fixes elem::'a
     and P::"'a set set"
@@ -262,6 +244,12 @@ where "coarser_partitions_with_list new_el P =
      the set of those partitions of 'Set \<union> {new_el}' obtained by
      inserting new_el into one equivalence class of 'part' at a time. *)
   (map ((insert_into_member_list new_el P)) P)"
+
+(* TODO CL: maybe do it like partitions_without_list_alt here.  This would simplify subsequent proofs, e.g. coarser_partitions_covers_list
+lemma 
+  assumes "distinct P"
+  shows "set (map set (coarser_partitions_with_list new_el P)) = coarser_partitions_with new_el (set P)"
+*)
 
 lemma partition_extension3:
   fixes elem::'a
@@ -416,14 +404,12 @@ lemma partition_without_covers_list:
   shows "\<Union> set (partition_without_list elem P) = \<Union> (set P) - {elem}"
 proof -
   let ?remove_elem = "\<lambda>X . X - {elem}"
-  have "set (partition_without_list elem P) = ?remove_elem ` set P - {{}}"
+  have "set (partition_without_list elem P) = partition_without elem (set P)"
     using distinct partition partition_without_list_alt
     unfolding partition_without_def by metis
   (* TODO CL: find out why solve_direct's results don't work with by (rule \<dots>)
      http://stackoverflow.com/questions/18511720/how-can-i-use-rules-suggested-by-solve-direct-by-rule-doesnt-always-work *)
-  then have "\<Union> set (partition_without_list elem P) = \<Union> (?remove_elem ` set P - {{}})" by (rule arg_cong)
-  also have "\<dots> = \<Union> (set P) - {elem}" by blast
-  finally show ?thesis .
+  then show ?thesis using partition_without_covers by (rule ssubst)
 qed
 
 lemma super_eq_class:
@@ -440,89 +426,62 @@ lemma partition_without_is_partition:
   fixes elem::'a
     and P::"'a set set"
   assumes "is_partition P"
-  shows "is_partition (partition_without elem P)"
-proof - 
-  let ?Q = "partition_without elem P"
-  show ?thesis
-  proof -   
-    have "\<forall> x1 \<in> ?Q. \<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2"
-    proof 
-      fix x1 assume x1_in_Q: "x1 \<in> ?Q"
-      then obtain z1 where z1_in_P: "z1 \<in> P" and z1_sup: "x1 = z1 - {elem}"
+  shows "is_partition (partition_without elem P)" (is "is_partition ?Q")
+proof -   
+  have "\<forall> x1 \<in> ?Q. \<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2"
+  proof 
+    fix x1 assume x1_in_Q: "x1 \<in> ?Q"
+    then obtain z1 where z1_in_P: "z1 \<in> P" and z1_sup: "x1 = z1 - {elem}"
+      by (rule super_eq_class)
+    have x1_non_empty: "x1 \<noteq> {}" using x1_in_Q partition_without_def by fast
+    show "\<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2" 
+    proof
+      fix x2 assume "x2 \<in> ?Q"
+      then obtain z2 where z2_in_P: "z2 \<in> P" and z2_sup: "x2 = z2 - {elem}"
         by (rule super_eq_class)
-      have x1_non_empty: "x1 \<noteq> {}" using x1_in_Q partition_without_def by fast
-      show "\<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2" 
+      have "x1 \<inter> x2 \<noteq> {} \<longrightarrow> x1 = x2"
       proof
-        fix x2 assume "x2 \<in> ?Q"
-        then obtain z2 where z2_in_P: "z2 \<in> P" and z2_sup: "x2 = z2 - {elem}"
-          by (rule super_eq_class)
-        have "x1 \<inter> x2 \<noteq> {} \<longrightarrow> x1 = x2"
-        proof
-          assume "x1 \<inter> x2 \<noteq> {}"
-          then have "z1 \<inter> z2 \<noteq> {}" using z1_sup z2_sup by fast
-          then have "z1 = z2" using z1_in_P z2_in_P assms unfolding is_partition_def by fast
-          then show "x1 = x2" using z1_sup z2_sup by fast
-        qed
-        moreover have "x1 = x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}" using x1_non_empty by auto
-        ultimately show "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1 = x2" by blast
+        assume "x1 \<inter> x2 \<noteq> {}"
+        then have "z1 \<inter> z2 \<noteq> {}" using z1_sup z2_sup by fast
+        then have "z1 = z2" using z1_in_P z2_in_P assms unfolding is_partition_def by fast
+        then show "x1 = x2" using z1_sup z2_sup by fast
       qed
+      moreover have "x1 = x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}" using x1_non_empty by auto
+      ultimately show "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1 = x2" by blast
     qed
-    then show ?thesis unfolding is_partition_def .
   qed
+  then show ?thesis unfolding is_partition_def .
 qed
 
-(*
 lemma partition_without_is_partition_list:
   fixes elem::'a
     and P::"'a set list"
   assumes distinct: "distinct P"
       and partition: "is_partition (set P)"
-  shows "is_partition (set (partition_without_list elem P))" (is "is_partition ?Q")
-proof - 
-  from distinct and partition have "?Q = (\<lambda>X . X - {elem}) ` set P - {{}}" by (rule partition_without_list_alt)
-  show ?thesis
-  proof -   
-    have "\<forall> x1 \<in> ?Q. \<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2"
-    proof 
-      fix x1 assume x1_in_Q: "x1 \<in> ?Q"
-      then obtain z1 where z1_in_P: "z1 \<in> set P" and z1_sup: "x1 = z1 - {elem}"
-        sorry
-
-      have x1_non_empty: "x1 \<noteq> {}" using x1_in_Q partition_without_def sorry
-      show "\<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2" 
-      proof
-        fix x2 assume "x2 \<in> ?Q"
-        then obtain z2 where z2_in_P: "z2 \<in> P" and z2_sup: "x2 = z2 - {elem}"
-          unfolding partition_without_def
-          by (smt mem_Collect_eq set_diff_eq)
-        have "x1 \<inter> x2 \<noteq> {} \<longrightarrow> x1 = x2"
-        proof
-          assume "x1 \<inter> x2 \<noteq> {}"
-          then have "z1 \<inter> z2 \<noteq> {}" using z1_sup z2_sup by fast
-          then have "z1 = z2" using z1_in_P z2_in_P assms unfolding is_partition_def by fast
-          then show "x1 = x2" using z1_sup z2_sup by fast
-        qed
-        moreover have "x1 = x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}" using x1_non_empty by auto
-        ultimately show "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1 = x2" by blast
-      qed
-    qed
-    then show ?thesis unfolding is_partition_def .
-  qed
+  shows "is_partition (set (partition_without_list elem P))"
+proof -
+  from distinct partition have "set (partition_without_list elem P) = partition_without elem (set P)"
+    by (rule partition_without_list_alt)
+  with partition show ?thesis using partition_without_is_partition by fastforce
 qed
-*)
 
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
 where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
 
-(*
-definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set set list \<Rightarrow> 'a set set list"
+(* TODO CL: if we end up preferring this over all_coarser_partitions_with, document it *)
+definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
 where "all_coarser_partitions_with_list elem P = concat (map (coarser_partitions_with_list elem) P)"
-*)
 
 fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
 where 
 "all_partitions_of_list [] = {{}}" |
 "all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)"
+
+(* TODO CL: if we end up preferring this over all_partitions_of_list, document it *)
+fun all_partitions_of_list_list :: "'a list \<Rightarrow> 'a set list list"
+where 
+"all_partitions_of_list_list [] = [[]]" |
+"all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
 
 lemma coarser_partitions_inv_without:
   fixes elem::'a
