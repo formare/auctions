@@ -41,6 +41,85 @@ definition is_partition where
 "is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
 
+text {* A subset of a partition is also a partition (but, note: only of a subset of the original set) *}
+lemma subset_is_partition:
+  assumes subset: "P \<subseteq> Q"
+      and partition: "is_partition Q"
+  shows "is_partition P"
+proof -
+  {
+    fix x y assume "x \<in> P \<and> y \<in> P"
+    then have "x \<in> Q \<and> y \<in> Q" using subset by fast
+    then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition unfolding is_partition_def by force
+  }
+  then show ?thesis unfolding is_partition_def by force
+qed
+
+(* TODO CL: document if used *)
+lemma remove_from_eq_class_preserves_disjoint:
+  fixes elem::'a
+    and X::"'a set"
+    and P::"'a set set"
+  assumes partition: "is_partition P"
+      and eq_class: "X \<in> P"
+      and elem: "elem \<in> X"
+  shows "X - {elem} \<notin> P"
+using assms using is_partition_def
+by (smt Diff_iff Int_Diff Int_absorb Int_commute insertCI)
+(* This was very hard to find for sledgehammer *)
+
+lemma partition_extension1:
+  fixes P::"'a set set"
+    and X::"'a set"
+  assumes partition: "is_partition P"
+      and disjoint: "X \<inter> \<Union> P = {}" 
+      and non_empty: "X \<noteq> {}"
+  shows "is_partition (insert X P)"
+proof -
+  {
+    fix x y assume x_y_in_ext: "x \<in> insert X P \<and> y \<in> insert X P"
+    have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y"
+    proof
+      assume "x \<inter> y \<noteq> {}"
+      then show "x = y"
+        using x_y_in_ext partition disjoint
+        unfolding is_partition_def
+        by fast
+    next
+      assume "x = y"
+      then show "x \<inter> y \<noteq> {}"
+        using x_y_in_ext partition non_empty
+        unfolding is_partition_def
+        by auto
+    qed
+  }
+  then show ?thesis unfolding is_partition_def by force
+qed
+
+lemma disj_eq_classes:
+  fixes P::"'a set set"
+    and X::"'a set"
+  assumes "is_partition P"
+      and "X \<in> P"
+  shows "X \<inter> \<Union> (P - {X}) = {}" 
+proof -
+  {
+    fix x
+    assume x_in_two_eq_classes: "x \<in> X \<inter> \<Union> (P - {X})"
+    then obtain Y where other_eq_class: "Y \<in> P - {X} \<and> x \<in> Y" by blast
+    have "x \<in> X \<inter> Y \<and> Y \<in> P"
+      using x_in_two_eq_classes other_eq_class by force
+    then have "X = Y" using assms is_partition_def by fast
+    then have "x \<in> {}" using other_eq_class by fast
+  }
+  then show ?thesis by blast
+qed
+
+lemma no_empty_eq_class:
+  assumes "is_partition p"
+  shows "{} \<notin> p" 
+  using assms is_partition_def by fast
+
 text {* @{text P} is a partition of the set @{text A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
@@ -74,10 +153,57 @@ definition insert_into_member
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
-(* TODO CL: if we end up preferring this over insert_into_member, document it *)
+lemma partition_extension2:
+  fixes new_el::'a
+    and P::"'a set set"
+    and X::"'a set"
+  assumes partition: "is_partition P"
+      and eq_class: "X \<in> P"
+      and new: "new_el \<notin> \<Union> P"
+shows "is_partition (insert_into_member new_el P X)"
+proof -
+  let ?Y = "insert new_el X"
+  have rest_is_partition: "is_partition (P - {X})"
+    using partition subset_is_partition by blast
+  have "X \<inter> \<Union> (P - {X}) = {}"
+   using eq_class partition disj_eq_classes
+   by metis
+  then have "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> (P - {X}) = {}" using new by blast
+  then have "is_partition (insert ?Y (P - {X}))"
+    using rest_is_partition partition_extension1
+    by metis
+  then show ?thesis unfolding insert_into_member_def by simp
+qed
+
+(* TODO CL: if we end up preferring this over insert_into_member, document it.
+   Rationale for this variant and for everything that depends on it:
+   While it is possible to computationally enumerate "all partitions of a set" as
+   "'a set set set", we need a list representation to apply further computational
+   functions to partitions.  Because of the way we construct partitions (using functions
+   such as all_coarser_partitions_with below) it is not sufficient to simply use 
+   "'a set set list", but we need "'a set list list".  This is because it is hard 
+   to impossible to convert a set to a list, whereas it is easy to convert a list to a set. *)
 definition insert_into_member_list
 :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set \<Rightarrow> 'a set list"
 where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 S Sets)"
+
+(* TODO CL: If we end up using this, document it *)
+lemma insert_into_member_list_distinct:
+  fixes new_el::'a
+    and P::"'a set list"
+    and X::"'a set"
+  assumes distinct: "distinct P"
+      and new: "new_el \<notin> \<Union> set P"
+      (* no need to assume the following, which will also hold when we are using 
+         insert_into_member_list in practice:
+      and partition: "is_partition (set P)"
+      and eq_class: "X \<in> set P"
+      *)
+  shows "distinct (insert_into_member_list new_el P X)"
+proof - (* would also work as a one-liner, but the following is faster: *)
+  from new distinct have "distinct ((X \<union> {new_el}) # (remove1 X P))" by fastforce
+  then show ?thesis unfolding insert_into_member_list_def .
+qed
 
 lemma insert_into_member_partition1:
   fixes elem::'a
@@ -137,6 +263,33 @@ where "coarser_partitions_with_list new_el P =
      inserting new_el into one equivalence class of 'part' at a time. *)
   (map ((insert_into_member_list new_el P)) P)"
 
+lemma partition_extension3:
+  fixes elem::'a
+    and P::"'a set set"
+    and Q::"'a set set"
+  assumes P_partition: "is_partition P"
+      and new_elem: "elem \<notin> \<Union> P"
+      and Q_coarser: "Q \<in> coarser_partitions_with elem P"
+  shows "is_partition Q"
+proof -
+  let ?q = "insert {elem} P"
+  have Q_coarser_unfolded: "Q \<in> insert ?q (insert_into_member elem P ` P)" 
+    using Q_coarser 
+    unfolding coarser_partitions_with_def
+    by fast
+  show ?thesis
+  proof (cases "Q = ?q")
+    case True
+    then show ?thesis
+      using P_partition new_elem partition_extension1
+      by fastforce
+  next
+    case False
+    then have "Q \<in> (insert_into_member elem P) ` P" using Q_coarser_unfolded by fastforce
+    then show ?thesis using partition_extension2 P_partition new_elem by fast
+  qed
+qed
+
 text {* Let @{text P} be a partition of a set @{text S}, and @{text elem} an element (which may or may not be
   in @{text S} already).  Then, any member of @{text "coarser_partitions_with elem P"} is a set of sets
   whose union is @{text "S \<union> {elem}"}, i.e.\ it satisfies a necessary criterion for being a partition of @{text "S \<union> {elem}"}.
@@ -183,14 +336,14 @@ lemma coarser_partitions_covers_list:
     have mayRemoveAll: "\<And> X . insert_into_member_list elem P X = (X \<union> {elem}) # (removeAll X P)"
       unfolding insert_into_member_list_def using distinctP by (metis distinct_remove1_removeAll)
     from True have "Q \<in> (insert_into_member_list elem P) ` (set P)" by simp
-    then have *: "set Q \<in> { insert (X \<union> {elem}) (set P - {X}) | X . X \<in> set P }"
+    then have "set Q \<in> { insert (X \<union> {elem}) (set P - {X}) | X . X \<in> set P }"
       using mayRemoveAll remove_list_to_set by (smt mem_Collect_eq comp_def image_Collect_mem)
     then have "set Q \<in> { insert_into_member elem (set P) X | X . X \<in> set P }" unfolding insert_into_member_def .
     then have "set Q \<in> (insert_into_member elem (set P)) ` (set P)" by (metis image_Collect_mem)
     then show ?thesis by (metis Diff_iff coarser_partitions_covers coarser_partitions_with_def insertI1 insert_Diff1)
   next
     case False
-    then have *: "set Q = insert {elem} (set P)" using Q_cases by force
+    then have Q_case: "set Q = insert {elem} (set P)" using Q_cases by force
     {
       fix eq_class assume eq_class_in_P: "eq_class \<in> set P"
       have "\<Union> insert (eq_class \<union> {elem}) (set (remove1 eq_class P)) = ?S \<union> (eq_class \<union> {elem})"
@@ -201,7 +354,7 @@ lemma coarser_partitions_covers_list:
         using insert_into_member_partition1_list
         by (rule subst)
     }
-    then show ?thesis using * by (metis Sup_insert insert_is_Un)
+    then show ?thesis using Q_case by (metis Sup_insert insert_is_Un)
   qed
 qed
 
@@ -213,6 +366,10 @@ where coarser partitions of a set @{text "S \<union> {elem}"} are child nodes of
 definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
 where "partition_without elem P = { x - {elem} | x . x \<in> P } - {{}}"
 
+(* TODO CL: if we end up preferring this over partition_without, document it *)
+definition partition_without_list :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list"
+where "partition_without_list elem P = remove1 {} (map (\<lambda>x . x - {elem}) P)"
+
 lemma partition_without_covers:
   fixes elem::'a
     and P::"'a set set"
@@ -223,6 +380,30 @@ proof -
     using image_Collect_mem by metis
   also have "\<dots> = \<Union> P - {elem}" by blast
   finally show ?thesis .
+qed
+
+lemma partition_without_covers_list:
+  fixes elem::'a
+      and P::"'a set list"
+  assumes distinct: "distinct P"
+      and partition: "is_partition (set P)"
+      and elem: "elem \<in> \<Union> set P"
+  shows "\<Union> set (partition_without_list elem P) = \<Union> (set P) - {elem}"
+proof -
+  {
+    fix X
+    assume eq_class: "X \<in> set P" and elem: "elem \<in> X"
+    with partition have "X - {elem} \<notin> set P" by (rule remove_from_eq_class_preserves_disjoint)
+  }
+  then have "distinct (map (\<lambda>X . X - {elem}) P)" sorry
+    
+ 
+  
+  have "\<Union> set (partition_without_list elem P) = \<Union> set (remove1 {} (map (\<lambda>x . x - {elem}) P))"
+    unfolding partition_without_list_def by fast
+  also have "\<dots> = \<Union> set (removeAll {} (map (\<lambda>x . x - {elem}) P))" using assms sorry
+  also have "\<dots> = \<Union> (set P) - {elem}" using assms sorry
+  finally show ?thesis sorry
 qed
 
 lemma partition_without_is_partition:
@@ -265,128 +446,15 @@ qed
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
 where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
 
+(*
 definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set set list \<Rightarrow> 'a set set list"
 where "all_coarser_partitions_with_list elem P = concat (map (coarser_partitions_with_list elem) P)"
+*)
 
 fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
 where 
 "all_partitions_of_list [] = {{}}" |
 "all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)"
-
-text {* A subset of a partition is also a partition (but, note: only of a subset of the original set) *}
-lemma subset_is_partition:
-  assumes subset: "P \<subseteq> Q"
-      and partition: "is_partition Q"
-  shows "is_partition P"
-proof -
-  {
-    fix x y assume "x \<in> P \<and> y \<in> P"
-    then have "x \<in> Q \<and> y \<in> Q" using subset by fast
-    then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition unfolding is_partition_def by force
-  }
-  then show ?thesis unfolding is_partition_def by force
-qed
-
-lemma partition_extension1:
-  fixes P::"'a set set"
-    and X::"'a set"
-  assumes partition: "is_partition P"
-      and disjoint: "X \<inter> \<Union> P = {}" 
-      and non_empty: "X \<noteq> {}"
-  shows "is_partition (insert X P)"
-proof -
-  {
-    fix x y assume x_y_in_ext: "x \<in> insert X P \<and> y \<in> insert X P"
-    have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y"
-    proof
-      assume "x \<inter> y \<noteq> {}"
-      then show "x = y"
-        using x_y_in_ext partition disjoint
-        unfolding is_partition_def
-        by fast
-    next
-      assume "x = y"
-      then show "x \<inter> y \<noteq> {}"
-        using x_y_in_ext partition non_empty
-        unfolding is_partition_def
-        by auto
-    qed
-  }
-  then show ?thesis unfolding is_partition_def by force
-qed
-
-lemma disj_eq_classes:
-  fixes P::"'a set set"
-    and X::"'a set"
-  assumes "is_partition P"
-      and "X \<in> P"
-  shows "X \<inter> \<Union> (P - {X}) = {}" 
-proof -
-  {
-    fix x
-    assume x_in_two_eq_classes: "x \<in> X \<inter> \<Union> (P - {X})"
-    then obtain Y where other_eq_class: "Y \<in> P - {X} \<and> x \<in> Y" by blast
-    have "x \<in> X \<inter> Y \<and> Y \<in> P"
-      using x_in_two_eq_classes other_eq_class by force
-    then have "X = Y" using assms is_partition_def by fast
-    then have "x \<in> {}" using other_eq_class by fast
-  }
-  then show ?thesis by blast
-qed
-
-lemma partition_extension2:
-  fixes new_el::'a
-    and P::"'a set set"
-    and X::"'a set"
-  assumes partition: "is_partition P"
-      and eq_class: "X \<in> P"
-      and new: "new_el \<notin> \<Union> P"
-shows "is_partition (insert_into_member new_el P X)"
-proof -
-  let ?Y = "insert new_el X"
-  have rest_is_partition: "is_partition (P - {X})"
-    using partition subset_is_partition by blast
-  have "X \<inter> \<Union> (P - {X}) = {}"
-   using eq_class partition disj_eq_classes
-   by metis
-  then have "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> (P - {X}) = {}" using new by blast
-  then have "is_partition (insert ?Y (P - {X}))"
-    using rest_is_partition partition_extension1
-    by metis
-  then show ?thesis unfolding insert_into_member_def by simp
-qed
-
-lemma partition_extension3:
-  fixes elem::'a
-    and P::"'a set set"
-    and Q::"'a set set"
-  assumes P_partition: "is_partition P"
-      and new_elem: "elem \<notin> \<Union> P"
-      and Q_coarser: "Q \<in> coarser_partitions_with elem P"
-  shows "is_partition Q"
-proof -
-  let ?q = "insert {elem} P"
-  have Q_coarser_unfolded: "Q \<in> insert ?q (insert_into_member elem P ` P)" 
-    using Q_coarser 
-    unfolding coarser_partitions_with_def
-    by fast
-  show ?thesis
-  proof (cases "Q = ?q")
-    case True
-    then show ?thesis
-      using P_partition new_elem partition_extension1
-      by fastforce
-  next
-    case False
-    then have "Q \<in> (insert_into_member elem P) ` P" using Q_coarser_unfolded by fastforce
-    then show ?thesis using partition_extension2 P_partition new_elem by fast
-  qed
-qed
-
-lemma no_empty_eq_class:
-  assumes "is_partition p"
-  shows "{} \<notin> p" 
-  using assms is_partition_def by fast
 
 lemma coarser_partitions_inv_without:
   fixes elem::'a
