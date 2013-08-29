@@ -15,7 +15,7 @@ See LICENSE file for details
 *)
 
 theory Partitions
-imports Main SetUtils
+imports Main SetUtils ListUtils
 begin
 
 text {*
@@ -72,16 +72,31 @@ definition insert_into_member
    then "insert_into_member new_el Sets S" is a partition of "Set \<union> {new_el}".
    Would it make sense to state this as a lemma and prove it? *)
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
-where "insert_into_member new_el Sets S = Sets - {S} \<union> {S \<union> {new_el}}"
+where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
+
+(* TODO CL: if we end up preferring this over insert_into_member, document it *)
+definition insert_into_member_list
+:: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set \<Rightarrow> 'a set list"
+where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 S Sets)"
 
 lemma insert_into_member_partition1:
   fixes elem::'a
     and P::"'a set set"
     and eq_class::"'a set"
   (* no need to assume "eq_class \<in> P" *)
-  shows "\<Union> insert_into_member elem P eq_class = \<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem})"
+  shows "\<Union> insert_into_member elem P eq_class = \<Union> insert (eq_class \<union> {elem}) (P - {eq_class})"
     unfolding insert_into_member_def
-    by (metis Sup_insert Un_commute insert_is_Un)
+    by fast
+
+(* TODO CL: if we end up preferring this over insert_into_member_partition1, document it *)
+lemma insert_into_member_partition1_list:
+  fixes elem::'a
+    and P::"'a set list"
+    and eq_class::"'a set"
+  (* no need to assume "eq_class \<in> P" *)
+  shows "\<Union> set (insert_into_member_list elem P eq_class) = \<Union> insert (eq_class \<union> {elem}) (set (remove1 eq_class P))"
+    unfolding insert_into_member_list_def
+    by force
 
 (* TODO CL: as with insert_into_member above, what does the following function do when the given set of sets
    is not a partition?  And should we prove that, when the given set is a partition, this function 
@@ -106,6 +121,22 @@ where "coarser_partitions_with new_el P =
      inserting new_el into one equivalence class of 'part' at a time. *)
   ((insert_into_member new_el P) ` P)"
 
+(* TODO CL: if we end up preferring this over coarser_partitions_with, document it *)
+definition coarser_partitions_with_list ::"'a \<Rightarrow> 'a set list \<Rightarrow> 'a set set list"
+where "coarser_partitions_with_list new_el P = 
+  (* Let 'part' be a partition of a set 'Set',
+     and suppose new_el \<notin> Set, i.e. {new_el} \<notin> part,
+     then the following constructs a partition of 'Set \<union> {new_el}' obtained by
+     inserting a new equivalence class {new_el} and leaving all previous equivalence classes unchanged. *)
+  (insert {new_el} (set P))
+  #
+  (* Let 'part' be a partition of a set 'Set',
+     and suppose new_el \<notin> Set,
+     then the following constructs
+     the set of those partitions of 'Set \<union> {new_el}' obtained by
+     inserting new_el into one equivalence class of 'part' at a time. *)
+  (map (set \<circ> (insert_into_member_list new_el P)) P)"
+
 text {* Let @{text P} be a partition of a set @{text S}, and @{text elem} an element (which may or may not be
   in @{text S} already).  Then, any member of @{text "coarser_partitions_with elem P"} is a set of sets
   whose union is @{text "S \<union> {elem}"}, i.e.\ it satisfies a necessary criterion for being a partition of @{text "S \<union> {elem}"}.
@@ -122,15 +153,56 @@ proof -
     using assms unfolding coarser_partitions_with_def by fast
   {
     fix eq_class assume eq_class_in_P: "eq_class \<in> P"
-    have "\<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem}) = ?S \<union> (eq_class \<union> {elem})"
+    have "\<Union> insert (eq_class \<union> {elem}) (P - {eq_class}) = ?S \<union> (eq_class \<union> {elem})"
       using insert_into_member_partition1
-      by blast
-    with eq_class_in_P have "\<Union> (P - {eq_class}) \<union> (eq_class \<union> {elem}) = ?S \<union> {elem}" by blast
+      by (metis Sup_insert Un_commute Un_empty_right Un_insert_right insert_Diff_single)
+    with eq_class_in_P have "\<Union> insert (eq_class \<union> {elem}) (P - {eq_class}) = ?S \<union> {elem}" by blast
     then have "\<Union> insert_into_member elem P eq_class = ?S \<union> {elem}"
       using insert_into_member_partition1
       by (rule subst)
   }
   then show ?thesis using Q_cases by blast
+qed
+
+(* TODO CL: if we end up preferring this over coarser_partitions_covers_list, document it *)
+lemma coarser_partitions_covers_list:
+  fixes elem::'a
+    and P::"'a set list"
+    and Q::"'a set list"
+  assumes Q_coarser: "set Q \<in> set (coarser_partitions_with_list elem P)"
+      and distinctP: "distinct P"
+      and distinctQ: "distinct Q"
+  shows "\<Union> set Q = insert elem (\<Union> set P)"
+  proof -
+  let ?S = "\<Union> set P"
+  have Q_cases: "set Q \<in> set (map (set \<circ> insert_into_member_list elem P) P) \<or> set Q = insert {elem} (set P)"
+    using Q_coarser unfolding coarser_partitions_with_list_def by force
+  show ?thesis
+  proof (cases "set Q \<in> set (map (set \<circ> insert_into_member_list elem P) P)")
+    case True
+    have mayRemoveAll: "\<And> X . insert_into_member_list elem P X = (X \<union> {elem}) # (removeAll X P)"
+      unfolding insert_into_member_list_def using distinctP by (metis distinct_remove1_removeAll)
+    from True have "set Q \<in> (set \<circ> insert_into_member_list elem P) ` (set P)" by simp
+    then have *: "set Q \<in> { insert (X \<union> {elem}) (set P - {X}) | X . X \<in> set P }"
+      using mayRemoveAll remove_list_to_set by (smt mem_Collect_eq comp_def image_Collect_mem)
+    then have "set Q \<in> { insert_into_member elem (set P) X | X . X \<in> set P }" unfolding insert_into_member_def .
+    then have "set Q \<in> (insert_into_member elem (set P)) ` (set P)" by (metis image_Collect_mem)
+    then show ?thesis by (metis Diff_iff coarser_partitions_covers coarser_partitions_with_def insertI1 insert_Diff1)
+  next
+    case False
+    then have *: "set Q = insert {elem} (set P)" using Q_cases by force
+    {
+      fix eq_class assume eq_class_in_P: "eq_class \<in> set P"
+      have "\<Union> insert (eq_class \<union> {elem}) (set (remove1 eq_class P)) = ?S \<union> (eq_class \<union> {elem})"
+        using distinctP insert_into_member_partition1_list
+        by auto
+      with eq_class_in_P have "\<Union> insert (eq_class \<union> {elem}) (set (remove1 eq_class P)) = ?S \<union> {elem}" by blast
+      then have "\<Union> set (insert_into_member_list elem P eq_class) = ?S \<union> {elem}"
+        using insert_into_member_partition1_list
+        by (rule subst)
+    }
+    then show ?thesis using * by (metis Sup_insert insert_is_Un)
+  qed
 qed
 
 text {* Removes the element @{text elem} from every set in @{text P}, and removes from @{text P} any
@@ -196,7 +268,7 @@ where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with ele
 fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
 where 
 "all_partitions_of_list [] = {{}}" |
-"all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)" 
+"all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)"
 
 text {* A subset of a partition is also a partition (but, note: only of a subset of the original set) *}
 lemma subset_is_partition:
@@ -278,8 +350,7 @@ proof -
   then have "is_partition (insert ?Y (P - {X}))"
     using rest_is_partition partition_extension1
     by metis
-  then have "is_partition (P - {X} \<union> {X \<union> {new_el}})" by simp
-  then show ?thesis unfolding insert_into_member_def .
+  then show ?thesis unfolding insert_into_member_def by simp
 qed
 
 lemma partition_extension3:
@@ -384,7 +455,7 @@ proof -
     hence Y': "?elem_neq_classes \<union> {?elem_eq} - {{}} = ?elem_neq_classes \<union> {?elem_eq}"
       using no_empty_eq_class partition partition_without_is_partition
       by force
-    have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = ({?elem_eq} \<union> ?elem_neq_classes) - {?elem_eq} \<union> {?elem_eq \<union> {elem}}" 
+    have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = insert (?elem_eq \<union> {elem}) (({?elem_eq} \<union> ?elem_neq_classes) - {?elem_eq})"
       unfolding insert_into_member_def ..
     also have "\<dots> = ({} \<union> ?elem_neq_classes) \<union> {?elem_eq \<union> {elem}}" using elem_neq_classes by force
     also have "\<dots> = ?elem_neq_classes \<union> {Y}" using elem_eq_class by blast
