@@ -617,11 +617,33 @@ proof -
 qed
 
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
-where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
+where "all_coarser_partitions_with elem Ps = \<Union> coarser_partitions_with elem ` Ps"
 
 (* TODO CL: if we end up preferring this over all_coarser_partitions_with, document it *)
 definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
-where "all_coarser_partitions_with_list elem P = concat (map (coarser_partitions_with_list elem) P)"
+where "all_coarser_partitions_with_list elem Ps = concat (map (coarser_partitions_with_list elem) Ps)"
+
+lemma all_coarser_partitions_with_list_alt:
+  fixes elem::'a
+    and Ps::"'a set list list"
+  assumes distinct: "\<forall> P \<in> set Ps . distinct P"
+      and partition: "\<forall> P \<in> set Ps . is_partition (set P)"
+  shows "set (map set (all_coarser_partitions_with_list elem Ps)) = all_coarser_partitions_with elem (set (map set Ps))"
+    (is "?list_expr = ?set_expr")
+proof -
+  have "?list_expr = set (map set (concat (map (coarser_partitions_with_list elem) Ps)))"
+    unfolding all_coarser_partitions_with_list_def ..
+  also have "\<dots> = set ` (\<Union> x \<in> (coarser_partitions_with_list elem) ` (set Ps) . set x)" by simp
+  also have "\<dots> = set ` (\<Union> x \<in> { coarser_partitions_with_list elem P | P . P \<in> set Ps } . set x)"
+    by (metis image_Collect_mem)
+  also have "\<dots> = \<Union> { set (map set (coarser_partitions_with_list elem P)) | P . P \<in> set Ps }" by auto
+  also have "\<dots> = \<Union> { coarser_partitions_with elem (set P) | P . P \<in> set Ps }"
+    using distinct coarser_partitions_with_list_alt by fast
+  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set ` (set Ps))" by (metis image_Collect_mem image_image)
+  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set (map set Ps))" by simp
+  also have "\<dots> = ?set_expr" unfolding all_coarser_partitions_with_def ..
+  finally show ?thesis .
+qed
 
 fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
 where 
