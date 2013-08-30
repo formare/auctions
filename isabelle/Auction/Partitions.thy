@@ -374,6 +374,35 @@ where "partition_without elem P = (\<lambda>X . X - {elem}) ` P - {{}}"
 definition partition_without_list :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list"
 where "partition_without_list elem P = remove1 {} (map (\<lambda>x . x - {elem}) P)"
 
+lemma remove_elem_inj:
+  fixes elem::'a
+    and P::"'a set list"
+  assumes partition: "is_partition (set P)"
+  shows "inj_on (\<lambda>X . X - {elem}) (set P)" (is "inj_on ?remove_elem ?Q")
+proof (rule inj_onI)
+  fix X Y assume X: "X \<in> set P" and Y: "Y \<in> set P"
+  assume im_eq: "?remove_elem X = ?remove_elem Y"
+  from partition have is_partition_unfolded: "\<forall> X \<in> set P . \<forall> Y \<in> set P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)"
+    unfolding is_partition_def .
+  from X Y partition have "\<exists>u. (u \<in> X \<and> u \<in> Y) \<and> u \<notin> {}"
+    by (metis (mono_tags) empty_iff equals0I im_eq member_remove no_empty_eq_class remove_def)
+  then show "X = Y" using X Y is_partition_unfolded by (metis IntI)
+qed
+
+(* TODO CL: If we end up using this, document it *)
+lemma partition_without_list_distinct:
+  fixes elem::'a
+    and P::"'a set list"
+  assumes distinct: "distinct P"
+      and partition: "is_partition (set P)"
+  shows "distinct (partition_without_list elem P)"
+proof -
+  let ?remove_elem = "\<lambda>X . X - {elem}"
+  from distinct show ?thesis
+    using distinct_map partition remove_elem_inj
+    unfolding partition_without_list_def by (metis distinct_remove1)
+qed  
+
 (* TODO CL: If we end up using this, document it *)
 lemma partition_without_list_alt:
   fixes elem::'a
@@ -383,20 +412,12 @@ lemma partition_without_list_alt:
   shows "set (partition_without_list elem P) = partition_without elem (set P)"
 proof -
   let ?remove_elem = "\<lambda>X . X - {elem}"
-  have remove_elem_inj: "inj_on (\<lambda>X . X - {elem}) (set P)"
-  proof (rule inj_onI)
-    fix X Y assume X: "X \<in> set P" and Y: "Y \<in> set P"
-    assume im_eq: "?remove_elem X = ?remove_elem Y"
-    from partition have is_partition_unfolded: "\<forall> X \<in> set P . \<forall> Y \<in> set P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)"
-      unfolding is_partition_def .
-    from X Y partition have "\<exists>u. (u \<in> X \<and> u \<in> Y) \<and> u \<notin> {}"
-      by (metis (mono_tags) empty_iff equals0I im_eq member_remove no_empty_eq_class remove_def)
-    then show "X = Y" using X Y is_partition_unfolded by (metis IntI)
-  qed
-  with distinct have "set (partition_without_list elem P) = set (removeAll {} (map ?remove_elem P))"
+  have "set (partition_without_list elem P) = set (remove1 {} (map ?remove_elem P))"
     unfolding partition_without_list_def
-    using remove_elem_inj
-    by (metis distinct_map distinct_remove1_removeAll)
+    by fast
+  also have "\<dots> = set (removeAll {} (map ?remove_elem P))"
+    using distinct partition remove_elem_inj
+    by (metis distinct_map set_remove1_eq set_removeAll)
   also have "\<dots> = set (map ?remove_elem P) - {{}}" by (rule set_removeAll)
   also have "\<dots> = ?remove_elem ` set P - {{}}" by (metis image_set)
   finally show ?thesis unfolding partition_without_def .
@@ -565,6 +586,34 @@ proof -
     then have "{Y} \<union> ?elem_neq_classes \<in> coarser_partitions_with elem ?Q" unfolding coarser_partitions_with_def by simp
     then show ?thesis using P_wrt_elem by simp
   qed
+qed
+
+lemma coarser_partitions_inv_without_list:
+  fixes elem::'a
+    and P::"'a set list"
+  assumes distinct: "distinct P"
+      and partition: "is_partition (set P)"
+      and elem: "elem \<in> \<Union> (set P)" 
+  shows "set P \<in> set (map set (coarser_partitions_with_list elem (partition_without_list elem P)))"
+proof -
+  (* We actually shouldn't need this, but the proof below doesn't work by merely
+     using partition_without_list_alt. *)
+  from distinct partition have *: "set (partition_without_list elem P) = partition_without elem (set P)"
+    by (rule partition_without_list_alt)
+
+  from distinct partition
+    have "distinct (partition_without_list elem P)"
+    by (rule partition_without_list_distinct)
+  then have "set (map set (coarser_partitions_with_list elem (partition_without_list elem P))) = coarser_partitions_with elem (set (partition_without_list elem P))"
+    by (rule coarser_partitions_with_list_alt)
+  also have "\<dots> = coarser_partitions_with elem (partition_without elem (set P))"
+    using distinct partition * by simp
+  finally have list_set_rel: "set (map set (coarser_partitions_with_list elem (partition_without_list elem P))) = coarser_partitions_with elem (partition_without elem (set P))" .
+
+  from partition elem
+    have "set P \<in> coarser_partitions_with elem (partition_without elem (set P))"
+    using coarser_partitions_inv_without by simp
+  with list_set_rel show ?thesis by fast
 qed
 
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
