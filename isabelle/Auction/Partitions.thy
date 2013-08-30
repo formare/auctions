@@ -658,23 +658,45 @@ where
 "all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
 
 lemma all_partitions_of_list_list_distinct:
-  "\<forall> P \<in> set (all_partitions_of_list_list xs) . distinct P" sorry
+  assumes distinct: "distinct xs"
+  shows "\<forall> P \<in> set (all_partitions_of_list_list xs) . distinct P"
+proof
+  fix P
+  assume "P \<in> set (all_partitions_of_list_list xs)"
+  then show "distinct P"
+  proof (induct xs)
+    case Nil
+    show ?case by (metis Nil.prems all_partitions_of_list_list.simps(1) distinct.simps(1) empty_iff empty_set set_ConsD)
+  next
+    case (Cons x xs)
+    assume "P \<in> set (all_partitions_of_list_list (x # xs))"
+
+    have "set (all_partitions_of_list_list (x # xs)) = set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs))"
+      by simp
+    also have "\<dots> = set (concat (map (coarser_partitions_with_list x) (all_partitions_of_list_list xs)))"
+      unfolding all_coarser_partitions_with_list_def ..
+    (* have "set (concat xs) = \<Union> set (map set xs)" by simp *)
+    also have "\<dots> = {}" sorry
+    
+    show ?case sorry
+  qed
+qed
 
 lemma all_partitions_of_list_list_alt:
-  assumes distinct: "distinct xs"
-  shows "set (map set (all_partitions_of_list_list xs)) = all_partitions_of_list xs"
+  shows "distinct xs \<Longrightarrow> set (map set (all_partitions_of_list_list xs)) = all_partitions_of_list xs"
 proof (induct xs)
   case Nil
   show ?case by auto
 next
   case (Cons x xs)
+  have distinct_xs: "distinct xs" by (metis (full_types) Cons.prems distinct_tl tl.simps(2))
   have "set (map set (all_partitions_of_list_list (x # xs))) = set (map set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs)))"
     by simp
   also have "\<dots> = all_coarser_partitions_with x (set (map set (all_partitions_of_list_list xs)))"
-    using all_partitions_of_list_list_distinct
-    by (rule all_coarser_partitions_with_list_alt)
+    using distinct_xs all_partitions_of_list_list_distinct
+      all_coarser_partitions_with_list_alt by fast
   also have "\<dots> = all_coarser_partitions_with x (all_partitions_of_list xs)"
-    using Cons.hyps by force
+    using distinct_xs Cons.hyps by force
   also have "\<dots> = all_partitions_of_list (x # xs)" by simp
   finally show ?case .
 qed
