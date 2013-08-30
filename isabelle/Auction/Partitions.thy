@@ -187,6 +187,17 @@ definition insert_into_member_list
 :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set \<Rightarrow> 'a set list"
 where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 S Sets)"
 
+(* TODO CL: If we end up using this, document it *)
+lemma insert_into_member_list_alt:
+  fixes new_el::'a
+    and Sets::"'a set list"
+    and S::"'a set"
+  assumes "distinct Sets"
+  shows "set (insert_into_member_list new_el Sets S) = insert_into_member new_el (set Sets) S"
+unfolding insert_into_member_list_def insert_into_member_def
+using assms
+by simp
+
 lemma insert_into_member_partition1:
   fixes elem::'a
     and P::"'a set set"
@@ -245,11 +256,19 @@ where "coarser_partitions_with_list new_el P =
      inserting new_el into one equivalence class of 'part' at a time. *)
   (map ((insert_into_member_list new_el P)) P)"
 
-(* TODO CL: maybe do it like partitions_without_list_alt here.  This would simplify subsequent proofs, e.g. coarser_partitions_covers_list
-lemma 
+(* TODO CL: If we end up using this, document it *)
+lemma coarser_partitions_with_list_alt:
   assumes "distinct P"
   shows "set (map set (coarser_partitions_with_list new_el P)) = coarser_partitions_with new_el (set P)"
-*)
+proof -
+  have "set (map set (coarser_partitions_with_list new_el P)) = set (map set (({new_el} # P) # (map ((insert_into_member_list new_el P)) P)))"
+    unfolding coarser_partitions_with_list_def ..
+  also have "\<dots> = insert (insert {new_el} (set P)) ((set \<circ> (insert_into_member_list new_el P)) ` set P)"
+    by simp
+  also have "\<dots> = insert (insert {new_el} (set P)) ((insert_into_member new_el (set P)) ` set P)"
+    using assms insert_into_member_list_alt by (metis comp_apply)
+  finally show ?thesis unfolding coarser_partitions_with_def .
+qed
 
 lemma partition_extension3:
   fixes elem::'a
@@ -312,39 +331,15 @@ lemma coarser_partitions_covers_list:
     and Q::"'a set list"
   assumes Q_coarser: "Q \<in> set (coarser_partitions_with_list elem P)"
       and distinctP: "distinct P"
-      and distinctQ: "distinct Q"
   shows "\<Union> set Q = insert elem (\<Union> set P)"
-  proof -
-  let ?S = "\<Union> set P"
-  have Q_cases: "Q \<in> set (map (insert_into_member_list elem P) P) \<or> set Q = insert {elem} (set P)"
-    using Q_coarser unfolding coarser_partitions_with_list_def by force
-  show ?thesis
-  proof (cases "Q \<in> set (map (insert_into_member_list elem P) P)")
-    case True
-    have mayRemoveAll: "\<And> X . insert_into_member_list elem P X = (X \<union> {elem}) # (removeAll X P)"
-      unfolding insert_into_member_list_def using distinctP by (metis distinct_remove1_removeAll)
-    from True have "Q \<in> (insert_into_member_list elem P) ` (set P)" by simp
-    then have "set Q \<in> { insert (X \<union> {elem}) (set P - {X}) | X . X \<in> set P }"
-      using mayRemoveAll remove_list_to_set by (smt mem_Collect_eq comp_def image_Collect_mem)
-    then have "set Q \<in> { insert_into_member elem (set P) X | X . X \<in> set P }" unfolding insert_into_member_def .
-    then have "set Q \<in> (insert_into_member elem (set P)) ` (set P)" by (metis image_Collect_mem)
-    then show ?thesis by (metis Diff_iff coarser_partitions_covers coarser_partitions_with_def insertI1 insert_Diff1)
-  next
-    case False
-    then have Q_case: "set Q = insert {elem} (set P)" using Q_cases by force
-    {
-      fix eq_class assume eq_class_in_P: "eq_class \<in> set P"
-      have "\<Union> insert (eq_class \<union> {elem}) (set (remove1 eq_class P)) = ?S \<union> (eq_class \<union> {elem})"
-        using distinctP insert_into_member_partition1_list
-        by auto
-      with eq_class_in_P have "\<Union> insert (eq_class \<union> {elem}) (set (remove1 eq_class P)) = ?S \<union> {elem}" by blast
-      then have "\<Union> set (insert_into_member_list elem P eq_class) = ?S \<union> {elem}"
-        using insert_into_member_partition1_list
-        by (rule subst)
-    }
-    then show ?thesis using Q_case by (metis Sup_insert insert_is_Un)
-  qed
+proof -
+  from Q_coarser have "set Q \<in> set (map set (coarser_partitions_with_list elem P))" by simp
+  with distinctP have "set Q \<in> coarser_partitions_with elem (set P)"
+    using coarser_partitions_with_list_alt by fast
+  then show ?thesis by (rule coarser_partitions_covers)
 qed
+(* Deleted the previous proof, which did not use coarser_partitions_with_list_alt
+   and therefore needed a lost of manual list-to-set rewriting work. *)
 
 text {* Removes the element @{text elem} from every set in @{text P}, and removes from @{text P} any
   remaining empty sets.  This function is intended to be applied to partitions, i.e. @{text elem}
@@ -378,7 +373,10 @@ proof -
       by (metis (mono_tags) empty_iff equals0I im_eq member_remove no_empty_eq_class remove_def)
     then show "X = Y" using X Y is_partition_unfolded by (metis IntI)
   qed
-  with distinct have "set (partition_without_list elem P) = set (removeAll {} (map ?remove_elem P))" unfolding partition_without_list_def using remove_elem_inj by (metis distinct_map distinct_remove1_removeAll)
+  with distinct have "set (partition_without_list elem P) = set (removeAll {} (map ?remove_elem P))"
+    unfolding partition_without_list_def
+    using remove_elem_inj
+    by (metis distinct_map distinct_remove1_removeAll)
   also have "\<dots> = set (map ?remove_elem P) - {{}}" by (rule set_removeAll)
   also have "\<dots> = ?remove_elem ` set P - {{}}" by (metis image_set)
   finally show ?thesis unfolding partition_without_def .
