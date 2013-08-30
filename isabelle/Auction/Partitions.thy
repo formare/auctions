@@ -123,9 +123,29 @@ lemma no_empty_eq_class:
 text {* @{text P} is a partition of the set @{text A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
+
+text {* The empty set is a partition of the empty set. *}
+lemma emptyset_part_emptyset1:
+  shows "is_partition_of {} {}" 
+  unfolding is_partition_of_def is_partition_def by fast
+
+text {* Any partition of the empty set is empty. *}
+lemma emptyset_part_emptyset2:
+  assumes "is_partition_of P {}"
+  shows "P = {}"
+  using assms is_partition_def is_partition_of_def by fast
+
 text {* classical set-theoretical definition of ``all partitions of a set @{text A}'' *}
 definition all_partitions where 
 "all_partitions A = {P . is_partition_of P A}"
+
+text {* The set of all partitions of the empty set only contains the empty set.
+  We need this to prove the base case of @{text all_partitions_paper_equiv_alg}. *}
+lemma emptyset_part_emptyset3:
+  shows "all_partitions {} = {{}}"
+  unfolding all_partitions_def
+  using emptyset_part_emptyset1 emptyset_part_emptyset2
+  by fast
 
 (* MC: Here is some new material.  Next step: integrate new partitions definitions into auctions 
    (i.e. nVCG_CaseChecker.thy) *)
@@ -463,24 +483,6 @@ proof -
   with partition show ?thesis using partition_without_is_partition by fastforce
 qed
 
-definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
-where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
-
-(* TODO CL: if we end up preferring this over all_coarser_partitions_with, document it *)
-definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
-where "all_coarser_partitions_with_list elem P = concat (map (coarser_partitions_with_list elem) P)"
-
-fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
-where 
-"all_partitions_of_list [] = {{}}" |
-"all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)"
-
-(* TODO CL: if we end up preferring this over all_partitions_of_list, document it *)
-fun all_partitions_of_list_list :: "'a list \<Rightarrow> 'a set list list"
-where 
-"all_partitions_of_list_list [] = [[]]" |
-"all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
-
 lemma coarser_partitions_inv_without:
   fixes elem::'a
     and P::"'a set set"
@@ -565,24 +567,23 @@ proof -
   qed
 qed
 
-text {* The empty set is a partition of the empty set. *}
-lemma emptyset_part_emptyset1:
-  shows "is_partition_of {} {}" 
-  unfolding is_partition_of_def is_partition_def by fast
+definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
+where "all_coarser_partitions_with elem P = \<Union> coarser_partitions_with elem ` P"
 
-text {* Any partition of the empty set is empty. *}
-lemma emptyset_part_emptyset2:
-  assumes "is_partition_of P {}"
-  shows "P = {}"
-  using assms is_partition_def is_partition_of_def by fast
+(* TODO CL: if we end up preferring this over all_coarser_partitions_with, document it *)
+definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
+where "all_coarser_partitions_with_list elem P = concat (map (coarser_partitions_with_list elem) P)"
 
-text {* The set of all partitions of the empty set only contains the empty set.
-  We need this to prove the base case of @{text all_partitions_paper_equiv_alg}. *}
-lemma emptyset_part_emptyset3:
-  shows "all_partitions {} = {{}}"
-  unfolding all_partitions_def
-  using emptyset_part_emptyset1 emptyset_part_emptyset2
-  by fast
+fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
+where 
+"all_partitions_of_list [] = {{}}" |
+"all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)"
+
+(* TODO CL: if we end up preferring this over all_partitions_of_list, document it *)
+fun all_partitions_of_list_list :: "'a list \<Rightarrow> 'a set list list"
+where 
+"all_partitions_of_list_list [] = [[]]" |
+"all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
 
 text {* The induction step of @{text all_partitions_paper_equiv_alg} *}
 lemma all_partitions_paper_equiv_alg_indstep:
