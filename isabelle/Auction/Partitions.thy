@@ -627,7 +627,6 @@ lemma all_coarser_partitions_with_list_alt:
   fixes elem::'a
     and Ps::"'a set list list"
   assumes distinct: "\<forall> P \<in> set Ps . distinct P"
-      and partition: "\<forall> P \<in> set Ps . is_partition (set P)"
   shows "set (map set (all_coarser_partitions_with_list elem Ps)) = all_coarser_partitions_with elem (set (map set Ps))"
     (is "?list_expr = ?set_expr")
 proof -
