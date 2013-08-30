@@ -633,6 +633,8 @@ proof -
   have "?list_expr = set (map set (concat (map (coarser_partitions_with_list elem) Ps)))"
     unfolding all_coarser_partitions_with_list_def ..
   also have "\<dots> = set ` (\<Union> x \<in> (coarser_partitions_with_list elem) ` (set Ps) . set x)" by simp
+    (* This and other intermediate results may not be easy to understand.  I obtained them by 
+       conflating multiple “by <simple_method>” steps into one. *)
   also have "\<dots> = set ` (\<Union> x \<in> { coarser_partitions_with_list elem P | P . P \<in> set Ps } . set x)"
     by (metis image_Collect_mem)
   also have "\<dots> = \<Union> { set (map set (coarser_partitions_with_list elem P)) | P . P \<in> set Ps }" by auto
@@ -654,6 +656,28 @@ fun all_partitions_of_list_list :: "'a list \<Rightarrow> 'a set list list"
 where 
 "all_partitions_of_list_list [] = [[]]" |
 "all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
+
+lemma all_partitions_of_list_list_distinct:
+  "\<forall> P \<in> set (all_partitions_of_list_list xs) . distinct P" sorry
+
+lemma all_partitions_of_list_list_alt:
+  assumes distinct: "distinct xs"
+  shows "set (map set (all_partitions_of_list_list xs)) = all_partitions_of_list xs"
+proof (induct xs)
+  case Nil
+  show ?case by auto
+next
+  case (Cons x xs)
+  have "set (map set (all_partitions_of_list_list (x # xs))) = set (map set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs)))"
+    by simp
+  also have "\<dots> = all_coarser_partitions_with x (set (map set (all_partitions_of_list_list xs)))"
+    using all_partitions_of_list_list_distinct
+    by (rule all_coarser_partitions_with_list_alt)
+  also have "\<dots> = all_coarser_partitions_with x (all_partitions_of_list xs)"
+    using Cons.hyps by force
+  also have "\<dots> = all_partitions_of_list (x # xs)" by simp
+  finally show ?case .
+qed
 
 text {* The induction step of @{text all_partitions_paper_equiv_alg} *}
 lemma all_partitions_paper_equiv_alg_indstep:
@@ -811,5 +835,7 @@ text {* frontend to @{text all_partitions_fun_list}, turns the @{text "'a set li
   returned by that function into a @{text "'a set set set"} *}
 fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
+
+(* TODO CL: do unused_thms and remove some list\<leftrightarrow>set theorems, possibly all except *_alt *)
 
 end
