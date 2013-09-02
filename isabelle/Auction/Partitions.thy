@@ -343,9 +343,7 @@ definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a se
 where "partition_without elem P = (\<lambda>X . X - {elem}) ` P - {{}}"
 (* Set comprehension notation { x - {elem} | x . x \<in> P } would look nicer but is harder to do proofs about *)
 
-(* TODO CL: if we end up preferring this over partition_without, document it *)
-definition partition_without_list :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list"
-where "partition_without_list elem P = remove1 {} (map (\<lambda>x . x - {elem}) P)"
+(* We don't need to define partition_without_list. *)
 
 lemma partition_without_covers:
   fixes elem::'a
@@ -681,19 +679,19 @@ using all_partitions_paper_equiv_alg' by blast
 
 text {* The function that we will be using in practice to compute all partitions of a set,
   a set-oriented frontend to @{text all_partitions_of_list} *}
-definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
-where "all_partitions_alg X = all_partitions_of_list (sorted_list_of_set X)"
+definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
+where "all_partitions_alg X = all_partitions_of_list_list (sorted_list_of_set X)"
 
+(* TODO CL: integrate into nVCG_CaseChecker and find out how this is really going to be used. *)
 corollary [code_unfold]:
   fixes X
   assumes "finite X"
-  shows "all_partitions X = all_partitions_alg X"
+  shows "all_partitions X = set (map set (all_partitions_alg X))"
     unfolding all_partitions_alg_def
-  using all_partitions_paper_equiv_alg assms by (metis sorted_list_of_set)
+  using assms by (metis all_partitions_paper_equiv_alg' sorted_list_of_set)
 (* all_partitions internally works with a list representing a set
    (this allows us to use the recursive function all_partitions_of_list).
-   For a list with repetitions we can only guarantee compliance
-   once we establish norepetitions. *)
+   For a general list we can only guarantee compliance once we establish distinctness. *)
 
 section {* Unused alternative definitions *}
 
