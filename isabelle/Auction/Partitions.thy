@@ -780,6 +780,9 @@ proof (induct xs)
 next
   case (Cons x xs)
 
+  from Cons.prems Cons.hyps have hyp1: "set (map set (all_partitions_of_list_list xs)) = all_partitions (set xs)" by simp
+  from Cons.prems Cons.hyps have hyp2: "\<forall> ps \<in> set (all_partitions_of_list_list xs) . distinct ps" by simp
+
   have distinct_xs: "distinct xs"
     by (metis Cons.prems remdups_id_iff_distinct remove1.simps(2) remove1_remdups)
   have hd_notin_xs: "x \<notin> set xs" by (metis Cons.prems distinct.simps(2))
@@ -809,10 +812,10 @@ next
     have "set (map set (all_partitions_of_list_list (x # xs))) = set (map set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs)))"
       by simp
     also have "\<dots> = all_coarser_partitions_with x (set (map set (all_partitions_of_list_list xs)))"
-      using distinct_xs Cons.hyps
+      using distinct_xs hyp2
         all_coarser_partitions_with_list_alt by fast
     also have "\<dots> = all_coarser_partitions_with x (all_partitions (set xs))"
-      using distinct_xs Cons.hyps by auto
+      using distinct_xs hyp1 by auto
     finally have P_set: "set (map set (all_partitions_of_list_list (x # xs))) = all_coarser_partitions_with x (all_partitions (set xs))" .
 
     with P have "P \<in> all_coarser_partitions_with x (all_partitions (set xs))" by fast
@@ -860,7 +863,7 @@ next
       by (smt UnionE comp_def imageE)
 
     from qs have "set qs \<in> set (map set (all_partitions_of_list_list (xs)))" by simp
-    with distinct_xs Cons.hyps have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
+    with distinct_xs hyp1 have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
     then have qs_part: "is_partition (set qs)"
       using all_partitions_def is_partition_of_def
       by (metis mem_Collect_eq)
