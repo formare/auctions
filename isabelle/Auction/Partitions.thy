@@ -658,11 +658,47 @@ where
 "all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
 
 lemma coarser_partitions_with_list_distinct:
-  fixes P
-  assumes P_coarser: "P \<in> set (coarser_partitions_with_list x Q)"
-      and distinct: "distinct xs"
-  shows "distinct P"
-sorry
+  fixes ps
+  assumes ps_coarser: "ps \<in> set (coarser_partitions_with_list x Q)"
+      and distinct: "distinct Q"
+      and partition: "is_partition (set Q)"
+      and new: "{x} \<notin> set Q"
+  shows "distinct ps"
+proof -
+  have "set (coarser_partitions_with_list x Q) = insert ({x} # Q) (set (map (insert_into_member_list x Q) Q))"
+    unfolding coarser_partitions_with_list_def by simp
+  with ps_coarser have "ps \<in> insert ({x} # Q) (set (map ((insert_into_member_list x Q)) Q))" by blast
+  then show ?thesis
+  proof
+    assume "ps = {x} # Q"
+    with distinct and new show ?thesis by simp
+  next
+    assume "ps \<in> set (map (insert_into_member_list x Q) Q)"
+    then obtain X where X_in_Q: "X \<in> set Q" and ps_insert: "ps = insert_into_member_list x Q X" by auto
+    from ps_insert have "ps = (X \<union> {x}) # (remove1 X Q)" unfolding insert_into_member_list_def .
+    also have "\<dots> = (X \<union> {x}) # (removeAll X Q)" using distinct by (metis distinct_remove1_removeAll)
+    finally have ps_list: "ps = (X \<union> {x}) # (removeAll X Q)" .
+    
+    have distinct_tl: "X \<union> {x} \<notin> set (removeAll X Q)"
+    proof
+      from partition have partition': "\<forall>x\<in>set Q. \<forall>y\<in>set Q. (x \<inter> y \<noteq> {}) = (x = y)" unfolding is_partition_def .
+      assume "X \<union> {x} \<in> set (removeAll X Q)"
+      with X_in_Q partition show False by (metis partition' inf_sup_absorb member_remove no_empty_eq_class remove_code(1))
+    qed
+    with ps_list distinct show ?thesis by (metis (full_types) distinct.simps(2) distinct_removeAll)
+  qed
+qed
+
+lemma all_partitions_of_list_list_covers':
+  fixes xs::"'a list"
+  shows "Q \<in> set (all_partitions_of_list_list xs) \<Longrightarrow> \<Union> set Q \<subseteq> set xs"
+proof (induct xs)
+  case Nil
+  with assms show ?case by simp
+next
+  case (Cons x xs)
+  show ?case sorry
+qed
 
 lemma all_partitions_of_list_list_distinct:
   fixes P
@@ -684,15 +720,20 @@ next
   finally have all_parts_unfolded: "set (all_partitions_of_list_list (x # xs)) = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_of_list_list xs))" .
   (* \<dots> = \<Union> { set (coarser_partitions_with_list x Q) | Q . Q \<in> set (all_partitions_of_list_list xs) } *)
 
-  with P_part obtain Q where Q_part: "Q \<in> set (all_partitions_of_list_list xs)"
+  with P_part obtain Q where Q: "Q \<in> set (all_partitions_of_list_list xs)"
     and P_coarser: "P \<in> set (coarser_partitions_with_list x Q)"
     by (smt Cons.prems(2) UnionE comp_def imageE)
 
-  from distinct have "distinct xs"
-    by (metis Cons.prems(1) distinct.simps(2))
-  then have "distinct Q" using Q_part by (rule Cons.hyps)
+  from Q have Q_part: "is_partition (set Q)" sorry
 
-  with P_coarser show "distinct P" by (rule coarser_partitions_with_list_distinct)
+  from distinct have distinct1: "distinct xs" by (metis Cons.prems(1) distinct.simps(2))
+  from distinct have distinct2: "x \<notin> set xs" by (metis Cons.prems(1) distinct.simps(2))
+
+  from distinct1 have distinct_Q: "distinct Q" using Q by (rule Cons.hyps)
+  from distinct2 Q have new: "{x} \<notin> set Q" using all_partitions_of_list_list_covers'
+    by blast
+
+  from P_coarser distinct_Q Q_part new show "distinct P" by (rule coarser_partitions_with_list_distinct)
 qed
 
 lemma all_partitions_of_list_list_alt:
@@ -823,7 +864,7 @@ corollary [code_unfold]:
   fixes X
   assumes "finite X"
   shows "all_partitions X = all_partitions_alg X"
-  unfolding all_partitions_alg_def
+    unfolding all_partitions_alg_def
   using all_partitions_paper_equiv_alg assms by (metis sorted_list_of_set)
 (* all_partitions internally works with a list representing a set
    (this allows us to use the recursive function all_partitions_of_list).
