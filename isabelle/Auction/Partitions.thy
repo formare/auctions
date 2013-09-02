@@ -657,29 +657,42 @@ where
 "all_partitions_of_list_list [] = [[]]" |
 "all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
 
-lemma all_partitions_of_list_list_distinct:
-  assumes distinct: "distinct xs"
-  shows "\<forall> P \<in> set (all_partitions_of_list_list xs) . distinct P"
-proof
-  fix P
-  assume "P \<in> set (all_partitions_of_list_list xs)"
-  then show "distinct P"
-  proof (induct xs)
-    case Nil
-    show ?case by (metis Nil.prems all_partitions_of_list_list.simps(1) distinct.simps(1) empty_iff empty_set set_ConsD)
-  next
-    case (Cons x xs)
-    assume "P \<in> set (all_partitions_of_list_list (x # xs))"
+lemma coarser_partitions_with_list_distinct:
+  fixes P
+  assumes P_coarser: "P \<in> set (coarser_partitions_with_list x Q)"
+      and distinct: "distinct xs"
+  shows "distinct P"
+sorry
 
-    have "set (all_partitions_of_list_list (x # xs)) = set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs))"
-      by simp
-    also have "\<dots> = set (concat (map (coarser_partitions_with_list x) (all_partitions_of_list_list xs)))"
-      unfolding all_coarser_partitions_with_list_def ..
-    (* have "set (concat xs) = \<Union> set (map set xs)" by simp *)
-    also have "\<dots> = {}" sorry
-    
-    show ?case sorry
-  qed
+lemma all_partitions_of_list_list_distinct:
+  fixes P
+  assumes P_part: "P \<in> set (all_partitions_of_list_list xs)"
+      and distinct: "distinct xs"
+  shows "\<And> P . distinct xs \<Longrightarrow> P \<in> set (all_partitions_of_list_list xs) \<Longrightarrow> distinct P"
+proof (induct xs)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons x xs)
+
+  have "set (all_partitions_of_list_list (x # xs)) = set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs))"
+    by simp
+  also have "\<dots> = set (concat (map (coarser_partitions_with_list x) (all_partitions_of_list_list xs)))"
+    unfolding all_coarser_partitions_with_list_def ..
+  also have "\<dots> = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_of_list_list xs))"
+    by simp
+  finally have all_parts_unfolded: "set (all_partitions_of_list_list (x # xs)) = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_of_list_list xs))" .
+  (* \<dots> = \<Union> { set (coarser_partitions_with_list x Q) | Q . Q \<in> set (all_partitions_of_list_list xs) } *)
+
+  with P_part obtain Q where Q_part: "Q \<in> set (all_partitions_of_list_list xs)"
+    and P_coarser: "P \<in> set (coarser_partitions_with_list x Q)"
+    by (smt Cons.prems(2) UnionE comp_def imageE)
+
+  from distinct have "distinct xs"
+    by (metis Cons.prems(1) distinct.simps(2))
+  then have "distinct Q" using Q_part by (rule Cons.hyps)
+
+  with P_coarser show "distinct P" by (rule coarser_partitions_with_list_distinct)
 qed
 
 lemma all_partitions_of_list_list_alt:
