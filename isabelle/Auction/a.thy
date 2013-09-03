@@ -19,8 +19,8 @@ imports  Equiv_Relations RelationProperties Partitions SEQ
 
 begin
 
-definition trivial where "trivial x = (x \<subseteq> {the_elem x})"
-definition runiq where 
+definition trivial where "trivial x = (x \<subseteq> {the_elem x})" (*singleton or empty*)
+definition runiq where (*whether a relation is a function*)
 (*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 definition restrict (* compare with restr in SchorrWaite.thy *)

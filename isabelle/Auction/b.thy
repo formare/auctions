@@ -181,7 +181,6 @@ also have "?dq=?D \<inter> X" using restrict_def by fastforce
 ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using ll10 ll13 by metis
 qed
 
-
 definition childrenof 
 (*::" ('a \<times> 'b::linorder) set => 'a => ('b set) => ('a \<times> 'b) set list"*)
 where 
@@ -246,25 +245,6 @@ definition isbij where "isbij f = (runiq f & runiq (inverse f))"
 lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
 shows "runiq (f +* {(x,y)})"
 proof - show ?thesis using assms ll04 ll05 by metis qed
-
-lemma ll15: fixes f x Y assumes "runiq (inverse f)" assumes "y \<in> (Y - Range f)" 
-assumes "x \<notin> Domain f" (* this lemma should be split or generalized *)
-shows "runiq (inverse (f +* {(x,y)}))"
-proof -
-have
-1: "Domain f \<inter> Domain {(x,y)}={}" using assms by fast
-have "y \<notin> Range f" using assms by fast 
-also have "Range f = Domain (inverse f)" (* ... notation here would be nice *)
-using inverse_def Domain_def Range_def by blast 
-ultimately have 2: "Domain (inverse f) \<inter> Domain {(y,x)}={}" by force
-have "inverse {(x,y)}={(y,x)}" using ll06 ll07 by auto
-then have "inverse (f \<union> {(x,y)}) = inverse f \<union> {(y,x)}" using ll08 by blast
-also have "... = inverse f +* {(y,x)}" using 2 ll13 by metis
-also have "runiq (inverse f +* {(y,x)})" using ll04 ll05 assms by metis
-ultimately have "runiq (inverse (f \<union> {(x,y)}))" by presburger
-also have "f +* {(x,y)} = f \<union> {(x,y)}" using 1 ll13 by metis
-ultimately show "runiq (inverse (f +* {(x,y)}))" by presburger
-qed
 
 lemma ll17: shows "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
 proof -
@@ -377,7 +357,6 @@ also have "... = X" by simp
 finally show ?thesis by fast
 qed
 
-
 lemma ll37: fixes X1 X2 f assumes "Domain f \<inter> X1 \<inter> X2 = {}" 
 assumes "runiq f" assumes "runiq (inverse f)" shows 
 "f `` X1 \<inter> (f `` X2)={}"
@@ -392,6 +371,26 @@ hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll31 4 by
 also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll36 by metis
 also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
 finally show ?thesis by auto
+qed
+
+lemma ll15: fixes R x assumes "runiq (inverse R)" 
+assumes "y \<notin> Range R" assumes "x \<notin> Domain R"
+shows "runiq (inverse (R +* {(x,y)}))"
+(* to be generalized to generic P instead of {(x,y)} *)
+proof -
+let ?i="inverse" let ?g="?i R" let ?z="(x,y)" let ?D="Domain R" let ?R="Range R"
+let ?r="runiq" let ?Z="{?z}" let ?F="R +* ?Z" let ?G="?i ?F"
+have "y \<notin> Domain ?g" using ll36 assms by metis then
+have "{}=Domain ?g \<inter> {y}"  by force
+also have "... = Domain ?g \<inter> Domain {(y,x)}" by blast
+ultimately have 0: "{}=Domain ?g \<inter> Domain {(y,x)}" by presburger
+have "Domain ?Z={x}" using Domain_def by auto then
+have "?D \<inter> (Domain ?Z)={}" using assms by force then
+have "?F=R \<union> ?Z" using assms ll13 by metis
+hence "?G = ?g \<union> (?i ?Z)" using ll08 by metis
+also have "... = ?g \<union> {(y,x)}" using ll06 by auto
+also have "... = ?g +* {(y,x)}" using ll13 0 by metis
+ultimately show ?thesis using ll04 assms ll05 by metis
 qed
 
 lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
@@ -586,7 +585,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   9: "runiq g" using ll04 5 ll05 by fast
   have "Domain f=set ?ln" using ll16 3 by blast hence 
   7: "?x \<notin> Domain f & card (Domain f)=n" using 2 by force hence 
-  8: "runiq (inverse g)" using ll15 5 6 by metis have 
+  8: "runiq (inverse g)" using ll15 5 6 by force have 
   10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert ll21)
   (* simplify this using g=f \<union> {...} *)
   have "Domain g=Domain f \<union> {?x}" using 6 ll20 by (metis Domain_empty Domain_insert)
