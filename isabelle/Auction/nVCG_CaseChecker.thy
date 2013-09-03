@@ -139,7 +139,7 @@ fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarr
 where "possible_allocations_comp G N =
   concat [
     injective_functions_list Y N (* the potential buyers *)
-    . Y \<leftarrow> all_partitions_list (sorted_list_of_set G) ]"
+    . Y \<leftarrow> all_partitions_alg G ]"
 
 (* example: possibilities to allocate goods {1,2,3} to participants {100,200} *)
 value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"

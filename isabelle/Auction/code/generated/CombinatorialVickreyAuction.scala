@@ -676,6 +676,10 @@ def all_partitions_list[A : HOL.equal](x0: List[A]): List[List[Set.set[A]]] = x0
     all_coarser_partitions_with_list[A](e, all_partitions_list[A](x))
 }
 
+def all_partitions_alg[A : HOL.equal : Orderings.linorder](x: Set.set[A]):
+      List[List[Set.set[A]]] =
+  all_partitions_list[A](Lista.sorted_list_of_set[A](x))
+
 } /* object Partitions */
 
 object Big_Operators {
@@ -753,13 +757,9 @@ def possible_allocations_comp(g: Set.set[Nat], n: Set.set[Nat]):
   Lista.maps[List[Set.set[Nat]],
               Set.set[(Set.set[Nat],
                         Nat)]]((y: List[Set.set[Nat]]) =>
-                                 Lista.map[Set.set[(Set.set[Nat], Nat)],
-    Set.set[(Set.set[Nat],
-              Nat)]]((potential_buyer: Set.set[(Set.set[Nat], Nat)]) =>
-                       potential_buyer,
-                      RelationProperties.injective_functions_list[Set.set[Nat],
-                           Nat](y, n)),
-                                Partitions.all_partitions_list[Nat](Lista.sorted_list_of_set[Nat](g)))
+                                 RelationProperties.injective_functions_list[Set.set[Nat],
+                                      Nat](y, n),
+                                Partitions.all_partitions_alg[Nat](g))
 
 def max_revenue_comp(g: Set.set[Nat], n: Set.set[Nat],
                       b: Nat => (Set.set[Nat]) => RealDef.real):
