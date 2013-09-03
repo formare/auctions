@@ -560,18 +560,22 @@ lemma all_partitions_paper_equiv_alg':
   shows "distinct xs \<Longrightarrow> ((set (map set (all_partitions_list xs)) = all_partitions (set xs)) \<and> (\<forall> ps \<in> set (all_partitions_list xs) . distinct ps))"
 proof (induct xs)
   case Nil
-  have "set (map set (all_partitions_list [])) = all_partitions (set [])" by (metis List.set.simps(2) all_partitions_list.simps(1) empty_set emptyset_part_emptyset3 map.simps(1) map.simps(2))
+  have "set (map set (all_partitions_list [])) = all_partitions (set [])"
+    by (metis List.set.simps(2) all_partitions_list.simps(1) empty_set emptyset_part_emptyset3 map.simps(1) map.simps(2))
+    (* Sledgehammer no longer seems to find this, maybe after we have added the "distinct" part to the theorem statement. *)
   moreover have "\<forall> ps \<in> set (all_partitions_list []) . distinct ps" by fastforce
   ultimately show ?case ..
 next
   case (Cons x xs)
-
-  from Cons.prems Cons.hyps have hyp1: "set (map set (all_partitions_list xs)) = all_partitions (set xs)" by simp
-  from Cons.prems Cons.hyps have hyp2: "\<forall> ps \<in> set (all_partitions_list xs) . distinct ps" by simp
+  from Cons.prems Cons.hyps
+    have hyp_equiv: "set (map set (all_partitions_list xs)) = all_partitions (set xs)" by simp
+  from Cons.prems Cons.hyps
+    have hyp_distinct: "\<forall> ps \<in> set (all_partitions_list xs) . distinct ps" by simp
 
   have distinct_xs: "distinct xs"
-    by (metis Cons.prems remdups_id_iff_distinct remove1.simps(2) remove1_remdups)
-  have hd_notin_xs: "x \<notin> set xs" by (metis Cons.prems distinct.simps(2))
+    by (metis Cons.prems distinct.simps(2))
+  have x_notin_xs: "x \<notin> set xs"
+    by (metis Cons.prems distinct.simps(2))
   
   have "set (map set (all_partitions_list (x # xs))) = all_partitions (set (x # xs))"
   proof (rule equalitySubsetI) -- {* case set \<rightarrow> list *}
@@ -586,15 +590,20 @@ next
 
     have "is_partition_of ?P_without_x (set xs)"
       unfolding is_partition_of_def
-      using is_partition partition_without_is_partition P_partitions_exc_x partition_without_covers P_covers hd_notin_xs
-      by (metis Diff_insert_absorb set.simps(2))
-    with hyp1 have p_list: "?P_without_x \<in> set (map set (all_partitions_list xs))" unfolding all_partitions_def by fast
+      using is_partition partition_without_is_partition partition_without_covers P_covers x_notin_xs
+      by (metis Diff_insert_absorb List.set.simps(2))
+    with hyp_equiv have p_list: "?P_without_x \<in> set (map set (all_partitions_list xs))"
+      unfolding all_partitions_def by fast
     have "P \<in> coarser_partitions_with x ?P_without_x"
       using coarser_partitions_inv_without is_partition P_covers
       by (metis List.set.simps(2) insertI1)
-    then have "P \<in> \<Union> coarser_partitions_with x ` set (map set (all_partitions_list xs))" using p_list by blast
-    then have "P \<in> all_coarser_partitions_with x (set (map set (all_partitions_list xs)))" unfolding all_coarser_partitions_with_def by fast
-    then show "P \<in> set (map set (all_partitions_list (x # xs)))" by (metis all_coarser_partitions_with_list_alt all_partitions_list.simps(2) hyp2)
+    then have "P \<in> \<Union> coarser_partitions_with x ` set (map set (all_partitions_list xs))"
+      using p_list by blast
+    then have "P \<in> all_coarser_partitions_with x (set (map set (all_partitions_list xs)))"
+      unfolding all_coarser_partitions_with_def by fast
+    then show "P \<in> set (map set (all_partitions_list (x # xs)))"
+      using all_coarser_partitions_with_list_alt hyp_distinct
+      by (metis all_partitions_list.simps(2))
   next -- {* case list \<rightarrow> set *}
     fix P::"'a set set" (* a partition *)
     assume P: "P \<in> set (map set (all_partitions_list (x # xs)))"
@@ -602,10 +611,9 @@ next
     have "set (map set (all_partitions_list (x # xs))) = set (map set (all_coarser_partitions_with_list x (all_partitions_list xs)))"
       by simp
     also have "\<dots> = all_coarser_partitions_with x (set (map set (all_partitions_list xs)))"
-      using distinct_xs hyp2
-        all_coarser_partitions_with_list_alt by fast
+      using distinct_xs hyp_distinct all_coarser_partitions_with_list_alt by fast
     also have "\<dots> = all_coarser_partitions_with x (all_partitions (set xs))"
-      using distinct_xs hyp1 by auto
+      using distinct_xs hyp_equiv by auto
     finally have P_set: "set (map set (all_partitions_list (x # xs))) = all_coarser_partitions_with x (all_partitions (set xs))" .
 
     with P have "P \<in> all_coarser_partitions_with x (all_partitions (set xs))" by fast
@@ -623,12 +631,12 @@ next
     then have "is_partition Q" and Q_covers: "\<Union> Q = set xs"
       unfolding is_partition_of_def by simp_all
     then have P_partition: "is_partition P"
-      using partition_extension3 P_wrt_Q hd_notin_xs by fast
+      using partition_extension3 P_wrt_Q x_notin_xs by fast
     have "\<Union> P = set xs \<union> {x}"
       using Q_covers P_in_Y Y_coarser' coarser_partitions_covers by fast
     then have "\<Union> P = set (x # xs)"
-      using hd_notin_xs P_wrt_Q Q_covers
-      by (metis List.set.simps(2) Un_commute insert_def singleton_conv)
+      using x_notin_xs P_wrt_Q Q_covers
+      by (metis List.set.simps(2) insert_is_Un sup_commute)
     then have "is_partition_of P (set (x # xs))"
       using P_partition unfolding is_partition_of_def by blast
     then show "P \<in> all_partitions (set (x # xs))" unfolding all_partitions_def ..
@@ -653,12 +661,12 @@ next
       by (smt UnionE comp_def imageE)
 
     from qs have "set qs \<in> set (map set (all_partitions_list (xs)))" by simp
-    with distinct_xs hyp1 have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
+    with distinct_xs hyp_equiv have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
     then have qs_part: "is_partition (set qs)"
       using all_partitions_def is_partition_of_def
       by (metis mem_Collect_eq)
     then have distinct_qs: "distinct qs"
-      using qs distinct_xs by (metis Cons.hyps)
+      using qs distinct_xs hyp_distinct by fast
     
     from Cons.prems have "x \<notin> set xs" by simp
     then have new: "{x} \<notin> set qs"
