@@ -2,7 +2,7 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Makarius Wenzel <wenzel@lri.fr>
