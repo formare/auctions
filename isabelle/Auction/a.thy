@@ -13,9 +13,9 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-
 theory a
-
+(*MC@CL: 
+I was thinking about moving everything here into Relation_Properties, ok? *)
 imports  Equiv_Relations RelationProperties Partitions SEQ
 (*"$AFP/Collections/common/Misc"*)
 
@@ -288,12 +288,6 @@ proof - show ?thesis using id_def l4 by (metis image_id) qed
 lemma l6: shows  "(projector (Graph id)) \<supseteq> {(x,{x}) | x . x \<in> Domain (Graph id)}"
 proof - show ?thesis using a.projector_def a.l5 by fastforce qed
 
-lemma fixes I assumes "I \<subseteq> (Graph id)"
- shows 
-"(projector I) = {(x,{x}) | x . x \<in> Domain (Graph id)}" and 
-"Range {(x,{x})| x. x \<in> Domain (Graph id)}={{x}| x .x \<in> Domain (Graph id)}"
-oops
-
 lemma l7: shows 
 "(projector (Graph id)) = {(x,{x}) | x . x \<in> Domain (Graph id)}" and 
 "Range {(x,{x})| x. x \<in> Domain (Graph id)}={{x}| x .x \<in> Domain (Graph id)}"
@@ -393,6 +387,8 @@ over its domain and range, respectively.
 However, such requirements are not formally needed, here. *} 
 "compatible R P Q = (\<forall> x . (R``(P``{x}) \<subseteq> Q``(R``{x})))"
 
+(*
+
 lemma l23: fixes  E F f assumes "compatible f E F" 
 assumes "runiq f" shows "runiq (quotient f E F)"
 (* "quotient f E F `` {x} \<subseteq> {(quotient f E F) ,, x}" *)
@@ -488,6 +484,7 @@ definition weakefficient where "weakefficient a i =
 (%j . (a ,, (b +* {(i, v2 j)}))) = (%j . a2) &
 (a1 \<noteq> a2)
 )" 
+*)
 
 end
 
