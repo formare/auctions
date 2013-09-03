@@ -177,8 +177,6 @@ also have "?LH \<subseteq> ?RH" using concat_def set_def by auto
 finally show ?thesis by presburger
 qed
 
-definition isbij where "isbij f = (runiq f & runiq (inverse f))"
-
 lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
 shows "runiq (f +* {(x,y)})"
 proof - show ?thesis using assms ll04 ll05 by metis qed
