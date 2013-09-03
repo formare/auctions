@@ -1,8 +1,26 @@
-theory b
+(*
+$Id$
 
+Auction Theory Toolbox
+
+Authors:
+* Marco B. Caminati <marco.caminati@gmail.com>
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
+
+theory b
+(*MC@CL: Here, too, a lot stuff would fit good into Relation_Prop*)
 imports a RelationProperties Maximum
 
 begin
+
+lemma ll19: shows "Domain (P outside X)= Domain P - X"
+proof - show ?thesis using Outside_def by blast qed
 
 lemma ll23: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
 shows "trivial X"
@@ -36,14 +54,10 @@ show ?thesis using assms paste_def ll10 by (smt Un_commute Un_left_commute le_su
 qed
 
 lemma ll12: "P || {} = {}"
-proof -
-show ?thesis using restrict_def by (metis Int_empty_left Sigma_empty1)
-qed
+proof - show ?thesis using restrict_def by (metis Int_empty_left Sigma_empty1) qed
 
 lemma ll26: "P || X \<subseteq> P"
-proof -
-show ?thesis using restrict_def by blast
-qed
+proof - show ?thesis using restrict_def by blast qed
 
 lemma ll11: "P || X = P || (X \<inter> (Domain P))" 
 proof -
@@ -74,14 +88,26 @@ qed
 
 lemma ll06: "inverse R = { (snd z, fst z) | z. z\<in>R }"
 proof -
-show ?thesis using inverse_def sorry
+let ?LH="inverse R" let ?RH="{ (snd z, fst z)| z. z\<in>R}"
+have "?LH \<subseteq> ?RH" using inverse_def snd_def fst_def by 
+(smt Collect_cong equalityD2 prod.inject prod_caseE prod_caseI2 surjective_pairing)
+also have "?LH \<supseteq> ?RH" using inverse_def snd_def fst_def by 
+(smt Collect_cong Pair_inject equalityD2 prod_caseE prod_caseI2 surjective_pairing)
+finally show ?thesis by fast
 qed
 
 lemma ll08: fixes P Q shows "inverse (P \<union> Q)=inverse P \<union> (inverse Q)"
 proof -
-(* let ?IP="inverse P" let ?IQ="inverse Q" let ?R="P \<union> Q" let ?LH="inverse ?R"
-let ?RH="?IP \<union> ?IQ" *)
-show ?thesis using inverse_def assms ll07 ll06 sorry
+let ?IP="inverse P" let ?IQ="inverse Q" let ?R="P \<union> Q" let ?LH="inverse ?R"
+let ?RH="?IP \<union> ?IQ" 
+have "?IP \<subseteq> ?LH" using ll06 by (smt in_mono inf_sup_ord(3) mem_Collect_eq subsetI)
+also  have "?IQ \<subseteq> ?LH" using 
+ll06 in_mono inf_sup_ord(3) mem_Collect_eq subsetI
+by (smt sup_commute)
+ultimately have "?RH \<subseteq> ?LH" by auto
+also have "?LH \<subseteq> ?RH" using inverse_def ll06 by 
+(smt Un_iff mem_Collect_eq subsetI sup.commute sup_commute)
+finally show ?thesis by auto
 qed
 
 lemma ll25: fixes P Q assumes "P \<subseteq> Q" shows "inverse P \<subseteq> inverse Q"
@@ -92,7 +118,22 @@ qed
 lemma ll01: fixes P Q assumes "runiq Q" assumes "runiq (P outside (Domain Q))" 
 shows "runiq (P +* Q)"
 proof - 
-show ?thesis using assms runiq_def paste_def Outside_def sorry
+let ?dq="Domain Q" let ?PP="P outside ?dq" let ?R="P +* Q" let ?dpp="Domain ?PP"
+let ?RR="?PP \<union> Q" have 
+0: "?dpp \<inter> ?dq={}" using assms ll19 by (metis Diff_Int2 Diff_Int_distrib2 Diff_cancel Int_Diff)
+{
+  fix X::"'a set" assume 
+  1: "trivial X" hence 
+  2: "X \<subseteq> {the_elem X}" using trivial_def by fast 
+  let ?x="the_elem X"
+  have 3: "trivial (?PP `` X) & trivial (Q `` X)" using assms l2 runiq_def 1 by fast
+  have "?PP `` {?x}={} \<or> (Q `` {?x}={})" using 0 1 by blast
+  hence "?PP `` X = {} \<or> (Q `` X = {})" using trivial_def 2 Image_mono by blast
+  hence "?RR `` X = Q `` X \<or> ?RR `` X = ?PP `` X" by blast
+  hence "trivial (?RR `` X)" using assms l2 1 3 Image_eq_UN by (smt Un_Image empty_subsetI le_sup_iff ll23 subset_refl)
+}
+hence "runiq ?RR" using runiq_def by blast
+thus ?thesis  by (metis paste_def)
 qed
 
 lemma ll02: fixes x X assumes "trivial X" assumes "x \<subseteq> X" shows "trivial x"
@@ -101,6 +142,7 @@ show ?thesis using assms trivial_def by (metis (hide_lams, no_types) all_not_in_
 qed
 
 lemma ll03: fixes P Q::"('a \<times> 'b) set" assumes "P \<subseteq> Q & runiq Q" shows "runiq P"
+(* duplicates ll24 *)
 proof -
 {
   fix X::"'a set" assume "trivial X" 
@@ -154,13 +196,17 @@ where
 
 lemma ll27: shows "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
 proof -
-show ?thesis sorry
+let ?L="concat LL" let ?LH="set ?L" let ?X="{set l| l. l \<in> set LL}"
+let ?RH="\<Union> ?X"
+have "?LH \<supseteq> ?RH" using concat_def set_def by auto
+also have "?LH \<subseteq> ?RH" using concat_def set_def by auto
+finally show ?thesis by presburger
 qed
 
 definition F
 ::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
 where 
-"F x Y n = \<Union> {set (bijections l Y) | l . size l=n & card (set l)=n}"
+"F x Y n = \<Union> {set (bijections l Y) | l::('a list) . size l=n & card (set l)=n}"
 
 definition G
 ::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
@@ -168,30 +214,31 @@ where
 "G x Y n = {f . 
 finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}"
 
-notepad
-begin
-fix Y n
+lemma ll43: fixes x Y shows "F x Y 0={{}} & G x Y 0={{}}"
+proof -
+(* fix x::"'a::linorder" fix Y::"'b::linorder set" fix n *)
 let ?l="sorted_list_of_set" let ?B="bijections"
-let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})"
-let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}"
+(* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
+let ?F="F x Y"
+(* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
+let ?G="G x Y"
 let ?Fn="?F n" let ?Gn="?G n"
 have "?B (?l {}) Y = [{}]" using bijections_def by auto
-hence "?F 0 = {{}}" by auto
+hence "{{}} = \<Union> {set (bijections l Y) | l . size l=0 & card (set l)=0}" by auto
+also have "... = F x Y 0" using F_def by blast ultimately have
+11: "F x Y 0={{}}" by force
 have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
-hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" by fast
+hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" using G_def by fast
 hence 0: "?G 0 \<subseteq> {{}}" by blast
 have 1: "finite (Domain {})" by simp
 have 2: "card (Domain {})=0" by force
 have 3: "runiq {}" using runiq_def trivial_def by fast
-also have "inverse {} = {}" using inverse_def ll06 by fast
+also have "inverse {} = {}" using inverse_def by fast
 ultimately have "runiq (inverse {})" by metis
-hence "{} \<in> ?G 0" using 1 2 3 by blast
+hence "{} \<in> ?G 0" using G_def 1 2 3 by blast
 hence "?G 0 = {{}}" using 0 by auto
-end
-
-lemma ll16: fixes l Y R assumes "R \<in> set (bijections l Y)" shows "Domain R = set l"
-proof -
-show ?thesis sorry
+hence "G x Y 0={{}}" using G_def by force
+thus ?thesis using 11 by blast
 qed
 
 definition isbij where "isbij f = (runiq f & runiq (inverse f))"
@@ -224,11 +271,6 @@ proof -
 show ?thesis by (metis Domain_Un_eq)
 qed
 
-lemma ll19: shows "Domain (P outside X)= Domain P - X"
-proof -
-show ?thesis using Outside_def by blast
-qed
-
 lemma ll20: shows "Domain (P +* Q) = (Domain P \<union> Domain Q)"
 proof -
 show ?thesis using ll17 ll19 paste_def by (metis Un_Diff_cancel Un_commute)
@@ -244,11 +286,6 @@ qed
 lemma ll21: shows "Range (P +* Q) \<subseteq> Range P \<union> (Range Q)"
 proof -
 show ?thesis using ll18 by (metis Range_Un_eq Range_mono)
-qed
-
-lemma ll29: shows "P || {x} = {x} \<times> (P `` {x})"
-proof -
-show ?thesis sorry
 qed
 
 lemma ll30: fixes x f assumes "x \<in> Domain f" assumes "runiq f" 
@@ -277,28 +314,135 @@ ultimately have
 thus ?thesis using assms Image_def by fast
 qed
 
-lemma ll32: assumes "runiq f" assumes "runiq (inverse f)"
-shows "inverse f O f \<subseteq> Graph id"
+
+lemma ll36: shows "Domain (inverse R)=Range R"
 proof -
-show ?thesis using assms sorry
+show ?thesis using inverse_def ll06 Domain_def Range_def by auto
 qed
 
-lemma fixes X1 X2 f assumes "Domain f \<inter> X1 \<inter> X2 = {}" 
-assumes "runiq f" assumes "runiq (inverse f)"
-shows "f `` X1 \<inter> (f `` X2)={}"
+lemma ll38: shows "Range (R outside X) \<subseteq> R `` (Domain R - X)"
+proof -
+show ?thesis using Outside_def Image_def Domain_def Range_def by blast
+qed
+
+lemma ll29: shows "P || {x} = {x} \<times> (P `` {x})"
+proof -
+let ?X="{x}" let ?LH="P||?X" let ?Y="P `` ?X" let ?RH="?X \<times> ?Y"
+have "?RH \<subseteq> P" by fast
+also have "Domain ?RH \<subseteq> ?X" by fast
+finally have 0: "?RH \<subseteq> ?LH" using restrict_def by fast
+have "Domain ?LH = Domain P \<inter> ?X" using restrict_def by fastforce
+then also have "Range ?LH = ?Y" using restrict_def by fast
+ultimately have "?LH \<subseteq> ?RH" by auto
+thus ?thesis using 0 by fast
+qed
+
+
+
+
+
+
+lemma ll33: shows "Domain R \<inter> X \<subseteq> inverse R `` (R `` X)"
+proof -
+show ?thesis using inverse_def by fastforce
+qed
+
+lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
+assumes "x \<in> Domain f"
+shows "inverse f `` ( f `` {x} ) = {x}"
+proof -
+let ?X="{x}" let ?Y="f `` ?X" let ?g="inverse f" let ?XX="?g `` ?Y" have 
+0: "?X \<subseteq> ?XX" using ll33 assms by fast
+have "trivial ?Y" using assms runiq_def by (metis (full_types) subset_refl the_elem_eq trivial_def)
+hence "trivial ?XX" using assms runiq_def by (metis (full_types))
+hence "?XX = ?X" using 0 trivial_def by (metis antisym l11)
+thus ?thesis by auto
+qed
+
+lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
+shows "inverse f `` ( f `` {x} ) \<subseteq> {x}"
+proof -
+show ?thesis using assms ll34 by (metis Image_empty eq_refl l18b subset_insertI)
+qed
+
+lemma ll32: fixes X f assumes "runiq f" assumes "runiq (inverse f)"
+shows "inverse f `` ( f `` X ) \<subseteq> X"
+proof -
+let ?g="inverse f" let ?Y="f `` X" let ?LH="?g `` ?Y" let ?I="f O ?g"
+have "?I `` X = (\<Union>x \<in> X .?I `` {x})" 
+using Image_def Image_eq_UN by blast
+also have "... = (\<Union>x\<in>X. ?g `` (f `` {x}))" by blast
+also have "... \<subseteq> (\<Union>x \<in> X. {x})" using ll35 assms by fast
+also have "... = X" by simp
+finally show ?thesis by fast
+qed
+
+
+lemma ll37: fixes X1 X2 f assumes "Domain f \<inter> X1 \<inter> X2 = {}" 
+assumes "runiq f" assumes "runiq (inverse f)" shows 
+"f `` X1 \<inter> (f `` X2)={}"
 proof -
 let ?g="inverse f" let ?Y1="f `` X1" let ?Y2="f `` X2" let ?D="Domain f"
 let ?XX1="?D \<inter> X1" let ?XX2="?D \<inter> X2" have 
-1: "g `` (f `` ?XX1) \<subseteq> ?XX1" using ll32 assms sorry have 
-2: "g `` (f `` ?XX2) \<subseteq> ?XX2" using ll32 assms sorry 
-hence 
-4: "g `` (f `` ?XX1) \<inter> (g `` (f `` ?XX2)) \<subseteq> {}" using assms 1 by blast
-have 
+1: "?g `` (f `` ?XX1) \<subseteq> ?XX1" using ll32 assms by metis have 
+2: "?g `` (f `` ?XX2) \<subseteq> ?XX2" using ll32 assms by metis hence 
+4: "?g `` (f `` ?XX1) \<inter> (?g `` (f `` ?XX2)) \<subseteq> {}" using assms 1 by blast have 
 3: "?XX1 \<inter> ?XX2 = {}" using assms by blast
-hence "{} = Domain g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll31 4 by fast
-also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" sorry
+hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll31 4 by fast
+also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll36 by metis
 also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
-show ?thesis sorry
+finally show ?thesis by auto
+qed
+
+lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
+assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r = set l"
+assumes "size L=Suc n" assumes "R \<in> set (bijections L Y)"
+shows "Domain R=set L"
+proof -
+let ?B="bijections" let ?c="childrenof" let ?l="sorted_list_of_set"
+let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
+4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
+hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
+hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
+using assms bijections_def ll27 by fastforce
+then obtain a where 
+0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using ll27 by fast
+obtain r where 
+6: "a=?c r ?x Y & r \<in> set (?B ?ln Y)" using 0 by auto
+have "size ?ln=n" using assms by auto then
+have 3: "Domain r = set ?ln" using 6 assms by presburger
+have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]" 
+using 0 6 childrenof_def by metis then
+obtain y where 
+2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
+ll27 childrenof_def assms by auto
+have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert ll20)
+also have "... = set ?ln \<union> {?x}" using 3 by presburger
+also have "... = insert ?x (set ?ln)" by fast
+also have "... = set L" using 4 by (metis List.set.simps(2))
+ultimately show ?thesis by presburger
+qed
+
+lemma ll40: fixes Y::"'b::linorder set" fixes n fixes x::'a
+shows "\<forall> l . \<forall> r::(('a \<times> 'b) set) . size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r=set l"
+proof -
+(* fix Y::"'b::linorder set" fix n::nat fix x::'a *)
+let ?P="(%n::nat . (\<forall> l. \<forall> r::('a \<times> 'b) set . 
+size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r = set l))"
+have "?P  n"
+proof (rule nat.induct)
+show "?P 0" by force
+next
+fix m assume "?P m" thus "?P (Suc m)" using ll39 by blast
+qed
+thus ?thesis by fast
+qed
+
+lemma ll16: fixes l::"'a list" fixes Y::"'b::linorder set" fixes R
+assumes "R \<in> set (bijections l Y)" shows "Domain R = set l"
+proof -
+have "size l=size l & R \<in> set (bijections l Y)" using assms by fast
+then show ?thesis using ll40 by blast
 qed
 
 
@@ -324,8 +468,8 @@ qed
 
 
 
-
-lemma fixes x Y n assumes "G x Y n \<subseteq> F x Y n" shows "G x Y (Suc n) \<subseteq> F x Y (Suc n)"
+lemma ll42: fixes x Y n assumes "G x Y n \<subseteq> F x Y n" 
+assumes "finite Y" shows "G x Y (Suc n) \<subseteq> F x Y (Suc n)"
 proof -
 let ?B="bijections" let ?l="sorted_list_of_set" let ?c="childrenof"
 let ?N="Suc n" let ?F="F x Y" let ?G="G x Y" 
@@ -344,12 +488,19 @@ hence "set ?lN=?DN" using sorted_list_of_set_def by simp
 also have "?lN \<noteq> []" using 6 
 by (metis Zero_not_Suc `set (sorted_list_of_set (Domain g)) = Domain g` card_empty empty_set)
 ultimately have 
-7: "?x \<in> ?DN" using 0 hd_in_set by metis
+7: "?x \<in> ?DN" using 0 hd_in_set by metis hence 
+8: "?y \<in> g `` {?x}" using 6 ll30 by (metis insertI1)
+also have "?DN \<inter> (?DN - {?x}) \<inter> {?x} = {}" by fast
+hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 ll37 by metis
+ultimately have "?y \<notin> g `` (?DN -{?x})" by blast
+hence "?y \<notin> Range ?f" using Range_def Outside_def ll38 by blast hence 
+9: "?y \<in> Y - Range ?f & finite (Y-Range ?f)" using 6 8 assms by blast
 have "g = ?f +* ({?x} \<times> g `` {?x})" using ll28 ll29 by metis
 also have "... = ?f +* ({?x} \<times> {?y})" using 6 7 ll30 by metis
 also have "... = ?f +* {(?x, ?y)}" by simp
 ultimately have "g = ?e ?y" by presburger
-also have "?y \<in> set (?l (Y - Range ?f))" sorry
+also have "?y \<in> set (?l (Y - Range ?f))" 
+using 9 6 sorted_list_of_set assms by blast
 ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence 
 2: "g \<in> set (childrenof ?f ?x Y)" using childrenof_def by metis have 
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
@@ -382,7 +533,7 @@ ultimately have "g \<in> ?FN" using F_def by blast
 thus "?GN \<subseteq> ?FN" by force
 qed
 
-lemma 
+lemma ll41:
 fixes x::"'a::linorder" 
 fixes Y::"'b::linorder set"
 fixes n::nat
@@ -403,8 +554,16 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   obtain lN where
   1: "a=set (?B lN Y) & size lN=?N & card (set lN)=?N" using 0 by blast  
   let ?DN="set lN" 
-  let ?x="hd lN" let ?ln="drop 1 lN" have
-  2: "lN=?x # ?ln & size ?ln=n & card (set ?ln)=n & set ?ln=set lN-{?x}" sorry 
+  let ?x="hd lN" let ?ln="drop 1 lN" have 
+  20: "lN=?x # ?ln" using 1 by (metis drop_1_Cons hd.simps length_Suc_conv)
+  have 21: "size ?ln=n" using 1 by auto
+  have 22: " card (set ?ln)=n" using 1 by 
+  (metis `length (drop 1 lN) = n` distinct_drop distinct_imp_card_eq_length)
+  have "set ?ln=set lN-{?x}" 
+  using 1 by (smt Diff_insert_absorb List.set.simps(2) `card (set (drop 1 lN)) = n` `lN = hd lN # drop 1 lN` `length (drop 1 lN) = n` `\<And>thesis. (\<And>lN. a = set (bijections lN Y) \<and> length lN = Suc n \<and> card (set lN) = Suc n \<Longrightarrow> thesis) \<Longrightarrow> thesis` insert_absorb)
+  hence
+  2: "lN=?x # ?ln & size ?ln=n & card (set ?ln)=n & set ?ln=set lN-{?x}" 
+  using 20 21 22 by fast
   have "?B (?x # ?ln) Y=concat [ ?c R ?x Y . R <- bijections ?ln Y]" 
   using bijections_def by auto
   hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- bijections ?ln Y]}"
@@ -438,146 +597,24 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 thus ?thesis by fast
 qed
 
-lemma fixes x Y n assumes "G x Y n \<subseteq> F x Y n" shows "G x Y (Suc n) \<subseteq> F x Y (Suc n)"
-proof -
-let ?B="bijections" let ?l="sorted_list_of_set" let ?c="childrenof"
-let ?N="Suc n" let ?F="F x Y" let ?G="G x Y" 
-let ?Fn="?F n" let ?Gn="?G n" let ?FN="?F ?N" let ?GN="?G ?N"
-{
-fix g
-(* ::"('a::linorder \<times> 'b::linorder) set" *) 
-assume
-0: "g \<in> ?G (Suc n)"
-let ?DN="Domain g" 
-let ?lN="sorted_list_of_set ?DN" 
-let ?x="hd ?lN" let ?ln="drop 1 ?lN" let ?f="g outside {?x}"
-let ?y="g ,, ?x" 
-let ?RN="Range g"
-let ?Dn="Domain ?f" let ?Rn="Range ?f"
-have "g = ?f \<union> ({?x} \<times> g `` {?x})" sorry
-also have "... = ?f +* {(?x, ?y)}" sorry
-hence 
-2: "g \<in> set (childrenof ?f ?x Y)" using childrenof_def sorry
-have 
-22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
-hence "inverse ?f \<subseteq> inverse g" using ll25 by metis
-have
-21: "card ?DN=?N & runiq g & runiq (inverse g) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
-23: "finite ?DN" using card_ge_0_finite by force hence 
-24: "finite ?Dn" by (metis finite_Diff ll19) have 
-25: "runiq ?f" using ll24 Outside_def 21 by (metis Diff_subset) have 
-26: "runiq (inverse ?f)" using ll24 22 ll25 21 by metis
-have 
-27: "?Dn = ?DN - {?x}" by (metis ll19)
-have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_diff_le Suc_eq_plus1_left add_diff_cancel_right' card_Diff_subset diff_le_self empty_set hd_in_set le_bot not_less_bot not_less_eq order_refl)
-hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
-hence "card ?Dn = n & ?Rn \<subseteq> ?RN" using 21 22 by auto
-hence "card ?Dn = n & ?Rn \<subseteq> Y" using 21 by fast
-hence "?f \<in> G x Y n" using 24 25 26 21 G_def by blast
-hence "?f \<in> F x Y n" using assms by fast
-then obtain l::"'a list" where
-1: "?f \<in> set (?B l Y) & (\<exists> A . (card A=n & A=set l))" using F_def by blast
-obtain X where 
-3: "card X=n & X=set l" using 1 by presburger
-term "[ ?c R ?x Y . R <- ?B (?l A) Y ]"
-have "?c ?f ?x Y \<in> set [ ?c R ?x Y . R <- ?B l Y ]" using 1 by simp
-hence "g \<in> set (?B (?x # l) Y)" using 2 bijections_def by auto
-let ?L="?x # l" have 
-4: "set ?L={?x} \<union> set l" by simp
-have "?x \<notin> set l" sorry hence "card (set ?L) = ?N" sorry
-have "?c ?f ?x Y \<in> set [?c R ?x Y . R <- ?B (?l A) Y]" sorry
-have "g \<in> set (concat [?c R ?x Y . R <- ?B (?l A) Y])" 
-using 2 1 bijections_def sorry
-have "?DN = insert ?x ?Dn & finite ?Dn & ?x \<notin> ?Dn" 
-by (metis (hide_lams, no_types) "24" "27" Diff_iff `hd (sorted_list_of_set (Domain g)) \<in> Domain g` insertCI insert_Diff_single insert_subset set_diff_eq subset_antisym subset_refl)
-hence "card ?Dn = n" using card_insert_disjoint 21 by (metis `card (Domain (g outside {hd (sorted_list_of_set (Domain g))})) = n \<and> Range (g outside {hd (sorted_list_of_set (Domain g))}) \<subseteq> Y`)
-(* by (metis "0" `set (sorted_list_of_set XN) = XN` card_insert_if diff_Suc_1 insert_compr ll16 singleton_conv) *)
-have "g \<in> F x Y (Suc n)" sorry
-}
-show "?GN \<subseteq> ?FN" sorry
+lemma ll44: fixes x Y n assumes "finite Y" shows "F x Y n \<subseteq> G x Y n"
+proof (rule nat.induct)
+show "F x Y 0 \<subseteq> G x Y 0" using ll43 by force
+next
+fix m assume "F x Y m \<subseteq> G x Y m"
+thus "F x Y (Suc m) \<subseteq> G x Y (Suc m)" using ll41 assms by fast
 qed
 
-lemma fixes x Y n assumes "F x Y n \<subseteq> G x Y n" shows "F x Y (Suc n) \<subseteq>
- G x Y (Suc n)"
-proof -
-let ?F="% n::nat . (\<Union> 
-{set (bijections (sorted_list_of_set X) Y) | X::('a::linorder set) . card X=n})"
-let ?r="%x . runiq x"
-let ?G="% n . {h . runiq h & runiq (inverse h) & card (Domain h)=n & 
-Range h \<subseteq> Y}"
-let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
-(* hence 
-3: "\<forall>z . (z \<in> ?F n \<longrightarrow> (z \<in> (?G n)))" using subsetD sorry *)
-{ 
-fix g
-assume "g \<in> ?FN" then obtain XN::"'a::linorder set" where 
-0: "card XN=?N & g \<in> set (bijections (sorted_list_of_set XN) Y)" by blast
-have 
-8: "finite XN" using 0 by (metis Zero_not_Suc card_infinite)
-let ?lN="sorted_list_of_set XN" let ?x="hd ?lN" let ?ln="drop 1 ?lN"
-let ?Xn="set ?ln"
-have "size ?lN \<ge> 1" using 0 8 ll22
-by (metis (full_types) One_nat_def le_SucI less_Suc0 not_le order_refl)
-then have 
-10: "?lN=?x # ?ln" 
-by (metis drop_1_Cons hd.simps length_0_conv list.exhaust not_one_le_zero)
-then have "remove1 ?x ?lN=?ln" using 8 by (metis remove1.simps(2))
-also have "distinct ?lN" using 8 ll22 0 by auto
-ultimately have "?Xn=set ?lN-{?x}" using set_remove1_eq by metis
-also have "set ?lN=XN" using 8 0 by (metis sorted_list_of_set)
-ultimately have 
-14: "?Xn=XN-{?x}" by presburger
-have "g \<in> set (bijections (?x # ?ln) Y)" using 0 10 by presburger
-then have "g \<in> 
-\<Union> {set a | a. a \<in> set ([ childrenof R ?x Y . R <- bijections ?ln Y ] )}" 
-using 0 set_concat bijections_def 10 by auto
-then obtain a where 
-11: "g \<in> set a & a \<in> set [ childrenof R ?x Y . R <- bijections ?ln Y ]" by blast
-obtain f where 
-12: "a=childrenof f ?x Y & f \<in> set (bijections ?ln Y)" using 11 by auto
-let ?ff="inverse f"
-have "g \<in> set (childrenof f ?x Y)" using 11 12 by fast hence 
-1: "f \<in> set (bijections ?ln Y) & g \<in> set (childrenof f ?x Y)" using 0 12 by fast
-let ?e="% q . (f +* {(?x,q)})"
-have "g \<in> set [ ?e y . y <- (sorted_list_of_set (Y - Range f))]" using 1 
-childrenof_def by metis then
-obtain y where 
-15: "g = ?e y & y \<in> set (sorted_list_of_set (Y - Range f))" 
-by auto 
-assume "finite Y" then
-have "finite (Y - Range f)" by (metis finite_Diff) hence
-17: "g = f +* {(?x,y)} & y \<in> (Y -Range f)" using 15 sorted_list_of_set 8 by metis
-have "?ln=sorted_list_of_set ?Xn" using 8 14 
-by (metis `remove1 (hd (sorted_list_of_set XN)) (sorted_list_of_set XN) = drop 1 (sorted_list_of_set XN)` sorted_list_of_set_remove)
-also have "card ?Xn=n" using 10 14 
-by (metis "0" `distinct (sorted_list_of_set XN)` `set (sorted_list_of_set XN) = XN` diff_Suc_1 distinct_card distinct_drop length_drop)
-ultimately have 
-15: "f \<in> ?F n" using 1 by fastforce
-assume "
-\<Union> {set (bijections (sorted_list_of_set X) Y) | X::('a::linorder set) . card X=n}
-\<subseteq>
-{h . runiq h & runiq (inverse h) & card (Domain h)=n & Range h \<subseteq> Y}
-" 
-hence "f \<in> {h . runiq h & runiq (inverse h) & card (Domain h)=n & Range h \<subseteq> Y}" 
-using 15 by blast 
-hence "f \<in> ?G n" by fastforce
-hence 5: "?r f & ?r ?ff & card (Domain f)=n & Range f \<subseteq> Y" by fast
-have "set (sorted_list_of_set ?Xn)=?Xn" using 8 
-by (metis `drop 1 (sorted_list_of_set XN) = sorted_list_of_set (set (drop 1 (sorted_list_of_set XN)))`) 
-hence 
-19: "Domain f=?Xn" using ll16 1 by metis
-hence 7: "?x \<notin> (Domain f)" using 14 by blast
-hence 8: "runiq g" using ll14 5 17 by metis have 
-9: "runiq (inverse g)" using ll15 17 5 7 by metis
-have 10: "Range g \<subseteq> Y" using 5 17 ll21 by fast
-have "Domain g = Domain f \<union> Domain {(?x,y)}" using 17 ll20 by metis
-also have "... = Domain f \<union> {?x}" by auto
-ultimately have "Domain g=Domain f \<union> {?x}" by presburger
-hence "card (Domain g)=?N" using 0 5 7 19 by force
-hence "g \<in> ?G ?N" using 8 9 10 by fastforce
-}
-hence "?FN \<subseteq> ?GN" sorry
+lemma ll45: fixes x Y n assumes "finite Y" shows "G x Y n \<subseteq> F x Y n"
+proof (rule nat.induct)
+show "G x Y 0 \<subseteq> F x Y 0" using ll43 by force
+next
+fix m assume "G x Y m \<subseteq> F x Y m"
+thus "G x Y (Suc m) \<subseteq> F x Y (Suc m)" using ll42 assms by fast
 qed
+
+theorem fixes x Y assumes "finite Y" shows "G x Y=F x Y"
+proof - show ?thesis using assms ll44 ll45 by fast qed
 
 (* value "childrenof {(0,0::nat),(1,1)} (2::nat) {0,1,2::nat,3}"
 term "concat [ childrenof R x Y . R <- xs ]" term "childrenof" *)
