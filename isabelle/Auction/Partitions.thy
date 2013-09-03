@@ -19,7 +19,7 @@ imports Main SetUtils ListUtils
 begin
 
 text {*
-The algorithmic computation of all partitions of a set in @{text all_partitions_of_list} works as
+The algorithmic computation of all partitions of a set in @{text all_partitions_list} works as
 in the following example:
 \begin{itemize}
 \item Set: $\{\a}$\\
@@ -511,16 +511,15 @@ proof -
   finally show ?thesis .
 qed
 
-fun all_partitions_of_list :: "'a list \<Rightarrow> 'a set set set"
+fun all_partitions_set :: "'a list \<Rightarrow> 'a set set set"
 where 
-"all_partitions_of_list [] = {{}}" |
-"all_partitions_of_list (e # X) = all_coarser_partitions_with e (all_partitions_of_list X)"
+"all_partitions_set [] = {{}}" |
+"all_partitions_set (e # X) = all_coarser_partitions_with e (all_partitions_set X)"
 
-(* TODO CL: if we end up preferring this over all_partitions_of_list, document it *)
-fun all_partitions_of_list_list :: "'a list \<Rightarrow> 'a set list list"
+fun all_partitions_list :: "'a list \<Rightarrow> 'a set list list"
 where 
-"all_partitions_of_list_list [] = [[]]" |
-"all_partitions_of_list_list (e # X) = all_coarser_partitions_with_list e (all_partitions_of_list_list X)"
+"all_partitions_list [] = [[]]" |
+"all_partitions_list (e # X) = all_coarser_partitions_with_list e (all_partitions_list X)"
 
 lemma coarser_partitions_with_list_distinct:
   fixes ps
@@ -555,26 +554,26 @@ proof -
 qed
 
 text {* The paper-like definition @{text all_partitions} and the algorithmic definition
-  @{text all_partitions_of_list} are equivalent. *}
+  @{text all_partitions_list} are equivalent. *}
 lemma all_partitions_paper_equiv_alg':
   fixes xs::"'a list"
-  shows "distinct xs \<Longrightarrow> ((set (map set (all_partitions_of_list_list xs)) = all_partitions (set xs)) \<and> (\<forall> ps \<in> set (all_partitions_of_list_list xs) . distinct ps))"
+  shows "distinct xs \<Longrightarrow> ((set (map set (all_partitions_list xs)) = all_partitions (set xs)) \<and> (\<forall> ps \<in> set (all_partitions_list xs) . distinct ps))"
 proof (induct xs)
   case Nil
-  have "set (map set (all_partitions_of_list_list [])) = all_partitions (set [])" by (metis List.set.simps(2) all_partitions_of_list_list.simps(1) empty_set emptyset_part_emptyset3 map.simps(1) map.simps(2))
-  moreover have "\<forall> ps \<in> set (all_partitions_of_list_list []) . distinct ps" by fastforce
+  have "set (map set (all_partitions_list [])) = all_partitions (set [])" by (metis List.set.simps(2) all_partitions_list.simps(1) empty_set emptyset_part_emptyset3 map.simps(1) map.simps(2))
+  moreover have "\<forall> ps \<in> set (all_partitions_list []) . distinct ps" by fastforce
   ultimately show ?case ..
 next
   case (Cons x xs)
 
-  from Cons.prems Cons.hyps have hyp1: "set (map set (all_partitions_of_list_list xs)) = all_partitions (set xs)" by simp
-  from Cons.prems Cons.hyps have hyp2: "\<forall> ps \<in> set (all_partitions_of_list_list xs) . distinct ps" by simp
+  from Cons.prems Cons.hyps have hyp1: "set (map set (all_partitions_list xs)) = all_partitions (set xs)" by simp
+  from Cons.prems Cons.hyps have hyp2: "\<forall> ps \<in> set (all_partitions_list xs) . distinct ps" by simp
 
   have distinct_xs: "distinct xs"
     by (metis Cons.prems remdups_id_iff_distinct remove1.simps(2) remove1_remdups)
   have hd_notin_xs: "x \<notin> set xs" by (metis Cons.prems distinct.simps(2))
   
-  have "set (map set (all_partitions_of_list_list (x # xs))) = all_partitions (set (x # xs))"
+  have "set (map set (all_partitions_list (x # xs))) = all_partitions (set (x # xs))"
   proof (rule equalitySubsetI) -- {* case set \<rightarrow> list *}
     fix P::"'a set set" (* a partition *)
     let ?P_without_x = "partition_without x P"
@@ -589,25 +588,25 @@ next
       unfolding is_partition_of_def
       using is_partition partition_without_is_partition P_partitions_exc_x partition_without_covers P_covers hd_notin_xs
       by (metis Diff_insert_absorb set.simps(2))
-    with hyp1 have p_list: "?P_without_x \<in> set (map set (all_partitions_of_list_list xs))" unfolding all_partitions_def by fast
+    with hyp1 have p_list: "?P_without_x \<in> set (map set (all_partitions_list xs))" unfolding all_partitions_def by fast
     have "P \<in> coarser_partitions_with x ?P_without_x"
       using coarser_partitions_inv_without is_partition P_covers
       by (metis List.set.simps(2) insertI1)
-    then have "P \<in> \<Union> coarser_partitions_with x ` set (map set (all_partitions_of_list_list xs))" using p_list by blast
-    then have "P \<in> all_coarser_partitions_with x (set (map set (all_partitions_of_list_list xs)))" unfolding all_coarser_partitions_with_def by fast
-    then show "P \<in> set (map set (all_partitions_of_list_list (x # xs)))" by (metis all_coarser_partitions_with_list_alt all_partitions_of_list_list.simps(2) hyp2)
+    then have "P \<in> \<Union> coarser_partitions_with x ` set (map set (all_partitions_list xs))" using p_list by blast
+    then have "P \<in> all_coarser_partitions_with x (set (map set (all_partitions_list xs)))" unfolding all_coarser_partitions_with_def by fast
+    then show "P \<in> set (map set (all_partitions_list (x # xs)))" by (metis all_coarser_partitions_with_list_alt all_partitions_list.simps(2) hyp2)
   next -- {* case list \<rightarrow> set *}
     fix P::"'a set set" (* a partition *)
-    assume P: "P \<in> set (map set (all_partitions_of_list_list (x # xs)))"
+    assume P: "P \<in> set (map set (all_partitions_list (x # xs)))"
 
-    have "set (map set (all_partitions_of_list_list (x # xs))) = set (map set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs)))"
+    have "set (map set (all_partitions_list (x # xs))) = set (map set (all_coarser_partitions_with_list x (all_partitions_list xs)))"
       by simp
-    also have "\<dots> = all_coarser_partitions_with x (set (map set (all_partitions_of_list_list xs)))"
+    also have "\<dots> = all_coarser_partitions_with x (set (map set (all_partitions_list xs)))"
       using distinct_xs hyp2
         all_coarser_partitions_with_list_alt by fast
     also have "\<dots> = all_coarser_partitions_with x (all_partitions (set xs))"
       using distinct_xs hyp1 by auto
-    finally have P_set: "set (map set (all_partitions_of_list_list (x # xs))) = all_coarser_partitions_with x (all_partitions (set xs))" .
+    finally have P_set: "set (map set (all_partitions_list (x # xs))) = all_coarser_partitions_with x (all_partitions (set xs))" .
 
     with P have "P \<in> all_coarser_partitions_with x (all_partitions (set xs))" by fast
     then have "P \<in> \<Union> coarser_partitions_with x ` (all_partitions (set xs))"
@@ -634,26 +633,26 @@ next
       using P_partition unfolding is_partition_of_def by blast
     then show "P \<in> all_partitions (set (x # xs))" unfolding all_partitions_def ..
   qed
-  moreover have "\<forall> ps \<in> set (all_partitions_of_list_list (x # xs)) . distinct ps"
+  moreover have "\<forall> ps \<in> set (all_partitions_list (x # xs)) . distinct ps"
   proof
-    fix ps::"'a set list" assume ps_part: "ps \<in> set (all_partitions_of_list_list (x # xs))"
+    fix ps::"'a set list" assume ps_part: "ps \<in> set (all_partitions_list (x # xs))"
 
-    have "set (all_partitions_of_list_list (x # xs)) = set (all_coarser_partitions_with_list x (all_partitions_of_list_list xs))"
+    have "set (all_partitions_list (x # xs)) = set (all_coarser_partitions_with_list x (all_partitions_list xs))"
       by simp
-    also have "\<dots> = set (concat (map (coarser_partitions_with_list x) (all_partitions_of_list_list xs)))"
+    also have "\<dots> = set (concat (map (coarser_partitions_with_list x) (all_partitions_list xs)))"
       unfolding all_coarser_partitions_with_list_def ..
-    also have "\<dots> = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_of_list_list xs))"
+    also have "\<dots> = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_list xs))"
       by simp
-    finally have all_parts_unfolded: "set (all_partitions_of_list_list (x # xs)) = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_of_list_list xs))" .
-    (* \<dots> = \<Union> { set (coarser_partitions_with_list x ps) | ps . ps \<in> set (all_partitions_of_list_list xs) }
+    finally have all_parts_unfolded: "set (all_partitions_list (x # xs)) = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_list xs))" .
+    (* \<dots> = \<Union> { set (coarser_partitions_with_list x ps) | ps . ps \<in> set (all_partitions_list xs) }
        (more readable, but less useful in proofs) *)
 
     with ps_part obtain qs
-      where qs: "qs \<in> set (all_partitions_of_list_list xs)"
+      where qs: "qs \<in> set (all_partitions_list xs)"
         and ps_coarser: "ps \<in> set (coarser_partitions_with_list x qs)"
       by (smt UnionE comp_def imageE)
 
-    from qs have "set qs \<in> set (map set (all_partitions_of_list_list (xs)))" by simp
+    from qs have "set qs \<in> set (map set (all_partitions_list (xs)))" by simp
     with distinct_xs hyp1 have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
     then have qs_part: "is_partition (set qs)"
       using all_partitions_def is_partition_of_def
@@ -674,13 +673,13 @@ qed
 
 theorem all_partitions_paper_equiv_alg:
   fixes xs::"'a list"
-  shows "distinct xs \<Longrightarrow> set (map set (all_partitions_of_list_list xs)) = all_partitions (set xs)"
+  shows "distinct xs \<Longrightarrow> set (map set (all_partitions_list xs)) = all_partitions (set xs)"
 using all_partitions_paper_equiv_alg' by blast
 
 text {* The function that we will be using in practice to compute all partitions of a set,
-  a set-oriented frontend to @{text all_partitions_of_list} *}
+  a set-oriented frontend to @{text all_partitions_list} *}
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
-where "all_partitions_alg X = all_partitions_of_list_list (sorted_list_of_set X)"
+where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
 
 (* TODO CL: integrate into nVCG_CaseChecker and find out how this is really going to be used. *)
 corollary [code_unfold]:
@@ -690,7 +689,7 @@ corollary [code_unfold]:
     unfolding all_partitions_alg_def
   using assms by (metis all_partitions_paper_equiv_alg' sorted_list_of_set)
 (* all_partitions internally works with a list representing a set
-   (this allows us to use the recursive function all_partitions_of_list).
+   (this allows us to use the recursive function all_partitions_list).
    For a general list we can only guarantee compliance once we establish distinctness. *)
 
 section {* Unused alternative definitions *}
@@ -716,8 +715,8 @@ definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
     ) }"
 
 text {* an entirely list-based algorithm, which serves as an alternative to 
-  @{text all_partitions_of_list}, @{text all_coarser_partitions_with}, 
-  @{text coarser_partitions_with}, @{text insert_into_member} *}
+  @{text all_partitions_list}, @{text all_coarser_partitions_with_list}, 
+  @{text coarser_partitions_with_list}, @{text insert_into_member_list} *}
 fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
   where "all_partitions_fun_list [] = []"
       | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
