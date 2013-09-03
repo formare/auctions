@@ -345,10 +345,6 @@ def map[A, B](f: A => B, x1: List[A]): List[B] = (f, x1) match {
   case (f, x :: xs) => f(x) :: map[A, B](f, xs)
 }
 
-def nth[A](x0: List[A], n: Nat): A = (x0, n) match {
-  case (x :: xs, n) => (if (n == Nat(0)) x else nth[A](xs, n - Nat(1)))
-}
-
 def fold[A, B](f: A => B => B, x1: List[A], s: B): B = (f, x1, s) match {
   case (f, x :: xs, s) => fold[A, B](f, xs, (f(x))(s))
   case (f, Nil, s) => s
@@ -358,9 +354,6 @@ def maps[A, B](f: A => List[B], x1: List[A]): List[B] = (f, x1) match {
   case (f, Nil) => Nil
   case (f, x :: xs) => f(x) ++ maps[A, B](f, xs)
 }
-
-def upto(i: BigInt, j: BigInt): List[BigInt] =
-  (if (i <= j) i :: upto(i + BigInt(1), j) else Nil)
 
 def foldr[A, B](f: A => B => B, x1: List[A]): B => B = (f, x1) match {
   case (f, Nil) => Fun.id[B]
@@ -388,6 +381,11 @@ def remdups[A : HOL.equal](x0: List[A]): List[A] = x0 match {
   case Nil => Nil
   case x :: xs =>
     (if (member[A](xs, x)) remdups[A](xs) else x :: remdups[A](xs))
+}
+
+def remove1[A : HOL.equal](x: A, xa1: List[A]): List[A] = (x, xa1) match {
+  case (x, Nil) => Nil
+  case (x, y :: xs) => (if (HOL.eq[A](x, y)) xs else y :: remove1[A](x, xs))
 }
 
 def list_all[A](p: A => Boolean, x1: List[A]): Boolean = (p, x1) match {
@@ -428,12 +426,6 @@ def map_filter[A, B](f: A => Option[B], x1: List[A]): List[B] = (f, x1) match {
        case None => map_filter[A, B](f, xs)
        case Some(y) => y :: map_filter[A, B](f, xs)
      })
-}
-
-def list_update[A](x0: List[A], i: Nat, y: A): List[A] = (x0, i, y) match {
-  case (Nil, i, y) => Nil
-  case (x :: xs, i, y) =>
-    (if (i == Nat(0)) y :: xs else x :: list_update[A](xs, i - Nat(1), y))
 }
 
 def map_project[A, B](f: A => Option[B], x1: Set.set[A]): Set.set[B] = (f, x1)
@@ -653,33 +645,40 @@ def card[A : HOL.equal](x0: Set.set[A]): Nat = x0 match {
 
 object Partitions {
 
-def all_partitions_fun_list[A : HOL.equal](x0: List[A]):
+import /*implicits*/ Set.equal_set
+
+def insert_into_member_list[A : HOL.equal](new_el: A, sets: List[Set.set[A]],
+    s: Set.set[A]):
+      List[Set.set[A]] =
+  Set.sup_set[A](s, Set.insert[A](new_el, Set.bot_set[A])) ::
+    Lista.remove1[Set.set[A]](s, sets)
+
+def coarser_partitions_with_list[A : HOL.equal](new_el: A, p: List[Set.set[A]]):
       List[List[Set.set[A]]] =
-  x0 match {
-  case Nil => Nil
-  case List(x) => List(List(Set.insert[A](x, Set.bot_set[A])))
-  case x :: v :: va =>
-    {
-      val xs_partitions: List[List[Set.set[A]]] =
-        all_partitions_fun_list[A](v :: va);
-      Lista.maps[List[Set.set[A]],
-                  List[Set.set[A]]]((p: List[Set.set[A]]) =>
-                                      Lista.map[Nat,
-         List[Set.set[A]]]((i: Nat) =>
-                             Lista.list_update[Set.set[A]](p, i,
-                    Set.sup_set[A](Set.insert[A](x, Set.bot_set[A]),
-                                    Lista.nth[Set.set[A]](p, i))),
-                            Lista.map[BigInt,
-                                       Nat]((a: BigInt) => Nat(a),
-     Lista.upto(BigInt(0),
-                 Lista.size_list[Set.set[A]].apply(p).as_BigInt - BigInt(1)))),
-                                     xs_partitions) ++
-        Lista.map[List[Set.set[A]],
-                   List[Set.set[A]]]((a: List[Set.set[A]]) =>
-                                       Set.insert[A](x, Set.bot_set[A]) :: a,
-                                      xs_partitions)
-    }
+  (Set.insert[A](new_el, Set.bot_set[A]) :: p) ::
+    Lista.map[Set.set[A],
+               List[Set.set[A]]]((a: Set.set[A]) =>
+                                   insert_into_member_list[A](new_el, p, a),
+                                  p)
+
+def all_coarser_partitions_with_list[A : HOL.equal](elem: A,
+             ps: List[List[Set.set[A]]]):
+      List[List[Set.set[A]]] =
+  Lista.maps[List[Set.set[A]],
+              List[Set.set[A]]]((a: List[Set.set[A]]) =>
+                                  coarser_partitions_with_list[A](elem, a),
+                                 ps)
+
+def all_partitions_list[A : HOL.equal](x0: List[A]): List[List[Set.set[A]]] = x0
+  match {
+  case Nil => List(Nil)
+  case e :: x =>
+    all_coarser_partitions_with_list[A](e, all_partitions_list[A](x))
 }
+
+def all_partitions_alg[A : HOL.equal : Orderings.linorder](x: Set.set[A]):
+      List[List[Set.set[A]]] =
+  all_partitions_list[A](Lista.sorted_list_of_set[A](x))
 
 } /* object Partitions */
 
@@ -720,7 +719,7 @@ def eval_rel_or[A : HOL.equal, B : HOL.equal](r: Set.set[(A, B)], a: A, z: B):
 
 def injective_functions_list[A : HOL.equal,
                               B : HOL.equal : Orderings.linorder](x0: List[A],
-                           ys: List[B]):
+                           ys: Set.set[B]):
       List[Set.set[(A, B)]] =
   (x0, ys) match {
   case (Nil, ys) => List(Set.bot_set[(A, B)])
@@ -731,7 +730,7 @@ def injective_functions_list[A : HOL.equal,
       Set.set[(A, B)]]((free_in_range: B) =>
                          Set.sup_set[(A, B)](f,
       Set.insert[(A, B)]((x, free_in_range), Set.bot_set[(A, B)])),
-                        Lista.sorted_list_of_set[B](Set.minus_set[B](Set.Seta[B](ys),
+                        Lista.sorted_list_of_set[B](Set.minus_set[B](ys,
                               Relation.range[A, B](f)))),
                                   injective_functions_list[A, B](xs, ys))
 }
@@ -758,13 +757,9 @@ def possible_allocations_comp(g: Set.set[Nat], n: Set.set[Nat]):
   Lista.maps[List[Set.set[Nat]],
               Set.set[(Set.set[Nat],
                         Nat)]]((y: List[Set.set[Nat]]) =>
-                                 Lista.map[Set.set[(Set.set[Nat], Nat)],
-    Set.set[(Set.set[Nat],
-              Nat)]]((potential_buyer: Set.set[(Set.set[Nat], Nat)]) =>
-                       potential_buyer,
-                      RelationProperties.injective_functions_list[Set.set[Nat],
-                           Nat](y, Lista.sorted_list_of_set[Nat](n))),
-                                Partitions.all_partitions_fun_list[Nat](Lista.sorted_list_of_set[Nat](g)))
+                                 RelationProperties.injective_functions_list[Set.set[Nat],
+                                      Nat](y, n),
+                                Partitions.all_partitions_alg[Nat](g))
 
 def max_revenue_comp(g: Set.set[Nat], n: Set.set[Nat],
                       b: Nat => (Set.set[Nat]) => RealDef.real):

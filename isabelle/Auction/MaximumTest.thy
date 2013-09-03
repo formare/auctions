@@ -1,10 +1,8 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Makarius Wenzel <wenzel@lri.fr>
@@ -31,12 +29,12 @@ lemma test_arg_max:
   shows "{1,2} \<subseteq> arg_max {1..3} (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
 apply(unfold arg_max_def)
 apply(simp add: maximum_def)
-oops (* TODO CL: This is broken since I've changed "primrec maximum" to "fun maximum" *)
+oops (* broken since I've changed "primrec maximum" to "fun maximum" *)
 
 text{* an alternative proof of the same lemma -- still too trivial to test how declarative proofs \emph{actually} work *}
 lemma test_arg_max_declarative:
   shows "{1,2} \<subseteq> arg_max {1..3} (\<lambda>x. if x < 3 then 100 else 0)" (* the 1st and 2nd elements in a vector [100,100,\<dots>] are maximal. *)
-oops (* TODO CL: This is broken since I've changed "primrec maximum" to "fun maximum" *)
+oops (* broken since I've changed "primrec maximum" to "fun maximum" *)
 (* unfolding arg_max_def
   by (simp add: maximum_def) *)
 

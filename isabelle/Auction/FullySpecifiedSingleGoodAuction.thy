@@ -1,10 +1,8 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Makarius Wenzel <wenzel@lri.fr>
@@ -18,8 +16,8 @@ See LICENSE file for details
 
 header {* Fully specified single good auctions (with tie-breaking) *}
 
+(* TODO CL: consider renaming as per https://github.com/formare/auctions/issues/16 *)
 theory FullySpecifiedSingleGoodAuction
-(* TODO CL: This is actually about single _indivisible_ goods; consider renaming theory *)
 imports Complex_Main SingleGoodAuction SingleGoodAuctionTieBreaker
 begin
 

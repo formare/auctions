@@ -1,7 +1,5 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Marco B. Caminati <marco.caminati@gmail.com>

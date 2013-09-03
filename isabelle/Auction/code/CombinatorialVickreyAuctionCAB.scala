@@ -1,10 +1,8 @@
 /*
- * $Id: CombinatorialVickreyAuctionCATS.scala 1453 2013-08-08 21:55:52Z langec $
- * 
- * Auction Theory Toolbox
+ * Auction Theory Toolbox (http://formare.github.io/auctions/)
  * 
  * Authors:
- * * Manfred Kerber <m.kerber@cs.bham.ac.uk>
+ * * Manfred Kerber <mnfrd.krbr@gmail.com>
  * * Christoph Lange <math.semantic.web@gmail.com>
  * * Colin Rowat <c.rowat@bham.ac.uk>
  * 
@@ -47,8 +45,12 @@ object CombinatorialVickreyAuctionCAB {
     
     // Informally, the file format is: any number of comment lines beginning with percent sign, the word "goods" followed by the total number of goods, on the next line, the word "bids" followed by the total number of bids.  Then each following line is the bid number, followed by the price, followed by each good-number requested, all terminated by a pound sign.  Each line that represents a bid is tab-delimited.
 
+    /* TODO CL: reimplement parsing as per https://github.com/formare/auctions/issues/8,
+     * https://github.com/formare/auctions/issues/9,
+     * https://github.com/formare/auctions/issues/10
+     */
+
     // regular expressions that match input lines
-    // TODO change to parser combinators
     val nGoodsRE = """goods\s+(\d+)""".r
     val nBiddersRE = """bidders\s+(\d+)""".r
     val bidRE = """(\d+)\s+(\d+)(?:\.(\d+))?\s+((?:\d+\s+)*)#""".r // (?: ... ) is a non-capturing group
@@ -59,7 +61,6 @@ object CombinatorialVickreyAuctionCAB {
     val nGoods = contentLines.next match {
       case nGoodsRE(nGoodsStr) => nGoodsStr.toInt
       case instead => {
-        // TODO output input line number
         Console.err.printf("Expected \"goods <number>\"; found \"%s\"\n", instead)
         System.exit(1)
         0 // fallback return value; never needed
@@ -81,7 +82,6 @@ object CombinatorialVickreyAuctionCAB {
         val power = if (priceMaybeFrac != null) priceMaybeFrac.length else 0
         val frac = if (priceMaybeFrac != null) priceMaybeFrac.toInt else 0
         val commonDen = math.pow(10, power).toInt
-        // TODO check whether values are in range
         (Nat(bidderID.toInt),
          Ratreal(decToFrct(priceWhole, Option(priceMaybeFrac))),
          intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List]))
@@ -89,7 +89,7 @@ object CombinatorialVickreyAuctionCAB {
       case instead => {
         Console.err.printf("Expected \"<bidderID> <price> <good> ... <good> #\"; found \"%s\"\n", instead)
         System.exit(3)
-        (null, null, null) // TODO find better fallback value
+        (null, null, null) // TODO CL: find better fallback value
       }
     }).toList
     println("processed CAB input: " + prettyPrint(bidsLines))

@@ -1,10 +1,8 @@
 /*
- * $Id: Makefile 1449 2013-08-08 18:19:21Z langec $
- * 
- * Auction Theory Toolbox
+ * Auction Theory Toolbox (http://formare.github.io/auctions/)
  * 
  * Authors:
- * * Manfred Kerber <m.kerber@cs.bham.ac.uk>
+ * * Manfred Kerber <mnfrd.krbr@gmail.com>
  * * Christoph Lange <math.semantic.web@gmail.com>
  * * Colin Rowat <c.rowat@bham.ac.uk>
  * 
@@ -38,8 +36,7 @@ object CombinatorialVickreyAuctionHardCoded {
   def paperExampleBids = (bidder: Nat) => (goods: set[Nat]) =>
     if (bidder == Nat(1) && setEquals(goods, paperExampleGoods /* i.e. the whole set */)
         || (bidder == Nat(2) || bidder == Nat(3)) && card(goods) == Nat(1))
-      // As it happens, code from Set.card was exported.
-      // TODO CL: Depending on the implementation of the functions from which we actually _want_ to generate code, we can't rely on this.  What's a good practice for making sure code for certain library functions is always generated?
+      // As it happens, code from Set.card was exported (TODO CL: ensure this; see https://github.com/formare/auctions/issues/12)
       Ratreal(Frct(2, 1))
     else Ratreal(zero_rat)
 

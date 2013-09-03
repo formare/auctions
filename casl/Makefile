@@ -10,7 +10,6 @@ Vickrey_SecondPriceAuction_only_max_bidder_wins.tptp: Vickrey.casl
 	hets -o pp.stripped.het $< ;\
 	mv -fv $(patsubst %.casl,%,$<){.pp.stripped.het,_DeBruijn.casl}
 
-# TODO update to the *.hpf scripts actually used
 Vickrey_DeBruijn.xz: Vickrey_DeBruijn.casl
 	tar cf - Vickrey-SecondPriceAuction-*hpf Vickrey-Vickrey-vickreyA.hpf $< | xz -9 > $@
 

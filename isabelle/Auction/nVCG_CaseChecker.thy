@@ -1,10 +1,8 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Marco B. Caminati <marco.caminati@gmail.com>
@@ -138,8 +136,8 @@ where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_
 fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
 where "possible_allocations_comp G N =
   concat [
-      [ potential_buyer . potential_buyer \<leftarrow> injective_functions_list Y N ]
-    . Y \<leftarrow> all_partitions_fun_list (sorted_list_of_set G) ]"
+    injective_functions_list Y N (* the potential buyers *)
+    . Y \<leftarrow> all_partitions_alg G ]"
 
 (* example: possibilities to allocate goods {1,2,3} to participants {100,200} *)
 value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
@@ -148,7 +146,7 @@ value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
 (* the set of possible allocations of a set of goods to a set of participants (assuming functional allocations) *)
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
-  Y \<in> all_partitions_classical G
+  Y \<in> all_partitions G
   \<and> (\<forall> y \<in> Y . (\<exists> n \<in> N . potential_buyer y = Some n) \<or> potential_buyer y = None)
   \<and> inj_on potential_buyer Y
  }"
@@ -301,7 +299,7 @@ value "hd (winning_allocations_comp_CL
 )"
 value "{(x, payments_comp sga_goods {0::nat, 1, 2} hd (sga_bids (nth [23::nat, 42, 31])) x) | x . x \<in> {0::nat, 1, 2}}"
 
-(* TODO CL: get this right *)
+(* TODO CL: revise the following as per https://github.com/formare/auctions/issues/19 *)
 definition admissible_input where "admissible_input G N b = True"
 
 (* the relation of all (input, outcome) pairs where
@@ -309,8 +307,6 @@ definition admissible_input where "admissible_input G N b = True"
    * outcome is obtained from input according to the definitions above.
    For this relation we need to show that, given an arbitrary but fixed tie-breaker,
    for each admissible input, there is a unique, well-defined outcome. *)
-(* TODO CL: maybe prefer *_fun over *_rel throughout this definition,
-            depending on what's easier to do proofs with *)
 definition nVCG_auctions :: "tie_breaker_comp \<Rightarrow> combinatorial_auction"
 where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
   admissible_input G N b

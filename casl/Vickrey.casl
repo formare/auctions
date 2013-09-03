@@ -1,9 +1,7 @@
 library Vickrey
 
 %{
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Christoph Lange <math.semantic.web@gmail.com>
@@ -53,7 +51,7 @@ spec Nat =
     . n > 1 => n > 0 %(gt_one_imp_gt_0)%
 end
 
-%[ TODO CL: reuse Basic/Reals, or ExtOrderedField (with hiding) as explained in http://trac.informatik.uni-bremen.de:8080/hets/ticket/1103.  Or work around the hiding, as suggested by TM: "define MyExtField in the same way as ExtField (but based on ConstructField), etc." ]% 
+%[ TODO CL: reuse Basic/Reals or ExtOrderedField as per https://github.com/formare/auctions/issues/5 ]%
 spec Real =
     TotalOrder with Elem |-> Real then
     %[ExtOrderedField[OrderedField] with Elem |-> Real ]%
@@ -352,7 +350,7 @@ MaximumReal then
       b[maxBidder] > maximumExcept(b, maxBidder)
       => secondPriceAuctionWinner(n, b, x, p, maxBidder) %(only_max_bidder_wins)% %implied
       %[ proved with
-         * SPASS (as of r519 has strange requirements: allocation_def gt_def second_price_auction_def deviation_def_index maximum_is_greater_or_equal deviation_def_otherwise only_one_maximum – as determined by script) TODO CL: check this!!!
+         * SPASS (had strange requirements in r519: allocation_def gt_def second_price_auction_def deviation_def_index maximum_is_greater_or_equal deviation_def_otherwise only_one_maximum – as determined by script)
          * eprover (now takes a lot of time unless Maximum#only_one_maximum is used, therefore didn't minimise; worked before r324 using second_price_auction_winner_def, second_price_auction_def, allocation_def, arg_max_set_def, maximum_is_greater_or_equal, maximum_except_is_greater_or_equal; requires manual minimisation)
          * Vampire (needs more than 10 seconds)
          * MathServe Broker
@@ -548,7 +546,7 @@ SingleGoodAuctionProperties then
       inRange(n, i) /\
       not whateverBid[i] = v[i] /\
       iSticksWithValuation = whateverBid[i <- v] %(i_sticks_with_valuation_def)%
-    %[%\[ TODO CL: clean up once we know what lemmas eprover really needs ]\%]%
+    %[ TODO CL: clean up as per https://github.com/formare/auctions/issues/6 ]%
     %[. spaWithTruthfulOrOtherBid(n, x, p, v, whateverBid, i, iSticksWithValuation) /\]%
     %[  allocated(x, iSticksWithValuation, i)]%
     %[  =>]%
@@ -763,7 +761,7 @@ VickreyPre then
       equilibriumWeaklyDominantStrategy(n, v, v, x, p) %(vickreyA_pre04)% %implied
 end
 
-%[ TODO CL: move back to Vickrey ]%
+%[ TODO CL: move back to Vickrey as per https://github.com/formare/auctions/issues/7 ]%
 spec Vickrey_proof =
 Vickrey then
     forall v: Valuations;

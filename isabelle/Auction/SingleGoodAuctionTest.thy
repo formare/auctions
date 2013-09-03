@@ -1,10 +1,8 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Makarius Wenzel <wenzel@lri.fr>
@@ -30,7 +28,7 @@ subsubsection {* Sample lemma: The allocation, in which the first participant wi
 definition all_bid_1 :: "real vector" where
    "all_bid_1 = (\<lambda>x. 1)"
 
-(* TODO CL: document that, in contrast to Theorema, Isabelle can't _compute_ universal quantification in the finite case.
+(* In contrast to Theorema, Isabelle can't _compute_ universal quantification in the finite case.
 value "bids 1 all_bid_1"
 *)
 
@@ -61,7 +59,7 @@ apply(blast)
 done
 *)
 
-(* TODO CL: note that this is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps.
+(* This is a more tactic-free syntax; I think here it doesn't really make sense to write down explicit proof steps.
 lemma only_wins_is_allocation_declarative:
   shows "allocation 1 all_bid_1 first_wins"
   unfolding allocation_def true_for_exactly_one_member_def first_wins_def using bid_all_bid_1

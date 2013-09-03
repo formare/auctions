@@ -1,9 +1,7 @@
-# $Id$
-# 
-# Auction Theory Toolbox
+# Auction Theory Toolbox (http://formare.github.io/auctions/)
 # 
 # Authors:
-# * Manfred Kerber <m.kerber@cs.bham.ac.uk>
+# * Manfred Kerber <mnfrd.krbr@gmail.com>
 # * Christoph Lange <math.semantic.web@gmail.com>
 # * Colin Rowat <c.rowat@bham.ac.uk>
 # 
@@ -11,13 +9,11 @@
 # * ISC License (1-clause BSD License)
 # See LICENSE file for details
 
-# TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
-
 # rules for copying to the web site
 PREFIX = ../../..
 include $(PREFIX)/Makefile.vars
 
-# TODO change to standard README; introduce make target to auto-insert the right directory URL into README; put instructions from _this_ README on the web page
+# TODO CL: remove as per https://github.com/formare/auctions/issues/14
 WWW_FILES += README
 
 # If we wanted to rewrite the copy destination path (but we don't want):

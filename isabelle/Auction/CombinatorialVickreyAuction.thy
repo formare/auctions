@@ -1,10 +1,8 @@
 (*
-$Id: nVCG_CaseChecker.thy 1448 2013-08-08 18:14:23Z langec $
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Marco B. Caminati <marco.caminati@gmail.com>

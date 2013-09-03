@@ -1,10 +1,8 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Manfred Kerber <m.kerber@cs.bham.ac.uk>
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
 * Makarius Wenzel <wenzel@lri.fr>
@@ -148,7 +146,7 @@ where "max_positions [] = []"
     )"
 
 fun maximum_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
-  where "maximum_comp_list [] b = undefined" (* TODO CL: check how generated code can throw an exception in this case *)
+  where "maximum_comp_list [] b = undefined" (* TODO CL: throw exception as per https://github.com/formare/auctions/issues/17 *)
       | "maximum_comp_list [x] b = b x"
       | "maximum_comp_list (x # xs) b = (let max_xs = maximum_comp_list xs b in
           if b x > max_xs then b x
@@ -200,7 +198,7 @@ proof -
   then show ?thesis unfolding maximum_def by simp
 qed
 
-(* TODO CL: revise the following *)
+(* TODO CL: revise as per https://github.com/formare/auctions/issues/17 *)
 
 (* MC: Yet another approach below, focusing on reusing stuff (Max, zip, map, filter) 
 rather than doing our own recursion to calculate argmax *)
