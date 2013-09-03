@@ -111,9 +111,7 @@ finally show ?thesis by auto
 qed
 
 lemma ll25: fixes P Q assumes "P \<subseteq> Q" shows "inverse P \<subseteq> inverse Q"
-proof -
-show ?thesis using assms by (metis ll08 subset_Un_eq)
-qed
+proof - show ?thesis using assms by (metis ll08 subset_Un_eq) qed
 
 lemma ll01: fixes P Q assumes "runiq Q" assumes "runiq (P outside (Domain Q))" 
 shows "runiq (P +* Q)"
@@ -141,21 +139,10 @@ proof -
 show ?thesis using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
 qed
 
-lemma ll03: fixes P Q::"('a \<times> 'b) set" assumes "P \<subseteq> Q & runiq Q" shows "runiq P"
-(* duplicates ll24 *)
-proof -
-{
-  fix X::"'a set" assume "trivial X" 
-  hence "X \<subseteq> X & trivial (Q `` X)" using assms runiq_def by fast
-  hence "trivial (P `` X)" using assms Image_mono ll02 by metis
-}
-thus ?thesis using runiq_def Image_mono by blast
-qed
-
 corollary ll04: fixes P Q assumes "runiq Q" assumes "runiq P" 
 shows "runiq (P +* Q)"
 proof -
-show ?thesis using ll01 ll03 Outside_def by (metis Diff_subset assms(1) assms(2))
+show ?thesis using ll01 ll24 Outside_def by (metis Diff_subset assms(1) assms(2))
 qed
 
 lemma ll05: shows "runiq {(x,y)}"
@@ -168,7 +155,7 @@ qed
 
 lemma assumes "trivial X" shows "runiq X"
 proof -
-show ?thesis using ll05 trivial_def by (metis assms ll03 surj_pair)
+show ?thesis using ll05 trivial_def by (metis assms ll24 surj_pair)
 qed
 
 lemma ll28: shows "P=(P outside X) +* (P || X)"
