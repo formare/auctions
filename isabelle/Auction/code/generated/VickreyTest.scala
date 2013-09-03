@@ -1,6 +1,8 @@
 import code.Nat
 import code.Vickrey._
 
+// TODO CL: this code is largely obsolete.  Once we want a UI for single-good auctions, update it from the latest combinatorial auction code.
+
 /** run with "scala VickreyTest", or with "java -cp .:/usr/share/scala/lib/scala-library.jar VickreyTest" */
 object VickreyTest {
   /** This allows us to let a function take a tuple of arguments instead of taking one argument and returning a function. */
@@ -10,7 +12,6 @@ object VickreyTest {
   implicit def intToNat(x:Int) = Nat(x)
   */
   
-  // TODO CL: factor out to a module such as "IsabelleLibraryWrapper"
   def prettyPrint[A](x: A) = x match {
     // matching Frct(num, den) doesn't work, as actually (num, den) is a tuple
     case Ratreal(Frct((num, den))) => num.toDouble / den.toDouble
@@ -18,7 +19,6 @@ object VickreyTest {
   }
   
   /** translate an Isabelle-friendly vector to a Scala Map */
-  // TODO CL: factor out to a module such as "VectorsWrapper"
   def vecToMap[A](v: (Nat => A), n: set[Nat]) =
     n match {
       case Set(xs) => Map(xs.map(i => i -> prettyPrint(v(i))): _*) }
@@ -42,7 +42,7 @@ object VickreyTest {
     val participants = 
       Iterator.continually(Console.readLine).
       takeWhile(_ != "").
-      toList.map(_.toInt) // TODO error handling when input line doesn't parse as an Int
+      toList.map(_.toInt)
     println("Participants: " + participants)
 
     println("Enter the participants' bids as decimal numbers, e.g. 27 or 3.14.")

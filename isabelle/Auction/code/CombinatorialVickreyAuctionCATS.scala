@@ -58,14 +58,18 @@ object CombinatorialVickreyAuctionCATS {
     
     // Informally, the file format is: any number of comment lines beginning with percent sign, the word "goods" followed by the total number of goods, on the next line, the word "bids" followed by the total number of bids.  Then each following line is the bid number, followed by the price, followed by each good-number requested, all terminated by a pound sign.  Each line that represents a bid is tab-delimited.
 
-    // TODO exception handling
+    /* TODO CL: reimplement parsing as per https://github.com/formare/auctions/issues/11,
+     * https://github.com/formare/auctions/issues/8,
+     * https://github.com/formare/auctions/issues/9,
+     * https://github.com/formare/auctions/issues/10
+     */
     val nGoodsRE = """goods\s+([0-9]+)""".r
     val nGoodsRE(nGoodsStr) = Console.readLine
-    val nGoods = nGoodsStr.toInt // TODO simplify this "matching regexp to Int"
+    val nGoods = nGoodsStr.toInt
     val nBidsRE = """bids\s+([0-9]+)""".r
     val nBidsRE(nBidsStr) = Console.readLine
-    val nBids = nBidsStr.toInt // TODO simplify this "matching regexp to Int"
-    val bidRE = """([0-9]+)\s+([0-9]+)\s+((?:[0-9]+\s+)*)#""".r // TODO allow decimal price in addition to integer
+    val nBids = nBidsStr.toInt
+    val bidRE = """([0-9]+)\s+([0-9]+)\s+((?:[0-9]+\s+)*)#""".r
     
     val bidsLines = (for (expectedBidID <- 0 to nBids) yield
       Console.readLine match {
@@ -74,7 +78,7 @@ object CombinatorialVickreyAuctionCATS {
             Nat(bidID.toInt),
             Ratreal(Frct(price.toInt, 1)),
             intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List])
-          ) else None /* TODO actually throw exception */
+          ) else None
         case _ => None
       }).flatten
     println("processed CATS input: " + prettyPrint(bidsLines))

@@ -31,11 +31,11 @@ subsubsection {* Some component-wise operations for vectors *}
 definition zero :: "'a::zero vector"
   where "zero = (\<lambda> x. 0)"
 
-(* TODO CL: introduce \<le> infix notation *)
+(* TODO CL: introduce infix notation as per https://github.com/formare/auctions/issues/24 *)
 definition le :: "index set \<Rightarrow> ('a::ord) vector \<Rightarrow> ('a::ord) vector \<Rightarrow> bool"
   where "le N v w \<longleftrightarrow> (\<forall>i \<in> N . v i \<le> w i)"
 
-(* TODO CL: introduce = infix notation *)
+(* TODO CL: introduce infix notation as per https://github.com/formare/auctions/issues/24 *)
 definition eq :: "index set \<Rightarrow> 'a vector \<Rightarrow> 'a vector \<Rightarrow> bool"
   where "eq N v w \<longleftrightarrow> (\<forall>i \<in> N . v i = w i)"
 

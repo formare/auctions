@@ -9,13 +9,11 @@
 # * ISC License (1-clause BSD License)
 # See LICENSE file for details
 
-# TODO CL: consider using sbt (http://www.scala-sbt.org/) instead of make
-
 # rules for copying to the web site
 PREFIX = ../../..
 include $(PREFIX)/Makefile.vars
 
-# TODO change to standard README; introduce make target to auto-insert the right directory URL into README; put instructions from _this_ README on the web page
+# TODO CL: remove as per https://github.com/formare/auctions/issues/14
 WWW_FILES += README
 
 # If we wanted to rewrite the copy destination path (but we don't want):

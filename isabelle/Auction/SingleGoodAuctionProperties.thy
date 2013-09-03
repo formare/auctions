@@ -20,7 +20,7 @@ theory SingleGoodAuctionProperties
 imports SingleGoodAuction Maximum
 begin
 
-(* TODO CL: use the generic concepts from RelationProperties *)
+(* TODO CL: reuse RelationProperties as per https://github.com/formare/auctions/issues/22 *)
 text{* Left-totality of an auction defined as a relation: for each admissible bid vector
   there exists some outcome (not necessarily unique). *}
 definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
@@ -111,6 +111,6 @@ definition equilibrium_weakly_dominant_strategy ::
           \<longrightarrow>
           payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)))))"
 
-(* TODO CL: discuss whether we should define _dominant_ in addition to _weakly_ dominant.  If so, can we refactor the definitions in some way that makes this less redundant? *)
+(* TODO CL: consider defining dominance as per https://github.com/formare/auctions/issues/23 *)
 
 end

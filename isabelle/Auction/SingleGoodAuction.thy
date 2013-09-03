@@ -17,7 +17,7 @@ See LICENSE file for details
 header {* Single good auctions *}
 
 theory SingleGoodAuction
-(* TODO CL: This is actually about single _indivisible_ goods; consider renaming theory *)
+(* TODO CL: consider renaming as per https://github.com/formare/auctions/issues/16 *)
 imports Complex_Main Vectors
 begin
 

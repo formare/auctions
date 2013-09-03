@@ -16,8 +16,8 @@ See LICENSE file for details
 
 header {* Fully specified single good auctions (with tie-breaking) *}
 
+(* TODO CL: consider renaming as per https://github.com/formare/auctions/issues/16 *)
 theory FullySpecifiedSingleGoodAuction
-(* TODO CL: This is actually about single _indivisible_ goods; consider renaming theory *)
 imports Complex_Main SingleGoodAuction SingleGoodAuctionTieBreaker
 begin
 

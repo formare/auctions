@@ -236,9 +236,7 @@ lemma insert_into_member_partition1:
     unfolding insert_into_member_def
     by fast
 
-(* TODO CL: as with insert_into_member above, what does the following function do when the given set of sets
-   is not a partition?  And should we prove that, when the given set is a partition, this function 
-   does what it is supposed to do? *)
+(* TODO CL: document for the general case of a non-partition argument as per https://github.com/formare/auctions/issues/20 *)
 text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "new_el \<notin> S"}, this function yields
   all possible partitions of @{term "S \<union> {new_el}"} that are coarser than @{term P}
   (i.e.\ not splitting equivalence classes that already exist in @{term P}).  These comprise one partition 
@@ -259,7 +257,7 @@ where "coarser_partitions_with new_el P =
      inserting new_el into one equivalence class of P at a time. *)
   ((insert_into_member new_el P) ` P)"
 
-(* TODO CL: The same concern as for the documentation of coarser_partitions_with also holds here. *)
+(* TODO CL: document for the general case of a non-partition argument as per https://github.com/formare/auctions/issues/20 *)
 text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "new_el \<notin> S"}, this function yields
   all possible partitions of @{term "S \<union> {new_el}"} that are coarser than @{term P}
   (i.e.\ not splitting equivalence classes that already exist in @{term P}).  These comprise one partition 
@@ -710,9 +708,7 @@ text {* The function that we will be using in practice to compute all partitions
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
 where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
 
-(* TODO CL: maybe delete.  As all_partitions and all_partitions_alg return different types,
-   they are not exactly interchangeable anyway, and thus not subject to automatic rewriting
-   by the code generator. *)
+(* TODO CL: maybe delete as per https://github.com/formare/auctions/issues/21 *)
 corollary [code_unfold]:
   fixes X
   assumes "finite X"

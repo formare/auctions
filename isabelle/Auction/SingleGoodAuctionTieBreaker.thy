@@ -17,7 +17,7 @@ See LICENSE file for details
 header {* Fully specified single good auctions (with tie-breaking) *}
 
 theory SingleGoodAuctionTieBreaker
-(* TODO CL: This is actually about single _indivisible_ goods; consider renaming theory *)
+(* TODO CL: consider renaming as per https://github.com/formare/auctions/issues/16 *)
 imports Main
   "~~/src/HOL/Library/Order_Relation"
   SingleGoodAuction
