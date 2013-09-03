@@ -19,7 +19,15 @@ imports Main SetUtils ListUtils
 begin
 
 text {*
-The algorithmic computation of all partitions of a set in @{term all_partitions_list} works as
+We define the set of all partitions of a set (@{term all_partitions}) in textbook style, as well as
+a function @{term all_partitions_list} to algorithmically compute this set (then represented as a
+list).  This function is suitable for code generation.  We prove their equivalence to ensure that
+the generated code correctly implements the original textbook-style definition.  For further 
+background on the overall approach, see Caminati, Kerber, Lange, Rowat:
+\href{http://arxiv.org/abs/1308.1779}{Proving soundness of combinatorial Vickrey auctions and
+generating verified executable code}, 2013.
+
+The algorithmic computation of all partitions of a set works as
 in the following example:
 \begin{itemize}
 \item Set: $\{\a}$\\
@@ -704,7 +712,9 @@ text {* The function that we will be using in practice to compute all partitions
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
 where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
 
-(* TODO CL: integrate into nVCG_CaseChecker and find out how this is really going to be used. *)
+(* TODO CL: maybe delete.  As all_partitions and all_partitions_alg return different types,
+   they are not exactly interchangeable anyway, and thus not subject to automatic rewriting
+   by the code generator. *)
 corollary [code_unfold]:
   fixes X
   assumes "finite X"
