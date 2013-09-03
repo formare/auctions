@@ -33,5 +33,6 @@ java -cp scala-library.jar;CombinatorialVickreyAuctionCAB.jar CombinatorialVickr
 The path separator (";" instead of ":") is the only difference.
 
 We do not currently know how to get this job done using the Windows
-PowerShell; if you do, we'd appreciate if you let us know via
+PowerShell; if you do, we'd appreciate if you let us know at
+https://github.com/formare/auctions/issues/31 or via
 formare-management@cs.bham.ac.uk.
