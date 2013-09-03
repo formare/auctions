@@ -181,18 +181,6 @@ also have "?dq=?D \<inter> X" using restrict_def by fastforce
 ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using ll10 ll13 by metis
 qed
 
-definition childrenof 
-(*::" ('a \<times> 'b::linorder) set => 'a => ('b set) => ('a \<times> 'b) set list"*)
-where 
-"childrenof R x Y = [ R +* {(x,y)} . y <- (sorted_list_of_set (Y - Range R))]"
-(* Y or Y-Range R ? *)
-
-fun bijections 
-(*::"'a list => 'b::linorder set => ('a \<times> 'b) set list"*)
-where
-"bijections [] Y = [{}]" |
-"bijections (x # xs) Y = concat [ childrenof R x Y . R <- bijections xs Y ]"
-
 lemma ll27: shows "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
 proof -
 let ?L="concat LL" let ?LH="set ?L" let ?X="{set l| l. l \<in> set LL}"
@@ -200,44 +188,6 @@ let ?RH="\<Union> ?X"
 have "?LH \<supseteq> ?RH" using concat_def set_def by auto
 also have "?LH \<subseteq> ?RH" using concat_def set_def by auto
 finally show ?thesis by presburger
-qed
-
-definition F
-::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
-where 
-"F x Y n = \<Union> {set (bijections l Y) | l::('a list) . size l=n & card (set l)=n}"
-
-definition G
-::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
-where 
-"G x Y n = {f . 
-finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}"
-
-lemma ll43: fixes x Y shows "F x Y 0={{}} & G x Y 0={{}}"
-proof -
-(* fix x::"'a::linorder" fix Y::"'b::linorder set" fix n *)
-let ?l="sorted_list_of_set" let ?B="bijections"
-(* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
-let ?F="F x Y"
-(* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
-let ?G="G x Y"
-let ?Fn="?F n" let ?Gn="?G n"
-have "?B (?l {}) Y = [{}]" using bijections_def by auto
-hence "{{}} = \<Union> {set (bijections l Y) | l . size l=0 & card (set l)=0}" by auto
-also have "... = F x Y 0" using F_def by blast ultimately have
-11: "F x Y 0={{}}" by force
-have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
-hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" using G_def by fast
-hence 0: "?G 0 \<subseteq> {{}}" by blast
-have 1: "finite (Domain {})" by simp
-have 2: "card (Domain {})=0" by force
-have 3: "runiq {}" using runiq_def trivial_def by fast
-also have "inverse {} = {}" using inverse_def by fast
-ultimately have "runiq (inverse {})" by metis
-hence "{} \<in> ?G 0" using G_def 1 2 3 by blast
-hence "?G 0 = {{}}" using 0 by auto
-hence "G x Y 0={{}}" using G_def by force
-thus ?thesis using 11 by blast
 qed
 
 definition isbij where "isbij f = (runiq f & runiq (inverse f))"
@@ -294,7 +244,6 @@ ultimately have
 thus ?thesis using assms Image_def by fast
 qed
 
-
 lemma ll36: shows "Domain (inverse R)=Range R"
 proof -
 show ?thesis using inverse_def ll06 Domain_def Range_def by auto
@@ -316,11 +265,6 @@ then also have "Range ?LH = ?Y" using restrict_def by fast
 ultimately have "?LH \<subseteq> ?RH" by auto
 thus ?thesis using 0 by fast
 qed
-
-
-
-
-
 
 lemma ll33: shows "Domain R \<inter> X \<subseteq> inverse R `` (R `` X)"
 proof -
@@ -393,6 +337,79 @@ also have "... = ?g +* {(y,x)}" using ll13 0 by metis
 ultimately show ?thesis using ll04 assms ll05 by metis
 qed
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+definition childrenof 
+(*::" ('a \<times> 'b::linorder) set => 'a => ('b set) => ('a \<times> 'b) set list"*)
+where 
+"childrenof R x Y = [ R +* {(x,y)} . y <- (sorted_list_of_set (Y - Range R))]"
+(* Y or Y-Range R ? *)
+
+fun bijections 
+(*::"'a list => 'b::linorder set => ('a \<times> 'b) set list"*)
+where
+"bijections [] Y = [{}]" |
+"bijections (x # xs) Y = concat [ childrenof R x Y . R <- bijections xs Y ]"
+
+definition F
+::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
+where 
+"F x Y n = \<Union> {set (bijections l Y) | l::('a list) . size l=n & card (set l)=n}"
+
+definition G
+::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
+where 
+"G x Y n = {f . 
+finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}"
+
+lemma ll43: fixes x Y shows "F x Y 0={{}} & G x Y 0={{}}"
+proof -
+(* fix x::"'a::linorder" fix Y::"'b::linorder set" fix n *)
+let ?l="sorted_list_of_set" let ?B="bijections"
+(* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
+let ?F="F x Y"
+(* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
+let ?G="G x Y"
+let ?Fn="?F n" let ?Gn="?G n"
+have "?B (?l {}) Y = [{}]" using bijections_def by auto
+hence "{{}} = \<Union> {set (bijections l Y) | l . size l=0 & card (set l)=0}" by auto
+also have "... = F x Y 0" using F_def by blast ultimately have
+11: "F x Y 0={{}}" by force
+have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
+hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" using G_def by fast
+hence 0: "?G 0 \<subseteq> {{}}" by blast
+have 1: "finite (Domain {})" by simp
+have 2: "card (Domain {})=0" by force
+have 3: "runiq {}" using runiq_def trivial_def by fast
+also have "inverse {} = {}" using inverse_def by fast
+ultimately have "runiq (inverse {})" by metis
+hence "{} \<in> ?G 0" using G_def 1 2 3 by blast
+hence "?G 0 = {{}}" using 0 by auto
+hence "G x Y 0={{}}" using G_def by force
+thus ?thesis using 11 by blast
+qed
+
 lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
 assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r = set l"
 assumes "size L=Suc n" assumes "R \<in> set (bijections L Y)"
@@ -443,29 +460,6 @@ proof -
 have "size l=size l & R \<in> set (bijections l Y)" using assms by fast
 then show ?thesis using ll40 by blast
 qed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 lemma ll42: fixes x Y n assumes "G x Y n \<subseteq> F x Y n" 
 assumes "finite Y" shows "G x Y (Suc n) \<subseteq> F x Y (Suc n)"
@@ -614,9 +608,6 @@ qed
 
 theorem fixes x Y assumes "finite Y" shows "G x Y=F x Y"
 proof - show ?thesis using assms ll44 ll45 by fast qed
-
-(* value "childrenof {(0,0::nat),(1,1)} (2::nat) {0,1,2::nat,3}"
-term "concat [ childrenof R x Y . R <- xs ]" term "childrenof" *)
 
 end
 
