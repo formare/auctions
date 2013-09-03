@@ -1,6 +1,4 @@
-# $Id$
-# 
-# Auction Theory Toolbox
+# Auction Theory Toolbox (http://formare.github.io/auctions/)
 # 
 # Authors:
 # * Manfred Kerber <m.kerber@cs.bham.ac.uk>

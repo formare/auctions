@@ -1,7 +1,5 @@
 (*
-$Id: SecondPriceAuction.thy 421 2013-02-16 15:54:19Z makarius $
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>

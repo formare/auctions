@@ -1,7 +1,5 @@
 (*
-$Id: Partitions.thy 1274 2013-06-27 10:01:36Z langec $
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Christoph Lange <math.semantic.web@gmail.com>

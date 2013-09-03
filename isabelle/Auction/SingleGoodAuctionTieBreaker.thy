@@ -1,7 +1,5 @@
 (*
-$Id: SingleGoodAuction.thy 507 2013-02-23 14:59:19Z langec $
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Manfred Kerber <m.kerber@cs.bham.ac.uk>

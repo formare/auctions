@@ -1,7 +1,5 @@
 /*
- * $Id: CombinatorialVickreyAuctionCATS.scala 1453 2013-08-08 21:55:52Z langec $
- * 
- * Auction Theory Toolbox
+ * Auction Theory Toolbox (http://formare.github.io/auctions/)
  * 
  * Authors:
  * * Manfred Kerber <m.kerber@cs.bham.ac.uk>

@@ -1,7 +1,5 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Christoph Lange <math.semantic.web@gmail.com>
