@@ -139,7 +139,7 @@ fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarr
 where "possible_allocations_comp G N =
   concat [
       [ potential_buyer . potential_buyer \<leftarrow> injective_functions_list Y N ]
-    . Y \<leftarrow> all_partitions_fun_list (sorted_list_of_set G) ]"
+    . Y \<leftarrow> all_partitions_list (sorted_list_of_set G) ]"
 
 (* example: possibilities to allocate goods {1,2,3} to participants {100,200} *)
 value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
@@ -148,7 +148,7 @@ value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
 (* the set of possible allocations of a set of goods to a set of participants (assuming functional allocations) *)
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
-  Y \<in> all_partitions_classical G
+  Y \<in> all_partitions G
   \<and> (\<forall> y \<in> Y . (\<exists> n \<in> N . potential_buyer y = Some n) \<or> potential_buyer y = None)
   \<and> inj_on potential_buyer Y
  }"
