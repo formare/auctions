@@ -19,7 +19,7 @@ imports Main SetUtils ListUtils
 begin
 
 text {*
-The algorithmic computation of all partitions of a set in @{text all_partitions_list} works as
+The algorithmic computation of all partitions of a set in @{term all_partitions_list} works as
 in the following example:
 \begin{itemize}
 \item Set: $\{\a}$\\
@@ -34,7 +34,7 @@ BTW, the number of partitions of a set (same as the number of equivalence relati
 \href{http://en.wikipedia.org/wiki/Bell_number}{Bell number}.
 *}
 
-text {* @{text P} is a partition of some set. *}
+text {* @{term P} is a partition of some set. *}
 definition is_partition where
 "is_partition P = (\<forall> x\<in>P . \<forall> y\<in> P . (x \<inter> y \<noteq> {} \<longleftrightarrow> x=y))"
 (* alternative, less concise formalisation:
@@ -120,7 +120,7 @@ lemma no_empty_eq_class:
   shows "{} \<notin> p" 
   using assms is_partition_def by fast
 
-text {* @{text P} is a partition of the set @{text A}. *}
+text {* @{term P} is a partition of the set @{term A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
 
@@ -135,12 +135,12 @@ lemma emptyset_part_emptyset2:
   shows "P = {}"
   using assms is_partition_def is_partition_of_def by fast
 
-text {* classical set-theoretical definition of ``all partitions of a set @{text A}'' *}
+text {* classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
 definition all_partitions where 
 "all_partitions A = {P . is_partition_of P A}"
 
 text {* The set of all partitions of the empty set only contains the empty set.
-  We need this to prove the base case of @{text all_partitions_paper_equiv_alg}. *}
+  We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
 lemma emptyset_part_emptyset3:
   shows "all_partitions {} = {{}}"
   unfolding all_partitions_def
@@ -230,11 +230,11 @@ lemma insert_into_member_partition1:
 (* TODO CL: as with insert_into_member above, what does the following function do when the given set of sets
    is not a partition?  And should we prove that, when the given set is a partition, this function 
    does what it is supposed to do? *)
-text {* Assuming that @{text P} is a partition of a set @{text S}, and @{text "new_el \<notin> S"}, this function yields
-  all possible partitions of @{text "S \<union> {new_el}"} that are coarser than @{text P}
-  (i.e. not splitting equivalence classes that already exist in @{text P}).  These comprise one partition 
-  with an equivalence class @{text "{new_el}"} and all other equivalence classes unchanged,
-  as well as all partitions obtained by inserting @{text new_el} into one equivalence class of @{text P} at a time. *}
+text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "new_el \<notin> S"}, this function yields
+  all possible partitions of @{term "S \<union> {new_el}"} that are coarser than @{term P}
+  (i.e. not splitting equivalence classes that already exist in @{term P}).  These comprise one partition 
+  with an equivalence class @{term "{new_el}"} and all other equivalence classes unchanged,
+  as well as all partitions obtained by inserting @{term new_el} into one equivalence class of @{term P} at a time. *}
 definition coarser_partitions_with ::"'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set set"
 where "coarser_partitions_with new_el P = 
   insert
@@ -307,9 +307,9 @@ proof -
   qed
 qed
 
-text {* Let @{text P} be a partition of a set @{text S}, and @{text elem} an element (which may or may not be
-  in @{text S} already).  Then, any member of @{text "coarser_partitions_with elem P"} is a set of sets
-  whose union is @{text "S \<union> {elem}"}, i.e.\ it satisfies a necessary criterion for being a partition of @{text "S \<union> {elem}"}.
+text {* Let @{term P} be a partition of a set @{term S}, and @{term elem} an element (which may or may not be
+  in @{term S} already).  Then, any member of @{term "coarser_partitions_with elem P"} is a set of sets
+  whose union is @{term "S \<union> {elem}"}, i.e.\ it satisfies a necessary criterion for being a partition of @{term "S \<union> {elem}"}.
 *}
 lemma coarser_partitions_covers:
   fixes elem::'a
@@ -334,11 +334,11 @@ proof -
   then show ?thesis using Q_cases by blast
 qed
 
-text {* Removes the element @{text elem} from every set in @{text P}, and removes from @{text P} any
-  remaining empty sets.  This function is intended to be applied to partitions, i.e. @{text elem}
-  occurs in at most one set.  @{text "partition_without e"} reverses @{text "coarser_partitions_with e"}.
-@{text coarser_partitions_with} is one-to-many, while this is one-to-one, so we can think of a tree relation,
-where coarser partitions of a set @{text "S \<union> {elem}"} are child nodes of one partition of @{text S}. *}
+text {* Removes the element @{term elem} from every set in @{term P}, and removes from @{term P} any
+  remaining empty sets.  This function is intended to be applied to partitions, i.e. @{term elem}
+  occurs in at most one set.  @{term "partition_without e"} reverses @{term "coarser_partitions_with e"}.
+@{term coarser_partitions_with} is one-to-many, while this is one-to-one, so we can think of a tree relation,
+where coarser partitions of a set @{term "S \<union> {elem}"} are child nodes of one partition of @{term S}. *}
 definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
 where "partition_without elem P = (\<lambda>X . X - {elem}) ` P - {{}}"
 (* Set comprehension notation { x - {elem} | x . x \<in> P } would look nicer but is harder to do proofs about *)
@@ -553,8 +553,8 @@ proof -
   qed
 qed
 
-text {* The paper-like definition @{text all_partitions} and the algorithmic definition
-  @{text all_partitions_list} are equivalent. *}
+text {* The paper-like definition @{term all_partitions} and the algorithmic definition
+  @{term all_partitions_list} are equivalent. *}
 lemma all_partitions_paper_equiv_alg':
   fixes xs::"'a list"
   shows "distinct xs \<Longrightarrow> ((set (map set (all_partitions_list xs)) = all_partitions (set xs)) \<and> (\<forall> ps \<in> set (all_partitions_list xs) . distinct ps))"
@@ -677,7 +677,7 @@ theorem all_partitions_paper_equiv_alg:
 using all_partitions_paper_equiv_alg' by blast
 
 text {* The function that we will be using in practice to compute all partitions of a set,
-  a set-oriented frontend to @{text all_partitions_list} *}
+  a set-oriented frontend to @{term all_partitions_list} *}
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
 where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
 
@@ -694,12 +694,12 @@ corollary [code_unfold]:
 
 section {* Unused alternative definitions *}
 
-text {* @{text E} is the set of all equivalence relations on the set @{text X}. *}
+text {* @{term E} is the set of all equivalence relations on the set @{term X}. *}
 definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Rightarrow> bool"
   where "isEquivSet E X \<longleftrightarrow> (\<forall> e . e \<in> E \<longleftrightarrow> equiv X e)"
 
-text {* another set-theoretical, non-computable definition of ``all partitions of a set @{text A}'':
-  the set of all quotients of @{text A} w.r.t.\ some equivalence relation @{text R} *}
+text {* another set-theoretical, non-computable definition of ``all partitions of a set @{term A}'':
+  the set of all quotients of @{term A} w.r.t.\ some equivalence relation @{term R} *}
 definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
   where "all_partitions_wrt_equiv A = { P . (* all sets P such that \<dots> *)
     (* thought we'd need something like this for computability:
@@ -715,8 +715,8 @@ definition all_partitions_wrt_equiv :: "'a set \<Rightarrow> 'a set set set"
     ) }"
 
 text {* an entirely list-based algorithm, which serves as an alternative to 
-  @{text all_partitions_list}, @{text all_coarser_partitions_with_list}, 
-  @{text coarser_partitions_with_list}, @{text insert_into_member_list} *}
+  @{term all_partitions_list}, @{term all_coarser_partitions_with_list}, 
+  @{term coarser_partitions_with_list}, @{term insert_into_member_list} *}
 fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
   where "all_partitions_fun_list [] = []"
       | "all_partitions_fun_list [x] = [[{x}]]" (* singleton case is special, not sufficiently covered by [] and x#xs *)
@@ -728,8 +728,8 @@ fun all_partitions_fun_list :: "'a list \<Rightarrow> 'a set list list"
         @ [ {x} # P . P \<leftarrow> xs_partitions] (* and adding the {x} singleton equivalence class to each partition of xs: *)
         )"
 
-text {* frontend to @{text all_partitions_fun_list}, turns the @{text "'a set list list"}
-  returned by that function into a @{text "'a set set set"} *}
+text {* frontend to @{term all_partitions_fun_list}, turns the @{typ "'a set list list"}
+  returned by that function into a @{typ "'a set set set"} *}
 fun all_partitions_fun :: "'a\<Colon>linorder set \<Rightarrow> 'a set set set"
   where "all_partitions_fun A = set (map set (all_partitions_fun_list (sorted_list_of_set A)))"
 
