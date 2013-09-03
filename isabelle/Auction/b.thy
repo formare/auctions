@@ -317,24 +317,25 @@ also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
 finally show ?thesis by auto
 qed
 
+lemma ll15a: fixes P Q assumes "runiq (inverse P)" assumes "runiq (inverse Q)"
+assumes "Domain P \<inter> (Domain Q)={}" assumes "Range P \<inter> (Range Q)={}"
+shows "runiq (inverse (P +* Q))"
+proof -
+let ?i="inverse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
+have "?R = P \<union> Q" using assms ll13 by metis 
+hence "?r = ?p \<union> ?q" using ll08 by auto
+also have "... = ?p +* ?q" using assms ll13 ll36 by metis
+ultimately show ?thesis using ll04 assms by auto
+qed
+
 lemma ll15: fixes R x assumes "runiq (inverse R)" 
 assumes "y \<notin> Range R" assumes "x \<notin> Domain R"
 shows "runiq (inverse (R +* {(x,y)}))"
-(* to be generalized to generic P instead of {(x,y)} *)
 proof -
-let ?i="inverse" let ?g="?i R" let ?z="(x,y)" let ?D="Domain R" let ?R="Range R"
-let ?r="runiq" let ?Z="{?z}" let ?F="R +* ?Z" let ?G="?i ?F"
-have "y \<notin> Domain ?g" using ll36 assms by metis then
-have "{}=Domain ?g \<inter> {y}"  by force
-also have "... = Domain ?g \<inter> Domain {(y,x)}" by blast
-ultimately have 0: "{}=Domain ?g \<inter> Domain {(y,x)}" by presburger
-have "Domain ?Z={x}" using Domain_def by auto then
-have "?D \<inter> (Domain ?Z)={}" using assms by force then
-have "?F=R \<union> ?Z" using assms ll13 by metis
-hence "?G = ?g \<union> (?i ?Z)" using ll08 by metis
-also have "... = ?g \<union> {(y,x)}" using ll06 by auto
-also have "... = ?g +* {(y,x)}" using ll13 0 by metis
-ultimately show ?thesis using ll04 assms ll05 by metis
+have "inverse {(x,y)}={(y,x)}" using ll06 by auto then
+have "runiq (inverse {(x,y)})" using ll05 by metis
+also have "Domain R \<inter> Domain {(x,y)}={} & Range R \<inter> (Range {(x,y)})={}" 
+using assms by blast ultimately show ?thesis using assms ll15a by blast
 qed
 
 
