@@ -17,7 +17,8 @@ imports a RelationProperties
 
 begin
 
-lemma ll19: "Domain (P outside X) = Domain P - X"
+text {* Considering a relation outside some set @{term X} reduces its domain by @{term X}. *}
+lemma outside_reduces_domain: "Domain (P outside X) = Domain P - X"
 unfolding Outside_def by fast
 
 lemma ll23: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
@@ -116,7 +117,7 @@ shows "runiq (P +* Q)"
 proof - 
 let ?dq="Domain Q" let ?PP="P outside ?dq" let ?R="P +* Q" let ?dpp="Domain ?PP"
 let ?RR="?PP \<union> Q" have 
-0: "?dpp \<inter> ?dq={}" using assms ll19 by (metis Diff_Int2 Diff_Int_distrib2 Diff_cancel Int_Diff)
+0: "?dpp \<inter> ?dq={}" using assms outside_reduces_domain by (metis Diff_Int2 Diff_Int_distrib2 Diff_cancel Int_Diff)
 {
   fix X::"'a set" assume 
   1: "trivial X" hence 
@@ -186,7 +187,7 @@ qed
 
 lemma ll20: shows "Domain (P +* Q) = (Domain P \<union> Domain Q)"
 proof -
-show ?thesis using ll17 ll19 paste_def by (metis Un_Diff_cancel Un_commute)
+show ?thesis using ll17 outside_reduces_domain paste_def by (metis Un_Diff_cancel Un_commute)
 qed
 
 lemma ll18: shows "P +* Q \<subseteq> P \<union> Q"
@@ -485,10 +486,10 @@ hence "inverse ?f \<subseteq> inverse g" using ll25 by metis
 have
 21: "card ?DN=?N & runiq g & runiq (inverse g) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
 23: "finite ?DN" using card_ge_0_finite by force hence 
-24: "finite ?Dn" by (metis finite_Diff ll19) have 
+24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain) have 
 25: "runiq ?f" using ll24 Outside_def 21 by (metis Diff_subset) have 
 26: "runiq (inverse ?f)" using ll24 22 ll25 21 by metis have 
-27: "?Dn = ?DN - {?x}" by (metis ll19)
+27: "?Dn = ?DN - {?x}" by (metis outside_reduces_domain)
 have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_diff_le Suc_eq_plus1_left add_diff_cancel_right' card_Diff_subset diff_le_self empty_set hd_in_set le_bot not_less_bot not_less_eq order_refl)
 hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
 hence "card ?Dn = n & ?Rn \<subseteq> ?RN" using 21 22 by auto
