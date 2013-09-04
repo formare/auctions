@@ -17,9 +17,6 @@ imports a RelationProperties
 
 begin
 
-lemma ll26: "P || X \<subseteq> P"
-using restrict_def by blast
-
 lemma ll11: "P || X = P || (X \<inter> (Domain P))" 
 proof -
 let ?D="Domain P" let ?LH="P || X" let ?RH="P || (X \<inter> ?D)" let ?R="Range P"
