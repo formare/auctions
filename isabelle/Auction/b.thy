@@ -13,12 +13,9 @@ See LICENSE file for details
 
 theory b
 (* MC@CL: Here, too, a lot stuff would fit good into Relation_Prop *)
-imports a RelationProperties 
+imports a RelationProperties ListUtils
 
 begin
-
-lemma ll13: assumes "Domain P \<inter> (Domain Q)={}" shows "P +* Q = P \<union> Q"
-using paste_subrel restriction_within_domain restrict_empty assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
 
 lemma ll07: fixes X Y f F assumes "F = (%Z . ({ f z | z. z \<in> Z}))" 
 shows "F (X \<union> Y) = F X \<union> (F Y)"
@@ -99,7 +96,7 @@ let ?D="Domain P" have "P \<subseteq> ?D \<times> (Range P)" by fast
 hence "?p \<subseteq> ?D \<times> (Range P) - (X \<times> (Range P))" using Outside_def by (metis Diff_mono eq_refl)
 hence "?dp \<subseteq> ?D - X" using Outside_def Domain_def by blast
 also have "?dq=?D \<inter> X" using restrict_def by fastforce
-ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using outside_union_restrict ll13 by metis
+ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using outside_union_restrict paste_disj_domains by metis
 qed
 
 lemma ll27: "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
@@ -227,9 +224,9 @@ assumes "Domain P \<inter> (Domain Q)={}" assumes "Range P \<inter> (Range Q)={}
 shows "runiq (inverse (P +* Q))"
 proof -
 let ?i="inverse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
-have "?R = P \<union> Q" using assms ll13 by metis 
+have "?R = P \<union> Q" using assms paste_disj_domains by metis 
 hence "?r = ?p \<union> ?q" using ll08 by auto
-also have "... = ?p +* ?q" using assms ll13 ll36 by metis
+also have "... = ?p +* ?q" using assms paste_disj_domains ll36 by metis
 ultimately show ?thesis using ll04 assms by auto
 qed
 

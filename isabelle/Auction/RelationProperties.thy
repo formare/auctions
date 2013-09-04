@@ -98,6 +98,12 @@ text {* If a relation @{term P} is a subrelation of another relation @{term Q} o
 lemma paste_subrel: assumes "P || Domain Q \<subseteq> Q" shows "P +* Q = P \<union> Q"
 unfolding paste_def using assms outside_union_restrict by blast
 
+text {* Pasting two relations with disjoint domains is the same as forming their union. *}
+lemma paste_disj_domains: assumes "Domain P \<inter> Domain Q = {}" shows "P +* Q = P \<union> Q"
+unfolding paste_def Outside_def
+using assms
+by fast
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 
