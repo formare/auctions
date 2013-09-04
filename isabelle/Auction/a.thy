@@ -26,9 +26,14 @@ definition runiq where (*whether a relation is a function*)
 definition restrict (* compare with restr in SchorrWaite.thy *)
 :: "('a \<times> 'b) set => 'a set => ('a \<times> 'b) set "
 where "restrict R X = X \<times> (Range R) \<inter> R"
+
+text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
+  tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
+  from the domain of @{term R}. *}
 definition Outside 
 where "Outside R X = R - (X \<times> Range R)"
-notation Outside (infix "outside" 75) (* 75 or whatever, for what I know *)
+notation Outside (infix "outside" 75) (* MC: 75 or whatever, for what I know *)
+
 notation restrict (infix "||" 75)
 notation eval_rel (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
 definition paste where "paste P Q = (P outside Domain Q) \<union> Q"
