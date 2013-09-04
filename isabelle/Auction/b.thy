@@ -12,7 +12,7 @@ See LICENSE file for details
 *)
 
 theory b
-(*MC@CL: Here, too, a lot stuff would fit good into Relation_Prop*)
+(* MC@CL: Here, too, a lot stuff would fit good into Relation_Prop *)
 imports a RelationProperties 
 
 begin

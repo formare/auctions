@@ -21,8 +21,10 @@ begin
 text {* An inference rule that combines @{text Set.equalityI} and @{text Set.subsetI} to a single step *}
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
 
+text {* an equivalent notation for the image of a set, using set comprehension *}
 lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
-lemma image_union: fixes f X Y shows "f ` (X \<union> Y) = f ` X \<union> f ` Y" by auto
+text {* The image of a union is the union of images. *}
+lemma image_union: "f ` (X \<union> Y) = f ` X \<union> f ` Y" by auto
 
 end
