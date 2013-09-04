@@ -18,7 +18,7 @@ imports a RelationProperties
 begin
 
 lemma ll19: shows "Domain (P outside X) = Domain P - X"
-using Outside_def by blast
+unfolding Outside_def by fast
 
 lemma ll23: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
 shows "trivial X"
