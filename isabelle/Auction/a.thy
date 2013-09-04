@@ -110,21 +110,6 @@ hence "?F ,, x = ?f x" using l16 by (metis (mono_tags))
 thus ?thesis using 1 by presburger
 qed
 
-lemma l26: fixes X R shows "R `` X = R `` (X \<inter> Domain R)"
-using Image_def by blast
-
-lemma l18: fixes X::"'a set" fixes R::"('a \<times> 'b) set" shows 
-"(X \<inter> Domain R = {}) = (R `` X = {})"
-(* and "(R `` X = {}) --> (X \<inter> Domain R = {})" *)
-proof -
-have "(X \<inter> Domain R = {}) --> (R `` X = {})" using assms l26 by (metis Image_empty)
-also have "(R `` X = {}) --> (X \<inter> Domain R = {})" using assms Image_singleton_iff l26  by blast
-ultimately show ?thesis by linarith
-qed
-
-lemma l18b: fixes x R shows "(x \<in> Domain R) = (R `` {x} \<noteq> {})"
-using l18 by blast
-
 lemma l19: fixes f P shows "Range {(x, f x)| x. P x}= {f x | x. P x}"
 proof -
 let ?X="{(x, f x) | x. P x}" let ?LH="Range ?X" let ?RH="{f x | x. P x}"
@@ -303,7 +288,7 @@ hence "X \<subseteq> ?I `` {x}" using 1 by simp
 also have "... = id `{x}" by (metis a.l4)
 also have "... = {x}" by auto
 finally have "X \<subseteq> {x}" by fast 
-thus ?thesis using trivial_def by (metis "1" l18b subset_singletonD the_elem_eq)
+thus ?thesis using trivial_def by (metis "1" Image_within_domain' subset_singletonD the_elem_eq)
 qed
 
 (*
@@ -325,7 +310,7 @@ proof -
 let ?y="R ,, x" let ?z="(x, ?y)"
 have "trivial (R `` {x})" using assms unfolding runiq_def by fast
 hence "?y \<in> R `` {x}" using assms the_elem_def eval_rel_def trivial_def 
-by (smt RelationProperties.eval_rel.simps l18b subset_empty subset_insert)
+by (smt RelationProperties.eval_rel.simps Image_within_domain' subset_empty subset_insert)
 thus "?z \<in> R" by fast 
 qed
 
@@ -356,7 +341,7 @@ assumes "projector p ,, x \<in> Domain (quotient r p q)"
 shows "r ,, x = the_elem (quotient r p q ,, (projector p ,, x))"
 proof -
 let ?P="projector p" let ?R="quotient r p q" let ?Y="?R ,, (?P ,, x)"
-have "r `` {x} \<supseteq> {r ,, x}" using assms runiq_wrt_eval_rel l18b by (metis subset_singletonD)
+have "r `` {x} \<supseteq> {r ,, x}" using assms runiq_wrt_eval_rel Image_within_domain' by (metis subset_singletonD)
 hence "{r ,, x} \<subseteq> ?Y" using l13 assms by fast
 thus "r ,, x = the_elem ?Y" using l28 assms singleton_sub_trivial_uniq by fast
 qed

@@ -17,30 +17,8 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll01: fixes P Q assumes "runiq Q" assumes "runiq (P outside (Domain Q))" 
-shows "runiq (P +* Q)"
-proof - 
-let ?dq="Domain Q" let ?PP="P outside ?dq" let ?R="P +* Q" let ?dpp="Domain ?PP"
-let ?RR="?PP \<union> Q" have 
-0: "?dpp \<inter> ?dq={}" using assms outside_reduces_domain by (metis Diff_Int2 Diff_Int_distrib2 Diff_cancel Int_Diff)
-{
-  fix a assume "a \<in> Domain ?RR"
-  then have *: "trivial (?PP `` {a}) & trivial (Q `` {a})" using assms by (metis l18b runiq_def trivial_empty)
-  then have "?PP `` {a}={} \<or> (Q `` {a}={})" using 0 by blast
-  hence "?PP `` {a} = {} \<or> (Q `` {a} = {})" by fast
-  hence "?RR `` {a} = Q `` {a} \<or> ?RR `` {a} = ?PP `` {a}" by blast
-  hence "trivial (?RR `` {a})" using assms * by fastforce
-}
-hence "runiq ?RR" unfolding runiq_def by blast
-thus ?thesis unfolding paste_def by simp
-qed
-
 lemma ll02: fixes x X assumes "trivial X" assumes "x \<subseteq> X" shows "trivial x"
 using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
-
-corollary ll04: fixes P Q assumes "runiq Q" assumes "runiq P" 
-shows "runiq (P +* Q)"
-using ll01 subrel_runiq Outside_def by (metis Diff_subset assms(1) assms(2))
 
 lemma ll05: "runiq {(x,y)}"
 proof -
@@ -74,7 +52,7 @@ qed
 
 lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
 shows "runiq (f +* {(x,y)})"
-using assms ll04 ll05 by metis
+using assms runiq_paste2 ll05 by metis
 
 lemma ll17: "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
 by (metis Domain_Un_eq)
@@ -153,7 +131,7 @@ qed
 
 lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
 shows "f\<inverse> `` ( f `` {x} ) \<subseteq> {x}"
-using assms ll34 by (metis Image_empty eq_refl l18b subset_insertI)
+using assms ll34 by (metis Image_empty eq_refl Image_within_domain' subset_insertI)
 
 lemma ll32: fixes X f assumes "runiq f" assumes "runiq (f\<inverse>)"
 shows "f\<inverse> `` ( f `` X ) \<subseteq> X"
@@ -191,7 +169,7 @@ let ?i="converse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
 have "?R = P \<union> Q" using assms paste_disj_domains by metis 
 hence "?r = ?p \<union> ?q" by auto
 also have "... = ?p +* ?q" using assms paste_disj_domains ll36 by metis
-ultimately show ?thesis using ll04 assms by auto
+ultimately show ?thesis using runiq_paste2 assms by auto
 qed
 
 lemma ll15: fixes R x assumes "runiq (R\<inverse>)" 
@@ -419,7 +397,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have "finite (Y -Range f)" using assms by fast hence
   6: "g=f +* {(?x, y)} & y \<in> Y - Range f" 
   using 4 sorted_list_of_set by metis hence 
-  9: "runiq g" using ll04 5 ll05 by fast
+  9: "runiq g" using runiq_paste2 5 ll05 by fast
   have "Domain f=set ?ln" using ll16 3 by blast hence 
   7: "?x \<notin> Domain f & card (Domain f)=n" using 2 by force hence 
   8: "runiq (g\<inverse>)" using ll15 5 6 by force have 

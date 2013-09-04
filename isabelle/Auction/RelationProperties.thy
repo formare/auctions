@@ -93,6 +93,23 @@ proof -
   then show ?thesis using runiq_def by blast
 qed
 
+section {* Image *}
+
+text {* The image of a relation is only effective within the domain of that relation *}
+lemma Image_within_domain: "R `` X = R `` (X \<inter> Domain R)"
+by fast
+
+text {* An alternative phrasing of @{thm Image_within_domain} *}
+lemma Image_within_domain': fixes x R shows "x \<in> Domain R \<longleftrightarrow> R `` {x} \<noteq> {}"
+using Image_within_domain by blast
+
+text {* The image of a set outside a relation's domain under that domain is empty. *}
+lemma Image_outside_domain:
+  fixes X::"'a set"
+    and R::"('a \<times> 'b) set"
+shows "X \<inter> Domain R = {} \<longleftrightarrow> R `` X = {}"
+using Image_within_domain by blast
+
 section {* paste *}
 
 text {* the union of two binary relations @{term P} and @{term Q}, where pairs from @{term Q}
@@ -113,6 +130,34 @@ lemma paste_disj_domains: assumes "Domain P \<inter> Domain Q = {}" shows "P +* 
 unfolding paste_def Outside_def
 using assms
 by fast
+
+lemma runiq_paste1:
+  fixes P::"('a \<times> 'b) set"
+    and Q::"('a \<times> 'b) set"
+  assumes "runiq Q"
+      and "runiq (P outside Domain Q)" (is "runiq ?PoutsideQ")
+  shows "runiq (P +* Q)"
+proof - 
+  have disjoint_domains: "Domain ?PoutsideQ \<inter> Domain Q = {}"
+    using outside_reduces_domain by (metis Diff_disjoint inf_commute)
+  {
+    fix a assume "a \<in> Domain (?PoutsideQ \<union> Q)"
+    then have triv: "trivial (?PoutsideQ `` {a}) \<and> trivial (Q `` {a})"
+      using assms(1) assms(2) by (metis Image_within_domain' runiq_def trivial_empty)
+    then have "?PoutsideQ `` {a} = {} \<or> Q `` {a} = {}" using disjoint_domains by blast
+    then have "(?PoutsideQ \<union> Q) `` {a} = Q `` {a} \<or> (?PoutsideQ \<union> Q) `` {a} = ?PoutsideQ `` {a}" by blast
+    then have "trivial ((?PoutsideQ \<union> Q) `` {a})" using triv by presburger
+  }
+  then have "runiq (?PoutsideQ \<union> Q)" unfolding runiq_def by blast
+  then show ?thesis unfolding paste_def .
+qed
+
+corollary runiq_paste2:
+  assumes "runiq Q"
+      and "runiq P" 
+shows "runiq (P +* Q)"
+using assms runiq_paste1 subrel_runiq
+by (metis Diff_subset Outside_def)
 
 section {* Converse *}
 
