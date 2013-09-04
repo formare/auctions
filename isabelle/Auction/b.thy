@@ -17,10 +17,6 @@ imports a RelationProperties
 
 begin
 
-text {* Considering a relation outside some set @{term X} reduces its domain by @{term X}. *}
-lemma outside_reduces_domain: "Domain (P outside X) = Domain P - X"
-unfolding Outside_def by fast
-
 lemma ll24: fixes f R::"('a \<times> 'b) set" assumes "runiq f" assumes "R \<subseteq> f"
 shows "runiq R"
 proof -
