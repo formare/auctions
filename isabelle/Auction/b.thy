@@ -17,15 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll07: fixes X Y f F assumes "F = (%Z . ({ f z | z. z \<in> Z}))" 
-shows "F (X \<union> Y) = F X \<union> (F Y)"
-proof - (* pattern matching would be good here *)
-let ?F="%Z . ({ f z | z. z \<in> Z})" let ?XY="X \<union> Y"
-let ?LH="?F ?XY" let ?XX="?F X" let ?YY="?F Y" let ?RH="?XX \<union> ?YY"
-have "?LH \<subseteq> ?RH" by fast also have "?RH \<subseteq> ?LH" by fast
-ultimately show ?thesis using assms by fast
-qed
-
 lemma ll06: "inverse R = { (snd z, fst z) | z. z\<in>R }"
 proof -
 let ?LH="inverse R" let ?RH="{ (snd z, fst z)| z. z\<in>R}"
