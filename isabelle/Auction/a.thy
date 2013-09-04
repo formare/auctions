@@ -290,7 +290,7 @@ using assms Graph_def image_def by auto
 lemma l5: fixes x shows "((Graph id) `` {x}) = {x}"
 using id_def l4 by (metis image_id)
 
-lemma l6: shows  "(projector (Graph id)) \<supseteq> {(x,{x}) | x . x \<in> Domain (Graph id)}"
+lemma l6: "(projector (Graph id)) \<supseteq> {(x,{x}) | x . x \<in> Domain (Graph id)}"
 using a.projector_def a.l5 by fastforce
 
 lemma l7: shows 

@@ -132,7 +132,7 @@ corollary ll04: fixes P Q assumes "runiq Q" assumes "runiq P"
 shows "runiq (P +* Q)"
 using ll01 ll24 Outside_def by (metis Diff_subset assms(1) assms(2))
 
-lemma ll05: shows "runiq {(x,y)}"
+lemma ll05: "runiq {(x,y)}"
 proof -
 let ?f="%x . y" let ?P="% xx. xx=x" let ?X1="{(x,y)}" 
 let ?X2="{(xx, ?f x) | xx. ?P xx}"
@@ -143,7 +143,7 @@ qed
 lemma assumes "trivial X" shows "runiq X"
 using ll05 trivial_def by (metis assms ll24 surj_pair)
 
-lemma ll28: shows "P=(P outside X) +* (P || X)"
+lemma ll28: "P=(P outside X) +* (P || X)"
 proof -
 let ?p="P outside X" let ?q="P || X" let ?dp="Domain ?p" let ?dq="Domain ?q"
 let ?D="Domain P" have "P \<subseteq> ?D \<times> (Range P)" by fast
@@ -153,7 +153,7 @@ also have "?dq=?D \<inter> X" using restrict_def by fastforce
 ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using ll10 ll13 by metis
 qed
 
-lemma ll27: shows "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
+lemma ll27: "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
 proof -
 let ?L="concat LL" let ?LH="set ?L" let ?X="{set l| l. l \<in> set LL}"
 let ?RH="\<Union> ?X"
@@ -166,20 +166,20 @@ lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f"
 shows "runiq (f +* {(x,y)})"
 using assms ll04 ll05 by metis
 
-lemma ll17: shows "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
+lemma ll17: "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
 by (metis Domain_Un_eq)
 
-lemma ll20: shows "Domain (P +* Q) = (Domain P \<union> Domain Q)"
+lemma ll20: "Domain (P +* Q) = (Domain P \<union> Domain Q)"
 using ll17 outside_reduces_domain paste_def by (metis Un_Diff_cancel Un_commute)
 
-lemma ll18: shows "P +* Q \<subseteq> P \<union> Q"
+lemma ll18: "P +* Q \<subseteq> P \<union> Q"
 proof -
 have "P outside (Domain Q) \<subseteq> P" using Outside_def by blast
 also have "Q \<subseteq> Q" by fast
 ultimately show ?thesis using paste_def by (metis (hide_lams, no_types) le_supI1 le_sup_iff sup_commute)
 qed
 
-lemma ll21: shows "Range (P +* Q) \<subseteq> Range P \<union> (Range Q)"
+lemma ll21: "Range (P +* Q) \<subseteq> Range P \<union> (Range Q)"
 using ll18 by (metis Range_Un_eq Range_mono)
 
 lemma ll30: fixes x f assumes "x \<in> Domain f" assumes "runiq f" 
@@ -208,13 +208,13 @@ ultimately have
 thus ?thesis using assms Image_def by fast
 qed
 
-lemma ll36: shows "Domain (inverse R)=Range R"
+lemma ll36: "Domain (inverse R)=Range R"
 using inverse_def ll06 Domain_def Range_def by auto
 
-lemma ll38: shows "Range (R outside X) \<subseteq> R `` (Domain R - X)"
+lemma ll38: "Range (R outside X) \<subseteq> R `` (Domain R - X)"
 using Outside_def Image_def Domain_def Range_def by blast
 
-lemma ll29: shows "P || {x} = {x} \<times> (P `` {x})"
+lemma ll29: "P || {x} = {x} \<times> (P `` {x})"
 proof -
 let ?X="{x}" let ?LH="P||?X" let ?Y="P `` ?X" let ?RH="?X \<times> ?Y"
 have "?RH \<subseteq> P" by fast
@@ -226,7 +226,7 @@ ultimately have "?LH \<subseteq> ?RH" by auto
 thus ?thesis using 0 by fast
 qed
 
-lemma ll33: shows "Domain R \<inter> X \<subseteq> inverse R `` (R `` X)"
+lemma ll33: "Domain R \<inter> X \<subseteq> inverse R `` (R `` X)"
 using inverse_def by fastforce
 
 lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
