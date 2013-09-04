@@ -21,10 +21,6 @@ text {* Considering a relation outside some set @{term X} reduces its domain by 
 lemma outside_reduces_domain: "Domain (P outside X) = Domain P - X"
 unfolding Outside_def by fast
 
-lemma ll23: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
-shows "trivial X"
-using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
-
 lemma ll24: fixes f R::"('a \<times> 'b) set" assumes "runiq f" assumes "R \<subseteq> f"
 shows "runiq R"
 proof -
@@ -32,7 +28,7 @@ proof -
   fix X::"'a set" assume "trivial X"
   hence "trivial (f `` X) & (R `` X \<subseteq> (f `` X))" 
   using assms runiq_def by blast
-  hence "trivial (R `` X)" using ll23 by metis
+  hence "trivial (R `` X)" using trivial_subset by metis
 }
 thus ?thesis using runiq_def by auto
 qed
@@ -119,7 +115,7 @@ let ?RR="?PP \<union> Q" have
   have "?PP `` {?x}={} \<or> (Q `` {?x}={})" using 0 1 by blast
   hence "?PP `` X = {} \<or> (Q `` X = {})" using trivial_def 2 Image_mono by blast
   hence "?RR `` X = Q `` X \<or> ?RR `` X = ?PP `` X" by blast
-  hence "trivial (?RR `` X)" using assms l2 1 3 Image_eq_UN by (smt Un_Image empty_subsetI le_sup_iff ll23 subset_refl)
+  hence "trivial (?RR `` X)" using assms l2 1 3 Image_eq_UN by (smt Un_Image empty_subsetI le_sup_iff trivial_subset subset_refl)
 }
 hence "runiq ?RR" using runiq_def by blast
 thus ?thesis  by (metis paste_def)
@@ -237,7 +233,7 @@ let ?X="{x}" let ?Y="f `` ?X" let ?g="inverse f" let ?XX="?g `` ?Y" have
 0: "?X \<subseteq> ?XX" using ll33 assms by fast
 have "trivial ?Y" using assms runiq_def by (metis (full_types) subset_refl the_elem_eq trivial_def)
 hence "trivial ?XX" using assms runiq_def by (metis (full_types))
-hence "?XX = ?X" using 0 trivial_def by (metis antisym l11)
+hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subset order_refl subset_antisym)
 thus ?thesis by auto
 qed
 

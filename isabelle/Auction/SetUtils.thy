@@ -15,7 +15,7 @@ See LICENSE file for details
 header {* Additional material that we would have expected in Set.thy *}
 
 theory SetUtils
-imports Set
+imports Main
 begin
 
 text {* A trivial set (i.e. singleton or empty), as in Mizar *}
@@ -31,6 +31,11 @@ lemma singleton_sub_trivial_uniq:
       and "trivial X"
   shows "x = the_elem X"
 using assms unfolding trivial_def by fast
+
+text {* Any subset of a trivial set is trivial. *}
+lemma trivial_subset: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
+shows "trivial X"
+using assms unfolding trivial_def by (metis (full_types) subset_empty subset_insertI2 subset_singletonD)
 
 text {* An inference rule that combines @{text Set.equalityI} and @{text Set.subsetI} to a single step *}
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
