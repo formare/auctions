@@ -322,29 +322,6 @@ also have "Domain R \<inter> Domain {(x,y)}={} & Range R \<inter> (Range {(x,y)}
 using assms by blast ultimately show ?thesis using assms ll15a by blast
 qed
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 definition childrenof 
 (*::" ('a \<times> 'b::linorder) set => 'a => ('b set) => ('a \<times> 'b) set list"*)
 where 
@@ -376,7 +353,6 @@ let ?l="sorted_list_of_set" let ?B="bijections"
 let ?F="F x Y"
 (* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
 let ?G="G x Y"
-let ?Fn="?F n" let ?Gn="?G n"
 have "?B (?l {}) Y = [{}]" using bijections_def by auto
 hence "{{}} = \<Union> {set (bijections l Y) | l . size l=0 & card (set l)=0}" by auto
 also have "... = F x Y 0" using F_def by blast ultimately have
