@@ -1,7 +1,5 @@
 (*
-$Id$
-
-Auction Theory Toolbox
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Marco B. Caminati <marco.caminati@gmail.com>
@@ -15,7 +13,7 @@ See LICENSE file for details
 
 theory b
 (*MC@CL: Here, too, a lot stuff would fit good into Relation_Prop*)
-imports a RelationProperties Maximum
+imports a RelationProperties 
 
 begin
 
