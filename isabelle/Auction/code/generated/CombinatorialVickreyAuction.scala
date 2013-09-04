@@ -698,14 +698,6 @@ object RelationProperties {
 
 import /*implicits*/ Product_Type.equal_prod
 
-def inverse[A, B](r: Set.set[(A, B)]): Set.set[(B, A)] =
-  Set.image[(A, B),
-             (B, A)]((a: (A, B)) => {
-                                      val (x, y): (A, B) = a;
-                                      (y, x)
-                                    },
-                      r)
-
 def eval_rel[A : HOL.equal, B](r: Set.set[(A, B)], a: A): B =
   Set.the_elem[B](Relation.image[A, B](r, Set.insert[A](a, Set.bot_set[A])))
 
@@ -784,8 +776,13 @@ def payments_comp_workaround(g: Set.set[Nat], na: Set.set[Nat],
                       Big_Operators.setsum[Nat,
     RealDef.real]((m: Nat) =>
                     (b(m))(RelationProperties.eval_rel_or[Nat,
-                   Set.set[Nat]](RelationProperties.inverse[Set.set[Nat],
-                     Nat](t(winning_allocations_comp_CL(g, na, b))),
+                   Set.set[Nat]](Set.image[(Set.set[Nat], Nat),
+    (Nat, Set.set[Nat])]((a: (Set.set[Nat], Nat)) =>
+                           {
+                             val (x, y): (Set.set[Nat], Nat) = a;
+                             (y, x)
+                           },
+                          t(winning_allocations_comp_CL(g, na, b))),
                                   m, Set.bot_set[Nat])),
                    Set.remove[Nat](n, na)))
 

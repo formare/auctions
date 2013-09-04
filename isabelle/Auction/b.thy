@@ -17,32 +17,8 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll06: "inverse R = { (snd z, fst z) | z. z\<in>R }"
-proof -
-let ?LH="inverse R" let ?RH="{ (snd z, fst z)| z. z\<in>R}"
-have "?LH \<subseteq> ?RH" using inverse_def snd_def fst_def by 
-(smt Collect_cong equalityD2 prod.inject prod_caseE prod_caseI2 surjective_pairing)
-also have "?LH \<supseteq> ?RH" using inverse_def snd_def fst_def by 
-(smt Collect_cong Pair_inject equalityD2 prod_caseE prod_caseI2 surjective_pairing)
-finally show ?thesis by fast
-qed
-
-lemma ll08: fixes P Q shows "inverse (P \<union> Q)=inverse P \<union> (inverse Q)"
-proof -
-let ?IP="inverse P" let ?IQ="inverse Q" let ?R="P \<union> Q" let ?LH="inverse ?R"
-let ?RH="?IP \<union> ?IQ" 
-have "?IP \<subseteq> ?LH" using ll06 by (smt in_mono inf_sup_ord(3) mem_Collect_eq subsetI)
-also  have "?IQ \<subseteq> ?LH" using 
-ll06 in_mono inf_sup_ord(3) mem_Collect_eq subsetI
-by (smt sup_commute)
-ultimately have "?RH \<subseteq> ?LH" by auto
-also have "?LH \<subseteq> ?RH" using inverse_def ll06 by 
-(smt Un_iff mem_Collect_eq subsetI sup.commute sup_commute)
-finally show ?thesis by auto
-qed
-
-lemma ll25: fixes P Q assumes "P \<subseteq> Q" shows "inverse P \<subseteq> inverse Q"
-using assms by (metis ll08 subset_Un_eq)
+lemma ll25: fixes P Q assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
+using assms by fast
 
 lemma ll01: fixes P Q assumes "runiq Q" assumes "runiq (P outside (Domain Q))" 
 shows "runiq (P +* Q)"
@@ -145,8 +121,8 @@ ultimately have
 thus ?thesis using assms Image_def by fast
 qed
 
-lemma ll36: "Domain (inverse R)=Range R"
-using inverse_def ll06 Domain_def Range_def by auto
+lemma ll36: "Domain (R\<inverse>)=Range R"
+by simp
 
 lemma ll38: "Range (R outside X) \<subseteq> R `` (Domain R - X)"
 using Outside_def Image_def Domain_def Range_def by blast
@@ -163,14 +139,14 @@ ultimately have "?LH \<subseteq> ?RH" by auto
 thus ?thesis using 0 by fast
 qed
 
-lemma ll33: "Domain R \<inter> X \<subseteq> inverse R `` (R `` X)"
-using inverse_def by fastforce
+lemma ll33: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
+by fast
 
-lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
+lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
 assumes "x \<in> Domain f"
-shows "inverse f `` ( f `` {x} ) = {x}"
+shows "f\<inverse> `` ( f `` {x} ) = {x}"
 proof -
-let ?X="{x}" let ?Y="f `` ?X" let ?g="inverse f" let ?XX="?g `` ?Y" have 
+let ?X="{x}" let ?Y="f `` ?X" let ?g="f\<inverse>" let ?XX="?g `` ?Y" have 
 0: "?X \<subseteq> ?XX" using ll33 assms by fast
 have "trivial ?Y" using assms unfolding runiq_def by fast
 hence "trivial ?XX" using assms runiq_wrt_eval_rel ll30 unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
@@ -178,14 +154,14 @@ hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subse
 thus ?thesis by auto
 qed
 
-lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
-shows "inverse f `` ( f `` {x} ) \<subseteq> {x}"
+lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
+shows "f\<inverse> `` ( f `` {x} ) \<subseteq> {x}"
 using assms ll34 by (metis Image_empty eq_refl l18b subset_insertI)
 
-lemma ll32: fixes X f assumes "runiq f" assumes "runiq (inverse f)"
-shows "inverse f `` ( f `` X ) \<subseteq> X"
+lemma ll32: fixes X f assumes "runiq f" assumes "runiq (f\<inverse>)"
+shows "f\<inverse> `` ( f `` X ) \<subseteq> X"
 proof -
-let ?g="inverse f" let ?Y="f `` X" let ?LH="?g `` ?Y" let ?I="f O ?g"
+let ?g="f\<inverse>" let ?Y="f `` X" let ?LH="?g `` ?Y" let ?I="f O ?g"
 have "?I `` X = (\<Union>x \<in> X .?I `` {x})" 
 using Image_def Image_eq_UN by blast
 also have "... = (\<Union>x\<in>X. ?g `` (f `` {x}))" by blast
@@ -195,10 +171,10 @@ finally show ?thesis by fast
 qed
 
 lemma ll37: fixes X1 X2 f assumes "Domain f \<inter> X1 \<inter> X2 = {}" 
-assumes "runiq f" assumes "runiq (inverse f)" shows 
+assumes "runiq f" assumes "runiq (f\<inverse>)" shows 
 "f `` X1 \<inter> (f `` X2)={}"
 proof -
-let ?g="inverse f" let ?Y1="f `` X1" let ?Y2="f `` X2" let ?D="Domain f"
+let ?g="f\<inverse>" let ?Y1="f `` X1" let ?Y2="f `` X2" let ?D="Domain f"
 let ?XX1="?D \<inter> X1" let ?XX2="?D \<inter> X2" have 
 1: "?g `` (f `` ?XX1) \<subseteq> ?XX1" using ll32 assms by metis have 
 2: "?g `` (f `` ?XX2) \<subseteq> ?XX2" using ll32 assms by metis hence 
@@ -210,23 +186,23 @@ also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
 finally show ?thesis by auto
 qed
 
-lemma ll15a: fixes P Q assumes "runiq (inverse P)" assumes "runiq (inverse Q)"
+lemma ll15a: fixes P Q assumes "runiq (P\<inverse>)" assumes "runiq (Q\<inverse>)"
 assumes "Domain P \<inter> (Domain Q)={}" assumes "Range P \<inter> (Range Q)={}"
-shows "runiq (inverse (P +* Q))"
+shows "runiq ((P +* Q)\<inverse>)"
 proof -
-let ?i="inverse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
+let ?i="converse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
 have "?R = P \<union> Q" using assms paste_disj_domains by metis 
-hence "?r = ?p \<union> ?q" using ll08 by auto
+hence "?r = ?p \<union> ?q" by auto
 also have "... = ?p +* ?q" using assms paste_disj_domains ll36 by metis
 ultimately show ?thesis using ll04 assms by auto
 qed
 
-lemma ll15: fixes R x assumes "runiq (inverse R)" 
+lemma ll15: fixes R x assumes "runiq (R\<inverse>)" 
 assumes "y \<notin> Range R" assumes "x \<notin> Domain R"
-shows "runiq (inverse (R +* {(x,y)}))"
+shows "runiq ((R +* {(x,y)})\<inverse>)"
 proof -
-have "inverse {(x,y)}={(y,x)}" using ll06 by auto then
-have "runiq (inverse {(x,y)})" using ll05 by metis
+have "{(x,y)}\<inverse>={(y,x)}" by auto then
+have "runiq ({(x,y)}\<inverse>)" using ll05 by metis
 also have "Domain R \<inter> Domain {(x,y)}={} & Range R \<inter> (Range {(x,y)})={}" 
 using assms by blast ultimately show ?thesis using assms ll15a by blast
 qed
@@ -252,7 +228,7 @@ definition G
 ::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
 where 
 "G x Y n = {f . 
-finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}"
+finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
 
 lemma ll43: fixes x Y shows "F x Y 0={{}} & G x Y 0={{}}"
 proof -
@@ -272,8 +248,8 @@ hence 0: "?G 0 \<subseteq> {{}}" by blast
 have 1: "finite (Domain {})" by simp
 have 2: "card (Domain {})=0" by force
 have 3: "runiq {}" using runiq_def trivial_def by fast
-also have "inverse {} = {}" using inverse_def by fast
-ultimately have "runiq (inverse {})" by metis
+also have "{}\<inverse> = {}" by fast
+ultimately have "runiq ({}\<inverse>)" by metis
 hence "{} \<in> ?G 0" using G_def 1 2 3 by blast
 hence "?G 0 = {{}}" using 0 by auto
 hence "G x Y 0={{}}" using G_def by force
@@ -345,7 +321,7 @@ assume
 let ?DN="Domain g" let ?lN="?l ?DN" let ?x="hd ?lN" let ?ln="drop 1 ?lN" 
 let ?f="g outside {?x}" let ?y="g ,, ?x" let ?RN="Range g" let ?Dn="Domain ?f" 
 let ?Rn="Range ?f" let ?e="% z . (?f +* {(?x,z)})" have 
-6: "finite ?DN & card ?DN=?N & runiq g & runiq (inverse g) & ?RN \<subseteq> Y" 
+6: "finite ?DN & card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" 
 using 0 G_def by blast
 hence "set ?lN=?DN" using sorted_list_of_set_def by simp
 also have "?lN \<noteq> []" using 6 
@@ -367,13 +343,13 @@ using 9 6 sorted_list_of_set assms by blast
 ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence 
 2: "g \<in> set (childrenof ?f ?x Y)" using childrenof_def by metis have 
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
-hence "inverse ?f \<subseteq> inverse g" using ll25 by metis
+hence "?f\<inverse> \<subseteq> g\<inverse>" using ll25 by metis
 have
-21: "card ?DN=?N & runiq g & runiq (inverse g) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
+21: "card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
 23: "finite ?DN" using card_ge_0_finite by force hence 
 24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain) have 
 25: "runiq ?f" using subrel_runiq Outside_def 21 by (metis Diff_subset) have 
-26: "runiq (inverse ?f)" using subrel_runiq 22 ll25 21 by metis have 
+26: "runiq (?f\<inverse>)" using subrel_runiq 22 ll25 21 by metis have 
 27: "?Dn = ?DN - {?x}" by (metis outside_reduces_domain)
 have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_diff_le Suc_eq_plus1_left add_diff_cancel_right' card_Diff_subset diff_le_self empty_set hd_in_set le_bot not_less_bot not_less_eq order_refl)
 hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
@@ -433,7 +409,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   using ll27 2 by metis 
   then obtain f where 
   3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using bijections_def 0 1 by auto
-  let ?if="inverse f"
+  let ?if="f\<inverse>"
   have "set (?B ?ln Y) \<in> {set (bijections l Y) | l . size l=n & card (set l)=n}"
   using 2 by blast 
   hence "f \<in> ?Fn" using 2 3 F_def by fast
@@ -449,7 +425,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   9: "runiq g" using ll04 5 ll05 by fast
   have "Domain f=set ?ln" using ll16 3 by blast hence 
   7: "?x \<notin> Domain f & card (Domain f)=n" using 2 by force hence 
-  8: "runiq (inverse g)" using ll15 5 6 by force have 
+  8: "runiq (g\<inverse>)" using ll15 5 6 by force have 
   10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert ll21)
   (* simplify this using g=f \<union> {...} *)
   have "Domain g=Domain f \<union> {?x}" using 6 ll20 by (metis Domain_empty Domain_insert)

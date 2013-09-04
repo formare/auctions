@@ -98,11 +98,13 @@ text {* If a relation @{term P} is a subrelation of another relation @{term Q} o
 lemma paste_subrel: assumes "P || Domain Q \<subseteq> Q" shows "P +* Q = P \<union> Q"
 unfolding paste_def using assms outside_union_restrict by blast
 
-text {* Pasting two relations with disjoint domains is the same as forming their union. *}
+text {* Pasting two relations with disjoint domains is the same as forming their union. *}                                                                                                
 lemma paste_disj_domains: assumes "Domain P \<inter> Domain Q = {}" shows "P +* Q = P \<union> Q"
 unfolding paste_def Outside_def
 using assms
 by fast
+
+lemma [code_unfold]: "converse R = { (y, x) . (x, y) \<in> R}" by (rule converse_unfold)
 
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
@@ -126,9 +128,6 @@ where "to_relation f X = {(x, f x) | x . x \<in> X}"
 
 definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
 where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
-
-definition inverse :: "('a \<times> 'b) set \<Rightarrow> ('b \<times> 'a) set"
-where "inverse R = { (y, x) . (x, y) \<in> R }"
 
 (* TODO CL: Now that we can "easily" generate all total functions,
    maybe let's revert the "option type" stuff in nVCG.thy (which we introduced to allow for non-totality).

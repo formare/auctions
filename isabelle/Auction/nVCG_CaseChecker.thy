@@ -128,7 +128,7 @@ definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Ri
 where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_partitions G . 
   Domain potential_buyer \<subseteq> Y
   \<and> Range potential_buyer \<subseteq> N
-  \<and> right_unique potential_buyer (* no longer need totality on Y as we are allowing for goods not to be allocated *)
+  \<and> runiq potential_buyer (* no longer need totality on Y as we are allowing for goods not to be allocated *)
   \<and> injective potential_buyer
  }"
 
@@ -236,7 +236,7 @@ text {* the sum of bids of all bidders except bidder @{text n} on those goods th
   according to the winning allocation *}
 definition remaining_value_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "remaining_value_rel G N t b n =
-  (\<Sum> m \<in> N - {n} . b m (eval_rel_or (inverse (t (winning_allocations_rel G N b))) m {}))"
+  (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((t (winning_allocations_rel G N b))\<inverse>) m {}))"
 
 text {* algorithmic version of @{text remaining_value_rel} *}
 fun remaining_value_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
@@ -244,9 +244,9 @@ where "remaining_value_comp G N t b n =
   (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
-    (inverse 
+    ( 
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (t (winning_allocations_comp_CL G N b)))
+      (t (winning_allocations_comp_CL G N b))\<inverse>)
     m (* evaluate the relation for participant m *)
     {} (* return the empty set if nothing is in relation with m *)
   ))"
@@ -273,9 +273,9 @@ where "payments_comp_workaround G N t b n =
   (* remaining_value_comp G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
-    (inverse 
+    (
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (t (winning_allocations_comp_CL G N b)))
+      (t (winning_allocations_comp_CL G N b))\<inverse>)
     m (* evaluate the relation for participant m *)
     {} (* return the empty set if nothing is in relation with m *)
   ))"
