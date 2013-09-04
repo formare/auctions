@@ -32,6 +32,10 @@ text {* A restriction is a subrelation of the original relation. *}
 lemma restriction_is_subrel: "P || X \<subseteq> P"
 using restrict_def by blast
 
+text {* Restricting a relation only has an effect within its domain. *}
+lemma restriction_within_domain: "P || X = P || (X \<inter> (Domain P))"
+unfolding restrict_def by fast
+
 text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
   tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
   from the domain of @{term R}. *}

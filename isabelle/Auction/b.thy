@@ -17,21 +17,8 @@ imports a RelationProperties
 
 begin
 
-lemma ll11: "P || X = P || (X \<inter> (Domain P))" 
-proof -
-let ?D="Domain P" let ?LH="P || X" let ?RH="P || (X \<inter> ?D)" let ?R="Range P"
-(*have "?LH \<supseteq> ?RH" using restrict_def Domain_def ll26 
-by (smt Int_lower1 Sigma_Int_distrib1 inf_mono order_refl)*)
-have "P = P \<inter> (?D \<times> ?R)" by fast
-hence "?LH = (P \<inter> (?D \<times> ?R)) \<inter> (X \<times> ?R)" using restrict_def by auto
-also have "... = P \<inter> ((?D \<times> ?R) \<inter> (X \<times> ?R))" by blast
-also have "... = P \<inter> ((?D \<inter> X) \<times> ?R)" by fast
-also have "... = P || (X \<inter> ?D)" using restrict_def by fastforce
-ultimately show "?LH = ?RH" by presburger
-qed
-
 lemma ll13: assumes "Domain P \<inter> (Domain Q)={}" shows "P +* Q = P \<union> Q"
-using paste_subrel ll11 restrict_empty assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
+using paste_subrel restriction_within_domain restrict_empty assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
 
 lemma ll07: fixes X Y f F assumes "F = (%Z . ({ f z | z. z \<in> Z}))" 
 shows "F (X \<union> Y) = F X \<union> (F Y)"
