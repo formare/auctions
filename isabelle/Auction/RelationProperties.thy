@@ -21,6 +21,13 @@ definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
 (*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
 "runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))"
 
+text {* restriction of a relation to a set (usually resulting in a relation with a smaller domain) *}
+definition restrict
+(* TODO MC: compare with restr in SchorrWaite.thy
+   CL@MC: doesn't seem helpful, as its type "('a \<times> 'a) set \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> ('a \<times> 'a) set" is 
+   more specific than what we need. *)
+:: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "||" 75)
+where "R || X = X \<times> (Range R) \<inter> R"
 
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
