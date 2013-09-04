@@ -23,9 +23,7 @@ unfolding Outside_def by fast
 
 lemma ll23: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
 shows "trivial X"
-proof -
-show ?thesis using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
-qed
+using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
 
 lemma ll24: fixes f R::"('a \<times> 'b) set" assumes "runiq f" assumes "R \<subseteq> f"
 shows "runiq R"
@@ -43,20 +41,16 @@ lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
 proof - show ?thesis using assms by (metis distinct_card sorted_list_of_set) qed
 
 lemma ll10: "P = (P outside X) \<union> (P || X)"
-proof -
-show ?thesis using assms Outside_def restrict_def by (metis Un_Diff_Int inf_commute)
-qed
+using assms Outside_def restrict_def by (metis Un_Diff_Int inf_commute)
 
 lemma ll09: assumes "P || (Domain Q) \<subseteq> Q" shows "P +* Q = P \<union> Q"
-proof -
-show ?thesis using assms paste_def ll10 by (smt Un_commute Un_left_commute le_sup_iff subset_antisym subset_refl sup_ge2)
-qed
+using assms paste_def ll10 by (smt Un_commute Un_left_commute le_sup_iff subset_antisym subset_refl sup_ge2)
 
 lemma ll12: "P || {} = {}"
-proof - show ?thesis using restrict_def by (metis Int_empty_left Sigma_empty1) qed
+using restrict_def by (metis Int_empty_left Sigma_empty1)
 
 lemma ll26: "P || X \<subseteq> P"
-proof - show ?thesis using restrict_def by blast qed
+using restrict_def by blast
 
 lemma ll11: "P || X = P || (X \<inter> (Domain P))" 
 proof -
@@ -72,9 +66,7 @@ ultimately show "?LH = ?RH" by presburger
 qed
 
 lemma ll13: assumes "Domain P \<inter> (Domain Q)={}" shows "P +* Q = P \<union> Q"
-proof -
-show ?thesis using ll09 ll11 ll12 assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
-qed
+using ll09 ll11 ll12 assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
 
 lemma ll07: fixes X Y f F assumes "F = (%Z . ({ f z | z. z \<in> Z}))" 
 shows "F (X \<union> Y) = F X \<union> (F Y)"
@@ -110,7 +102,7 @@ finally show ?thesis by auto
 qed
 
 lemma ll25: fixes P Q assumes "P \<subseteq> Q" shows "inverse P \<subseteq> inverse Q"
-proof - show ?thesis using assms by (metis ll08 subset_Un_eq) qed
+using assms by (metis ll08 subset_Un_eq)
 
 lemma ll01: fixes P Q assumes "runiq Q" assumes "runiq (P outside (Domain Q))" 
 shows "runiq (P +* Q)"
@@ -134,15 +126,11 @@ thus ?thesis  by (metis paste_def)
 qed
 
 lemma ll02: fixes x X assumes "trivial X" assumes "x \<subseteq> X" shows "trivial x"
-proof -
-show ?thesis using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
-qed
+using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
 
 corollary ll04: fixes P Q assumes "runiq Q" assumes "runiq P" 
 shows "runiq (P +* Q)"
-proof -
-show ?thesis using ll01 ll24 Outside_def by (metis Diff_subset assms(1) assms(2))
-qed
+using ll01 ll24 Outside_def by (metis Diff_subset assms(1) assms(2))
 
 lemma ll05: shows "runiq {(x,y)}"
 proof -
@@ -153,9 +141,7 @@ ultimately show ?thesis by presburger
 qed
 
 lemma assumes "trivial X" shows "runiq X"
-proof -
-show ?thesis using ll05 trivial_def by (metis assms ll24 surj_pair)
-qed
+using ll05 trivial_def by (metis assms ll24 surj_pair)
 
 lemma ll28: shows "P=(P outside X) +* (P || X)"
 proof -
@@ -178,17 +164,13 @@ qed
 
 lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
 shows "runiq (f +* {(x,y)})"
-proof - show ?thesis using assms ll04 ll05 by metis qed
+using assms ll04 ll05 by metis
 
 lemma ll17: shows "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
-proof -
-show ?thesis by (metis Domain_Un_eq)
-qed
+by (metis Domain_Un_eq)
 
 lemma ll20: shows "Domain (P +* Q) = (Domain P \<union> Domain Q)"
-proof -
-show ?thesis using ll17 outside_reduces_domain paste_def by (metis Un_Diff_cancel Un_commute)
-qed
+using ll17 outside_reduces_domain paste_def by (metis Un_Diff_cancel Un_commute)
 
 lemma ll18: shows "P +* Q \<subseteq> P \<union> Q"
 proof -
@@ -198,9 +180,7 @@ ultimately show ?thesis using paste_def by (metis (hide_lams, no_types) le_supI1
 qed
 
 lemma ll21: shows "Range (P +* Q) \<subseteq> Range P \<union> (Range Q)"
-proof -
-show ?thesis using ll18 by (metis Range_Un_eq Range_mono)
-qed
+using ll18 by (metis Range_Un_eq Range_mono)
 
 lemma ll30: fixes x f assumes "x \<in> Domain f" assumes "runiq f" 
 shows "f `` {x} = {f ,, x}"
@@ -229,14 +209,10 @@ thus ?thesis using assms Image_def by fast
 qed
 
 lemma ll36: shows "Domain (inverse R)=Range R"
-proof -
-show ?thesis using inverse_def ll06 Domain_def Range_def by auto
-qed
+using inverse_def ll06 Domain_def Range_def by auto
 
 lemma ll38: shows "Range (R outside X) \<subseteq> R `` (Domain R - X)"
-proof -
-show ?thesis using Outside_def Image_def Domain_def Range_def by blast
-qed
+using Outside_def Image_def Domain_def Range_def by blast
 
 lemma ll29: shows "P || {x} = {x} \<times> (P `` {x})"
 proof -
@@ -251,9 +227,7 @@ thus ?thesis using 0 by fast
 qed
 
 lemma ll33: shows "Domain R \<inter> X \<subseteq> inverse R `` (R `` X)"
-proof -
-show ?thesis using inverse_def by fastforce
-qed
+using inverse_def by fastforce
 
 lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
 assumes "x \<in> Domain f"
@@ -269,9 +243,7 @@ qed
 
 lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (inverse f)"
 shows "inverse f `` ( f `` {x} ) \<subseteq> {x}"
-proof -
-show ?thesis using assms ll34 by (metis Image_empty eq_refl l18b subset_insertI)
-qed
+using assms ll34 by (metis Image_empty eq_refl l18b subset_insertI)
 
 lemma ll32: fixes X f assumes "runiq f" assumes "runiq (inverse f)"
 shows "inverse f `` ( f `` X ) \<subseteq> X"
@@ -568,7 +540,7 @@ thus "G x Y (Suc m) \<subseteq> F x Y (Suc m)" using ll42 assms by fast
 qed
 
 theorem fixes x Y assumes "finite Y" shows "G x Y=F x Y"
-proof - show ?thesis using assms ll44 ll45 by fast qed
+using assms ll44 ll45 by fast
 
 end
 

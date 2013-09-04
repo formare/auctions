@@ -63,9 +63,7 @@ definition part2rel (*from a partition to its equivalence relation*)
 where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
 
 lemma l2: fixes R shows "(runiq R) = (\<forall>x . (R `` {x} \<subseteq> {R ,, x}))"
-proof -
-show ?thesis using assms runiq_def trivial_def by (metis (hide_lams, no_types) Image_empty RelationProperties.eval_rel.simps equals0D subsetI subset_singletonD the_elem_eq)
-qed
+using assms runiq_def trivial_def by (metis (hide_lams, no_types) Image_empty RelationProperties.eval_rel.simps equals0D subsetI subset_singletonD the_elem_eq)
 
 definition projector where "projector R =
 { (x,R``{x}) | x . x \<in> Domain R}
@@ -134,9 +132,7 @@ thus ?thesis using 1 by presburger
 qed
 
 lemma l26: fixes X R shows "R `` X = R `` (X \<inter> Domain R)"
-proof -
-show "R `` X = R `` (X \<inter> Domain R)" using Image_def by blast
-qed
+using Image_def by blast
 
 lemma l18: fixes X::"'a set" fixes R::"('a \<times> 'b) set" shows 
 "(X \<inter> Domain R = {}) = (R `` X = {})"
@@ -148,7 +144,7 @@ ultimately show ?thesis by linarith
 qed
 
 lemma l18b: fixes x R shows "(x \<in> Domain R) = (R `` {x} \<noteq> {})"
-proof - show ?thesis using l18 by blast qed
+using l18 by blast
 
 lemma l19: fixes f P shows "Range {(x, f x)| x. P x}= {f x | x. P x}"
 proof -
@@ -206,7 +202,7 @@ proof -
 have 1: "equiv (Domain p) p" using assms by auto 
 have 2: "x\<in>Domain p" using assms by auto 
 have 3: "{X. ((X \<in> Range (projector p)) & x \<in> X)} = {p `` {x}}" 
-using 1 2 l21 by (metis (full_types)) (* Weirdly and incredibly SLOWWWWW. WHY?! *)
+using 1 2 l21 by (metis (full_types)) (* MC: Weirdly and incredibly SLOWWWWW. WHY?! *)
 let ?P="projector p" let ?LH="{X. X \<in> Range ?P & x \<in> X}" let ?RH="{?P ,, x}"
 let ?MH="{p `` {x}}"
 show ?thesis using 3 assms l17 by metis
@@ -289,13 +285,13 @@ show ?thesis using assms l1 l3 by fast
 qed
 
 lemma l4: fixes X f shows "(Graph f) `` X = f ` X"
-proof - show ?thesis using assms Graph_def image_def by auto qed
+using assms Graph_def image_def by auto
 
 lemma l5: fixes x shows "((Graph id) `` {x}) = {x}"
-proof - show ?thesis using id_def l4 by (metis image_id) qed
+using id_def l4 by (metis image_id)
 
 lemma l6: shows  "(projector (Graph id)) \<supseteq> {(x,{x}) | x . x \<in> Domain (Graph id)}"
-proof - show ?thesis using a.projector_def a.l5 by fastforce qed
+using a.projector_def a.l5 by fastforce
 
 lemma l7: shows 
 "(projector (Graph id)) = {(x,{x}) | x . x \<in> Domain (Graph id)}" and 
@@ -343,9 +339,7 @@ qed
 *)
 
 lemma l11: fixes x X assumes "{x} \<subseteq> X" and "trivial X" shows "x = the_elem X"
-proof -
-show ?thesis using assms trivial_def by (metis (mono_tags) in_mono singleton_iff)
-qed
+using assms trivial_def by (metis (mono_tags) in_mono singleton_iff)
 
 lemma l25: fixes x R assumes "x \<in> Domain R"  assumes "runiq R" 
 shows "(x, R,,x) \<in> R"
