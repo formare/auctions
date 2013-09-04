@@ -26,15 +26,6 @@ imports  Equiv_Relations SetUtils RelationProperties Partitions SEQ
 
 begin
 
-text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
-  tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
-  from the domain of @{term R}. *}
-definition Outside 
-where "Outside R X = R - (X \<times> Range R)"
-notation Outside (infix "outside" 75) (* MC: 75 or whatever, for what I know *)
-
-notation eval_rel (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
-
 definition paste where "paste P Q = (P outside Domain Q) \<union> Q"
 (* Avoids possible conflicts btw P & Q using `outside', 
 thus giving precedence to Q. This is particularly useful when 

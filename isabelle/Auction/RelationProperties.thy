@@ -29,6 +29,17 @@ definition restrict
 :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "||" 75)
 where "R || X = X \<times> (Range R) \<inter> R"
 
+text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
+  tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
+  from the domain of @{term R}. *}
+definition Outside :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "outside" 75) (* MC: 75 or whatever, for what I know *)
+where "Outside R X = R - (X \<times> Range R)"
+
+text {* Evaluates a relation @{term R} for a single argument, as if it were a function.
+  This will only work if @{term R} is a total function, i.e. if the image is always a singleton set. *}
+fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
+where "eval_rel R a = the_elem (R `` {a})"
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 
@@ -42,10 +53,6 @@ fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
 where "as_part_fun R a = (let im = R `` {a} in 
         if card im = 1 then Some (the_elem im)
         else None)"
-
-(* This will only work if R is a total function, i.e. if the image is always a singleton set. *)
-fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b"
-where "eval_rel R a = the_elem (R `` {a})"
 
 fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
 where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
