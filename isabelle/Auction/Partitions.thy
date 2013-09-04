@@ -175,7 +175,12 @@ definition insert_into_member
    and S \<in> Sets is an equivalence class,
    and new_el \<notin> Set,
    then "insert_into_member new_el Sets S" is a partition of "Set \<union> {new_el}".
-   Would it make sense to state this as a lemma and prove it? *)
+MC@CL: exactly, that is the case. My original comment were aiming at being concise.
+   Would it make sense to state this as a lemma and prove it? 
+MC@CL: Isn't that already the case (see below)? If you want to even know of what set 
+the object is a partition, that shouldn't be hard to do.
+But, given that this is an instrumental definition, how much is that worth?
+*)
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
