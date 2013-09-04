@@ -34,6 +34,11 @@ text {* Considering a relation outside some set @{term X} reduces its domain by 
 lemma outside_reduces_domain: "Domain (P outside X) = Domain P - X"
 unfolding Outside_def by fast
 
+text {* For any set, a relation equals the union of its restriction to that set and its
+  pairs outside that set. *}
+lemma outside_union_restrict: "P = P outside X \<union> P || X"
+unfolding Outside_def restrict_def by fast
+
 text {* Evaluates a relation @{term R} for a single argument, as if it were a function.
   This will only work if @{term R} is a total function, i.e. if the image is always a singleton set. *}
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)

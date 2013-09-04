@@ -17,14 +17,8 @@ imports a RelationProperties
 
 begin
 
-lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
-using assms by (metis distinct_card sorted_list_of_set)
-
-lemma ll10: "P = (P outside X) \<union> (P || X)"
-using assms Outside_def restrict_def by (metis Un_Diff_Int inf_commute)
-
 lemma ll09: assumes "P || (Domain Q) \<subseteq> Q" shows "P +* Q = P \<union> Q"
-using assms paste_def ll10 by (smt Un_commute Un_left_commute le_sup_iff subset_antisym subset_refl sup_ge2)
+using assms paste_def outside_union_restrict by (smt Un_commute Un_left_commute le_sup_iff subset_antisym subset_refl sup_ge2)
 
 lemma ll12: "P || {} = {}"
 using restrict_def by (metis Int_empty_left Sigma_empty1)
@@ -127,7 +121,7 @@ let ?D="Domain P" have "P \<subseteq> ?D \<times> (Range P)" by fast
 hence "?p \<subseteq> ?D \<times> (Range P) - (X \<times> (Range P))" using Outside_def by (metis Diff_mono eq_refl)
 hence "?dp \<subseteq> ?D - X" using Outside_def Domain_def by blast
 also have "?dq=?D \<inter> X" using restrict_def by fastforce
-ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using ll10 ll13 by metis
+ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using outside_union_restrict ll13 by metis
 qed
 
 lemma ll27: "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
@@ -163,7 +157,7 @@ lemma ll30: fixes x f assumes "x \<in> Domain f" assumes "runiq f"
 shows "f `` {x} = {f ,, x}"
 proof -
 let ?X="{x}" let ?Y="f `` ?X" let ?y="f ,, x"
-have "?Y \<subseteq> {?y}" using assms l2 by metis
+have "?Y \<subseteq> {?y}" using assms runiq_wrt_eval_rel by metis
 also have "?y \<in> ?Y" using assms l25 by (metis Image_singleton_iff)
 ultimately show ?thesis by blast
 qed
@@ -213,7 +207,7 @@ proof -
 let ?X="{x}" let ?Y="f `` ?X" let ?g="inverse f" let ?XX="?g `` ?Y" have 
 0: "?X \<subseteq> ?XX" using ll33 assms by fast
 have "trivial ?Y" using assms unfolding runiq_def by fast
-hence "trivial ?XX" using assms l2 ll30 unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
+hence "trivial ?XX" using assms runiq_wrt_eval_rel ll30 unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
 hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subset order_refl subset_antisym)
 thus ?thesis by auto
 qed
@@ -518,6 +512,12 @@ qed
 
 theorem fixes x Y assumes "finite Y" shows "G x Y=F x Y"
 using assms ll44 ll45 by fast
+
+(* CL@MC: could you please check whether the following are still needed, and delete them otherwise? *)
+section {* unused leftovers *}
+
+lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
+using assms by (metis distinct_card sorted_list_of_set)
 
 end
 
