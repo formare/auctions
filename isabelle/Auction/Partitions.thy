@@ -173,26 +173,12 @@ lemma emptyset_part_emptyset3:
    CL@MC: Is this comment still up to date? *)
 
 text {* inserts an element into a specified set inside the given set of sets *}
-definition insert_into_member
-(* CL@MC: you had originally referred to the given set of sets as a partition, and then stated:
-   if the element (i.e. new_el) is fresh, we obtain again a partition.  The argument that I 
-   have now renamed into "Sets" is not necessarily a partition, so you probably meant:
-   If "Sets" is a partition of a set "Set",
-   and S \<in> Sets is an equivalence class,
-   and new_el \<notin> Set,
-   then "insert_into_member new_el Sets S" is a partition of "Set \<union> {new_el}".
-MC@CL: exactly, that is the case. My original comment were aiming at being concise.
-   Would it make sense to state this as a lemma and prove it? 
-MC@CL: Isn't that already the case (see below)? If you want to even know of what set 
-the object is a partition, that shouldn't be hard to do.
-But, given that this is an instrumental definition, how much is that worth?
-*)
-:: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
+definition insert_into_member :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
-text {* Inserting a fresh element, which is not a member of the set @{term S} being partitioned,
-  into an equivalence class of a partition yields another partition (of -- we don't prove this
-  here -- the set @{term "S \<union> {new_el}"}. *}
+text {* Using @{const insert_into_member} to insert a fresh element, which is not a member of the
+  set @{term S} being partitioned, into an equivalence class of a partition yields another
+  partition (of -- we don't prove this here -- the set @{term "S \<union> {new_el}"}). *}
 lemma partition_extension2:
   fixes new_el::'a
     and P::"'a set set"
