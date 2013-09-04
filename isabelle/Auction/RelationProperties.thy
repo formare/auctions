@@ -13,17 +13,23 @@ See LICENSE file for details
 *)
 
 theory RelationProperties
-imports Main
+imports Main SetUtils
 begin
+
+text {* right-uniqueness of a relation (in other words: the relation is a function on its domain) *}
+definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
+(*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
+"runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))"
+
+
+(* TODO CL: check how much of the following we still need *)
+section {* Christoph's old stuff *}
 
 definition left_total_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
 where "left_total_on R A \<longleftrightarrow> (\<forall> x \<in> A . \<exists> y . (x, y) \<in> R)"
 
-definition right_unique :: "('a \<times> 'b) set \<Rightarrow> bool"
-where "right_unique R \<longleftrightarrow> (\<forall> a \<in> Domain R . card (R `` {a}) \<le> 1)"
-
 definition function_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
-where "function_on R A \<longleftrightarrow> left_total_on R A \<and> right_unique R"
+where "function_on R A \<longleftrightarrow> left_total_on R A \<and> runiq R"
 
 fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
 where "as_part_fun R a = (let im = R `` {a} in 

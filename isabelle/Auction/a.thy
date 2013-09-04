@@ -26,9 +26,6 @@ imports  Equiv_Relations SetUtils RelationProperties Partitions SEQ
 
 begin
 
-definition runiq where (*whether a relation is a function*)
-(*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
-"runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 definition restrict (* compare with restr in SchorrWaite.thy *)
 :: "('a \<times> 'b) set => 'a set => ('a \<times> 'b) set "
 where "restrict R X = X \<times> (Range R) \<inter> R"
@@ -68,7 +65,8 @@ definition part2rel (*from a partition to its equivalence relation*)
 where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
 
 lemma l2: fixes R shows "(runiq R) = (\<forall>x . (R `` {x} \<subseteq> {R ,, x}))"
-using assms runiq_def trivial_def by (metis (hide_lams, no_types) Image_empty RelationProperties.eval_rel.simps equals0D subsetI subset_singletonD the_elem_eq)
+using assms unfolding runiq_def trivial_def
+by (metis (lifting) Domain_iff Image_singleton_iff RelationProperties.eval_rel.simps subsetI)
 
 definition projector where "projector R =
 { (x,R``{x}) | x . x \<in> Domain R}
@@ -349,7 +347,7 @@ lemma l25: fixes x R assumes "x \<in> Domain R"  assumes "runiq R"
 shows "(x, R,,x) \<in> R"
 proof -
 let ?y="R ,, x" let ?z="(x, ?y)"
-have "trivial (R `` {x})" using assms runiq_def by (metis order_refl the_elem_eq trivial_def)
+have "trivial (R `` {x})" using assms unfolding runiq_def by fast
 hence "?y \<in> R `` {x}" using assms the_elem_def eval_rel_def trivial_def 
 by (smt RelationProperties.eval_rel.simps l18b subset_empty subset_insert)
 thus "?z \<in> R" by fast 

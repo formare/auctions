@@ -25,12 +25,12 @@ lemma ll24: fixes f R::"('a \<times> 'b) set" assumes "runiq f" assumes "R \<sub
 shows "runiq R"
 proof -
 {
-  fix X::"'a set" assume "trivial X"
-  hence "trivial (f `` X) & (R `` X \<subseteq> (f `` X))" 
-  using assms runiq_def by blast
-  hence "trivial (R `` X)" using trivial_subset by metis
+  fix a assume "a \<in> Domain R"
+  hence "trivial (f `` {a}) & (R `` {a} \<subseteq> (f `` {a}))" 
+    using assms by (metis Image_mono RelationProperties.eval_rel.simps equalityE l2 trivial_def)
+  hence "trivial (R `` {a})" using trivial_subset by (rule conjE)
 }
-thus ?thesis using runiq_def by auto
+thus ?thesis using runiq_def by blast
 qed
 
 lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
@@ -107,18 +107,15 @@ let ?dq="Domain Q" let ?PP="P outside ?dq" let ?R="P +* Q" let ?dpp="Domain ?PP"
 let ?RR="?PP \<union> Q" have 
 0: "?dpp \<inter> ?dq={}" using assms outside_reduces_domain by (metis Diff_Int2 Diff_Int_distrib2 Diff_cancel Int_Diff)
 {
-  fix X::"'a set" assume 
-  1: "trivial X" hence 
-  2: "X \<subseteq> {the_elem X}" using trivial_def by fast 
-  let ?x="the_elem X"
-  have 3: "trivial (?PP `` X) & trivial (Q `` X)" using assms l2 runiq_def 1 by fast
-  have "?PP `` {?x}={} \<or> (Q `` {?x}={})" using 0 1 by blast
-  hence "?PP `` X = {} \<or> (Q `` X = {})" using trivial_def 2 Image_mono by blast
-  hence "?RR `` X = Q `` X \<or> ?RR `` X = ?PP `` X" by blast
-  hence "trivial (?RR `` X)" using assms l2 1 3 Image_eq_UN by (smt Un_Image empty_subsetI le_sup_iff trivial_subset subset_refl)
+  fix a assume "a \<in> Domain ?RR"
+  then have *: "trivial (?PP `` {a}) & trivial (Q `` {a})" using assms by (metis l18b runiq_def trivial_empty)
+  then have "?PP `` {a}={} \<or> (Q `` {a}={})" using 0 by blast
+  hence "?PP `` {a} = {} \<or> (Q `` {a} = {})" by fast
+  hence "?RR `` {a} = Q `` {a} \<or> ?RR `` {a} = ?PP `` {a}" by blast
+  hence "trivial (?RR `` {a})" using assms * by fastforce
 }
-hence "runiq ?RR" using runiq_def by blast
-thus ?thesis  by (metis paste_def)
+hence "runiq ?RR" unfolding runiq_def by blast
+thus ?thesis unfolding paste_def by simp
 qed
 
 lemma ll02: fixes x X assumes "trivial X" assumes "x \<subseteq> X" shows "trivial x"
@@ -231,8 +228,8 @@ shows "inverse f `` ( f `` {x} ) = {x}"
 proof -
 let ?X="{x}" let ?Y="f `` ?X" let ?g="inverse f" let ?XX="?g `` ?Y" have 
 0: "?X \<subseteq> ?XX" using ll33 assms by fast
-have "trivial ?Y" using assms runiq_def by (metis (full_types) subset_refl the_elem_eq trivial_def)
-hence "trivial ?XX" using assms runiq_def by (metis (full_types))
+have "trivial ?Y" using assms unfolding runiq_def by fast
+hence "trivial ?XX" using assms l2 ll30 unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
 hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subset order_refl subset_antisym)
 thus ?thesis by auto
 qed
