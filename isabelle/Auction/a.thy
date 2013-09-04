@@ -338,9 +338,6 @@ thus "trivial X" using 1 trivial_def by fastforce
 qed
 *)
 
-lemma l11: fixes x X assumes "{x} \<subseteq> X" and "trivial X" shows "x = the_elem X"
-using assms trivial_def by (metis (mono_tags) in_mono singleton_iff)
-
 lemma l25: fixes x R assumes "x \<in> Domain R"  assumes "runiq R" 
 shows "(x, R,,x) \<in> R"
 proof -
@@ -380,7 +377,7 @@ proof -
 let ?P="projector p" let ?R="quotient r p q" let ?Y="?R ,, (?P ,, x)"
 have "r `` {x} \<supseteq> {r ,, x}" using assms l2 l18b by (metis subset_singletonD)
 hence "{r ,, x} \<subseteq> ?Y" using l13 assms by fast
-thus "r ,, x = the_elem ?Y" using l28 assms l11 by fast
+thus "r ,, x = the_elem ?Y" using l28 assms singleton_sub_trivial_uniq by fast
 qed
 
 definition compatible where 

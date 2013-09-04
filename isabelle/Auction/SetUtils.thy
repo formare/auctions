@@ -24,6 +24,14 @@ definition trivial where "trivial x = (x \<subseteq> {the_elem x})"
 text {* The empty set is trivial. *}
 lemma trivial_empty: "trivial {}" unfolding trivial_def by (rule empty_subsetI)
 
+text {* If a trivial set has a singleton subset, the latter is unique. *}
+lemma singleton_sub_trivial_uniq:
+  fixes x X
+  assumes "{x} \<subseteq> X"
+      and "trivial X"
+  shows "x = the_elem X"
+using assms unfolding trivial_def by fast
+
 text {* An inference rule that combines @{text Set.equalityI} and @{text Set.subsetI} to a single step *}
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
 
