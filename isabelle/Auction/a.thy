@@ -42,22 +42,27 @@ notation Outside (infix "outside" 75) (* MC: 75 or whatever, for what I know *)
 
 notation restrict (infix "||" 75)
 notation eval_rel (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
+
 definition paste where "paste P Q = (P outside Domain Q) \<union> Q"
 (* Avoids possible conflicts btw P & Q using `outside', 
 thus giving precedence to Q. This is particularly useful when 
 P, Q are functions, and we want to preserve that property. *)
 notation paste (infix "+*" 75)
+
 definition Graph (* compare with Function_Order.thy; 
 what about Russell's antinomy, here? *)
 :: "('a => 'b) => ('a \<times> 'b) set"
 where "Graph f = {(x, f x) | x . True}"
+
 definition toFunction (* inverts Graph *)
 where "toFunction R = (\<lambda> x . (R ,, x))"
+
 definition kernel where 
 -- {* if R is a function, kernel R is the partition of the domain of R
 whose each set is made of the elements having the same image through R 
 See http://en.wikipedia.org/wiki/Kernel_(set_theory) *} 
 "kernel R = Range ((Graph id) O Graph ((op ``)(R^-1)))"
+
 definition part2rel (*from a partition to its equivalence relation*)
 :: "'a set set => ('a \<times> 'a) set"
 where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
@@ -263,7 +268,9 @@ let ?POH="snd ` ?R"
 thus "snd ` ?R \<subseteq> Y" by force
 qed
 
-lemma l12: fixes r p q (*probably useless*) 
+lemma l12: fixes r p q
+(* MC: probably useless
+   CL@MC: you can find out by putting unused_thms at the end of your theory *)
 shows "Range (quotient r p q) \<subseteq> Range (projector q)"
 proof -
 let ?R="quotient r p q" let ?Q="projector q" let ?P="projector p"

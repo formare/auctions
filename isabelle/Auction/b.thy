@@ -34,7 +34,7 @@ thus ?thesis using runiq_def by auto
 qed
 
 lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
-proof - show ?thesis using assms by (metis distinct_card sorted_list_of_set) qed
+using assms by (metis distinct_card sorted_list_of_set)
 
 lemma ll10: "P = (P outside X) \<union> (P || X)"
 using assms Outside_def restrict_def by (metis Un_Diff_Int inf_commute)
