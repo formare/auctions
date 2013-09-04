@@ -17,9 +17,6 @@ imports a RelationProperties
 
 begin
 
-lemma ll09: assumes "P || (Domain Q) \<subseteq> Q" shows "P +* Q = P \<union> Q"
-using assms paste_def outside_union_restrict by (smt Un_commute Un_left_commute le_sup_iff subset_antisym subset_refl sup_ge2)
-
 lemma ll12: "P || {} = {}"
 using restrict_def by (metis Int_empty_left Sigma_empty1)
 
@@ -40,7 +37,7 @@ ultimately show "?LH = ?RH" by presburger
 qed
 
 lemma ll13: assumes "Domain P \<inter> (Domain Q)={}" shows "P +* Q = P \<union> Q"
-using ll09 ll11 ll12 assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
+using paste_subrel ll11 ll12 assms by (metis inf.commute inf_sup_ord(3) sup_bot_left)
 
 lemma ll07: fixes X Y f F assumes "F = (%Z . ({ f z | z. z \<in> Z}))" 
 shows "F (X \<union> Y) = F X \<union> (F Y)"

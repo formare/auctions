@@ -73,6 +73,19 @@ proof -
   then show ?thesis using runiq_def by blast
 qed
 
+text {* the union of two binary relations @{term P} and @{term Q}, where pairs from @{term Q}
+  override pairs from @{term P} when their first components coincide *}
+definition paste (infix "+*" 75)
+where "P +* Q = (P outside Domain Q) \<union> Q"
+(* Avoids possible conflicts btw P & Q using `outside', 
+thus giving precedence to Q. This is particularly useful when 
+P, Q are functions, and we want to preserve that property. *)
+
+text {* If a relation @{term P} is a subrelation of another relation @{term Q} on @{term Q}'s
+  domain, pasting @{term Q} on @{term P} is the same as forming their union. *}
+lemma paste_subrel: assumes "P || Domain Q \<subseteq> Q" shows "P +* Q = P \<union> Q"
+unfolding paste_def using assms outside_union_restrict by blast
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 

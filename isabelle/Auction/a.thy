@@ -26,12 +26,6 @@ imports  Equiv_Relations SetUtils RelationProperties Partitions SEQ
 
 begin
 
-definition paste where "paste P Q = (P outside Domain Q) \<union> Q"
-(* Avoids possible conflicts btw P & Q using `outside', 
-thus giving precedence to Q. This is particularly useful when 
-P, Q are functions, and we want to preserve that property. *)
-notation paste (infix "+*" 75)
-
 definition Graph (* compare with Function_Order.thy; 
 what about Russell's antinomy, here? *)
 :: "('a => 'b) => ('a \<times> 'b) set"
