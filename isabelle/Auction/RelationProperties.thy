@@ -24,6 +24,10 @@ definition restrict
 :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "||" 75)
 where "R || X = X \<times> (Range R) \<inter> R"
 
+text {* Restricting a relation to the empty set yields the empty set. *}
+lemma restrict_empty: "P || {} = {}"
+unfolding restrict_def by simp
+
 text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
   tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
   from the domain of @{term R}. *}
