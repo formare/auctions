@@ -12,14 +12,20 @@ See LICENSE file for details
 *)
 
 theory a
-(*MC@CL: 
-I was thinking about moving everything here into Relation_Properties, ok? *)
-imports  Equiv_Relations RelationProperties Partitions SEQ
+(*MC@CL: I was thinking about moving everything here into RelationProperties, OK?
+
+CL: Makes sense, almost.  I moved "trivial" to SetUtils, as it is not about _relations_.
+
+Once touching RelationProperties keep in mind that it may contain some code
+that is redundant with what you have in a.thy and b.thy.  Such as my old computation of 
+injective functions.  Some of this may be obsolete now, or it may be worth preserving in 
+an "alternative" section; compare Partitions.
+*)
+imports  Equiv_Relations SetUtils RelationProperties Partitions SEQ
 (*"$AFP/Collections/common/Misc"*)
 
 begin
 
-definition trivial where "trivial x = (x \<subseteq> {the_elem x})" (*singleton or empty*)
 definition runiq where (*whether a relation is a function*)
 (*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
