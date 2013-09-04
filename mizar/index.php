@@ -15,6 +15,7 @@ PageStart();
 ?>
 <h2>Files relevant to the Mizar formalisation</h2>
 <ul>
+  <li><a href="https://github.com/formare/auctions/tree/master/mizar">Source repository on GitHub</a>.</li>
   <li><a href="mizar.zip">all-in-one ZIP archive for download</a></li>
   <li>Mizar formalisation:<ul>
       <li><a href="dict/vickrey.voc">Vocabulary</a> (names of defined objects)</li>

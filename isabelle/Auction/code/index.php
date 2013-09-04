@@ -15,7 +15,7 @@ PageStart();
 ?>
 <h2>Verified code generated from the <a href="../..">Isabelle formalisation</a></h2>
 <ul>
-  <li><a href="https://github.com/formare/auctions/tree/master/isabelle/Auction/code">Source repository (on Github)</a>.</li>
+  <li><a href="https://github.com/formare/auctions/tree/master/isabelle/Auction/code">Source repository (on GitHub)</a>.</li>
   <li><a href="code.zip">all-in-one ZIP archive for download</a></li>
   <li>Self-contained demos:
     <ul>

@@ -15,7 +15,7 @@ PageStart();
 ?>
 <h2>Files relevant to the Isabelle formalisation</h2>
 <ul>
-  <li><a href="https://github.com/formare/auctions/tree/master/isabelle">Source repository on Github</a>.</li>
+  <li><a href="https://github.com/formare/auctions/tree/master/isabelle">Source repository on GitHub</a>.</li>
   <li><a href="isabelle.zip">all-in-one ZIP archive for download</a></li>
   <li>*.thy: Isabelle formalisation:<ul>
       <li>General foundations of static single good auctions, and Vickrey's theorem:

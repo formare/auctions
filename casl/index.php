@@ -15,6 +15,7 @@ PageStart();
 ?>
 <h2>Files relevant to the CASL formalisation</h2>
 <ul>
+  <li><a href="https://github.com/formare/auctions/tree/master/casl">Source repository on GitHub</a>.</li>
   <li><a href="casl.zip">all-in-one ZIP archive for download</a></li>
   <li>*.casl: <a href="http://www.cofi.info">CASL</a> formalisation:<ul>
       <li><a href="Vickrey.casl">Vickrey.casl</a>: Vickrey's Theorem and all of its prerequisites</a></li>

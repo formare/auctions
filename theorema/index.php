@@ -15,6 +15,7 @@ PageStart();
 ?>
 <h2>Files relevant to the Theorema formalisation</h2>
 <ul>
+  <li><a href="https://github.com/formare/auctions/tree/master/theorema">Source repository on GitHub</a>.</li>
   <li><a href="theorema.zip">all-in-one ZIP archive for download</a></li>
   <li><a href="Vickrey.nb">Theorema formalisation</a></li>
   <li><a href="Vickrey.pdf">PDF export</a></li>
