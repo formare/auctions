@@ -42,7 +42,7 @@ BTW, the number of partitions of a set (same as the number of equivalence relati
 
 text {* @{term P} is a partition of some set. *}
 definition is_partition where
-"is_partition P = (\<forall> x\<in>P . \<forall> y\<in> P . (x \<inter> y \<noteq> {} \<longleftrightarrow> x=y))"
+"is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))"
 (* alternative, less concise formalisation:
 "is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
@@ -54,15 +54,17 @@ lemma subset_is_partition:
   shows "is_partition P"
 proof -
   {
-    fix x y assume "x \<in> P \<and> y \<in> P"
-    then have "x \<in> Q \<and> y \<in> Q" using subset by fast
-    then have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y" using partition unfolding is_partition_def by force
+    fix X Y assume "X \<in> P \<and> Y \<in> P"
+    then have "X \<in> Q \<and> Y \<in> Q" using subset by fast
+    then have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" using partition unfolding is_partition_def by force
   }
   then show ?thesis unfolding is_partition_def by force
 qed
 
 (* This is not used at the moment, but it is interesting, as the proof
    was very hard to find for Sledgehammer. *)
+text {* The set that results from removing one element from an equivalence class of a partition
+  is not otherwise a member of the partition. *}
 lemma remove_from_eq_class_preserves_disjoint:
   fixes elem::'a
     and X::"'a set"
@@ -74,6 +76,8 @@ lemma remove_from_eq_class_preserves_disjoint:
 using assms using is_partition_def
 by (smt Diff_iff Int_Diff Int_absorb Int_commute insertCI)
 
+text {* Inserting into a partition @{term P} a set @{term X}, which is disjoint with the set 
+  partitioned by @{term P}, yields another partition. *}
 lemma partition_extension1:
   fixes P::"'a set set"
     and X::"'a set"
@@ -83,18 +87,19 @@ lemma partition_extension1:
   shows "is_partition (insert X P)"
 proof -
   {
-    fix x y assume x_y_in_ext: "x \<in> insert X P \<and> y \<in> insert X P"
-    have "x \<inter> y \<noteq> {} \<longleftrightarrow> x = y"
+    fix Y::"'a set" and Z::"'a set"
+    assume Y_Z_in_ext_P: "Y \<in> insert X P \<and> Z \<in> insert X P"
+    have "Y \<inter> Z \<noteq> {} \<longleftrightarrow> Y = Z"
     proof
-      assume "x \<inter> y \<noteq> {}"
-      then show "x = y"
-        using x_y_in_ext partition disjoint
+      assume "Y \<inter> Z \<noteq> {}"
+      then show "Y = Z"
+        using Y_Z_in_ext_P partition disjoint
         unfolding is_partition_def
         by fast
     next
-      assume "x = y"
-      then show "x \<inter> y \<noteq> {}"
-        using x_y_in_ext partition non_empty
+      assume "Y = Z"
+      then show "Y \<inter> Z \<noteq> {}"
+        using Y_Z_in_ext_P partition non_empty
         unfolding is_partition_def
         by auto
     qed
@@ -102,6 +107,8 @@ proof -
   then show ?thesis unfolding is_partition_def by force
 qed
 
+text {* An equivalence class of a partition has no intersection with any of the other 
+  equivalence classes. *}
 lemma disj_eq_classes:
   fixes P::"'a set set"
     and X::"'a set"
@@ -110,7 +117,7 @@ lemma disj_eq_classes:
   shows "X \<inter> \<Union> (P - {X}) = {}" 
 proof -
   {
-    fix x
+    fix x::'a
     assume x_in_two_eq_classes: "x \<in> X \<inter> \<Union> (P - {X})"
     then obtain Y where other_eq_class: "Y \<in> P - {X} \<and> x \<in> Y" by blast
     have "x \<in> X \<inter> Y \<and> Y \<in> P"
@@ -121,6 +128,7 @@ proof -
   then show ?thesis by blast
 qed
 
+text {* In a partition there is no empty equivalence class. *}
 lemma no_empty_eq_class:
   assumes "is_partition p"
   shows "{} \<notin> p" 
@@ -153,8 +161,6 @@ lemma emptyset_part_emptyset3:
   using emptyset_part_emptyset1 emptyset_part_emptyset2
   by fast
 
-(* MC: Here is some new material.  Next step: integrate new partitions definitions into auctions 
-   (i.e. nVCG_CaseChecker.thy) *)
 (* MC: A further, proof-friendlier way of computing partitions is introduced: 
    everything's a set, except the very initial input, which is a list 
    (of elements) because I don't know how to do recursive definitions 
@@ -184,6 +190,9 @@ But, given that this is an instrumental definition, how much is that worth?
 :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
+text {* Inserting a fresh element, which is not a member of the set @{term S} being partitioned,
+  into an equivalence class of a partition yields another partition (of -- we don't prove this
+  here -- the set @{term "S \<union> {new_el}"}. *}
 lemma partition_extension2:
   fixes new_el::'a
     and P::"'a set set"
@@ -206,7 +215,8 @@ proof -
   then show ?thesis unfolding insert_into_member_def by simp
 qed
 
-text {* inserts an element into a specified set inside the given list of sets. 
+text {* inserts an element into a specified set inside the given list of sets --
+   the list variant of @{const insert_into_member}
 
    The rationale for this variant and for everything that depends on it is:
    While it is possible to computationally enumerate ``all partitions of a set'' as an
@@ -232,6 +242,9 @@ unfolding insert_into_member_list_def insert_into_member_def
 using assms
 by simp
 
+text {* an alternative characterisation of the set partitioned by a partition obtained by 
+  inserting an element into an equivalence class of a given partition (if @{term P}
+  \emph{is} a partition) *}
 lemma insert_into_member_partition1:
   fixes elem::'a
     and P::"'a set set"
@@ -263,11 +276,7 @@ where "coarser_partitions_with new_el P =
   ((insert_into_member new_el P) ` P)"
 
 (* TODO CL: document for the general case of a non-partition argument as per https://github.com/formare/auctions/issues/20 *)
-text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "new_el \<notin> S"}, this function yields
-  all possible partitions of @{term "S \<union> {new_el}"} that are coarser than @{term P}
-  (i.e.\ not splitting equivalence classes that already exist in @{term P}).  These comprise one partition 
-  with an equivalence class @{term "{new_el}"} and all other equivalence classes unchanged,
-  as well as all partitions obtained by inserting @{term new_el} into one equivalence class of @{term P} at a time. *}
+text {* the list variant of @{const coarser_partitions_with} *}
 definition coarser_partitions_with_list ::"'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list list"
 where "coarser_partitions_with_list new_el P = 
   (* Let P be a partition of a set Set,
@@ -297,6 +306,8 @@ proof -
   finally show ?thesis unfolding coarser_partitions_with_def .
 qed
 
+text {* Any member of the set of coarser partitions of a given partition, obtained by inserting 
+  a given fresh element into each of its equivalence classes, actually is a partition. *}
 lemma partition_extension3:
   fixes elem::'a
     and P::"'a set set"
@@ -362,6 +373,8 @@ where "partition_without elem P = (\<lambda>X . X - {elem}) ` P - {{}}"
 
 (* We don't need to define partition_without_list. *)
 
+text {* alternative characterisation of the set partitioned by the partition obtained 
+  by removing an element from a given partition using @{const partition_without} *}
 lemma partition_without_covers:
   fixes elem::'a
     and P::"'a set set"
@@ -373,6 +386,9 @@ proof -
   finally show ?thesis .
 qed
 
+text {* Any equivalence class of the partition obtained by removing an element @{term elem} from an
+  original partition @{term P} using @{const partition_without} equals some equivalence
+  class of @{term P}, reduced by @{term elem}. *}
 lemma super_eq_class:
   assumes "X \<in> partition_without elem P"
   obtains Z where "Z \<in> P" and "X = Z - {elem}"
@@ -383,37 +399,41 @@ proof -
   then show ?thesis ..
 qed
 
+text {* The set of sets obtained by removing an element from a partition actually is another
+  partition. *}
 lemma partition_without_is_partition:
   fixes elem::'a
     and P::"'a set set"
   assumes "is_partition P"
   shows "is_partition (partition_without elem P)" (is "is_partition ?Q")
 proof -   
-  have "\<forall> x1 \<in> ?Q. \<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2"
+  have "\<forall> X1 \<in> ?Q. \<forall> X2 \<in> ?Q. X1 \<inter> X2 \<noteq> {} \<longleftrightarrow> X1 = X2"
   proof 
-    fix x1 assume x1_in_Q: "x1 \<in> ?Q"
-    then obtain z1 where z1_in_P: "z1 \<in> P" and z1_sup: "x1 = z1 - {elem}"
+    fix X1 assume X1_in_Q: "X1 \<in> ?Q"
+    then obtain Z1 where Z1_in_P: "Z1 \<in> P" and Z1_sup: "X1 = Z1 - {elem}"
       by (rule super_eq_class)
-    have x1_non_empty: "x1 \<noteq> {}" using x1_in_Q partition_without_def by fast
-    show "\<forall> x2 \<in> ?Q. x1 \<inter> x2 \<noteq> {} \<longleftrightarrow> x1 = x2" 
+    have X1_non_empty: "X1 \<noteq> {}" using X1_in_Q partition_without_def by fast
+    show "\<forall> X2 \<in> ?Q. X1 \<inter> X2 \<noteq> {} \<longleftrightarrow> X1 = X2" 
     proof
-      fix x2 assume "x2 \<in> ?Q"
-      then obtain z2 where z2_in_P: "z2 \<in> P" and z2_sup: "x2 = z2 - {elem}"
+      fix X2 assume "X2 \<in> ?Q"
+      then obtain Z2 where Z2_in_P: "Z2 \<in> P" and Z2_sup: "X2 = Z2 - {elem}"
         by (rule super_eq_class)
-      have "x1 \<inter> x2 \<noteq> {} \<longrightarrow> x1 = x2"
+      have "X1 \<inter> X2 \<noteq> {} \<longrightarrow> X1 = X2"
       proof
-        assume "x1 \<inter> x2 \<noteq> {}"
-        then have "z1 \<inter> z2 \<noteq> {}" using z1_sup z2_sup by fast
-        then have "z1 = z2" using z1_in_P z2_in_P assms unfolding is_partition_def by fast
-        then show "x1 = x2" using z1_sup z2_sup by fast
+        assume "X1 \<inter> X2 \<noteq> {}"
+        then have "Z1 \<inter> Z2 \<noteq> {}" using Z1_sup Z2_sup by fast
+        then have "Z1 = Z2" using Z1_in_P Z2_in_P assms unfolding is_partition_def by fast
+        then show "X1 = X2" using Z1_sup Z2_sup by fast
       qed
-      moreover have "x1 = x2 \<longrightarrow> x1 \<inter> x2 \<noteq> {}" using x1_non_empty by auto
-      ultimately show "(x1 \<inter> x2 \<noteq> {}) \<longleftrightarrow> x1 = x2" by blast
+      moreover have "X1 = X2 \<longrightarrow> X1 \<inter> X2 \<noteq> {}" using X1_non_empty by auto
+      ultimately show "(X1 \<inter> X2 \<noteq> {}) \<longleftrightarrow> X1 = X2" by blast
     qed
   qed
   then show ?thesis unfolding is_partition_def .
 qed
 
+text {* @{term "coarser_partitions_with elem"} is the ``inverse'' of 
+  @{term "partition_without elem"}. *}
 lemma coarser_partitions_inv_without:
   fixes elem::'a
     and P::"'a set set"
@@ -498,9 +518,12 @@ proof -
   qed
 qed
 
+text {* Given a set @{term Ps} of partitions, this is intended to compute the set of all coarser
+  partitions (given an extension element) of all partitions in @{term Ps}. *}
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
 where "all_coarser_partitions_with elem Ps = \<Union> coarser_partitions_with elem ` Ps"
 
+text {* the list variant of @{const all_coarser_partitions_with} *}
 definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
 where "all_coarser_partitions_with_list elem Ps = concat (map (coarser_partitions_with_list elem) Ps)"
 
@@ -540,6 +563,8 @@ where
 "all_partitions_list [] = [[]]" |
 "all_partitions_list (e # X) = all_coarser_partitions_with_list e (all_partitions_list X)"
 
+text {* A list of partitions coarser than a given partition in list representation (constructed
+  with @{const coarser_partitions_with} is distinct under certain conditions. *}
 lemma coarser_partitions_with_list_distinct:
   fixes ps
   assumes ps_coarser: "ps \<in> set (coarser_partitions_with_list x Q)"
