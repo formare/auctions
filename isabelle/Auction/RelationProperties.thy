@@ -16,6 +16,8 @@ theory RelationProperties
 imports Main SetUtils
 begin
 
+section {* restriction *}
+
 text {* restriction of a relation to a set (usually resulting in a relation with a smaller domain) *}
 definition restrict
 (* TODO MC: compare with restr in SchorrWaite.thy
@@ -36,6 +38,8 @@ text {* Restricting a relation only has an effect within its domain. *}
 lemma restriction_within_domain: "P || X = P || (X \<inter> (Domain P))"
 unfolding restrict_def by fast
 
+section {* relation outside some set *}
+
 text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
   tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
   from the domain of @{term R}. *}
@@ -51,10 +55,14 @@ text {* For any set, a relation equals the union of its restriction to that set 
 lemma outside_union_restrict: "P = P outside X \<union> P || X"
 unfolding Outside_def restrict_def by fast
 
+section {* evaluation as a function *}
+
 text {* Evaluates a relation @{term R} for a single argument, as if it were a function.
   This will only work if @{term R} is a total function, i.e. if the image is always a singleton set. *}
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
 where "eval_rel R a = the_elem (R `` {a})"
+
+section {* right-uniqueness *}
 
 text {* right-uniqueness of a relation (in other words: the relation is a function on its domain) *}
 definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
@@ -85,6 +93,8 @@ proof -
   then show ?thesis using runiq_def by blast
 qed
 
+section {* paste *}
+
 text {* the union of two binary relations @{term P} and @{term Q}, where pairs from @{term Q}
   override pairs from @{term P} when their first components coincide *}
 definition paste (infix "+*" 75)
@@ -104,7 +114,15 @@ unfolding paste_def Outside_def
 using assms
 by fast
 
-lemma [code_unfold]: "converse R = { (y, x) . (x, y) \<in> R}" by (rule converse_unfold)
+section {* Converse *}
+
+text {* The definition of @{const converse} isn't suitable for generating code, so we provide
+  a code equation using an alternative definition. *}
+lemma [code_unfold]: "converse R = { (y, x) . (x, y) \<in> R }" by (rule converse_unfold)
+
+text {* If two relations are subrelations of each other, so are their converse relations. *}
+lemma converse_subrel: assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
+using assms by fast
 
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}

@@ -17,9 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll25: fixes P Q assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
-using assms by fast
-
 lemma ll01: fixes P Q assumes "runiq Q" assumes "runiq (P outside (Domain Q))" 
 shows "runiq (P +* Q)"
 proof - 
@@ -343,13 +340,13 @@ using 9 6 sorted_list_of_set assms by blast
 ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence 
 2: "g \<in> set (childrenof ?f ?x Y)" using childrenof_def by metis have 
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
-hence "?f\<inverse> \<subseteq> g\<inverse>" using ll25 by metis
+hence "?f\<inverse> \<subseteq> g\<inverse>" using converse_subrel by metis
 have
 21: "card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
 23: "finite ?DN" using card_ge_0_finite by force hence 
 24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain) have 
 25: "runiq ?f" using subrel_runiq Outside_def 21 by (metis Diff_subset) have 
-26: "runiq (?f\<inverse>)" using subrel_runiq 22 ll25 21 by metis have 
+26: "runiq (?f\<inverse>)" using subrel_runiq 22 converse_subrel 21 by metis have 
 27: "?Dn = ?DN - {?x}" by (metis outside_reduces_domain)
 have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_diff_le Suc_eq_plus1_left add_diff_cancel_right' card_Diff_subset diff_le_self empty_set hd_in_set le_bot not_less_bot not_less_eq order_refl)
 hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
