@@ -13,7 +13,7 @@ See LICENSE file for details
 *)
 
 theory Partitions
-imports Main SetUtils ListUtils
+imports Main SetUtils
 begin
 
 text {*
