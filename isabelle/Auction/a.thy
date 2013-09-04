@@ -50,10 +50,6 @@ definition part2rel (*from a partition to its equivalence relation*)
 :: "'a set set => ('a \<times> 'a) set"
 where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
 
-lemma l2: fixes R shows "(runiq R) = (\<forall>x . (R `` {x} \<subseteq> {R ,, x}))"
-using assms unfolding runiq_def trivial_def
-by (metis (lifting) Domain_iff Image_singleton_iff RelationProperties.eval_rel.simps subsetI)
-
 definition projector where "projector R =
 { (x,R``{x}) | x . x \<in> Domain R}
 (* Graph (% x . (R `` {x}))*)
@@ -72,7 +68,7 @@ let ?F="{(x, f x) | x. P x}"
   also have "... \<subseteq> {f xx}" using assms by fastforce
   finally have "trivial (?F `` {xx})" using trivial_def 1  by fastforce
 }
-thus ?thesis by (metis (lifting, no_types) RelationProperties.eval_rel.simps l2 trivial_def)
+thus ?thesis by (metis (lifting, no_types) RelationProperties.eval_rel.simps runiq_wrt_eval_rel trivial_def)
 qed
 
 corollary l15: fixes R shows "runiq (projector R)"
@@ -237,7 +233,7 @@ proof -
 let ?XX="{X. X \<in> Range ?P | x \<in> X}"
 have "?XX = {?P ,, x}" using l0 assms by fast
 thus "?F `` ?XX \<subseteq> {?F ,, (?P ,, x)}" using l2 by (smt assms(2))*)
-show ?thesis using l0 l2 assms by (metis (no_types))
+show ?thesis using l0 runiq_wrt_eval_rel assms by (metis (no_types))
 qed
 
 lemma l9: fixes Y P shows "snd ` {(x,y) . y\<in>Y & P} \<subseteq> Y"
@@ -366,7 +362,7 @@ assumes "projector p ,, x \<in> Domain (quotient r p q)"
 shows "r ,, x = the_elem (quotient r p q ,, (projector p ,, x))"
 proof -
 let ?P="projector p" let ?R="quotient r p q" let ?Y="?R ,, (?P ,, x)"
-have "r `` {x} \<supseteq> {r ,, x}" using assms l2 l18b by (metis subset_singletonD)
+have "r `` {x} \<supseteq> {r ,, x}" using assms runiq_wrt_eval_rel l18b by (metis subset_singletonD)
 hence "{r ,, x} \<subseteq> ?Y" using l13 assms by fast
 thus "r ,, x = the_elem ?Y" using l28 assms singleton_sub_trivial_uniq by fast
 qed

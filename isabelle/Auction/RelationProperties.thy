@@ -16,11 +16,6 @@ theory RelationProperties
 imports Main SetUtils
 begin
 
-text {* right-uniqueness of a relation (in other words: the relation is a function on its domain) *}
-definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
-(*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
-"runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))"
-
 text {* restriction of a relation to a set (usually resulting in a relation with a smaller domain) *}
 definition restrict
 (* TODO MC: compare with restr in SchorrWaite.thy
@@ -43,6 +38,35 @@ text {* Evaluates a relation @{term R} for a single argument, as if it were a fu
   This will only work if @{term R} is a total function, i.e. if the image is always a singleton set. *}
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
 where "eval_rel R a = the_elem (R `` {a})"
+
+text {* right-uniqueness of a relation (in other words: the relation is a function on its domain) *}
+definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
+(*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
+"runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))"
+
+text {* an alternative definition of right-uniqueness in terms of @{const eval_rel} *}
+lemma runiq_wrt_eval_rel:
+  fixes R :: "('a \<times> 'b) set"
+  shows "runiq R = (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
+using assms unfolding runiq_def trivial_def
+by (metis (lifting) Domain_iff Image_singleton_iff eval_rel.simps subsetI)
+
+text {* A subrelation of a right-unique relation is right-unique. *}
+lemma subrel_runiq:
+  fixes Q::"('a \<times> 'b) set"
+    and R::"('a \<times> 'b) set"
+  assumes "runiq Q"
+      and "R \<subseteq> Q"
+shows "runiq R"
+proof -
+  {
+    fix a assume "a \<in> Domain R"
+    then have "trivial (Q `` {a}) \<and> R `` {a} \<subseteq> (Q `` {a})" 
+      using assms unfolding runiq_def trivial_def by fast
+    then have "trivial (R `` {a})" using trivial_subset by (rule conjE)
+  }
+  then show ?thesis using runiq_def by blast
+qed
 
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}

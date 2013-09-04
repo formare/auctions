@@ -17,18 +17,6 @@ imports a RelationProperties
 
 begin
 
-lemma ll24: fixes f R::"('a \<times> 'b) set" assumes "runiq f" assumes "R \<subseteq> f"
-shows "runiq R"
-proof -
-{
-  fix a assume "a \<in> Domain R"
-  hence "trivial (f `` {a}) & (R `` {a} \<subseteq> (f `` {a}))" 
-    using assms by (metis Image_mono RelationProperties.eval_rel.simps equalityE l2 trivial_def)
-  hence "trivial (R `` {a})" using trivial_subset by (rule conjE)
-}
-thus ?thesis using runiq_def by blast
-qed
-
 lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
 using assms by (metis distinct_card sorted_list_of_set)
 
@@ -119,7 +107,7 @@ using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp s
 
 corollary ll04: fixes P Q assumes "runiq Q" assumes "runiq P" 
 shows "runiq (P +* Q)"
-using ll01 ll24 Outside_def by (metis Diff_subset assms(1) assms(2))
+using ll01 subrel_runiq Outside_def by (metis Diff_subset assms(1) assms(2))
 
 lemma ll05: "runiq {(x,y)}"
 proof -
@@ -130,7 +118,7 @@ ultimately show ?thesis by presburger
 qed
 
 lemma assumes "trivial X" shows "runiq X"
-using ll05 trivial_def by (metis assms ll24 surj_pair)
+using ll05 trivial_def by (metis assms subrel_runiq surj_pair)
 
 lemma ll28: "P=(P outside X) +* (P || X)"
 proof -
@@ -424,8 +412,8 @@ have
 21: "card ?DN=?N & runiq g & runiq (inverse g) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
 23: "finite ?DN" using card_ge_0_finite by force hence 
 24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain) have 
-25: "runiq ?f" using ll24 Outside_def 21 by (metis Diff_subset) have 
-26: "runiq (inverse ?f)" using ll24 22 ll25 21 by metis have 
+25: "runiq ?f" using subrel_runiq Outside_def 21 by (metis Diff_subset) have 
+26: "runiq (inverse ?f)" using subrel_runiq 22 ll25 21 by metis have 
 27: "?Dn = ?DN - {?x}" by (metis outside_reduces_domain)
 have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_diff_le Suc_eq_plus1_left add_diff_cancel_right' card_Diff_subset diff_le_self empty_set hd_in_set le_bot not_less_bot not_less_eq order_refl)
 hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
