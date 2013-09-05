@@ -17,9 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll20: "Domain (P +* Q) = (Domain P \<union> Domain Q)"
-using outside_reduces_domain paste_def by (metis Domain_Un_eq Un_Diff_cancel Un_commute)
-
 lemma ll18: "P +* Q \<subseteq> P \<union> Q"
 proof -
 have "P outside (Domain Q) \<subseteq> P" using Outside_def by blast
@@ -213,7 +210,7 @@ using 0 6 childrenof_def by metis then
 obtain y where 
 2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
 set_concat childrenof_def assms by auto
-have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert ll20)
+have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert paste_Domain)
 also have "... = set ?ln \<union> {?x}" using 3 by presburger
 also have "... = insert ?x (set ?ln)" by fast
 also have "... = set L" using 4 by (metis List.set.simps(2))
@@ -363,7 +360,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   8: "runiq (g\<inverse>)" using ll15 5 6 by force have 
   10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert ll21)
   (* simplify this using g=f \<union> {...} *)
-  have "Domain g=Domain f \<union> {?x}" using 6 ll20 by (metis Domain_empty Domain_insert)
+  have "Domain g=Domain f \<union> {?x}" using 6 paste_Domain by (metis Domain_empty Domain_insert)
   hence "card (Domain g)=?N" using 7 5 by auto
   hence "card (Domain g)=?N & finite (Domain g)" using card_ge_0_finite by force
   hence "g \<in> ?GN" using G_def 8 9 10 5 6 by fast

@@ -198,6 +198,10 @@ lemma runiq_paste3:
   shows "runiq (R +* {(x, y)})"
 using assms runiq_paste2 runiq_singleton_rel by metis
 
+text {* The domain of two pasted relations equals the union of their domains. *}
+lemma paste_Domain: "Domain (P +* Q) = Domain P \<union> Domain Q"
+unfolding paste_def Outside_def by blast
+
 section {* Converse *}
 
 text {* The definition of @{const converse} isn't suitable for generating code, so we provide
