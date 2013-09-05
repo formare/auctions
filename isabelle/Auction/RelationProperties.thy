@@ -210,7 +210,7 @@ proof -
   {
     fix a assume "a \<in> Domain (?PoutsideQ \<union> Q)"
     then have triv: "trivial (?PoutsideQ `` {a}) \<and> trivial (Q `` {a})"
-      using assms(1) assms(2) by (metis Image_within_domain' runiq_def trivial_empty)
+      using assms by (metis Image_within_domain' runiq_def trivial_empty)
     then have "?PoutsideQ `` {a} = {} \<or> Q `` {a} = {}" using disjoint_domains by blast
     then have "(?PoutsideQ \<union> Q) `` {a} = Q `` {a} \<or> (?PoutsideQ \<union> Q) `` {a} = ?PoutsideQ `` {a}" by blast
     then have "trivial ((?PoutsideQ \<union> Q) `` {a})" using triv by presburger
@@ -327,6 +327,22 @@ proof -
   also have "\<dots> = Range R \<inter> R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" using Domain_conv_Range by metis
   also have "\<dots> = R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" by blast
   finally show ?thesis by auto
+qed
+
+text {* The converse relation of two pasted relations is right-unique, if 
+  the relations have disjoint domains and ranges, and if their converses are both
+  right-unique. *}
+lemma runiq_converse_paste:
+  assumes runiq_P_conv: "runiq (P\<inverse>)"
+      and runiq_Q_conv: "runiq (Q\<inverse>)"
+      and disj_dom: "Domain P \<inter> Domain Q = {}"
+      and disj_rg: "Range P \<inter> Range Q = {}"
+  shows "runiq ((P +* Q)\<inverse>)"
+proof -
+  have "P +* Q = P \<union> Q" using disj_dom by (rule paste_disj_domains)
+  then have "(P +* Q)\<inverse> = P\<inverse> \<union> Q\<inverse>" by auto
+  also have "\<dots> = P\<inverse> +* Q\<inverse>" using disj_rg paste_disj_domains Domain_conv_Range by metis
+  finally show ?thesis using runiq_P_conv runiq_Q_conv runiq_paste2 by auto
 qed
 
 (* TODO CL: check how much of the following we still need *)

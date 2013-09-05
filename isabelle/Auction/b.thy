@@ -17,17 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll15a: fixes P Q assumes "runiq (P\<inverse>)" assumes "runiq (Q\<inverse>)"
-assumes "Domain P \<inter> (Domain Q)={}" assumes "Range P \<inter> (Range Q)={}"
-shows "runiq ((P +* Q)\<inverse>)"
-proof -
-let ?i="converse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
-have "?R = P \<union> Q" using assms paste_disj_domains by metis 
-hence "?r = ?p \<union> ?q" by auto
-also have "... = ?p +* ?q" using assms paste_disj_domains Domain_conv_Range by metis
-ultimately show ?thesis using runiq_paste2 assms by auto
-qed
-
 lemma ll15: fixes R x assumes "runiq (R\<inverse>)" 
 assumes "y \<notin> Range R" assumes "x \<notin> Domain R"
 shows "runiq ((R +* {(x,y)})\<inverse>)"
@@ -35,7 +24,7 @@ proof -
 have "{(x,y)}\<inverse>={(y,x)}" by auto then
 have "runiq ({(x,y)}\<inverse>)" using runiq_singleton_rel by metis
 also have "Domain R \<inter> Domain {(x,y)}={} & Range R \<inter> (Range {(x,y)})={}" 
-using assms by blast ultimately show ?thesis using assms ll15a by blast
+using assms by blast ultimately show ?thesis using assms runiq_converse_paste by blast
 qed
 
 definition childrenof 
