@@ -17,10 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
-shows "f\<inverse> `` ( f `` {x} ) \<subseteq> {x}"
-using assms converse_Image_singleton by (metis Image_empty eq_refl Image_within_domain' subset_insertI)
-
 lemma ll32: fixes X f assumes "runiq f" assumes "runiq (f\<inverse>)"
 shows "f\<inverse> `` ( f `` X ) \<subseteq> X"
 proof -
@@ -28,7 +24,7 @@ let ?g="f\<inverse>" let ?Y="f `` X" let ?LH="?g `` ?Y" let ?I="f O ?g"
 have "?I `` X = (\<Union>x \<in> X .?I `` {x})" 
 using Image_def Image_eq_UN by blast
 also have "... = (\<Union>x\<in>X. ?g `` (f `` {x}))" by blast
-also have "... \<subseteq> (\<Union>x \<in> X. {x})" using ll35 assms by fast
+also have "... \<subseteq> (\<Union>x \<in> X. {x})" using converse_Image_singleton assms by fast
 also have "... = X" by simp
 finally show ?thesis by fast
 qed

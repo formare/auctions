@@ -267,8 +267,9 @@ lemma Domain_Int_wrt_converse: "Domain R \<inter> X \<subseteq> R\<inverse> `` (
 by fast
 
 text {* The inverse image of the image of a singleton set under some relation is the same
-  singleton set, if both the relation and its converse are right-unique. *}
-lemma converse_Image_singleton:
+  singleton set, if both the relation and its converse are right-unique and the singleton set
+  is in the relation's domain. *}
+lemma converse_Image_singleton_Domain:
   assumes runiq: "runiq R"
       and runiq_conv: "runiq (R\<inverse>)"
       and domain: "x \<in> Domain R"
@@ -282,6 +283,15 @@ proof -
   then show ?thesis
     using sup by (metis singleton_sub_trivial_uniq subset_antisym trivial_def)
 qed
+
+text {* The inverse image of the image of a singleton set under some relation is the same
+  singleton set or empty, if both the relation and its converse are right-unique. *}
+lemma converse_Image_singleton:
+  assumes "runiq R"
+      and "runiq (R\<inverse>)"
+  shows "R\<inverse> `` R `` {x} \<subseteq> {x}"
+using assms converse_Image_singleton_Domain
+by (metis Image_empty Image_within_domain' empty_subsetI set_eq_subset)
 
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
