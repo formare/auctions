@@ -335,14 +335,29 @@ text {* The converse relation of two pasted relations is right-unique, if
 lemma runiq_converse_paste:
   assumes runiq_P_conv: "runiq (P\<inverse>)"
       and runiq_Q_conv: "runiq (Q\<inverse>)"
-      and disj_dom: "Domain P \<inter> Domain Q = {}"
-      and disj_rg: "Range P \<inter> Range Q = {}"
+      and disj_D: "Domain P \<inter> Domain Q = {}"
+      and disj_R: "Range P \<inter> Range Q = {}"
   shows "runiq ((P +* Q)\<inverse>)"
 proof -
-  have "P +* Q = P \<union> Q" using disj_dom by (rule paste_disj_domains)
+  have "P +* Q = P \<union> Q" using disj_D by (rule paste_disj_domains)
   then have "(P +* Q)\<inverse> = P\<inverse> \<union> Q\<inverse>" by auto
-  also have "\<dots> = P\<inverse> +* Q\<inverse>" using disj_rg paste_disj_domains Domain_conv_Range by metis
+  also have "\<dots> = P\<inverse> +* Q\<inverse>" using disj_R paste_disj_domains Domain_conv_Range by metis
   finally show ?thesis using runiq_P_conv runiq_Q_conv runiq_paste2 by auto
+qed
+
+text {* The converse relation of a singleton relation pasted on some other relation @{term R} is right-unique,
+  if the singleton pair is not in @{term "Domain R \<times> Range R"}, and if @{term "R\<inverse>"} is right-unique. *}
+lemma runiq_converse_paste_singleton:
+  assumes runiq: "runiq (R\<inverse>)" 
+      and y_notin_R: "y \<notin> Range R"
+      and x_notin_D: "x \<notin> Domain R"
+  shows "runiq ((R +* {(x,y)})\<inverse>)"
+proof -
+  have "{(x,y)}\<inverse> = {(y,x)}" by fastforce
+  then have "runiq ({(x,y)}\<inverse>)" using runiq_singleton_rel by metis
+  moreover have "Domain R \<inter> Domain {(x,y)} = {}" and "Range R \<inter> (Range {(x,y)})={}"
+    using y_notin_R x_notin_D by simp_all
+  ultimately show ?thesis using runiq runiq_converse_paste by blast
 qed
 
 (* TODO CL: check how much of the following we still need *)

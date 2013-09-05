@@ -17,16 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll15: fixes R x assumes "runiq (R\<inverse>)" 
-assumes "y \<notin> Range R" assumes "x \<notin> Domain R"
-shows "runiq ((R +* {(x,y)})\<inverse>)"
-proof -
-have "{(x,y)}\<inverse>={(y,x)}" by auto then
-have "runiq ({(x,y)}\<inverse>)" using runiq_singleton_rel by metis
-also have "Domain R \<inter> Domain {(x,y)}={} & Range R \<inter> (Range {(x,y)})={}" 
-using assms by blast ultimately show ?thesis using assms runiq_converse_paste by blast
-qed
-
 definition childrenof 
 (*::" ('a \<times> 'b::linorder) set => 'a => ('b set) => ('a \<times> 'b) set list"*)
 where 
@@ -245,7 +235,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   9: "runiq g" using runiq_paste2 5 runiq_singleton_rel by fast
   have "Domain f=set ?ln" using ll16 3 by blast hence 
   7: "?x \<notin> Domain f & card (Domain f)=n" using 2 by force hence 
-  8: "runiq (g\<inverse>)" using ll15 5 6 by force have 
+  8: "runiq (g\<inverse>)" using runiq_converse_paste_singleton 5 6 by force have 
   10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert paste_Range)
   (* simplify this using g=f \<union> {...} *)
   have "Domain g=Domain f \<union> {?x}" using 6 paste_Domain by (metis Domain_empty Domain_insert)
