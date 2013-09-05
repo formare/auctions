@@ -17,56 +17,53 @@ imports a RelationProperties ListUtils
 
 begin
 
+(* TODO CL: see if we can get rid of the dummy arguments *)
 text {* the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
-definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
-where 
-"F x Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
+fun F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
+where "F dummy Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
 
-definition G
-::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
-where 
-"G x Y n = {f . 
-finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
+fun G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
+where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
 
-lemma ll43: fixes x Y shows "F x Y 0={{}} & G x Y 0={{}}"
+lemma ll43: fixes Y shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
 proof -
 (* fix x::"'a::linorder" fix Y::"'b::linorder set" fix n *)
 let ?l="sorted_list_of_set" let ?B="injections"
 (* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
-let ?F="F x Y"
+let ?F="F dummy Y"
 (* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
-let ?G="G x Y"
+let ?G="G dummy Y"
 have "?B (?l {}) Y = [{}]" by auto
 hence "{{}} = \<Union> {set (injections l Y) | l . size l=0 & card (set l)=0}" by auto
-also have "... = F x Y 0" using F_def by blast ultimately have
-11: "F x Y 0={{}}" by force
+also have "... = F dummy Y 0" by simp
+ultimately have
+11: "F dummy Y 0 = {{}}" by simp
 have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
-hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" using G_def by fast
+hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" by auto
 hence 0: "?G 0 \<subseteq> {{}}" by blast
 have 1: "finite (Domain {})" by simp
 have 2: "card (Domain {})=0" by force
 have 3: "runiq {}" using runiq_def trivial_def by fast
 also have "{}\<inverse> = {}" by fast
 ultimately have "runiq ({}\<inverse>)" by metis
-hence "{} \<in> ?G 0" using G_def 1 2 3 by blast
+hence "{} \<in> ?G 0" using 1 2 3 by auto
 hence "?G 0 = {{}}" using 0 by auto
-hence "G x Y 0={{}}" using G_def by force
+hence "G dummy Y 0={{}}" by fastforce
 thus ?thesis using 11 by blast
 qed
 
 lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
-assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r = set l"
-assumes "size L=Suc n" assumes "R \<in> set (bijections L Y)"
+assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (injections l Y) \<longrightarrow> Domain r = set l"
+assumes "size L=Suc n" assumes "R \<in> set (injections L Y)"
 shows "Domain R=set L"
 proof -
-let ?B="bijections" let ?c="sup_rels_from" let ?l="sorted_list_of_set"
+let ?B="injections" let ?c="sup_rels_from" let ?l="sorted_list_of_set"
 let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
 4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
 hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
 hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
-using assms set_concat sorry
-  (* TODO CL: fix; no longer works, but I didn't really change injections_def, did I? *)
+using assms set_concat by force
 then obtain a where 
 0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using set_concat by fast
 obtain r where 
@@ -74,7 +71,7 @@ obtain r where
 have "size ?ln=n" using assms by auto then
 have 3: "Domain r = set ?ln" using 6 assms by presburger
 have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]" 
-using 0 6 by (metis sup_rels_from.simps) then
+using 0 6 by force then
 obtain y where 
 2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
 set_concat assms by auto
@@ -86,11 +83,11 @@ ultimately show ?thesis by presburger
 qed
 
 lemma ll40: fixes Y::"'b::linorder set" fixes n fixes x::'a
-shows "\<forall> l . \<forall> r::(('a \<times> 'b) set) . size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r=set l"
+shows "\<forall> l . \<forall> r::(('a \<times> 'b) set) . size l=n & r \<in> set (injections l Y) \<longrightarrow> Domain r=set l"
 proof -
 (* fix Y::"'b::linorder set" fix n::nat fix x::'a *)
 let ?P="(%n::nat . (\<forall> l. \<forall> r::('a \<times> 'b) set . 
-size l=n & r \<in> set (bijections l Y) \<longrightarrow> Domain r = set l))"
+size l=n & r \<in> set (injections l Y) \<longrightarrow> Domain r = set l))"
 have "?P  n"
 proof (rule nat.induct)
 show "?P 0" by force
@@ -101,28 +98,28 @@ thus ?thesis by fast
 qed
 
 lemma ll16: fixes l::"'a list" fixes Y::"'b::linorder set" fixes R
-assumes "R \<in> set (bijections l Y)" shows "Domain R = set l"
+assumes "R \<in> set (injections l Y)" shows "Domain R = set l"
 proof -
-have "size l=size l & R \<in> set (bijections l Y)" using assms by fast
+have "size l=size l & R \<in> set (injections l Y)" using assms by fast
 then show ?thesis using ll40 by blast
 qed
 
-lemma ll42: fixes x Y n assumes "G x Y n \<subseteq> F x Y n" 
-assumes "finite Y" shows "G x Y (Suc n) \<subseteq> F x Y (Suc n)"
+lemma ll42: fixes dummy Y n assumes "G dummy Y n \<subseteq> F dummy Y n" 
+assumes "finite Y" shows "G dummy Y (Suc n) \<subseteq> F dummy Y (Suc n)"
 proof -
-let ?B="bijections" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
-let ?N="Suc n" let ?F="F x Y" let ?G="G x Y" 
+let ?B="injections" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
+let ?N="Suc n" let ?F="F dummy Y" let ?G="G dummy Y" 
 let ?Fn="?F n" let ?Gn="?G n" let ?FN="?F ?N" let ?GN="?G ?N"
 {
 fix g
 (* ::"('a::linorder \<times> 'b::linorder) set" *) 
 assume
-0: "g \<in> G x Y (Suc n)"
+0: "g \<in> G dummy Y (Suc n)"
 let ?DN="Domain g" let ?lN="?l ?DN" let ?x="hd ?lN" let ?ln="drop 1 ?lN" 
 let ?f="g outside {?x}" let ?y="g ,, ?x" let ?RN="Range g" let ?Dn="Domain ?f" 
 let ?Rn="Range ?f" let ?e="% z . (?f +* {(?x,z)})" have 
 6: "finite ?DN & card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" 
-using 0 G_def by blast
+using 0 by auto
 hence "set ?lN=?DN" using sorted_list_of_set_def by simp
 also have "?lN \<noteq> []" using 6 
 by (metis Zero_not_Suc `set (sorted_list_of_set (Domain g)) = Domain g` card_empty empty_set)
@@ -145,7 +142,7 @@ ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
 hence "?f\<inverse> \<subseteq> g\<inverse>" using converse_subrel by metis
 have
-21: "card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" using 0 G_def by blast hence 
+21: "card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" using 0 by force hence 
 23: "finite ?DN" using card_ge_0_finite by force hence 
 24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain) have 
 25: "runiq ?f" using subrel_runiq Outside_def 21 by (metis Diff_subset) have 
@@ -155,16 +152,16 @@ have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_di
 hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
 hence "card ?Dn = n & ?Rn \<subseteq> ?RN" using 21 22 by auto
 hence "card ?Dn = n & ?Rn \<subseteq> Y" using 21 by fast
-hence "?f \<in> G x Y n" using 24 25 26 21 G_def by blast
-hence "?f \<in> F x Y n" using assms by fast
+hence "?f \<in> G dummy Y n" using 24 25 26 21 by simp
+hence "?f \<in> F dummy Y n" using assms by (metis in_mono)
 then obtain ln::"'a list" where
-1: "?f \<in> set (?B ln Y) & size ln=n & card (set ln)=n" using F_def by blast
+1: "?f \<in> set (?B ln Y) & size ln=n & card (set ln)=n" by auto
 let ?lN="?x # ln" have 
 3: "size ?lN=?N" using 1 by (metis Suc_length_conv) 
 have "g \<in> set (concat [ ?c R ?x Y . R <- ?B ln Y])" using 1 2 by auto hence 
-4: "g \<in> set (?B (?x # ln) Y)" using bijections_def by auto
+4: "g \<in> set (?B (?x # ln) Y)" by auto
 hence "card (set ?lN)=?N" using 1 by (metis "21" ll16)
-hence "g\<in>?FN" using F_def 3 4 by blast
+hence "g\<in>?FN" using F_def 3 4 sorry (* TODO CL: fix.  Worked before *)
 also have "size ?lN=?N & card (set ?lN)=?N" 
 using 6 7 by (metis "3" `card (set (hd (sorted_list_of_set (Domain g)) # ln)) = Suc n`)
 ultimately have "g \<in> ?FN" using F_def by blast
@@ -173,20 +170,20 @@ thus "?GN \<subseteq> ?FN" by force
 qed
 
 lemma ll41:
-fixes x::"'a::linorder" 
+fixes dummy::"'a::linorder" 
 fixes Y::"'b::linorder set"
 fixes n::nat
 assumes "finite Y"
-assumes "F x Y n \<subseteq> G x Y n" shows "F x Y (Suc n) \<subseteq>
- G x Y (Suc n)"
+assumes "F dummy Y n \<subseteq> G dummy Y n" shows "F dummy Y (Suc n) \<subseteq>
+ G dummy Y (Suc n)"
 proof -
-let ?r="%x . runiq x" let ?F="F x Y" let ?G="G x Y" let ?B="bijections"
+let ?r="%x . runiq x" let ?F="F dummy Y" let ?G="G dummy Y" let ?B="injections"
 let ?c="sup_rels_from" let ?l="sorted_list_of_set"
 let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 { 
-  fix g assume "g \<in> F x Y (Suc n)" then 
+  fix g assume "g \<in> F dummy Y (Suc n)" then 
   have "g \<in> \<Union> {set (?B l Y) | l . size l=(Suc n) & card (set l)=(Suc n)}" 
-  using F_def by (metis (mono_tags))
+  by (metis (mono_tags) F.simps)
   then obtain a::"('a \<times> 'b) set set" where 
   0: "g\<in> a & a\<in> {set (?B l Y) | l . size l=?N & card (set l)=?N}" 
   using F_def by blast
@@ -199,24 +196,23 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have 22: " card (set ?ln)=n" using 1 by 
   (metis `length (drop 1 lN) = n` distinct_drop distinct_imp_card_eq_length)
   have "set ?ln=set lN-{?x}" 
-  using 1 by (smt Diff_insert_absorb List.set.simps(2) `card (set (drop 1 lN)) = n` `lN = hd lN # drop 1 lN` `length (drop 1 lN) = n` `\<And>thesis. (\<And>lN. a = set (bijections lN Y) \<and> length lN = Suc n \<and> card (set lN) = Suc n \<Longrightarrow> thesis) \<Longrightarrow> thesis` insert_absorb)
+  using 1 by (smt Diff_insert_absorb List.set.simps(2) `card (set (drop 1 lN)) = n` `lN = hd lN # drop 1 lN` `length (drop 1 lN) = n` `\<And>thesis. (\<And>lN. a = set (injections lN Y) \<and> length lN = Suc n \<and> card (set lN) = Suc n \<Longrightarrow> thesis) \<Longrightarrow> thesis` insert_absorb)
   hence
   2: "lN=?x # ?ln & size ?ln=n & card (set ?ln)=n & set ?ln=set lN-{?x}" 
   using 20 21 22 by fast
-  have "?B (?x # ?ln) Y=concat [ ?c R ?x Y . R <- bijections ?ln Y]" 
-  using bijections_def by auto
-  hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- bijections ?ln Y]}"
-  using set_concat 2 by metis 
+  have "?B (?x # ?ln) Y=concat [ ?c R ?x Y . R <- injections ?ln Y]" 
+  by simp
+  hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- injections ?ln Y]}"
+  using set_concat 2 by metis
   then obtain f where 
-  3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using bijections_def 0 1 sorry
-    (* TODO CL: fix this.  No longer works since I've turned sup_rels_from into a fun instead of a definition *)
+  3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using 0 1 by fastforce
   let ?if="f\<inverse>"
-  have "set (?B ?ln Y) \<in> {set (bijections l Y) | l . size l=n & card (set l)=n}"
+  have "set (?B ?ln Y) \<in> {set (injections l Y) | l . size l=n & card (set l)=n}"
   using 2 by blast 
-  hence "f \<in> ?Fn" using 2 3 F_def by fast
+  hence "f \<in> ?Fn" using 2 3 by auto
   hence "f \<in> ?Gn" using assms by blast hence 
   5: "finite (Domain f) & card (Domain f)=n & runiq f & runiq ?if & Range f \<subseteq> Y"
-  using G_def by blast
+  by auto
   have "g \<in> set [ f +* {(?x,y)} . y <- ?l (Y - Range f) ]" using 3 by simp
   then obtain y where
   4: "g=f +* {(?x, y)} & y \<in> set (?l (Y - Range f))" using 3 by auto
@@ -232,28 +228,28 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have "Domain g=Domain f \<union> {?x}" using 6 paste_Domain by (metis Domain_empty Domain_insert)
   hence "card (Domain g)=?N" using 7 5 by auto
   hence "card (Domain g)=?N & finite (Domain g)" using card_ge_0_finite by force
-  hence "g \<in> ?GN" using G_def 8 9 10 5 6 by fast
+  hence "g \<in> ?GN" using 8 9 10 5 6 by auto
 }
 thus ?thesis by fast
 qed
 
-lemma ll44: fixes x Y n assumes "finite Y" shows "F x Y n \<subseteq> G x Y n"
+lemma ll44: fixes dummy Y n assumes "finite Y" shows "F dummy Y n \<subseteq> G dummy Y n"
 proof (rule nat.induct)
-show "F x Y 0 \<subseteq> G x Y 0" using ll43 by force
+show "F dummy Y 0 \<subseteq> G dummy Y 0" using ll43 by (metis set_eq_subset)
 next
-fix m assume "F x Y m \<subseteq> G x Y m"
-thus "F x Y (Suc m) \<subseteq> G x Y (Suc m)" using ll41 assms by fast
+fix m assume "F dummy Y m \<subseteq> G dummy Y m"
+thus "F dummy Y (Suc m) \<subseteq> G dummy Y (Suc m)" using ll41 assms by fast
 qed
 
-lemma ll45: fixes x Y n assumes "finite Y" shows "G x Y n \<subseteq> F x Y n"
+lemma ll45: fixes dummy Y n assumes "finite Y" shows "G dummy Y n \<subseteq> F dummy Y n"
 proof (rule nat.induct)
-show "G x Y 0 \<subseteq> F x Y 0" using ll43 by force
+show "G dummy Y 0 \<subseteq> F dummy Y 0" using ll43 by force
 next
-fix m assume "G x Y m \<subseteq> F x Y m"
-thus "G x Y (Suc m) \<subseteq> F x Y (Suc m)" using ll42 assms by fast
+fix m assume "G dummy Y m \<subseteq> F dummy Y m"
+thus "G dummy Y (Suc m) \<subseteq> F dummy Y (Suc m)" using ll42 assms by fast
 qed
 
-theorem fixes x Y assumes "finite Y" shows "G x Y=F x Y"
+theorem fixes x Y assumes "finite Y" shows "G dummy Y=F dummy Y"
 using assms ll44 ll45 by fast
 
 (* CL@MC: could you please check whether the following are still needed, and delete them otherwise? *)
