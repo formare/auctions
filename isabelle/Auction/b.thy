@@ -17,15 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll27: "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
-proof -
-let ?L="concat LL" let ?LH="set ?L" let ?X="{set l| l. l \<in> set LL}"
-let ?RH="\<Union> ?X"
-have "?LH \<supseteq> ?RH" using concat_def set_def by auto
-also have "?LH \<subseteq> ?RH" using concat_def set_def by auto
-finally show ?thesis by presburger
-qed
-
 lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
 shows "runiq (f +* {(x,y)})"
 using assms runiq_paste2 runiq_singleton_rel by metis
@@ -217,9 +208,9 @@ let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
 4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
 hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
 hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
-using assms bijections_def ll27 by fastforce
+using assms bijections_def set_concat by fastforce
 then obtain a where 
-0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using ll27 by fast
+0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using set_concat by fast
 obtain r where 
 6: "a=?c r ?x Y & r \<in> set (?B ?ln Y)" using 0 by auto
 have "size ?ln=n" using assms by auto then
@@ -228,7 +219,7 @@ have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]"
 using 0 6 childrenof_def by metis then
 obtain y where 
 2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
-ll27 childrenof_def assms by auto
+set_concat childrenof_def assms by auto
 have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert ll20)
 also have "... = set ?ln \<union> {?x}" using 3 by presburger
 also have "... = insert ?x (set ?ln)" by fast
@@ -357,7 +348,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have "?B (?x # ?ln) Y=concat [ ?c R ?x Y . R <- bijections ?ln Y]" 
   using bijections_def by auto
   hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- bijections ?ln Y]}"
-  using ll27 2 by metis 
+  using set_concat 2 by metis 
   then obtain f where 
   3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using bijections_def 0 1 by auto
   let ?if="f\<inverse>"
