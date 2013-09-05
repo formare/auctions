@@ -17,11 +17,8 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll17: "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
-by (metis Domain_Un_eq)
-
 lemma ll20: "Domain (P +* Q) = (Domain P \<union> Domain Q)"
-using ll17 outside_reduces_domain paste_def by (metis Un_Diff_cancel Un_commute)
+using outside_reduces_domain paste_def by (metis Domain_Un_eq Un_Diff_cancel Un_commute)
 
 lemma ll18: "P +* Q \<subseteq> P \<union> Q"
 proof -
