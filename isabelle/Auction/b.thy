@@ -20,10 +20,12 @@ begin
 (* TODO CL: see if we can get rid of the dummy arguments *)
 text {* the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
-fun F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
+definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "F dummy Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
 
-fun G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
+text {* the set of all injective functions (represented as relations) from all sets
+  of cardinality @{term n} to some other set *}
+definition G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
 
 lemma ll43: fixes Y shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
@@ -36,18 +38,18 @@ let ?F="F dummy Y"
 let ?G="G dummy Y"
 have "?B (?l {}) Y = [{}]" by auto
 hence "{{}} = \<Union> {set (injections l Y) | l . size l=0 & card (set l)=0}" by auto
-also have "... = F dummy Y 0" by simp
+also have "... = F dummy Y 0" unfolding F_def by fast
 ultimately have
 11: "F dummy Y 0 = {{}}" by simp
 have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
-hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" by auto
+hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" unfolding G_def by (metis (lifting, full_types) mem_Collect_eq)
 hence 0: "?G 0 \<subseteq> {{}}" by blast
 have 1: "finite (Domain {})" by simp
 have 2: "card (Domain {})=0" by force
 have 3: "runiq {}" using runiq_def trivial_def by fast
 also have "{}\<inverse> = {}" by fast
 ultimately have "runiq ({}\<inverse>)" by metis
-hence "{} \<in> ?G 0" using 1 2 3 by auto
+hence "{} \<in> ?G 0" using 1 2 3 unfolding G_def by (smt Range_converse Range_empty `{}\<inverse> = {}` card_empty empty_subsetI finite.emptyI mem_Collect_eq)
 hence "?G 0 = {{}}" using 0 by auto
 hence "G dummy Y 0={{}}" by fastforce
 thus ?thesis using 11 by blast
@@ -119,7 +121,7 @@ let ?DN="Domain g" let ?lN="?l ?DN" let ?x="hd ?lN" let ?ln="drop 1 ?lN"
 let ?f="g outside {?x}" let ?y="g ,, ?x" let ?RN="Range g" let ?Dn="Domain ?f" 
 let ?Rn="Range ?f" let ?e="% z . (?f +* {(?x,z)})" have 
 6: "finite ?DN & card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" 
-using 0 by auto
+using 0 unfolding G_def by (rule CollectE)
 hence "set ?lN=?DN" using sorted_list_of_set_def by simp
 also have "?lN \<noteq> []" using 6 
 by (metis Zero_not_Suc `set (sorted_list_of_set (Domain g)) = Domain g` card_empty empty_set)
@@ -142,7 +144,8 @@ ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
 hence "?f\<inverse> \<subseteq> g\<inverse>" using converse_subrel by metis
 have
-21: "card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" using 0 by force hence 
+21: "card ?DN=?N & runiq g & runiq (g\<inverse>) & ?RN \<subseteq> Y" using 0 unfolding G_def by (metis "6")
+hence 
 23: "finite ?DN" using card_ge_0_finite by force hence 
 24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain) have 
 25: "runiq ?f" using subrel_runiq Outside_def 21 by (metis Diff_subset) have 
@@ -152,16 +155,16 @@ have "?x \<in> ?DN" using 23 sorted_list_of_set by (metis "21" Diff_empty Suc_di
 hence "card ?Dn=card ?DN - 1" using 27 card_Diff_singleton 23 by metis
 hence "card ?Dn = n & ?Rn \<subseteq> ?RN" using 21 22 by auto
 hence "card ?Dn = n & ?Rn \<subseteq> Y" using 21 by fast
-hence "?f \<in> G dummy Y n" using 24 25 26 21 by simp
+hence "?f \<in> G dummy Y n" using 24 25 26 21 unfolding G_def by (metis (mono_tags) mem_Collect_eq)
 hence "?f \<in> F dummy Y n" using assms by (metis in_mono)
 then obtain ln::"'a list" where
-1: "?f \<in> set (?B ln Y) & size ln=n & card (set ln)=n" by auto
+1: "?f \<in> set (?B ln Y) & size ln=n & card (set ln)=n" unfolding F_def by blast
 let ?lN="?x # ln" have 
 3: "size ?lN=?N" using 1 by (metis Suc_length_conv) 
 have "g \<in> set (concat [ ?c R ?x Y . R <- ?B ln Y])" using 1 2 by auto hence 
 4: "g \<in> set (?B (?x # ln) Y)" by auto
 hence "card (set ?lN)=?N" using 1 by (metis "21" ll16)
-hence "g\<in>?FN" using F_def 3 4 sorry (* TODO CL: fix.  Worked before *)
+hence "g\<in>?FN" using F_def 3 4 by blast
 also have "size ?lN=?N & card (set ?lN)=?N" 
 using 6 7 by (metis "3" `card (set (hd (sorted_list_of_set (Domain g)) # ln)) = Suc n`)
 ultimately have "g \<in> ?FN" using F_def by blast
@@ -183,7 +186,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 { 
   fix g assume "g \<in> F dummy Y (Suc n)" then 
   have "g \<in> \<Union> {set (?B l Y) | l . size l=(Suc n) & card (set l)=(Suc n)}" 
-  by (metis (mono_tags) F.simps)
+  unfolding F_def by fast
   then obtain a::"('a \<times> 'b) set set" where 
   0: "g\<in> a & a\<in> {set (?B l Y) | l . size l=?N & card (set l)=?N}" 
   using F_def by blast
@@ -209,10 +212,10 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   let ?if="f\<inverse>"
   have "set (?B ?ln Y) \<in> {set (injections l Y) | l . size l=n & card (set l)=n}"
   using 2 by blast 
-  hence "f \<in> ?Fn" using 2 3 by auto
+  hence "f \<in> ?Fn" using 2 3 unfolding F_def by blast
   hence "f \<in> ?Gn" using assms by blast hence 
   5: "finite (Domain f) & card (Domain f)=n & runiq f & runiq ?if & Range f \<subseteq> Y"
-  by auto
+  unfolding G_def by fast
   have "g \<in> set [ f +* {(?x,y)} . y <- ?l (Y - Range f) ]" using 3 by simp
   then obtain y where
   4: "g=f +* {(?x, y)} & y \<in> set (?l (Y - Range f))" using 3 by auto
@@ -228,7 +231,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have "Domain g=Domain f \<union> {?x}" using 6 paste_Domain by (metis Domain_empty Domain_insert)
   hence "card (Domain g)=?N" using 7 5 by auto
   hence "card (Domain g)=?N & finite (Domain g)" using card_ge_0_finite by force
-  hence "g \<in> ?GN" using 8 9 10 5 6 by auto
+  hence "g \<in> ?GN" using 8 9 10 5 6 unfolding G_def by blast
 }
 thus ?thesis by fast
 qed
