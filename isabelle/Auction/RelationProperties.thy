@@ -93,6 +93,16 @@ proof -
   then show ?thesis using runiq_def by blast
 qed
 
+text {* A singleton relation is right-unique. *}
+lemma runiq_singleton_rel: "runiq {(x, y)}" (is "runiq ?R")
+unfolding runiq_def
+proof
+  fix z assume "z \<in> Domain ?R"
+  then have "z = x" by simp
+  then have "?R `` {z} = {y}" by fastforce
+  then show "trivial (?R `` {z})" unfolding trivial_def by (rule equalityE) simp
+qed
+
 section {* Image *}
 
 text {* The image of a relation is only effective within the domain of that relation *}

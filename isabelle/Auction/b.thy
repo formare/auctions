@@ -17,16 +17,8 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll05: "runiq {(x,y)}"
-proof -
-let ?f="%x . y" let ?P="% xx. xx=x" let ?X1="{(x,y)}" 
-let ?X2="{(xx, ?f x) | xx. ?P xx}"
-have "?X1 = ?X2" by auto also have "runiq ?X2" using l14 by fast
-ultimately show ?thesis by presburger
-qed
-
 lemma assumes "trivial X" shows "runiq X"
-using ll05 trivial_def by (metis assms subrel_runiq surj_pair)
+using runiq_singleton_rel trivial_def by (metis assms subrel_runiq surj_pair)
 
 lemma ll28: "P=(P outside X) +* (P || X)"
 proof -
@@ -49,7 +41,7 @@ qed
 
 lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
 shows "runiq (f +* {(x,y)})"
-using assms runiq_paste2 ll05 by metis
+using assms runiq_paste2 runiq_singleton_rel by metis
 
 lemma ll17: "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
 by (metis Domain_Un_eq)
@@ -174,7 +166,7 @@ assumes "y \<notin> Range R" assumes "x \<notin> Domain R"
 shows "runiq ((R +* {(x,y)})\<inverse>)"
 proof -
 have "{(x,y)}\<inverse>={(y,x)}" by auto then
-have "runiq ({(x,y)}\<inverse>)" using ll05 by metis
+have "runiq ({(x,y)}\<inverse>)" using runiq_singleton_rel by metis
 also have "Domain R \<inter> Domain {(x,y)}={} & Range R \<inter> (Range {(x,y)})={}" 
 using assms by blast ultimately show ?thesis using assms ll15a by blast
 qed
@@ -394,7 +386,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have "finite (Y -Range f)" using assms by fast hence
   6: "g=f +* {(?x, y)} & y \<in> Y - Range f" 
   using 4 sorted_list_of_set by metis hence 
-  9: "runiq g" using runiq_paste2 5 ll05 by fast
+  9: "runiq g" using runiq_paste2 5 runiq_singleton_rel by fast
   have "Domain f=set ?ln" using ll16 3 by blast hence 
   7: "?x \<notin> Domain f & card (Domain f)=n" using 2 by force hence 
   8: "runiq (g\<inverse>)" using ll15 5 6 by force have 
