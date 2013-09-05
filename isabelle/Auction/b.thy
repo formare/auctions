@@ -17,16 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll18: "P +* Q \<subseteq> P \<union> Q"
-proof -
-have "P outside (Domain Q) \<subseteq> P" using Outside_def by blast
-also have "Q \<subseteq> Q" by fast
-ultimately show ?thesis using paste_def by (metis (hide_lams, no_types) le_supI1 le_sup_iff sup_commute)
-qed
-
-lemma ll21: "Range (P +* Q) \<subseteq> Range P \<union> (Range Q)"
-using ll18 by (metis Range_Un_eq Range_mono)
-
 lemma ll30: fixes x f assumes "x \<in> Domain f" assumes "runiq f" 
 shows "f `` {x} = {f ,, x}"
 proof -
@@ -358,7 +348,7 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have "Domain f=set ?ln" using ll16 3 by blast hence 
   7: "?x \<notin> Domain f & card (Domain f)=n" using 2 by force hence 
   8: "runiq (g\<inverse>)" using ll15 5 6 by force have 
-  10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert ll21)
+  10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert paste_Range)
   (* simplify this using g=f \<union> {...} *)
   have "Domain g=Domain f \<union> {?x}" using 6 paste_Domain by (metis Domain_empty Domain_insert)
   hence "card (Domain g)=?N" using 7 5 by auto

@@ -202,6 +202,14 @@ text {* The domain of two pasted relations equals the union of their domains. *}
 lemma paste_Domain: "Domain (P +* Q) = Domain P \<union> Domain Q"
 unfolding paste_def Outside_def by blast
 
+text {* Pasting two relations yields a subrelation of their union. *}
+lemma paste_sub_Un: "P +* Q \<subseteq> P \<union> Q"
+unfolding paste_def Outside_def by fast
+
+text {* The range of two pasted relations is a subset of the union of their ranges. *}
+lemma paste_Range: "Range (P +* Q) \<subseteq> Range P \<union> Range Q"
+using paste_sub_Un by blast
+
 section {* Converse *}
 
 text {* The definition of @{const converse} isn't suitable for generating code, so we provide
