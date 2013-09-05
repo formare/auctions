@@ -17,26 +17,14 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll32: fixes X f assumes "runiq f" assumes "runiq (f\<inverse>)"
-shows "f\<inverse> `` ( f `` X ) \<subseteq> X"
-proof -
-let ?g="f\<inverse>" let ?Y="f `` X" let ?LH="?g `` ?Y" let ?I="f O ?g"
-have "?I `` X = (\<Union>x \<in> X .?I `` {x})" 
-using Image_def Image_eq_UN by blast
-also have "... = (\<Union>x\<in>X. ?g `` (f `` {x}))" by blast
-also have "... \<subseteq> (\<Union>x \<in> X. {x})" using converse_Image_singleton assms by fast
-also have "... = X" by simp
-finally show ?thesis by fast
-qed
-
 lemma ll37: fixes X1 X2 f assumes "Domain f \<inter> X1 \<inter> X2 = {}" 
 assumes "runiq f" assumes "runiq (f\<inverse>)" shows 
 "f `` X1 \<inter> (f `` X2)={}"
 proof -
 let ?g="f\<inverse>" let ?Y1="f `` X1" let ?Y2="f `` X2" let ?D="Domain f"
 let ?XX1="?D \<inter> X1" let ?XX2="?D \<inter> X2" have 
-1: "?g `` (f `` ?XX1) \<subseteq> ?XX1" using ll32 assms by metis have 
-2: "?g `` (f `` ?XX2) \<subseteq> ?XX2" using ll32 assms by metis hence 
+1: "?g `` (f `` ?XX1) \<subseteq> ?XX1" using converse_Image assms by metis have 
+2: "?g `` (f `` ?XX2) \<subseteq> ?XX2" using converse_Image assms by metis hence 
 4: "?g `` (f `` ?XX1) \<inter> (?g `` (f `` ?XX2)) \<subseteq> {}" using assms 1 by blast have 
 3: "?XX1 \<inter> ?XX2 = {}" using assms by blast
 hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using disj_Image_imp_disj_Domain 4 by fast

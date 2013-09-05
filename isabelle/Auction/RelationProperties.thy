@@ -293,6 +293,20 @@ lemma converse_Image_singleton:
 using assms converse_Image_singleton_Domain
 by (metis Image_empty Image_within_domain' empty_subsetI set_eq_subset)
 
+text {* The inverse image of the image of a set under some relation is a subset of that set,
+  if both the relation and its converse are right-unique. *}
+lemma converse_Image: 
+  assumes runiq: "runiq R"
+      and runiq_conv: "runiq (R\<inverse>)"
+shows "R\<inverse> `` R `` X \<subseteq> X"
+proof -
+  have "(R O R\<inverse>) `` X = (\<Union>x \<in> X . (R O R\<inverse>) `` {x})" by (rule Image_eq_UN)
+  also have "\<dots> = (\<Union>x\<in>X. R\<inverse> `` R `` {x})" by blast
+  also have "\<dots> \<subseteq> (\<Union>x \<in> X. {x})" using converse_Image_singleton assms by fast
+  also have "\<dots> = X" by simp
+  finally show ?thesis by fast
+qed
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 
