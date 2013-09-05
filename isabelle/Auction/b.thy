@@ -17,9 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma assumes "trivial X" shows "runiq X"
-using runiq_singleton_rel trivial_def by (metis assms subrel_runiq surj_pair)
-
 lemma ll28: "P=(P outside X) +* (P || X)"
 proof -
 let ?p="P outside X" let ?q="P || X" let ?dp="Domain ?p" let ?dq="Domain ?q"

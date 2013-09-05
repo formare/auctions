@@ -103,6 +103,13 @@ proof
   then show "trivial (?R `` {z})" unfolding trivial_def by (rule equalityE) simp
 qed
 
+text {* A trivial relation is right-unique *}
+lemma runiq_trivial_rel:
+  assumes "trivial R"
+  shows "runiq R"
+using assms runiq_singleton_rel trivial_def
+by (metis prod.exhaust subrel_runiq)
+
 section {* Image *}
 
 text {* The image of a relation is only effective within the domain of that relation *}
