@@ -360,6 +360,28 @@ proof -
   ultimately show ?thesis using runiq runiq_converse_paste by blast
 qed
 
+section {* Injective functions *}
+
+text {* Given a relation @{term R}, an element @{term x} of the relation's domain type and
+  a set @{term Y} of the relation's range type, this function constructs the list of all 
+  superrelations of @{term R} that extend @{term R} by a pair @{term "(x,y)"} for some
+  @{term y} not yet covered by @{term R}. *}
+fun sup_rels_from :: "('a \<times> 'b\<Colon>linorder) set \<Rightarrow> 'a \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set list"
+where 
+"sup_rels_from R x Y = [ R +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ]"
+(* Y or Y-Range R ? *)
+
+text {* the list of all injective functions (represented as relations) from one set 
+  (represented as a list) to another set *}
+fun injections :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
+where "injections [] Y = [{}]" |
+      "injections (x # xs) Y = concat [ sup_rels_from R x Y . R \<leftarrow> injections xs Y ]"
+(* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
+   an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
+
+(* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
+   This would have to be done by recursing not just to "xs", but to all sublists of "x # xs" of length n - 1. *)
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 
@@ -382,28 +404,5 @@ where "to_relation f X = {(x, f x) | x . x \<in> X}"
 
 definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
 where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
-
-(* TODO CL: Now that we can "easily" generate all total functions,
-   maybe let's revert the "option type" stuff in nVCG.thy (which we introduced to allow for non-totality).
-   Or otherwise we might enable this function to generate partial functions.
-   This would have to be done by recursing not just to "xs", but to 
-   all sublists of "x # xs" of length n - 1.
- *)
-fun injective_functions :: "'a list \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
-where "injective_functions [] ys = {{}}"
-    | "injective_functions (x # xs) ys = 
-       \<Union> (\<lambda> f . (\<lambda> free_in_range . f \<union> {(x, free_in_range)})
-                 ` (ys - (Range f)))
-          ` (injective_functions xs ys)"
-
-value "injective_functions [False,True] {0::nat, 1, 2}"
-
-fun injective_functions_list :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
-where "injective_functions_list [] ys = [{}]"
-    | "injective_functions_list (x # xs) ys = 
-      concat [ map (\<lambda> free_in_range . f \<union> {(x, free_in_range)})
-                 (sorted_list_of_set (ys - (Range f))) . f \<leftarrow> injective_functions_list xs ys ]"
-
-value "injective_functions_list [False,True] {0::nat, 1, 2}"
 
 end

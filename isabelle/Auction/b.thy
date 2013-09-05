@@ -17,22 +17,11 @@ imports a RelationProperties ListUtils
 
 begin
 
-definition childrenof 
-(*::" ('a \<times> 'b::linorder) set => 'a => ('b set) => ('a \<times> 'b) set list"*)
+text {* the set of all injective functions (represented as relations) from all sets 
+  of cardinality @{term n} (represented as lists) to some other set *}
+definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where 
-"childrenof R x Y = [ R +* {(x,y)} . y <- (sorted_list_of_set (Y - Range R))]"
-(* Y or Y-Range R ? *)
-
-fun bijections 
-(*::"'a list => 'b::linorder set => ('a \<times> 'b) set list"*)
-where
-"bijections [] Y = [{}]" |
-"bijections (x # xs) Y = concat [ childrenof R x Y . R <- bijections xs Y ]"
-
-definition F
-::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
-where 
-"F x Y n = \<Union> {set (bijections l Y) | l::('a list) . size l=n & card (set l)=n}"
+"F x Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
 
 definition G
 ::"'a => ('b::linorder set) => nat => ('a::linorder \<times> 'b) set set"
@@ -43,13 +32,13 @@ finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f 
 lemma ll43: fixes x Y shows "F x Y 0={{}} & G x Y 0={{}}"
 proof -
 (* fix x::"'a::linorder" fix Y::"'b::linorder set" fix n *)
-let ?l="sorted_list_of_set" let ?B="bijections"
+let ?l="sorted_list_of_set" let ?B="injections"
 (* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
 let ?F="F x Y"
 (* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
 let ?G="G x Y"
-have "?B (?l {}) Y = [{}]" using bijections_def by auto
-hence "{{}} = \<Union> {set (bijections l Y) | l . size l=0 & card (set l)=0}" by auto
+have "?B (?l {}) Y = [{}]" by auto
+hence "{{}} = \<Union> {set (injections l Y) | l . size l=0 & card (set l)=0}" by auto
 also have "... = F x Y 0" using F_def by blast ultimately have
 11: "F x Y 0={{}}" by force
 have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
@@ -71,12 +60,13 @@ assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & 
 assumes "size L=Suc n" assumes "R \<in> set (bijections L Y)"
 shows "Domain R=set L"
 proof -
-let ?B="bijections" let ?c="childrenof" let ?l="sorted_list_of_set"
+let ?B="bijections" let ?c="sup_rels_from" let ?l="sorted_list_of_set"
 let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
 4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
 hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
 hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
-using assms bijections_def set_concat by fastforce
+using assms set_concat sorry
+  (* TODO CL: fix; no longer works, but I didn't really change injections_def, did I? *)
 then obtain a where 
 0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using set_concat by fast
 obtain r where 
@@ -84,10 +74,10 @@ obtain r where
 have "size ?ln=n" using assms by auto then
 have 3: "Domain r = set ?ln" using 6 assms by presburger
 have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]" 
-using 0 6 childrenof_def by metis then
+using 0 6 by (metis sup_rels_from.simps) then
 obtain y where 
 2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
-set_concat childrenof_def assms by auto
+set_concat assms by auto
 have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert paste_Domain)
 also have "... = set ?ln \<union> {?x}" using 3 by presburger
 also have "... = insert ?x (set ?ln)" by fast
@@ -120,7 +110,7 @@ qed
 lemma ll42: fixes x Y n assumes "G x Y n \<subseteq> F x Y n" 
 assumes "finite Y" shows "G x Y (Suc n) \<subseteq> F x Y (Suc n)"
 proof -
-let ?B="bijections" let ?l="sorted_list_of_set" let ?c="childrenof"
+let ?B="bijections" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
 let ?N="Suc n" let ?F="F x Y" let ?G="G x Y" 
 let ?Fn="?F n" let ?Gn="?G n" let ?FN="?F ?N" let ?GN="?G ?N"
 {
@@ -151,7 +141,7 @@ ultimately have "g = ?e ?y" by presburger
 also have "?y \<in> set (?l (Y - Range ?f))" 
 using 9 6 sorted_list_of_set assms by blast
 ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence 
-2: "g \<in> set (childrenof ?f ?x Y)" using childrenof_def by metis have 
+2: "g \<in> set (sup_rels_from ?f ?x Y)" by (metis sup_rels_from.simps) have 
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
 hence "?f\<inverse> \<subseteq> g\<inverse>" using converse_subrel by metis
 have
@@ -191,7 +181,7 @@ assumes "F x Y n \<subseteq> G x Y n" shows "F x Y (Suc n) \<subseteq>
  G x Y (Suc n)"
 proof -
 let ?r="%x . runiq x" let ?F="F x Y" let ?G="G x Y" let ?B="bijections"
-let ?c="childrenof" let ?l="sorted_list_of_set"
+let ?c="sup_rels_from" let ?l="sorted_list_of_set"
 let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 { 
   fix g assume "g \<in> F x Y (Suc n)" then 
@@ -218,7 +208,8 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- bijections ?ln Y]}"
   using set_concat 2 by metis 
   then obtain f where 
-  3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using bijections_def 0 1 by auto
+  3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using bijections_def 0 1 sorry
+    (* TODO CL: fix this.  No longer works since I've turned sup_rels_from into a fun instead of a definition *)
   let ?if="f\<inverse>"
   have "set (?B ?ln Y) \<in> {set (bijections l Y) | l . size l=n & card (set l)=n}"
   using 2 by blast 
@@ -226,9 +217,9 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   hence "f \<in> ?Gn" using assms by blast hence 
   5: "finite (Domain f) & card (Domain f)=n & runiq f & runiq ?if & Range f \<subseteq> Y"
   using G_def by blast
-  have "g \<in> set [ f +* {(?x,y)} . y <- ?l (Y - Range f) ]" using 3 childrenof_def by metis
+  have "g \<in> set [ f +* {(?x,y)} . y <- ?l (Y - Range f) ]" using 3 by simp
   then obtain y where
-  4: "g=f +* {(?x, y)} & y \<in> set (?l (Y - Range f))" using 3 childrenof_def by auto
+  4: "g=f +* {(?x, y)} & y \<in> set (?l (Y - Range f))" using 3 by auto
   have "finite (Y -Range f)" using assms by fast hence
   6: "g=f +* {(?x, y)} & y \<in> Y - Range f" 
   using 4 sorted_list_of_set by metis hence 

@@ -136,7 +136,7 @@ where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_
 fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
 where "possible_allocations_comp G N =
   concat [
-    injective_functions_list Y N (* the potential buyers *)
+    injections Y N (* the potential buyers *)
     . Y \<leftarrow> all_partitions_alg G ]"
 
 (* example: possibilities to allocate goods {1,2,3} to participants {100,200} *)
