@@ -160,8 +160,9 @@ by (metis Image_within_domain' subset_singletonD)
 
 text {* If the images of two sets @{term X} and @{term Y} under a relation @{term R} are 
   disjoint, @{term X} and @{term Y} are disjoint on the domain of @{term R}. *}
-lemma disj_Image_imp_disj_Domain: assumes "R `` X \<inter> R `` Y = {}" 
-shows "Domain R \<inter> X \<inter> Y = {}"
+lemma disj_Image_imp_disj_Domain:
+  assumes "R `` X \<inter> R `` Y = {}" 
+  shows "Domain R \<inter> X \<inter> Y = {}"
 using assms by auto
 
 section {* paste *}
@@ -305,6 +306,27 @@ proof -
   also have "\<dots> \<subseteq> (\<Union>x \<in> X. {x})" using converse_Image_singleton assms by fast
   also have "\<dots> = X" by simp
   finally show ?thesis by fast
+qed
+
+text {* The inverse statement of @{thm disj_Image_imp_disj_Domain} holds when both the 
+  relation and its converse are right-unique. *}
+lemma disj_Domain_imp_disj_Image: assumes "Domain R \<inter> X \<inter> Y = {}" 
+  assumes "runiq R"
+      and "runiq (R\<inverse>)"
+  shows "R `` X \<inter> R `` Y = {}"
+proof -
+  let ?X_on_Dom = "Domain R \<inter> X"
+  let ?Y_on_Dom = "Domain R \<inter> Y"
+  have "R\<inverse> `` (R `` ?X_on_Dom) \<subseteq> ?X_on_Dom" using converse_Image assms by fast
+  moreover have "R\<inverse> `` (R `` ?Y_on_Dom) \<subseteq> ?Y_on_Dom" using converse_Image assms by metis
+  ultimately have "R\<inverse> `` R `` ?X_on_Dom \<inter> R\<inverse> `` R `` ?Y_on_Dom \<subseteq> {}" using assms by blast
+  moreover have "?X_on_Dom \<inter> ?Y_on_Dom = {}" using assms by blast
+  ultimately
+  have "{} = Domain (R\<inverse>) \<inter> R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom"
+    using disj_Image_imp_disj_Domain by fast
+  also have "\<dots> = Range R \<inter> R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" using Domain_conv_Range by metis
+  also have "\<dots> = R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" by blast
+  finally show ?thesis by auto
 qed
 
 (* TODO CL: check how much of the following we still need *)

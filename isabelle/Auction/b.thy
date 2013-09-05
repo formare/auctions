@@ -17,22 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll37: fixes X1 X2 f assumes "Domain f \<inter> X1 \<inter> X2 = {}" 
-assumes "runiq f" assumes "runiq (f\<inverse>)" shows 
-"f `` X1 \<inter> (f `` X2)={}"
-proof -
-let ?g="f\<inverse>" let ?Y1="f `` X1" let ?Y2="f `` X2" let ?D="Domain f"
-let ?XX1="?D \<inter> X1" let ?XX2="?D \<inter> X2" have 
-1: "?g `` (f `` ?XX1) \<subseteq> ?XX1" using converse_Image assms by metis have 
-2: "?g `` (f `` ?XX2) \<subseteq> ?XX2" using converse_Image assms by metis hence 
-4: "?g `` (f `` ?XX1) \<inter> (?g `` (f `` ?XX2)) \<subseteq> {}" using assms 1 by blast have 
-3: "?XX1 \<inter> ?XX2 = {}" using assms by blast
-hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using disj_Image_imp_disj_Domain 4 by fast
-also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using Domain_conv_Range by metis
-also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
-finally show ?thesis by auto
-qed
-
 lemma ll15a: fixes P Q assumes "runiq (P\<inverse>)" assumes "runiq (Q\<inverse>)"
 assumes "Domain P \<inter> (Domain Q)={}" assumes "Range P \<inter> (Range Q)={}"
 shows "runiq ((P +* Q)\<inverse>)"
@@ -177,7 +161,7 @@ ultimately have
 7: "?x \<in> ?DN" using 0 hd_in_set by metis hence 
 8: "?y \<in> g `` {?x}" using 6 Image_runiq_eq_eval by (metis insertI1)
 also have "?DN \<inter> (?DN - {?x}) \<inter> {?x} = {}" by fast
-hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 ll37 by metis
+hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 disj_Domain_imp_disj_Image by metis
 ultimately have "?y \<notin> g `` (?DN -{?x})" by blast
 hence "?y \<notin> Range ?f" using Range_def Outside_def Range_outside_sub_Image_Domain by blast hence 
 9: "?y \<in> Y - Range ?f & finite (Y-Range ?f)" using 6 8 assms by blast
