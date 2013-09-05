@@ -17,16 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll28: "P=(P outside X) +* (P || X)"
-proof -
-let ?p="P outside X" let ?q="P || X" let ?dp="Domain ?p" let ?dq="Domain ?q"
-let ?D="Domain P" have "P \<subseteq> ?D \<times> (Range P)" by fast
-hence "?p \<subseteq> ?D \<times> (Range P) - (X \<times> (Range P))" using Outside_def by (metis Diff_mono eq_refl)
-hence "?dp \<subseteq> ?D - X" using Outside_def Domain_def by blast
-also have "?dq=?D \<inter> X" using restrict_def by fastforce
-ultimately have "?dp \<inter> ?dq = {}" by blast thus ?thesis using outside_union_restrict paste_disj_domains by metis
-qed
-
 lemma ll27: "set (concat LL)= \<Union> {set l | l . l \<in> set LL}"
 proof -
 let ?L="concat LL" let ?LH="set ?L" let ?X="{set l| l. l \<in> set LL}"
@@ -295,7 +285,7 @@ hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 ll37 by metis
 ultimately have "?y \<notin> g `` (?DN -{?x})" by blast
 hence "?y \<notin> Range ?f" using Range_def Outside_def ll38 by blast hence 
 9: "?y \<in> Y - Range ?f & finite (Y-Range ?f)" using 6 8 assms by blast
-have "g = ?f +* ({?x} \<times> g `` {?x})" using ll28 ll29 by metis
+have "g = ?f +* ({?x} \<times> g `` {?x})" using paste_outside_restrict ll29 by metis
 also have "... = ?f +* ({?x} \<times> {?y})" using 6 7 ll30 by metis
 also have "... = ?f +* {(?x, ?y)}" by simp
 ultimately have "g = ?e ?y" by presburger

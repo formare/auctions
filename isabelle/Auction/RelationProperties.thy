@@ -148,6 +148,16 @@ unfolding paste_def Outside_def
 using assms
 by fast
 
+text {* A relation @{term P} is equivalent to pasting its restriction to some set @{term X} on 
+  @{term "P outside X"}. *}
+lemma paste_outside_restrict: "P = (P outside X) +* (P || X)"
+proof -
+  have "Domain (P outside X) \<inter> Domain (P || X) = {}"
+    unfolding Outside_def restrict_def by fast
+  moreover have "P = P outside X \<union> P || X" by (rule outside_union_restrict)
+  ultimately show ?thesis using paste_disj_domains by metis
+qed
+
 lemma runiq_paste1:
   fixes P::"('a \<times> 'b) set"
     and Q::"('a \<times> 'b) set"
