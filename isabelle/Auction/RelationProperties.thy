@@ -149,6 +149,12 @@ lemma Image_runiq_eq_eval:
 using assms runiq_wrt_eval_rel
 by (metis Image_within_domain' subset_singletonD)
 
+text {* If the images of two sets @{term X} and @{term Y} under a relation @{term R} are 
+  disjoint, @{term X} and @{term Y} are disjoint on the domain of @{term R}. *}
+lemma disj_Image_imp_disj_Domain: assumes "R `` X \<inter> R `` Y = {}" 
+shows "Domain R \<inter> X \<inter> Y = {}"
+using assms by auto
+
 section {* paste *}
 
 text {* the union of two binary relations @{term P} and @{term Q}, where pairs from @{term Q}

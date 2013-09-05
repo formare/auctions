@@ -17,23 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll31: fixes X1 X2 R assumes "R `` X1 \<inter> (R `` X2) = {}" 
-shows "Domain R \<inter> X1 \<inter> X2={}"
-proof -
-let ?Y1="R `` X1" let ?Y2="R `` X2" let ?D="Domain R" let ?X="X1 \<inter> X2"
-have "R `` (?D \<inter> ?X) = R `` ?X" by fast also have "R `` ?X \<subseteq> ?Y1 \<inter> ?Y2" by blast
-ultimately have 
-1: "R `` (?D \<inter> ?X) \<subseteq> ?Y1 \<inter> ?Y2" by simp
-{
-  fix x assume 
-  0: "x \<in> ?D \<inter> ?X" 
-  hence "R `` {x} \<subseteq> R `` (?D \<inter> ?X)" by blast
-  also have "R `` {x} \<noteq> {}" using 0 by fast
-  ultimately have "?Y1 \<inter> ?Y2 \<noteq> {}" using 1 by force
-}
-thus ?thesis using assms Image_def by fast
-qed
-
 lemma ll36: "Domain (R\<inverse>)=Range R"
 by simp
 
@@ -93,7 +76,7 @@ let ?XX1="?D \<inter> X1" let ?XX2="?D \<inter> X2" have
 2: "?g `` (f `` ?XX2) \<subseteq> ?XX2" using ll32 assms by metis hence 
 4: "?g `` (f `` ?XX1) \<inter> (?g `` (f `` ?XX2)) \<subseteq> {}" using assms 1 by blast have 
 3: "?XX1 \<inter> ?XX2 = {}" using assms by blast
-hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll31 4 by fast
+hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using disj_Image_imp_disj_Domain 4 by fast
 also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll36 by metis
 also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
 finally show ?thesis by auto
