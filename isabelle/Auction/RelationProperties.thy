@@ -261,6 +261,11 @@ text {* The domain of the inverse of a relation is the relation's range. *}
 lemma Domain_conv_Range: "Domain (R\<inverse>)=Range R"
 by simp
 
+text {* alternative characterisation of the intersection of a relation's domain with some set, in
+  terms of the converse relation *}
+lemma Domain_Int_wrt_converse: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
+by fast
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 

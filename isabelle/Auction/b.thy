@@ -17,15 +17,12 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll33: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
-by fast
-
 lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
 assumes "x \<in> Domain f"
 shows "f\<inverse> `` ( f `` {x} ) = {x}"
 proof -
 let ?X="{x}" let ?Y="f `` ?X" let ?g="f\<inverse>" let ?XX="?g `` ?Y" have 
-0: "?X \<subseteq> ?XX" using ll33 assms by fast
+0: "?X \<subseteq> ?XX" using Domain_Int_wrt_converse assms by fast
 have "trivial ?Y" using assms unfolding runiq_def by fast
 hence "trivial ?XX" using assms runiq_wrt_eval_rel Image_runiq_eq_eval unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
 hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subset order_refl subset_antisym)
