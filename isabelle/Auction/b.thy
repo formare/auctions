@@ -17,9 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll38: "Range (R outside X) \<subseteq> R `` (Domain R - X)"
-using Outside_def Image_def Domain_def Range_def by blast
-
 lemma ll29: "P || {x} = {x} \<times> (P `` {x})"
 proof -
 let ?X="{x}" let ?LH="P||?X" let ?Y="P `` ?X" let ?RH="?X \<times> ?Y"
@@ -225,7 +222,7 @@ ultimately have
 also have "?DN \<inter> (?DN - {?x}) \<inter> {?x} = {}" by fast
 hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 ll37 by metis
 ultimately have "?y \<notin> g `` (?DN -{?x})" by blast
-hence "?y \<notin> Range ?f" using Range_def Outside_def ll38 by blast hence 
+hence "?y \<notin> Range ?f" using Range_def Outside_def Range_outside_sub_Image_Domain by blast hence 
 9: "?y \<in> Y - Range ?f & finite (Y-Range ?f)" using 6 8 assms by blast
 have "g = ?f +* ({?x} \<times> g `` {?x})" using paste_outside_restrict ll29 by metis
 also have "... = ?f +* ({?x} \<times> {?y})" using 6 7 Image_runiq_eq_eval by metis

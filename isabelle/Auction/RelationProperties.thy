@@ -55,6 +55,11 @@ text {* For any set, a relation equals the union of its restriction to that set 
 lemma outside_union_restrict: "P = P outside X \<union> P || X"
 unfolding Outside_def restrict_def by fast
 
+text {* The range of a relation @{term R} outside some exclusion set @{term X} is a 
+  subset of the image of the domain of @{term R}, minus @{term X}, under @{term R}. *}
+lemma Range_outside_sub_Image_Domain: "Range (R outside X) \<subseteq> R `` (Domain R - X)"
+using Outside_def Image_def Domain_def Range_def by blast
+
 section {* evaluation as a function *}
 
 text {* Evaluates a relation @{term R} for a single argument, as if it were a function.
