@@ -158,6 +158,8 @@ proof -
   ultimately show ?thesis using paste_disj_domains by metis
 qed
 
+text {* Pasting @{term Q} on @{term P} yields a right-unique relation if @{term Q} is 
+  right-unique, and @{term P} is right-unique outside @{term Q}'s domain. *}
 lemma runiq_paste1:
   fixes P::"('a \<times> 'b) set"
     and Q::"('a \<times> 'b) set"
@@ -179,6 +181,7 @@ proof -
   then show ?thesis unfolding paste_def .
 qed
 
+text {* Pasting two right-unique relations yields a right-unique relation. *}
 corollary runiq_paste2:
   assumes "runiq Q"
       and "runiq P" 
