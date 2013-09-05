@@ -304,16 +304,6 @@ thus "trivial X" using 1 trivial_def by fastforce
 qed
 *)
 
-lemma l25: fixes x R assumes "x \<in> Domain R"  assumes "runiq R" 
-shows "(x, R,,x) \<in> R"
-proof -
-let ?y="R ,, x" let ?z="(x, ?y)"
-have "trivial (R `` {x})" using assms unfolding runiq_def by fast
-hence "?y \<in> R `` {x}" using assms the_elem_def eval_rel_def trivial_def 
-by (smt RelationProperties.eval_rel.simps Image_within_domain' subset_empty subset_insert)
-thus "?z \<in> R" by fast 
-qed
-
 lemma l28: fixes r p x q assumes "projector p ,, x \<in> Domain (quotient r p q)"
 assumes "runiq (quotient r p q)"
 assumes "q \<subseteq> Graph id"
@@ -321,7 +311,7 @@ shows "trivial (quotient r p q ,, (projector p ,, x))"
 proof -
 let ?P="projector p" let ?R="quotient r p q"
 let ?Y="?R ,, (?P ,, x)"
-have "(?P ,, x, ?R ,, (?P ,, x)) \<in> ?R" using assms l25 by fast
+have "(?P ,, x, ?R ,, (?P ,, x)) \<in> ?R" using assms eval_runiq_rel by fast
 hence "?R ,, (?P ,, x) \<in> Range ?R" by fast
 hence 2: "?Y \<in> Range (projector q)" using l12 by blast
 thus "trivial ?Y" using l10 2 assms by blast

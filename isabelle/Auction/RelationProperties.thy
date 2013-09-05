@@ -62,6 +62,23 @@ text {* Evaluates a relation @{term R} for a single argument, as if it were a fu
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
 where "eval_rel R a = the_elem (R `` {a})"
 
+section {* Image *}
+
+text {* The image of a relation is only effective within the domain of that relation *}
+lemma Image_within_domain: "R `` X = R `` (X \<inter> Domain R)"
+by fast
+
+text {* An alternative phrasing of @{thm Image_within_domain} *}
+lemma Image_within_domain': fixes x R shows "x \<in> Domain R \<longleftrightarrow> R `` {x} \<noteq> {}"
+using Image_within_domain by blast
+
+text {* The image of a set outside a relation's domain under that domain is empty. *}
+lemma Image_outside_domain:
+  fixes X::"'a set"
+    and R::"('a \<times> 'b) set"
+shows "X \<inter> Domain R = {} \<longleftrightarrow> R `` X = {}"
+using Image_within_domain by blast
+
 section {* right-uniqueness *}
 
 text {* right-uniqueness of a relation (in other words: the relation is a function on its domain) *}
@@ -110,22 +127,27 @@ lemma runiq_trivial_rel:
 using assms runiq_singleton_rel trivial_def
 by (metis prod.exhaust subrel_runiq)
 
-section {* Image *}
+text {* alternative characterisation of the fact that, if a relation @{term R} is right-unique,
+  its evaluation @{term "R,,x"} on some argument @{term x} in its domain, occurs in @{term R}'s
+  range. *}
+lemma eval_runiq_rel:
+  assumes domain: "x \<in> Domain R"
+      and runiq: "runiq R" 
+  shows "(x, R,,x) \<in> R"
+proof -
+  have "trivial (R `` {x})" using domain runiq unfolding runiq_def by fast
+  then have "R ,, x \<in> R `` {x}" using domain
+    by (metis Image_within_domain' RelationProperties.eval_rel.simps subset_empty subset_insert trivial_def)
+  then show ?thesis by fast 
+qed
 
-text {* The image of a relation is only effective within the domain of that relation *}
-lemma Image_within_domain: "R `` X = R `` (X \<inter> Domain R)"
-by fast
-
-text {* An alternative phrasing of @{thm Image_within_domain} *}
-lemma Image_within_domain': fixes x R shows "x \<in> Domain R \<longleftrightarrow> R `` {x} \<noteq> {}"
-using Image_within_domain by blast
-
-text {* The image of a set outside a relation's domain under that domain is empty. *}
-lemma Image_outside_domain:
-  fixes X::"'a set"
-    and R::"('a \<times> 'b) set"
-shows "X \<inter> Domain R = {} \<longleftrightarrow> R `` X = {}"
-using Image_within_domain by blast
+text {* The image of a singleton set under a right-unique relation is a singleton set. *}
+lemma Image_runiq_eq_eval:
+  assumes "x \<in> Domain R"
+      and "runiq R" 
+  shows "R `` {x} = {R ,, x}"
+using assms runiq_wrt_eval_rel
+by (metis Image_within_domain' subset_singletonD)
 
 section {* paste *}
 

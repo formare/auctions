@@ -17,15 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll30: fixes x f assumes "x \<in> Domain f" assumes "runiq f" 
-shows "f `` {x} = {f ,, x}"
-proof -
-let ?X="{x}" let ?Y="f `` ?X" let ?y="f ,, x"
-have "?Y \<subseteq> {?y}" using assms runiq_wrt_eval_rel by metis
-also have "?y \<in> ?Y" using assms l25 by (metis Image_singleton_iff)
-ultimately show ?thesis by blast
-qed
-
 lemma ll31: fixes X1 X2 R assumes "R `` X1 \<inter> (R `` X2) = {}" 
 shows "Domain R \<inter> X1 \<inter> X2={}"
 proof -
@@ -71,7 +62,7 @@ proof -
 let ?X="{x}" let ?Y="f `` ?X" let ?g="f\<inverse>" let ?XX="?g `` ?Y" have 
 0: "?X \<subseteq> ?XX" using ll33 assms by fast
 have "trivial ?Y" using assms unfolding runiq_def by fast
-hence "trivial ?XX" using assms runiq_wrt_eval_rel ll30 unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
+hence "trivial ?XX" using assms runiq_wrt_eval_rel Image_runiq_eq_eval unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
 hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subset order_refl subset_antisym)
 thus ?thesis by auto
 qed
@@ -250,14 +241,14 @@ also have "?lN \<noteq> []" using 6
 by (metis Zero_not_Suc `set (sorted_list_of_set (Domain g)) = Domain g` card_empty empty_set)
 ultimately have 
 7: "?x \<in> ?DN" using 0 hd_in_set by metis hence 
-8: "?y \<in> g `` {?x}" using 6 ll30 by (metis insertI1)
+8: "?y \<in> g `` {?x}" using 6 Image_runiq_eq_eval by (metis insertI1)
 also have "?DN \<inter> (?DN - {?x}) \<inter> {?x} = {}" by fast
 hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 ll37 by metis
 ultimately have "?y \<notin> g `` (?DN -{?x})" by blast
 hence "?y \<notin> Range ?f" using Range_def Outside_def ll38 by blast hence 
 9: "?y \<in> Y - Range ?f & finite (Y-Range ?f)" using 6 8 assms by blast
 have "g = ?f +* ({?x} \<times> g `` {?x})" using paste_outside_restrict ll29 by metis
-also have "... = ?f +* ({?x} \<times> {?y})" using 6 7 ll30 by metis
+also have "... = ?f +* ({?x} \<times> {?y})" using 6 7 Image_runiq_eq_eval by metis
 also have "... = ?f +* {(?x, ?y)}" by simp
 ultimately have "g = ?e ?y" by presburger
 also have "?y \<in> set (?l (Y - Range ?f))" 
