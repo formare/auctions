@@ -189,6 +189,15 @@ shows "runiq (P +* Q)"
 using assms runiq_paste1 subrel_runiq
 by (metis Diff_subset Outside_def)
 
+text {* Pasting a singleton relation on some other right-unique relation @{term R} yields a
+  right-unique relation if the single element of the singleton's domain is not yet in the 
+  domain of @{term R}. *}
+lemma runiq_paste3:
+  assumes "runiq R"
+      and "x \<notin> Domain R" 
+  shows "runiq (R +* {(x, y)})"
+using assms runiq_paste2 runiq_singleton_rel by metis
+
 section {* Converse *}
 
 text {* The definition of @{const converse} isn't suitable for generating code, so we provide

@@ -17,10 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll14: fixes f x assumes "runiq f" assumes "x \<notin> Domain f" 
-shows "runiq (f +* {(x,y)})"
-using assms runiq_paste2 runiq_singleton_rel by metis
-
 lemma ll17: "Domain (P \<union> Q) = Domain P \<union> (Domain Q)"
 by (metis Domain_Un_eq)
 
