@@ -38,6 +38,10 @@ text {* Restricting a relation only has an effect within its domain. *}
 lemma restriction_within_domain: "P || X = P || (X \<inter> (Domain P))"
 unfolding restrict_def by fast
 
+text {* alternative characterisation of the restriction of a relation to a singleton set *}
+lemma restrict_to_singleton: "P || {x} = {x} \<times> P `` {x}"
+unfolding restrict_def by fast
+
 section {* relation outside some set *}
 
 text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those

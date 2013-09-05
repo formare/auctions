@@ -17,18 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll29: "P || {x} = {x} \<times> (P `` {x})"
-proof -
-let ?X="{x}" let ?LH="P||?X" let ?Y="P `` ?X" let ?RH="?X \<times> ?Y"
-have "?RH \<subseteq> P" by fast
-also have "Domain ?RH \<subseteq> ?X" by fast
-finally have 0: "?RH \<subseteq> ?LH" using restrict_def by fast
-have "Domain ?LH = Domain P \<inter> ?X" using restrict_def by fastforce
-then also have "Range ?LH = ?Y" using restrict_def by fast
-ultimately have "?LH \<subseteq> ?RH" by auto
-thus ?thesis using 0 by fast
-qed
-
 lemma ll33: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
 by fast
 
@@ -224,7 +212,7 @@ hence "g `` (?DN - {?x}) \<inter> (g `` {?x})={}" using 6 ll37 by metis
 ultimately have "?y \<notin> g `` (?DN -{?x})" by blast
 hence "?y \<notin> Range ?f" using Range_def Outside_def Range_outside_sub_Image_Domain by blast hence 
 9: "?y \<in> Y - Range ?f & finite (Y-Range ?f)" using 6 8 assms by blast
-have "g = ?f +* ({?x} \<times> g `` {?x})" using paste_outside_restrict ll29 by metis
+have "g = ?f +* ({?x} \<times> g `` {?x})" using paste_outside_restrict restrict_to_singleton by metis
 also have "... = ?f +* ({?x} \<times> {?y})" using 6 7 Image_runiq_eq_eval by metis
 also have "... = ?f +* {(?x, ?y)}" by simp
 ultimately have "g = ?e ?y" by presburger
