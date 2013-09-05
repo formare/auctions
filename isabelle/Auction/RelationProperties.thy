@@ -266,6 +266,23 @@ text {* alternative characterisation of the intersection of a relation's domain 
 lemma Domain_Int_wrt_converse: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
 by fast
 
+text {* The inverse image of the image of a singleton set under some relation is the same
+  singleton set, if both the relation and its converse are right-unique. *}
+lemma converse_Image_singleton:
+  assumes runiq: "runiq R"
+      and runiq_conv: "runiq (R\<inverse>)"
+      and domain: "x \<in> Domain R"
+shows "R\<inverse> `` R `` {x} = {x}"
+proof -
+  have sup: "{x} \<subseteq> R\<inverse> `` R `` {x}" using Domain_Int_wrt_converse domain by fast
+  have "trivial (R `` {x})" using runiq domain unfolding runiq_def by fast
+  then have "trivial (R\<inverse> `` R `` {x})"
+    using assms
+    by (metis Image_runiq_eq_eval RelationProperties.eval_rel.simps runiq_wrt_eval_rel trivial_def)
+  then show ?thesis
+    using sup by (metis singleton_sub_trivial_uniq subset_antisym trivial_def)
+qed
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 

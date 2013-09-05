@@ -17,21 +17,9 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll34: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
-assumes "x \<in> Domain f"
-shows "f\<inverse> `` ( f `` {x} ) = {x}"
-proof -
-let ?X="{x}" let ?Y="f `` ?X" let ?g="f\<inverse>" let ?XX="?g `` ?Y" have 
-0: "?X \<subseteq> ?XX" using Domain_Int_wrt_converse assms by fast
-have "trivial ?Y" using assms unfolding runiq_def by fast
-hence "trivial ?XX" using assms runiq_wrt_eval_rel Image_runiq_eq_eval unfolding trivial_def by (metis RelationProperties.eval_rel.simps)
-hence "?XX = ?X" using 0 trivial_def by (metis empty_iff insert_iff insert_subset order_refl subset_antisym)
-thus ?thesis by auto
-qed
-
 lemma ll35: fixes x f assumes  "runiq f" assumes "runiq (f\<inverse>)"
 shows "f\<inverse> `` ( f `` {x} ) \<subseteq> {x}"
-using assms ll34 by (metis Image_empty eq_refl Image_within_domain' subset_insertI)
+using assms converse_Image_singleton by (metis Image_empty eq_refl Image_within_domain' subset_insertI)
 
 lemma ll32: fixes X f assumes "runiq f" assumes "runiq (f\<inverse>)"
 shows "f\<inverse> `` ( f `` X ) \<subseteq> X"
