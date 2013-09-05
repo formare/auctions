@@ -17,9 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll02: fixes x X assumes "trivial X" assumes "x \<subseteq> X" shows "trivial x"
-using assms trivial_def by (metis (hide_lams, no_types) all_not_in_conv set_mp subsetI subset_singletonD)
-
 lemma ll05: "runiq {(x,y)}"
 proof -
 let ?f="%x . y" let ?P="% xx. xx=x" let ?X1="{(x,y)}" 
