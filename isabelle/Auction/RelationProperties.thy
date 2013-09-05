@@ -248,6 +248,10 @@ text {* If two relations are subrelations of each other, so are their converse r
 lemma converse_subrel: assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
 using assms by fast
 
+text {* The domain of the inverse of a relation is the relation's range. *}
+lemma Domain_conv_Range: "Domain (R\<inverse>)=Range R"
+by simp
+
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 

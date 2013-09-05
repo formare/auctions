@@ -17,9 +17,6 @@ imports a RelationProperties ListUtils
 
 begin
 
-lemma ll36: "Domain (R\<inverse>)=Range R"
-by simp
-
 lemma ll38: "Range (R outside X) \<subseteq> R `` (Domain R - X)"
 using Outside_def Image_def Domain_def Range_def by blast
 
@@ -77,7 +74,7 @@ let ?XX1="?D \<inter> X1" let ?XX2="?D \<inter> X2" have
 4: "?g `` (f `` ?XX1) \<inter> (?g `` (f `` ?XX2)) \<subseteq> {}" using assms 1 by blast have 
 3: "?XX1 \<inter> ?XX2 = {}" using assms by blast
 hence "{} = Domain ?g \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using disj_Image_imp_disj_Domain 4 by fast
-also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using ll36 by metis
+also have "... = Range f \<inter> (f `` ?XX1) \<inter> (f `` ?XX2)" using Domain_conv_Range by metis
 also have "... = f `` ?XX1 \<inter> (f `` ?XX2)" by blast
 finally show ?thesis by auto
 qed
@@ -89,7 +86,7 @@ proof -
 let ?i="converse" let ?p="?i P" let ?q="?i Q" let ?R="P +* Q" let ?r="?i ?R"
 have "?R = P \<union> Q" using assms paste_disj_domains by metis 
 hence "?r = ?p \<union> ?q" by auto
-also have "... = ?p +* ?q" using assms paste_disj_domains ll36 by metis
+also have "... = ?p +* ?q" using assms paste_disj_domains Domain_conv_Range by metis
 ultimately show ?thesis using runiq_paste2 assms by auto
 qed
 
