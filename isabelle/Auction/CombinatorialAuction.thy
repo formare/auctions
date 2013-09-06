@@ -75,27 +75,6 @@ definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x =
 (* trivial tie-breaking for allocation lists: take the first one with "hd list" *)
 definition tie_breaker_example_comp :: tie_breaker_comp where "tie_breaker_example_comp = hd"
 
-(* the example from "The Lovely but Lonely Vickrey Auction" *)
-definition paper_example_participants :: "participant set" where "paper_example_participants = {1::nat, 2, 3}"
-definition paper_example_goods :: goods where "paper_example_goods = {(* A *) 11, (* B *) 12}"
-definition paper_example_bids :: bids where "paper_example_bids bidder goods = (
-      if (bidder = 1 \<and> goods = {11,12}
-          \<or> (bidder = 2 \<or> bidder = 3) \<and> card goods = 1)
-      then 2
-      else 0)"
-(* the same in CATS format *)
-definition cats_example_participants :: "participant set" where "cats_example_participants = {0..4}"
-definition cats_example_goods :: goods where "cats_example_goods = {0..3}"
-definition cats_example_bids :: bids where "cats_example_bids bidder goods = (
-      if (
-          bidder = 0 \<and> goods = {0,1}
-        \<or> bidder = 1 \<and> goods = {0,2}
-        \<or> bidder = 2 \<and> goods = {1,2}
-        \<or> bidder = 3 \<and> goods = {0,3}
-        \<or> bidder = 4 \<and> goods = {1,3}
-      ) then 2
-      else 0)"
-
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
 where "revenue_rel b buyer  = (\<Sum> y \<in> Domain buyer . b (buyer ,, y) y
