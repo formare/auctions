@@ -735,7 +735,7 @@ corollary [code_unfold]:
    (this allows us to use the recursive function all_partitions_list).
    For a general list we can only guarantee compliance once we establish distinctness. *)
 
-section {* Unused alternative definitions *}
+section {* Unused alternative definitions by Christoph Lange *}
 
 text {* @{term E} is the set of all equivalence relations on the set @{term X}. *}
 definition isEquivSet :: "('a \<times> 'a) set set \<Rightarrow> 'a set \<Rightarrow> bool"

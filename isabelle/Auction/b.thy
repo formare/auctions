@@ -18,12 +18,12 @@ imports RelationProperties ListUtils
 begin
 
 (* TODO CL: see if we can get rid of the dummy arguments *)
-text {* the set of all injective functions (represented as relations) from all sets 
+text {* algorithmic definition of the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
 definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "F dummy Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
 
-text {* the set of all injective functions (represented as relations) from all sets
+text {* textbook-style definition of the set of all injective functions (represented as relations) from all sets
   of cardinality @{term n} to some other set *}
 definition G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
