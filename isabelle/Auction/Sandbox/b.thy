@@ -13,7 +13,9 @@ See LICENSE file for details
 
 theory b
 (* MC@CL: Here, too, a lot stuff would fit good into Relation_Prop *)
-imports RelationProperties ListUtils
+imports
+  "../RelationProperties"
+  "../ListUtils"
 
 begin
 

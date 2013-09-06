@@ -21,7 +21,12 @@ that is redundant with what you have in a.thy and b.thy.  Such as my old computa
 injective functions.  Some of this may be obsolete now, or it may be worth preserving in 
 an "alternative" section; compare Partitions.
 *)
-imports  Equiv_Relations SetUtils RelationProperties Partitions SEQ
+imports
+  Equiv_Relations
+  "../SetUtils"
+  "../RelationProperties"
+  "../Partitions"
+  SEQ
 (*"$AFP/Collections/common/Misc"*)
 
 begin
