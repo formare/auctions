@@ -23,7 +23,7 @@ begin
 text {* algorithmic definition of the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
 definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
-where "F dummy Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
+where "F dummy Y n = \<Union> {set (injections_alg l Y) | l::('a list) . size l=n & card (set l)=n}"
 
 text {* textbook-style definition of the set of all injective functions (represented as relations) from all sets
   of cardinality @{term n} to some other set *}
@@ -33,13 +33,13 @@ where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runi
 lemma ll43: fixes Y shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
 proof -
 (* fix x::"'a::linorder" fix Y::"'b::linorder set" fix n *)
-let ?l="sorted_list_of_set" let ?B="injections"
+let ?l="sorted_list_of_set" let ?B="injections_alg"
 (* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
 let ?F="F dummy Y"
 (* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
 let ?G="G dummy Y"
 have "?B (?l {}) Y = [{}]" by auto
-hence "{{}} = \<Union> {set (injections l Y) | l . size l=0 & card (set l)=0}" by auto
+hence "{{}} = \<Union> {set (injections_alg l Y) | l . size l=0 & card (set l)=0}" by auto
 also have "... = F dummy Y 0" unfolding F_def by fast
 ultimately have
 11: "F dummy Y 0 = {{}}" by simp
@@ -58,11 +58,11 @@ thus ?thesis using 11 by blast
 qed
 
 lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
-assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (injections l Y) \<longrightarrow> Domain r = set l"
-assumes "size L=Suc n" assumes "R \<in> set (injections L Y)"
+assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l"
+assumes "size L=Suc n" assumes "R \<in> set (injections_alg L Y)"
 shows "Domain R=set L"
 proof -
-let ?B="injections" let ?c="sup_rels_from" let ?l="sorted_list_of_set"
+let ?B="injections_alg" let ?c="sup_rels_from" let ?l="sorted_list_of_set"
 let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
 4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
 hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
@@ -87,11 +87,11 @@ ultimately show ?thesis by presburger
 qed
 
 lemma ll40: fixes Y::"'b::linorder set" fixes n fixes x::'a
-shows "\<forall> l . \<forall> r::(('a \<times> 'b) set) . size l=n & r \<in> set (injections l Y) \<longrightarrow> Domain r=set l"
+shows "\<forall> l . \<forall> r::(('a \<times> 'b) set) . size l=n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r=set l"
 proof -
 (* fix Y::"'b::linorder set" fix n::nat fix x::'a *)
 let ?P="(%n::nat . (\<forall> l. \<forall> r::('a \<times> 'b) set . 
-size l=n & r \<in> set (injections l Y) \<longrightarrow> Domain r = set l))"
+size l=n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l))"
 have "?P  n"
 proof (rule nat.induct)
 show "?P 0" by force
@@ -102,9 +102,9 @@ thus ?thesis by fast
 qed
 
 lemma ll16: fixes l::"'a list" fixes Y::"'b::linorder set" fixes R
-assumes "R \<in> set (injections l Y)" shows "Domain R = set l"
+assumes "R \<in> set (injections_alg l Y)" shows "Domain R = set l"
 proof -
-have "size l=size l & R \<in> set (injections l Y)" using assms by fast
+have "size l=size l & R \<in> set (injections_alg l Y)" using assms by fast
 then show ?thesis using ll40 by blast
 qed
 
@@ -113,7 +113,7 @@ assumes "G dummy Y n \<subseteq> F dummy Y n"
 and "finite Y"
 shows "G dummy Y (Suc n) \<subseteq> F dummy Y (Suc n)"
 proof -
-let ?B="injections" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
+let ?B="injections_alg" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
 let ?N="Suc n" let ?F="F dummy Y" let ?G="G dummy Y" 
 let ?Fn="?F n" let ?Gn="?G n" let ?FN="?F ?N" let ?GN="?G ?N"
 {
@@ -184,7 +184,7 @@ assumes "finite Y"
 assumes "F dummy Y n \<subseteq> G dummy Y n" shows "F dummy Y (Suc n) \<subseteq>
  G dummy Y (Suc n)"
 proof -
-let ?r="%x . runiq x" let ?F="F dummy Y" let ?G="G dummy Y" let ?B="injections"
+let ?r="%x . runiq x" let ?F="F dummy Y" let ?G="G dummy Y" let ?B="injections_alg"
 let ?c="sup_rels_from" let ?l="sorted_list_of_set"
 let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 { 
@@ -203,18 +203,18 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
   have 22: " card (set ?ln)=n" using 1 by 
   (metis `length (drop 1 lN) = n` distinct_drop distinct_imp_card_eq_length)
   have "set ?ln=set lN-{?x}" 
-  using 1 by (smt Diff_insert_absorb List.set.simps(2) `card (set (drop 1 lN)) = n` `lN = hd lN # drop 1 lN` `length (drop 1 lN) = n` `\<And>thesis. (\<And>lN. a = set (injections lN Y) \<and> length lN = Suc n \<and> card (set lN) = Suc n \<Longrightarrow> thesis) \<Longrightarrow> thesis` insert_absorb)
+  using 1 by (smt Diff_insert_absorb List.set.simps(2) `card (set (drop 1 lN)) = n` `lN = hd lN # drop 1 lN` `length (drop 1 lN) = n` `\<And>thesis. (\<And>lN. a = set (injections_alg lN Y) \<and> length lN = Suc n \<and> card (set lN) = Suc n \<Longrightarrow> thesis) \<Longrightarrow> thesis` insert_absorb)
   hence
   2: "lN=?x # ?ln & size ?ln=n & card (set ?ln)=n & set ?ln=set lN-{?x}" 
   using 20 21 22 by fast
-  have "?B (?x # ?ln) Y=concat [ ?c R ?x Y . R <- injections ?ln Y]" 
+  have "?B (?x # ?ln) Y=concat [ ?c R ?x Y . R <- injections_alg ?ln Y]" 
   by simp
-  hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- injections ?ln Y]}"
+  hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- injections_alg ?ln Y]}"
   using set_concat 2 by metis
   then obtain f where 
   3: "f \<in> set (?B ?ln Y) & g \<in> set (?c f ?x Y)" using 0 1 by fastforce
   let ?if="f\<inverse>"
-  have "set (?B ?ln Y) \<in> {set (injections l Y) | l . size l=n & card (set l)=n}"
+  have "set (?B ?ln Y) \<in> {set (injections_alg l Y) | l . size l=n & card (set l)=n}"
   using 2 by blast 
   hence "f \<in> ?Fn" using 2 3 unfolding F_def by blast
   hence "f \<in> ?Gn" using assms by blast hence 

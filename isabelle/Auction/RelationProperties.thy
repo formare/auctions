@@ -362,6 +362,10 @@ qed
 
 section {* Injective functions *}
 
+text {* the set of all injective functions from @{term X} to @{term Y} *}
+definition injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
+where "injections X Y = {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
+
 text {* Given a relation @{term R}, an element @{term x} of the relation's domain type and
   a set @{term Y} of the relation's range type, this function constructs the list of all 
   superrelations of @{term R} that extend @{term R} by a pair @{term "(x,y)"} for some
@@ -373,11 +377,23 @@ where
 
 text {* the list of all injective functions (represented as relations) from one set 
   (represented as a list) to another set *}
-fun injections :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
-where "injections [] Y = [{}]" |
-      "injections (x # xs) Y = concat [ sup_rels_from R x Y . R \<leftarrow> injections xs Y ]"
+fun injections_alg :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
+where "injections_alg [] Y = [{}]" |
+      "injections_alg (x # xs) Y = concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]"
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
+
+text {* The paper-like definition @{const injections} and the algorithmic definition 
+  @{const injections_alg} are equivalent. *}
+theorem injections_equiv:
+  shows "injections (set xs) Y = set (injections_alg xs Y)"
+proof (induct xs)
+  case Nil
+  show ?case sorry
+next
+  case (Cons x xs)
+  show ?case sorry
+qed
 
 (* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
    This would have to be done by recursing not just to "xs", but to all sublists of "x # xs" of length n - 1. *)
