@@ -5,7 +5,7 @@ Font settings copied from:
 *******************************************************************************/
 
 @import url(pygment_trac.css);
-@import url(bootstrap.css);
+@import url(bootstrap.min.css);
 
 /*******************************************************************************
 Theme Styles
