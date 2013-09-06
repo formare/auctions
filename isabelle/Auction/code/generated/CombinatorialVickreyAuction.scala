@@ -750,11 +750,10 @@ def eval_rel_or[A : HOL.equal, B : HOL.equal](r: Set.set[(A, B)], a: A, z: B):
 
 } /* object RelationProperties */
 
-object nVCG_CaseChecker {
+object CombinatorialAuction {
 
-import /*implicits*/ RealDef.equal_real, Nata.linorder_nat,
-  RealDef.linorder_real, RealDef.comm_monoid_add_real, Set.equal_set,
-  Nata.equal_nat
+import /*implicits*/ Nata.linorder_nat, RealDef.comm_monoid_add_real,
+  Set.equal_set, Nata.equal_nat
 
 def revenue_rel(b: Nat => (Set.set[Nat]) => RealDef.real,
                  buyer: Set.set[(Set.set[Nat], Nat)]):
@@ -774,19 +773,28 @@ def possible_allocations_comp(g: Set.set[Nat], n: Set.set[Nat]):
                         Nat](y, n),
                                 Partitions.all_partitions_alg[Nat](g))
 
+} /* object CombinatorialAuction */
+
+object CombinatorialVickreyAuction {
+
+import /*implicits*/ RealDef.equal_real, RealDef.comm_monoid_add_real,
+  Set.equal_set, Nata.equal_nat, RealDef.linorder_real
+
 def max_revenue_comp(g: Set.set[Nat], n: Set.set[Nat],
                       b: Nat => (Set.set[Nat]) => RealDef.real):
       RealDef.real =
   Maximum.maximum_comp_list[Set.set[(Set.set[Nat], Nat)],
-                             RealDef.real](possible_allocations_comp(g, n),
-    (a: Set.set[(Set.set[Nat], Nat)]) => revenue_rel(b, a))
+                             RealDef.real](CombinatorialAuction.possible_allocations_comp(g,
+           n),
+    (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.revenue_rel(b, a))
 
 def winning_allocations_comp_CL(g: Set.set[Nat], n: Set.set[Nat],
                                  b: Nat => (Set.set[Nat]) => RealDef.real):
       List[Set.set[(Set.set[Nat], Nat)]] =
   Maximum.arg_max_comp_list[Set.set[(Set.set[Nat], Nat)],
-                             RealDef.real](possible_allocations_comp(g, n),
-    (a: Set.set[(Set.set[Nat], Nat)]) => revenue_rel(b, a))
+                             RealDef.real](CombinatorialAuction.possible_allocations_comp(g,
+           n),
+    (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.revenue_rel(b, a))
 
 def payments_comp_workaround(g: Set.set[Nat], na: Set.set[Nat],
                               t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
@@ -807,4 +815,4 @@ def payments_comp_workaround(g: Set.set[Nat], na: Set.set[Nat],
                                   m, Set.bot_set[Nat])),
                    Set.remove[Nat](n, na)))
 
-} /* object nVCG_CaseChecker */
+} /* object CombinatorialVickreyAuction */
