@@ -173,7 +173,7 @@ definition paste (infix "+*" 75)
 where "P +* Q = (P outside Domain Q) \<union> Q"
 (* Avoids possible conflicts btw P & Q using `outside', 
 thus giving precedence to Q. This is particularly useful when 
-P, Q are functions, and we want to preserve that property. *)
+P, Q are functions, and one wants to preserve that property. *)
 
 text {* If a relation @{term P} is a subrelation of another relation @{term Q} on @{term Q}'s
   domain, pasting @{term Q} on @{term P} is the same as forming their union. *}
@@ -404,5 +404,6 @@ where "to_relation f X = {(x, f x) | x . x \<in> X}"
 
 definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
 where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
-
+(* MC: for the moment, we've used runiq inverse R, reusing existing definitions,
+instead of this. *)
 end
