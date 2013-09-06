@@ -406,4 +406,27 @@ definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
 where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
 (* MC: for the moment, we've used runiq inverse R, reusing existing definitions,
 instead of this. *)
+
+
+lemma "runiq R \<Longrightarrow> runiq (R \<inverse>) \<Longrightarrow> injective R"
+proof -
+  assume runiq: "runiq R"
+  assume runiq_conv: "runiq (R \<inverse>)"
+  {
+    fix a assume a_Dom: "a \<in> Domain R"
+    fix b assume b_Dom: "b \<in> Domain R"
+    have "R `` {a} = R `` {b} \<longrightarrow> a = b"
+    proof
+      assume eq_Im: "R `` {a} = R `` {b}"
+      from runiq a_Dom obtain Ra where Ra: "R `` {a} = {Ra}" by (metis Image_runiq_eq_eval runiq)
+      from runiq b_Dom obtain Rb where Rb: "R `` {b} = {Rb}" by (metis Image_runiq_eq_eval runiq)
+      from eq_Im Ra Rb have eq_Im': "Ra = Rb" by simp
+      from eq_Im' Ra a_Dom runiq_conv have a': "(R \<inverse>) `` {Ra} = {a}" by (metis converse_Image_singleton_Domain runiq)
+      from eq_Im' Rb b_Dom runiq_conv have b': "(R \<inverse>) `` {Rb} = {b}" by (metis converse_Image_singleton_Domain runiq)
+      from eq_Im' a' b' show "a = b" by (metis the_elem_eq)
+    qed
+  }
+  then show ?thesis unfolding injective_def by blast
+qed
+
 end

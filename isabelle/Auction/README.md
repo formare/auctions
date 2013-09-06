@@ -1,0 +1,12 @@
+For a user-oriented overview of the Isabelle auction formalisation, please see
+[the project homepage](http://formare.github.io/auctions/isabelle.html).
+
+For development information please read on.
+
+Any code in this directory should comply with the conventions listed below.  Experimental code that
+doesn't should go into the [Sandbox](Sandbox/) directory.
+
+1. Use descriptive names for theories and for statements within theories (definitions, lemmas, etc.).
+2. Document at least every theory and every major statement.
+3. Follow a reasonable code style.
+4. Make sure the code is valid, i.e. syntactically well-formed and all proofs work.

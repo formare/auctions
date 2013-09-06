@@ -13,17 +13,19 @@ See LICENSE file for details
 
 theory b
 (* MC@CL: Here, too, a lot stuff would fit good into Relation_Prop *)
-imports a RelationProperties ListUtils
+imports
+  "../RelationProperties"
+  "../ListUtils"
 
 begin
 
 (* TODO CL: see if we can get rid of the dummy arguments *)
-text {* the set of all injective functions (represented as relations) from all sets 
+text {* algorithmic definition of the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
 definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "F dummy Y n = \<Union> {set (injections l Y) | l::('a list) . size l=n & card (set l)=n}"
 
-text {* the set of all injective functions (represented as relations) from all sets
+text {* textbook-style definition of the set of all injective functions (represented as relations) from all sets
   of cardinality @{term n} to some other set *}
 definition G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
@@ -106,8 +108,10 @@ have "size l=size l & R \<in> set (injections l Y)" using assms by fast
 then show ?thesis using ll40 by blast
 qed
 
-lemma ll42: fixes dummy Y n assumes "G dummy Y n \<subseteq> F dummy Y n" 
-assumes "finite Y" shows "G dummy Y (Suc n) \<subseteq> F dummy Y (Suc n)"
+lemma ll42: fixes dummy Y n  
+assumes "G dummy Y n \<subseteq> F dummy Y n"
+and "finite Y"
+shows "G dummy Y (Suc n) \<subseteq> F dummy Y (Suc n)"
 proof -
 let ?B="injections" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
 let ?N="Suc n" let ?F="F dummy Y" let ?G="G dummy Y" 
@@ -236,24 +240,18 @@ let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 thus ?thesis by fast
 qed
 
-lemma ll44: fixes dummy Y n assumes "finite Y" shows "F dummy Y n \<subseteq> G dummy Y n"
-proof (rule nat.induct)
-show "F dummy Y 0 \<subseteq> G dummy Y 0" using ll43 by (metis set_eq_subset)
-next
-fix m assume "F dummy Y m \<subseteq> G dummy Y m"
-thus "F dummy Y (Suc m) \<subseteq> G dummy Y (Suc m)" using ll41 assms by fast
-qed
-
-lemma ll45: fixes dummy Y n assumes "finite Y" shows "G dummy Y n \<subseteq> F dummy Y n"
-proof (rule nat.induct)
-show "G dummy Y 0 \<subseteq> F dummy Y 0" using ll43 by force
-next
-fix m assume "G dummy Y m \<subseteq> F dummy Y m"
-thus "G dummy Y (Suc m) \<subseteq> F dummy Y (Suc m)" using ll42 assms by fast
-qed
-
-theorem fixes x Y assumes "finite Y" shows "G dummy Y=F dummy Y"
-using assms ll44 ll45 by fast
+theorem fixes Y assumes "finite Y" shows "G dummy Y=F dummy Y"
+proof
+  fix n
+  show "G dummy Y n = F dummy Y n"
+  proof (induct n)
+    case 0
+    show ?case using ll43 by metis
+  next
+    case (Suc n)
+    show ?case using assms ll41 ll42 Suc.hyps by (metis order_refl subset_antisym)
+  qed
+qed   
 
 (* CL@MC: could you please check whether the following are still needed, and delete them otherwise? *)
 section {* unused leftovers *}
