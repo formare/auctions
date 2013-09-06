@@ -244,6 +244,14 @@ theorem fixes Y assumes "finite Y" shows "G dummy Y=F dummy Y"
 proof
   fix n
   show "G dummy Y n = F dummy Y n"
+  (* 
+  TODO CL: maybe change to first show \<subseteq>/\<supseteq>, then do induction in each case, because MC said:
+  2) Proof-theoretically, having two separate induction steps to prove F
+  c= G and G c= F supplies some information. It could be that to do the
+  inductive step you need the (somehow) stronger assumption F(n)=G(n)
+  --> F(n+1)=G(n+1).
+  With the current proof, we know this is not the case.
+  *)
   proof (induct n)
     case 0
     show ?case using ll43 by metis
