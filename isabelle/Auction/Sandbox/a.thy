@@ -343,7 +343,7 @@ qed
 
 definition compatible where 
 -- {* Whether R takes each single P-eqclass into a subset of one single Q-eqclass.
-This will make more sense when R is a function and P Q are equivalence relations 
+This is usually asked when R is a function and P Q are equivalence relations 
 over its domain and range, respectively.
 However, such requirements are not formally needed, here. *} 
 "compatible R P Q = (\<forall> x . (R``(P``{x}) \<subseteq> Q``(R``{x})))"
