@@ -32,27 +32,22 @@ where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runi
 
 lemma ll43: fixes Y shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
 proof
-  let ?l="sorted_list_of_set" let ?B="injections_alg"
-  (* let ?F="%n. (\<Union> {set (bijections l Y) | l . size l=n & card (set l)=n})" *)
-  let ?F="F dummy Y"
-  (* let ?G="%n. {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (inverse f) & Range f \<subseteq> Y}" *)
-  let ?G="G dummy Y"
-  have "?B (?l {}) Y = [{}]" by auto
-  hence "{{}} = \<Union> {set (injections_alg l Y) | l . size l=0 & card (set l)=0}" by auto
+  have "injections_alg [] Y = [{}]" by auto
+  hence "{{}} = \<Union> { set (injections_alg l Y) | l . size l=0 & card (set l) = 0}" by auto
   also have "... = F dummy Y 0" unfolding F_def by fast
   finally show "F dummy Y 0 = {{}}" by simp
 
-  have "\<forall> f . (finite (Domain f) & card (Domain f)=0 \<longrightarrow> f={})" by (metis Domain_empty_iff card_eq_0_iff)
-  hence "\<forall> f. (f \<in> ?G 0 \<longrightarrow> f={})" unfolding G_def by (metis (lifting, full_types) mem_Collect_eq)
-  hence 0: "?G 0 \<subseteq> {{}}" by blast
+  have "\<forall> f . (finite (Domain f) & card (Domain f) = 0 \<longrightarrow> f = {})" by (metis Domain_empty_iff card_eq_0_iff)
+  hence "\<forall> f. (f \<in> G dummy Y 0 \<longrightarrow> f = {})" unfolding G_def by (metis (lifting, full_types) mem_Collect_eq)
+  hence 0: "G dummy Y 0 \<subseteq> {{}}" by blast
   have 1: "finite (Domain {})" by simp
-  have 2: "card (Domain {})=0" by force
+  have 2: "card (Domain {}) = 0" by force
   have 3: "runiq {}" using runiq_def trivial_def by fast
-  also have "{}\<inverse> = {}" by fast
+  moreover have "{}\<inverse> = {}" by fast
   ultimately have "runiq ({}\<inverse>)" by metis
-  hence "{} \<in> ?G 0" using 1 2 3 unfolding G_def by (smt Range_converse Range_empty `{}\<inverse> = {}` card_empty empty_subsetI finite.emptyI mem_Collect_eq)
-  hence "?G 0 = {{}}" using 0 by auto
-  then show "G dummy Y 0={{}}" by fastforce
+  hence "{} \<in> G dummy Y 0" using 1 2 3 unfolding G_def by (smt Range_converse Range_empty `{}\<inverse> = {}` card_empty empty_subsetI finite.emptyI mem_Collect_eq)
+  hence "G dummy Y 0 = {{}}" using 0 by auto
+  then show "G dummy Y 0 = {{}}" by fastforce
 qed
 
 lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
