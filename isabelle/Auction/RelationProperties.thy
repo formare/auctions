@@ -386,10 +386,41 @@ where "injections_alg [] Y = [{}]" |
 text {* The paper-like definition @{const injections} and the algorithmic definition 
   @{const injections_alg} are equivalent. *}
 theorem injections_equiv:
-  shows "injections (set xs) Y = set (injections_alg xs Y)"
+  fixes x::"'a list"
+    and Y::"'b\<Colon>linorder set"
+  shows "set (injections_alg xs Y) = injections (set xs) Y"
 proof (induct xs)
   case Nil
-  show ?case sorry
+  have "set (injections_alg [] Y) = {{}}" by simp
+  also have "\<dots> = injections (set []) Y"
+  proof -
+    have "{{}} = {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" (is "?LHS = ?RHS")
+    proof
+      have "Domain {} = {}" by simp
+      moreover have "Range {} \<subseteq> Y" by simp
+      moreover have "runiq {}" unfolding runiq_def by fast
+      moreover have "runiq ({}\<inverse>)" unfolding runiq_def by fast
+      ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
+      (* CL: Merging the steps before and after this comment considerably increases complexity. *)
+      then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
+      then show "?LHS \<subseteq> ?RHS" by (smt empty_subsetI insert_subset)
+    next
+      {
+        fix R
+        (* CL: ignoring warning "Introduced fixed type variable(s)"; adding type annotations breaks transitive chain (reported to Isabelle list 2013-09-07) *)
+        assume "R \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
+        then have "Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)" ..
+        then have "R = {}" using Domain_empty_iff by metis
+        then have "R \<in> {{}}" by simp
+      }
+      then show "?RHS \<subseteq> ?LHS" by (rule subsetI)
+    qed
+    also have "\<dots> = injections {} Y"
+      unfolding injections_def ..
+    also have "\<dots> = injections (set []) Y" by simp
+    finally show ?thesis .
+  qed
+  finally show ?case .
 next
   case (Cons x xs)
   show ?case sorry
