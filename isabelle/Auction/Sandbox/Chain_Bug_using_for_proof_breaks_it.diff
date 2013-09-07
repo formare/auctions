@@ -1,4 +1,4 @@
---- Chain_Bug_2_works.thy	2013-09-07 16:15:09.082285000 +0200
+--- Chain_Bug_2_works.thy	2013-09-07 16:26:03.695088000 +0200
 +++ Chain_Bug_1_fails.thy	2013-09-07 16:17:11.108179000 +0200
 @@ -1,4 +1,4 @@
 -theory Chain_Bug_2_works
