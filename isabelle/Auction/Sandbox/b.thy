@@ -36,7 +36,7 @@ proof
   hence "{{}} = \<Union> { set (injections_alg l Y) | l . size l=0 & card (set l) = 0}" by auto
   also have "... = F dummy Y 0" unfolding F_def by fast
   finally show "F dummy Y 0 = {{}}" by simp
-
+next
   have "\<forall> f . (finite (Domain f) & card (Domain f) = 0 \<longrightarrow> f = {})" by (metis Domain_empty_iff card_eq_0_iff)
   hence "\<forall> f. (f \<in> G dummy Y 0 \<longrightarrow> f = {})" unfolding G_def by (metis (lifting, full_types) mem_Collect_eq)
   hence 0: "G dummy Y 0 \<subseteq> {{}}" by blast
