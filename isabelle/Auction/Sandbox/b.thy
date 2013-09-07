@@ -30,6 +30,7 @@ text {* textbook-style definition of the set of all injective functions (represe
 definition G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
 where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
 
+(* TODO CL: remove once RelationProperties.injections_equiv is done.  "case Nil" of the latter covers ll43. *)
 lemma ll43: fixes Y shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
 proof
   have "injections_alg [] Y = [{}]" by auto

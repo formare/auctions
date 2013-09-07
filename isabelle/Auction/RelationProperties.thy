@@ -388,13 +388,13 @@ text {* The paper-like definition @{const injections} and the algorithmic defini
 theorem injections_equiv:
   fixes x::"'a list"
     and Y::"'b\<Colon>linorder set"
-  shows "set (injections_alg xs Y) = injections (set xs) Y"
+  shows "(set (injections_alg xs Y)::('a \<times> 'b) set set) = injections (set xs) Y"
 proof (induct xs)
   case Nil
-  have "set (injections_alg [] Y) = {{}}" by simp
+  have "set (injections_alg [] Y) = {{}::('a \<times> 'b) set}" by simp
   also have "\<dots> = injections (set []) Y"
   proof -
-    have "{{}} = {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" (is "?LHS = ?RHS")
+    have "{{}} = {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" (is "?LHS = ?RHS")
     proof
       have "Domain {} = {}" by simp
       moreover have "Range {} \<subseteq> Y" by simp
@@ -408,7 +408,7 @@ proof (induct xs)
       {
         fix R
         (* CL: ignoring warning "Introduced fixed type variable(s)"; adding type annotations breaks transitive chain (reported to Isabelle list 2013-09-07) *)
-        assume "R \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
+        assume "R \<in> {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
         then have "Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)" ..
         then have "R = {}" using Domain_empty_iff by metis
         then have "R \<in> {{}}" by simp
@@ -423,7 +423,16 @@ proof (induct xs)
   finally show ?case .
 next
   case (Cons x xs)
-  show ?case sorry
+  show ?case
+  proof
+    have "set (injections_alg (x # xs) Y) = set (concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ])" by simp
+    also have "\<dots> = (\<Union> set (map set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+    also have "\<dots> = (\<Union> set ` (set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+    also have "\<dots> = (\<Union> a \<in> set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ] . set a)" by simp
+    show "set (injections_alg (x # xs) Y) \<subseteq> injections (set (x # xs)) Y" sorry
+  next
+    show "injections (set (x # xs)) Y \<subseteq> set (injections_alg (x # xs) Y)" sorry
+  qed
 qed
 
 (* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
