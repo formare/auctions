@@ -26,6 +26,35 @@ definition trivial where "trivial x = (x \<subseteq> {the_elem x})"
 text {* The empty set is trivial. *}
 lemma trivial_empty: "trivial {}" unfolding trivial_def by (rule empty_subsetI)
 
+text {* A singleton set is trivial. *}
+lemma trivial_singleton: "trivial {x}" unfolding trivial_def by simp
+
+text {* Infrastructure for proving some property of a trivial set by distinguishing the 
+  two cases @{text empty} and @{text "singleton x"}. *}
+lemma trivial_cases [case_names empty singleton, consumes 1]:
+  assumes "trivial X"
+  assumes empty: "P {}"
+      and singleton: "\<And> x . X = {x} \<Longrightarrow> P {x}"
+  shows "P X"
+using assms unfolding trivial_def by (metis subset_singletonD)
+
+(* How to use trivial_cases:
+notepad
+begin
+  fix Q
+  fix X::"'a set"
+  have "trivial X" sorry
+  then have "Q X"
+  proof (cases rule: trivial_cases)
+    case empty
+    show "Q {}" sorry
+  next
+    case (singleton x)
+    show ?case sorry
+  qed
+end
+*)
+
 text {* If a trivial set has a singleton subset, the latter is unique. *}
 lemma singleton_sub_trivial_uniq:
   fixes x X
