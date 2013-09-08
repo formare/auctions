@@ -95,7 +95,40 @@ definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
 (*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
-lemma ll1: "runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))" sorry
+lemma ll1: "runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))"
+(is "?LH=?RH")
+proof -
+  have "?RH \<longrightarrow> ?LH"
+  proof 
+    assume 2: "?RH"  
+    {
+      fix X::"'a set" let ?x="the_elem X" assume 0: "trivial X"
+      have "trivial (R `` X)"
+      proof (cases "Domain R \<inter> X \<noteq> {}")
+        case True (*"Domain R \<inter> X \<noteq> {}" *)
+        hence 1: "Domain R \<inter> X \<noteq> {}" by fast
+        hence 3: "{?x} \<supseteq> X" using 0 by (metis trivial_def)
+        hence "?x \<in> Domain R" using 1 by blast
+        hence "trivial (R `` {?x})" using 2 by fast thus ?thesis using 3 0 by (metis Image_empty subset_singletonD trivial_empty)
+        next
+        case False
+        hence "R `` X={}" by fast thus "trivial (R `` X)" using trivial_empty by metis
+      qed
+    }
+    thus "?LH" using runiq_def by blast
+  qed 
+  also have "?LH \<longrightarrow> ?RH"
+  proof 
+  assume 4:"?LH"
+  {
+  fix x assume "x \<in> Domain R" 
+  have "trivial {x}" by (metis order_refl the_elem_eq trivial_def)
+  hence "trivial (R `` {x})" using assms runiq_def 4 by fast
+  }
+  thus "?RH" by fast
+  qed
+  ultimately show ?thesis by blast
+qed
 
 text {* an alternative definition of right-uniqueness in terms of @{const eval_rel} *}
 lemma runiq_wrt_eval_rel:
@@ -122,17 +155,17 @@ proof -
   then show ?thesis using ll1 by blast
 qed
 
+lemma ll2: assumes "trivial (Range f)" shows "runiq f" 
+proof -
+have "\<forall>X. f `` X \<subseteq> Range f" using Image_def by fast
+thus ?thesis using runiq_def assms by (metis trivial_subset)
+qed
+
 text {* A singleton relation is right-unique. *}
 lemma runiq_singleton_rel: "runiq {(x, y)}" (is "runiq ?R")
-(* unfolding ll1 *)
 proof -
-{
-  fix z assume "z \<in> Domain ?R"
-  then have "z = x" by simp
-  then have "?R `` {z} = {y}" by fastforce
-  then have "trivial (?R `` {z})" using ll1 sorry
-}
-  thus "runiq ?R" using ll1 by blast
+have "trivial (Range ?R)" using trivial_def by fastforce 
+thus ?thesis using ll2 by fast
 qed
 
 text {* A trivial relation is right-unique *}
