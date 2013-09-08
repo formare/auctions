@@ -31,6 +31,7 @@ lemma trivial_singleton: "trivial {x}" unfolding trivial_def by simp
 
 text {* Infrastructure for proving some property of a trivial set by distinguishing the 
   two cases @{text empty} and @{text "singleton x"}. *}
+(* TODO CL: bind ?case according to answer for http://stackoverflow.com/questions/18686865/how-can-i-bind-the-schematic-variable-case-in-a-rule-for-proof-by-cases *)
 lemma trivial_cases [case_names empty singleton, consumes 1]:
   assumes "trivial X"
   assumes empty: "P {}"

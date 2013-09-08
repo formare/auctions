@@ -13,7 +13,10 @@ See LICENSE file for details
 *)
 
 theory RelationProperties
-imports Main SetUtils
+imports
+  Main
+  HOLUtils
+  SetUtils
 begin
 
 section {* restriction *}
@@ -90,12 +93,51 @@ using Image_within_domain by blast
 
 section {* right-uniqueness *}
 
-text {* right-uniqueness of a relation (in other words: the relation is a function on its domain) *}
+text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e.\ an empty or
+  singleton set) under the relation is trivial again. *}
 definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
 (*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
-lemma ll1: "runiq R = (\<forall> x \<in> Domain R . trivial (R `` {x}))" sorry
+text {* alternative characterisation of right-uniqueness: the image of a singleton set within
+  the relation's domain is @{const trivial}, i.e.\ an empty or singleton set. *}
+lemma runiq_alt: "runiq R \<longleftrightarrow> (\<forall> x \<in> Domain R . trivial (R `` {x}))"
+(* CL: The following proof, found by Sledgehammer, takes 51 ms on my machine. *)
+(* by (metis Image_empty Image_within_domain' runiq_def set_eq_subset subset_singletonD the_elem_eq trivial_def trivial_empty) *)
+proof
+  assume runiq: "runiq R"
+  show "\<forall> x \<in> Domain R . trivial (R `` {x})"
+  proof
+    fix x::'a
+    have "trivial {x}" unfolding trivial_def by simp
+    with runiq show "trivial (R `` {x})" unfolding runiq_def by fast
+  qed
+next
+  assume dom_triv: "\<forall> x \<in> Domain R . trivial (R `` {x})"
+  have "\<forall> X::'a set . trivial X \<longrightarrow> trivial (R `` X)"
+  proof (rule allImpI)
+    fix X::"'a set"
+    assume trivial: "trivial X"
+    then show "trivial (R `` X)"
+    proof (cases rule: trivial_cases)
+      case empty
+      have "R `` {} = {}" by simp
+      then show "trivial (R `` {})" unfolding trivial_def by simp
+    next
+      case (singleton x)
+      show "trivial (R `` {x})"
+      proof (cases "x \<in> Domain R")
+        case True
+        with dom_triv show ?thesis by fast
+      next
+        case False
+        then have "R `` {x} = {}" by fast
+        then show ?thesis unfolding trivial_def by simp
+      qed
+    qed
+  qed
+  then show "runiq R" unfolding runiq_def by fast
+qed
 
 text {* an alternative definition of right-uniqueness in terms of @{const eval_rel} *}
 lemma runiq_wrt_eval_rel:
@@ -109,30 +151,40 @@ text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
   fixes Q::"('a \<times> 'b) set"
     and R::"('a \<times> 'b) set"
-  assumes "runiq Q"
-      and "R \<subseteq> Q"
+  assumes runiq_sup: "runiq Q"
+      and subset: "R \<subseteq> Q"
 shows "runiq R"
-proof -
-  {
-    fix a assume "a \<in> Domain R"
-    then have "trivial (Q `` {a}) \<and> R `` {a} \<subseteq> (Q `` {a})" 
-      using assms unfolding ll1 trivial_def by fast
-    then have "trivial (R `` {a})" using trivial_subset by (rule conjE)
-  }
-  then show ?thesis using ll1 by blast
+unfolding runiq_def
+proof (rule allImpI)
+  fix X::"'a set"
+  assume "trivial X"
+  then have "trivial (Q `` X)" using runiq_sup unfolding runiq_def by fast
+  then show "trivial (R `` X)" using subset by (metis (full_types) Image_mono equalityE trivial_subset)
 qed
 
 text {* A singleton relation is right-unique. *}
 lemma runiq_singleton_rel: "runiq {(x, y)}" (is "runiq ?R")
-(* unfolding ll1 *)
-proof -
-{
-  fix z assume "z \<in> Domain ?R"
-  then have "z = x" by simp
-  then have "?R `` {z} = {y}" by fastforce
-  then have "trivial (?R `` {z})" using ll1 sorry
-}
-  thus "runiq ?R" using ll1 by blast
+unfolding runiq_def (* TODO CL: see how long this takes by Sledgehammer *)
+proof (rule allImpI)
+  fix X::"'a set"
+  assume "trivial X"
+  then show "trivial (?R `` X)"
+  proof (cases rule: trivial_cases)
+    case empty
+    then show "trivial (?R `` {})" unfolding trivial_def by simp
+  next
+    case (singleton z)
+    then show "trivial (?R `` {z})"
+    proof (cases "x = z")
+      case True
+      then have "{(x, y)} `` {z} = {y}" by fast
+      then show ?thesis by (simp add: trivial_singleton)
+    next
+      case False
+      then have "{(x, y)} `` {z} = {}" by blast
+      then show ?thesis by (simp add: trivial_empty)
+    qed
+  qed
 qed
 
 text {* A trivial relation is right-unique *}
@@ -150,7 +202,7 @@ lemma eval_runiq_rel:
       and runiq: "runiq R" 
   shows "(x, R,,x) \<in> R"
 proof -
-  have "trivial (R `` {x})" using domain runiq unfolding ll1 by fast
+  have "trivial (R `` {x})" using domain runiq unfolding runiq_alt by fast
   then have "R ,, x \<in> R `` {x}" using domain
     by (metis Image_within_domain' RelationProperties.eval_rel.simps subset_empty subset_insert trivial_def)
   then show ?thesis by fast 
@@ -210,18 +262,29 @@ lemma runiq_paste1:
   assumes "runiq Q"
       and "runiq (P outside Domain Q)" (is "runiq ?PoutsideQ")
   shows "runiq (P +* Q)"
+(* TODO CL: continue to prove without runiq_alt
+  unfolding runiq_def
+proof (rule allImpI)
+  fix X::"'a set"
+  assume "trivial X"
+  with assms(1) have "trivial (Q `` X)" unfolding runiq_def by fast
+  from `trivial X` assms(2) have "trivial ((P outside Domain Q) `` X)" unfolding runiq_def by fast
+  have disjoint_domains: "Domain ?PoutsideQ \<inter> Domain Q = {}"
+    using outside_reduces_domain by (metis Diff_disjoint inf_commute)
+  show "trivial ((P +* Q) `` X)" try
+*)
 proof - 
   have disjoint_domains: "Domain ?PoutsideQ \<inter> Domain Q = {}"
     using outside_reduces_domain by (metis Diff_disjoint inf_commute)
   {
     fix a assume "a \<in> Domain (?PoutsideQ \<union> Q)"
     then have triv: "trivial (?PoutsideQ `` {a}) \<and> trivial (Q `` {a})"
-      using assms ll1 by (metis Image_within_domain' trivial_empty)
+      using assms runiq_alt by (metis Image_within_domain' trivial_empty)
     then have "?PoutsideQ `` {a} = {} \<or> Q `` {a} = {}" using disjoint_domains by blast
     then have "(?PoutsideQ \<union> Q) `` {a} = Q `` {a} \<or> (?PoutsideQ \<union> Q) `` {a} = ?PoutsideQ `` {a}" by blast
     then have "trivial ((?PoutsideQ \<union> Q) `` {a})" using triv by presburger
   }
-  then have "runiq (?PoutsideQ \<union> Q)" unfolding ll1 by blast
+  then have "runiq (?PoutsideQ \<union> Q)" unfolding runiq_alt by blast
   then show ?thesis unfolding paste_def .
 qed
 
@@ -283,7 +346,7 @@ lemma converse_Image_singleton_Domain:
 shows "R\<inverse> `` R `` {x} = {x}"
 proof -
   have sup: "{x} \<subseteq> R\<inverse> `` R `` {x}" using Domain_Int_wrt_converse domain by fast
-  have "trivial (R `` {x})" using runiq domain unfolding runiq_def by fast
+  have "trivial (R `` {x})" using runiq domain by (metis runiq_def trivial_singleton)
   then have "trivial (R\<inverse> `` R `` {x})"
     using assms
     by (metis Image_runiq_eq_eval RelationProperties.eval_rel.simps runiq_wrt_eval_rel trivial_def)
@@ -404,8 +467,8 @@ proof (induct xs)
     proof
       have "Domain {} = {}" by simp
       moreover have "Range {} \<subseteq> Y" by simp
-      moreover have "runiq {}" unfolding runiq_def by fast
-      moreover have "runiq ({}\<inverse>)" unfolding runiq_def by fast
+      moreover have runiq_emptyrel: "runiq {}" using runiq_def trivial_empty runiq_trivial_rel by fast
+      moreover have "runiq ({}\<inverse>)" using runiq_emptyrel by (metis (full_types) Domain_empty Range_converse Range_empty_iff)
       ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
       (* CL: Merging the steps before and after this comment considerably increases complexity. *)
       then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
