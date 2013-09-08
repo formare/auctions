@@ -101,9 +101,9 @@ text {* an alternative definition of right-uniqueness in terms of @{const eval_r
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
   shows "runiq R = (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
-using assms unfolding ll1 trivial_def
-by (metis (lifting) Domain_iff Image_singleton_iff eval_rel.simps subsetI)
-
+using assms unfolding runiq_def trivial_def
+(* TODO CL: maybe this can be simplified *)
+by (smt Image_empty RelationProperties.eval_rel.simps equalityE subset_insertI subset_singletonD the_elem_eq)
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
