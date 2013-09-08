@@ -134,9 +134,9 @@ text {* an alternative definition of right-uniqueness in terms of @{const eval_r
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
   shows "runiq R = (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
-using assms unfolding ll1 trivial_def
-by (metis (lifting) Domain_iff Image_singleton_iff eval_rel.simps subsetI)
-
+using assms unfolding runiq_def trivial_def
+(* TODO CL: maybe this can be simplified *)
+by (smt Image_empty RelationProperties.eval_rel.simps equalityE subset_insertI subset_singletonD the_elem_eq)
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
@@ -425,13 +425,53 @@ where "injections_alg [] Y = [{}]" |
 text {* The paper-like definition @{const injections} and the algorithmic definition 
   @{const injections_alg} are equivalent. *}
 theorem injections_equiv:
-  shows "injections (set xs) Y = set (injections_alg xs Y)"
+  fixes x::"'a list"
+    and Y::"'b\<Colon>linorder set"
+  shows "(set (injections_alg xs Y)::('a \<times> 'b) set set) = injections (set xs) Y"
 proof (induct xs)
   case Nil
-  show ?case sorry
+  have "set (injections_alg [] Y) = {{}::('a \<times> 'b) set}" by simp
+  also have "\<dots> = injections (set []) Y"
+  proof -
+    have "{{}} = {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" (is "?LHS = ?RHS")
+    proof
+      have "Domain {} = {}" by simp
+      moreover have "Range {} \<subseteq> Y" by simp
+      moreover have "runiq {}" unfolding runiq_def by fast
+      moreover have "runiq ({}\<inverse>)" unfolding runiq_def by fast
+      ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
+      (* CL: Merging the steps before and after this comment considerably increases complexity. *)
+      then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
+      then show "?LHS \<subseteq> ?RHS" by (smt empty_subsetI insert_subset)
+    next
+      {
+        fix R
+        (* CL: ignoring warning "Introduced fixed type variable(s)"; adding type annotations breaks transitive chain (reported to Isabelle list 2013-09-07) *)
+        assume "R \<in> {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
+        then have "Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)" ..
+        then have "R = {}" using Domain_empty_iff by metis
+        then have "R \<in> {{}}" by simp
+      }
+      then show "?RHS \<subseteq> ?LHS" by (rule subsetI)
+    qed
+    also have "\<dots> = injections {} Y"
+      unfolding injections_def ..
+    also have "\<dots> = injections (set []) Y" by simp
+    finally show ?thesis .
+  qed
+  finally show ?case .
 next
   case (Cons x xs)
-  show ?case sorry
+  show ?case
+  proof
+    have "set (injections_alg (x # xs) Y) = set (concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ])" by simp
+    also have "\<dots> = (\<Union> set (map set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+    also have "\<dots> = (\<Union> set ` (set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+    also have "\<dots> = (\<Union> a \<in> set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ] . set a)" by simp
+    show "set (injections_alg (x # xs) Y) \<subseteq> injections (set (x # xs)) Y" sorry
+  next
+    show "injections (set (x # xs)) Y \<subseteq> set (injections_alg (x # xs) Y)" sorry
+  qed
 qed
 
 (* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
