@@ -416,7 +416,7 @@ fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rig
 where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
 
 definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a \<times> 'b) set"
-(* the domain can be specified later through || *)
+(* the domain can be possibly specified in a separate step, e.g. through || *)
 where "to_relation f = {(x, f x) | x . True}"
 
 definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
