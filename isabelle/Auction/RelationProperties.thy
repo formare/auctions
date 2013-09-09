@@ -119,20 +119,20 @@ next
     fix X::"'a set"
     assume trivial: "trivial X"
     then show "trivial (R `` X)"
-    proof (cases rule: trivial_cases)
+    proof (cases)
       case empty
       have "R `` {} = {}" by simp
-      then show "trivial (R `` {})" unfolding trivial_def by simp
+      with empty show ?thesis unfolding trivial_def by simp
     next
       case (singleton x)
-      show "trivial (R `` {x})"
+      show ?thesis
       proof (cases "x \<in> Domain R")
         case True
-        with dom_triv show ?thesis by fast
+        with singleton dom_triv show ?thesis by fast
       next
         case False
         then have "R `` {x} = {}" by fast
-        then show ?thesis unfolding trivial_def by simp
+        with singleton show ?thesis unfolding trivial_def by simp
       qed
     qed
   qed
@@ -171,18 +171,18 @@ proof (rule allImpI)
   then show "trivial (?R `` X)"
   proof (cases rule: trivial_cases)
     case empty
-    then show "trivial (?R `` {})" unfolding trivial_def by simp
+    then show ?thesis unfolding trivial_def by simp
   next
     case (singleton z)
-    then show "trivial (?R `` {z})"
+    show ?thesis
     proof (cases "x = z")
       case True
       then have "{(x, y)} `` {z} = {y}" by fast
-      then show ?thesis by (simp add: trivial_singleton)
+      with singleton show ?thesis by (simp add: trivial_singleton)
     next
       case False
       then have "{(x, y)} `` {z} = {}" by blast
-      then show ?thesis by (simp add: trivial_empty)
+      with singleton show ?thesis by (simp add: trivial_empty)
     qed
   qed
 qed
