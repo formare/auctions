@@ -457,12 +457,73 @@ where "injections_alg [] Y = [{}]" |
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
 
+notepad
+begin
+  fix R::"('a \<times> 'b) set"
+  fix F::"('a \<times> 'b) set \<Rightarrow> ('a \<times> 'b) set set"
+  fix I::"('a \<times> 'b) set set"
+end
+
+lemma injections_paste:
+  assumes non_empty: "card Y > 0"
+      and new: "x \<notin> A"
+  shows "injections (insert x A) Y = (\<Union> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y })"
+proof (rule equalitySubsetI)
+  fix R
+  assume "R \<in> injections (insert x A) Y"
+  then have injections_unfolded: "Domain R = (insert x A) \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)"
+    unfolding injections_def by simp
+  then have Domain: "Domain R = insert x A"
+        and Range: "Range R \<subseteq> Y"
+        and runiq: "runiq R"
+        and runiq_conv: "runiq (R\<inverse>)" by simp_all
+  let ?P = "R outside {x}"
+
+  have subrel: "?P \<subseteq> R" unfolding Outside_def by fast
+  have subrel_conv: "?P\<inverse> \<subseteq> R\<inverse>" using subrel by blast
+  from Domain have Domain_pre: "Domain ?P = A" using non_empty new by (metis Diff_insert_absorb outside_reduces_domain)
+  from Range have Range_pre: "Range ?P \<subseteq> Y" by (metis Int_absorb1 Range_Un_eq inf_sup_ord(3) le_inf_iff outside_union_restrict)
+  from runiq subrel have runiq_pre: "runiq ?P" by (rule subrel_runiq)
+  from runiq_conv subrel_conv have runiq_conv_pre: "runiq (?P\<inverse>)" by (rule subrel_runiq)
+  from Domain_pre Range_pre runiq_pre runiq_conv_pre have "?P \<in> injections A Y" unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
+
+  obtain y where y: "R `` {x} = {y}" by (metis Image_runiq_eq_eval injections_unfolded insertI1)
+  from y and Range have "y \<in> Y" by fast
+  moreover have "y \<notin> Range ?P"
+  proof
+    assume assm: "y \<in> Range ?P"
+    then obtain z where "z \<in> Domain ?P" and "(z,y) \<in> ?P" by fast
+    then have "z \<in> A" using Domain_pre by fast
+    with new have "z \<noteq> x" by fast
+    (* TODO CL: tune *)
+    with `(z, y) \<in> R outside {x}` assm runiq y runiq_conv subrel_conv new show False by (metis Domain_pre Image_empty Image_singleton_iff Image_within_domain' converse_Image_singleton_Domain converse_iff ex_in_conv rev_ImageI set_rev_mp)
+  qed
+
+  (* TODO CL: continue; show R = ?P +* {(x, y)} *)
+  
+  have "\<exists> P \<in> injections A Y . \<exists> y \<in> Y - Range P . R = P +* {(x, y)}" sorry
+  (* intermediate step that makes it easier to understand:
+  then have "\<exists> P \<in> injections A Y . R \<in> { P +* {(x, y)} | y . y \<in> Y - Range P }" by blast
+  *)
+  then obtain Q where "Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y }"
+                  and "R \<in> Q" by auto
+  then have "\<exists> Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y } . R \<in> Q"
+    by (rule rev_bexI) (* TODO CL: report that, if I skip the previous step, Nitpick finds a counterexample *)
+  then show "R \<in> \<Union> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y }"
+    by (rule Union_member) (* TODO CL: report that Nitpick finds a counterexample *)
+next
+  fix R
+  assume "R \<in> \<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections A Y }"
+  show "R \<in> injections (insert x A) Y" sorry
+qed
+
 text {* The paper-like definition @{const injections} and the algorithmic definition 
   @{const injections_alg} are equivalent. *}
 theorem injections_equiv:
-  fixes x::"'a list"
+  fixes xs::"'a list"
     and Y::"'b\<Colon>linorder set"
-  shows "(set (injections_alg xs Y)::('a \<times> 'b) set set) = injections (set xs) Y"
+  assumes non_empty: "card Y > 0"
+  shows "distinct xs \<Longrightarrow> (set (injections_alg xs Y)::('a \<times> 'b) set set) = injections (set xs) Y"
 proof (induct xs)
   case Nil
   have "set (injections_alg [] Y) = {{}::('a \<times> 'b) set}" by simp
@@ -497,16 +558,34 @@ proof (induct xs)
   finally show ?case .
 next
   case (Cons x xs)
-  show ?case
-  proof
-    have "set (injections_alg (x # xs) Y) = set (concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ])" by simp
-    also have "\<dots> = (\<Union> set (map set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
-    also have "\<dots> = (\<Union> set ` (set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
-    also have "\<dots> = (\<Union> a \<in> set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ] . set a)" by simp
-    show "set (injections_alg (x # xs) Y) \<subseteq> injections (set (x # xs)) Y" sorry
-  next
-    show "injections (set (x # xs)) Y \<subseteq> set (injections_alg (x # xs) Y)" sorry
+  have "set (injections_alg (x # xs) Y) = set (concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ])" by simp
+  also have "\<dots> = (\<Union> set (map set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+  also have "\<dots> = (\<Union> set ` (set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+  also have "\<dots> = (\<Union> set ` ((\<lambda> R . sup_rels_from R x Y) ` set (injections_alg xs Y)))" by simp
+  also have "\<dots> = (\<Union> set ` ((\<lambda> R . sup_rels_from R x Y) ` (injections (set xs) Y)))" using Cons.hyps Cons.prems by auto
+  also have "\<dots> = (\<Union> set ` { sup_rels_from R x Y | R . R \<in> injections (set xs) Y })" by (metis image_Collect_mem)
+  also have "\<dots> = (\<Union> set ` { [ R +* {(x, y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ] | R . R \<in> injections (set xs) Y })" by simp
+  finally have 0: "set (injections_alg (x # xs) Y) = (\<Union> set ` { [ R +* {(x, y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ] | R . R \<in> injections (set xs) Y })" .
+  (* CL: If I continue the transitive chain here, Isabelle complains about a "vacuous calculation result". *)
+  (* TODO CL: From here this needs cleaning up *)
+  have 1: "\<dots> = (\<Union> set ` { map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R)) | R . R \<in> injections (set xs) Y })" by simp
+  have 2: "\<dots> = (\<Union> { set (map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R))) | R . R \<in> injections (set xs) Y })" by (metis image_Collect_mem image_image)
+  have 3: "\<dots> = (\<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections (set xs) Y })"
+  proof -
+    {
+      fix R::"('a \<times> 'b) set"
+      from non_empty have "finite Y" by (rule card_ge_0_finite)
+      then have "set (map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R))) =  (\<lambda> y . R +* {(x, y)}) ` (Y - Range R)" by simp
+      also have "\<dots> = { R +* {(x, y)} | y . y \<in> Y - Range R }" by (metis image_Collect_mem)
+      finally have "set (map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R))) = { R +* {(x, y)} | y . y \<in> Y - Range R }" .
+    }
+    then show ?thesis by simp
   qed
+  from 0 1 2 3 have 4: "set (injections_alg (x # xs) Y) = (\<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections (set xs) Y })" by simp
+  from Cons.prems have x_notin_xs: "x \<notin> set xs" by simp
+  have insert: "set (x # xs) = insert x (set xs)" by force
+  from non_empty x_notin_xs have "injections (insert x (set xs)) Y = (\<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections (set xs) Y })" by (rule injections_paste)
+  with 4 insert show ?case by simp
 qed
 
 (* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
