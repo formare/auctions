@@ -469,6 +469,7 @@ lemma injections_paste:
       and new: "x \<notin> A"
   shows "injections (insert x A) Y = (\<Union> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y })"
 proof (rule equalitySubsetI)
+  (* TODO CL: clean up *)
   fix R
   assume "R \<in> injections (insert x A) Y"
   then have injections_unfolded: "Domain R = (insert x A) \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)"
@@ -485,11 +486,11 @@ proof (rule equalitySubsetI)
   from Range have Range_pre: "Range ?P \<subseteq> Y" by (metis Int_absorb1 Range_Un_eq inf_sup_ord(3) le_inf_iff outside_union_restrict)
   from runiq subrel have runiq_pre: "runiq ?P" by (rule subrel_runiq)
   from runiq_conv subrel_conv have runiq_conv_pre: "runiq (?P\<inverse>)" by (rule subrel_runiq)
-  from Domain_pre Range_pre runiq_pre runiq_conv_pre have "?P \<in> injections A Y" unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
+  from Domain_pre Range_pre runiq_pre runiq_conv_pre have P_inj: "?P \<in> injections A Y" unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
 
   obtain y where y: "R `` {x} = {y}" by (metis Image_runiq_eq_eval injections_unfolded insertI1)
   from y and Range have "y \<in> Y" by fast
-  moreover have "y \<notin> Range ?P"
+  moreover have y_Range: "y \<notin> Range ?P"
   proof
     assume assm: "y \<in> Range ?P"
     then obtain z where "z \<in> Domain ?P" and "(z,y) \<in> ?P" by fast
@@ -499,9 +500,14 @@ proof (rule equalitySubsetI)
     with `(z, y) \<in> R outside {x}` assm runiq y runiq_conv subrel_conv new show False by (metis Domain_pre Image_empty Image_singleton_iff Image_within_domain' converse_Image_singleton_Domain converse_iff ex_in_conv rev_ImageI set_rev_mp)
   qed
 
-  (* TODO CL: continue; show R = ?P +* {(x, y)} *)
-  
-  have "\<exists> P \<in> injections A Y . \<exists> y \<in> Y - Range P . R = P +* {(x, y)}" sorry
+  from y have 0: "R || {x} = {(x, y)}" unfolding restrict_def by blast
+  then have Dom_restrict: "Domain (R || {x}) = {x}" by simp
+  from 0 have 1: "?P +* {(x, y)} = ?P \<union> R || {x}" by (metis outside_union_restrict paste_outside_restrict)
+  from Dom_restrict Domain_pre new have "Domain ?P \<inter> Domain (R || {x}) = {}" by simp
+  then have "?P +* (R || {x}) = ?P \<union> (R || {x})" by (rule paste_disj_domains)
+  then have P_paste: "?P +* {(x, y)} = R" by (metis "1" outside_union_restrict)
+
+  from P_inj y P_paste have "\<exists> P \<in> injections A Y . \<exists> y \<in> Y - Range P . R = P +* {(x, y)}" by (metis DiffI y_Range calculation)
   (* intermediate step that makes it easier to understand:
   then have "\<exists> P \<in> injections A Y . R \<in> { P +* {(x, y)} | y . y \<in> Y - Range P }" by blast
   *)
