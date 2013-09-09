@@ -118,7 +118,7 @@ next
     fix X::"'a set"
     assume trivial: "trivial X"
     then show "trivial (R `` X)"
-    proof (cases)
+    proof (cases rule: trivial_cases)
       case empty
       then show ?thesis unfolding trivial_def by simp
     next
