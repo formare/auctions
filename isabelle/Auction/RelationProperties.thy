@@ -140,9 +140,7 @@ text {* an alternative definition of right-uniqueness in terms of @{const eval_r
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
   shows "runiq R = (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
-using assms unfolding runiq_def trivial_def
-(* TODO CL: maybe this can be simplified *)
-by (smt Image_empty RelationProperties.eval_rel.simps equalityE subset_insertI subset_singletonD the_elem_eq)
+by (metis eval_rel.simps runiq_alt runiq_def trivial_def trivial_singleton)
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
@@ -159,9 +157,37 @@ proof (rule allImpI)
   then show "trivial (R `` X)" using subset by (metis (full_types) Image_mono equalityE trivial_subset)
 qed
 
+text {* If two right-unique relations have disjoint domains, their union is right-unique too. *}
+lemma disj_Un_runiq:
+  fixes P::"('a \<times> 'b) set"
+    and Q::"('a \<times> 'b) set"
+  assumes runiq_P: "runiq P"
+      and runiq_Q: "runiq Q"
+      and disj_Dom: "Domain P \<inter> Domain Q = {}"
+  shows "runiq (P \<union> Q)"
+proof -
+  have "\<forall> x \<in> Domain (P \<union> Q) . trivial ((P \<union> Q) `` {x})"
+  proof
+    fix x
+    assume assm: "x \<in> Domain (P \<union> Q)"
+    show "trivial ((P \<union> Q) `` {x})"
+    proof (cases "x \<in> Domain P")
+      case True
+      then have "trivial (P `` {x})" using runiq_P runiq_alt by fast
+      with True show ?thesis using disj_Dom by (metis Image_within_domain' Int_iff Un_Image empty_iff sup_bot_right)
+    next
+      case False
+      then have False': "x \<in> Domain Q" using disj_Dom assm by fast
+      then have "trivial (Q `` {x})" using runiq_Q disj_Dom runiq_alt by fast
+      with False' show ?thesis using disj_Dom by (metis Image_within_domain' Int_iff Un_Image empty_iff sup_bot_left)
+    qed     
+  qed
+  then show ?thesis using runiq_alt by fast
+qed
+
 text {* A singleton relation is right-unique. *}
 lemma runiq_singleton_rel: "runiq {(x, y)}" (is "runiq ?R")
-unfolding runiq_def (* TODO CL: see how long this takes by Sledgehammer *)
+unfolding runiq_def
 proof (rule allImpI)
   fix X::"'a set"
   assume "trivial X"
@@ -174,11 +200,11 @@ proof (rule allImpI)
     show ?thesis
     proof (cases "x = z")
       case True
-      then have "{(x, y)} `` {z} = {y}" by fast
+      then have "?R `` {z} = {y}" by fast
       with singleton show ?thesis by (simp add: trivial_singleton)
     next
       case False
-      then have "{(x, y)} `` {z} = {}" by blast
+      then have "?R `` {z} = {}" by blast
       with singleton show ?thesis by (simp add: trivial_empty)
     qed
   qed
@@ -188,8 +214,7 @@ text {* A trivial relation is right-unique *}
 lemma runiq_trivial_rel:
   assumes "trivial R"
   shows "runiq R"
-using assms runiq_singleton_rel trivial_def
-by (metis prod.exhaust subrel_runiq)
+using assms runiq_singleton_rel by (metis subrel_runiq surj_pair trivial_def)
 
 text {* alternative characterisation of the fact that, if a relation @{term R} is right-unique,
   its evaluation @{term "R,,x"} on some argument @{term x} in its domain, occurs in @{term R}'s
@@ -198,6 +223,7 @@ lemma eval_runiq_rel:
   assumes domain: "x \<in> Domain R"
       and runiq: "runiq R" 
   shows "(x, R,,x) \<in> R"
+using assms
 proof -
   have "trivial (R `` {x})" using domain runiq unfolding runiq_alt by fast
   then have "R ,, x \<in> R `` {x}" using domain
@@ -259,30 +285,12 @@ lemma runiq_paste1:
   assumes "runiq Q"
       and "runiq (P outside Domain Q)" (is "runiq ?PoutsideQ")
   shows "runiq (P +* Q)"
-(* TODO CL: continue to prove without runiq_alt
-  unfolding runiq_def
-proof (rule allImpI)
-  fix X::"'a set"
-  assume "trivial X"
-  with assms(1) have "trivial (Q `` X)" unfolding runiq_def by fast
-  from `trivial X` assms(2) have "trivial ((P outside Domain Q) `` X)" unfolding runiq_def by fast
-  have disjoint_domains: "Domain ?PoutsideQ \<inter> Domain Q = {}"
-    using outside_reduces_domain by (metis Diff_disjoint inf_commute)
-  show "trivial ((P +* Q) `` X)" try
-*)
-proof - 
-  have disjoint_domains: "Domain ?PoutsideQ \<inter> Domain Q = {}"
-    using outside_reduces_domain by (metis Diff_disjoint inf_commute)
-  {
-    fix a assume "a \<in> Domain (?PoutsideQ \<union> Q)"
-    then have triv: "trivial (?PoutsideQ `` {a}) \<and> trivial (Q `` {a})"
-      using assms runiq_alt by (metis Image_within_domain' trivial_empty)
-    then have "?PoutsideQ `` {a} = {} \<or> Q `` {a} = {}" using disjoint_domains by blast
-    then have "(?PoutsideQ \<union> Q) `` {a} = Q `` {a} \<or> (?PoutsideQ \<union> Q) `` {a} = ?PoutsideQ `` {a}" by blast
-    then have "trivial ((?PoutsideQ \<union> Q) `` {a})" using triv by presburger
-  }
-  then have "runiq (?PoutsideQ \<union> Q)" unfolding runiq_alt by blast
-  then show ?thesis unfolding paste_def .
+proof -
+  have paste_sub: "P +* Q \<subseteq> (Q \<union> ?PoutsideQ)" unfolding paste_def by simp
+  have "Domain Q \<inter> Domain ?PoutsideQ = {}"
+    using outside_reduces_domain by (metis Diff_disjoint)
+  with assms have "runiq (Q \<union> ?PoutsideQ)" by (rule disj_Un_runiq)
+  then show ?thesis using paste_sub by (rule subrel_runiq)
 qed
 
 text {* Pasting two right-unique relations yields a right-unique relation. *}
