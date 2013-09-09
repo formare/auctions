@@ -96,7 +96,6 @@ section {* right-uniqueness *}
 text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e.\ an empty or
   singleton set) under the relation is trivial again. *}
 definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
-(*"runiq R = (\<forall> x . R `` {x} \<subseteq> {R ,, x})"*)
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
 text {* alternative characterisation of right-uniqueness: the image of a singleton set within
@@ -121,8 +120,7 @@ next
     then show "trivial (R `` X)"
     proof (cases)
       case empty
-      have "R `` {} = {}" by simp
-      with empty show ?thesis unfolding trivial_def by simp
+      then show ?thesis unfolding trivial_def by simp
     next
       case (singleton x)
       show ?thesis
@@ -131,8 +129,7 @@ next
         with singleton dom_triv show ?thesis by fast
       next
         case False
-        then have "R `` {x} = {}" by fast
-        with singleton show ?thesis unfolding trivial_def by simp
+        with singleton show ?thesis unfolding trivial_def by fast
       qed
     qed
   qed
