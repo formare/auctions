@@ -363,6 +363,7 @@ where "injections_alg [] Y = [{}]" |
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
 
+text {* the set-theoretic variant of the recursive rule of @{const injections_alg} *}
 lemma injections_paste:
   assumes new: "x \<notin> A"
   shows "injections (insert x A) Y = (\<Union> { sup_rels_from P x Y | P . P \<in> injections A Y })"
@@ -408,7 +409,8 @@ proof (rule equalitySubsetI)
 
   from y have x_rel: "R || {x} = {(x, y)}" unfolding restrict_def by blast
   from x_rel have Dom_restrict: "Domain (R || {x}) = {x}" by simp
-  from x_rel have P_paste': "?P +* {(x, y)} = ?P \<union> R || {x}" using outside_union_restrict paste_outside_restrict by metis
+  from x_rel have P_paste': "?P +* {(x, y)} = ?P \<union> R || {x}"
+    using outside_union_restrict paste_outside_restrict by metis
   from Dom_restrict Domain_pre new have "Domain ?P \<inter> Domain (R || {x}) = {}" by simp
   then have "?P +* (R || {x}) = ?P \<union> (R || {x})" by (rule paste_disj_domains)
   then have P_paste: "?P +* {(x, y)} = R" using P_paste' outside_union_restrict by blast
@@ -420,13 +422,15 @@ proof (rule equalitySubsetI)
   then have "\<exists> Q \<in> { sup_rels_from P x Y | P . P \<in> injections A Y } . R \<in> Q"
     unfolding sup_rels_from_def by auto
   then show "R \<in> \<Union> { sup_rels_from P x Y | P . P \<in> injections A Y }"
-    using Union_member by (rule rev_iffD1) (* TODO CL: in an earlier version, Nitpick found spurious counterexamples here and in the step before, possibly because of underspecification. *)
+    using Union_member by (rule rev_iffD1)
 next
   fix R
   assume "R \<in> \<Union> { sup_rels_from P x Y | P . P \<in> injections A Y }"
   then have "\<exists> Q \<in> { sup_rels_from P x Y | P . P \<in> injections A Y } . R \<in> Q"
     using Union_member by (rule rev_iffD2)
-  then obtain P and y where P: "P \<in> injections A Y" and y: "y \<in> Y - Range P" and R: "R = P +* {(x, y)}"
+  then obtain P and y where P: "P \<in> injections A Y"
+                        and y: "y \<in> Y - Range P"
+                        and R: "R = P +* {(x, y)}"
     unfolding sup_rels_from_def by auto
   then have P_unfolded: "Domain P = A \<and> Range P \<subseteq> Y \<and> runiq P \<and> runiq (P\<inverse>)"
     unfolding injections_def by (simp add: CollectE)
@@ -434,10 +438,19 @@ next
         and Range_pre: "Range P \<subseteq> Y"
         and runiq_pre: "runiq P"
         and runiq_conv_pre: "runiq (P\<inverse>)" by simp_all
-  have Domain: "Domain R = insert x A" using Domain_pre R outside_reduces_domain paste_def by (metis Domain_empty Domain_insert Un_commute insert_Diff_single insert_is_Un)
-  moreover have Range: "Range R \<subseteq> Y" using Range_pre R y paste_Range by (smt Diff_partition Range_empty Range_insert Un_iff insertE subsetD subsetI sup_bot_right)
-  moreover have runiq: "runiq R" using runiq_pre R by (metis runiq_paste2 runiq_singleton_rel)
-  moreover have runiq_conv: "runiq (R\<inverse>)" using runiq_conv_pre R y new runiq_converse_paste_singleton by (metis DiffE Domain_pre)
+  (* TODO CL: tune the following for performance (https://github.com/formare/auctions/issues/39) *)
+  have Domain: "Domain R = insert x A"
+    using Domain_pre R and paste_Domain
+    by (metis Domain_Un_eq Domain_insert Un_commute Un_empty_left Un_insert_right)
+  moreover have Range: "Range R \<subseteq> Y"
+    using Range_pre R y and paste_Range
+    by (smt Diff_partition Range_empty Range_insert Un_iff insertE subsetD subsetI sup_bot_right)
+  moreover have runiq: "runiq R"
+    using runiq_pre R
+    by (simp add: runiq_paste2 runiq_singleton_rel)
+  moreover have runiq_conv: "runiq (R\<inverse>)"
+    using runiq_conv_pre R y new and runiq_converse_paste_singleton
+    by (metis DiffE Domain_pre)
   ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by simp
 qed
 
