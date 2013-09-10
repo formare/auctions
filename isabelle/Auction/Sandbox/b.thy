@@ -56,7 +56,7 @@ assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & 
 assumes "size L=Suc n" assumes "R \<in> set (injections_alg L Y)"
 shows "Domain R=set L"
 proof -
-let ?B="injections_alg" let ?c="sup_rels_from" let ?l="sorted_list_of_set"
+let ?B="injections_alg" let ?c="sup_rels_from_alg" let ?l="sorted_list_of_set"
 let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
 4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
 hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
@@ -107,7 +107,7 @@ assumes "G dummy Y n \<subseteq> F dummy Y n"
 and "finite Y"
 shows "G dummy Y (Suc n) \<subseteq> F dummy Y (Suc n)"
 proof -
-let ?B="injections_alg" let ?l="sorted_list_of_set" let ?c="sup_rels_from"
+let ?B="injections_alg" let ?l="sorted_list_of_set" let ?c="sup_rels_from_alg"
 let ?N="Suc n" let ?F="F dummy Y" let ?G="G dummy Y" 
 let ?Fn="?F n" let ?Gn="?G n" let ?FN="?F ?N" let ?GN="?G ?N"
 {
@@ -138,7 +138,7 @@ ultimately have "g = ?e ?y" by presburger
 also have "?y \<in> set (?l (Y - Range ?f))" 
 using 9 6 sorted_list_of_set assms by blast
 ultimately have "g \<in> set [?e z . z <- ?l (Y - Range ?f)]" by auto hence 
-2: "g \<in> set (sup_rels_from ?f ?x Y)" by (metis sup_rels_from.simps) have 
+2: "g \<in> set (sup_rels_from_alg ?f ?x Y)" by (metis sup_rels_from_alg.simps) have 
 22: "?f \<subseteq> g" using Outside_def by (metis Diff_subset)
 hence "?f\<inverse> \<subseteq> g\<inverse>" using converse_subrel by metis
 have
@@ -179,7 +179,7 @@ assumes "F dummy Y n \<subseteq> G dummy Y n" shows "F dummy Y (Suc n) \<subsete
  G dummy Y (Suc n)"
 proof -
 let ?r="%x . runiq x" let ?F="F dummy Y" let ?G="G dummy Y" let ?B="injections_alg"
-let ?c="sup_rels_from" let ?l="sorted_list_of_set"
+let ?c="sup_rels_from_alg" let ?l="sorted_list_of_set"
 let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
 { 
   fix g assume "g \<in> F dummy Y (Suc n)" then 
