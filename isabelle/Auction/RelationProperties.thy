@@ -457,13 +457,6 @@ where "injections_alg [] Y = [{}]" |
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
 
-notepad
-begin
-  fix R::"('a \<times> 'b) set"
-  fix F::"('a \<times> 'b) set \<Rightarrow> ('a \<times> 'b) set set"
-  fix I::"('a \<times> 'b) set set"
-end
-
 lemma injections_paste:
   assumes non_empty: "card Y > 0"
       and new: "x \<notin> A"
@@ -511,16 +504,27 @@ proof (rule equalitySubsetI)
   (* intermediate step that makes it easier to understand:
   then have "\<exists> P \<in> injections A Y . R \<in> { P +* {(x, y)} | y . y \<in> Y - Range P }" by blast
   *)
-  then obtain Q where "Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y }"
-                  and "R \<in> Q" by auto
   then have "\<exists> Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y } . R \<in> Q"
-    by (rule rev_bexI) (* TODO CL: report that, if I skip the previous step, Nitpick finds a counterexample *)
+    by auto
   then show "R \<in> \<Union> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y }"
-    by (rule Union_member) (* TODO CL: report that Nitpick finds a counterexample *)
+    using Union_member by (rule rev_iffD1) (* TODO CL: in an earlier version, Nitpick found spurious counterexamples here and in the step before, possibly because of underspecification. *)
 next
   fix R
   assume "R \<in> \<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections A Y }"
-  show "R \<in> injections (insert x A) Y" sorry
+  then have "\<exists> Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y } . R \<in> Q"
+    using Union_member by (rule rev_iffD2)
+  then obtain P and y where P: "P \<in> injections A Y" and y: "y \<in> Y - Range P" and R: "R = P +* {(x, y)}" by auto
+  then have P_unfolded: "Domain P = A \<and> Range P \<subseteq> Y \<and> runiq P \<and> runiq (P\<inverse>)"
+    unfolding injections_def by (simp add: CollectE)
+  then have Domain_pre: "Domain P = A"
+        and Range_pre: "Range P \<subseteq> Y"
+        and runiq_pre: "runiq P"
+        and runiq_conv_pre: "runiq (P\<inverse>)" by simp_all
+  have Domain: "Domain R = insert x A" using Domain_pre R outside_reduces_domain paste_def by (metis Domain_empty Domain_insert Un_commute insert_Diff_single insert_is_Un)
+  moreover have Range: "Range R \<subseteq> Y" using Range_pre R y paste_Range by (smt Diff_partition Range_empty Range_insert Un_iff insertE subsetD subsetI sup_bot_right)
+  moreover have runiq: "runiq R" using runiq_pre R by (metis runiq_paste2 runiq_singleton_rel)
+  moreover have runiq_conv: "runiq (R\<inverse>)" using runiq_conv_pre R y new runiq_converse_paste_singleton by (metis DiffE Domain_pre)
+  ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
 qed
 
 text {* The paper-like definition @{const injections} and the algorithmic definition 
@@ -622,7 +626,6 @@ definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
 where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
 (* MC: for the moment, we've used runiq inverse R, reusing existing definitions,
 instead of this. *)
-
 
 lemma "runiq R \<Longrightarrow> runiq (R \<inverse>) \<Longrightarrow> injective R"
 proof -
