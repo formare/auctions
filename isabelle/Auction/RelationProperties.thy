@@ -16,8 +16,10 @@ theory RelationProperties
 imports
   Main
   HOLUtils
+  RelationUtils
   SetUtils
   ListUtils
+
 begin
 
 section {* restriction *}
@@ -92,23 +94,6 @@ text {* Evaluates a relation @{term R} for a single argument, as if it were a fu
   This will only work if @{term R} is a total function, i.e. if the image is always a singleton set. *}
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
 where "eval_rel R a = the_elem (R `` {a})"
-
-section {* Image *}
-
-text {* The image of a relation is only effective within the domain of that relation *}
-lemma Image_within_domain: "R `` X = R `` (X \<inter> Domain R)"
-by fast
-
-text {* An alternative phrasing of @{thm Image_within_domain} *}
-lemma Image_within_domain': fixes x R shows "x \<in> Domain R \<longleftrightarrow> R `` {x} \<noteq> {}"
-using Image_within_domain by blast
-
-text {* The image of a set outside a relation's domain under that domain is empty. *}
-lemma Image_outside_domain:
-  fixes X::"'a set"
-    and R::"('a \<times> 'b) set"
-shows "X \<inter> Domain R = {} \<longleftrightarrow> R `` X = {}"
-using Image_within_domain by blast
 
 section {* right-uniqueness *}
 
@@ -250,13 +235,6 @@ lemma Image_runiq_eq_eval:
 using assms runiq_wrt_eval_rel
 by (metis Image_within_domain' subset_singletonD)
 
-text {* If the images of two sets @{term X} and @{term Y} under a relation @{term R} are 
-  disjoint, @{term X} and @{term Y} are disjoint on the domain of @{term R}. *}
-lemma disj_Image_imp_disj_Domain:
-  assumes "R `` X \<inter> R `` Y = {}" 
-  shows "Domain R \<inter> X \<inter> Y = {}"
-using assms by auto
-
 section {* paste *}
 
 text {* the union of two binary relations @{term P} and @{term Q}, where pairs from @{term Q}
@@ -332,25 +310,6 @@ unfolding paste_def Outside_def by fast
 text {* The range of two pasted relations is a subset of the union of their ranges. *}
 lemma paste_Range: "Range (P +* Q) \<subseteq> Range P \<union> Range Q"
 using paste_sub_Un by blast
-
-section {* Converse *}
-
-text {* The definition of @{const converse} isn't suitable for generating code, so we provide
-  a code equation using an alternative definition. *}
-lemma [code_unfold]: "converse R = { (y, x) . (x, y) \<in> R }" by (rule converse_unfold)
-
-text {* If two relations are subrelations of each other, so are their converse relations. *}
-lemma converse_subrel: assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
-using assms by fast
-
-text {* The domain of the inverse of a relation is the relation's range. *}
-lemma Domain_conv_Range: "Domain (R\<inverse>)=Range R"
-by simp
-
-text {* alternative characterisation of the intersection of a relation's domain with some set, in
-  terms of the converse relation *}
-lemma Domain_Int_wrt_converse: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
-by fast
 
 text {* The inverse image of the image of a singleton set under some relation is the same
   singleton set, if both the relation and its converse are right-unique and the singleton set
