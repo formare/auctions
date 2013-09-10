@@ -44,7 +44,7 @@ proof (rule sga_left_totalI)
      However we are working with our own wrapped maximum definition anyway. *)
   with wb_tie obtain winner::participant where winner_def: "winner \<in> N \<and> winner = the (arg_max_tb_req_wb N t b)"
     using spa_admissible_input_def arg_max_def maximum_defined_def arg_max_tb_imp_arg_max
-    by simp 
+    by (smt mem_Collect_eq) 
     (* CL: alternative proof, not obvious either:
        by (metis fs_spa_pred_allocation_payments fs_spa_pred_def vectors_equal_def)
        But for didactic purposes we prefer the former, as it uses knowledge that can be assumed to be known already,
