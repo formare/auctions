@@ -16,7 +16,9 @@ header {* Preserving some stuff that we originally had in Partitions.thy,
   but which is no longer needed there, as List.thy does the same job well enough. *}
 
 theory ListUtils
-imports Main
+imports
+  Main
+  SetUtils
 begin
 
 (* MC's old norepetitions is the same as List.distinct *)
@@ -44,5 +46,9 @@ proof
 next
   show "?RHS \<subseteq> ?LHS" by auto
 qed
+
+lemma list_comp_eq_set_comp:
+  shows "set [ f x . x \<leftarrow> xs ] = { f x | x . x \<in> set xs }"
+by (metis image_Collect_mem image_set)
 
 end
