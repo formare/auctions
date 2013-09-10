@@ -58,6 +58,16 @@ text {* Considering a relation outside some set @{term X} reduces its domain by 
 lemma outside_reduces_domain: "Domain (P outside X) = Domain P - X"
 unfolding Outside_def by fast
 
+text {* Considering a relation outside a singleton set @{term "{x}"} reduces its domain by 
+  @{term x}. *}
+corollary Domain_outside_singleton:
+  assumes "Domain R = insert x A"
+      and "x \<notin> A"
+  shows "Domain (R outside {x}) = A"
+using assms
+using outside_reduces_domain
+by (metis Diff_insert_absorb)
+
 text {* For any set, a relation equals the union of its restriction to that set and its
   pairs outside that set. *}
 lemma outside_union_restrict: "P = P outside X \<union> P || X"
@@ -67,6 +77,14 @@ text {* The range of a relation @{term R} outside some exclusion set @{term X} i
   subset of the image of the domain of @{term R}, minus @{term X}, under @{term R}. *}
 lemma Range_outside_sub_Image_Domain: "Range (R outside X) \<subseteq> R `` (Domain R - X)"
 using Outside_def Image_def Domain_def Range_def by blast
+
+text {* Considering a relation outside some set doesn't enlarge its range. *}
+lemma Range_outside_sub:
+  assumes "Range R \<subseteq> Y"
+  shows "Range (R outside X) \<subseteq> Y"
+using assms
+using outside_union_restrict
+by (metis Range_mono inf_sup_ord(3) subset_trans)
 
 section {* evaluation as a function *}
 
@@ -254,7 +272,7 @@ text {* If a relation @{term P} is a subrelation of another relation @{term Q} o
 lemma paste_subrel: assumes "P || Domain Q \<subseteq> Q" shows "P +* Q = P \<union> Q"
 unfolding paste_def using assms outside_union_restrict by blast
 
-text {* Pasting two relations with disjoint domains is the same as forming their union. *}                                                                                                
+text {* Pasting two relations with disjoint domains is the same as forming their union. *}
 lemma paste_disj_domains: assumes "Domain P \<inter> Domain Q = {}" shows "P +* Q = P \<union> Q"
 unfolding paste_def Outside_def
 using assms
@@ -354,7 +372,7 @@ qed
 
 text {* The inverse image of the image of a singleton set under some relation is the same
   singleton set or empty, if both the relation and its converse are right-unique. *}
-lemma converse_Image_singleton:
+corollary converse_Image_singleton:
   assumes "runiq R"
       and "runiq (R\<inverse>)"
   shows "R\<inverse> `` R `` {x} \<subseteq> {x}"
@@ -429,7 +447,38 @@ qed
 
 section {* Injective functions *}
 
-text {* the set of all injective functions from @{term X} to @{term Y} *}
+text {* A relation @{term R} is injective on its domain iff any two domain elements having the same image
+  are equal.  This definition on its own is of limited utility, as it does not assume that @{term R}
+  is a function, i.e.\ right-unique. *}
+definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
+where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
+
+text {* If both a relation and its converse are right-unique, it is injective on its domain. *}
+lemma runiq_and_conv_imp_injective: 
+  assumes runiq: "runiq R"
+      and runiq_conv: "runiq (R \<inverse>)"
+  shows "injective R"
+proof -
+  {
+    fix a assume a_Dom: "a \<in> Domain R"
+    fix b assume b_Dom: "b \<in> Domain R"
+    have "R `` {a} = R `` {b} \<longrightarrow> a = b"
+    proof
+      assume eq_Im: "R `` {a} = R `` {b}"
+      from runiq a_Dom obtain Ra where Ra: "R `` {a} = {Ra}" by (metis Image_runiq_eq_eval)
+      from runiq b_Dom obtain Rb where Rb: "R `` {b} = {Rb}" by (metis Image_runiq_eq_eval)
+      from eq_Im Ra Rb have eq_Im': "Ra = Rb" by simp
+      from eq_Im' Ra a_Dom runiq_conv have a': "(R \<inverse>) `` {Ra} = {a}"
+        using converse_Image_singleton_Domain runiq by metis
+      from eq_Im' Rb b_Dom runiq_conv have b': "(R \<inverse>) `` {Rb} = {b}"
+        using converse_Image_singleton_Domain runiq by metis
+      from eq_Im' a' b' show "a = b" by simp
+    qed
+  }
+  then show ?thesis unfolding injective_def by blast
+qed
+
+text {* the set of all injective functions from @{term X} to @{term Y}. *}
 definition injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
 where "injections X Y = {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
 
@@ -482,16 +531,13 @@ proof (rule equalitySubsetI)
   let ?P = "R outside {x}"
   have subrel: "?P \<subseteq> R" unfolding Outside_def by fast
   have subrel_conv: "?P\<inverse> \<subseteq> R\<inverse>" using subrel by blast
-  have Domain_pre: "Domain ?P = A"
-    using Domain new and outside_reduces_domain
-    by (metis Diff_insert_absorb)
+
+  have Domain_pre: "Domain ?P = A" using Domain new by (rule Domain_outside_singleton)
   moreover have "Range ?P \<subseteq> Y"
-    using Range and outside_union_restrict
-    by (metis Int_absorb1 Range_Un_eq inf_sup_ord(3) le_inf_iff)
+    using Range by (rule Range_outside_sub)
   moreover have "runiq ?P" using runiq subrel by (rule subrel_runiq)
   moreover have "runiq (?P\<inverse>)" using runiq_conv subrel_conv by (rule subrel_runiq)
-  ultimately have P_inj: "?P \<in> injections A Y"
-    unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
+  ultimately have P_inj: "?P \<in> injections A Y" unfolding injections_def by simp
 
   obtain y where y: "R `` {x} = {y}" using Image_runiq_eq_eval Domain runiq by (metis insertI1)
   from y Range have "y \<in> Y" by fast
@@ -512,12 +558,12 @@ proof (rule equalitySubsetI)
   qed
   ultimately have y_in: "y \<in> Y - Range ?P" by (rule DiffI)
 
-  from y have 0: "R || {x} = {(x, y)}" unfolding restrict_def by blast
-  then have Dom_restrict: "Domain (R || {x}) = {x}" by simp
-  from 0 have 1: "?P +* {(x, y)} = ?P \<union> R || {x}" by (metis outside_union_restrict paste_outside_restrict)
+  from y have x_rel: "R || {x} = {(x, y)}" unfolding restrict_def by blast
+  from x_rel have Dom_restrict: "Domain (R || {x}) = {x}" by simp
+  from x_rel have P_paste': "?P +* {(x, y)} = ?P \<union> R || {x}" using outside_union_restrict paste_outside_restrict by metis
   from Dom_restrict Domain_pre new have "Domain ?P \<inter> Domain (R || {x}) = {}" by simp
   then have "?P +* (R || {x}) = ?P \<union> (R || {x})" by (rule paste_disj_domains)
-  then have P_paste: "?P +* {(x, y)} = R" by (metis "1" outside_union_restrict)
+  then have P_paste: "?P +* {(x, y)} = R" using P_paste' outside_union_restrict by blast
 
   from P_inj y_in P_paste have "\<exists> P \<in> injections A Y . \<exists> y \<in> Y - Range P . R = P +* {(x, y)}" by blast
   (* intermediate step that makes it easier to understand:
@@ -544,7 +590,7 @@ next
   moreover have Range: "Range R \<subseteq> Y" using Range_pre R y paste_Range by (smt Diff_partition Range_empty Range_insert Un_iff insertE subsetD subsetI sup_bot_right)
   moreover have runiq: "runiq R" using runiq_pre R by (metis runiq_paste2 runiq_singleton_rel)
   moreover have runiq_conv: "runiq (R\<inverse>)" using runiq_conv_pre R y new runiq_converse_paste_singleton by (metis DiffE Domain_pre)
-  ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
+  ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by simp
 qed
 
 text {* The paper-like definition @{const injections} and the algorithmic definition 
@@ -639,33 +685,7 @@ fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rig
 where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
 
 definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a \<times> 'b) set"
-(* the domain can be possibly specified in a separate step, e.g. through || *)
+(* MC: the domain can be possibly specified in a separate step, e.g. through || *)
 where "to_relation f = {(x, f x) | x . True}"
-
-definition injective :: "('a \<times> 'b) set \<Rightarrow> bool"
-where "injective R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<forall> b \<in> Domain R . R `` {a} = R `` {b} \<longrightarrow> a = b)"
-(* MC: for the moment, we've used runiq inverse R, reusing existing definitions,
-instead of this. *)
-
-lemma "runiq R \<Longrightarrow> runiq (R \<inverse>) \<Longrightarrow> injective R"
-proof -
-  assume runiq: "runiq R"
-  assume runiq_conv: "runiq (R \<inverse>)"
-  {
-    fix a assume a_Dom: "a \<in> Domain R"
-    fix b assume b_Dom: "b \<in> Domain R"
-    have "R `` {a} = R `` {b} \<longrightarrow> a = b"
-    proof
-      assume eq_Im: "R `` {a} = R `` {b}"
-      from runiq a_Dom obtain Ra where Ra: "R `` {a} = {Ra}" by (metis Image_runiq_eq_eval runiq)
-      from runiq b_Dom obtain Rb where Rb: "R `` {b} = {Rb}" by (metis Image_runiq_eq_eval runiq)
-      from eq_Im Ra Rb have eq_Im': "Ra = Rb" by simp
-      from eq_Im' Ra a_Dom runiq_conv have a': "(R \<inverse>) `` {Ra} = {a}" by (metis converse_Image_singleton_Domain runiq)
-      from eq_Im' Rb b_Dom runiq_conv have b': "(R \<inverse>) `` {Rb} = {b}" by (metis converse_Image_singleton_Domain runiq)
-      from eq_Im' a' b' show "a = b" by (metis the_elem_eq)
-    qed
-  }
-  then show ?thesis unfolding injective_def by blast
-qed
 
 end
