@@ -81,6 +81,6 @@ text {* The image of a union is the union of images. *}
 lemma image_union: "f ` (X \<union> Y) = f ` X \<union> f ` Y" by auto
 
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
-lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<Longrightarrow> x \<in> \<Union> F" by fast
+lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by fast
 
 end
