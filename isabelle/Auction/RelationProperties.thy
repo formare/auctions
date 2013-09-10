@@ -561,28 +561,25 @@ proof (induct xs)
   proof -
     have "{{}} = {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" (is "?LHS = ?RHS")
     proof
+      have "{}\<inverse> = {}" by fast
       have "Domain {} = {}" by simp
       moreover have "Range {} \<subseteq> Y" by simp
       moreover have runiq_emptyrel: "runiq {}" using runiq_def trivial_empty runiq_trivial_rel by fast
-      moreover have "runiq ({}\<inverse>)" using runiq_emptyrel by (metis (full_types) Domain_empty Range_converse Range_empty_iff)
+      moreover have "runiq ({}\<inverse>)" using `{}\<inverse> = {}` runiq_emptyrel by metis
       ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
       (* CL: Merging the steps before and after this comment considerably increases complexity. *)
       then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
       then show "?LHS \<subseteq> ?RHS" by (smt empty_subsetI insert_subset)
     next
-      {
+      show "?RHS \<subseteq> ?LHS"
+      proof
         fix R
-        (* CL: ignoring warning "Introduced fixed type variable(s)"; adding type annotations breaks transitive chain (reported to Isabelle list 2013-09-07) *)
         assume "R \<in> {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
-        then have "Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)" ..
-        then have "R = {}" using Domain_empty_iff by metis
-        then have "R \<in> {{}}" by simp
-      }
-      then show "?RHS \<subseteq> ?LHS" by (rule subsetI)
+        then show "R \<in> {{}}" by (simp add: Domain_empty_iff)
+      qed
     qed
-    also have "\<dots> = injections {} Y"
-      unfolding injections_def ..
-    also have "\<dots> = injections (set []) Y" by simp
+    also have "\<dots> = injections (set []) Y"
+      unfolding injections_def by simp
     finally show ?thesis .
   qed
   finally show ?case .
