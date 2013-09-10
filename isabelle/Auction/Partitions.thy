@@ -532,11 +532,11 @@ proof -
     (* This and other intermediate results may not be easy to understand.  I obtained them by 
        conflating multiple “by <simple_method>” steps into one. *)
   also have "\<dots> = set ` (\<Union> x \<in> { coarser_partitions_with_list elem P | P . P \<in> set Ps } . set x)"
-    by (metis image_Collect_mem)
+    by (simp add: image_Collect_mem)
   also have "\<dots> = \<Union> { set (map set (coarser_partitions_with_list elem P)) | P . P \<in> set Ps }" by auto
   also have "\<dots> = \<Union> { coarser_partitions_with elem (set P) | P . P \<in> set Ps }"
     using distinct coarser_partitions_with_list_alt by fast
-  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set ` (set Ps))" by (metis image_Collect_mem image_image)
+  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set ` (set Ps))" by (simp add: image_Collect_mem)
   also have "\<dots> = \<Union> coarser_partitions_with elem ` (set (map set Ps))" by simp
   also have "\<dots> = ?set_expr" unfolding all_coarser_partitions_with_def ..
   finally show ?thesis .
