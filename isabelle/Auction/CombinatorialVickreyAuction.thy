@@ -26,8 +26,8 @@ definition max_revenue :: "goods \<Rightarrow> participant set \<Rightarrow> bid
 where "max_revenue G N b = Max ((revenue_rel b) ` (possible_allocations_rel G N))"
 (* we don't need the variant that assumes functional allocations, as it's really just the same *)
 
-fun max_revenue_comp :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
-where "max_revenue_comp G N b = maximum_comp_list (possible_allocations_comp G N) (revenue_rel b)"
+fun max_revenue_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
+where "max_revenue_alg G N b = maximum_alg_list (possible_allocations_alg G N) (revenue_rel b)"
 
 (* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
 definition winning_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel set"
@@ -51,13 +51,13 @@ definition winning_allocation_fun :: "goods \<Rightarrow> participant set \<Righ
 where "winning_allocation_fun G N t b = t (winning_allocations_fun G N b)"
 *)
 
-fun winning_allocations_comp_CL
-where "winning_allocations_comp_CL G N b = (arg_max_comp_list
-    (possible_allocations_comp G N)
+fun winning_allocations_alg_CL
+where "winning_allocations_alg_CL G N b = (arg_max_alg_list
+    (possible_allocations_alg G N)
     (revenue_rel b))"
 
-fun winning_allocations_comp_MC where 
-"winning_allocations_comp_MC G N b = (let all = possible_allocations_comp G N in
+fun winning_allocations_alg_MC where 
+"winning_allocations_alg_MC G N b = (let all = possible_allocations_alg G N in
   map (nth all) (max_positions (map (revenue_rel b) all)))"
 
 text {* the maximum sum of bids of all bidders except bidder @{text n}'s bid, computed over all possible allocations of all goods,
@@ -66,8 +66,8 @@ definition \<alpha> :: "goods \<Rightarrow> participant set \<Rightarrow> bids \
 where "\<alpha> G N b n = max_revenue G (N - {n}) b"
 
 text {* algorithmic version of @{text \<alpha>} *}
-fun \<alpha>_comp :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "\<alpha>_comp G N b n = max_revenue_comp G (N - {n}) b"
+fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+where "\<alpha>_alg G N b n = max_revenue_alg G (N - {n}) b"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 (* those goods that are allocated to someone who gets some goods *)
@@ -88,14 +88,14 @@ where "remaining_value_rel G N t b n =
   (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((t (winning_allocations_rel G N b))\<inverse>) m {}))"
 
 text {* algorithmic version of @{text remaining_value_rel} *}
-fun remaining_value_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "remaining_value_comp G N t b n =
+fun remaining_value_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+where "remaining_value_alg G N t b n =
   (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
     ( 
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (t (winning_allocations_comp_CL G N b))\<inverse>)
+      (t (winning_allocations_alg_CL G N b))\<inverse>)
     m (* evaluate the relation for participant m *)
     {} (* return the empty set if nothing is in relation with m *)
   ))"
@@ -110,21 +110,21 @@ definition payments_rel :: "goods \<Rightarrow> participant set \<Rightarrow> ti
 where "payments_rel G N t = \<alpha> G N - remaining_value_rel G N t"
 
 text {* algorithmic version of @{text payments_rel} *}
-fun payments_comp :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "payments_comp G N t = \<alpha>_comp G N - remaining_value_comp G N t"
+fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 
 (* the payments (computational version, expanded to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
    until Isabelle2014 fixes the bug; see https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00024.html) *)
-fun payments_comp_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_comp \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "payments_comp_workaround G N t b n = 
-  (* \<alpha>_comp G N *) max_revenue_comp G (N - {n}) b
+fun payments_alg_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
+where "payments_alg_workaround G N t b n = 
+  (* \<alpha>_alg G N *) max_revenue_alg G (N - {n}) b
   -
-  (* remaining_value_comp G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
+  (* remaining_value_alg G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
     (
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (t (winning_allocations_comp_CL G N b))\<inverse>)
+      (t (winning_allocations_alg_CL G N b))\<inverse>)
     m (* evaluate the relation for participant m *)
     {} (* return the empty set if nothing is in relation with m *)
   ))"
@@ -138,11 +138,11 @@ where "payments_comp_workaround G N t b n =
    * outcome is obtained from input according to the definitions above.
    For this relation we need to show that, given an arbitrary but fixed tie-breaker,
    for each admissible input, there is a unique, well-defined outcome. *)
-definition nVCG_auctions :: "tie_breaker_comp \<Rightarrow> combinatorial_auction"
+definition nVCG_auctions :: "tie_breaker_alg \<Rightarrow> combinatorial_auction"
 where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
   admissible_input G N b
-  \<and> x = t (winning_allocations_comp_CL G N b)
-  \<and> p = payments_comp G N t b }"
+  \<and> x = t (winning_allocations_alg_CL G N b)
+  \<and> p = payments_alg G N t b }"
 
 end
 

@@ -59,7 +59,7 @@ type_synonym payments = "real vector"
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation_rel = "((goods \<times> participant) set)" (* goods set not necessary as a function-as-relation-as-set representation carries its own domain :-) *)
 type_synonym tie_breaker_rel = "allocation_rel set \<Rightarrow> allocation_rel"
-type_synonym tie_breaker_comp = "allocation_rel list \<Rightarrow> allocation_rel"
+type_synonym tie_breaker_alg = "allocation_rel list \<Rightarrow> allocation_rel"
 type_synonym payments = "participant \<Rightarrow> price"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
@@ -73,7 +73,7 @@ type_synonym combinatorial_auction = "((goods \<times> participant set \<times> 
    both relational and functional allocation) *)
 definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x = (THE y . y \<in> x)"
 (* trivial tie-breaking for allocation lists: take the first one with "hd list" *)
-definition tie_breaker_example_comp :: tie_breaker_comp where "tie_breaker_example_comp = hd"
+definition tie_breaker_example_alg :: tie_breaker_alg where "tie_breaker_example_alg = hd"
 
 (* the revenue gained from selling a certain allocation (assuming relational allocations) *)
 definition revenue_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
@@ -102,15 +102,15 @@ where "possible_allocations_rel G N = { potential_buyer . \<exists> Y \<in> all_
  }"
 
 (* the list of possible allocations of a set of goods to a set of participants (computable version) *)
-fun possible_allocations_comp :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
-where "possible_allocations_comp G N =
+fun possible_allocations_alg :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
+where "possible_allocations_alg G N =
   concat [
     injections_alg Y N (* the potential buyers *)
     . Y \<leftarrow> all_partitions_alg G ]"
 
 (* example (uncomment to run): possibilities to allocate goods {1,2,3} to participants {100,200} *)
 (*
-value "possible_allocations_comp {1,2,3::nat} {100,200::nat}"
+value "possible_allocations_alg {1,2,3::nat} {100,200::nat}"
 *)
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
