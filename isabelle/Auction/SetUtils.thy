@@ -20,6 +20,13 @@ imports
 
 begin
 
+section {* Equality *}
+
+text {* An inference rule that combines @{thm equalityI} and @{thm subsetI} to a single step *}
+lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
+
+section {* Trivial sets *}
+
 text {* A trivial set (i.e. singleton or empty), as in Mizar *}
 definition trivial where "trivial x = (x \<subseteq> {the_elem x})"
 
@@ -58,6 +65,45 @@ begin
 end
 *)
 
+text {* There are no two different elements in a trivial set. *}
+lemma trivial_imp_no_distinct:
+  assumes triv: "trivial X"
+      and x: "x \<in> X"
+      and y: "y \<in> X"
+  shows "x = y"
+proof -
+  from triv show "x = y"
+  proof (cases rule: trivial_cases)
+    case empty
+    with x show ?thesis by simp
+  next
+    case singleton
+    with x y show ?thesis by fast
+  qed
+qed
+
+text {* If there are no two different elements in a set, it is trivial. *}
+lemma no_distinct_imp_trivial:
+  assumes "\<And> x y . \<lbrakk> x \<in> X; y \<in> X \<rbrakk> \<Longrightarrow> x = y"
+  shows "trivial X"
+unfolding trivial_def
+proof 
+  fix x::'a
+  assume x_in_X: "x \<in> X"
+  with assms have uniq: "\<forall> y \<in> X . x = y" by force
+  have "X = {x}"
+  proof (rule equalitySubsetI)
+    fix x'::'a
+    assume "x' \<in> X"
+    with uniq show "x' \<in> {x}" by simp
+  next
+    fix x'::'a
+    assume "x' \<in> {x}"
+    with x_in_X show "x' \<in> X" by simp
+  qed
+  then show "x \<in> {the_elem X}" by simp
+qed
+
 text {* If a trivial set has a singleton subset, the latter is unique. *}
 lemma singleton_sub_trivial_uniq:
   fixes x X
@@ -71,14 +117,15 @@ lemma trivial_subset: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y"
 shows "trivial X"
 using assms unfolding trivial_def by (metis (full_types) subset_empty subset_insertI2 subset_singletonD)
 
-text {* An inference rule that combines @{thm equalityI} and @{thm subsetI} to a single step *}
-lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
+section {* The image of a set under a function *}
 
 text {* an equivalent notation for the image of a set, using set comprehension *}
 lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
 text {* The image of a union is the union of images. *}
 lemma image_union: "f ` (X \<union> Y) = f ` X \<union> f ` Y" by auto
+
+section {* Miscellaneous *}
 
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
 lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by fast
