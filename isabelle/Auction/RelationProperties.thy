@@ -17,6 +17,7 @@ imports
   Main
   HOLUtils
   SetUtils
+  ListUtils
 begin
 
 section {* restriction *}
@@ -98,21 +99,21 @@ text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e
 definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
-text {* alternative characterisation of right-uniqueness: the image of a singleton set within
-  the relation's domain is @{const trivial}, i.e.\ an empty or singleton set. *}
-lemma runiq_alt: "runiq R \<longleftrightarrow> (\<forall> x \<in> Domain R . trivial (R `` {x}))"
-(* CL: The following proof, found by Sledgehammer, takes 51 ms on my machine. *)
-(* by (metis Image_empty Image_within_domain' runiq_def set_eq_subset subset_singletonD the_elem_eq trivial_def trivial_empty) *)
+text {* alternative characterisation of right-uniqueness: the image of a singleton set is
+   @{const trivial}, i.e.\ an empty or singleton set. *}
+lemma runiq_alt: "runiq R \<longleftrightarrow> (\<forall> x . trivial (R `` {x}))"
+(* CL: The following proof, found by Sledgehammer, takes 26 ms on my machine. *)
+(* unfolding runiq_def by (metis Image_empty trivial_cases trivial_empty trivial_singleton) *)
 proof
   assume runiq: "runiq R"
-  show "\<forall> x \<in> Domain R . trivial (R `` {x})"
+  show "\<forall> x . trivial (R `` {x})"
   proof
     fix x::'a
     have "trivial {x}" unfolding trivial_def by simp
     with runiq show "trivial (R `` {x})" unfolding runiq_def by fast
   qed
 next
-  assume dom_triv: "\<forall> x \<in> Domain R . trivial (R `` {x})"
+  assume triv: "\<forall> x . trivial (R `` {x})"
   have "\<forall> X::'a set . trivial X \<longrightarrow> trivial (R `` X)"
   proof (rule allImpI)
     fix X::"'a set"
@@ -123,14 +124,7 @@ next
       then show ?thesis unfolding trivial_def by simp
     next
       case (singleton x)
-      show ?thesis
-      proof (cases "x \<in> Domain R")
-        case True
-        with singleton dom_triv show ?thesis by fast
-      next
-        case False
-        with singleton show ?thesis unfolding trivial_def by fast
-      qed
+      with singleton triv show ?thesis by fast
     qed
   qed
   then show "runiq R" unfolding runiq_def by fast
@@ -140,7 +134,7 @@ text {* an alternative definition of right-uniqueness in terms of @{const eval_r
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
   shows "runiq R = (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
-by (metis eval_rel.simps runiq_alt runiq_def trivial_def trivial_singleton)
+by (metis eval_rel.simps runiq_alt trivial_def)
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
@@ -166,21 +160,14 @@ lemma disj_Un_runiq:
       and disj_Dom: "Domain P \<inter> Domain Q = {}"
   shows "runiq (P \<union> Q)"
 proof -
-  have "\<forall> x \<in> Domain (P \<union> Q) . trivial ((P \<union> Q) `` {x})"
+  have "\<forall> x . trivial ((P \<union> Q) `` {x})"
   proof
     fix x
-    assume assm: "x \<in> Domain (P \<union> Q)"
-    show "trivial ((P \<union> Q) `` {x})"
-    proof (cases "x \<in> Domain P")
-      case True
-      then have "trivial (P `` {x})" using runiq_P runiq_alt by fast
-      with True show ?thesis using disj_Dom by (metis Image_within_domain' Int_iff Un_Image empty_iff sup_bot_right)
-    next
-      case False
-      then have False': "x \<in> Domain Q" using disj_Dom assm by fast
-      then have "trivial (Q `` {x})" using runiq_Q disj_Dom runiq_alt by fast
-      with False' show ?thesis using disj_Dom by (metis Image_within_domain' Int_iff Un_Image empty_iff sup_bot_left)
-    qed     
+    have triv_Im_P: "trivial (P `` {x})" using runiq_P runiq_alt by fast
+    have triv_Im_Q: "trivial (Q `` {x})" using runiq_Q runiq_alt by fast
+    have "(P \<union> Q) `` {x} = P `` {x} \<union> Q `` {x}" by fast
+    with disj_Dom have "(P \<union> Q) `` {x} = P `` {x} \<or> (P \<union> Q) `` {x} = Q `` {x}" by blast
+    then show "trivial ((P \<union> Q) `` {x})" using triv_Im_P triv_Im_Q by force
   qed
   then show ?thesis using runiq_alt by fast
 qed
@@ -223,12 +210,18 @@ lemma eval_runiq_rel:
   assumes domain: "x \<in> Domain R"
       and runiq: "runiq R" 
   shows "(x, R,,x) \<in> R"
-using assms
 proof -
-  have "trivial (R `` {x})" using domain runiq unfolding runiq_alt by fast
-  then have "R ,, x \<in> R `` {x}" using domain
-    by (metis Image_within_domain' RelationProperties.eval_rel.simps subset_empty subset_insert trivial_def)
-  then show ?thesis by fast 
+  have "trivial (R `` {x})" using runiq unfolding runiq_alt by fast
+  then show ?thesis
+  proof (cases rule: trivial_cases)
+    case empty
+    with domain have False by fast
+    then show ?thesis ..
+  next
+    case (singleton y)
+    then have "R ,, x = y" by simp
+    with singleton show ?thesis by blast
+  qed
 qed
 
 text {* The image of a singleton set under a right-unique relation is a singleton set. *}
@@ -444,54 +437,80 @@ text {* Given a relation @{term R}, an element @{term x} of the relation's domai
   a set @{term Y} of the relation's range type, this function constructs the list of all 
   superrelations of @{term R} that extend @{term R} by a pair @{term "(x,y)"} for some
   @{term y} not yet covered by @{term R}. *}
-fun sup_rels_from :: "('a \<times> 'b\<Colon>linorder) set \<Rightarrow> 'a \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set list"
+fun sup_rels_from_alg :: "('a \<times> 'b\<Colon>linorder) set \<Rightarrow> 'a \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set list"
 where 
-"sup_rels_from R x Y = [ R +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ]"
+"sup_rels_from_alg R x Y = [ R +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ]"
 (* Y or Y-Range R ? *)
+
+text {* set-based variant of @{const sup_rels_from_alg} *}
+definition sup_rels_from :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
+where "sup_rels_from R x Y = { R +* {(x, y)} | y . y \<in> Y - Range R }"
+
+text {* On finite sets, @{const sup_rels_from_alg} and @{const sup_rels_from} are equivalent. *}
+lemma sup_rels_from_paper_equiv_alg:
+  assumes "finite Y"
+  shows "set (sup_rels_from_alg R x Y) = sup_rels_from R x Y"
+proof -
+  have "distinct (sorted_list_of_set (Y - Range R))" using assms by simp
+  then have "set [ R +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ] = { R +* {(x,y)} | y . y \<in> set (sorted_list_of_set (Y - Range R)) }"
+    using list_comp_eq_set_comp by simp
+  moreover have "set (sorted_list_of_set (Y - Range R)) = Y - Range R" using assms by simp
+  ultimately show ?thesis unfolding sup_rels_from_def by simp
+qed
 
 text {* the list of all injective functions (represented as relations) from one set 
   (represented as a list) to another set *}
 fun injections_alg :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
 where "injections_alg [] Y = [{}]" |
-      "injections_alg (x # xs) Y = concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]"
+      "injections_alg (x # xs) Y = concat [ sup_rels_from_alg R x Y . R \<leftarrow> injections_alg xs Y ]"
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
 
 lemma injections_paste:
-  assumes non_empty: "card Y > 0"
-      and new: "x \<notin> A"
-  shows "injections (insert x A) Y = (\<Union> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y })"
+  assumes new: "x \<notin> A"
+  shows "injections (insert x A) Y = (\<Union> { sup_rels_from P x Y | P . P \<in> injections A Y })"
 proof (rule equalitySubsetI)
-  (* TODO CL: clean up *)
   fix R
   assume "R \<in> injections (insert x A) Y"
-  then have injections_unfolded: "Domain R = (insert x A) \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)"
+  then have injections_unfolded: "Domain R = insert x A \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)"
     unfolding injections_def by simp
   then have Domain: "Domain R = insert x A"
         and Range: "Range R \<subseteq> Y"
         and runiq: "runiq R"
         and runiq_conv: "runiq (R\<inverse>)" by simp_all
-  let ?P = "R outside {x}"
 
+  let ?P = "R outside {x}"
   have subrel: "?P \<subseteq> R" unfolding Outside_def by fast
   have subrel_conv: "?P\<inverse> \<subseteq> R\<inverse>" using subrel by blast
-  from Domain have Domain_pre: "Domain ?P = A" using non_empty new by (metis Diff_insert_absorb outside_reduces_domain)
-  from Range have Range_pre: "Range ?P \<subseteq> Y" by (metis Int_absorb1 Range_Un_eq inf_sup_ord(3) le_inf_iff outside_union_restrict)
-  from runiq subrel have runiq_pre: "runiq ?P" by (rule subrel_runiq)
-  from runiq_conv subrel_conv have runiq_conv_pre: "runiq (?P\<inverse>)" by (rule subrel_runiq)
-  from Domain_pre Range_pre runiq_pre runiq_conv_pre have P_inj: "?P \<in> injections A Y" unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
+  have Domain_pre: "Domain ?P = A"
+    using Domain new and outside_reduces_domain
+    by (metis Diff_insert_absorb)
+  moreover have "Range ?P \<subseteq> Y"
+    using Range and outside_union_restrict
+    by (metis Int_absorb1 Range_Un_eq inf_sup_ord(3) le_inf_iff)
+  moreover have "runiq ?P" using runiq subrel by (rule subrel_runiq)
+  moreover have "runiq (?P\<inverse>)" using runiq_conv subrel_conv by (rule subrel_runiq)
+  ultimately have P_inj: "?P \<in> injections A Y"
+    unfolding injections_def by (metis (lifting, full_types) mem_Collect_eq)
 
-  obtain y where y: "R `` {x} = {y}" by (metis Image_runiq_eq_eval injections_unfolded insertI1)
-  from y and Range have "y \<in> Y" by fast
-  moreover have y_Range: "y \<notin> Range ?P"
+  obtain y where y: "R `` {x} = {y}" using Image_runiq_eq_eval Domain runiq by (metis insertI1)
+  from y Range have "y \<in> Y" by fast
+  moreover have "y \<notin> Range ?P"
   proof
     assume assm: "y \<in> Range ?P"
-    then obtain z where "z \<in> Domain ?P" and "(z,y) \<in> ?P" by fast
-    then have "z \<in> A" using Domain_pre by fast
-    with new have "z \<noteq> x" by fast
-    (* TODO CL: tune *)
-    with `(z, y) \<in> R outside {x}` assm runiq y runiq_conv subrel_conv new show False by (metis Domain_pre Image_empty Image_singleton_iff Image_within_domain' converse_Image_singleton_Domain converse_iff ex_in_conv rev_ImageI set_rev_mp)
+    then obtain x' where x'_Domain: "x' \<in> Domain ?P" and x'_P_y: "(x', y) \<in> ?P" by fast
+    have x'_img: "x' \<in> R\<inverse> `` {y}" using subrel x'_P_y by fast
+    have x_img: "x \<in> R\<inverse> `` {y}" using y by fast
+    have "x' \<noteq> x"
+    proof -
+      from x'_Domain have "x' \<in> A" using Domain_pre by fast
+      with new show ?thesis by fast
+    qed
+    have "trivial (R\<inverse> `` {y})" using runiq_conv runiq_alt by metis
+    then have "x' = x" using x'_img x_img by (rule trivial_imp_no_distinct)
+    with `x' \<noteq> x` show False ..
   qed
+  ultimately have y_in: "y \<in> Y - Range ?P" by (rule DiffI)
 
   from y have 0: "R || {x} = {(x, y)}" unfolding restrict_def by blast
   then have Dom_restrict: "Domain (R || {x}) = {x}" by simp
@@ -500,20 +519,21 @@ proof (rule equalitySubsetI)
   then have "?P +* (R || {x}) = ?P \<union> (R || {x})" by (rule paste_disj_domains)
   then have P_paste: "?P +* {(x, y)} = R" by (metis "1" outside_union_restrict)
 
-  from P_inj y P_paste have "\<exists> P \<in> injections A Y . \<exists> y \<in> Y - Range P . R = P +* {(x, y)}" by (metis DiffI y_Range calculation)
+  from P_inj y_in P_paste have "\<exists> P \<in> injections A Y . \<exists> y \<in> Y - Range P . R = P +* {(x, y)}" by blast
   (* intermediate step that makes it easier to understand:
   then have "\<exists> P \<in> injections A Y . R \<in> { P +* {(x, y)} | y . y \<in> Y - Range P }" by blast
   *)
-  then have "\<exists> Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y } . R \<in> Q"
-    by auto
-  then show "R \<in> \<Union> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y }"
+  then have "\<exists> Q \<in> { sup_rels_from P x Y | P . P \<in> injections A Y } . R \<in> Q"
+    unfolding sup_rels_from_def by auto
+  then show "R \<in> \<Union> { sup_rels_from P x Y | P . P \<in> injections A Y }"
     using Union_member by (rule rev_iffD1) (* TODO CL: in an earlier version, Nitpick found spurious counterexamples here and in the step before, possibly because of underspecification. *)
 next
   fix R
-  assume "R \<in> \<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections A Y }"
-  then have "\<exists> Q \<in> { { P +* {(x, y)} | y . y \<in> Y - Range P } | P . P \<in> injections A Y } . R \<in> Q"
+  assume "R \<in> \<Union> { sup_rels_from P x Y | P . P \<in> injections A Y }"
+  then have "\<exists> Q \<in> { sup_rels_from P x Y | P . P \<in> injections A Y } . R \<in> Q"
     using Union_member by (rule rev_iffD2)
-  then obtain P and y where P: "P \<in> injections A Y" and y: "y \<in> Y - Range P" and R: "R = P +* {(x, y)}" by auto
+  then obtain P and y where P: "P \<in> injections A Y" and y: "y \<in> Y - Range P" and R: "R = P +* {(x, y)}"
+    unfolding sup_rels_from_def by auto
   then have P_unfolded: "Domain P = A \<and> Range P \<subseteq> Y \<and> runiq P \<and> runiq (P\<inverse>)"
     unfolding injections_def by (simp add: CollectE)
   then have Domain_pre: "Domain P = A"
@@ -568,34 +588,37 @@ proof (induct xs)
   finally show ?case .
 next
   case (Cons x xs)
-  have "set (injections_alg (x # xs) Y) = set (concat [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ])" by simp
-  also have "\<dots> = (\<Union> set (map set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
-  also have "\<dots> = (\<Union> set ` (set [ sup_rels_from R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
-  also have "\<dots> = (\<Union> set ` ((\<lambda> R . sup_rels_from R x Y) ` set (injections_alg xs Y)))" by simp
-  also have "\<dots> = (\<Union> set ` ((\<lambda> R . sup_rels_from R x Y) ` (injections (set xs) Y)))" using Cons.hyps Cons.prems by auto
-  also have "\<dots> = (\<Union> set ` { sup_rels_from R x Y | R . R \<in> injections (set xs) Y })" by (metis image_Collect_mem)
-  also have "\<dots> = (\<Union> set ` { [ R +* {(x, y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ] | R . R \<in> injections (set xs) Y })" by simp
-  finally have 0: "set (injections_alg (x # xs) Y) = (\<Union> set ` { [ R +* {(x, y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ] | R . R \<in> injections (set xs) Y })" .
-  (* CL: If I continue the transitive chain here, Isabelle complains about a "vacuous calculation result". *)
-  (* TODO CL: From here this needs cleaning up *)
-  have 1: "\<dots> = (\<Union> set ` { map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R)) | R . R \<in> injections (set xs) Y })" by simp
-  have 2: "\<dots> = (\<Union> { set (map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R))) | R . R \<in> injections (set xs) Y })" by (metis image_Collect_mem image_image)
-  have 3: "\<dots> = (\<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections (set xs) Y })"
-  proof -
-    {
-      fix R::"('a \<times> 'b) set"
-      from non_empty have "finite Y" by (rule card_ge_0_finite)
-      then have "set (map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R))) =  (\<lambda> y . R +* {(x, y)}) ` (Y - Range R)" by simp
-      also have "\<dots> = { R +* {(x, y)} | y . y \<in> Y - Range R }" by (metis image_Collect_mem)
-      finally have "set (map (\<lambda> y . R +* {(x, y)}) (sorted_list_of_set (Y - Range R))) = { R +* {(x, y)} | y . y \<in> Y - Range R }" .
-    }
-    then show ?thesis by simp
-  qed
-  from 0 1 2 3 have 4: "set (injections_alg (x # xs) Y) = (\<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections (set xs) Y })" by simp
-  from Cons.prems have x_notin_xs: "x \<notin> set xs" by simp
+
+  from non_empty have "finite Y" by (rule card_ge_0_finite)
+  (* needed for the longer, more easily comprehensible variant given below *)
+  (*
+  from Cons.prems have "x \<notin> set xs" by simp
   have insert: "set (x # xs) = insert x (set xs)" by force
-  from non_empty x_notin_xs have "injections (insert x (set xs)) Y = (\<Union> { { R +* {(x, y)} | y . y \<in> Y - Range R } | R . R \<in> injections (set xs) Y })" by (rule injections_paste)
-  with 4 insert show ?case by simp
+  *)
+
+  (* short variant: *)
+  have "set (injections_alg (x # xs) Y) = (\<Union> { set (sup_rels_from_alg R x Y) | R . R \<in> injections (set xs) Y })"
+    using Cons.hyps Cons.prems by (simp add: image_Collect_mem)
+  (* longer, more easily comprehensible variant: *)
+  (*
+  have "set (injections_alg (x # xs) Y) = set (concat [ sup_rels_from_alg R x Y . R \<leftarrow> injections_alg xs Y ])" by simp
+  also have "\<dots> = (\<Union> set (map set [ sup_rels_from_alg R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+  also have "\<dots> = (\<Union> set ` (set [ sup_rels_from_alg R x Y . R \<leftarrow> injections_alg xs Y ]))" by simp
+  also have "\<dots> = (\<Union> set ` ((\<lambda> R . sup_rels_from_alg R x Y) ` set (injections_alg xs Y)))" by simp
+  also have "\<dots> = (\<Union> set ` ((\<lambda> R . sup_rels_from_alg R x Y) ` (injections (set xs) Y)))" using Cons.hyps Cons.prems by auto
+  also have "\<dots> = (\<Union> set ` { sup_rels_from_alg R x Y | R . R \<in> injections (set xs) Y })" by (simp add: image_Collect_mem)
+  also have "\<dots> = (\<Union> { set (sup_rels_from_alg R x Y) | R . R \<in> injections (set xs) Y })" by (simp add: image_Collect_mem)
+  *)
+  also have "\<dots> = (\<Union> { sup_rels_from R x Y | R . R \<in> injections (set xs) Y })"
+    using `finite Y` sup_rels_from_paper_equiv_alg by fast
+  (* short variant: *)
+  also have "\<dots> = injections (set (x # xs)) Y" using Cons.prems by (simp add: injections_paste)
+  (* longer, more easily comprehensible variant: *)
+  (*
+  also have "\<dots> = injections (insert x (set xs)) Y" using `x \<notin> set xs` by (simp add: injections_paste)
+  also have "\<dots> = injections (set (x # xs)) Y" using insert by simp
+  *)
+  finally show ?case .
 qed
 
 (* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
