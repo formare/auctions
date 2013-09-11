@@ -23,61 +23,68 @@ begin
 text {* algorithmic definition of the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
 definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
-where "F dummy Y n = \<Union> {set (injections_alg l Y) | l::('a list) . size l=n & card (set l)=n}"
+where "F dummy Y n = \<Union> { set (injections_alg l Y) | l::'a list . size l = n \<and> card (set l) = n }"
+(* TODO CL: depending on why we need "card (set l) = n" it might be easier to simply say "distinct n". *)
 
 text {* textbook-style definition of the set of all injective functions (represented as relations) from all sets
   of cardinality @{term n} to some other set *}
 definition G :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
-where "G dummy Y n = {f . finite (Domain f) & card (Domain f)=n & runiq f & runiq (f\<inverse>) & Range f \<subseteq> Y}"
+where "G dummy Y n = {f . finite (Domain f) \<and> card (Domain f) = n \<and> runiq f \<and> runiq (f\<inverse>) \<and> Range f \<subseteq> Y}"
 
-(* TODO CL: remove once RelationProperties.injections_equiv is done.  "case Nil" of the latter covers ll43. *)
-lemma ll43: fixes Y shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
+(* CL: "case Nil" of RelationProperties.injections_equiv now covers this. *)
+lemma ll43:
+  fixes Y
+  shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
 proof
   have "injections_alg [] Y = [{}]" by auto
-  hence "{{}} = \<Union> { set (injections_alg l Y) | l . size l=0 & card (set l) = 0}" by auto
-  also have "... = F dummy Y 0" unfolding F_def by fast
+  then have "{{}} = \<Union> { set (injections_alg l Y) | l . size l = 0 \<and> card (set l) = 0 }" by auto
+  also have "\<dots> = F dummy Y 0" unfolding F_def by fast
   finally show "F dummy Y 0 = {{}}" by simp
 next
-  have "\<forall> f . (finite (Domain f) & card (Domain f) = 0 \<longrightarrow> f = {})" by (metis Domain_empty_iff card_eq_0_iff)
-  hence "\<forall> f. (f \<in> G dummy Y 0 \<longrightarrow> f = {})" unfolding G_def by (metis (lifting, full_types) mem_Collect_eq)
-  hence 0: "G dummy Y 0 \<subseteq> {{}}" by blast
+  have "\<forall> f . finite (Domain f) \<and> card (Domain f) = 0 \<longrightarrow> f = {}" by force
+  then have "\<forall> f. f \<in> G dummy Y 0 \<longrightarrow> f = {}" unfolding G_def by fast
+  then have 0: "G dummy Y 0 \<subseteq> {{}}" by blast
+
   have 1: "finite (Domain {})" by simp
   have 2: "card (Domain {}) = 0" by force
   have 3: "runiq {}" using runiq_def trivial_def by fast
   moreover have "{}\<inverse> = {}" by fast
   ultimately have "runiq ({}\<inverse>)" by metis
-  hence "{} \<in> G dummy Y 0" using 1 2 3 unfolding G_def by (smt Range_converse Range_empty `{}\<inverse> = {}` card_empty empty_subsetI finite.emptyI mem_Collect_eq)
-  hence "G dummy Y 0 = {{}}" using 0 by auto
-  then show "G dummy Y 0 = {{}}" by fastforce
+  then have "{} \<in> G dummy Y 0" using 1 2 3 unfolding G_def by (smt Range_converse Range_empty `{}\<inverse> = {}` card_empty empty_subsetI finite.emptyI mem_Collect_eq)
+  then show "G dummy Y 0 = {{}}" using 0 by auto
 qed
 
-lemma ll39: fixes n R fixes Y::"'b::linorder set" fixes L::"'a list"
-assumes "\<forall> l::('a list). \<forall> r::('a \<times> 'b) set . size l=n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l"
-assumes "size L=Suc n" assumes "R \<in> set (injections_alg L Y)"
-shows "Domain R=set L"
+lemma ll39:
+  fixes n R
+    and Y::"'b\<Colon>linorder set"
+    and L::"'a list"
+  assumes "\<forall> l::'a list. \<forall> r::('a \<times> 'b) set . size l = n \<and> r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l"
+      and "size L = Suc n"
+      and "R \<in> set (injections_alg L Y)"
+  shows "Domain R = set L"
 proof -
-let ?B="injections_alg" let ?c="sup_rels_from_alg" let ?l="sorted_list_of_set"
-let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
-4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
-hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
-hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
-using assms set_concat by force
-then obtain a where 
-0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using set_concat by fast
-obtain r where 
-6: "a=?c r ?x Y & r \<in> set (?B ?ln Y)" using 0 by auto
-have "size ?ln=n" using assms by auto then
-have 3: "Domain r = set ?ln" using 6 assms by presburger
-have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]" 
-using 0 6 by force then
-obtain y where 
-2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
-set_concat assms by auto
-have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert paste_Domain)
-also have "... = set ?ln \<union> {?x}" using 3 by presburger
-also have "... = insert ?x (set ?ln)" by fast
-also have "... = set L" using 4 by (metis List.set.simps(2))
-ultimately show ?thesis by presburger
+  let ?B="injections_alg" let ?c="sup_rels_from_alg" let ?l="sorted_list_of_set"
+  let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
+  4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
+  hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
+  hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
+  using assms set_concat by force
+  then obtain a where 
+  0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using set_concat by fast
+  obtain r where 
+  6: "a=?c r ?x Y & r \<in> set (?B ?ln Y)" using 0 by auto
+  have "size ?ln=n" using assms by auto then
+  have 3: "Domain r = set ?ln" using 6 assms by presburger
+  have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]" 
+  using 0 6 by force then
+  obtain y where 
+  2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
+  set_concat assms by auto
+  have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert paste_Domain)
+  also have "... = set ?ln \<union> {?x}" using 3 by presburger
+  also have "... = insert ?x (set ?ln)" by fast
+  also have "... = set L" using 4 by (metis List.set.simps(2))
+  ultimately show ?thesis by presburger
 qed
 
 lemma ll40: fixes Y::"'b::linorder set" fixes n fixes x::'a
