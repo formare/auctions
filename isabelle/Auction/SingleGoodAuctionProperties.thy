@@ -17,36 +17,56 @@ See LICENSE file for details
 header {* Some properties that single good auctions can have *}
 
 theory SingleGoodAuctionProperties
-imports SingleGoodAuction Maximum
+imports
+  SingleGoodAuction
+  Maximum
+
 begin
 
-(* TODO CL: reuse RelationProperties as per https://github.com/formare/auctions/issues/22 *)
-text{* Left-totality of an auction defined as a relation: for each admissible bid vector
-  there exists some outcome (not necessarily unique). *}
+section {* Soundness *}
+
+subsection {* Well-defined outcome *}
+
+text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
+  allocated w.r.t.\ the definition of an @{text allocation}.  We are not constraining the payments
+  at this point. *}
+definition sga_outcome_allocates :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+  where
+    "sga_outcome_allocates N b x p \<longleftrightarrow> allocation N x"
+
+type_synonym outcome_well_definedness = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
+
+definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+  where
+    "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
+      (\<forall> ((N::participant set, b::bids), (x::allocation, p::payments)) \<in> A .
+        well_defined_outcome_pred N b x p)"
+
+subsection {* Admissible input *}
+
+type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightarrow> bool"
+
+subsection {* Left-totality *}
+
+text{* Convenience wrapper for left-totality of a single good auction in relational form:
+  for each admissible input (determined by an admissibility predicate),
+  there exists some outcome (not necessarily unique nor well-defined). *}
 definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
   where "sga_left_total A admissible \<longleftrightarrow>
-    (\<forall> (N :: participant set) (b :: bids) . admissible N b \<longrightarrow>
-      (\<exists> (x :: allocation) (p :: payments) . ((N, b), (x, p)) \<in> A))"
+    { (N, b) . admissible N b } \<subseteq> Domain A"
 
-text{* introduction rule for @{term sga_left_total} *}
+text{* introduction rule for @{const sga_left_total} *}
 lemma sga_left_totalI:
   assumes "\<And> N b . admissible N b \<Longrightarrow> (\<exists> x p . ((N, b), (x, p)) \<in> A)"
   shows "sga_left_total A admissible"
 using assms unfolding sga_left_total_def by fast
 
-text{* If one relation is left-total on a given set, its superrelations are left-total on that set too. *}
-lemma left_total_suprel:
-  fixes A :: single_good_auction
-    and B :: single_good_auction
-    and admissible :: input_admissibility
-  assumes left_total_subrel: "sga_left_total A admissible"
-      and suprel: "A \<subseteq> B"
-  shows "sga_left_total B admissible"
-using assms unfolding sga_left_total_def by fast
+(* TODO CL: reuse RelationProperties as per https://github.com/formare/auctions/issues/22 *)
+subsection {* Right-uniqueness *}
 
 type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
-text{* Right-uniqueness of an auction defined as a relation: for each admissible bid vector,
+text{* Right-uniqueness of a single good auction defined as a relation: for each admissible bid vector,
   if there is an outcome, it is unique.  We define this once for underspecified auctions, i.e.
   where tie-breaking is not specified, \<dots> *}
 definition sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> bool"
@@ -61,13 +81,15 @@ lemma sga_right_uniqueI:
   shows "sga_right_unique A admissible equivalent"
 using assms unfolding sga_right_unique_def by force
 
-text{* \<dots> and once for fully specified (“fs”) auctions with tie-breaking, where outcome equivalence
+text{* \<dots> and once for fully specified (“fs”) single good auctions with tie-breaking, where outcome equivalence
   is defined by equality: *}
 definition fs_sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
   where "fs_sga_right_unique A admissible \<longleftrightarrow>
     sga_right_unique A admissible
       (* equivalence by equality: *)
       (\<lambda> N b x p x' p' . eq N x x' \<and> eq N p p')"
+
+subsection {* Soundness combined *}
 
 definition sga_case_check :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
   where "sga_case_check A admissible equivalent well_defined \<longleftrightarrow>
@@ -96,7 +118,7 @@ definition efficient :: "participant set \<Rightarrow> valuations \<Rightarrow> 
 
 subsection {* Equilibrium in weakly dominant strategies *}
 
-text{* Given some auction, a strategy profile supports an equilibrium in weakly dominant strategies
+text{* Given some single good auction, a strategy profile supports an equilibrium in weakly dominant strategies
   if each participant maximises its payoff by playing its component in that profile,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::

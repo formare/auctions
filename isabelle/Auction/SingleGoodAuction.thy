@@ -120,21 +120,4 @@ text{* Now for the relational version of the single good auction: *}
 definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
   where "single_good_auction = rel_sat_sga_pred sga_pred"
 
-text{* In the general case, by ``well-defined outcome'' we mean that the good gets properly 
-  allocated w.r.t. the definition of an @{text allocation}.  We are not constraining the payments
-  at this point. *}
-definition sga_outcome_allocates :: "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
-  where
-    "sga_outcome_allocates N b x p \<longleftrightarrow> allocation N x"
-
-type_synonym outcome_well_definedness = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
-
-definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
-  where
-    "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
-      (\<forall> ((N::participant set, b::bids), (x::allocation, p::payments)) \<in> A .
-        well_defined_outcome_pred N b x p)"
-
-type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightarrow> bool"
-
 end

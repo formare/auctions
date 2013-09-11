@@ -20,6 +20,18 @@ imports
 
 begin
 
+section {* Domain *}
+
+text{* If a relation is left-total on a set @{term A}, its superrelations are left-total on @{term A} too. *}
+lemma suprel_left_total_on:
+  fixes R :: "('a \<times> 'b) set"
+    and S :: "('a \<times> 'b) set"
+    and A :: "'a set"
+  assumes "A \<subseteq> Domain R"
+      and "R \<subseteq> Q"
+  shows "A \<subseteq> Domain Q"
+using assms by fast
+
 section {* Image *}
 
 text {* The image of a relation is only effective within the domain of that relation *}
