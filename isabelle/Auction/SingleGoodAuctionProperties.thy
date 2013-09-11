@@ -64,7 +64,10 @@ using assms unfolding sga_left_total_def by fast
 subsection {* Right-uniqueness *}
 
 (* CL: the way we define "right-uniqueness up to some equivalence relation", and equality of vectors,
-   we can't reuse RelationProperties.runiq as our right-uniqueness notion. *)
+   we can't reuse RelationProperties.runiq as our right-uniqueness notion.  At least not now, but:
+   TODO CL: maybe introduce "right-uniqueness up to some equivalence relation" as a concept of its own,
+   not defined in terms of "trivial (= empty or singleton) image", but as "image is at most one 
+   equivalence class". *)
 
 type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
