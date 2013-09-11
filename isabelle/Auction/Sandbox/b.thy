@@ -23,7 +23,7 @@ begin
 text {* algorithmic definition of the set of all injective functions (represented as relations) from all sets 
   of cardinality @{term n} (represented as lists) to some other set *}
 definition F :: "'a \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> nat \<Rightarrow> ('a\<Colon>linorder \<times> 'b) set set"
-where "F dummy Y n = \<Union> { set (injections_alg l Y) | l::'a list . size l = n \<and> card (set l) = n }"
+where "F dummy Y n = \<Union> { set (injections_alg l Y) | l::'a list . size l = n \<and> distinct l }"
 (* TODO CL: depending on why we need "card (set l) = n" it might be easier to simply say "distinct n". *)
 
 text {* textbook-style definition of the set of all injective functions (represented as relations) from all sets
@@ -37,7 +37,7 @@ lemma ll43:
   shows "F dummy Y 0 = {{}} \<and> G dummy Y 0 = {{}}"
 proof
   have "injections_alg [] Y = [{}]" by auto
-  then have "{{}} = \<Union> { set (injections_alg l Y) | l . size l = 0 \<and> card (set l) = 0 }" by auto
+  then have "{{}} = \<Union> { set (injections_alg l Y) | l . size l = 0 \<and> distinct l }" by auto
   also have "\<dots> = F dummy Y 0" unfolding F_def by fast
   finally show "F dummy Y 0 = {{}}" by simp
 next
@@ -163,14 +163,15 @@ proof
   then have "g outside {?x} \<in> G dummy Y n" using 24 25 26 21 unfolding G_def by (metis (mono_tags) mem_Collect_eq)
   then have "g outside {?x} \<in> F dummy Y n" using subset by (simp add: in_mono)
   then obtain xs::"'a list"
-    where 1: "g outside {?x} \<in> set (injections_alg xs Y) \<and> size xs = n \<and> card (set xs) = n" unfolding F_def by blast
+    where 1: "g outside {?x} \<in> set (injections_alg xs Y) \<and> size xs = n \<and> distinct xs" unfolding F_def by blast
   let ?lN = "?x # xs"
   have 3: "size ?lN = Suc n" using 1 by simp 
   have "g \<in> set (concat [ sup_rels_from_alg R ?x Y . R \<leftarrow> injections_alg xs Y])" using 1 2 by auto
   then have 4: "g \<in> set (injections_alg (?x # xs) Y)" by auto
   then have 5: "card (set ?lN) = Suc n" using "21" by (metis ll16)
-  then have "g \<in> ?F (Suc n)" using F_def 3 4 by blast
-  also have "size ?lN = Suc n \<and> card (set ?lN) = Suc n" using 3 5 by fast
+  then have 6: "distinct ?lN" using 3 4 by (metis card_distinct)
+  then have "g \<in> ?F (Suc n)" unfolding F_def using 3 4 by blast
+  also have "size ?lN = Suc n \<and> distinct ?lN" using 3 5 6 by fast
   ultimately show "g \<in> ?F (Suc n)" using F_def by blast
 qed
 
@@ -185,20 +186,20 @@ proof
   let ?F = "F dummy Y" let ?G = "G dummy Y"
   let ?l="sorted_list_of_set"
   fix g assume "g \<in> F dummy Y (Suc n)" then 
-  have "g \<in> \<Union> {set (injections_alg l Y) | l . size l= Suc n \<and> card (set l) = Suc n}" 
+  have "g \<in> \<Union> {set (injections_alg l Y) | l . size l= Suc n \<and> distinct l}" 
     unfolding F_def by fast
   then obtain a::"('a \<times> 'b) set set" where 
-    0: "g \<in> a \<and> a \<in> {set (injections_alg l Y) | l . size l = Suc n \<and> card (set l) = Suc n}" 
+    0: "g \<in> a \<and> a \<in> {set (injections_alg l Y) | l . size l = Suc n \<and> distinct l}" 
     using F_def by blast
   obtain lN where
-    1: "a = set (injections_alg lN Y) \<and> size lN = Suc n \<and> card (set lN) = Suc n" using 0 by blast  
+    1: "a = set (injections_alg lN Y) \<and> size lN = Suc n \<and> distinct lN" using 0 by blast  
   let ?x = "hd lN" let ?xs = "tl lN" have 
   20: "lN = ?x # ?xs" using 1 by (metis hd.simps length_Suc_conv tl.simps(2))
   have 21: "size ?xs=n" using 1 by auto
-  then have 22: " card (set ?xs) = n" using 1 by (metis distinct_imp_card_eq_length distinct_tl)
+  then have 22: "distinct ?xs" using 1 by (metis distinct_tl)
   then have "set ?xs = set lN - {?x}" 
-    using 1 20 by (metis List.finite_set List.set.simps(2) card_insert_if n_not_Suc_n removeAll.simps(2) removeAll_id set_removeAll)
-  then have 2: "lN = ?x # ?xs \<and> size ?xs=n \<and> card (set ?xs)=n \<and> set ?xs=set lN-{?x}" 
+    using 1 20 by (metis (mono_tags) Diff_insert_absorb List.set.simps(2) distinct.simps(2))
+  then have 2: "lN = ?x # ?xs \<and> size ?xs=n \<and> distinct ?xs \<and> set ?xs=set lN-{?x}" 
     using 20 21 22 by fast
   have "injections_alg (?x # ?xs) Y = concat [ sup_rels_from_alg R ?x Y . R <- injections_alg ?xs Y]" 
     by simp
@@ -207,8 +208,8 @@ proof
   then obtain f where 
     3: "f \<in> set (injections_alg ?xs Y)" and 33: "g \<in> set (sup_rels_from_alg f ?x Y)"
     using 0 1 by fastforce
-  have "set (injections_alg ?xs Y) \<in> {set (injections_alg l Y) | l . size l = n \<and> card (set l) = n}"
-    using 2 by blast 
+  have "set (injections_alg ?xs Y) \<in> {set (injections_alg l Y) | l . size l = n \<and> distinct l}"
+    using 2 by fast
   then have "f \<in> ?F n" using 3 unfolding F_def by blast
   then have "f \<in> ?G n" using subset by blast
   then have 5: "finite (Domain f) \<and> card (Domain f)=n \<and> runiq f \<and> runiq (f\<inverse>) \<and> Range f \<subseteq> Y"
@@ -220,7 +221,7 @@ proof
     using 4 by simp
   then have 9: "runiq g" using runiq_paste2 5 runiq_singleton_rel by fast
   have "Domain f=set ?xs" using 3 by (rule ll16)
-  then have 7: "?x \<notin> Domain f \<and> card (Domain f)=n" using 2 by force
+  then have 7: "?x \<notin> Domain f" using 2 by force
   then have 8: "runiq (g\<inverse>)" using runiq_converse_paste_singleton 5 6 by force
   have 10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert paste_Range)
   (* simplify this using g=f \<union> {...} *)
