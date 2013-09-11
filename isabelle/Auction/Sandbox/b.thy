@@ -175,67 +175,59 @@ proof
 qed
 
 lemma ll41:
-fixes dummy::"'a::linorder" 
-fixes Y::"'b::linorder set"
-fixes n::nat
-assumes "finite Y"
-assumes "F dummy Y n \<subseteq> G dummy Y n" shows "F dummy Y (Suc n) \<subseteq>
- G dummy Y (Suc n)"
-proof -
-let ?r="%x . runiq x" let ?F="F dummy Y" let ?G="G dummy Y" let ?B="injections_alg"
-let ?c="sup_rels_from_alg" let ?l="sorted_list_of_set"
-let ?Fn="?F n" let ?N="Suc n" let ?FN="?F ?N" let ?Gn="?G n" let ?GN="?G ?N"
-{ 
+  fixes dummy::"'a::linorder" 
+    and Y::"'b::linorder set"
+    and n::nat
+  assumes finite: "finite Y"
+      and subset: "F dummy Y n \<subseteq> G dummy Y n"
+  shows "F dummy Y (Suc n) \<subseteq> G dummy Y (Suc n)"
+proof
+  let ?F = "F dummy Y" let ?G = "G dummy Y"
+  let ?l="sorted_list_of_set"
   fix g assume "g \<in> F dummy Y (Suc n)" then 
-  have "g \<in> \<Union> {set (?B l Y) | l . size l=(Suc n) \<and> card (set l)=(Suc n)}" 
-  unfolding F_def by fast
+  have "g \<in> \<Union> {set (injections_alg l Y) | l . size l= Suc n \<and> card (set l) = Suc n}" 
+    unfolding F_def by fast
   then obtain a::"('a \<times> 'b) set set" where 
-  0: "g\<in> a \<and> a\<in> {set (?B l Y) | l . size l=?N \<and> card (set l)=?N}" 
-  using F_def by blast
+    0: "g \<in> a \<and> a \<in> {set (injections_alg l Y) | l . size l = Suc n \<and> card (set l) = Suc n}" 
+    using F_def by blast
   obtain lN where
-  1: "a=set (?B lN Y) \<and> size lN=?N \<and> card (set lN)=?N" using 0 by blast  
-  let ?DN="set lN" 
-  let ?x="hd lN" let ?xs="drop 1 lN" have 
-  20: "lN=?x # ?xs" using 1 by (metis drop_1_Cons hd.simps length_Suc_conv)
+    1: "a = set (injections_alg lN Y) \<and> size lN = Suc n \<and> card (set lN) = Suc n" using 0 by blast  
+  let ?x = "hd lN" let ?xs = "tl lN" have 
+  20: "lN = ?x # ?xs" using 1 by (metis hd.simps length_Suc_conv tl.simps(2))
   have 21: "size ?xs=n" using 1 by auto
-  have 22: " card (set ?xs)=n" using 1 by 
-  (metis `length (drop 1 lN) = n` distinct_drop distinct_imp_card_eq_length)
-  have "set ?xs=set lN-{?x}" 
-  using 1 by (smt Diff_insert_absorb List.set.simps(2) `card (set (drop 1 lN)) = n` `lN = hd lN # drop 1 lN` `length (drop 1 lN) = n` `\<And>thesis. (\<And>lN. a = set (injections_alg lN Y) \<and> length lN = Suc n \<and> card (set lN) = Suc n \<Longrightarrow> thesis) \<Longrightarrow> thesis` insert_absorb)
-  hence
-  2: "lN=?x # ?xs \<and> size ?xs=n \<and> card (set ?xs)=n \<and> set ?xs=set lN-{?x}" 
-  using 20 21 22 by fast
-  have "?B (?x # ?xs) Y=concat [ ?c R ?x Y . R <- injections_alg ?xs Y]" 
-  by simp
-  hence "set (?B lN Y) = \<Union> {set l | l . l \<in> set [ ?c R ?x Y. R <- injections_alg ?xs Y]}"
-  using set_concat 2 by metis
+  then have 22: " card (set ?xs) = n" using 1 by (metis distinct_imp_card_eq_length distinct_tl)
+  then have "set ?xs = set lN - {?x}" 
+    using 1 20 by (metis List.finite_set List.set.simps(2) card_insert_if n_not_Suc_n removeAll.simps(2) removeAll_id set_removeAll)
+  then have 2: "lN = ?x # ?xs \<and> size ?xs=n \<and> card (set ?xs)=n \<and> set ?xs=set lN-{?x}" 
+    using 20 21 22 by fast
+  have "injections_alg (?x # ?xs) Y = concat [ sup_rels_from_alg R ?x Y . R <- injections_alg ?xs Y]" 
+    by simp
+  then have "set (injections_alg lN Y) = \<Union> {set l | l . l \<in> set [ sup_rels_from_alg R ?x Y. R <- injections_alg ?xs Y]}"
+    using set_concat 2 by metis
   then obtain f where 
-  3: "f \<in> set (?B ?xs Y) \<and> g \<in> set (?c f ?x Y)" using 0 1 by fastforce
-  let ?if="f\<inverse>"
-  have "set (?B ?xs Y) \<in> {set (injections_alg l Y) | l . size l=n \<and> card (set l)=n}"
-  using 2 by blast 
-  hence "f \<in> ?Fn" using 2 3 unfolding F_def by blast
-  hence "f \<in> ?Gn" using assms by blast hence 
-  5: "finite (Domain f) \<and> card (Domain f)=n \<and> runiq f \<and> runiq ?if \<and> Range f \<subseteq> Y"
-  unfolding G_def by fast
-  have "g \<in> set [ f +* {(?x,y)} . y <- ?l (Y - Range f) ]" using 3 by simp
-  then obtain y where
-  4: "g=f +* {(?x, y)} \<and> y \<in> set (?l (Y - Range f))" using 3 by auto
-  have "finite (Y -Range f)" using assms by fast hence
-  6: "g=f +* {(?x, y)} \<and> y \<in> Y - Range f" 
-  using 4 sorted_list_of_set by metis hence 
-  9: "runiq g" using runiq_paste2 5 runiq_singleton_rel by fast
-  have "Domain f=set ?xs" using ll16 3 by blast hence 
-  7: "?x \<notin> Domain f \<and> card (Domain f)=n" using 2 by force hence 
-  8: "runiq (g\<inverse>)" using runiq_converse_paste_singleton 5 6 by force have 
-  10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert paste_Range)
+    3: "f \<in> set (injections_alg ?xs Y)" and 33: "g \<in> set (sup_rels_from_alg f ?x Y)"
+    using 0 1 by fastforce
+  have "set (injections_alg ?xs Y) \<in> {set (injections_alg l Y) | l . size l = n \<and> card (set l) = n}"
+    using 2 by blast 
+  then have "f \<in> ?F n" using 3 unfolding F_def by blast
+  then have "f \<in> ?G n" using subset by blast
+  then have 5: "finite (Domain f) \<and> card (Domain f)=n \<and> runiq f \<and> runiq (f\<inverse>) \<and> Range f \<subseteq> Y"
+    unfolding G_def by fast
+  have "g \<in> set [ f +* {(?x,y)} . y <- ?l (Y - Range f) ]" using 33 by simp
+  then obtain y where 4: "g=f +* {(?x, y)} \<and> y \<in> set (?l (Y - Range f))" using 3 by auto
+  have "finite (Y -Range f)" using finite by fast
+  then have 6: "g=f +* {(?x, y)} \<and> y \<in> Y - Range f" 
+    using 4 by simp
+  then have 9: "runiq g" using runiq_paste2 5 runiq_singleton_rel by fast
+  have "Domain f=set ?xs" using 3 by (rule ll16)
+  then have 7: "?x \<notin> Domain f \<and> card (Domain f)=n" using 2 by force
+  then have 8: "runiq (g\<inverse>)" using runiq_converse_paste_singleton 5 6 by force
+  have 10: "Range g \<subseteq> Range f \<union> {y}" using 6 by (metis Range_empty Range_insert paste_Range)
   (* simplify this using g=f \<union> {...} *)
   have "Domain g=Domain f \<union> {?x}" using 6 paste_Domain by (metis Domain_empty Domain_insert)
-  hence "card (Domain g)=?N" using 7 5 by auto
-  hence "card (Domain g)=?N \<and> finite (Domain g)" using card_ge_0_finite by force
-  hence "g \<in> ?GN" using 8 9 10 5 6 unfolding G_def by blast
-}
-thus ?thesis by fast
+  then have "card (Domain g) = Suc n" using 7 5 by auto
+  then have "card (Domain g) = Suc n \<and> finite (Domain g)" using card_ge_0_finite by force
+  then show "g \<in> ?G (Suc n)" using 8 9 10 5 6 unfolding G_def by blast
 qed
 
 theorem fixes Y assumes "finite Y" shows "G dummy Y=F dummy Y"
