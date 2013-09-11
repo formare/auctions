@@ -59,32 +59,35 @@ lemma ll39:
     and Y::"'b\<Colon>linorder set"
     and L::"'a list"
   assumes "\<forall> l::'a list. \<forall> r::('a \<times> 'b) set . size l = n \<and> r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l"
-      and "size L = Suc n"
-      and "R \<in> set (injections_alg L Y)"
+      and size: "size L = Suc n"
+      and R_inj: "R \<in> set (injections_alg L Y)"
   shows "Domain R = set L"
 proof -
-  let ?B="injections_alg" let ?c="sup_rels_from_alg" let ?l="sorted_list_of_set"
-  let ?ln="drop 1 L" let ?x="hd L" have "size L > 0" using assms by simp hence
-  4: "L=?x # ?ln" using assms by (metis One_nat_def drop_0 drop_Suc_conv_tl hd_drop_conv_nth)
-  hence "R \<in> set (?B (?x # ?ln) Y)" using assms by auto
-  hence "R \<in> set (concat [ ?c RR ?x Y . RR <- ?B ?ln Y ])" 
-  using assms set_concat by force
+  let ?x = "hd L"
+  let ?xs = "tl L"
+  have "size L > 0" using size by simp
+  then have 4: "L = ?x # ?xs" by fastforce
+  then have "R \<in> set (injections_alg (?x # ?xs) Y)" using R_inj by auto
+  then have "R \<in> set (concat [ sup_rels_from_alg RR ?x Y . RR \<leftarrow> injections_alg ?xs Y ])" 
+    using assms(1) set_concat by force
   then obtain a where 
-  0: "a \<in> set [ ?c RR ?x Y . RR <- ?B ?ln Y ] & R \<in> set a" using set_concat by fast
-  obtain r where 
-  6: "a=?c r ?x Y & r \<in> set (?B ?ln Y)" using 0 by auto
-  have "size ?ln=n" using assms by auto then
-  have 3: "Domain r = set ?ln" using 6 assms by presburger
-  have "R \<in> set [ r +* {(?x, y)} . y <- ?l (Y - Range r)]" 
-  using 0 6 by force then
-  obtain y where 
-  2: "y \<in> set (?l (Y - Range r)) & R=r +* {(?x, y)}" using 0 6 
-  set_concat assms by auto
-  have "Domain R=Domain r \<union> {?x}" using 2 by (metis Domain_empty Domain_insert paste_Domain)
-  also have "... = set ?ln \<union> {?x}" using 3 by presburger
-  also have "... = insert ?x (set ?ln)" by fast
-  also have "... = set L" using 4 by (metis List.set.simps(2))
-  ultimately show ?thesis by presburger
+    0: "a \<in> set [ sup_rels_from_alg RR ?x Y . RR \<leftarrow> injections_alg ?xs Y ] \<and> R \<in> set a"
+    using set_concat by fast
+  then obtain r where 
+    6: "a = sup_rels_from_alg r ?x Y \<and> r \<in> set (injections_alg ?xs Y)" by auto
+
+  have "size ?xs = n" using size by auto
+  then have 3: "Domain r = set ?xs" using 6 assms(1) by presburger
+  have "R \<in> set [ r +* {(?x, y)} . y \<leftarrow> sorted_list_of_set (Y - Range r)]" 
+    using 0 6 by force
+  then obtain y where 
+    2: "y \<in> set (sorted_list_of_set (Y - Range r)) \<and> R = r +* {(?x, y)}"
+    using 0 6 set_concat assms(1) by auto
+  then have "Domain R = Domain r \<union> {?x}" by (metis Domain_empty Domain_insert paste_Domain)
+  also have "\<dots> = set ?xs \<union> {?x}" using 3 by presburger
+  also have "\<dots> = insert ?x (set ?xs)" by fast
+  also have "\<dots> = set L" using 4 by (metis List.set.simps(2))
+  finally show ?thesis .
 qed
 
 lemma ll40: fixes Y::"'b::linorder set" fixes n fixes x::'a
