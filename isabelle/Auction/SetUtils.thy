@@ -84,7 +84,7 @@ qed
 
 text {* If there are no two different elements in a set, it is trivial. *}
 lemma no_distinct_imp_trivial:
-  assumes "\<And> x y . \<lbrakk> x \<in> X; y \<in> X \<rbrakk> \<Longrightarrow> x = y"
+  assumes "\<forall> x y . x \<in> X \<and> y \<in> X \<longrightarrow> x = y"
   shows "trivial X"
 unfolding trivial_def
 proof 
