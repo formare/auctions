@@ -196,13 +196,12 @@ proof -
   let ?Y = "insert new_el X"
   have rest_is_partition: "is_partition (P - {X})"
     using partition subset_is_partition by blast
-  have "X \<inter> \<Union> (P - {X}) = {}"
-   using eq_class partition disj_eq_classes
-   by metis
-  then have "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> (P - {X}) = {}" using new by blast
-  then have "is_partition (insert ?Y (P - {X}))"
-    using rest_is_partition partition_extension1
-    by metis
+  have *: "X \<inter> \<Union> (P - {X}) = {}"
+   using partition eq_class by (rule disj_eq_classes)
+  from * have non_empty: "?Y \<noteq> {}" by blast
+  from * have disjoint: "?Y \<inter> \<Union> (P - {X}) = {}" using new by force
+  have "is_partition (insert ?Y (P - {X}))"
+    using rest_is_partition disjoint non_empty by (rule partition_extension1)
   then show ?thesis unfolding insert_into_member_def by simp
 qed
 
@@ -607,10 +606,8 @@ next
   from Cons.prems Cons.hyps
     have hyp_distinct: "\<forall> ps \<in> set (all_partitions_list xs) . distinct ps" by simp
 
-  have distinct_xs: "distinct xs"
-    by (metis Cons.prems distinct.simps(2))
-  have x_notin_xs: "x \<notin> set xs"
-    by (metis Cons.prems distinct.simps(2))
+  have distinct_xs: "distinct xs" using Cons.prems by simp
+  have x_notin_xs: "x \<notin> set xs" using Cons.prems by simp
   
   have "set (map set (all_partitions_list (x # xs))) = all_partitions (set (x # xs))"
   proof (rule equalitySubsetI) -- {* case set \<rightarrow> list *}
