@@ -90,19 +90,17 @@ proof -
   finally show ?thesis .
 qed
 
-lemma ll40: fixes Y::"'b::linorder set" fixes n fixes x::'a
-shows "\<forall> l . \<forall> r::(('a \<times> 'b) set) . size l=n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r=set l"
-proof -
-(* fix Y::"'b::linorder set" fix n::nat fix x::'a *)
-let ?P="(%n::nat . (\<forall> l. \<forall> r::('a \<times> 'b) set . 
-size l=n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l))"
-have "?P  n"
-proof (rule nat.induct)
-show "?P 0" by force
+lemma ll40:
+  fixes Y::"'b\<Colon>linorder set"
+  fixes n
+  fixes x::'a
+shows "\<forall> l . \<forall> r::('a \<times> 'b) set . size l = n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l" (is "?P n")
+proof (induct n)
+  case 0
+  then show ?case by force
 next
-fix m assume "?P m" thus "?P (Suc m)" using ll39 by blast
-qed
-thus ?thesis by fast
+  case (Suc m)
+  then show ?case using ll39 by blast
 qed
 
 lemma ll16: fixes l::"'a list" fixes Y::"'b::linorder set" fixes R
