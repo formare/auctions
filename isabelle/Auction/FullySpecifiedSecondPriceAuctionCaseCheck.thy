@@ -17,9 +17,11 @@ See LICENSE file for details
 header {* Second price single good auctions and some of their properties *}
 
 theory FullySpecifiedSecondPriceAuctionCaseCheck
-imports FullySpecifiedSecondPriceAuction SingleGoodAuctionProperties
-begin
+imports
+  FullySpecifiedSecondPriceAuction
+  SingleGoodAuctionProperties
 
+begin
 
 lemma rel_all_fs_spa_is_spa:
   fixes A :: single_good_auction
@@ -130,7 +132,5 @@ proof -
     by (rule fs_spa_well_defined_outcome)
   ultimately show ?thesis unfolding fs_sga_case_check_def by simp
 qed
-
-
 
 end
