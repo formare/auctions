@@ -61,6 +61,8 @@ next
   then show "runiq R" unfolding runiq_def by fast
 qed
 
+text {* alternative characterisation of right-uniqueness: whenever two range elements are in 
+  relation with a domain element, they are equal. *}
 (* It is surprisingly hard (but possible) to prove this automatically, be it using/unfolding runiq_def, or using runiq_alt. *)
 lemma runiq_basic: "runiq R \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
 proof
