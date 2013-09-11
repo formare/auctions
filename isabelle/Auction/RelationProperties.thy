@@ -198,6 +198,17 @@ lemma Image_runiq_eq_eval:
 using assms runiq_wrt_eval_rel
 by (metis Image_within_domain' subset_singletonD)
 
+text {* right-uniqueness of a restricted relation expressed using basic set theory *}
+lemma runiq_restrict: "runiq (R || X) \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
+proof -
+  have "runiq (R || X) \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R || X \<and> (x, y') \<in> R || X \<longrightarrow> y = y')"
+    by (rule runiq_basic)
+  also have "\<dots> \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> { p . fst p \<in> X \<and> p \<in> R } \<and> (x, y') \<in> { p . fst p \<in> X \<and> p \<in> R } \<longrightarrow> y = y')"
+    using restrict_ext' by blast
+  also have "\<dots> \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')" by auto
+  finally show ?thesis .
+qed
+
 subsection {* paste *}
 
 text {* Pasting @{term Q} on @{term P} yields a right-unique relation if @{term Q} is 

@@ -36,6 +36,14 @@ using Range_iff by blast
    to arrive at this point after painfully rewriting the set comprehension in very small steps,
    only to see that most of these steps could be proved by blast. *)
 
+text {* alternative statement of @{thm restrict_ext} without explicitly naming the pair's components *}
+lemma restrict_ext': "R || X = {p . fst p \<in> X \<and> p \<in> R}"
+proof -
+  have "R || X = {(x, y) | x y . x \<in> X \<and> (x, y) \<in> R}" by (rule restrict_ext)
+  also have "\<dots> = { p . fst p \<in> X \<and> p \<in> R }" by force
+  finally show ?thesis .
+qed
+
 text {* Restricting a relation to the empty set yields the empty set. *}
 lemma restrict_empty: "P || {} = {}"
 unfolding restrict_def by simp
