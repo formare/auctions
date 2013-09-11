@@ -14,34 +14,42 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* soundness verification of combinatorial Vickrey auction *}
+header {* combinatorial Vickrey auction, with soundness verification *}
 
 theory CombinatorialVickreyAuction
 imports CombinatorialAuction
   Maximum
 begin
 
-(* the maximum revenue over all possible allocations (assuming relational allocations) *)
-definition max_revenue :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
-where "max_revenue G N b = Max ((revenue_rel b) ` (possible_allocations_rel G N))"
+section {* maximum value *}
+
+text {* the maximum value (according to the bids submitted) over all possible allocations (assuming
+  relational allocations) *}
+definition max_value :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
+where "max_value G N b = Max ((value_rel b) ` (possible_allocations_rel G N))"
 (* we don't need the variant that assumes functional allocations, as it's really just the same *)
 
-fun max_revenue_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
-where "max_revenue_alg G N b = maximum_alg_list (possible_allocations_alg G N) (revenue_rel b)"
+text {* algorithmic version of @{const max_value} *}
+fun max_value_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
+where "max_value_alg G N b = maximum_alg_list (possible_allocations_alg G N) (value_rel b)"
 
-(* This is the "arg max", where max_revenue is the "max" (assuming relational allocations). *)
+section {* value-maximising allocation (for winner determination) *}
+
+text {* the set of value-maximising allocations, i.e.\ the ``arg max'' where 
+  @{const max_value} is the ``max'' *}
 definition winning_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel set"
 where "winning_allocations_rel G N b = 
-{ potential_buyer . revenue_rel b potential_buyer = max_revenue G N b }"
+{ potential_buyer . value_rel b potential_buyer = max_value G N b }"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
-(* This is the "arg max", where max_revenue is the "max" (assuming functional allocations). *)
+(* This is the "arg max", where max_value is the "max" (assuming functional allocations). *)
 definition winning_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_fun set"
 where "winning_allocations_fun G N b = 
-{ (Y,potential_buyer) . revenue_fun b (Y,potential_buyer) = max_revenue G N b }"
+{ (Y,potential_buyer) . value_fun b (Y,potential_buyer) = max_value G N b }"
 *)
 
-(* the unique winning allocation that remains after tie-breaking (assuming relational allocations) *)
+text {* the unique winning allocation that remains from @{const winning_allocations_rel} after
+  tie-breaking (assuming relational allocations) *}
 fun winning_allocation_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> allocation_rel"
 where "winning_allocation_rel G N t b = t (winning_allocations_rel G N b)"
 
@@ -51,23 +59,35 @@ definition winning_allocation_fun :: "goods \<Rightarrow> participant set \<Righ
 where "winning_allocation_fun G N t b = t (winning_allocations_fun G N b)"
 *)
 
-fun winning_allocations_alg_CL
+text {* algorithmic version of @{const winning_allocations_rel} *}
+fun winning_allocations_alg_CL :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel list"
 where "winning_allocations_alg_CL G N b = (arg_max_alg_list
     (possible_allocations_alg G N)
-    (revenue_rel b))"
+    (value_rel b))"
 
-fun winning_allocations_alg_MC where 
-"winning_allocations_alg_MC G N b = (let all = possible_allocations_alg G N in
-  map (nth all) (max_positions (map (revenue_rel b) all)))"
+text {* alternative algorithmic version of @{const winning_allocations_rel} *}
+fun winning_allocations_alg_MC :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel list"
+where "winning_allocations_alg_MC G N b = (let all = possible_allocations_alg G N in
+  map (nth all) (max_positions (map (value_rel b) all)))"
+
+text {* algorithmic version of @{const winning_allocation_rel} *}
+fun winning_allocation_alg_CL :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel"
+where "winning_allocation_alg_CL G N t b = t (winning_allocations_alg_CL G N b)"
+
+text {* alternative algorithmic version of @{const winning_allocation_rel} *}
+fun winning_allocation_alg_MC :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel"
+where "winning_allocation_alg_MC G N t b = t (winning_allocations_alg_MC G N b)"
+
+text {* payments *}
 
 text {* the maximum sum of bids of all bidders except bidder @{text n}'s bid, computed over all possible allocations of all goods,
   i.e. the value reportedly generated by value maximization problem when solved without n's bids *}
 definition \<alpha> :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "\<alpha> G N b n = max_revenue G (N - {n}) b"
+where "\<alpha> G N b n = max_value G (N - {n}) b"
 
 text {* algorithmic version of @{text \<alpha>} *}
 fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "\<alpha>_alg G N b n = max_revenue_alg G (N - {n}) b"
+where "\<alpha>_alg G N b n = max_value_alg G (N - {n}) b"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 (* those goods that are allocated to someone who gets some goods *)
@@ -85,7 +105,7 @@ text {* the sum of bids of all bidders except bidder @{text n} on those goods th
   according to the winning allocation *}
 definition remaining_value_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "remaining_value_rel G N t b n =
-  (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((t (winning_allocations_rel G N b))\<inverse>) m {}))"
+  (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))"
 
 text {* algorithmic version of @{text remaining_value_rel} *}
 fun remaining_value_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
@@ -95,7 +115,7 @@ where "remaining_value_alg G N t b n =
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
     ( 
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (t (winning_allocations_alg_CL G N b))\<inverse>)
+      (winning_allocation_alg_CL G N t b)\<inverse>)
     m (* evaluate the relation for participant m *)
     {} (* return the empty set if nothing is in relation with m *)
   ))"
@@ -105,7 +125,7 @@ definition payments_fun :: "goods \<Rightarrow> participant set \<Rightarrow> ti
 where "payments_fun G N t = \<alpha> G N - remaining_value_fun G N t"
 *)
 
-(* the payments (assuming relational allocations) *)
+text {* the payments per bidder *}
 definition payments_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_rel G N t = \<alpha> G N - remaining_value_rel G N t"
 
@@ -113,21 +133,24 @@ text {* algorithmic version of @{text payments_rel} *}
 fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 
-(* the payments (computational version, expanded to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
+text {* alternative algorithmic version of @{text payments_rel}, working around an Isabelle2013 bug *}
+(* expanded to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
    until Isabelle2014 fixes the bug; see https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00024.html) *)
 fun payments_alg_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_alg_workaround G N t b n = 
-  (* \<alpha>_alg G N *) max_revenue_alg G (N - {n}) b
+  (* \<alpha>_alg G N *) max_value_alg G (N - {n}) b
   -
   (* remaining_value_alg G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
     (
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (t (winning_allocations_alg_CL G N b))\<inverse>)
+      (winning_allocation_alg_CL G N t b)\<inverse>)
     m (* evaluate the relation for participant m *)
     {} (* return the empty set if nothing is in relation with m *)
   ))"
+
+section {* the Combinatorial Vickrey Auction in relational form *}
 
 (* TODO CL: revise the following as per https://github.com/formare/auctions/issues/35 *)
 
@@ -138,8 +161,15 @@ where "payments_alg_workaround G N t b n =
    * outcome is obtained from input according to the definitions above.
    For this relation we need to show that, given an arbitrary but fixed tie-breaker,
    for each admissible input, there is a unique, well-defined outcome. *)
-definition nVCG_auctions :: "tie_breaker_alg \<Rightarrow> combinatorial_auction"
-where "nVCG_auctions t = { ((G, N, b), (x, p)) | G N b x p .
+definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction"
+where "nVCG_auctions t = { (
+  (* input:   *) (G, N, b),
+  (* outcome: *) ((* x = *) winning_allocation_rel G N t b,
+                  (* p = *) payments_rel G N t b)) | G N b .
+  admissible_input G N b }"
+
+definition nVCG_auctions_alg :: "tie_breaker_alg \<Rightarrow> combinatorial_auction"
+where "nVCG_auctions_alg t = { ((G, N, b), (x, p)) | G N b x p .
   admissible_input G N b
   \<and> x = t (winning_allocations_alg_CL G N b)
   \<and> p = payments_alg G N t b }"
