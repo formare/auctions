@@ -92,8 +92,8 @@ qed
 
 lemma ll40:
   fixes Y::"'b\<Colon>linorder set"
-  fixes n
-  fixes x::'a
+    and n
+    and x::'a
 shows "\<forall> l . \<forall> r::('a \<times> 'b) set . size l = n & r \<in> set (injections_alg l Y) \<longrightarrow> Domain r = set l" (is "?P n")
 proof (induct n)
   case 0
@@ -103,12 +103,13 @@ next
   then show ?case using ll39 by blast
 qed
 
-lemma ll16: fixes l::"'a list" fixes Y::"'b::linorder set" fixes R
-assumes "R \<in> set (injections_alg l Y)" shows "Domain R = set l"
-proof -
-have "size l=size l & R \<in> set (injections_alg l Y)" using assms by fast
-then show ?thesis using ll40 by blast
-qed
+lemma ll16:
+  fixes l::"'a list"
+    and Y::"'b\<Colon>linorder set"
+    and R
+  assumes "R \<in> set (injections_alg l Y)"
+  shows "Domain R = set l"
+using assms ll40 by blast
 
 lemma ll42: fixes dummy Y n  
 assumes "G dummy Y n \<subseteq> F dummy Y n"
