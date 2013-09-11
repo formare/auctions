@@ -330,6 +330,10 @@ text {* the set of all injective functions from @{term X} to @{term Y}. *}
 definition injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
 where "injections X Y = {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
 
+text {* the set of all injective partial functions (including total ones) from @{term X} to @{term Y}. *}
+definition partial_injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
+where "partial_injections X Y = {R . Domain R \<subseteq> X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
+
 text {* Given a relation @{term R}, an element @{term x} of the relation's domain type and
   a set @{term Y} of the relation's range type, this function constructs the list of all 
   superrelations of @{term R} that extend @{term R} by a pair @{term "(x,y)"} for some
@@ -525,17 +529,12 @@ next
   finally show ?case .
 qed
 
-(* TODO CL: Maybe introduce a variant of injections that can also generate partial functions.
-   This would have to be done by recursing not just to "xs", but to all sublists of "x # xs" of length n - 1. *)
-
 (* TODO CL: check how much of the following we still need *)
 section {* Christoph's old stuff *}
 
-definition left_total_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
-where "left_total_on R A \<longleftrightarrow> (\<forall> x \<in> A . \<exists> y . (x, y) \<in> R)"
-
+text {* A relation is a function on a set @{term A}, if it is left-total on @{term A} and right-unique. *}
 definition function_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
-where "function_on R A \<longleftrightarrow> left_total_on R A \<and> runiq R"
+where "function_on R A \<longleftrightarrow> (A \<subseteq> Domain R) \<and> runiq R"
 
 fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
 where "as_part_fun R a = (let im = R `` {a} in 
