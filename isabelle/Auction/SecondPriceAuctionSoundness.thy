@@ -16,9 +16,9 @@ See LICENSE file for details
 
 header {* Case check of Second price single good auctions *}
 
-theory SecondPriceAuctionCaseCheck
+theory SecondPriceAuctionSoundness
 imports
-  FullySpecifiedSecondPriceAuctionCaseCheck
+  FullySpecifiedSecondPriceAuctionSoundness
   RelationUtils
 
 begin

@@ -16,7 +16,7 @@ See LICENSE file for details
 
 header {* Second price single good auctions and some of their properties *}
 
-theory FullySpecifiedSecondPriceAuctionCaseCheck
+theory FullySpecifiedSecondPriceAuctionSoundness
 imports
   FullySpecifiedSecondPriceAuction
   SingleGoodAuctionProperties

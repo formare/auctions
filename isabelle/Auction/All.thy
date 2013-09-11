@@ -19,8 +19,8 @@ header {* Auction Theory Toolbox *}
 
 theory All
 imports 
-  SecondPriceAuctionCaseCheck
-  FullySpecifiedSecondPriceAuctionCaseCheck
+  SecondPriceAuctionSoundness
+  FullySpecifiedSecondPriceAuctionSoundness
   Vickrey
   
 begin
