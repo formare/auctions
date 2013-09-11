@@ -20,6 +20,14 @@ theory SecondPriceAuction
 imports SingleGoodAuction Maximum
 begin
 
+section {* Payment *}
+
+text{* Same as with the @{text allocation} we now model this as a plain vector. *}
+definition vickrey_payment :: "participant set \<Rightarrow> payments \<Rightarrow> bool"
+  where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N . p i \<ge> 0)"
+
+section {* TODO pick a good section title *}
+
 text{* Agent @{text i} being the winner of a second-price auction (see below for complete definition) means
 \begin{itemize}
 \item he/she is one of the participants with the highest bids
@@ -143,7 +151,7 @@ proof -
   from card_N and i_range obtain k where k_def: "k \<in> N \<and> k \<noteq> i"
     using  maximum_except_defined maximum_is_component
     by (metis Diff_iff insertCI)
-  from k_def and maximum_defined have greater: "maximum (N - {i}) b \<ge> b k" using maximum_except_is_greater_or_equal by blast
+  with maximum_defined have greater: "maximum (N - {i}) b \<ge> b k" by (rule maximum_except_is_greater_or_equal)
   also have "\<dots> \<ge> 0" using spa spa_pred_def second_price_auction_def spa_admissible_input_def bids_def non_negative_def le_def zero_def by (smt greater k_def)
   with i_pay and calculation have "p i \<ge> 0" by simp
   with i_range and losers_pay have "\<forall> k \<in> N . p k \<ge> 0" by auto
@@ -257,7 +265,7 @@ proof -
       then have maximum: "b j = maximum N b" unfolding arg_max_def by simp
 
       from defined j_not_max range have "b j \<le> maximum (N - {max_bidder}) b"
-        using maximum_except_is_greater_or_equal by simp
+        using maximum_except_is_greater_or_equal by metis
       with only_max_bidder have *: "b j < b max_bidder" by simp
 
       from defined range maximum have "b j \<ge> b max_bidder"
@@ -312,6 +320,6 @@ lemma winners_payoff_on_deviation_from_valuation:
     and "maximum_defined N"
   shows "payoff (v i) (x i) (p i) = v i - maximum (N - {i}) (b(i := v i))"
   using assms second_price_auction_winner_payoff remaining_maximum_invariant
-  by simp
+  by metis
 
 end

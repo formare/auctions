@@ -78,12 +78,6 @@ definition allocation :: "participant set \<Rightarrow> allocation \<Rightarrow>
   where "allocation N x \<longleftrightarrow> non_negative N x \<and> (\<Sum> i \<in> N . x i) = 1"
 (* text_raw{*}%endsnip*} *)
 
-subsection {* Payment *}
-
-text{* Same as with the @{text allocation} we now model this as a plain vector. *}
-definition vickrey_payment :: "participant set \<Rightarrow> payments \<Rightarrow> bool"
-  where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N . p i \<ge> 0)"
-
 subsection {* Payoff *}
 
 definition payoff :: "real \<Rightarrow> real \<Rightarrow> real \<Rightarrow> real"
