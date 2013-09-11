@@ -14,11 +14,13 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* combinatorial Vickrey auction, with soundness verification *}
+header {* combinatorial Vickrey auction *}
 
 theory CombinatorialVickreyAuction
-imports CombinatorialAuction
+imports
+  CombinatorialAuction
   Maximum
+
 begin
 
 section {* maximum value *}

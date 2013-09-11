@@ -14,7 +14,7 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Second price single good auctions and some of their properties *}
+header {* Soundness verification of the second price single good auction *}
 
 theory FullySpecifiedSecondPriceAuctionSoundness
 imports
