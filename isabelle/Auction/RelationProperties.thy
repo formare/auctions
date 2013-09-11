@@ -61,6 +61,39 @@ next
   then show "runiq R" unfolding runiq_def by fast
 qed
 
+(* It is surprisingly hard (but possible) to prove this automatically, be it using/unfolding runiq_def, or using runiq_alt. *)
+lemma runiq_basic: "runiq R \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
+proof
+  assume assm: "runiq R"
+  {
+    fix x y y'
+    assume x_R_y: "(x, y) \<in> R" and x_R_y': "(x, y') \<in> R"
+    (* then have "y = y'" using assms sledgehammer doesn't find anything within reasonable time *)
+    have "trivial (R `` {x})" using assm runiq_alt by fast
+    moreover have "y \<in> R `` {x}" using x_R_y by simp
+    moreover have "y' \<in> R `` {x}" using x_R_y' by simp
+    ultimately have "y = y'" by (rule trivial_imp_no_distinct)
+  }
+  then show "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'" by force
+next
+  assume assm: "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'"
+  have "\<forall> X::'a set . trivial X \<longrightarrow> trivial (R `` X)"
+  proof (rule allImpI)
+    fix X::"'a set"
+    assume trivial: "trivial X"
+    then show "trivial (R `` X)"
+    proof (cases rule: trivial_cases)
+      case empty
+      then show ?thesis unfolding trivial_def by simp
+    next
+      case singleton
+      with assm have "\<forall> y y' . y \<in> R `` X \<and> y' \<in> R `` X \<longrightarrow> y = y'" by simp
+      then show ?thesis by (rule no_distinct_imp_trivial)
+    qed
+  qed
+  then show "runiq R" unfolding runiq_def by fast
+qed
+
 text {* an alternative definition of right-uniqueness in terms of @{const eval_rel} *}
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
