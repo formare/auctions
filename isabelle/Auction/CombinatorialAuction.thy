@@ -130,15 +130,5 @@ where "possible_allocations_fun G N = { (Y,potential_buyer) .
  }"
 *)
 
-section {* Admissible input *}
-
-(* TODO CL: revise the following as per https://github.com/formare/auctions/issues/19 *)
-
-text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
-  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't test, e.g., whether
-  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}. *}
-definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-where "admissible_input G N b = True"
-
 end
 
