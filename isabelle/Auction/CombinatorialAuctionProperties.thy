@@ -25,18 +25,6 @@ begin
 
 section {* Soundness *}
 
-section {* Admissible input *}
-
-type_synonym input_admissibility = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-
-text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
-  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't test, e.g., whether
-  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}. *}
-(* CL: This definition is not currently useful, but once we realise general/special auctions using
-   locales, we need an admissible_input axiom. *)
-definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-where "admissible_input G N b = True"
-
 subsection {* Well-defined outcome *}
 
 text {* well-definedness of an allocation, given the goods and participants: all goods are

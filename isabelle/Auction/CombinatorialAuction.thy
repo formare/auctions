@@ -21,6 +21,7 @@ imports Complex_Main
   Vectors
   Partitions
   RelationProperties
+  "~~/src/HOL/Library/FuncSet"
 
 begin
 
@@ -69,6 +70,18 @@ type_synonym tie_breaker_fun = "allocation_fun set \<Rightarrow> allocation_fun"
 
 type_synonym combinatorial_auction = "((goods \<times> participant set \<times> bids) \<times> (allocation_rel \<times> payments)) set"
 
+section {* Admissible input *}
+
+type_synonym input_admissibility = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
+
+text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
+  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't test, e.g., whether
+  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}. *}
+(* CL: Once we realise general/special auctions using locales, we need an admissible_input axiom. *)
+definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
+where "admissible_input G N b = True"
+(* TODO CL: say something about bids by using \<nat> and FuncSet's function types *)
+
 section {* Tie breakers *}
 
 text {* break ties by preferring an arbitrary existing allocation
@@ -107,7 +120,7 @@ begin
   fix Rs::"('a \<times> 'b) set set"
   fix Sss::"'a set set"
   fix P::"'a set \<Rightarrow> ('a \<times> 'b) set set"
-  (* CL: an example (to be mentioned in the paper) for how hard set theory is for Isabelle:
+  (* TODO CL: an example (to be mentioned in the paper) for how hard set theory is for Isabelle:
      takes several minutes to find, 104 ms to prove *)
   have "{ R . \<exists> Y \<in> Sss . R \<in> P Y } = \<Union> { P Y | Y . Y \<in> Sss }" by (smt Collect_cong Union_eq mem_Collect_eq)
 end
