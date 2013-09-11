@@ -26,7 +26,15 @@ definition restrict
    CL@MC: doesn't seem helpful, as its type "('a \<times> 'a) set \<Rightarrow> ('a \<Rightarrow> bool) \<Rightarrow> ('a \<times> 'a) set" is 
    more specific than what we need. *)
 :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "||" 75)
-where "R || X = X \<times> (Range R) \<inter> R"
+where "R || X = X \<times> Range R \<inter> R"
+
+text {* extensional characterisation of the pairs within a restricted relation *}
+lemma restrict_ext: "R || X = {(x, y) | x y . x \<in> X \<and> (x, y) \<in> R}"
+unfolding restrict_def
+using Range_iff by blast
+(* CL: This proof seems impossible for sledgehammer.  Range_iff is not a simp rule.  I managed
+   to arrive at this point after painfully rewriting the set comprehension in very small steps,
+   only to see that most of these steps could be proved by blast. *)
 
 text {* Restricting a relation to the empty set yields the empty set. *}
 lemma restrict_empty: "P || {} = {}"
