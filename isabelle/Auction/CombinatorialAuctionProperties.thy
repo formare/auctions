@@ -60,7 +60,12 @@ where "left_total A admissible \<longleftrightarrow> { (G, N, b) . admissible G 
 
 (* TODO CL: maybe we need a counterpart to SingleGoodAuctionProperties.sga_left_totalI here as well *)
 
+subsection {* Right-uniqueness *}
 
+text{* Right-uniqueness of a combinatorial auction in relational form: for each admissible bid vector,
+  if there is an outcome, it is unique.  This definition makes sense because we know @{thm runiq_restrict}. *}
+definition right_unique :: "combinatorial_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+where "right_unique A admissible \<longleftrightarrow> runiq (A || { (G, N, b) . admissible G N b })"
 
 end
 
