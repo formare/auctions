@@ -27,11 +27,11 @@ begin
 section {* Types *}
 
 type_synonym participant = index
-type_synonym goods = "nat set" (* actually we'd prefer "'a set", as we really don't care about the type *)
+type_synonym goods = "nat set" (* CL: actually we'd prefer "'a set", as we really don't care about the type *)
 type_synonym price = real
 
 (*
-Keeping old initial vector-based bid implementation (suitable for multiple items per good and
+CL: Keeping old initial vector-based bid implementation (suitable for multiple items per good and
   fractions of items) for reference.
 		
 (* one participant's bid on a set of goods *)
@@ -57,7 +57,7 @@ type_synonym payments = "real vector"
 *)
 
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
-type_synonym allocation_rel = "((goods \<times> participant) set)" (* goods set not necessary as a function-as-relation-as-set representation carries its own domain :-) *)
+type_synonym allocation_rel = "((goods \<times> participant) set)" (* CL: goods set not necessary as the function-as-relation-as-set representation carries its own domain :-) *)
 type_synonym tie_breaker_rel = "allocation_rel set \<Rightarrow> allocation_rel"
 type_synonym tie_breaker_alg = "allocation_rel list \<Rightarrow> allocation_rel"
 type_synonym payments = "participant \<Rightarrow> price"
@@ -90,7 +90,6 @@ where "value_rel b buyer  = (\<Sum> y \<in> Domain buyer . b (buyer ,, y) y
 )"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
-(* the value gained from selling a certain allocation (assuming functional allocations) *)
 definition value_fun :: "bids \<Rightarrow> allocation_fun \<Rightarrow> price"
 where "value_fun b Yp  = (let Y = fst Yp; buyer = snd Yp in
   \<Sum> y \<in> Y . (let n = buyer y in 
@@ -123,7 +122,6 @@ value "possible_allocations_alg {1,2,3::nat} {100,200::nat}"
 *)
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
-(* the set of possible allocations of a set of goods to a set of participants (assuming functional allocations) *)
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
 where "possible_allocations_fun G N = { (Y,potential_buyer) .
   Y \<in> all_partitions G
@@ -135,7 +133,12 @@ where "possible_allocations_fun G N = { (Y,potential_buyer) .
 section {* Admissible input *}
 
 (* TODO CL: revise the following as per https://github.com/formare/auctions/issues/19 *)
-definition admissible_input where "admissible_input G N b = True"
+
+text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
+  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't test, e.g., whether
+  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}. *}
+definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
+where "admissible_input G N b = True"
 
 end
 

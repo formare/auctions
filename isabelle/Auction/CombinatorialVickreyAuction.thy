@@ -27,7 +27,7 @@ text {* the maximum value (according to the bids submitted) over all possible al
   relational allocations) *}
 definition max_value :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
 where "max_value G N b = Max ((value_rel b) ` (possible_allocations_rel G N))"
-(* we don't need the variant that assumes functional allocations, as it's really just the same *)
+(* CL: we don't need the variant that assumes functional allocations, as it's really just the same *)
 
 text {* algorithmic version of @{const max_value} *}
 fun max_value_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> price"
@@ -42,7 +42,6 @@ where "winning_allocations_rel G N b =
 { potential_buyer . value_rel b potential_buyer = max_value G N b }"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
-(* This is the "arg max", where max_value is the "max" (assuming functional allocations). *)
 definition winning_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_fun set"
 where "winning_allocations_fun G N b = 
 { (Y,potential_buyer) . value_fun b (Y,potential_buyer) = max_value G N b }"
@@ -54,7 +53,6 @@ fun winning_allocation_rel :: "goods \<Rightarrow> participant set \<Rightarrow>
 where "winning_allocation_rel G N t b = t (winning_allocations_rel G N b)"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
-(* the unique winning allocation that remains after tie-breaking (assuming functional allocations) *)
 definition winning_allocation_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> allocation_fun"
 where "winning_allocation_fun G N t b = t (winning_allocations_fun G N b)"
 *)
@@ -90,7 +88,6 @@ fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Ri
 where "\<alpha>_alg G N b n = max_value_alg G (N - {n}) b"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
-(* those goods that are allocated to someone who gets some goods *)
 definition winners'_goods_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> participant option \<Rightarrow> goods" 
 where "winners'_goods_fun G N t b = inv (snd (winning_allocation_fun G N t b))"
 *)
@@ -120,7 +117,7 @@ where "remaining_value_alg G N t b n =
     {} (* return the empty set if nothing is in relation with m *)
   ))"
 
-(*
+(* CL: probably not needed, neither for close-to-paper nor for computable version
 definition payments_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_fun G N t = \<alpha> G N - remaining_value_fun G N t"
 *)
@@ -134,7 +131,7 @@ fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_break
 where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 
 text {* alternative algorithmic version of @{text payments_rel}, working around an Isabelle2013 bug *}
-(* expanded to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
+(* CL: expanded definition to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
    until Isabelle2014 fixes the bug; see https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00024.html) *)
 fun payments_alg_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_alg_workaround G N t b n = 
@@ -156,11 +153,13 @@ section {* the Combinatorial Vickrey Auction in relational form *}
 
 (* TODO CL: we may need nVCG-specific notions of "admissible input" *)
 
-(* the relation of all (input, outcome) pairs where
-   * input is an admissible input to an nVCG auction, and
-   * outcome is obtained from input according to the definitions above.
-   For this relation we need to show that, given an arbitrary but fixed tie-breaker,
-   for each admissible input, there is a unique, well-defined outcome. *)
+text {* the relation of all (input, outcome) pairs where
+  \begin{itemize}
+  \item input is an admissible input to an nVCG auction, and
+  \item outcome is obtained from input according to the definitions above.
+  \end{itemize}
+  For this relation we need to show that, given an arbitrary but fixed tie-breaker,
+  for each admissible input, there is a unique, well-defined outcome. *}
 definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction"
 where "nVCG_auctions t = { (
   (* input:   *) (G, N, b),
