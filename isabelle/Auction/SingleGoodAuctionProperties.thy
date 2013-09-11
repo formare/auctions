@@ -61,8 +61,10 @@ lemma sga_left_totalI:
   shows "sga_left_total A admissible"
 using assms unfolding sga_left_total_def by fast
 
-(* TODO CL: reuse RelationProperties as per https://github.com/formare/auctions/issues/22 *)
 subsection {* Right-uniqueness *}
+
+(* CL: the way we define "right-uniqueness up to some equivalence relation", and equality of vectors,
+   we can't reuse RelationProperties.runiq as our right-uniqueness notion. *)
 
 type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
