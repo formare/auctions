@@ -33,6 +33,7 @@ lemma rel_all_fs_spa_is_spa:
 using assms fs_spa_is_spa sga_pred_imp_lift_to_rel_all
 by (metis fs_spa_pred'_def)
 
+(* TODO CL: simplify this now that we have rel_all (at least for combinatorial auctions; need to port it here) *)
 lemma fs_spa_is_left_total :
   fixes A :: single_good_auction
     and t :: tie_breaker
