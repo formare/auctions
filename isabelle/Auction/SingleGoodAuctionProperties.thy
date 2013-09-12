@@ -42,10 +42,6 @@ definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcom
       (\<forall> ((N::participant set, b::bids), (x::allocation, p::payments)) \<in> A .
         well_defined_outcome_pred N b x p)"
 
-subsection {* Admissible input *}
-
-type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightarrow> bool"
-
 subsection {* Left-totality *}
 
 text{* Convenience wrapper for left-totality of a single good auction in relational form:
