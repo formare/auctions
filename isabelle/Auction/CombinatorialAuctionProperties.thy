@@ -59,5 +59,27 @@ text{* Right-uniqueness of a combinatorial auction in relational form: for each 
 definition right_unique :: "combinatorial_auction_rel \<Rightarrow> input_admissibility \<Rightarrow> bool"
 where "right_unique A admissible \<longleftrightarrow> runiq (A || { (G, N, b) . admissible G N b })"
 
+lemma right_uniqueI:
+  assumes "\<And> G N b x x' p p' . admissible G N b
+    \<Longrightarrow> ((G, N, b), (x, p)) \<in> A \<Longrightarrow> ((G, N, b), (x', p')) \<in> A
+    \<Longrightarrow> x = x' \<and> p = p'"
+  shows "right_unique A admissible"
+proof -
+  {
+    fix input
+    assume 1: "input \<in> {(G, N, b) . admissible G N b}"
+    then obtain G N b where input: "input = (G, N, b)" by (auto simp add: prod_cases3)
+    with 1 have adm: "admissible G N b" by fast
+    fix out out'
+    assume 2: "(input, out) \<in> A \<and> (input, out') \<in> A"
+    then obtain x p x' p' where out: "out = (x, p)" and out': "out' = (x', p')" by fastforce
+    from input 2 out have rel: "((G, N, b), (x, p)) \<in> A" by fast
+    from input 2 out' have rel': "((G, N, b), (x', p')) \<in> A" by fast
+    from adm rel rel' out out' have "out = out'" using assms by force
+  }
+  then have "\<forall> input \<in> {(G, N, b) . admissible G N b} . \<forall> out out' . (input, out) \<in> A \<and> (input, out') \<in> A \<longrightarrow> out = out'" by blast
+  then show ?thesis unfolding right_unique_def using runiq_restrict by blast
+qed
+
 end
 

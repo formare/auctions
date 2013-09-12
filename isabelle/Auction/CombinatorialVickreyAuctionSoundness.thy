@@ -40,5 +40,20 @@ proof (rule left_totalI)
     unfolding nVCG_auctions_def using pred_imp_rel_all by metis
 qed
 
+lemma right_unique:
+  fixes t::tie_breaker_rel
+  shows "right_unique (nVCG_auctions t) admissible_input"
+proof (rule right_uniqueI)
+  fix G::goods and N::"participant set" and b::bids
+  assume admissible: "admissible_input G N b"
+  fix x::allocation_rel and x'::allocation_rel and p::payments and p'::payments
+
+  assume "((G, N, b), (x, p)) \<in> (nVCG_auctions t)"
+
+  assume "((G, N, b), (x', p')) \<in> (nVCG_auctions t)"
+
+  show "x = x' \<and> p = p'" sorry
+qed
+
 end
 
