@@ -57,7 +57,7 @@ proof
   from input out T `T \<in> A` have "((G, N, b), (x, p)) \<in> A" by fastforce
   then have "wd_outcome_pred G N b x p" by (rule assms)
   with input out T show "case T of (input, out) \<Rightarrow> (\<lambda> (G, N, b) (x, p) . wd_outcome_pred G N b x p) input out" using split_conv by force
-oops
+qed
 
 subsection {* Left-totality *}
 
