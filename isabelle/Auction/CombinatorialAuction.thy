@@ -21,7 +21,6 @@ imports Complex_Main
   Vectors
   Partitions
   RelationProperties
-  "~~/src/HOL/Library/FuncSet"
 
 begin
 
@@ -30,7 +29,6 @@ section {* Types *}
 type_synonym participant = index
 type_synonym goods = "nat set" (* CL: actually we'd prefer "'a set", as we really don't care about the type *)
 type_synonym price = real
-definition Prices where "Prices = \<real>"
 
 (*
 CL: Keeping old initial vector-based bid implementation (suitable for multiple items per good and
@@ -79,11 +77,11 @@ type_synonym input_admissibility = "goods \<Rightarrow> participant set \<Righta
 
 text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
   @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
-  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}.  Therefore
-  we test whether the function returns a value within some set. *}
+  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}.  Except for
+  requiring non-negative bids, this definition is therefore trivial. *}
 (* CL: Once we realise general/special auctions using locales, we need an admissible_input axiom. *)
 definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-where "admissible_input G N b = (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<in> Prices)"
+where "admissible_input G N b \<longleftrightarrow> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
 
 section {* Tie breakers *}
 

@@ -177,6 +177,5 @@ text {* The combinatorial Vickrey auction in relational form *}
 definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction_rel"
 where "nVCG_auctions t = rel_all (nVCG_pred t)"
 
-
 end
 
