@@ -155,25 +155,28 @@ section {* the Combinatorial Vickrey Auction in relational form *}
 
 (* TODO CL: we may need nVCG-specific notions of "admissible input" *)
 
-text {* the relation of all (input, outcome) pairs where
+text {* combinatorial Vickrey auction in predicate form, where
   \begin{itemize}
   \item input is an admissible input to an nVCG auction, and
   \item outcome is obtained from input according to the definitions above.
-  \end{itemize}
-  For this relation we need to show that, given an arbitrary but fixed tie-breaker,
-  for each admissible input, there is a unique, well-defined outcome. *}
-definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction"
-where "nVCG_auctions t = { (
-  (* input:   *) (G, N, b),
-  (* outcome: *) ((* x = *) winning_allocation_rel G N t b,
-                  (* p = *) payments_rel G N t b)) | G N b .
-  admissible_input G N b }"
+  \end{itemize} *}
+definition nVCG_pred :: "tie_breaker_rel \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
+where "nVCG_pred t G N b x p \<longleftrightarrow>
+  admissible_input G N b \<and>
+  x = winning_allocation_rel G N t b \<and>
+  p = payments_rel G N t b"
 
-definition nVCG_auctions_alg :: "tie_breaker_alg \<Rightarrow> combinatorial_auction"
-where "nVCG_auctions_alg t = { ((G, N, b), (x, p)) | G N b x p .
-  admissible_input G N b
-  \<and> x = t (winning_allocations_alg_CL G N b)
-  \<and> p = payments_alg G N t b }"
+text {* Checks whether a combinatorial auction in relational form, given some tie-breaker,
+  satisfies @{const nVCG_pred}, i.e.\ is a combinatorial Vickrey auction.
+  For such a relational form we need to show that, given an arbitrary but fixed tie-breaker,
+  for each admissible input, there is a unique, well-defined outcome. *}
+definition nVCG_auction :: "tie_breaker_rel \<Rightarrow> combinatorial_auction_rel \<Rightarrow> bool"
+where "nVCG_auction t = rel_sat_pred (nVCG_pred t)"
+
+text {* The combinatorial Vickrey auction in relational form *}
+definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction_rel"
+where "nVCG_auctions t = rel_all (nVCG_pred t)"
+
 
 end
 
