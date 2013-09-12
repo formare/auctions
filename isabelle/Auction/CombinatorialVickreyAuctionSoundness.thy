@@ -95,11 +95,24 @@ proof (rule wd_outcomeI)
   fix G N b x p
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
   then have xp: "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b" by (rule split_outcome)
+  from xp have x_unfolded: "x = t { potential_buyer . value_rel b potential_buyer
+     = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G }) }"
+    unfolding winning_allocation_rel.simps winning_allocations_rel_def
+    by simp
+  from xp have p_unfolded: "p = (\<lambda>n . \<alpha> G N b n
+    - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {})))" by fastforce
   
-  have alloc: "wd_allocation G N x" sorry
-  have pay: "wd_payments N p" sorry
-
-  from alloc pay show "wd_alloc_pay G N b x p" unfolding wd_alloc_pay_def ..
+  have "wd_allocation G N x" unfolding wd_allocation_def
+  proof
+    show "is_partition_of (Domain x) G" sorry
+    show "Range x \<subseteq> N" sorry
+  qed
+  moreover have "wd_payments N p" unfolding wd_payments_def
+  proof
+    fix n assume "n \<in> N"
+    then show "p n \<ge> 0" sorry
+  qed
+  ultimately show "wd_alloc_pay G N b x p" unfolding wd_alloc_pay_def ..
 qed
 
 end
