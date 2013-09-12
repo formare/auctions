@@ -96,8 +96,8 @@ definition tie_breaker_example_alg :: tie_breaker_alg where "tie_breaker_example
 section {* Allocations *}
 
 text {* the value (according to the bids submitted) of a certain allocation *}
-definition value_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
-where "value_rel b buyer  = (\<Sum> y \<in> Domain buyer . b (buyer ,, y) y
+fun value_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
+where "value_rel b buyer = (\<Sum> y \<in> Domain buyer . b (buyer ,, y) y
   (* CL@CR: This implicitly assumes a value of 0 for goods not sold.  OK?
             Goods not sold don't occur in the potential_buyer relation and 
             therefore won't be summands of this sum. *)
@@ -113,7 +113,7 @@ where "value_fun b Yp  = (let Y = fst Yp; buyer = snd Yp in
 
 text {* all possible allocations of a set of goods to a set of participants: 
   injective functions that map sets of goods to their potential buyers, i.e.\ participants *}
-definition possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
+fun possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
 where "possible_allocations_rel G N = \<Union> { injections Y N | Y . Y \<in> all_partitions G }" 
 
 notepad
