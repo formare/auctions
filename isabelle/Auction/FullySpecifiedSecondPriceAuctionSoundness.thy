@@ -110,6 +110,9 @@ proof (rule sga_right_uniqueI)
   from range alloc pay range' alloc' pay' show "eq N x x' \<and> eq N p p'" unfolding eq_def by metis
 qed
 
+(* TODO CL: So far this just shows that the allocation is well-defined.  We should also prove that
+   the payments are, say, non-negative. *)
+(* TODO CL: port CombinatorialAuctionProperties.wd_outcomeI and use it here. *)
 lemma fs_spa_well_defined_outcome :
   fixes A :: single_good_auction
     and t :: tie_breaker
