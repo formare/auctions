@@ -24,13 +24,12 @@ imports
 begin
 
 lemma left_total:
+  fixes t::tie_breaker_rel
   shows "left_total (nVCG_auctions t) admissible_input"
-unfolding left_total_def
-proof
-  fix x
-  (* assuming anything about x won't help, as admissible_input \<equiv> True *)
-  (* TODO CL: admissible_input needs fixing, maybe using FuncSet *)
-  show "x \<in> Domain (nVCG_auctions t)" unfolding nVCG_auctions_def admissible_input_def sorry
+proof (rule left_totalI)
+  fix G::goods and N::"participant set" and b::bids
+  assume "admissible_input G N b"
+  show "\<exists> x p . ((G, N, b), (x, p)) \<in> nVCG_auctions t" sorry
 qed
 
 end

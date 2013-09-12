@@ -46,7 +46,11 @@ text{* Left-totality of a combinatorial auction in relational form: for each adm
 definition left_total :: "combinatorial_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
 where "left_total A admissible \<longleftrightarrow> { (G, N, b) . admissible G N b } \<subseteq> Domain A"
 
-(* TODO CL: maybe we need a counterpart to SingleGoodAuctionProperties.sga_left_totalI here as well *)
+text{* introduction rule for @{const left_total}, to facilitate left-totality proofs *}
+lemma left_totalI:
+  assumes "\<And> G N b . admissible G N b \<Longrightarrow> (\<exists> x p . ((G, N, b), (x, p)) \<in> A)"
+  shows "left_total A admissible"
+using assms unfolding left_total_def by fast
 
 subsection {* Right-uniqueness *}
 

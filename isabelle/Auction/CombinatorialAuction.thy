@@ -30,6 +30,7 @@ section {* Types *}
 type_synonym participant = index
 type_synonym goods = "nat set" (* CL: actually we'd prefer "'a set", as we really don't care about the type *)
 type_synonym price = real
+definition Prices where "Prices = \<real>"
 
 (*
 CL: Keeping old initial vector-based bid implementation (suitable for multiple items per good and
@@ -75,12 +76,12 @@ section {* Admissible input *}
 type_synonym input_admissibility = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
 
 text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
-  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't test, e.g., whether
-  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}. *}
+  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
+  their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}.  Therefore
+  we test whether the function returns a value within some set. *}
 (* CL: Once we realise general/special auctions using locales, we need an admissible_input axiom. *)
 definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-where "admissible_input G N b = True"
-(* TODO CL: say something about bids by using \<nat> and FuncSet's function types *)
+where "admissible_input G N b = (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<in> Prices)"
 
 section {* Tie breakers *}
 
