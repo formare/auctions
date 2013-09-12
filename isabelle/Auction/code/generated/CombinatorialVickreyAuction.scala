@@ -511,28 +511,28 @@ def less_eq_rat(p: rat, q: rat): Boolean =
 
 object Maximum {
 
-def arg_max_comp_list[A, B : HOL.equal : Orderings.linorder](x0: List[A],
-                      f: A => B):
+def arg_max_alg_list[A, B : HOL.equal : Orderings.linorder](x0: List[A],
+                     f: A => B):
       List[A] =
   (x0, f) match {
   case (Nil, f) => Nil
   case (List(x), f) => List(x)
   case (x :: v :: va, f) =>
     {
-      val arg_max_xs: List[A] = arg_max_comp_list[A, B](v :: va, f)
+      val arg_max_xs: List[A] = arg_max_alg_list[A, B](v :: va, f)
       val prev_max: B = f(Lista.hd[A](arg_max_xs));
       (if (Orderings.less[B](prev_max, f(x))) List(x)
         else (if (HOL.eq[B](f(x), prev_max)) x :: arg_max_xs else arg_max_xs))
     }
 }
 
-def maximum_comp_list[A, B : Orderings.linorder](x0: List[A], b: A => B): B =
+def maximum_alg_list[A, B : Orderings.linorder](x0: List[A], b: A => B): B =
   (x0, b) match {
   case (Nil, b) => sys.error("undefined")
   case (List(x), b) => b(x)
   case (x :: v :: va, b) =>
     {
-      val max_xs: B = maximum_comp_list[A, B](v :: va, b);
+      val max_xs: B = maximum_alg_list[A, B](v :: va, b);
       (if (Orderings.less[B](max_xs, b(x))) b(x) else max_xs)
     }
 }
@@ -702,7 +702,7 @@ def setsum[A : HOL.equal,
 
 } /* object Big_Operators */
 
-object RelationProperties {
+object RelationOperators {
 
 import /*implicits*/ Product_Type.equal_prod
 
@@ -718,27 +718,11 @@ def paste[A : HOL.equal, B : HOL.equal](p: Set.set[(A, B)], q: Set.set[(A, B)]):
 def eval_rel[A : HOL.equal, B](r: Set.set[(A, B)], a: A): B =
   Set.the_elem[B](Relation.image[A, B](r, Set.insert[A](a, Set.bot_set[A])))
 
-def sup_rels_from[A : HOL.equal,
-                   B : HOL.equal : Orderings.linorder](r: Set.set[(A, B)], x: A,
-                y: Set.set[B]):
-      List[Set.set[(A, B)]] =
-  Lista.map[B, Set.set[(A, B)]]((ya: B) =>
-                                  paste[A,
- B](r, Set.insert[(A, B)]((x, ya), Set.bot_set[(A, B)])),
-                                 Lista.sorted_list_of_set[B](Set.minus_set[B](y,
-                                       Relation.range[A, B](r))))
+} /* object RelationOperators */
 
-def injections[A : HOL.equal,
-                B : HOL.equal : Orderings.linorder](x0: List[A], y: Set.set[B]):
-      List[Set.set[(A, B)]] =
-  (x0, y) match {
-  case (Nil, y) => List(Set.bot_set[(A, B)])
-  case (x :: xs, y) =>
-    Lista.maps[Set.set[(A, B)],
-                Set.set[(A, B)]]((r: Set.set[(A, B)]) =>
-                                   sup_rels_from[A, B](r, x, y),
-                                  injections[A, B](xs, y))
-}
+object RelationProperties {
+
+import /*implicits*/ Product_Type.equal_prod
 
 def eval_rel_or[A : HOL.equal, B : HOL.equal](r: Set.set[(A, B)], a: A, z: B):
       B =
@@ -748,6 +732,29 @@ def eval_rel_or[A : HOL.equal, B : HOL.equal](r: Set.set[(A, B)], a: A, z: B):
     (if (Finite_Set.card[B](im) == Nat(1)) Set.the_elem[B](im) else z)
   }
 
+def sup_rels_from_alg[A : HOL.equal,
+                       B : HOL.equal : Orderings.linorder](r: Set.set[(A, B)],
+                    x: A, y: Set.set[B]):
+      List[Set.set[(A, B)]] =
+  Lista.map[B, Set.set[(A, B)]]((ya: B) =>
+                                  RelationOperators.paste[A,
+                   B](r, Set.insert[(A, B)]((x, ya), Set.bot_set[(A, B)])),
+                                 Lista.sorted_list_of_set[B](Set.minus_set[B](y,
+                                       Relation.range[A, B](r))))
+
+def injections_alg[A : HOL.equal,
+                    B : HOL.equal : Orderings.linorder](x0: List[A],
+                 y: Set.set[B]):
+      List[Set.set[(A, B)]] =
+  (x0, y) match {
+  case (Nil, y) => List(Set.bot_set[(A, B)])
+  case (x :: xs, y) =>
+    Lista.maps[Set.set[(A, B)],
+                Set.set[(A, B)]]((r: Set.set[(A, B)]) =>
+                                   sup_rels_from_alg[A, B](r, x, y),
+                                  injections_alg[A, B](xs, y))
+}
+
 } /* object RelationProperties */
 
 object CombinatorialAuction {
@@ -755,22 +762,22 @@ object CombinatorialAuction {
 import /*implicits*/ Nata.linorder_nat, RealDef.comm_monoid_add_real,
   Set.equal_set, Nata.equal_nat
 
-def revenue_rel(b: Nat => (Set.set[Nat]) => RealDef.real,
-                 buyer: Set.set[(Set.set[Nat], Nat)]):
+def value_rel(b: Nat => (Set.set[Nat]) => RealDef.real,
+               buyer: Set.set[(Set.set[Nat], Nat)]):
       RealDef.real =
   Big_Operators.setsum[Set.set[Nat],
                         RealDef.real]((y: Set.set[Nat]) =>
-(b(RelationProperties.eval_rel[Set.set[Nat], Nat](buyer, y)))(y),
+(b(RelationOperators.eval_rel[Set.set[Nat], Nat](buyer, y)))(y),
                                        Relation.domain[Set.set[Nat],
                 Nat](buyer))
 
-def possible_allocations_comp(g: Set.set[Nat], n: Set.set[Nat]):
+def possible_allocations_alg(g: Set.set[Nat], n: Set.set[Nat]):
       List[Set.set[(Set.set[Nat], Nat)]] =
   Lista.maps[List[Set.set[Nat]],
               Set.set[(Set.set[Nat],
                         Nat)]]((y: List[Set.set[Nat]]) =>
-                                 RelationProperties.injections[Set.set[Nat],
-                        Nat](y, n),
+                                 RelationProperties.injections_alg[Set.set[Nat],
+                            Nat](y, n),
                                 Partitions.all_partitions_alg[Nat](g))
 
 } /* object CombinatorialAuction */
@@ -780,28 +787,35 @@ object CombinatorialVickreyAuction {
 import /*implicits*/ RealDef.equal_real, RealDef.comm_monoid_add_real,
   Set.equal_set, Nata.equal_nat, RealDef.linorder_real
 
-def max_revenue_comp(g: Set.set[Nat], n: Set.set[Nat],
-                      b: Nat => (Set.set[Nat]) => RealDef.real):
+def max_value_alg(g: Set.set[Nat], n: Set.set[Nat],
+                   b: Nat => (Set.set[Nat]) => RealDef.real):
       RealDef.real =
-  Maximum.maximum_comp_list[Set.set[(Set.set[Nat], Nat)],
-                             RealDef.real](CombinatorialAuction.possible_allocations_comp(g,
-           n),
-    (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.revenue_rel(b, a))
+  Maximum.maximum_alg_list[Set.set[(Set.set[Nat], Nat)],
+                            RealDef.real](CombinatorialAuction.possible_allocations_alg(g,
+         n),
+   (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.value_rel(b, a))
 
-def winning_allocations_comp_CL(g: Set.set[Nat], n: Set.set[Nat],
-                                 b: Nat => (Set.set[Nat]) => RealDef.real):
+def winning_allocations_alg_CL(g: Set.set[Nat], n: Set.set[Nat],
+                                b: Nat => (Set.set[Nat]) => RealDef.real):
       List[Set.set[(Set.set[Nat], Nat)]] =
-  Maximum.arg_max_comp_list[Set.set[(Set.set[Nat], Nat)],
-                             RealDef.real](CombinatorialAuction.possible_allocations_comp(g,
-           n),
-    (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.revenue_rel(b, a))
+  Maximum.arg_max_alg_list[Set.set[(Set.set[Nat], Nat)],
+                            RealDef.real](CombinatorialAuction.possible_allocations_alg(g,
+         n),
+   (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.value_rel(b, a))
 
-def payments_comp_workaround(g: Set.set[Nat], na: Set.set[Nat],
-                              t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
-                                   Set.set[(Set.set[Nat], Nat)],
-                              b: Nat => (Set.set[Nat]) => RealDef.real, n: Nat):
+def winning_allocation_alg_CL(g: Set.set[Nat], n: Set.set[Nat],
+                               t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
+                                    Set.set[(Set.set[Nat], Nat)],
+                               b: Nat => (Set.set[Nat]) => RealDef.real):
+      Set.set[(Set.set[Nat], Nat)] =
+  t(winning_allocations_alg_CL(g, n, b))
+
+def payments_alg_workaround(g: Set.set[Nat], na: Set.set[Nat],
+                             t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
+                                  Set.set[(Set.set[Nat], Nat)],
+                             b: Nat => (Set.set[Nat]) => RealDef.real, n: Nat):
       RealDef.real =
-  RealDef.minus_real(max_revenue_comp(g, Set.remove[Nat](n, na), b),
+  RealDef.minus_real(max_value_alg(g, Set.remove[Nat](n, na), b),
                       Big_Operators.setsum[Nat,
     RealDef.real]((m: Nat) =>
                     (b(m))(RelationProperties.eval_rel_or[Nat,
@@ -811,7 +825,7 @@ def payments_comp_workaround(g: Set.set[Nat], na: Set.set[Nat],
                              val (x, y): (Set.set[Nat], Nat) = a;
                              (y, x)
                            },
-                          t(winning_allocations_comp_CL(g, na, b))),
+                          winning_allocation_alg_CL(g, na, t, b)),
                                   m, Set.bot_set[Nat])),
                    Set.remove[Nat](n, na)))
 
