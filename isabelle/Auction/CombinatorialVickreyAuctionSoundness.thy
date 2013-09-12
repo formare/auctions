@@ -30,7 +30,7 @@ text {* The combinatorial Vickrey auction in relational form is left-total.
   @{term p}) will always trivially exist, as they are return values of functions.  It is more
   interesting to prove that the outcome of our auction is \emph{well-defined}. *}
 lemma left_total:
-  fixes t::tie_breaker_rel
+  fixes t::tie_breaker_rel (* no need to assume anything about t *)
   shows "left_total (nVCG_auctions t) admissible_input"
 proof (rule left_totalI)
   fix G::goods and N::"participant set" and b::bids
@@ -59,7 +59,7 @@ qed
 text {* The combinatorial Vickrey auction in relational form is right-unique.  This is easy to 
   show because its outcome is defined by two functions, which are right-unique by construction. *}
 lemma right_unique:
-  fixes t::tie_breaker_rel
+  fixes t::tie_breaker_rel (* no need to assume anything about t *)
   shows "right_unique (nVCG_auctions t) admissible_input"
 proof (rule right_uniqueI)
   fix G::goods and N::"participant set" and b::bids
@@ -90,17 +90,23 @@ where "wd_alloc_pay G N b x p \<longleftrightarrow> wd_allocation G N x \<and> w
 text {* The combinatorial Vickrey auction is well-defined. *}
 lemma wd_outcome:
   fixes t::tie_breaker_rel
+  assumes "tie_breaker t"
   shows "wd_outcome (nVCG_auctions t) wd_alloc_pay"
 proof (rule wd_outcomeI)
   fix G N b x p
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
   then have xp: "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b" by (rule split_outcome)
-  from xp have x_unfolded: "x = t { potential_buyer . value_rel b potential_buyer
+
+  from xp have "x = t { potential_buyer . value_rel b potential_buyer
      = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G }) }"
     unfolding winning_allocation_rel.simps winning_allocations_rel_def
     by simp
-  from xp have p_unfolded: "p = (\<lambda>n . \<alpha> G N b n
-    - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {})))" by fastforce
+  with assms have x_unfolded': "value_rel b x
+     = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G })"
+     using tie_breaker_def by blast
+  from xp (* to use Max_in, we need additional assumptions about N and G, so that \<Union> is non-empty *)
+    have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+      - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {})))" by fastforce
   
   have "wd_allocation G N x" unfolding wd_allocation_def
   proof
