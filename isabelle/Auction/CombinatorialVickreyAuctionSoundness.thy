@@ -23,6 +23,8 @@ imports
   
 begin
 
+section {* left-total *}
+
 text {* The combinatorial Vickrey auction in relational form is left-total.
   Note that in Isabelle/HOL's logic of total functions, an outcome (allocation @{term x} and
   @{term p}) will always trivially exist, as they are return values of functions.  It is more
@@ -39,6 +41,8 @@ proof (rule left_totalI)
   then show "\<exists> x p . ((G, N, b), (x, p)) \<in> nVCG_auctions t"
     unfolding nVCG_auctions_def using pred_imp_rel_all by metis
 qed
+
+section {* right-unique *}
 
 text {* The combinatorial Vickrey auction in relational form is right-unique.  This is easy to 
   show because its outcome is defined by two functions, which are right-unique by construction. *}
@@ -60,14 +64,31 @@ proof (rule right_uniqueI)
     then show "x'' = winning_allocation_rel G' N' t b' \<and> p'' = payments_rel G' N' t b'"
       unfolding pred_tup_def nVCG_pred_def by blast
   qed
-
   assume "((G, N, b), (x, p)) \<in> (nVCG_auctions t)"
   then have xp: "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b" by (rule *)
-    
   assume "((G, N, b), (x', p')) \<in> (nVCG_auctions t)"
   then have xp': "x' = winning_allocation_rel G N t b \<and> p' = payments_rel G N t b" by (rule *)
 
   from xp xp' show "x = x' \<and> p = p'" by fast
+qed
+
+section {* well-defined outcome *}
+
+text {* The outcome of the combinatorial Vickrey auction is well-defined, if the allocation 
+  is well-defined and the payments are non-negative. *}
+definition wd_alloc_pay :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
+where "wd_alloc_pay G N b x p \<longleftrightarrow> wd_allocation G N x \<and> (\<forall> n \<in> N . p n \<ge> 0)"
+
+text {* The combinatorial Vickrey auction is well-defined. *}
+lemma wd_outcome:
+  fixes t::tie_breaker_rel
+  shows "wd_outcome (nVCG_auctions t) wd_alloc_pay"
+unfolding wd_outcome_def
+proof
+  fix T
+  assume "T \<in> nVCG_auctions t"
+  have "T = 
+  then show "case T of (input, out) \<Rightarrow> (\<lambda> (G, N, b) (x, y) . wd_alloc_pay G N b x y) input out" sorry
 qed
 
 end

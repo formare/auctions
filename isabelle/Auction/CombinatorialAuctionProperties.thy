@@ -28,7 +28,9 @@ section {* Soundness *}
 subsection {* Well-defined outcome *}
 
 text {* well-definedness of an allocation, given the goods and participants: all goods are
-  allocated within the set of participants *}
+  allocated within the set of participants; nothing is allocated twice. *}
+(* TODO CL: allow for partial allocation: in this case, Domain x needs to be a 
+   partition of a _subset_ of G *)
 definition wd_allocation :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel \<Rightarrow> bool"
 where "wd_allocation G N x \<longleftrightarrow> is_partition_of (Domain x) G \<and> Range x \<subseteq> N"
 
@@ -38,6 +40,24 @@ definition wd_outcome :: "combinatorial_auction_rel \<Rightarrow> outcome_well_d
 where "wd_outcome A wd_outcome_pred \<longleftrightarrow>
   (\<forall> ((G::goods, N::participant set, b::bids), (x::allocation_rel, p::payments)) \<in> A .
     wd_outcome_pred G N b x p)"
+
+text{* introduction rule for @{const wd_outcome}, to facilitate proofs of well-definedness of the outcome *}
+lemma wd_outcomeI:
+  assumes "\<And> G N b x p . ((G, N, b), (x, p)) \<in> A \<Longrightarrow> wd_outcome_pred G N b x p"
+  shows "wd_outcome A wd_outcome_pred"
+(* CL: The following proof takes 82 ms on my machine:
+using assms unfolding wd_outcome_def by (smt prod_caseI2 prod_caseI2') *)
+unfolding wd_outcome_def
+proof
+  fix T
+  assume "T \<in> A"
+  then obtain input out where T: "T = (input, out)" using PairE by blast
+  from T obtain G N b where input: "input = (G, N, b)" using prod_cases3 by blast
+  from T obtain x p where out: "out = (x, p)" using PairE by blast
+  from input out T `T \<in> A` have "((G, N, b), (x, p)) \<in> A" by fastforce
+  then have "wd_outcome_pred G N b x p" by (rule assms)
+  with input out T show "case T of (input, out) \<Rightarrow> (\<lambda> (G, N, b) (x, p) . wd_outcome_pred G N b x p) input out" using split_conv by force
+oops
 
 subsection {* Left-totality *}
 
