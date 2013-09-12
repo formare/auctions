@@ -81,6 +81,7 @@ proof -
   then show ?thesis ..
 qed
 
+(* TODO CL: simplify this now that we have rel_all (at least for combinatorial auctions; need to port it here) *)
 lemma fs_spa_is_right_unique :
   fixes A :: single_good_auction
     and t :: tie_breaker
