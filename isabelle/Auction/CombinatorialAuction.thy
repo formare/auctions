@@ -85,11 +85,15 @@ where "admissible_input G N b \<longleftrightarrow> (\<forall> n H . n \<in> N \
 
 section {* Tie breakers *}
 
-text {* break ties by preferring an arbitrary existing allocation
-  (we omit type annotations to keep this function polymorphic, so that we can use it with 
-   both relational and functional allocations) *}
+text {* A well-defined tie-breaker selects one element out of a set of allocations. *}
+definition tie_breaker :: "tie_breaker_rel \<Rightarrow> bool"
+where "tie_breaker t \<longleftrightarrow> (\<forall> x . t x \<in> x)"
+
+text {* break ties by preferring an arbitrary existing allocation *}
 definition tie_breaker_example :: tie_breaker_rel where "tie_breaker_example x = (THE y . y \<in> x)"
 
+(* TODO CL: when proving paper\<longleftrightarrow>algorithm equivalence w.r.t. tie-breakers, we need to make the
+   assumption, that the "set" tie-breaker and the "list" tie-breaker select the same allocation. *)
 text {* trivial algorithmic tie breaker: take the first element of a list *}
 definition tie_breaker_example_alg :: tie_breaker_alg where "tie_breaker_example_alg = hd"
 
