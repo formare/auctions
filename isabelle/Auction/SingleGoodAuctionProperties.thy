@@ -55,7 +55,7 @@ definition sga_left_total :: "single_good_auction \<Rightarrow> input_admissibil
   where "sga_left_total A admissible \<longleftrightarrow>
     { (N, b) . admissible N b } \<subseteq> Domain A"
 
-text{* introduction rule for @{const sga_left_total} *}
+text{* introduction rule for @{const sga_left_total}, to facilitate left-totality proofs *}
 lemma sga_left_totalI:
   assumes "\<And> N b . admissible N b \<Longrightarrow> (\<exists> x p . ((N, b), (x, p)) \<in> A)"
   shows "sga_left_total A admissible"
