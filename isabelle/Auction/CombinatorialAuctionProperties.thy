@@ -34,7 +34,7 @@ where "wd_allocation G N x \<longleftrightarrow> is_partition_of (Domain x) G \<
 
 type_synonym outcome_well_definedness = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
 
-definition wd_outcome :: "combinatorial_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+definition wd_outcome :: "combinatorial_auction_rel \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
 where "wd_outcome A wd_outcome_pred \<longleftrightarrow>
   (\<forall> ((G::goods, N::participant set, b::bids), (x::allocation_rel, p::payments)) \<in> A .
     wd_outcome_pred G N b x p)"
@@ -43,7 +43,7 @@ subsection {* Left-totality *}
 
 text{* Left-totality of a combinatorial auction in relational form: for each admissible bid vector
   there exists some outcome (not necessarily unique nor well-defined). *}
-definition left_total :: "combinatorial_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+definition left_total :: "combinatorial_auction_rel \<Rightarrow> input_admissibility \<Rightarrow> bool"
 where "left_total A admissible \<longleftrightarrow> { (G, N, b) . admissible G N b } \<subseteq> Domain A"
 
 text{* introduction rule for @{const left_total}, to facilitate left-totality proofs *}
@@ -56,7 +56,7 @@ subsection {* Right-uniqueness *}
 
 text{* Right-uniqueness of a combinatorial auction in relational form: for each admissible bid vector,
   if there is an outcome, it is unique.  This definition makes sense because we know @{thm runiq_restrict}. *}
-definition right_unique :: "combinatorial_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
+definition right_unique :: "combinatorial_auction_rel \<Rightarrow> input_admissibility \<Rightarrow> bool"
 where "right_unique A admissible \<longleftrightarrow> runiq (A || { (G, N, b) . admissible G N b })"
 
 end

@@ -69,7 +69,9 @@ type_synonym allocation_fun = "(goods set) \<times> (goods \<rightharpoonup> par
 type_synonym tie_breaker_fun = "allocation_fun set \<Rightarrow> allocation_fun"
 *)
 
-type_synonym combinatorial_auction = "((goods \<times> participant set \<times> bids) \<times> (allocation_rel \<times> payments)) set"
+type_synonym combinatorial_auction_pred = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
+type_synonym combinatorial_auction_tup = "(goods \<times> participant set \<times> bids) \<times> (allocation_rel \<times> payments)"
+type_synonym combinatorial_auction_rel = "combinatorial_auction_tup set"
 
 section {* Admissible input *}
 
@@ -143,6 +145,52 @@ where "possible_allocations_fun G N = { (Y,potential_buyer) .
   \<and> inj_on potential_buyer Y
  }"
 *)
+
+section {* Relational vs. predicate form*}
+
+text {* A general combinatorial auction in predicate form.
+  To give the auction designer flexibility (including the possibility to introduce mistakes),
+  we only constrain the left hand side of the relation, as to cover admissible inputs.
+  This definition makes sure that whenever we speak of a combinatorial auction, there is an
+  admissible input on the left hand side.  In other words, this predicate returns false for relations having left
+  hand side entries that are known not to be admissible inputs.
+  For this and other reasons (including Isabelle's difficulties to handle complex set comprehensions)
+  it is more convenient to treat the auction as a predicate over all of
+  its arguments, instead of a left-hand-side/right-hand-side relation.*}
+definition pred :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
+where "pred G N b x p \<longleftrightarrow> admissible_input G N b"
+
+text {* Given an auction in predicate form @{const pred}, construct a predicate that takes all 
+  arguments of @{const pred} as one @{term "(input, outcome)"} pair, and checks whether its
+  components satisfy @{const pred}.  This is useful for modelling the auction in relational form. *}
+definition pred_tup :: "combinatorial_auction_pred \<Rightarrow> combinatorial_auction_tup \<Rightarrow> bool"
+where "pred_tup P T \<longleftrightarrow> (\<exists> G N b x p . T = ((G, N, b), (x, p)) \<and> P G N b x p)"
+
+text {* We construct the relational form of an auction from the predicate form @{const pred}: given a 
+  predicate that defines an auction by telling us for all possible arguments whether they 
+  form an @{term "(input, outcome)"} pair according to the auction's definition, we construct a predicate
+  that tells us whether all @{term "(input, outcome)"} pairs in a given relation satisfy that predicate,
+  i.e.\ whether the given relation is an auction of the desired type. *}
+definition rel_sat_pred :: "combinatorial_auction_pred \<Rightarrow> combinatorial_auction_rel \<Rightarrow> bool"
+where "rel_sat_pred P A \<longleftrightarrow> (\<forall> T \<in> A . pred_tup P T)"
+
+(* TODO CL: Now that we have rel_all, check whether this is still needed.  rel_sat_pred could also
+   now be defined as "A \<subseteq> (rel_all P)" *)
+text {* A variant of @{const rel_sat_pred}: We construct a predicate that tells us whether the
+  given relation comprises \emph{all} @{term "(input, outcome)"} pairs that satisfy the given auction predicate, 
+  i.e.\ whether the given relation comprises all possible auctions of the desired type.  *}
+definition rel_all_pred :: "combinatorial_auction_pred \<Rightarrow> combinatorial_auction_rel \<Rightarrow> bool"
+where "rel_all_pred P A \<longleftrightarrow> (\<forall> T . T \<in> A \<longleftrightarrow> pred_tup P T)"
+
+(* TODO CL: document *)
+definition rel_all :: "combinatorial_auction_pred \<Rightarrow> combinatorial_auction_rel"
+where "rel_all P = { T . pred_tup P T }"
+
+(* TODO CL: document *)
+lemma pred_imp_rel_all: "P G N b x p \<Longrightarrow> ((G, N, b), (x, p)) \<in> rel_all P"
+unfolding rel_all_def
+using pred_tup_def mem_Collect_eq
+by force
 
 end
 
