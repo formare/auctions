@@ -58,6 +58,9 @@ using assms by auto
 
 section {* Converse *}
 
+text {* The converse of the empty relation is empty. *}
+lemma converse_empty: "{}\<inverse> = {}" by fast
+
 text {* The definition of @{const converse} isn't suitable for generating code, so we provide
   a code equation using an alternative definition. *}
 lemma [code_unfold]: "R\<inverse> = { (y, x) . (x, y) \<in> R }" by (rule converse_unfold)
