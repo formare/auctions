@@ -169,6 +169,9 @@ lemma runiq_trivial_rel:
   shows "runiq R"
 using assms runiq_singleton_rel by (metis subrel_runiq surj_pair trivial_def)
 
+text {* The empty relation is right-unique *}
+lemma runiq_emptyrel: "runiq {}" using trivial_empty runiq_trivial_rel by blast
+
 text {* alternative characterisation of the fact that, if a relation @{term R} is right-unique,
   its evaluation @{term "R,,x"} on some argument @{term x} in its domain, occurs in @{term R}'s
   range. *}
@@ -405,6 +408,27 @@ proof -
   ultimately show ?thesis unfolding sup_rels_from_def by simp
 qed
 
+text {* There is an injective function from a finite set to any set of a greater cardinality. *}
+lemma injections_exist:
+  fixes X::"'a set"
+    and Y::"'b set"
+  assumes finite_Range: "finite X"
+      and Range_ge_Domain: "card X \<le> card Y"
+  shows "injections X Y \<noteq> {}"
+using finite_Range
+proof induct
+  case empty
+  have "Domain {} = {}" by simp
+  moreover have "Range {} \<subseteq> Y" by simp
+  moreover note runiq_emptyrel
+  moreover have "runiq ({}\<inverse>)" by (simp add: converse_empty runiq_emptyrel)
+  ultimately have "{} \<in> injections {} Y" unfolding injections_def using CollectI by blast
+  then show ?case using assms by fast
+next
+  case (insert a X)
+  show ?case sorry
+qed
+
 text {* the list of all injective functions (represented as relations) from one set 
   (represented as a list) to another set *}
 fun injections_alg :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
@@ -518,11 +542,10 @@ proof (induct xs)
   proof -
     have "{{}} = {R::(('a \<times> 'b) set) . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" (is "?LHS = ?RHS")
     proof
-      have "{}\<inverse> = {}" by fast
-      have "Domain {} = {}" by simp
+      have "Domain {} = {}" by (rule Domain_empty)
       moreover have "Range {} \<subseteq> Y" by simp
-      moreover have runiq_emptyrel: "runiq {}" using runiq_def trivial_empty runiq_trivial_rel by fast
-      moreover have "runiq ({}\<inverse>)" using `{}\<inverse> = {}` runiq_emptyrel by metis
+      moreover note runiq_emptyrel
+      moreover have "runiq ({}\<inverse>)" by (simp add: converse_empty runiq_emptyrel)
       ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
       (* CL: Merging the steps before and after this comment considerably increases complexity. *)
       then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
