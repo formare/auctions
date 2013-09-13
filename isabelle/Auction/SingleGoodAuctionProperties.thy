@@ -36,6 +36,8 @@ definition sga_outcome_allocates :: "participant set \<Rightarrow> bids \<Righta
 
 type_synonym outcome_well_definedness = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
+(* TODO CL: maybe add the premise that the input should be admissible; in the combinatorial case
+   we needed this. *)
 definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
   where
     "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
