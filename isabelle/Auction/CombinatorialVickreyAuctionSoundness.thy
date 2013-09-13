@@ -63,7 +63,8 @@ lemma right_unique:
   shows "right_unique (nVCG_auctions t) admissible_input"
 proof (rule right_uniqueI)
   fix G::goods and N::"participant set" and b::bids
-  assume admissible: "admissible_input G N b"
+  (* As right-uniqueness is so easy to prove in this case, 
+     it turns out that we don't need the additional assumption "admissible_input G N b". *)
   fix x::allocation_rel and x'::allocation_rel and p::payments and p'::payments
 
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
@@ -91,7 +92,7 @@ text {* The combinatorial Vickrey auction is well-defined. *}
 lemma wd_outcome:
   fixes t::tie_breaker_rel
   assumes "tie_breaker t"
-  shows "wd_outcome (nVCG_auctions t) wd_alloc_pay"
+  shows "wd_outcome (nVCG_auctions t) admissible_input wd_alloc_pay"
 proof (rule wd_outcomeI)
   fix G N b x p
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"

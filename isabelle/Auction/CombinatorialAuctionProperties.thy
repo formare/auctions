@@ -36,16 +36,16 @@ where "wd_allocation G N x \<longleftrightarrow> is_partition_of (Domain x) G \<
 
 type_synonym outcome_well_definedness = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
 
-definition wd_outcome :: "combinatorial_auction_rel \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
-where "wd_outcome A wd_outcome_pred \<longleftrightarrow>
+definition wd_outcome :: "combinatorial_auction_rel \<Rightarrow> input_admissibility \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+where "wd_outcome A admissible wd_outcome_pred \<longleftrightarrow>
   (\<forall> ((G::goods, N::participant set, b::bids), (x::allocation_rel, p::payments)) \<in> A .
-    wd_outcome_pred G N b x p)"
+    admissible G N b \<longrightarrow> wd_outcome_pred G N b x p)"
 
 text{* introduction rule for @{const wd_outcome}, to facilitate proofs of well-definedness of the outcome *}
 lemma wd_outcomeI:
-  assumes "\<And> G N b x p . ((G, N, b), (x, p)) \<in> A \<Longrightarrow> wd_outcome_pred G N b x p"
-  shows "wd_outcome A wd_outcome_pred"
-(* CL: The following proof takes 82 ms on my machine:
+  assumes "\<And> G N b x p . ((G, N, b), (x, p)) \<in> A \<Longrightarrow> admissible G N b \<Longrightarrow> wd_outcome_pred G N b x p"
+  shows "wd_outcome A admissible wd_outcome_pred"
+(* CL: The following proof (tried before we added the "admissible" premise) takes 82 ms on my machine:
 using assms unfolding wd_outcome_def by (smt prod_caseI2 prod_caseI2') *)
 unfolding wd_outcome_def
 proof
@@ -55,8 +55,10 @@ proof
   from T obtain G N b where input: "input = (G, N, b)" using prod_cases3 by blast
   from T obtain x p where out: "out = (x, p)" using PairE by blast
   from input out T `T \<in> A` have "((G, N, b), (x, p)) \<in> A" by fastforce
-  then have "wd_outcome_pred G N b x p" by (rule assms)
-  with input out T show "case T of (input, out) \<Rightarrow> (\<lambda> (G, N, b) (x, p) . wd_outcome_pred G N b x p) input out" using split_conv by force
+  then have "admissible G N b \<longrightarrow> wd_outcome_pred G N b x p" using assms by fast
+  with input out T
+    show "case T of (input, out) \<Rightarrow> (\<lambda> (G, N, b) (x, p) . admissible G N b \<longrightarrow> wd_outcome_pred G N b x p) input out"
+    using split_conv by force
 qed
 
 subsection {* Left-totality *}
