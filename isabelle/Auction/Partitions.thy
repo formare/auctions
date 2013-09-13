@@ -180,7 +180,14 @@ text {* Any non-empty set has at least one partition. *}
 lemma non_empty_set_has_partitions:
   assumes "A \<noteq> {}"
   shows "all_partitions A \<noteq> {}"
-(* unfolding all_partitions_def is_partition_of_def is_partition_def sledgehammer *)
+(* CL: the following takes 1.32 s on my machine, and it does already use my lemma set_partitions_itself: *)
+(*
+unfolding all_partitions_def is_partition_of_def is_partition_def 
+by (smt Int_absorb Int_commute assms empty_def is_partition_of_def mem_Collect_eq set_partitions_itself singleton_conv2)
+*)
+(* CL: Without set_partitions_itself, it doesn't work within reasonable time:
+   unfolding all_partitions_def is_partition_of_def is_partition_def sledgehammer (del: set_partitions_itself)
+*)
 proof
   assume "all_partitions A = {}"
   then have "\<forall> P . \<not>is_partition_of P A" using all_partitions_def by blast
