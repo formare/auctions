@@ -98,6 +98,7 @@ proof (rule wd_outcomeI)
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
   then have xp: "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b" by (rule split_outcome)
 
+  assume admissible: "admissible_input G N b"
   from xp have "x = t { potential_buyer . value_rel b potential_buyer
      = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G }) }"
     unfolding winning_allocation_rel.simps winning_allocations_rel_def
@@ -111,7 +112,16 @@ proof (rule wd_outcomeI)
   
   have "wd_allocation G N x" unfolding wd_allocation_def
   proof
-    show "is_partition_of (Domain x) G" sorry
+    show "is_partition_of (Domain x) G"
+    proof -
+      from admissible have "G \<noteq> {}" and "N \<noteq> {}" unfolding admissible_input_def by simp_all
+      from `G \<noteq> {}` have "all_partitions G \<noteq> {}" by (rule non_empty_set_has_partitions)
+      then obtain Y where "\<Union> Y = G" unfolding all_partitions_def is_partition_of_def by blast
+      with `G \<noteq> {}` have "Y \<noteq> {}" by fast
+      
+        
+      show ?thesis sorry
+    qed
     show "Range x \<subseteq> N" sorry
   qed
   moreover have "wd_payments N p" unfolding wd_payments_def
