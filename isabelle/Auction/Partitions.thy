@@ -47,7 +47,7 @@ BTW, the number of partitions of a set (same as the number of equivalence relati
 
 text {* @{term P} is a partition of some set. *}
 definition is_partition where
-"is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))"
+"is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
 (* alternative, less concise formalisation:
 "is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
@@ -142,6 +142,24 @@ lemma no_empty_eq_class:
 text {* @{term P} is a partition of the set @{term A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
+text {* A non-empty set is a partition of itself. *}
+lemma set_partitions_itself:
+  assumes "A \<noteq> {}"
+  shows "is_partition_of {A} A" unfolding is_partition_of_def is_partition_def
+(* CL: the following takes 48 ms on my machine:
+   by (metis Sup_empty Sup_insert assms inf_idem singletonE sup_bot_right) *)
+proof
+  show "\<Union> {A} = A" by simp
+  {
+    fix X Y
+    assume "X \<in> {A}"
+    then have "X = A" by (rule singletonD)
+    assume "Y \<in> {A}"
+    then have "Y = A" by (rule singletonD)
+    from `X = A` `Y = A` have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" using assms by simp
+  }
+  then show "\<forall> X \<in> {A} . \<forall> Y \<in> {A} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" by force
+qed
 
 text {* The empty set is a partition of the empty set. *}
 lemma emptyset_part_emptyset1:
@@ -157,6 +175,18 @@ lemma emptyset_part_emptyset2:
 text {* classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
 definition all_partitions where 
 "all_partitions A = {P . is_partition_of P A}"
+
+text {* Any non-empty set has at least one partition. *}
+lemma non_empty_set_has_partitions:
+  assumes "A \<noteq> {}"
+  shows "all_partitions A \<noteq> {}"
+(* unfolding all_partitions_def is_partition_of_def is_partition_def sledgehammer *)
+proof
+  assume "all_partitions A = {}"
+  then have "\<forall> P . \<not>is_partition_of P A" using all_partitions_def by blast
+  moreover have "is_partition_of {A} A" using assms by (rule set_partitions_itself)
+  ultimately show False by simp
+qed
 
 text {* The set of all partitions of the empty set only contains the empty set.
   We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
