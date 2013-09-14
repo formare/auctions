@@ -625,8 +625,8 @@ next
   ultimately have *: "card Y > card (Range R)" by (rule order_le_less_trans)
 
   from finiteY Range have "finite (Range R)" by (rule rev_finite_subset)
-  then have "card (Y - Range R) > 0" using * by (rule card_diff_gt0)
-  then have "Y - Range R \<noteq> {}" by (rule card_gt1_imp_non_empty)
+  then have "card (Y - Range R) > 0" using * by (rule card_diff_gt_0)
+  then have "Y - Range R \<noteq> {}" by (rule card_gt_1_imp_non_empty)
   then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}"
     unfolding sup_rels_from_def by (auto simp add: image_Collect_mem)
 

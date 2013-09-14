@@ -22,7 +22,7 @@ begin
 
 section {* cardinality *}
 
-lemma card_diff_gt0:
+lemma card_diff_gt_0:
   assumes "finite B"
       and "card A > card B"
   shows "card (A - B) > 0"
@@ -30,14 +30,14 @@ using assms
 by (metis diff_card_le_card_Diff le_0_eq neq0_conv zero_less_diff)
 
 text {* A set of non-zero cardinality is not empty *}
-lemma card_gt1_imp_non_empty:
+lemma card_gt_1_imp_non_empty:
   fixes A::"'a set"
   assumes "card A > 0"
   shows "A \<noteq> {}"
 using assms by fastforce
 
 text {* A finite, non-empty set (i.e.\ having a non-zero cardinality) has a member. *}
-lemma card_gt1_imp_member:
+lemma card_gt_1_imp_member:
   fixes A::"'a set"
   assumes "card A > 0"
   obtains y where "y \<in> A"
