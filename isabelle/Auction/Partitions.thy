@@ -632,7 +632,7 @@ lemma all_partitions_paper_equiv_alg':
 proof (induct xs)
   case Nil
   have "set (map set (all_partitions_list [])) = all_partitions (set [])"
-    by (metis List.set.simps(2) all_partitions_list.simps(1) empty_set emptyset_part_emptyset3 map.simps(1) map.simps(2))
+    unfolding List.set.simps(1) emptyset_part_emptyset3 by simp
     (* Sledgehammer no longer seems to find this, maybe after we have added the "distinct" part to the theorem statement. *)
   moreover have "\<forall> ps \<in> set (all_partitions_list []) . distinct ps" by fastforce
   ultimately show ?case ..
