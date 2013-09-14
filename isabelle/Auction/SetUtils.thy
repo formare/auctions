@@ -130,4 +130,22 @@ section {* Miscellaneous *}
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
 lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by fast
 
+lemma Union_map_member:
+  assumes "x \<in> \<Union> { f y | y . y \<in> Z }"
+  shows "\<exists> y \<in> Z . x \<in> f y"
+using assms
+by (auto simp add: UnionE)
+
+text {* When a set of elements @{term A} is non-empty, and a function @{term f} returns a non-empty
+  set for at least one member of @{term A}, the union of the image of @{term A} under @{term f}
+  is non-empty, too. *}
+lemma Union_map_non_empty:
+  assumes "x \<in> A"
+      and "f x \<noteq> {}"
+  shows "\<Union> f ` A \<noteq> {}"
+proof -
+  from assms(1) have "f ` A \<noteq> {}" by fast
+  with assms show ?thesis by force
+qed
+
 end
