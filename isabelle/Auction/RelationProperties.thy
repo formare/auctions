@@ -616,17 +616,25 @@ next
   from R have "runiq R" unfolding injections_def by fast
   from R have Domain: "Domain R = X" unfolding injections_def by fast
   from R have Range: "Range R \<subseteq> Y" unfolding injections_def by fast
+
   from Domain have "card X = card (Domain R)" by fast
-  also have "\<dots> \<ge> card (Range R)" using insert.hyps(1) Domain `runiq R` card_Range_le_Domain by blast
+  also have "\<dots> \<ge> card (Range R)"
+    using insert.hyps(1) Domain `runiq R` card_Range_le_Domain by blast
   finally have "card X \<ge> card (Range R)" .
   moreover have "card Y > card X" using insert.hyps insert.prems by force
   ultimately have *: "card Y > card (Range R)" by (rule order_le_less_trans)
+
   from finiteY Range have "finite (Range R)" by (rule rev_finite_subset)
   then have "card (Y - Range R) > 0" using * by (rule card_diff_gt0)
   then have "Y - Range R \<noteq> {}" by (rule card_gt1_imp_non_empty)
-  then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}" unfolding sup_rels_from_def by (auto simp add: image_Collect_mem)
-  from R have "sup_rels_from R a Y \<in> { sup_rels_from P a Y | P . P \<in> injections X Y }" by (simp add: image_Collect_mem)
-  with sup_rels_non_empty have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}" by force
+  then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}"
+    unfolding sup_rels_from_def by (auto simp add: image_Collect_mem)
+
+  from R have "sup_rels_from R a Y \<in> { sup_rels_from P a Y | P . P \<in> injections X Y }"
+    by (simp add: image_Collect_mem)
+  with sup_rels_non_empty
+    have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}"
+    by force
   from insert have "a \<notin> X" by simp
   then have "injections (insert a X) Y = \<Union> { sup_rels_from P a Y | P . P \<in> injections X Y }"
     by (rule injections_paste)
