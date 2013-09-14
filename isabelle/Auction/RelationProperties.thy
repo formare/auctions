@@ -71,7 +71,7 @@ proof
     fix x y y'
     assume x_R_y: "(x, y) \<in> R" and x_R_y': "(x, y') \<in> R"
     (* then have "y = y'" using assms sledgehammer doesn't find anything within reasonable time *)
-    have "trivial (R `` {x})" using assm runiq_alt by fast
+    have "trivial (R `` {x})" using assm unfolding runiq_alt by simp
     moreover have "y \<in> R `` {x}" using x_R_y by simp
     moreover have "y' \<in> R `` {x}" using x_R_y' by simp
     ultimately have "y = y'" by (rule trivial_imp_no_distinct)
@@ -99,8 +99,8 @@ qed
 text {* an alternative definition of right-uniqueness in terms of @{const eval_rel} *}
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
-  shows "runiq R = (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
-by (metis eval_rel.simps runiq_alt trivial_def)
+  shows "runiq R \<longleftrightarrow> (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
+unfolding runiq_alt trivial_def by simp
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
@@ -198,8 +198,7 @@ lemma Image_runiq_eq_eval:
   assumes "x \<in> Domain R"
       and "runiq R" 
   shows "R `` {x} = {R ,, x}"
-using assms runiq_wrt_eval_rel
-by (metis Image_within_domain' subset_singletonD)
+using assms unfolding runiq_wrt_eval_rel by blast
 
 text {* right-uniqueness of a restricted relation expressed using basic set theory *}
 lemma runiq_restrict: "runiq (R || X) \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
@@ -261,8 +260,7 @@ proof -
   have sup: "{x} \<subseteq> R\<inverse> `` R `` {x}" using Domain_Int_wrt_converse domain by fast
   have "trivial (R `` {x})" using runiq domain by (metis runiq_def trivial_singleton)
   then have "trivial (R\<inverse> `` R `` {x})"
-    using assms
-    by (metis Image_runiq_eq_eval eval_rel.simps runiq_wrt_eval_rel trivial_def)
+    using assms runiq_def by blast
   then show ?thesis
     using sup by (metis singleton_sub_trivial_uniq subset_antisym trivial_def)
 qed
