@@ -105,6 +105,10 @@ proof -
   qed
 qed
 
+text {* the subset of elements of a set where a function reaches its maximum *}
+fun arg_max' :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
+where "arg_max' f A = { x \<in> A . f x = Max (f ` A) }"
+
 text{* the set of all indices of maximum components of a vector *}
 definition arg_max :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
   where "arg_max N b = {i \<in> N . maximum N b = b i}"
