@@ -19,6 +19,7 @@ imports
   RelationUtils
   RelationOperators
   SetUtils
+  Finite_SetUtils
   ListUtils
 
 begin
@@ -101,6 +102,61 @@ lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
   shows "runiq R \<longleftrightarrow> (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
 unfolding runiq_alt trivial_def by simp
+
+text {* An alternative phrasing of @{thm Image_within_domain'} for right-unique relations *}
+lemma Image_within_runiq_domain:
+  fixes x R
+  assumes "runiq R"
+  shows "x \<in> Domain R \<longleftrightarrow> (\<exists> y . R `` {x} = {y})"
+proof
+  assume "x \<in> Domain R"
+  then have Im_non_empty: "R `` {x} \<noteq> {}" by fast
+  have triv: "trivial (R `` {x})" using assms unfolding runiq_alt by simp
+  then show "\<exists> y . R `` {x} = {y}"
+  proof (cases rule: trivial_cases)
+    case empty
+    with Im_non_empty show ?thesis ..
+  next
+    case (singleton y)
+    then show ?thesis by blast
+  qed
+next
+  assume "\<exists> y . R `` {x} = {y}"
+  then show "x \<in> Domain R" by auto
+qed
+
+text {* another alternative definition of right-uniqueness in terms of @{const eval_rel} *}
+lemma runiq_wrt_eval_rel':
+  fixes R :: "('a \<times> 'b) set"
+  shows "runiq R \<longleftrightarrow> (\<forall>x \<in> Domain R . R `` {x} = {R ,, x})"
+(* CL: possible with Sledgehammer but takes very long *)
+proof
+  assume runiq: "runiq R"
+  show "\<forall>x \<in> Domain R . R `` {x} = {R ,, x}"
+  proof
+    fix x assume x_Dom: "x \<in> Domain R"
+    show "R `` {x} = {R ,, x}"
+    proof
+      show "R `` {x} \<subseteq> {R ,, x}" using runiq unfolding runiq_wrt_eval_rel by simp
+    next
+      show "{R ,, x} \<subseteq> R `` {x}"
+      proof
+        fix y assume "y \<in> {R ,, x}"
+        moreover have "\<exists> y . R `` {x} = {y}" using runiq x_Dom Image_within_runiq_domain by fast
+        ultimately show "y \<in> R `` {x}" by (metis RelationOperators.eval_rel.simps the_elem_eq)
+      qed
+    qed
+  qed
+next
+  assume "\<forall>x \<in> Domain R . R `` {x} = {R ,, x}"
+  then have "\<forall> x \<in> Domain R . trivial (R `` {x})" by (metis trivial_singleton)
+  moreover have "\<forall> x . x \<notin> Domain R \<longrightarrow> trivial (R `` {x})" by (simp add: trivial_empty Image_within_domain')
+  ultimately have "\<forall> x . trivial (R `` {x})" by blast
+  then show "runiq R" unfolding runiq_alt .
+qed
+
+(* using eval_rel.simps runiq_alt trivial_def Image_within_domain' empty_subsetI subset_refl the_elem_eq trivial_cases 
+sledgehammer min [e] (runiq_wrt_eval_rel Image_within_domain' RelationOperators.eval_rel.simps empty_subsetI runiq_alt subset_refl the_elem_eq trivial_cases *)
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
@@ -199,6 +255,39 @@ lemma Image_runiq_eq_eval:
       and "runiq R" 
   shows "R `` {x} = {R ,, x}"
 using assms unfolding runiq_wrt_eval_rel by blast
+
+text {* The image of the domain of a right-unique relation @{term R} under @{term R}
+  is the image of the domain under the function that corresponds to the relation. *}
+lemma runiq_imp_eval_eq_Im:
+  assumes "runiq R"
+  shows "R `` Domain R = (eval_rel R) ` Domain R"
+proof -
+  have "R `` Domain R = { y . \<exists> x \<in> Domain R . (x, y) \<in> R }" by (rule Image_def)
+  also have "\<dots> = { y . \<exists> x \<in> Domain R . y \<in> R `` {x} }" by simp
+  also have "\<dots> = { y . \<exists> x \<in> Domain R . y \<in> {R ,, x} }"
+  proof -
+    from assms have "\<forall> x \<in> Domain R . R `` {x} = {R ,, x}" unfolding runiq_wrt_eval_rel' .
+    then have "\<forall> y . \<forall> x \<in> Domain R . y \<in> R `` {x} \<longleftrightarrow> y \<in> {R ,, x}" by blast
+    then show ?thesis by (auto simp add: Collect_mono)
+  qed
+  also have "\<dots> = { y . \<exists> x \<in> Domain R . y = the_elem (R `` {x}) }" by simp
+  also have "\<dots> = { y . \<exists> x \<in> Domain R . y = R ,, x }" by simp
+  also have "\<dots> = (eval_rel R) ` Domain R" by (simp add: image_def)
+  finally show ?thesis .
+qed
+
+text {* The cardinality of the range of a finite, right-unique relation is less or equal the 
+  cardinality of its domain. *}
+lemma card_Range_le_Domain:
+  assumes finite_Domain: "finite (Domain R)"
+      and runiq: "runiq R"
+  shows "card (Range R) \<le> card (Domain R)"
+proof -
+  have "Range R = R `` Domain R" by blast
+  also have "\<dots> = (eval_rel R) ` Domain R" using runiq by (rule runiq_imp_eval_eq_Im)
+  finally have "Range R = (eval_rel R) ` Domain R" .
+  then show ?thesis using finite_Domain by (metis card_image_le)
+qed
 
 text {* right-uniqueness of a restricted relation expressed using basic set theory *}
 lemma runiq_restrict: "runiq (R || X) \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
@@ -406,27 +495,6 @@ proof -
   ultimately show ?thesis unfolding sup_rels_from_def by simp
 qed
 
-text {* There is an injective function from a finite set to any set of a greater cardinality. *}
-lemma injections_exist:
-  fixes X::"'a set"
-    and Y::"'b set"
-  assumes finite_Range: "finite X"
-      and Range_ge_Domain: "card X \<le> card Y"
-  shows "injections X Y \<noteq> {}"
-using finite_Range
-proof induct
-  case empty
-  have "Domain {} = {}" by simp
-  moreover have "Range {} \<subseteq> Y" by simp
-  moreover note runiq_emptyrel
-  moreover have "runiq ({}\<inverse>)" by (simp add: converse_empty runiq_emptyrel)
-  ultimately have "{} \<in> injections {} Y" unfolding injections_def using CollectI by blast
-  then show ?case using assms by fast
-next
-  case (insert a X)
-  show ?case sorry
-qed
-
 text {* the list of all injective functions (represented as relations) from one set 
   (represented as a list) to another set *}
 fun injections_alg :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
@@ -524,6 +592,45 @@ next
     using runiq_conv_pre R y new and runiq_converse_paste_singleton
     by (metis DiffE Domain_pre)
   ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by simp
+qed
+
+text {* There is an injective function from a finite set to any set of a greater cardinality. *}
+lemma injections_exist:
+  fixes X::"'a set"
+    and Y::"'b set"
+  assumes finiteX: "finite X"
+      and finiteY: "finite Y"
+  shows "card X \<le> card Y \<Longrightarrow> injections X Y \<noteq> {}"
+using finiteX
+proof induct
+  case empty
+  have "Domain {} = {}" by simp
+  moreover have "Range {} \<subseteq> Y" by simp
+  moreover note runiq_emptyrel
+  moreover have "runiq ({}\<inverse>)" by (simp add: converse_empty runiq_emptyrel)
+  ultimately have "{} \<in> injections {} Y" unfolding injections_def using CollectI by blast
+  then show ?case using assms by fast
+next
+  case (insert a X)
+  then obtain R where R: "R \<in> injections X Y" by auto
+  from R have "runiq R" unfolding injections_def by fast
+  from R have Domain: "Domain R = X" unfolding injections_def by fast
+  from R have Range: "Range R \<subseteq> Y" unfolding injections_def by fast
+  from Domain have "card X = card (Domain R)" by fast
+  also have "\<dots> \<ge> card (Range R)" using insert.hyps(1) Domain `runiq R` card_Range_le_Domain by blast
+  finally have "card X \<ge> card (Range R)" .
+  moreover have "card Y > card X" using insert.hyps insert.prems by force
+  ultimately have *: "card Y > card (Range R)" by (rule order_le_less_trans)
+  from finiteY Range have "finite (Range R)" by (rule rev_finite_subset)
+  then have "card (Y - Range R) > 0" using * by (rule card_diff_gt0)
+  then have "Y - Range R \<noteq> {}" by (rule card_gt1_imp_non_empty)
+  then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}" unfolding sup_rels_from_def by (auto simp add: image_Collect_mem)
+  from R have "sup_rels_from R a Y \<in> { sup_rels_from P a Y | P . P \<in> injections X Y }" by (simp add: image_Collect_mem)
+  with sup_rels_non_empty have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}" by force
+  from insert have "a \<notin> X" by simp
+  then have "injections (insert a X) Y = \<Union> { sup_rels_from P a Y | P . P \<in> injections X Y }"
+    by (rule injections_paste)
+  with ** show "injections (insert a X) Y \<noteq> {}" by presburger
 qed
 
 text {* The paper-like definition @{const injections} and the algorithmic definition 
