@@ -629,12 +629,9 @@ next
   then have "Y - Range R \<noteq> {}" by (rule card_gt_1_imp_non_empty)
   then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}"
     unfolding sup_rels_from_def by (auto simp add: image_Collect_mem)
+  then have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}"
+    using R by (auto simp add: Union_map_non_empty)
 
-  from R have "sup_rels_from R a Y \<in> { sup_rels_from P a Y | P . P \<in> injections X Y }"
-    by (simp add: image_Collect_mem)
-  with sup_rels_non_empty
-    have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}"
-    by force
   from insert have "a \<notin> X" by simp
   then have "injections (insert a X) Y = \<Union> { sup_rels_from P a Y | P . P \<in> injections X Y }"
     by (rule injections_paste)
