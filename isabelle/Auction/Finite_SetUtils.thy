@@ -29,4 +29,11 @@ lemma card_diff_gt0:
 using assms
 by (metis diff_card_le_card_Diff le_0_eq neq0_conv zero_less_diff)
 
+text {* A finite, non-empty set (i.e.\ having a non-zero cardinality) has a member. *}
+lemma card_gt1_imp_member:
+  fixes A::"'a set"
+  assumes "card A > 0"
+  obtains y where "y \<in> A"
+using assms by fastforce
+
 end
