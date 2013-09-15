@@ -105,9 +105,24 @@ proof -
   qed
 qed
 
+(* TODO CL: rename once widely used *)
 text {* the subset of elements of a set where a function reaches its maximum *}
 fun arg_max' :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
 where "arg_max' f A = { x \<in> A . f x = Max (f ` A) }"
+
+text {* The arg max of a function over a non-empty set is non-empty. *}
+lemma arg_max'_non_empty_iff:
+  fixes f::"'a \<Rightarrow> 'b::linorder"
+    and A::"'a set"
+  assumes "A \<noteq> {}"
+      and "finite A"
+  shows "arg_max' f A \<noteq> {}"
+proof -
+  from assms have "Max (f ` A) \<in> f ` A" by simp
+  then obtain x where "x \<in> A" and "f x = Max (f ` A)" by (auto simp add: image_iff)
+  then have "\<exists> x . x \<in> A \<and> f x = Max (f ` A)" by blast
+  then show ?thesis by simp
+qed
 
 text{* the set of all indices of maximum components of a vector *}
 definition arg_max :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
