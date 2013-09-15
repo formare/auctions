@@ -125,7 +125,7 @@ text {* alternative algorithmic version of @{text payments_rel}, working around 
    until Isabelle2014 fixes the bug; see https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00024.html) *)
 fun payments_alg_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_alg_workaround G N t b n = 
-  (* \<alpha>_alg G N *) max_value_alg G (N - {n}) b
+  (* \<alpha>_alg G N *) maximum_alg_list (possible_allocations_alg G N) (value_rel b)
   -
   (* remaining_value_alg G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
