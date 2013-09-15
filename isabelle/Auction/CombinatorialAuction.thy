@@ -59,14 +59,10 @@ type_synonym payments = "real vector"
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation_rel = "((goods \<times> participant) set)" (* CL: goods set not necessary as the function-as-relation-as-set representation carries its own domain :-) *)
 
-type_synonym tie_breaker_rel = "allocation_rel set \<Rightarrow> allocation_rel"
-type_synonym tie_breaker_alg = "allocation_rel list \<Rightarrow> allocation_rel"
-
 type_synonym payments = "participant \<Rightarrow> price"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 type_synonym allocation_fun = "(goods set) \<times> (goods \<rightharpoonup> participant)"
-type_synonym tie_breaker_fun = "allocation_fun set \<Rightarrow> allocation_fun"
 *)
 
 type_synonym combinatorial_auction_pred = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
@@ -84,25 +80,6 @@ text {* Admissible input (i.e.\ admissible bids, given the goods and participant
 (* CL: Once we realise general/special auctions using locales, we need an admissible_input axiom. *)
 definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
 where "admissible_input G N b \<longleftrightarrow> card G > 0 \<and> card N > 0 \<and> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
-
-section {* Tie breakers *}
-
-text {* A well-defined tie-breaker selects one element out of a set of allocations. *}
-definition tie_breaker :: "tie_breaker_rel \<Rightarrow> bool"
-(* TODO CL: This definition is inconsistent.
-   Fix once http://stackoverflow.com/questions/18806628/why-is-my-definition-of-a-function-that-chooses-an-element-from-a-finite-set-inc has been answered. *)
-(*
-where "tie_breaker t \<longleftrightarrow> (\<forall> X . finite X \<longrightarrow> t X \<in> X)"
-*)
-where "tie_breaker t \<longleftrightarrow> True"
-
-text {* break ties by preferring an arbitrary existing allocation *}
-definition tie_breaker_example :: "tie_breaker_rel" where "tie_breaker_example x = (THE y . y \<in> x)"
-
-(* TODO CL: when proving paper\<longleftrightarrow>algorithm equivalence w.r.t. tie-breakers, we need to make the
-   assumption, that the "set" tie-breaker and the "list" tie-breaker select the same allocation. *)
-text {* trivial algorithmic tie breaker: take the first element of a list *}
-definition tie_breaker_example_alg :: tie_breaker_alg where "tie_breaker_example_alg = hd"
 
 section {* Allocations *}
 

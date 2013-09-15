@@ -19,6 +19,7 @@ header {* combinatorial Vickrey auction *}
 theory CombinatorialVickreyAuction
 imports
   CombinatorialAuction
+  CombinatorialAuctionTieBreaker
   Maximum
 
 begin
