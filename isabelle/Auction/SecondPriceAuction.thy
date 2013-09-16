@@ -274,7 +274,7 @@ proof -
     qed
   }
   with spa_unfolded show ?thesis
-    by (auto simp add: second_price_auction_winner_def arg_max_def)
+    by (auto simp: second_price_auction_winner_def arg_max_def)
 qed
 
 text{* a formula for computing the payoff of the winner of a second-price auction *}

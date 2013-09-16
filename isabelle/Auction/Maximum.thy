@@ -59,7 +59,7 @@ lemma maximum_equal:
   assumes "\<forall>i \<in> N. y i = z i"
   shows "maximum N y = maximum N z"
 proof -
-  have "y ` N = z ` N" by (rule image_cong) (auto simp add: assms)
+  have "y ` N = z ` N" by (rule image_cong) (auto simp: assms)
   then show ?thesis unfolding maximum_def by simp
 qed
 
@@ -119,7 +119,7 @@ lemma arg_max'_non_empty_iff:
   shows "arg_max' f A \<noteq> {}"
 proof -
   from assms have "Max (f ` A) \<in> f ` A" by simp
-  then obtain x where "x \<in> A" and "f x = Max (f ` A)" by (auto simp add: image_iff)
+  then obtain x where "x \<in> A" and "f x = Max (f ` A)" by (auto simp: image_iff)
   then have "\<exists> x . x \<in> A \<and> f x = Max (f ` A)" by blast
   then show ?thesis by simp
 qed
@@ -186,8 +186,8 @@ proof -
   let ?A = "y ` ?M"
   from i have *: "i \<in> ?M" by simp
   with defined have "finite ?A" and "?A \<noteq> {}"
-    unfolding maximum_defined_def by (auto simp add: card_gt_0_iff)
-  with * have "Max ?A \<ge> y i" by (auto simp add: Max_ge_iff)
+    unfolding maximum_defined_def by (auto simp: card_gt_0_iff)
+  with * have "Max ?A \<ge> y i" by (auto simp: Max_ge_iff)
   then show ?thesis unfolding maximum_def .
 qed
 

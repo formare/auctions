@@ -87,7 +87,7 @@ proof -
   {
     fix input
     assume 1: "input \<in> {(G, N, b) . admissible G N b}"
-    then obtain G N b where input: "input = (G, N, b)" by (auto simp add: prod_cases3)
+    then obtain G N b where input: "input = (G, N, b)" by (auto simp: prod_cases3)
     with 1 have adm: "admissible G N b" by fast
     fix out out'
     assume 2: "(input, out) \<in> A \<and> (input, out') \<in> A"

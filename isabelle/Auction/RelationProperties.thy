@@ -268,7 +268,7 @@ proof -
   proof -
     from assms have "\<forall> x \<in> Domain R . R `` {x} = {R ,, x}" unfolding runiq_wrt_eval_rel' .
     then have "\<forall> y . \<forall> x \<in> Domain R . y \<in> R `` {x} \<longleftrightarrow> y \<in> {R ,, x}" by blast
-    then show ?thesis by (auto simp add: Collect_mono)
+    then show ?thesis by (auto simp: Collect_mono)
   qed
   also have "\<dots> = { y . \<exists> x \<in> Domain R . y = the_elem (R `` {x}) }" by simp
   also have "\<dots> = { y . \<exists> x \<in> Domain R . y = R ,, x }" by simp
@@ -628,9 +628,9 @@ next
   then have "card (Y - Range R) > 0" using * by (rule card_diff_gt_0)
   then have "Y - Range R \<noteq> {}" by (rule card_gt_1_imp_non_empty)
   then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}"
-    unfolding sup_rels_from_def by (auto simp add: image_Collect_mem)
+    unfolding sup_rels_from_def by (auto simp: image_Collect_mem)
   then have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}"
-    using R by (auto simp add: Union_map_non_empty)
+    using R by (auto simp: Union_map_non_empty)
 
   from insert have "a \<notin> X" by simp
   then have "injections (insert a X) Y = \<Union> { sup_rels_from P a Y | P . P \<in> injections X Y }"
