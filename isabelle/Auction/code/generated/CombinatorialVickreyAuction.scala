@@ -785,15 +785,7 @@ def possible_allocations_alg(g: Set.set[Nat], n: Set.set[Nat]):
 object CombinatorialVickreyAuction {
 
 import /*implicits*/ RealDef.equal_real, RealDef.comm_monoid_add_real,
-  Set.equal_set, Nata.equal_nat, RealDef.linorder_real
-
-def max_value_alg(g: Set.set[Nat], n: Set.set[Nat],
-                   b: Nat => (Set.set[Nat]) => RealDef.real):
-      RealDef.real =
-  Maximum.maximum_alg_list[Set.set[(Set.set[Nat], Nat)],
-                            RealDef.real](CombinatorialAuction.possible_allocations_alg(g,
-         n),
-   (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.value_rel(b, a))
+  RealDef.linorder_real, Set.equal_set, Nata.equal_nat
 
 def winning_allocations_alg_CL(g: Set.set[Nat], n: Set.set[Nat],
                                 b: Nat => (Set.set[Nat]) => RealDef.real):
@@ -815,7 +807,10 @@ def payments_alg_workaround(g: Set.set[Nat], na: Set.set[Nat],
                                   Set.set[(Set.set[Nat], Nat)],
                              b: Nat => (Set.set[Nat]) => RealDef.real, n: Nat):
       RealDef.real =
-  RealDef.minus_real(max_value_alg(g, Set.remove[Nat](n, na), b),
+  RealDef.minus_real(Maximum.maximum_alg_list[Set.set[(Set.set[Nat], Nat)],
+       RealDef.real](CombinatorialAuction.possible_allocations_alg(g, na),
+                      (a: Set.set[(Set.set[Nat], Nat)]) =>
+                        CombinatorialAuction.value_rel(b, a)),
                       Big_Operators.setsum[Nat,
     RealDef.real]((m: Nat) =>
                     (b(m))(RelationProperties.eval_rel_or[Nat,
