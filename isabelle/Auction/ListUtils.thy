@@ -38,8 +38,6 @@ lemma finite_imp_length_sort_eq_card: fixes x assumes "finite x"
 
 (* MC's old setlistid and norepset exist in the library as List.sorted_list_of_set *)
 
-lemma remove_list_to_set: "set (x # removeAll y l) = insert x (set l - {y})" by simp
-
 lemma list_comp_eq_set_comp:
   shows "set [ f x . x \<leftarrow> xs ] = { f x | x . x \<in> set xs }"
 by (metis image_Collect_mem image_set)
