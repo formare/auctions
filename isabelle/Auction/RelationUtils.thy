@@ -58,9 +58,11 @@ using assms by auto
 
 section {* Converse *}
 
+(* TODO CL: remove for Isabelle2014; has been included in library (http://isabelle.in.tum.de/repos/isabelle/rev/c5096c22892b) *)
 text {* The converse of the empty relation is empty. *}
 lemma converse_empty: "{}\<inverse> = {}" by fast
 
+(* TODO CL: remove for Isabelle2014; has been included in library (http://isabelle.in.tum.de/repos/isabelle/rev/c5096c22892b) *)
 text {* The definition of @{const converse} isn't suitable for generating code, so we provide
   a code equation using an alternative definition. *}
 lemma [code_unfold]: "R\<inverse> = { (y, x) . (x, y) \<in> R }" by (rule converse_unfold)
@@ -68,10 +70,6 @@ lemma [code_unfold]: "R\<inverse> = { (y, x) . (x, y) \<in> R }" by (rule conver
 text {* If two relations are subrelations of each other, so are their converse relations. *}
 lemma converse_subrel: assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
 using assms by fast
-
-text {* The domain of the converse of a relation is the relation's range. *}
-lemma Domain_conv_Range: "Domain (R\<inverse>) = Range R"
-by simp
 
 text {* alternative characterisation of the intersection of a relation's domain with some set, in
   terms of the converse relation *}

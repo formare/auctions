@@ -393,7 +393,7 @@ proof -
   ultimately
   have "{} = Domain (R\<inverse>) \<inter> R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom"
     using disj_Image_imp_disj_Domain by fast
-  also have "\<dots> = Range R \<inter> R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" using Domain_conv_Range by metis
+  also have "\<dots> = Range R \<inter> R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" using Domain_converse by metis
   also have "\<dots> = R `` ?X_on_Dom \<inter> R `` ?Y_on_Dom" by blast
   finally show ?thesis by auto
 qed
@@ -410,7 +410,7 @@ lemma runiq_converse_paste:
 proof -
   have "P +* Q = P \<union> Q" using disj_D by (rule paste_disj_domains)
   then have "(P +* Q)\<inverse> = P\<inverse> \<union> Q\<inverse>" by auto
-  also have "\<dots> = P\<inverse> +* Q\<inverse>" using disj_R paste_disj_domains Domain_conv_Range by metis
+  also have "\<dots> = P\<inverse> +* Q\<inverse>" using disj_R paste_disj_domains Domain_converse by metis
   finally show ?thesis using runiq_P_conv runiq_Q_conv runiq_paste2 by auto
 qed
 
