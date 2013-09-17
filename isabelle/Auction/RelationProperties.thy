@@ -626,7 +626,7 @@ next
 
   from finiteY Range have "finite (Range R)" by (rule rev_finite_subset)
   then have "card (Y - Range R) > 0" using * by (rule card_diff_gt_0)
-  then have "Y - Range R \<noteq> {}" by (rule card_gt_1_imp_non_empty)
+  then have "Y - Range R \<noteq> {}" by (rule card_gt_0_imp_non_empty)
   then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}"
     unfolding sup_rels_from_def by (auto simp: image_Collect_mem)
   then have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}"
