@@ -22,6 +22,7 @@ imports
   SecondPriceAuctionSoundness
   FullySpecifiedSecondPriceAuctionSoundness
   Vickrey
+  CombinatorialVickreyAuctionSoundness
   
 begin
 
