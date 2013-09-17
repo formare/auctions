@@ -67,6 +67,7 @@ text {* The definition of @{const converse} isn't suitable for generating code, 
   a code equation using an alternative definition. *}
 lemma [code_unfold]: "R\<inverse> = { (y, x) . (x, y) \<in> R }" by (rule converse_unfold)
 
+(* TODO CL: probably remove for Isabelle2014, which will have a similar simp rule converse_mono *)
 text {* If two relations are subrelations of each other, so are their converse relations. *}
 lemma converse_subrel: assumes "P \<subseteq> Q" shows "P\<inverse> \<subseteq> Q\<inverse>"
 using assms by fast
