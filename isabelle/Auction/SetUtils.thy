@@ -119,6 +119,7 @@ using assms unfolding trivial_def by (metis (full_types) subset_empty subset_ins
 
 section {* The image of a set under a function *}
 
+(* TODO CL: review whether we are always using the simplest possible set comprehension notation (compare List.set_concat) *)
 text {* an equivalent notation for the image of a set, using set comprehension *}
 lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
