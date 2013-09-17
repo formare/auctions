@@ -40,8 +40,6 @@ lemma finite_imp_length_sort_eq_card: fixes x assumes "finite x"
 
 lemma remove_list_to_set: "set (x # removeAll y l) = insert x (set l - {y})" by simp
 
-lemma set_concat: "set (concat xss) = \<Union> {set xs | xs . xs \<in> set xss}" by auto
-
 lemma list_comp_eq_set_comp:
   shows "set [ f x . x \<leftarrow> xs ] = { f x | x . x \<in> set xs }"
 by (metis image_Collect_mem image_set)
