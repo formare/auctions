@@ -498,7 +498,7 @@ proof -
   also have "\<dots> = ?remove_elem ` (?elem_neq_classes \<union> {Y}) - {{}}" using P_wrt_elem by presburger
   also have "\<dots> = ?elem_neq_classes \<union> {?elem_eq} - {{}}"
     using elem_eq_class' partition_without_def Y_elem_eq elem_neq_classes_id
-    by (smt image_union)
+    by (smt image_Un)
   finally have Q_wrt_elem: "?Q = ?elem_neq_classes \<union> {?elem_eq} - {{}}" .
 
   have "?elem_eq = {} \<or> ?elem_eq \<notin> P"
