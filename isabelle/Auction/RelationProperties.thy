@@ -147,12 +147,13 @@ lemma subrel_runiq:
 shows "runiq R"
 proof -
   {
-    fix a assume "a \<in> Domain R"
-    then have "trivial (Q `` {a}) \<and> R `` {a} \<subseteq> (Q `` {a})" 
-      using assms unfolding ll1 trivial_def by fast
-    then have "trivial (R `` {a})" using trivial_subset by (rule conjE)
+    fix X::"'a set" 
+    assume "trivial X" 
+    hence "trivial (Q``X)" using assms runiq_def by fast
+    hence "trivial (R``X)" using assms trivial_subset 
+    by (metis Image_Id Image_Int_subset Image_mono Image_within_domain)
   }
-  then show ?thesis using ll1 by blast
+  then show ?thesis using runiq_def by fast
 qed
 
 lemma ll2: assumes "trivial (Range f)" shows "runiq f" 
@@ -316,7 +317,7 @@ lemma converse_Image_singleton_Domain:
 shows "R\<inverse> `` R `` {x} = {x}"
 proof -
   have sup: "{x} \<subseteq> R\<inverse> `` R `` {x}" using Domain_Int_wrt_converse domain by fast
-  have "trivial (R `` {x})" using runiq domain unfolding runiq_def by fast
+  have "trivial (R `` {x})" using runiq domain unfolding runiq_def by (metis ll1 runiq)
   then have "trivial (R\<inverse> `` R `` {x})"
     using assms
     by (metis Image_runiq_eq_eval RelationProperties.eval_rel.simps runiq_wrt_eval_rel trivial_def)
@@ -437,8 +438,8 @@ proof (induct xs)
     proof
       have "Domain {} = {}" by simp
       moreover have "Range {} \<subseteq> Y" by simp
-      moreover have "runiq {}" unfolding runiq_def by fast
-      moreover have "runiq ({}\<inverse>)" unfolding runiq_def by fast
+      moreover have "runiq {}" unfolding runiq_def by (metis runiq_def runiq_trivial_rel trivial_empty)
+      moreover have "runiq ({}\<inverse>)" unfolding runiq_def by (metis all_not_in_conv calculation(3) converseE runiq_def)
       ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
       (* CL: Merging the steps before and after this comment considerably increases complexity. *)
       then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
