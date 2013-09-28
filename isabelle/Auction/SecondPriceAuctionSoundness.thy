@@ -16,8 +16,11 @@ See LICENSE file for details
 
 header {* Case check of Second price single good auctions *}
 
-theory SecondPriceAuctionCaseCheck
-imports FullySpecifiedSecondPriceAuctionCaseCheck 
+theory SecondPriceAuctionSoundness
+imports
+  FullySpecifiedSecondPriceAuctionSoundness
+  RelationUtils
+
 begin
 
 (* TODO CL: This lemma also works when admissibility is defined as "card N > 0" because
@@ -76,7 +79,7 @@ proof -
   then obtain B where B_fs_spa: "rel_all_sga_pred (fs_spa_pred' t) B" unfolding rel_all_sga_pred_def ..
   with spa have sup: "B \<subseteq> A" using rel_all_fs_spa_is_spa by simp
   from B_fs_spa wb_tie fs_spa_is_left_total have B_left_total: "sga_left_total B spa_admissible_input" by simp
-  then show ?thesis using sup by (rule left_total_suprel)
+  then show ?thesis unfolding sga_left_total_def using sup by (rule suprel_left_total_on)
 qed
 (* alternative direct proof:
 proof (rule sga_left_totalI)

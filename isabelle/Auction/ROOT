@@ -13,4 +13,6 @@ session Vickrey = "HOL" +
 *)
 
 session CombinatorialVickreyAuction = HOL +
-  theories CombinatorialVickreyAuction
+  theories
+    CombinatorialVickreyAuctionSoundness
+    CombinatorialVickreyAuctionCode

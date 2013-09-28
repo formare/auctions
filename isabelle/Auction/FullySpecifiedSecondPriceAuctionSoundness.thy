@@ -14,12 +14,14 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Second price single good auctions and some of their properties *}
+header {* Soundness verification of the second price single good auction *}
 
-theory FullySpecifiedSecondPriceAuctionCaseCheck
-imports FullySpecifiedSecondPriceAuction SingleGoodAuctionProperties
+theory FullySpecifiedSecondPriceAuctionSoundness
+imports
+  FullySpecifiedSecondPriceAuction
+  SingleGoodAuctionProperties
+
 begin
-
 
 lemma rel_all_fs_spa_is_spa:
   fixes A :: single_good_auction
@@ -31,6 +33,7 @@ lemma rel_all_fs_spa_is_spa:
 using assms fs_spa_is_spa sga_pred_imp_lift_to_rel_all
 by (metis fs_spa_pred'_def)
 
+(* TODO CL: simplify this now that we have rel_all (at least for combinatorial auctions; need to port it here) *)
 lemma fs_spa_is_left_total :
   fixes A :: single_good_auction
     and t :: tie_breaker
@@ -78,6 +81,7 @@ proof -
   then show ?thesis ..
 qed
 
+(* TODO CL: simplify this now that we have rel_all (at least for combinatorial auctions; need to port it here) *)
 lemma fs_spa_is_right_unique :
   fixes A :: single_good_auction
     and t :: tie_breaker
@@ -106,6 +110,9 @@ proof (rule sga_right_uniqueI)
   from range alloc pay range' alloc' pay' show "eq N x x' \<and> eq N p p'" unfolding eq_def by metis
 qed
 
+(* TODO CL: So far this just shows that the allocation is well-defined.  We should also prove that
+   the payments are, say, non-negative. *)
+(* TODO CL: port CombinatorialAuctionProperties.wd_outcomeI and use it here. *)
 lemma fs_spa_well_defined_outcome :
   fixes A :: single_good_auction
     and t :: tie_breaker
@@ -130,7 +137,5 @@ proof -
     by (rule fs_spa_well_defined_outcome)
   ultimately show ?thesis unfolding fs_sga_case_check_def by simp
 qed
-
-
 
 end

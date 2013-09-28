@@ -47,7 +47,7 @@ BTW, the number of partitions of a set (same as the number of equivalence relati
 
 text {* @{term P} is a partition of some set. *}
 definition is_partition where
-"is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))"
+"is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
 (* alternative, less concise formalisation:
 "is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
@@ -142,6 +142,24 @@ lemma no_empty_eq_class:
 text {* @{term P} is a partition of the set @{term A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
+text {* A non-empty set is a partition of itself. *}
+lemma set_partitions_itself:
+  assumes "A \<noteq> {}"
+  shows "is_partition_of {A} A" unfolding is_partition_of_def is_partition_def
+(* CL: the following takes 48 ms on my machine:
+   by (metis Sup_empty Sup_insert assms inf_idem singletonE sup_bot_right) *)
+proof
+  show "\<Union> {A} = A" by simp
+  {
+    fix X Y
+    assume "X \<in> {A}"
+    then have "X = A" by (rule singletonD)
+    assume "Y \<in> {A}"
+    then have "Y = A" by (rule singletonD)
+    from `X = A` `Y = A` have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" using assms by simp
+  }
+  then show "\<forall> X \<in> {A} . \<forall> Y \<in> {A} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" by force
+qed
 
 text {* The empty set is a partition of the empty set. *}
 lemma emptyset_part_emptyset1:
@@ -157,6 +175,25 @@ lemma emptyset_part_emptyset2:
 text {* classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
 definition all_partitions where 
 "all_partitions A = {P . is_partition_of P A}"
+
+text {* Any non-empty set has at least one partition. *}
+lemma non_empty_set_has_partitions:
+  assumes "A \<noteq> {}"
+  shows "all_partitions A \<noteq> {}"
+(* CL: the following takes 1.32 s on my machine, and it does already use my lemma set_partitions_itself: *)
+(*
+unfolding all_partitions_def is_partition_of_def is_partition_def 
+by (smt Int_absorb Int_commute assms empty_def is_partition_of_def mem_Collect_eq set_partitions_itself singleton_conv2)
+*)
+(* CL: Without set_partitions_itself, it doesn't work within reasonable time:
+   unfolding all_partitions_def is_partition_of_def is_partition_def sledgehammer (del: set_partitions_itself)
+*)
+proof
+  assume "all_partitions A = {}"
+  then have "\<forall> P . \<not>is_partition_of P A" using all_partitions_def by blast
+  moreover have "is_partition_of {A} A" using assms by (rule set_partitions_itself)
+  ultimately show False by simp
+qed
 
 text {* The set of all partitions of the empty set only contains the empty set.
   We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
@@ -196,13 +233,12 @@ proof -
   let ?Y = "insert new_el X"
   have rest_is_partition: "is_partition (P - {X})"
     using partition subset_is_partition by blast
-  have "X \<inter> \<Union> (P - {X}) = {}"
-   using eq_class partition disj_eq_classes
-   by metis
-  then have "?Y \<noteq> {} \<and> ?Y \<inter> \<Union> (P - {X}) = {}" using new by blast
-  then have "is_partition (insert ?Y (P - {X}))"
-    using rest_is_partition partition_extension1
-    by metis
+  have *: "X \<inter> \<Union> (P - {X}) = {}"
+   using partition eq_class by (rule disj_eq_classes)
+  from * have non_empty: "?Y \<noteq> {}" by blast
+  from * have disjoint: "?Y \<inter> \<Union> (P - {X}) = {}" using new by force
+  have "is_partition (insert ?Y (P - {X}))"
+    using rest_is_partition disjoint non_empty by (rule partition_extension1)
   then show ?thesis unfolding insert_into_member_def by simp
 qed
 
@@ -462,7 +498,7 @@ proof -
   also have "\<dots> = ?remove_elem ` (?elem_neq_classes \<union> {Y}) - {{}}" using P_wrt_elem by presburger
   also have "\<dots> = ?elem_neq_classes \<union> {?elem_eq} - {{}}"
     using elem_eq_class' partition_without_def Y_elem_eq elem_neq_classes_id
-    by (smt image_union)
+    by (smt image_Un)
   finally have Q_wrt_elem: "?Q = ?elem_neq_classes \<union> {?elem_eq} - {{}}" .
 
   have "?elem_eq = {} \<or> ?elem_eq \<notin> P"
@@ -532,11 +568,11 @@ proof -
     (* This and other intermediate results may not be easy to understand.  I obtained them by 
        conflating multiple “by <simple_method>” steps into one. *)
   also have "\<dots> = set ` (\<Union> x \<in> { coarser_partitions_with_list elem P | P . P \<in> set Ps } . set x)"
-    by (metis image_Collect_mem)
+    by (simp add: image_Collect_mem)
   also have "\<dots> = \<Union> { set (map set (coarser_partitions_with_list elem P)) | P . P \<in> set Ps }" by auto
   also have "\<dots> = \<Union> { coarser_partitions_with elem (set P) | P . P \<in> set Ps }"
     using distinct coarser_partitions_with_list_alt by fast
-  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set ` (set Ps))" by (metis image_Collect_mem image_image)
+  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set ` (set Ps))" by (simp add: image_Collect_mem)
   also have "\<dots> = \<Union> coarser_partitions_with elem ` (set (map set Ps))" by simp
   also have "\<dots> = ?set_expr" unfolding all_coarser_partitions_with_def ..
   finally show ?thesis .
@@ -596,7 +632,7 @@ lemma all_partitions_paper_equiv_alg':
 proof (induct xs)
   case Nil
   have "set (map set (all_partitions_list [])) = all_partitions (set [])"
-    by (metis List.set.simps(2) all_partitions_list.simps(1) empty_set emptyset_part_emptyset3 map.simps(1) map.simps(2))
+    unfolding List.set.simps(1) emptyset_part_emptyset3 by simp
     (* Sledgehammer no longer seems to find this, maybe after we have added the "distinct" part to the theorem statement. *)
   moreover have "\<forall> ps \<in> set (all_partitions_list []) . distinct ps" by fastforce
   ultimately show ?case ..
@@ -607,10 +643,8 @@ next
   from Cons.prems Cons.hyps
     have hyp_distinct: "\<forall> ps \<in> set (all_partitions_list xs) . distinct ps" by simp
 
-  have distinct_xs: "distinct xs"
-    by (metis Cons.prems distinct.simps(2))
-  have x_notin_xs: "x \<notin> set xs"
-    by (metis Cons.prems distinct.simps(2))
+  have distinct_xs: "distinct xs" using Cons.prems by simp
+  have x_notin_xs: "x \<notin> set xs" using Cons.prems by simp
   
   have "set (map set (all_partitions_list (x # xs))) = all_partitions (set (x # xs))"
   proof (rule equalitySubsetI) -- {* case set \<rightarrow> list *}

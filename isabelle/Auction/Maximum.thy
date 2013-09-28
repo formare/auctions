@@ -59,7 +59,7 @@ lemma maximum_equal:
   assumes "\<forall>i \<in> N. y i = z i"
   shows "maximum N y = maximum N z"
 proof -
-  have "y ` N = z ` N" by (rule image_cong) (auto simp add: assms)
+  have "y ` N = z ` N" by (rule image_cong) (auto simp: assms)
   then show ?thesis unfolding maximum_def by simp
 qed
 
@@ -105,16 +105,35 @@ proof -
   qed
 qed
 
+(* TODO CL: rename once widely used *)
+text {* the subset of elements of a set where a function reaches its maximum *}
+fun arg_max' :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
+where "arg_max' f A = { x \<in> A . f x = Max (f ` A) }"
+
+text {* The arg max of a function over a non-empty set is non-empty. *}
+lemma arg_max'_non_empty_iff:
+  fixes f::"'a \<Rightarrow> 'b::linorder"
+    and A::"'a set"
+  assumes "A \<noteq> {}"
+      and "finite A"
+  shows "arg_max' f A \<noteq> {}"
+proof -
+  from assms have "Max (f ` A) \<in> f ` A" by simp
+  then obtain x where "x \<in> A" and "f x = Max (f ` A)" by (auto simp: image_iff)
+  then have "\<exists> x . x \<in> A \<and> f x = Max (f ` A)" by blast
+  then show ?thesis by simp
+qed
+
 text{* the set of all indices of maximum components of a vector *}
 definition arg_max :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
   where "arg_max N b = {i \<in> N . maximum N b = b i}"
   (* need the explicit restriction "i \<in> N" as Isabelle/HOL assumes b to also be defined beyond the set N *)
 
 text{* the set of all indices of maximum components of a vector (computable version) *}
-fun arg_max_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a list"
-  where "arg_max_comp_list [] f = []"
-      | "arg_max_comp_list [x] f = [x]"
-      | "arg_max_comp_list (x # xs) f = (let arg_max_xs = arg_max_comp_list xs f; prev_max = f (hd arg_max_xs) in
+fun arg_max_alg_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a list"
+  where "arg_max_alg_list [] f = []"
+      | "arg_max_alg_list [x] f = [x]"
+      | "arg_max_alg_list (x # xs) f = (let arg_max_xs = arg_max_alg_list xs f; prev_max = f (hd arg_max_xs) in
           if f x > prev_max then [x]
           else if f x = prev_max then x # arg_max_xs
           else arg_max_xs)"
@@ -131,8 +150,8 @@ fun arg_max_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) 
 *)
 
 text{* the set of all indices of maximum components of a vector (computable version with same signature as @{term arg_max}) *}
-fun arg_max_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
-  where "arg_max_comp N b = set (arg_max_comp_list (sorted_list_of_set N) b)"
+fun arg_max_alg :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
+  where "arg_max_alg N b = set (arg_max_alg_list (sorted_list_of_set N) b)"
 
 text{* the indices of the maximum values of the elements of a list *}
 fun max_positions :: "'a::ord list \<Rightarrow> nat list" 
@@ -145,15 +164,15 @@ where "max_positions [] = []"
         else [0::nat] @ nextout (* tie case *)
     )"
 
-fun maximum_comp_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
-  where "maximum_comp_list [] b = undefined" (* TODO CL: throw exception as per https://github.com/formare/auctions/issues/17 *)
-      | "maximum_comp_list [x] b = b x"
-      | "maximum_comp_list (x # xs) b = (let max_xs = maximum_comp_list xs b in
+fun maximum_alg_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
+  where "maximum_alg_list [] b = undefined" (* TODO CL: throw exception as per https://github.com/formare/auctions/issues/17 *)
+      | "maximum_alg_list [x] b = b x"
+      | "maximum_alg_list (x # xs) b = (let max_xs = maximum_alg_list xs b in
           if b x > max_xs then b x
           else max_xs)"
 
-fun maximum_comp :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
-  where "maximum_comp N b = maximum_comp_list (sorted_list_of_set N) b"
+fun maximum_alg :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
+  where "maximum_alg N b = maximum_alg_list (sorted_list_of_set N) b"
 
 text{* The maximum component that remains after removing one component from a vector is greater
  or equal than the values of all remaining components *}
@@ -167,8 +186,8 @@ proof -
   let ?A = "y ` ?M"
   from i have *: "i \<in> ?M" by simp
   with defined have "finite ?A" and "?A \<noteq> {}"
-    unfolding maximum_defined_def by (auto simp add: card_gt_0_iff)
-  with * have "Max ?A \<ge> y i" by (auto simp add: Max_ge_iff)
+    unfolding maximum_defined_def by (auto simp: card_gt_0_iff)
+  with * have "Max ?A \<ge> y i" by (auto simp: Max_ge_iff)
   then show ?thesis unfolding maximum_def .
 qed
 

@@ -30,6 +30,8 @@ definition paper_example_bids :: bids where "paper_example_bids bidder goods = (
           \<or> (bidder = 2 \<or> bidder = 3) \<and> card goods = 1)
       then 2
       else 0)"
+definition paper_example_allocation :: allocation_rel
+where "paper_example_allocation = {({12}, 2), ({11}, 3)}"
 
 section {* the same (?) as above, in CATS format with dummy bids *}
 

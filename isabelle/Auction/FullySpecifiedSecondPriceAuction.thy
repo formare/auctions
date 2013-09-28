@@ -14,11 +14,15 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* Second price single good auctions and some of their properties *}
+header {* fully specified second price single good auction *}
 
 theory FullySpecifiedSecondPriceAuction
-imports SingleGoodAuction SingleGoodAuctionTieBreaker SecondPriceAuction UniqueMaximum
-   "~~/src/HOL/Library/Efficient_Nat"
+imports
+  SingleGoodAuction
+  SingleGoodAuctionTieBreaker
+  SecondPriceAuction
+  UniqueMaximum
+
 begin
 
 (* fs = fully specified *)
@@ -149,23 +153,5 @@ qed
 text{* alternative definition for easier currying *}
 definition fs_spa_pred' :: "tie_breaker \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
   where "fs_spa_pred' t N b x p = fs_spa_pred N b t x p"
-
-code_include Scala ""
-{*package code
-*}
-export_code fs_spa_winner fs_spa_allocation fs_spa_payments in Scala
-(* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
-module_name Vickrey file "code/generated/code.scala"
-(* A trivial example to try interactively with the generated Scala code:
-
-:load code.scala
-Vickrey.times_int(Vickrey.Zero_int(), Vickrey.Zero_int())
-
-Notes:
-* There are apparently no ready-to-use code-unfold theorems (codegen \<section>2.2) in the library.
-*)
-(*
-print_codeproc
-*)
 
 end

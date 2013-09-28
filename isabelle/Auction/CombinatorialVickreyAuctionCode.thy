@@ -24,7 +24,7 @@ begin
 code_include Scala ""
 {*package CombinatorialVickreyAuction
 *}
-export_code winning_allocations_comp_CL payments_comp_workaround in Scala
+export_code winning_allocations_alg_CL payments_alg_workaround in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 file "code/generated/CombinatorialVickreyAuction.scala"
 
