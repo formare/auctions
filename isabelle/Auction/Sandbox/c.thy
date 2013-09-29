@@ -501,6 +501,8 @@ using l39 l41 assms by metis
 *)
 
 definition update where "update P Q = P +* (Q || (Domain P))"
+(*MC: no longer used, but possibly interesting: behaves like +* (paste), but
+without enlarging P's Domain. Compare with fun_upd *)
 
 notation update (infix "+^" 75)
 

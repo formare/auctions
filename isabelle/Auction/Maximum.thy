@@ -223,8 +223,7 @@ qed
 rather than doing our own recursion to calculate argmax *)
 
 definition filterpositions 
-(* Non(directly)recursive function generalizing max_positions, 
-probably less efficient. 
+(*Non(directly)recursive generalization for max_positions, possibly less efficient.
 Given a list l, yields the indices of its elements which satisfy a given pred P*)
 :: "('a => bool) => 'a list => nat list"
 where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))"
@@ -315,6 +314,7 @@ lemma map_commutes: fixes f::"'a => 'b"
 fixes Q::"'b => bool" fixes xs::"'a list" shows
 "[ f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]"
 proof -
+(* MC: There must surely be a much better proof for this simple fact *)
   fix f::"'a => 'b" fix Q
   let ?g="\<lambda>n. (if Q (f n) then [f n] else [])"
   let ?lh="%l . concat (map ?g l)" let ?rh="%l . filter Q (map f l)"
@@ -359,9 +359,9 @@ qed
 
 theorem argmaxadequacy: 
 (* MC: RHS of thesis should formally reassure about what argmax does.
-I didn't use it directly as definition of the latter (both appear 
+I didn't use it directly as a definition of the latter (both appear 
 to be computable) because I find filterpositions of independent interest*)
-fixes f::"'a => ('b::linorder)"  fixes l::"'a list" shows 
+fixes f::"'a => ('b::linorder)" fixes l::"'a list" shows 
 "argmax f l = [ x <- l. f x \<ge> Max (f`(set l))]"
 proof -
   let ?lh="argmax f l" let ?P="% y::('b::linorder) . y \<ge> Max (f`(set l))"
@@ -374,3 +374,4 @@ proof -
 qed
 
 end
+
