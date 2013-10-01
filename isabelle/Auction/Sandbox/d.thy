@@ -13,31 +13,9 @@ See LICENSE file for details
 
 theory d
 
-imports c SEQ 
+imports c SEQ SupInf
 
 begin
-
-lemma ll16: shows "(P +* Q) outside (Domain Q) \<supseteq> P outside (Domain Q)" 
-using assms paste_def Outside_def l38 l37 ll51 by (smt Un_commute Un_upper2)
-
-lemma ll17: shows "Domain (P outside (X \<union> Domain P)) \<subseteq> {}" 
-by (metis Diff_subset_conv Un_upper2 le_supI1 outside_reduces_domain)
-
-lemma ll18: shows "P outside (X \<union> Domain P)={}" using ll17 by fast
-
-lemma ll19: shows "(P +* Q) outside (X \<union> Domain Q) = 
-P outside (X \<union> Domain Q)" using assms paste_def ll51 ll52 ll18 
-(* by (metis outside_union_restrict restrict_empty sup.right_idem)*)
-by (metis (hide_lams, no_types) empty_subsetI le_sup_iff subset_refl sup_absorb1 sup_absorb2)
-
-definition cartesian where 
-(*TODO@MC: make apply cartesian to Domain a, rather than to a itself 
-Also consider moving i as an argument: cartesian i a = ...
-*) 
-"cartesian a = (\<forall> b i y. ((b \<in> Domain a 
-& i \<in> Domain b)
-(*& Domain b = Domain bb*)
-\<longrightarrow> b +* ({i} \<times> {y}) \<in> Domain a))"
 
 lemma ll57: fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
 using assms by (metis real_scaleR_def real_vector.scale_right_diff_distrib)
@@ -56,6 +34,33 @@ some order and topology will be sufficient to prove Maskin2.
 Mathematically, this is probably the most interesting issue;
 not sure whether there is enough Isabelle library
 to tackle that, so for the moment let's stick to \<rat>, \<real>. *)
+
+definition effic 
+::"allocation => allocation => (bid => (index \<times> allocation) set) => bool"
+where
+"effic a1 a2 A=(\<forall> b::bid. b \<noteq> {} \<longrightarrow>
+(Range(A b)\<subseteq>{a1,a2} & b``((A b)^-1``{a2})={Sup(Range b)}))"
+
+(*
+definition weakefficient where "weakefficient a i b v a1 a2= 
+(\<exists> v1 v2. (v1 ----> v) & (v2 ----> v) &
+(%j. (a,,(b+*({i}\<times>{v1 j}))))=(%j. a1) & (%j. (a,,(b+*({i}\<times>{v2 j}))))=(%j. a2))"
+*)
+
+definition weakefficient where "weakefficient a i b v a1 a2= 
+(\<exists> v1 v2.( (v1 ----> v) & (v2 ----> v) &
+((%j. (a``{b+*({i}\<times>{v1 j})}))=(%j. {a1})) & 
+((%j. (a``{b+*({i}\<times>{v2 j})}))=(%j. {a2}))))"
+
+lemma ll29: fixes M::real shows 
+"EX p1 p2. p1 ----> M & p2 ----> M & (\<forall>j. p1 j < M & p2 j > M)"
+using assms
+proof -
+let ?eps="%n. inverse(real(Suc n))" let ?e1="(%n. M+-?eps n)" let ?e2="(%n. M+?eps n)" 
+have "?e2 ----> M" using LIMSEQ_inverse_real_of_nat_add by force
+moreover have "?e1 ----> M" using LIMSEQ_inverse_real_of_nat_add_minus by fast
+ultimately show ?thesis by force
+qed
 
 definition weakdomgen
 (* ::"index => (bid \<times> allocation) set => (bid \<times> price) set => bool" *)
@@ -85,9 +90,7 @@ What about Isabelle? *)
 definition dom2 where "dom2 i a p = 
 (EX f::(price set => allocation => price). \<forall> b::bid. \<forall> Y. ({b, b+*({i}\<times>Y)} \<subseteq> (Domain a \<inter> (Domain p)) & i \<in> Domain b
 \<longrightarrow>
-(f Y (a,, b))-(p,, b) \<le> (f Y (a,, (b+* ({i}\<times>Y)))) - (p,, (b+* ({i}\<times>Y)))
-)
-)"
+(f Y (a,, b))-(p,, b) \<le> (f Y (a,, (b+* ({i}\<times>Y)))) - (p,, (b+* ({i}\<times>Y)))))"
 (* Stronger than above: we require that the function to obtain y 
 is independent of b and Y *)
 
@@ -101,11 +104,12 @@ definition dom4 where "dom4 i a p = (
 v*(a,,b)-(p,,b) \<le> v*(a,,(b+*({i}\<times>{v})))-(p,,(b+*({i}\<times>{v}))))"
 
 definition functional where "functional X = (\<forall>x \<in> X. runiq x)"
+(*MC: Alternatively, say X \<subseteq> runiqs *)
 
 lemma ll23: assumes "functional (Domain a)" assumes "dom4 i a p" shows "weakdom i a p" 
 proof -
 let ?d=Domain let ?u=runiq let ?t=trivial 
-  {
+{
   fix b::bid fix Y let ?bv="b+*({i}\<times>Y)" let ?v="the_elem Y" let ?y="%x. ?v*x" assume 
   1: "Y\<noteq>{} & {b, ?bv}\<subseteq>(?d a \<inter>(?d p)) & i\<in>?d b" then have 
   "{i} \<subseteq> ?d ({i}\<times>Y)" by blast then have 
@@ -245,7 +249,7 @@ definition quotientbid where "quotientbid i a = part2rel (kernel (reducedbid i a
 
 definition Quotientbid where "Quotientbid i a = projector (quotientbid i a)"
 
-lemma ll09: fixes i a shows "Domain (reducedbid i a) = Domain a 
+corollary ll09: fixes i a shows "Domain (reducedbid i a) = Domain a 
 & Domain a=Domain (quotientbid i a) 
 & Domain a = Domain (projector (quotientbid i a))
 & runiq (reducedbid i a)"
@@ -258,72 +262,7 @@ moreover have "runiq ?b" using reducedbid_def l14 by force
 ultimately show ?thesis by presburger
 qed
 
-lemma ll10: shows "trivial {x}" by (metis order_refl the_elem_eq trivial_def)
-
-lemma ll11: assumes "trivial X" "{x} \<subseteq> X" shows "{x}=X" 
-using singleton_sub_trivial_uniq assms by (metis subset_antisym trivial_def)
-
-lemma ll12: fixes f::"('a \<times> 'b) set" assumes "runiq f" shows 
-"Range (projector (f^-1)) = Range (projector (part2rel (kernel f)))"
-(is "?A=?B")
-proof -
-(*TODO@MC: modularize & clean this proof *)
-let ?r=Range let ?d=Domain let ?pp=projector let ?cc=part2rel let ?kk=kernel
-let ?k="%R. {R^-1 `` {y}| y. y\<in> ?r R}"
-let ?p="%R. {(x,R``{x})|x. x \<in> Domain R}"
-let ?c="%X. \<Union> ((% x . (x \<times> x)) ` X)"
-let ?ck="%R. {(x1, x2)|x1 x2 . EX y. {x1,x2} \<subseteq> R^-1``{y}}"
-let ?if="f^-1"
-let ?RH="{(x, f^-1``(f``{x}))| x::'a. x\<in>?d f}"
-let ?LH="{(y, f^-1``{y})|y. y\<in> ?r f}"
-let ?L="{f^-1``{y}|y. y\<in> ?r f}"
-let ?R="{f^-1``(f``{x})|x. x\<in>?d f}"
-have "?L={f^-1``z|z. EX y. y\<in>?r f & z={y}}" by auto
-moreover have "...={f^-1``zz|zz. zz\<in>{z. EX y. y\<in>?r f & z={y}}}" by auto
-ultimately have
-11: "?L={f^-1``zz|zz. zz\<in>{z. EX y. y\<in>?r f & z={y}}}" by presburger
-have "?R={f^-1``z|z. EX x. x\<in>?d f & z=f``{x}}" by blast
-moreover have "...={f^-1``zz|zz. zz\<in>{z. EX x. x\<in>?d f & z=f``{x}}}" by auto
-ultimately have
-12: "?R={f^-1``zz|zz. zz\<in>{z. EX x. x\<in>?d f & z=f``{x}}}" by presburger
-have 
-2: "\<forall>y. (y\<in>?r f \<longleftrightarrow> (EX x.(x\<in>?d f & {y} \<subseteq> f``{x})))" using assms 
-by auto
-moreover have 
-3: "\<forall>x y. {y} \<subseteq> f``{x} \<longrightarrow> {y}=f``{x}" using assms runiq_def ll10 ll11 by metis
-ultimately have 
-"\<forall>y. (y\<in>?r f \<longleftrightarrow> (EX x.(x\<in>?d f & {y} = f``{x})))" by blast
-then have "{z. EX y. y\<in>?r f & z={y}} = 
-{z. EX x y. x\<in>?d f & y\<in>?r f & z={y} & {y}=f``{x}}" by auto
-moreover have "... = {z. EX x y. x\<in>?d f & z = f``{x}}" using 3 by fast
-moreover have "{z. EX x y. x\<in>?d f & z = f``{x}} = {z. EX x . x\<in>?d f & z = f``{x}}" 
-by auto
-ultimately have "{z. EX y. y\<in>?r f & z={y}}={z. EX x. x\<in>?d f & z=f``{x}}" by presburger
-hence 
-4: "?L=?R" using 11 12 by presburger have 
-1: "?pp=?p" using  projector_def by metis
-then have "?A=?r (?p ?if)" by (rule HOL.arg_cong)
-moreover have "... = ?L" by auto ultimately have 
-5: "?L=?A" by presburger
-have "?kk=?k" using ll65 by metis
-moreover have "?cc=?c" using part2rel_def by auto
-ultimately have "?B=?r(?p (?c (?k f)))" using 1 by metis
-moreover have "?ck f = (?c (?k f))" using ll01 by auto
-moreover have "?R=?r (?p (?ck f))" by auto
-ultimately have "?B=?R" by presburger
-thus ?thesis using 4 5 by presburger
-qed
-
-lemma ll13: shows "Domain (projector R)=Domain R" 
-proof -
-let ?d=Domain let ?p="%R. {(x,R``{x})|x. x \<in> ?d R}"
-have "?d (?p R)=?d R" by blast thus ?thesis using projector_def by metis
-qed
-
-lemma ll14: assumes "x\<in>Domain f" "runiq f" shows "f,,x \<in> Range f"
-using assms by (metis Range_iff eval_runiq_rel)
-
-lemma ll15: shows "quotient p (quotientbid i a) Id = 
+corollary ll15: shows "quotient p (quotientbid i a) Id = 
 (projector (quotientbid i a))^-1 O p O (projector Id)"
 using ll63 by (metis R_O_Id comp_equivI converse_Id ll09 ll78 quotientbid_def)
 
@@ -378,15 +317,15 @@ ultimately show ?thesis using ll95 by metis
 qed
 
 corollary ll08: fixes a b i p
-assumes "runiq (quotient p (quotientbid i a) Id)"
-"runiq p"
-"b \<in> Domain a" "Domain a \<subseteq> Domain p"
-shows
-"p,,b = 
+(* the point is that reducedprice p i a depends on a pair 
+(b outside {i}, a ,, b) , given by reducedbid i a ,, b ;
+hence it no longer depends on the whole bid vector b *)
+assumes "runiq (quotient p (quotientbid i a) Id)" "runiq p" "b \<in> Domain a" "Domain a \<subseteq> Domain p"
+shows "p,,b = 
 ((projector ((reducedbid i a)^-1)) O (quotient p (quotientbid i a) Id) O ((projector Id)^-1))
 ,, (reducedbid i a,,b)"
 proof -
-(*TODO@MC: modularize&clean *)
+(* TODO@MC: modularize&clean *)
 let ?u=runiq let ?t=trivial let ?k=kernel let ?c=part2rel let ?i="Graph id"
 let ?d=Domain let ?r=Range let ?G=Graph let ?g=graph let ?p=projector
 let ?b="reducedbid i a" let ?B="quotientbid i a" let ?q=quotient
@@ -397,20 +336,16 @@ hence "?PP=(?p (?b^-1)) O (?p ?B)^-1 O p O (?p Id)" by presburger
 hence "?P=?PPP O (?p Id) O ((?p Id)^-1)" by auto
 also have "...=?PPP" using ll96 by (metis R_O_Id) ultimately have 
 3: "?P=?PPP" by force moreover have 
-0: "?r (?p (?b^-1))=?d ((?p ?B)^-1)" using ll12 quotientbid_def ll09
-by (metis Domain_converse)
+0: "?r (?p (?b^-1))=?d ((?p ?B)^-1)" using ll12 quotientbid_def ll09 by (metis Domain_converse)
 ultimately have "?r ((?p (?b^-1)) O (?p ?B)^-1) = ?r((?p ?B)^-1)" by blast
-moreover have "... = ?d (?p ?B)" by auto
-moreover have "... = ?d ?B" using ll09 by auto
+moreover have "... = ?d (?p ?B)" by auto moreover have "... = ?d ?B" using ll09 by auto
 moreover have "... = ?d ?b" using quotientbid_def ll09 by metis
 moreover have "... = ?d a" using reducedbid_def ll09 by metis
 ultimately have 
 1: "?d (?p ?B)=?d a & ?d ?b=?d a & ?r ((?p (?b^-1)) O (?p ?B)^-1) \<subseteq> ?d p" 
-using assms by presburger
-hence "?d ?PPP=?d ((?p (?b^-1)) O (?p ?B)^-1)" by blast
+using assms by presburger hence "?d ?PPP=?d ((?p (?b^-1)) O (?p ?B)^-1)" by blast
 also have "... = ?d (?p (?b^-1))" using 0 by blast
-also have "... = ?d (?b^-1)" using ll13 by metis
-also have "... = ?r ?b" by simp
+also have "... = ?d (?b^-1)" using ll13 by metis also have "... = ?r ?b" by simp
 have "b \<in> ?d ?b & ?u ?b" using assms 1 ll09 by simp then
 moreover have "?b,,b \<in> ?r ?b" using ll14 by metis ultimately have 
 2: "?b,,b \<in> ?d ?PPP" by simp have 
@@ -441,11 +376,22 @@ off the braces from a singleton: {x} \<longmapsto> x *)
 (* Old def: "reducedprice p i a = ((reducedbid i a)^-1) O (Quotientbid i a) O 
 (quotient p (quotientbid i a) (Graph id)) O (Graph the_elem)" *)
 
+definition cartesian where 
+(*TODO@MC: make apply cartesian to Domain a, rather than to a itself 
+Also consider moving i as an argument: cartesian i a = ...*) 
+"cartesian X R x = (\<forall>y. (R+*({x}\<times>{y})\<in>X))"
+(*
+"cartesian a = (\<forall> b i y. ((b \<in> Domain a 
+& i \<in> Domain b)
+(*& Domain b = Domain bb*)
+\<longrightarrow> b +* ({i} \<times> {y}) \<in> Domain a))"
+*)
+
 lemma ll06: fixes v::price fixes k::allocation 
 fixes v1::"nat => price" fixes v2 i a p b 
 assumes 
-"cartesian a" 
-"cartesian p"
+"cartesian (Domain a) b i" 
+"cartesian (Domain p) b i"
 "i \<in> Domain b" 
 "b \<in> Domain a \<inter> (Domain p)" "dom4 i a p" "v1 ----> v" "v2 ----> v"
 assumes "(%j . a,, (b +* {i}\<times>{v2 j}) - a,, (b +* {i}\<times>{v1 j})) ----> k" 
@@ -508,11 +454,6 @@ eventually (\<lambda>n. ?g n \<le> ?h n) sequentially" by fastforce hence "?g --
 using assms real_tendsto_sandwich 10 11 by fast thus ?thesis by force
 qed
 
-definition weakefficient where "weakefficient a i b v a1 a2= 
-(\<exists> v1 v2. (v1 ----> v) & (v2 ----> v) &
-(%j . (a ,, (b +* ({i} \<times> {v1 j}) ))) = (%j . a1) &
-(%j . (a ,, (b +* ({i} \<times> {v2 j}) ))) = (%j . a2))" 
-
 lemma ll20: fixes a b i assumes "b \<in> Domain a" shows 
 "reducedbid i a,,b=(Domain b, b outside {i}, a,,b)"
 proof -
@@ -525,12 +466,12 @@ qed
 lemma ll22: assumes 
 "weakefficient a i b v a1 a2" 
 "b \<in> Domain a" 
-"cartesian a" 
+"cartesian (Domain a) b i"
 "i \<in> Domain b" 
 "runiq p"  
 "Domain a \<subseteq> Domain p"
 "runiq (quotient p (quotientbid i a) Id)"
-"cartesian p" 
+"cartesian (Domain p) b i" 
 "dom4 i a p"
 shows 
 "reducedprice p i a ,, (Domain b, b outside {i}, a2) = v * (a2 - a1) + 
@@ -541,26 +482,45 @@ proof -
 let ?k="a2-a1" let ?d=Domain let ?I="?d b" let ?bb="b outside {i}" let ?u=runiq
 let ?q=quotient let ?p=projector let ?b="reducedbid i a" let ?B="quotientbid i a"
 let ?P="((?p (?b^-1)) O (?q p ?B Id) O ((?p Id)^-1))"
+
+obtain v1 where 
+21: "(v1 ----> v) & ((%j. (a``{b+*({i}\<times>{v1 j})}))=(%j. {a1}))
+" using assms weakefficient_def by metis 
+obtain v2 where 
+22: "(v2 ----> v) & ((%j. (a``{b+*({i}\<times>{v2 j})}))=(%j. {a2}))
+" using weakefficient_def assms by metis
+let ?b2="%j. b +* {i} \<times> {v2 j}"
+let ?b1="%j. b +* {i} \<times> {v1 j}"
+{ 
+  fix j have "a``{?b1 j}={a1} & a``{?b2 j}={a2}" using 21 22 by metis
+  hence "a,,?b1 j=a1 & a,,?b2 j=a2" using eval_rel_def by auto
+}
+then have 
+20: "((%j. a,,(?b1 j))=(%j. a1)) & 
+((%j. a,,(?b2 j))=(%j. a2))" by presburger
+(*
 obtain v1 v2 where 
 0: "(v1 ----> v) & (v2 ----> v) &
 (%j . (a ,, (b +* {i}\<times>{v1 j}))) = (%j . a1) &
 (%j . (a ,, (b +* {i}\<times>{v2 j}))) = (%j . a2)"
 using assms weakefficient_def by metis
 let ?b2="%j. b +* {i} \<times> {v2 j}"
-let ?b1="%j. b +* {i} \<times> {v1 j}" have 
-4: "\<forall>j. (a,,?b1 j=a1 & a,,?b2 j=a2)" using 0 by metis
+let ?b1="%j. b +* {i} \<times> {v1 j}" 
+*)
 have 
-3: "b \<in> ?d a & cartesian a & i \<in> ?d b & ?u p & ?d a \<subseteq> ?d p
+4: "\<forall>j. (a,,?b1 j=a1 & a,,?b2 j=a2)" using 20 by metis
+have 
+3: "b \<in> ?d a & cartesian (Domain a) b i & i \<in> ?d b & ?u p & ?d a \<subseteq> ?d p
 & ?u (?q p ?B Id)" using assms by blast
 have "\<forall>j.(a,,(?b2 j)-(a,,(?b1 j))=?k)" using 4 by fast
 have "((%j. (a,, (?b2 j) - a,, (?b1 j)))) ----> ?k"
 using tendsto_const 4 by auto
-also have "cartesian p & dom4 i a p" 
+also have "cartesian (Domain p) b i & dom4 i a p" 
 (*  "i \<in> ?d b" "v1 ----> v" "v2 ----> v" "b \<in> ?d a \<inter> (?d p)"*)
 using assms by fast
 ultimately have 
 1: "(%j. (p,, (?b2 j) - (p,, (?b1 j)))) ----> v*?k"
-using 3 ll06 assms 0 by blast
+using 3 ll06 assms 21 22 by blast
 {
   fix j 
   have "?d ({i} \<times> {v1 j})={i} & ?d ({i} \<times> {v2 j})={i}" by force then have 
@@ -604,7 +564,8 @@ qed
 
 corollary ll24: assumes 
 "weakefficient a i b v a1 a2" 
-"i \<in> Domain b" "b \<in> Domain a" "cartesian a" "cartesian p" "runiq p"  
+"i \<in> Domain b" "b \<in> Domain a" "cartesian (Domain a) b i" 
+"cartesian (Domain p) b i" "runiq p"  
 "Domain a \<subseteq> Domain p" "dom4 i a p" "functional (Domain a)"
 shows
 "reducedprice p i a ,, (Domain b, b outside {i}, a2) = 
@@ -617,7 +578,43 @@ hence "runiq (quotient p (quotientbid i a) Id)" using quotientbid_def by simp
 thus ?thesis using ll22 assms by auto
 qed
 
-corollary (*MC: MASKIN's theorem 2 as a corollary of ll24 and ll08 *)
+
+lemma ll38: assumes "runiq f" shows "cartesian runiqs f x"
+proof -
+let ?U=runiqs let ?u=runiq let ?g=graph let ?c=cartesian
+{
+  fix y::'b have "?u (f+*({x}\<times>{y}))"  
+  using assms runiq_singleton_rel runiq_paste2 by fastforce
+  hence "f +* ({x}\<times>{y})\<in>?U" using runiqs_def by fast
+}
+thus ?thesis using cartesian_def by fast
+qed
+
+corollary ll39: assumes "runiq f" shows "cartesian (Domain (graph runiqs F)) f x"
+using ll38 ll37 assms by metis
+
+lemma ll35: assumes "runiq F" "f \<subseteq> F" "weakefficient f i b v a1 a2" 
+shows "weakefficient F i b v a1 a2" using weakefficient_def 
+proof -
+let ?w=weakefficient let ?t=trivial let ?I="{i}" obtain v1 where 
+1: "(v1 ----> v) & ((%j. (f``{b+*({i}\<times>{v1 j})}))=(%j. {a1}))
+" using assms weakefficient_def by metis obtain v2 where 
+2: "(v2 ----> v) & ((%j. (f``{b+*({i}\<times>{v2 j})}))=(%j. {a2}))
+" using weakefficient_def assms by metis
+let ?b1="%j. b+*(?I \<times> {v1 j})" let ?b2="%j. b+*(?I \<times> {v2 j})"
+{
+  fix j have "f``{?b1 j} \<subseteq> F``{?b1 j} & f``{?b2 j} \<subseteq> F``{?b2 j}" 
+  using assms by blast  moreover have "?t (F``{?b1 j}) & ?t (F``{?b2 j})" 
+  using assms runiq_def trivial_singleton by fast  ultimately have 
+  "f``{?b1 j}=F``{?b1 j} & f``{?b2 j}=F``{?b2 j}" using 1 2 ll11 by metis
+  then have "F``{?b1 j}={a1} & F``{?b2 j}={a2}" using 1 2 by metis
+}
+hence "((%j. (F``{b+*({i}\<times>{v1 j})}))=(%j. {a1})) & 
+((%j. (F``{b+*({i}\<times>{v2 j})}))=(%j. {a2}))" by presburger
+thus ?thesis using weakefficient_def 1 2 by force
+qed 
+
+corollary ll31: (*MC: MASKIN's theorem 2 as a corollary of ll24 and ll08 *)
 (*MC: In the canonical (Maskin's paper) case, i=argmax b, 
 a=delta (j,i), a1=0 and a2=1; this particular case of course happens to satisfy
 weakefficient request below upon setting v=max (b outside {i}), and expresses 
@@ -625,11 +622,13 @@ the property that "the high bidder must win" (quoting Maskin's paper).
 dom4 is weak dominance *)
 assumes
 "weakefficient a i b v a1 a2" 
-"i \<in> Domain b" "b \<in> Domain a" "cartesian a" "cartesian p" "runiq p"  
+"i \<in> Domain b" "b \<in> Domain a" "cartesian (Domain a) b i" 
+"cartesian (Domain p) b i" "runiq p"  
 "Domain a \<subseteq> Domain p" "dom4 i a p" "functional (Domain a)"
 shows
-"a,,b=a1 \<longrightarrow> p,,b=reducedprice p i a,,(Domain b, b outside {i}, a1) & 
-a,,b=a2 \<longrightarrow> p,,b = v*(a2-a1) + (reducedprice p i a ,, (Domain b, b outside {i}, a1))"
+"((a,,b=a1) \<longrightarrow> (p,,b=reducedprice p i a,,(Domain b, b outside {i}, a1))) & 
+((a,,b=a2) \<longrightarrow> (p,,b = v*(a2-a1) + 
+(reducedprice p i a ,, (Domain b, b outside {i}, a1))))"
 proof -
 let ?P="reducedprice p i a" let ?b="reducedbid i a" let ?d=Domain 
 let ?bb="b outside {i}" let ?I="?d b"
@@ -640,13 +639,221 @@ hence "runiq (quotient p (quotientbid i a) Id)" using quotientbid_def by simp
 hence 
 0: "p,,b=?P,,(?b,,b)" using assms ll08 by (metis reducedprice_def)
 also have "... = ?P,,(?I, ?bb, a,,b)" using ll20 assms by auto
-ultimately have "a,,b=a1 \<longrightarrow> p,,b=?P,,(?I, ?bb, a1)" by presburger
+ultimately have "(a,,b=a1) \<longrightarrow> (p,,b=?P,,(?I, ?bb, a1))" by presburger
 have "?P,,(?I, ?bb, a2)=v*(a2 - a1) + ?P,,(?I,?bb, a1)" using assms ll24 by blast
-then moreover have "a,,b=a2 \<longrightarrow> p,,b=v*(a2 - a1) + ?P,,(?I,?bb, a1)" using 0 by (metis (full_types) `reducedprice p i a ,, (reducedbid i a ,, b) = reducedprice p i a ,, (Domain b, b outside {i}, a ,, b)`)
-finally show ?thesis by fastforce
+then moreover have "(a,,b=a2) \<longrightarrow> (p,,b=v*(a2 - a1) + ?P,,(?I,?bb, a1))" 
+using 0 by (metis (full_types) `reducedprice p i a ,, (reducedbid i a ,, b) = reducedprice p i a ,, (Domain b, b outside {i}, a ,, b)`)
+ultimately show ?thesis by (metis (hide_lams, no_types) "0" `reducedprice p i a ,, (reducedbid i a ,, b) = reducedprice p i a ,, (Domain b, b outside {i}, a ,, b)`)
 qed
 
-(* bigskip
+lemma ll30: fixes A::"bid => ((index \<times> allocation) set)" 
+fixes a1::allocation fixes b::bid 
+fixes i v a2 fixes P::price
+assumes "a1 \<noteq> a2"
+"\<forall>y.(Domain(A (b+*({i}\<times>{y}))) = Domain b & 
+(* (y > (Sup (Range (b outside {i}))) \<longrightarrow> *)
+runiq (A (b +* ({i}\<times>{y}))))
+(* ) *)
+"
+"effic a1 a2 A" "i \<in> Domain b" "v=Sup(Range(b outside {i}))"
+"Range (b outside {i}) \<noteq> {}" 
+"(\<forall> y\<in>(Range (b outside {i})). y \<le> P)"
+shows "weakefficient (graph {b +* {i} \<times> {y}|y. True} (%b. ((A b),,i))) i b v a1 a2"
+proof -
+let ?af="%b. (A b,,i)" let ?G=Graph let ?a="?G ?af" let ?I="{i}" let ?u=runiq
+let ?bb="b outside ?I" let ?r=Range let ?M="Sup (?r ?bb)" let ?d=Domain 
+let ?B="{b +* ?I \<times> {y}|y. True}" let ?GG="graph ?B ?af"
+let ?GGG="{(x, ?af x)|x. x\<in>?B}"
+have
+0: "?r ?bb \<noteq> {} & (\<forall> y\<in>(?r ?bb). y \<le> P)" using assms by blast
+obtain v1 v2 where 
+1: "v1 ----> ?M & (\<forall> j.(v1 j < ?M)) & v2 ----> ?M & (\<forall> j.(v2 j > ?M))" using ll29 by blast
+{
+  fix j 
+  let ?b1="b+*(?I \<times> {v1 j})" let ?b2="b+*(?I \<times> {v2 j})" have 
+  20: "?u (A ?b1) & ?u (A ?b2)" using assms 1 by blast have
+  "?b1 \<in> ?B & ?b2 \<in> ?B" by blast then have 
+  22: "?GG,,?b1=?af ?b1 & ?GG,,?b2=?af ?b2" using ll33 by smt  
+  have "?d ?b1=?d b \<union> (?d (?I \<times> {v1 j}))" using paste_Domain by metis
+  also have "... = ?d b" using assms by blast
+  also have "... = ?d b \<union> (?d (?I \<times> {v2 j}))" using assms by blast
+  also have "... = ?d ?b2" using paste_Domain by metis
+  ultimately have 
+  4: "?d (A ?b1)=?d ?b1 & ?d (A ?b2) \<subseteq> ?d ?b2" using assms by auto
+  have "{i} \<subseteq> ?d (?I \<times> {v1 j})" by blast also have " ... \<subseteq> ?d ?b1" 
+  using paste_def by blast ultimately have 
+  11: "i \<in> ?d ?b1" by fast
+  have "?d (?I \<times> {v2 j})=?I" by force then
+  have "?b2``(?I-{})= (?I \<times> {v2 j})``(?I-{})" using ll25 by metis
+  also have "... = {v2 j}" by fast ultimately have 
+  3: "?b2``?I={v2 j} & ?b2 \<noteq>{}" by auto have 
+  8: "v1 j < ?M & v2 j > ?M" using 1 by fast then have 
+  2: "max (v2 j) ?M=v2 j & max (v1 j) ?M=?M" by linarith 
+  have "?r ?b2 = ?r ?bb \<union> (?r (?I \<times> {v2 j})) " using paste_def by auto
+  also have "... = ?r ?bb \<union> {v2 j}" by simp 
+  also have "... = insert (v2 j) (?r ?bb)" by auto
+  ultimately have "Sup (?r ?b2)=max (v2 j) ?M" using 0 Sup_insert_if by metis
+  also have "... = v2 j" using 2 by fastforce
+  ultimately have "?b2``?I={Sup (?r ?b2)}" using 3 by presburger
+  then moreover have "?b2^-1``{Sup (?r ?b2)} \<supseteq> ?I" by blast
+  moreover have 
+  5: "{Sup(?r ?b2)} = ?b2``((A ?b2)^-1``{a2})" using assms effic_def 3 by smt
+  moreover have 
+  12: "v2 j \<notin> ?r ?bb" using 8 2 by 
+  (metis Un_commute Un_empty_right `Range (b +* {i} \<times> {v2 j}) = 
+Range (b outside {i}) \<union> {v2 j}` `Sup (Range (b +* {i} \<times> {v2 j})) = max (v2 j) (Sup (Range (b outside {i})))` insert_absorb insert_def less_irrefl)
+  moreover have "?d (?I \<times> {v2 j})=?I" by simp then
+  moreover have "?b2^-1``{v2 j} = ?bb^-1``{v2 j} \<union> (?I \<times> {v2 j})^-1``{v2 j}" using paste_def by auto
+  moreover have "... = ?I" using 12 by fast
+  ultimately have 
+  6: "?b2^-1``{Sup(?r ?b2)} = ?I" using 3 by metis
+  have "(A ?b2)^-1``{a2} \<subseteq> ?b2^-1 `` (?b2``((A ?b2)^-1``{a2}))" using 4 by fast
+  also have "... = ?b2^-1``{Sup (?r ?b2)}" using 5 by presburger
+  ultimately have "(A ?b2)^-1``{a2} \<subseteq> ?I & (A ?b2)^-1``{a2} \<noteq> {}" 
+  using 5 6 by fast
+  hence "(A ?b2)^-1``{a2}=?I" by blast
+  hence "{a2} \<subseteq> (A ?b2)``?I" by fast
+  (* MC: bring this out of this cycle *) 
+  hence "(A ?b2)``?I = {a2}" using 20 
+  by (metis `(A (b +* {i} \<times> {v2 j}))\<inverse> \`\` {a2} = {i}` ll71 subset_antisym)
+  (*MC: "{a2}=(A ?b2)``?I" makes this deduction much harder: = is not effectively commutative :) *)
+  moreover have "(A ?b2)``?I={?af ?b2}" by (metis "20" Image_runiq_eq_eval assms(2) assms(4))  
+  moreover have "... = ?GGG``{?b2}" using ll88 by blast ultimately have 
+  15: "?GG``{?b2}={a2}" using graph_def by metis
+(*
+  then have "a2=?af ?b2" by fastforce 
+  also have "... = ?GG,,?b2" using 22 by presburger ultimately have 
+  15: "?GG,,?b2=a2" by presburger
+  then have "A ?b2,,i=a2" by fastforce 
+  also have "?a,,?b2=?af ?b2" using ll28 by metis ultimately have 
+  15: "?a,,?b2 = a2" by fastforce
+*)
+  have "?r ?b1 = ?r ?bb \<union> (?r (?I \<times> {v1 j})) " using paste_def by auto
+  also have "... = ?r ?bb \<union> {v1 j}" by simp 
+  also have "... = insert (v1 j) (?r ?bb)" by auto
+  ultimately have "Sup (?r ?b1)=max (v1 j) ?M" using Sup_insert_if 0 by metis then
+  have "{v1 j} \<noteq> {Sup (?r ?b1)}" using 8 by force
+  also have "?d (?I \<times> {v1 j})=?I" by blast then
+  moreover have "?b1``(?I-{})=(?I \<times> {v1 j})``(?I-{})" using ll25 by metis
+  ultimately have "\<not> {i} \<subseteq> ?b1^-1``{Sup (?r ?b1)}" by force
+  moreover have 
+  14: "?b1 \<noteq> {}" using paste_def by auto then 
+  moreover have "?b1^-1``{Sup (?r ?b1)} = ?b1^-1``(?b1``((A ?b1)^-1``{a2}))" 
+  using assms effic_def paste_def by force
+  moreover have "... \<supseteq> (A ?b1)^-1``{a2}" using 4 by blast
+  ultimately have "i \<notin> (A ?b1)^-1``{a2}" by fast
+  moreover have 
+  13: "i \<in> ?d (A ?b1)" using 4 assms by metis
+  ultimately have "A ?b1``?I \<subseteq> ?r (A ?b1) - {a2}" by fast
+  moreover have "... \<subseteq> {a1, a2} - {a2}" using assms effic_def 14 
+  by blast
+  also have "...={a1}" using assms(1) by fast
+  also have "i \<in> ?d (A ?b1)" using 4 assms 11 by blast
+  ultimately have "A ?b1``?I = {a1}" using 4 assms by blast
+  moreover have "(A ?b1)``?I={?af ?b1}" by (metis "20" Image_runiq_eq_eval assms(2) assms(4))  
+  moreover have "... = ?GGG``{?b1}" using ll88 by blast ultimately have 
+  "?GG``{?b1}={a1} & ?GG``{?b2}={a2}" using 15 graph_def by metis
+(*
+  then have "a1=?af ?b1" by fastforce
+  also have "... = ?GG,,?b1" using 22 by presburger
+  ultimately have "?GG,,?b1=a1 & ?GG,,?b2=a2" using 15 by presburger
+  then have "?a,,?b1=a1" using ll28 by (metis RelationOperators.eval_rel.simps the_elem_eq)
+  then have "?a,,?b1=a1 & ?a,,?b2=a2" using 15 by blast
+*)
+}
+hence "(%j. (?GG``{b+*({i}\<times>{v1 j})}))=(%j. {a1})
+& (%j. (?GG``{b+*({i}\<times>{v2 j})}))=(%j. {a2})" by presburger
+(* hence "(%j. (?GG,,(b+*({i}\<times>{v1 j}))))=(%j. a1)
+& (%j. (?GG,,(b+*({i}\<times>{v2 j}))))=(%j. a2)" by presburger
+*)
+thus ?thesis using 1 weakefficient_def assms by fastforce
+qed
+
+definition converter where "converter F i=graph runiqs (%b. (F b),,i)"
+
+corollary (* of ll30 and ll31 *)
+(*MC: A step towards a more familiar statement of Maskin2 theorem.
+A further improvement could be to get rid of converter, or
+to express it in a more comprehensible way.
+That object is needed because of the constant duality between 
+set-theoretical functions (aka graphs of relations)
+and type-theoretical ones (first-class \<lambda> abstractions)*)
+assumes 
+"effic 0 1 A"
+"i \<in> Domain b"
+"runiq b"
+"dom4 i (converter A i) (converter P i)"
+"\<forall> y\<in>(Range (b outside {i})). y \<le> M"
+"\<not> (trivial b)"
+"f = (%i. reducedprice (converter P i) i (converter A i))"
+"\<forall>y.(Domain(A (b+*({i}\<times>{y}))) = Domain b & runiq (A (b +* ({i}\<times>{y}))))"
+shows
+"((A b,,i=0)\<longrightarrow> (P b,,i=f i,,(Domain b,b outside {i},0))) &
+ ((A b,,i=1)\<longrightarrow> (P b,,i=f i,,(Domain b,b outside {i},0) + Sup(Range(b outside {i}))))"
+proof -
+let ?w=weakefficient let ?d=Domain let ?r=Range let ?z="0::nat" let ?o="1::nat"
+let ?u=runiq let ?g=graph let ?C=cartesian let ?t=trivial let ?U=runiqs
+let ?I="{i}" let ?B="{b +* ?I \<times> {y}|y. True}" let ?af="%b. A b,,i" 
+let ?bb="b outside ?I" let ?c=converter let ?a="?c A i" let ?p="?c P i"
+let ?pf="%b. P b,,i" let ?GG="graph ?B ?af" let ?v="Sup(?r(b outside {i}))"
+have "?d (b || ?I) = (?d b) \<inter> ?I" using ll41 by metis
+then have "?d (b||?I) \<subseteq> ?I & ?d ?bb = (?d b) - ?I" using ll42 by (metis Int_lower2)
+then have "?d ?bb \<inter> (?d (b || ?I))={}" by blast
+then have "?bb \<inter> (b||?I)={}" by fast
+hence "?bb=?bb \<union> (b||?I) - (b||?I)" by blast
+also have "... = b - (b||?I)" using outside_union_restrict by blast
+ultimately have "?bb=b - (b|| ?I)" by presburger
+moreover have "?t (b``?I)" using assms by (metis runiq_alt) then
+moreover have "?t (b||?I)" using ll40 ll29 trivial_singleton assms restrict_to_singleton
+by metis ultimately have "?bb \<noteq> {}" using ll26 assms by auto hence 
+2: "?r ?bb \<noteq> {}" by fast
+have "b \<in> {f. ?u f}" using assms by force also have "...=runiqs" using runiqs_def
+by blast also have  "...=?d ?a" using converter_def ll37 by metis
+ultimately have
+1: "?d ?a=runiqs & b \<in> ?d ?a & ?d ?p=runiqs" using converter_def ll37 by metis
+have "?a=graph runiqs ?af" using converter_def by fast
+have "\<forall>y. ?u (?I \<times> {y})" using runiq_singleton_rel by fastforce then
+have "\<forall>y. ?u (b +* (?I \<times> {y}))" using runiq_paste2 assms by metis
+then have "runiqs = ?B \<union> runiqs" using runiqs_def by blast
+moreover have "?g ?B ?af \<subseteq> ?g (?B \<union> runiqs) ?af" using ll34 by blast
+ultimately have "?GG \<subseteq> ?a" using converter_def by force
+moreover have "?u ?a" using ll37 converter_def by metis
+moreover have "?r ?bb \<noteq> {}" using 2 by auto
+then moreover have "?w ?GG i b ?v ?z ?o" using ll30 assms by auto
+ultimately have "?w ?a i b ?v ?z ?o" using ll35 by fastforce
+moreover have "i \<in> ?d b" using assms by force
+moreover have "b \<in> ?d ?a" using 1 by fastforce
+moreover have "?C (?d ?a) b i" using ll39 converter_def assms by metis
+moreover have "?C (?d ?p) b i" using ll39 converter_def assms by metis
+moreover have "?u ?p" using ll37 converter_def by metis
+moreover have "?d ?a \<subseteq> ?d ?p" using 1 by auto
+moreover have "dom4 i ?a ?p" using assms by fast
+moreover have "functional (?d ?a)" using 1 runiqs_def functional_def by fast
+ultimately have
+"
+((?a,,b=?z) \<longrightarrow> (?p,,b=reducedprice ?p i ?a,,(?d b, b outside {i}, ?z)))
+&
+((?a,,b=?o) \<longrightarrow> (?p,,b = ?v*(?o-?z) + 
+(reducedprice ?p i ?a ,, (Domain b, b outside {i}, ?z))))
+" 
+using ll31 assms by fastforce
+moreover have "?v*(?o-?z) = ?v" by fastforce
+moreover have "?a``{b} = ?g ?U ?af``{b}" using converter_def by fast
+moreover have "... = {(x, ?af x)|x. x\<in>?U}``{b}" using graph_def by force
+moreover have "...={?af b}" using assms runiqs_def 1 ll88 by blast
+moreover have "...={A b,,i}" by auto
+moreover have "?p``{b} = ?g ?U ?pf``{b}" using converter_def by fast
+moreover have "... = {(x, ?pf x)|x. x\<in>?U}``{b}" using graph_def by metis
+moreover have "...={?pf b}" using assms runiqs_def 1 ll88 by blast
+moreover have "...={P b,,i}" by auto
+moreover have "reducedprice ?p i ?a=f i" using assms by fast
+ultimately show ?thesis by force
+qed
+
+
+
+
+(* Old/experimental stuff
 
 definition weakefficientOld where "weakefficientOld a i = 
 (\<forall> b::bid . \<exists> v v1 v2 a1 a2. 
@@ -656,22 +863,6 @@ definition weakefficientOld where "weakefficientOld a i =
 (%j . (a ,, (b +* {(i, v2 j)}))) = (%j . a2) &
 (a1 \<noteq> a2)
 )" 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-lemma assumes "weakdom i a p" shows "weakdomgen (%X. card X=1) i a p"
-using weakdom_def weakdomgen_def sorry
 
 lemma assumes "dom2 i a p" shows "weakdom i a p" 
 using dom2_def weakdom_def assms by smt
@@ -727,41 +918,14 @@ using l38 by
 qed
 have "\<forall> b::bid. \<forall> Y::(price set). ({b, b+*({i}\<times>Y)} \<subseteq> (Domain ?aa \<inter> (Domain p)) & i \<in> Domain b
 \<longrightarrow>
-(?f Y (?aa,, b))-(p,, b) \<le> (?f Y (?aa,, (b+* ({i}\<times>Y)))) - (p,, (b+* ({i}\<times>Y))))" sorry 
+(?f Y (?aa,, b))-(p,, b) \<le> (?f Y (?aa,, (b+* ({i}\<times>Y)))) - (p,, (b+* ({i}\<times>Y))))" sory 
 then
 have "?P ?f" by fast then
 have "EX f. (?P f)" by fastforce
 hence "dom2 i ?aa p" using dom2_def by presburger
 thus ?thesis by simp
 qed
-
-(*
-theorem ll58: fixes i a p b  assumes "b \<in> Domain p" "runiq p" "weakdom i a p"
-shows "p ,, b = (reducedprice p i a) ,, (reducedbid i a ,, b)"
-proof -
-let ?D="Domain" let ?G="Graph" let ?I="?G id" let ?r="reducedbid i a" let ?e="the_elem"
-let ?B="?r,, b" let ?q="quotientbid i a" let ?Q="Quotientbid i a"  let ?E="?G ?e"
-let ?f="quotient p ?q ?I" let ?F="(?r^-1) O ?Q O ?f O ?E" have
-0:"runiq ?f & runiq ?E" sorry
-have "((?r^-1) O ?Q),, ?B = ?q`` {b}" sorry
-hence "?F,, ?B = (?f O ?E),, (?q`` {b})" using eval_rel_def sorry
-also have "... = ?E,, (?f,, (?q``{b}))" using 0 eval_rel_def sorry
-finally have "True" sorry
-have "b \<in> ?q ``{b} & (b, p,,b) \<in> p" sorry then
-have "(?q``{b} \<times> {p,, b}) \<inter> p \<noteq> {}" by fast
-have "(?q``{b}, {p,, b}) \<in> ?f" using quotient_def assms sorry
-have "runiq ?Q" by (metis Quotientbid_def l15) 
-have "b \<in> ?D ?q" sorry
-then have 
-"?Q,, b=?q``{b}" using Quotientbid_def l17 by metis 
-show ?thesis sorry
-qed
-(* the point is that reducedprice p i a depends on a pair 
-(b outside {i}, a ,, b) , given by reducedbid i a ,, b ;
-hence it no longer depends on the whole bid vector b *)
 *)
-
-bigskip *)
 
 end
 

@@ -491,15 +491,6 @@ using restrict_to_singleton outside_union_restrict by metis
 corollary l40: shows "R = (R outside {x}) +* ({x} \<times> (R `` {x}))" 
 by (metis paste_outside_restrict restrict_to_singleton)
 
-(*
-lemma l41: assumes "runiq (R||{x})" assumes "x \<in> Domain R"
-shows "R `` {x}={R,,x}" using eval_rel_def restrict_def sorry 
-
-lemma l42: assumes "runiq (R || {x})" assumes "x \<in> Domain R" 
-shows "R=R outside {x} \<union> ({x} \<times> {R,,x})"
-using l39 l41 assms by metis
-*)
-
 definition update where "update P Q = P +* (Q || (Domain P))"
 (*MC: no longer used, but possibly interesting: behaves like +* (paste), but
 without enlarging P's Domain. Compare with fun_upd *)
@@ -542,47 +533,6 @@ lemma assumes "runiq R" shows
 "(\<forall> x y1 y2. (x,y1) \<in> R & (x,y2)\<in>R \<longrightarrow> y1=y2)"
 using assms l31 by metis
 
-(*
-lemma l49: shows "Range (part2rel (kernel f)) = Domain f" 
-using l47 l48 by metis
-*)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(*
-lemma fixes x R assumes "equiv (Domain R) R" shows "projector R ,, x = R``{x}"
-proof -
-let ?D="Domain R" let ?F="op `` R" let ?f="projector R"
-have "runiq ?f" using l15 by fast
-have 3: "x \<in> ?D" sorry
-have 4: "equiv ?D R" sorry
-thus "?f ,, x = ?F {x}" sorry
-have "?f ,, x = the_elem (?f `` {x})" by force
-let ?t="?f `` {x}"
-{
-  fix X Y assume 1: "X \<in> ?t" assume 2: "Y \<in> ?t"
-  have "X \<subseteq> Y" using 1 2 equiv_def assms 3 4 sorry
-}
-have "trivial ?t" using l14 equiv_def trivial_def 
- projector_def Image_def eval_rel_def sorry
-qed
-*)
-
-
-
 definition runiqer 
 ::"('a \<times> 'b) set => ('a \<times> 'b) set"
 (* MC: A choice map to solve a multi-valued relation 
@@ -596,19 +546,6 @@ using assms runiq_def l14 by fast
 
 corollary shows "runiq (runiqer R)" using l30 runiqer_def by metis
 
-(*
-lemma fixes R::"('a \<times> 'b) set" shows "runiqer R \<subseteq> R" (is "?f \<subseteq> R") 
-using runiqer_def assms 
-proof -
-{
-  fix z::"('a \<times> 'b)" assume "z\<in>{ (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }" 
-  hence "fst z \<in> Domain R \<longrightarrow> snd z \<in> (R `` {fst z})" sorry
-  hence "z \<in> R" using runiqer_def assms sorry
-}
-show ?thesis sorry
-qed
-*)
-
 lemma assumes "finite R" shows "card (Domain R) \<le> card R & card (Range R) \<le> card R"
 (is "card ?D \<le> card R & card ?R \<le> card R")
 (* MC: Could be weakened by asking only finite (Domain R) (resp Range R) *)
@@ -616,50 +553,6 @@ proof -
 have "?D = fst ` R & ?R = snd ` R" by force
 thus ?thesis using card_image_le assms by metis
 qed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 lemma ll65: fixes R shows "kernel R = {R^-1 `` {y}|y. y\<in> Range R}"
 (is "?LH=?RH")
@@ -893,7 +786,8 @@ l40 l38 paste_def Outside_def by fast
 corollary ll84: shows "R = R +* ({x} \<times> (R``{x}))" using ll82 ll83 by force
 
 definition graph where "graph X f = {(x, f x) | x. x \<in> X}" 
-(* duplicates Function_Order *)
+(* duplicates Function_Order, which is otherwise unneeded,
+and I don't have enough hardware to import *)
 
 lemma ll85: assumes "runiq f" shows "runiq (f^-1 O f)"
 proof -
@@ -982,11 +876,16 @@ lemma ll92: shows "Range ((projector Id)^-1)=UNIV" using projector_def by fastfo
 corollary ll93: shows "(((projector Id) ^-1)^-1) O ((projector Id) ^-1)=graph UNIV id"
 using ll86 ll87 ll92 by metis
 
-lemma ll95: shows "Graph id=Id & Id=graph UNIV id" using graph_def Graph_def
+lemma ll36: shows "Graph f=graph UNIV f"
+proof -
+have "{(x, f x)|x. x\<in>UNIV}={(x, f x)|x. True}" by force 
+thus ?thesis using Graph_def graph_def by metis
+qed
+
+corollary ll95: shows "Graph id=Id & Id=graph UNIV id" using graph_def Graph_def
 proof -
 let ?it="{(x, id x)|x. x\<in>UNIV}" have "Id = ?it" using Graph_def Id_def by auto
-also have "...=Graph id & ...=graph UNIV id" using Graph_def graph_def 
-by fastforce ultimately show ?thesis by metis
+thus ?thesis using ll36 graph_def by metis
 qed 
 
 corollary ll96: shows "(projector Id) O ((projector Id)^-1) = Id"
@@ -1085,6 +984,136 @@ proof -
   also have "?LH \<longrightarrow> ?RH" using trivial_def assms 
   by (smt bot_set_def card.insert card_empty card_gt_0_iff card_mono empty_def equals0D finite.emptyI finite.insertI finite.simps insert_absorb insert_not_empty)
   ultimately show ?thesis by fast
+qed
+
+lemma ll16: shows "(P +* Q) outside (Domain Q) \<supseteq> P outside (Domain Q)" 
+using assms paste_def Outside_def l38 l37 ll51 by (smt Un_commute Un_upper2)
+
+lemma ll17: shows "Domain (P outside (X \<union> Domain P)) \<subseteq> {}" 
+by (metis Diff_subset_conv Un_upper2 le_supI1 outside_reduces_domain)
+
+lemma ll18: shows "P outside (X \<union> Domain P)={}" using ll17 by fast
+
+lemma ll19: shows "(P +* Q) outside (X \<union> Domain Q) = 
+P outside (X \<union> Domain Q)" using assms paste_def ll51 ll52 ll18 
+(* by (metis outside_union_restrict restrict_empty sup.right_idem)*)
+by (metis (hide_lams, no_types) empty_subsetI le_sup_iff subset_refl sup_absorb1 sup_absorb2)
+
+lemma ll10: shows "trivial {x}" by (metis order_refl the_elem_eq trivial_def)
+
+lemma ll11: assumes "trivial X" "{x} \<subseteq> X" shows "{x}=X" 
+using singleton_sub_trivial_uniq assms by (metis subset_antisym trivial_def)
+
+lemma ll12: fixes f::"('a \<times> 'b) set" assumes "runiq f" shows 
+"Range (projector (f^-1)) = Range (projector (part2rel (kernel f)))"
+(is "?A=?B")
+proof -
+(*TODO@MC: modularize & clean this proof *)
+let ?r=Range let ?d=Domain let ?pp=projector let ?cc=part2rel let ?kk=kernel
+let ?k="%R. {R^-1 `` {y}| y. y\<in> ?r R}"
+let ?p="%R. {(x,R``{x})|x. x \<in> Domain R}"
+let ?c="%X. \<Union> ((% x . (x \<times> x)) ` X)"
+let ?ck="%R. {(x1, x2)|x1 x2 . EX y. {x1,x2} \<subseteq> R^-1``{y}}"
+let ?if="f^-1"
+let ?RH="{(x, f^-1``(f``{x}))| x::'a. x\<in>?d f}"
+let ?LH="{(y, f^-1``{y})|y. y\<in> ?r f}"
+let ?L="{f^-1``{y}|y. y\<in> ?r f}"
+let ?R="{f^-1``(f``{x})|x. x\<in>?d f}"
+have "?L={f^-1``z|z. EX y. y\<in>?r f & z={y}}" by auto
+moreover have "...={f^-1``zz|zz. zz\<in>{z. EX y. y\<in>?r f & z={y}}}" by auto
+ultimately have
+11: "?L={f^-1``zz|zz. zz\<in>{z. EX y. y\<in>?r f & z={y}}}" by presburger
+have "?R={f^-1``z|z. EX x. x\<in>?d f & z=f``{x}}" by blast
+moreover have "...={f^-1``zz|zz. zz\<in>{z. EX x. x\<in>?d f & z=f``{x}}}" by auto
+ultimately have
+12: "?R={f^-1``zz|zz. zz\<in>{z. EX x. x\<in>?d f & z=f``{x}}}" by presburger
+have 
+2: "\<forall>y. (y\<in>?r f \<longleftrightarrow> (EX x.(x\<in>?d f & {y} \<subseteq> f``{x})))" using assms 
+by auto
+moreover have 
+3: "\<forall>x y. {y} \<subseteq> f``{x} \<longrightarrow> {y}=f``{x}" using assms runiq_def ll10 ll11 by metis
+ultimately have 
+"\<forall>y. (y\<in>?r f \<longleftrightarrow> (EX x.(x\<in>?d f & {y} = f``{x})))" by blast
+then have "{z. EX y. y\<in>?r f & z={y}} = 
+{z. EX x y. x\<in>?d f & y\<in>?r f & z={y} & {y}=f``{x}}" by auto
+moreover have "... = {z. EX x y. x\<in>?d f & z = f``{x}}" using 3 by fast
+moreover have "{z. EX x y. x\<in>?d f & z = f``{x}} = {z. EX x . x\<in>?d f & z = f``{x}}" 
+by auto
+ultimately have "{z. EX y. y\<in>?r f & z={y}}={z. EX x. x\<in>?d f & z=f``{x}}" by presburger
+hence 
+4: "?L=?R" using 11 12 by presburger have 
+1: "?pp=?p" using  projector_def by metis
+then have "?A=?r (?p ?if)" by (rule HOL.arg_cong)
+moreover have "... = ?L" by auto ultimately have 
+5: "?L=?A" by presburger
+have "?kk=?k" using ll65 by metis
+moreover have "?cc=?c" using part2rel_def by auto
+ultimately have "?B=?r(?p (?c (?k f)))" using 1 by metis
+moreover have "?ck f = (?c (?k f))" using ll01 by auto
+moreover have "?R=?r (?p (?ck f))" by auto
+ultimately have "?B=?R" by presburger
+thus ?thesis using 4 5 by presburger
+qed
+
+lemma ll13: shows "Domain (projector R)=Domain R" 
+proof -
+let ?d=Domain let ?p="%R. {(x,R``{x})|x. x \<in> ?d R}"
+have "?d (?p R)=?d R" by blast thus ?thesis using projector_def by metis
+qed
+
+lemma ll14: assumes "x\<in>Domain f" "runiq f" shows "f,,x \<in> Range f"
+using assms by (metis Range_iff eval_runiq_rel)
+
+lemma ll28: shows "Graph f,,x=f x"
+proof -
+let ?P="%xx. True" let ?G="{(x, f x)|x. ?P x}"
+have "?P x" by fast then 
+have "?G,,x = f x" by (rule l16)
+thus ?thesis using Graph_def by metis
+qed
+
+lemma ll26: assumes "\<not> trivial X" "trivial T" shows "X-T \<noteq> {}"
+using assms by (metis Diff_iff empty_iff subsetI trivial_subset)
+
+corollary ll25: shows "(P +* Q) `` (Domain Q - X) = Q``(Domain Q - X)"
+proof -
+let ?d=Domain let ?D="?d Q" let ?R="P +* Q" 
+have "?R``(?D \<inter> (?D - X))=Q``(?D \<inter> (?D - X))" using ll50 by metis
+also have "?D - X=?D \<inter> (?D - X)" by fastforce
+ultimately show ?thesis by auto
+qed
+
+lemma ll41: shows "Domain (R||X) = Domain R \<inter> X" using restrict_def by fastforce
+
+lemma ll42: shows "Domain (R outside X)=Domain R - X" using Outside_def by blast
+
+lemma ll40: assumes "trivial X" "trivial Y" shows "trivial (X \<times> Y)"
+proof -
+let ?e=the_elem let ?x="?e X" let ?y="?e Y" let ?Z="X \<times> Y"
+have "X \<subseteq> {?x} & Y \<subseteq> {?y}" using assms trivial_def by metis
+hence "?Z \<subseteq> {(?x,?y)}" by blast
+thus ?thesis using trivial_subset trivial_singleton by metis
+qed
+
+lemma ll37: shows "runiq(graph X f) & Domain(graph X f)=X" 
+proof -
+let ?F="{(x, f x)|x. x\<in>X}"
+have "runiq?F" using l14 by fast 
+also have "Domain ?F=X" by blast
+ultimately show ?thesis using graph_def by metis
+qed
+
+lemma ll34: shows "graph X f \<subseteq> (graph (X \<union> Y) f)"
+proof -
+let ?g="%X. {(x, f x)|x. x\<in>X}" have "?g X \<subseteq> ?g (X \<union> Y)" by blast
+thus ?thesis using graph_def by metis
+qed
+
+lemma ll33: assumes "x \<in> X" shows "graph X f,,x=f x" 
+proof -
+let ?P="%xx. xx\<in>X" let ?g="{(x, f x)|x. ?P x}"
+have "?P x" using assms by fast then have "?g,,x=f x" by (rule l16)
+thus ?thesis using graph_def by metis
 qed
 
 end
