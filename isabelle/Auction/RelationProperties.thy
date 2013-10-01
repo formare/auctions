@@ -578,7 +578,6 @@ next
         and Range_pre: "Range P \<subseteq> Y"
         and runiq_pre: "runiq P"
         and runiq_conv_pre: "runiq (P\<inverse>)" by simp_all
-  (* TODO CL: tune the following for performance (https://github.com/formare/auctions/issues/39) *)
 
   have "Domain R = insert x A"
   proof -
