@@ -580,20 +580,23 @@ next
         and runiq_conv_pre: "runiq (P\<inverse>)" by simp_all
   (* TODO CL: tune the following for performance (https://github.com/formare/auctions/issues/39) *)
 
-  have "Domain R=Domain P \<union> Domain {(x,y)}" using paste_Domain R by metis
-  also have "...=A \<union> {x}" using Domain_pre by simp
-  ultimately have 
-    Domain: "Domain R = insert x A" by auto    
-
-  moreover have "Range R \<subseteq> Range P \<union> Range {(x,y)} & Range P \<union> Range {(x,y)} \<subseteq> Y \<union> {y}"
-  using paste_Range R Range_pre by force
-  moreover then have Range: "Range R \<subseteq> Y" using y by auto
-  
-  moreover have runiq: "runiq R"
+  have "Domain R = insert x A"
+  proof -
+    have "Domain R = Domain P \<union> Domain {(x,y)}" using paste_Domain R by metis
+    also have "\<dots> = A \<union> {x}" using Domain_pre by simp
+    finally show ?thesis by auto
+  qed
+  moreover have "Range R \<subseteq> Y"
+  proof -
+    have "Range R \<subseteq> Range P \<union> Range {(x,y)} \<and> Range P \<union> Range {(x,y)} \<subseteq> Y \<union> {y}"
+      using paste_Range R Range_pre by force
+    then show ?thesis using y by auto
+  qed
+  moreover have "runiq R"
     using runiq_pre R runiq_singleton_rel runiq_paste2 by fast
-  moreover have runiq_conv: "runiq (R\<inverse>)"
+  moreover have "runiq (R\<inverse>)"
     using runiq_conv_pre R y new and runiq_converse_paste_singleton DiffE Domain_pre
-by metis
+    by metis
   ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by simp
 qed
 
