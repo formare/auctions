@@ -69,17 +69,17 @@ type_synonym combinatorial_auction_pred = "goods \<Rightarrow> participant set \
 type_synonym combinatorial_auction_tup = "(goods \<times> participant set \<times> bids) \<times> (allocation_rel \<times> payments)"
 type_synonym combinatorial_auction_rel = "combinatorial_auction_tup set"
 
-section {* Admissible input *}
+section {* Valid input *}
 
-type_synonym input_admissibility = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
+type_synonym input_validity = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
 
-text {* Admissible input (i.e.\ admissible bids, given the goods and participants).  As we represent
+text {* Valid input (i.e.\ valid bids w.r.t.\ the goods and participants).  As we represent
   @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
   their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}.  All we 
   can enforce are non-empty finite sets of goods and participants, and that the bids are non-negative. *}
-(* CL: Once we realise general/special auctions using locales, we need an admissible_input axiom. *)
-definition admissible_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-where "admissible_input G N b \<longleftrightarrow> card G > 0 \<and> card N > 0 \<and> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
+(* CL: Once we realise general/special auctions using locales, we need a valid_input axiom. *)
+definition valid_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
+where "valid_input G N b \<longleftrightarrow> card G > 0 \<and> card N > 0 \<and> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
 
 section {* Allocations *}
 
@@ -136,15 +136,15 @@ section {* Relational vs. predicate form*}
 
 text {* A general combinatorial auction in predicate form.
   To give the auction designer flexibility (including the possibility to introduce mistakes),
-  we only constrain the left hand side of the relation, as to cover admissible inputs.
-  This definition makes sure that whenever we speak of a combinatorial auction, there is an
-  admissible input on the left hand side.  In other words, this predicate returns false for relations having left
-  hand side entries that are known not to be admissible inputs.
+  we only constrain the left hand side of the relation, as to cover valid inputs.
+  This definition makes sure that whenever we speak of a combinatorial auction, there is a
+  valid input on the left hand side.  In other words, this predicate returns false for relations having left
+  hand side entries that are known not to be valid inputs.
   For this and other reasons (including Isabelle's difficulties to handle complex set comprehensions)
   it is more convenient to treat the auction as a predicate over all of
   its arguments, instead of a left-hand-side/right-hand-side relation.*}
 definition pred :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
-where "pred G N b x p \<longleftrightarrow> admissible_input G N b"
+where "pred G N b x p \<longleftrightarrow> valid_input G N b"
 
 text {* Given an auction in predicate form @{const pred}, construct a predicate that takes all 
   arguments of @{const pred} as one @{term "(input, outcome)"} pair, and checks whether its

@@ -28,10 +28,10 @@ text {* The combinatorial Vickrey auction in relational form is left-total.
   interesting to prove that the outcome of our auction is \emph{well-defined}. *}
 lemma left_total:
   fixes t::tie_breaker_rel (* no need to assume anything about t *)
-  shows "left_total (nVCG_auctions t) admissible_input"
+  shows "left_total (nVCG_auctions t) valid_input"
 proof (rule left_totalI)
   fix G::goods and N::"participant set" and b::bids
-  assume assm: "admissible_input G N b"
+  assume assm: "valid_input G N b"
   def x \<equiv> "winning_allocation_rel G N t b"
   def p \<equiv> "payments_rel G N t b"
   from assm x_def p_def have "nVCG_pred t G N b x p" unfolding nVCG_pred_def by blast
@@ -57,11 +57,11 @@ text {* The combinatorial Vickrey auction in relational form is right-unique.  T
   show because its outcome is defined by two functions, which are right-unique by construction. *}
 lemma right_unique:
   fixes t::tie_breaker_rel (* no need to assume anything about t *)
-  shows "right_unique (nVCG_auctions t) admissible_input"
+  shows "right_unique (nVCG_auctions t) valid_input"
 proof (rule right_uniqueI)
   fix G::goods and N::"participant set" and b::bids
   (* As right-uniqueness is so easy to prove in this case, 
-     it turns out that we don't need the additional assumption "admissible_input G N b". *)
+     it turns out that we don't need the additional assumption "valid_input G N b". *)
   fix x::allocation_rel and x'::allocation_rel and p::payments and p'::payments
 
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
@@ -89,13 +89,13 @@ text {* The combinatorial Vickrey auction is well-defined. *}
 lemma wd_outcome:
   fixes t::tie_breaker_rel
   assumes "tie_breaker t"
-  shows "wd_outcome (nVCG_auctions t) admissible_input wd_alloc_pay"
+  shows "wd_outcome (nVCG_auctions t) valid_input wd_alloc_pay"
 proof (rule wd_outcomeI)
   fix G N b x p
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
   then have xp: "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b" by (rule split_outcome)
 
-  assume admissible: "admissible_input G N b"
+  assume valid: "valid_input G N b"
   from xp have x_unfolded: "x = t (arg_max' (value_rel b) (possible_allocations_rel G N))"
     unfolding winning_allocation_rel.simps winning_allocations_rel_def
     by simp
