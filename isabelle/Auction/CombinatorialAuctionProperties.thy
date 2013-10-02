@@ -24,12 +24,24 @@ section {* Soundness *}
 
 subsection {* Well-defined outcome *}
 
+text {* No good is allocated to more than one bidder.  Given our formalisation of allocations 
+  (relations between partitions of the set of goods and the set of bidders), this means that
+  for each good the image of the equivalence class(es), in which the good occurs, under
+  the allocation relation is @{const trivial}. *}
+definition no_good_allocated_twice :: "goods \<Rightarrow> allocation_rel \<Rightarrow> bool"
+where "no_good_allocated_twice G x \<longleftrightarrow>  (\<forall> g \<in> G . trivial (x `` { P \<in> Domain x . g \<in> P }))"
+
 text {* well-definedness of an allocation, given the goods and participants: all goods are
   allocated within the set of participants; nothing is allocated twice. *}
 (* TODO CL: allow for partial allocation: in this case, Domain x needs to be a 
    partition of a _subset_ of G *)
+(* CL: Here, we do not care whether every good actually gets allocated.  Our current implementation 
+   does this, but I'm not sure this is a criterion against which the implementation should be verified. *)
 definition wd_allocation :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel \<Rightarrow> bool"
-where "wd_allocation G N x \<longleftrightarrow> is_partition_of (Domain x) G \<and> Range x \<subseteq> N"
+where "wd_allocation G N x \<longleftrightarrow> 
+  no_good_allocated_twice G x \<and>
+  \<Union> Domain x \<subseteq> G (* only available goods are allocated *) \<and>
+  Range x \<subseteq> N (* goods are only allocated among the bidders *)"
 
 type_synonym outcome_well_definedness = "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
 
