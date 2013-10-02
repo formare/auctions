@@ -157,5 +157,20 @@ proof (rule wd_outcomeI)
   ultimately show "wd_alloc_pay G N b x p" unfolding wd_alloc_pay_def ..
 qed
 
+section {* Overall soundness *}
+
+text {* The combinatorial Vickrey auction is sound. *}
+theorem sound:
+  fixes t::tie_breaker_rel (* no need to assume anything about t *)
+  assumes "tie_breaker t"
+  shows "sound (nVCG_auctions t) valid_input wd_alloc_pay"
+proof -
+  note left_total
+  moreover note right_unique
+  moreover have "wd_outcome (nVCG_auctions t) valid_input wd_alloc_pay"
+    using assms by (rule wd_outcome)
+  ultimately show ?thesis unfolding sound_def by blast
+qed
+
 end
 

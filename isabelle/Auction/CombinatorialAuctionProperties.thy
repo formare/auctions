@@ -100,5 +100,15 @@ proof -
   then show ?thesis unfolding right_unique_def using runiq_restrict by blast
 qed
 
+subsection {* Overall soundness *}
+
+text {* A combinatorial auction in relational form is sound if it is left-total, right-unique
+  and yields a well-defined outcome. *}
+definition sound :: "combinatorial_auction_rel \<Rightarrow> input_validity \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
+where "sound A valid wd_outcome_pred \<longleftrightarrow>
+  left_total A valid \<and>
+  right_unique A valid \<and>
+  wd_outcome A valid wd_outcome_pred"
+
 end
 
