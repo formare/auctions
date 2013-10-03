@@ -252,11 +252,5 @@ proof
   qed
 qed   
 
-(* CL@MC: could you please check whether the following are still needed, and delete them otherwise? *)
-section {* unused leftovers *}
-
-lemma ll22: assumes "finite X" shows "length (sorted_list_of_set X) = card X"
-using assms by (metis distinct_card sorted_list_of_set)
-
 end
 
