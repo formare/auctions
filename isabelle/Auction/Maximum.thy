@@ -236,9 +236,12 @@ definition filterpositions2
 where "filterpositions2 P l = 
 [n. n \<leftarrow> [0..<size l], P (l!n)]"
 
-lemma ll2: fixes l shows "zip l (upt 0 (size l))= [(l!n,n). n \<leftarrow> [0..<size l]]"
+(* TODO CL: re-enable this (but it's not used anyway) once we have a more efficient proof.
+   With Isabelle2013-1-RC1 this one takes ages.
+lemma ll2: fixes l shows "zip l (upt 0 (size l))= [(l!n,n). n \<leftarrow> [0..<size l]]" 
 using assms zip_def upt_def 
-by (smt length_map length_zip map_nth nth_equalityI nth_map nth_zip)
+by (smt length_map length_zip list_eq_iff_nth_eq map_nth nth_map nth_zip)
+*)
 
 definition maxpositions :: "'a::linorder list => nat list" where
 "maxpositions l = filterpositions2 (%x . x \<ge> Max (set l)) l"
