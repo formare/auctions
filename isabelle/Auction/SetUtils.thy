@@ -146,4 +146,21 @@ proof -
   with assms show ?thesis by force
 qed
 
+text {* Two alternative notations for the big union operator involving set comprehension are
+  equivalent. *}
+lemma Union_set_compr_eq: "(\<Union> x\<in>A . set x) = \<Union> { set x | x . x \<in> A }"
+proof (rule equalitySubsetI)
+  fix y
+  assume "y \<in> (\<Union> x\<in>A . set x)"
+  then obtain x where "x\<in>A" and "y\<in>set x" by force
+  then obtain z where "z \<in> { set x | x . x \<in> A }" and "y \<in> z" by blast
+  then show "y \<in> \<Union> { set x | x . x \<in> A }" by (rule UnionI)
+next
+  fix y
+  assume "y \<in> \<Union> { set x | x . x \<in> A }"
+  then obtain z where "z \<in> { set x | x . x \<in> A }" and "y \<in> z" by (rule UnionE)
+  then obtain x where "x\<in>A" and "y\<in>set x" by blast
+  then show "y \<in> (\<Union> x\<in>A . set x)" by force
+qed
+
 end
