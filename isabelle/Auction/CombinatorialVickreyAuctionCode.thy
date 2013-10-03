@@ -18,13 +18,13 @@ header {* code generation setup for combinatorial Vickrey auction *}
 
 theory CombinatorialVickreyAuctionCode
 imports CombinatorialVickreyAuction
-  "~~/src/HOL/Library/Efficient_Nat"
+  "~~/src/HOL/Library/Code_Target_Numeral"
 begin
 
 code_include Scala ""
 {*package CombinatorialVickreyAuction
 *}
-export_code winning_allocations_alg_CL payments_alg_workaround in Scala
+export_code winning_allocations_alg_CL payments_alg in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 file "code/generated/CombinatorialVickreyAuction.scala"
 
