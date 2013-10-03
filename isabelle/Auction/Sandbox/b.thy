@@ -149,12 +149,12 @@ proof
   ultimately have "g \<in> set [?e z . z \<leftarrow> sorted_list_of_set (Y - Range (g outside {?x}))]" by auto
   then have 2: "g \<in> set (sup_rels_from_alg (g outside {?x}) ?x Y)" by simp
   have 22: "g outside {?x} \<subseteq> g" unfolding Outside_def by fast
-  then have "(g outside {?x})\<inverse> \<subseteq> g\<inverse>" using converse_subrel by fast
+  then have "(g outside {?x})\<inverse> \<subseteq> g\<inverse>" by fast
   have 21: "card (Domain g) = Suc n \<and> runiq g \<and> runiq (g\<inverse>) \<and> Range g \<subseteq> Y" using 0 unfolding G_def by force
   then have 23: "finite (Domain g)" using card_ge_0_finite by force
   then have 24: "finite ?Dn" by (metis finite_Diff outside_reduces_domain)
   then have 25: "runiq (g outside {?x})" using subrel_runiq 21 22 by blast
-  then have 26: "runiq ((g outside {?x})\<inverse>)" using subrel_runiq 22 converse_subrel 21 by metis
+  then have 26: "runiq ((g outside {?x})\<inverse>)" using subrel_runiq 22 21 converse_mono by metis
   then have 27: "?Dn = Domain g - {?x}" by (simp add: outside_reduces_domain)
   then have "?x \<in> Domain g" using 7 by force
   then have "card ?Dn = card (Domain g) - 1" using 27 23 by (simp add: card_Diff_singleton)
