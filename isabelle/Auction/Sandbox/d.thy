@@ -13,7 +13,7 @@ See LICENSE file for details
 
 theory d
 
-imports c SEQ SupInf
+imports c Complex_Main
 
 begin
 
@@ -117,7 +117,7 @@ let ?d=Domain let ?u=runiq let ?t=trivial
   by (metis (full_types) Image_mono Un_commute Un_upper1 subset_refl)
   also have "({i} \<times> Y)``{i} = Y" by blast 
   also have "?u ?bv" using assms functional_def 1 by blast
-  ultimately have "?t Y" using l32 by (metis trivial_subset) hence 
+  ultimately have "?t Y" using runiq_alt by (metis trivial_subset) hence 
   2: "Y={?v}" using 1 by (metis subset_singletonD trivial_def) then have 
   "?v*(a,,b)-(p,,b)\<le>?v*(a,,(b+*({i}\<times>{?v})))-(p,,(b+*({i}\<times>{?v})))" 
   using 1 assms dom4_def by metis hence "EX y.
@@ -239,7 +239,7 @@ have "?d a \<subseteq> ?d p & ?w & ?u p" using assms by fast
 then have "?c p ?p ?Id" using l24 by auto
 have "?u ?b" using l14 reducedbid_def by force then
 have "equiv (?d ?p) ?p" using ll78 assms by (metis l47 ll80)
-moreover have "?Id=Id & equiv (?d Id) Id" using ll95 equiv_def Id_def Domain_Id refl_Id sym_Id trans_Id
+moreover have "?Id=Id & equiv (?d Id) Id" using ll95 equiv_def Domain_Id refl_Id sym_Id trans_Id
 by metis
 moreover have "?c p ?p ?Id" using l24 assms by blast
 ultimately show "?u (?q p ?p Id)" using l23 equiv_def assms by metis
@@ -283,7 +283,7 @@ have "runiq ?ri" using l14 reducedbid_def by force then
 have "equiv (?d  ?ri) (part2rel (kernel ?ri))" using ll78 by fast
 then have "equiv (?d ?e) ?e" 
 using quotientbid_def by (metis (full_types) comp_equivI equiv_comp_eq)
-also have "equiv (?d Id) Id" using equiv_def Id_def 
+also have "equiv (?d Id) Id" using equiv_def 
 by (metis Domain_Id refl_Id sym_Id trans_Id)
 ultimately have "?P=?IE O p O (?p Id)" using ll63 ll95 by metis
 hence "?P O ((?p Id)^-1)=?IE O p O ((?p Id) O ((?p Id)^-1))" by auto
@@ -299,13 +299,13 @@ also have "... = p `` (?IE `` (?E ``{b}))" by blast
 also have "... \<subseteq> p `` (?IE `` {?E ,, b})" using 0 by (metis (hide_lams, no_types) Image_runiq_eq_eval subset_refl)
 also have "... = (?IE O p) `` {?E,,b}" by fast
 ultimately have "p``{b} \<subseteq> (?IE O p)``{?E,,b} & ?t ((?IE O p)``{?E,,b})"
-using 2 runiq_def by (metis (hide_lams, no_types) l32)
+using 2 by (metis (hide_lams, no_types) runiq_alt)
 then also have "p``{b} \<supseteq> (?IE O p)``{?E,,b}" using 0 trivial_def by (metis (hide_lams, no_types) equals0D subsetI subset_singletonD)
 ultimately have "p``{b} = (?IE O p)``{?E,,b}" by fastforce
 moreover have "...= (?P O ((?p Id)^-1)) ``{?E,,b}" using 1 by force
 finally have "p``{b} = (?P O ((?p Id)^-1)) ``{?E,,b}" by fast
 also have "... = (?P O ((?p Id)^-1)) ``(?E``{b})" using 0 by 
-(metis (hide_lams, no_types) "1" Image_runiq_eq_eval calculation insert_compr l15 quotientbid_def)
+(metis (hide_lams, no_types) "1" Image_runiq_eq_eval calculation l15)
 also have "... = (?P O ((?p Id)^-1)) `` (?p (?c (?k ?ri))``{b})"
 using quotientbid_def by presburger
 also have "... = (?P O ((?p Id)^-1)) `` (?ri O (?p (?ri^-1)))``{b}" 
@@ -692,7 +692,7 @@ obtain v1 v2 where
   have "?r ?b2 = ?r ?bb \<union> (?r (?I \<times> {v2 j})) " using paste_def by auto
   also have "... = ?r ?bb \<union> {v2 j}" by simp 
   also have "... = insert (v2 j) (?r ?bb)" by auto
-  ultimately have "Sup (?r ?b2)=max (v2 j) ?M" using 0 Sup_insert_if by metis
+  ultimately have "Sup (?r ?b2)=max (v2 j) ?M" using 0 cSup_insert_If sup_max by metis
   also have "... = v2 j" using 2 by fastforce
   ultimately have "?b2``?I={Sup (?r ?b2)}" using 3 by presburger
   then moreover have "?b2^-1``{Sup (?r ?b2)} \<supseteq> ?I" by blast
@@ -717,7 +717,7 @@ Range (b outside {i}) \<union> {v2 j}` `Sup (Range (b +* {i} \<times> {v2 j}))
   hence "(A ?b2)``?I = {a2}" using 20 
   by (metis `(A (b +* {i} \<times> {v2 j}))\<inverse> \`\` {a2} = {i}` ll71 subset_antisym)
   (*MC: "{a2}=(A ?b2)``?I" makes this deduction much harder: = is not effectively commutative :) *)
-  moreover have "(A ?b2)``?I={?af ?b2}" by (metis "20" Image_runiq_eq_eval assms(2) assms(4))  
+  moreover have "(A ?b2)``?I={?af ?b2}" by (metis Image_runiq_eq_eval assms(2) assms(4))  
   moreover have "... = ?GGG``{?b2}" using ll88 by blast ultimately have 
   15: "?GG``{?b2}={a2}" using graph_def by metis
 (*
@@ -731,7 +731,7 @@ Range (b outside {i}) \<union> {v2 j}` `Sup (Range (b +* {i} \<times> {v2 j}))
   have "?r ?b1 = ?r ?bb \<union> (?r (?I \<times> {v1 j})) " using paste_def by auto
   also have "... = ?r ?bb \<union> {v1 j}" by simp 
   also have "... = insert (v1 j) (?r ?bb)" by auto
-  ultimately have "Sup (?r ?b1)=max (v1 j) ?M" using Sup_insert_if 0 by metis then
+  ultimately have "Sup (?r ?b1)=max (v1 j) ?M" using cSup_insert_If sup_max 0 by metis then
   have "{v1 j} \<noteq> {Sup (?r ?b1)}" using 8 by force
   also have "?d (?I \<times> {v1 j})=?I" by blast then
   moreover have "?b1``(?I-{})=(?I \<times> {v1 j})``(?I-{})" using ll25 by metis
@@ -750,7 +750,7 @@ Range (b outside {i}) \<union> {v2 j}` `Sup (Range (b +* {i} \<times> {v2 j}))
   also have "...={a1}" using assms(1) by fast
   also have "i \<in> ?d (A ?b1)" using 4 assms 11 by blast
   ultimately have "A ?b1``?I = {a1}" using 4 assms by blast
-  moreover have "(A ?b1)``?I={?af ?b1}" by (metis "20" Image_runiq_eq_eval assms(2) assms(4))  
+  moreover have "(A ?b1)``?I={?af ?b1}" by (metis Image_runiq_eq_eval assms(2) assms(4))  
   moreover have "... = ?GGG``{?b1}" using ll88 by blast ultimately have 
   "?GG``{?b1}={a1} & ?GG``{?b2}={a2}" using 15 graph_def by metis
 (*
