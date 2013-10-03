@@ -13,7 +13,7 @@ See LICENSE file for details
 *)
 
 theory PartitionsTest
-imports Partitions
+imports PartitionsAlternative
 begin
 
 (* partition of a set w.r.t. an equivalence relation: *)
