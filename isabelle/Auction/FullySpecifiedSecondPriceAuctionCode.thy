@@ -19,7 +19,7 @@ header {* code generation setup for fully specified second price single good auc
 theory FullySpecifiedSecondPriceAuctionCode
 imports
   FullySpecifiedSecondPriceAuction
-   "~~/src/HOL/Library/Efficient_Nat"
+  "~~/src/HOL/Library/Code_Target_Numeral"
 
 begin
 
