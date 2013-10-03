@@ -201,10 +201,17 @@ proof
     using 1 20 by (metis (mono_tags) Diff_insert_absorb List.set.simps(2) distinct.simps(2))
   then have 2: "lN = ?x # ?xs \<and> size ?xs=n \<and> distinct ?xs \<and> set ?xs=set lN-{?x}" 
     using 20 21 22 by fast
-  have "injections_alg (?x # ?xs) Y = concat [ sup_rels_from_alg R ?x Y . R <- injections_alg ?xs Y]" 
+  have 23: "injections_alg (?x # ?xs) Y = concat [ sup_rels_from_alg R ?x Y . R <- injections_alg ?xs Y]" 
     by simp
   then have "set (injections_alg lN Y) = \<Union> {set l | l . l \<in> set [ sup_rels_from_alg R ?x Y. R <- injections_alg ?xs Y]}"
-    using set_concat 2 by metis
+  proof -
+    have "set (injections_alg lN Y) = set (concat [ sup_rels_from_alg R ?x Y . R <- injections_alg ?xs Y])"
+      using 20 23 by presburger
+    also have "\<dots> = (\<Union> x\<in>set [ sup_rels_from_alg R ?x Y . R <- injections_alg ?xs Y] . set x)" by simp
+    also have "\<dots> = (\<Union> {set l | l . l \<in> set [ sup_rels_from_alg R ?x Y. R <- injections_alg ?xs Y]})" 
+      by (rule Union_set_compr_eq)
+    finally show ?thesis .
+  qed
   then obtain f where 
     3: "f \<in> set (injections_alg ?xs Y)" and 33: "g \<in> set (sup_rels_from_alg f ?x Y)"
     using 0 1 by fastforce
