@@ -14,10 +14,9 @@
 
 /* modules of the generated code (including Isabelle library) */
 import CombinatorialVickreyAuction.Finite_Set._
-import CombinatorialVickreyAuction.Nat
-import CombinatorialVickreyAuction.Nata._
+import CombinatorialVickreyAuction.Nat._
 import CombinatorialVickreyAuction.Rat._
-import CombinatorialVickreyAuction.RealDef._
+import CombinatorialVickreyAuction.Real._
 import CombinatorialVickreyAuction.Set._
 import CombinatorialVickreyAuction.CombinatorialVickreyAuction._
 
@@ -82,7 +81,7 @@ object CombinatorialVickreyAuctionCAB {
         val power = if (priceMaybeFrac != null) priceMaybeFrac.length else 0
         val frac = if (priceMaybeFrac != null) priceMaybeFrac.toInt else 0
         val commonDen = math.pow(10, power).toInt
-        (Nat(bidderID.toInt),
+        (Nata(BigInt(bidderID.toInt)),
          Ratreal(decToFrct(priceWhole, Option(priceMaybeFrac))),
          intListToNatSet(bidContent.split("""\s+""").map(_.toInt).to[List]))
       }
@@ -95,12 +94,13 @@ object CombinatorialVickreyAuctionCAB {
     println("processed CAB input: " + prettyPrint(bidsLines))
 
     // CONVERT TO THE DATA STRUCTURES THE GENERATED CODE NEEDS
-    val participantSet = Seta((0 to nBidders - 1).map(Nat(_)).to[List])
+    val participantSet : set[nat] = Seta((0 to nBidders - 1).map(x => Nata(BigInt(x))).to[List])
+                    // ^ seems we need this explicit type information; otherwise we get type mismatch errors
     println("Participants: " + prettyPrint(participantSet))
-    val goodsSet = Seta((0 to nGoods - 1).map(Nat(_)).to[List])
+    val goodsSet : set[nat] = Seta((0 to nGoods - 1).map(x => Nata(BigInt(x))).to[List])
     println("Goods: " + prettyPrint(goodsSet))
-    val bidFunction = (bidder: Nat) => (goods: set[Nat]) => {
-      val bid = bidsLines.find((elem: (Nat, Ratreal, set[Nat])) =>
+    val bidFunction : nat => set[nat] => real = (bidder: nat) => (goods: set[nat]) => {
+      val bid = bidsLines.find((elem: (nat, Ratreal, set[nat])) =>
         elem._1 == bidder
         && setEquals(goods, elem._3))
       bid match {
@@ -109,15 +109,15 @@ object CombinatorialVickreyAuctionCAB {
       }
     }
 
-    val tieBreaker = trivialTieBreaker[set[(set[Nat], Nat)]] _
+    val tieBreaker = trivialTieBreaker[set[(set[nat], nat)]] _
 
-    val winningAllocations = winning_allocations_comp_CL(goodsSet, participantSet, bidFunction)
+    val winningAllocations = winning_allocations_alg_CL(goodsSet, participantSet, bidFunction)
     println("Winning allocations: " + prettyPrint(winningAllocations))
     println("Winner after tie-breaking: " + prettyPrint(tieBreaker(winningAllocations)))
 
     val payments = for (participant <- 0 to nBidders - 1) yield
       // for the following occurrence of tieBreaker, we need the explicit type.  Above, trivialTieBreaker[Any] would also have worked.
-      (participant, payments_comp_workaround(goodsSet, participantSet, tieBreaker, bidFunction, Nat(participant)))
+      (participant, payments_alg(goodsSet, participantSet, tieBreaker)(bidFunction)(Nata(BigInt(participant))))
     println("Payments per participant: " + prettyPrint(payments))
   }
 }

@@ -14,6 +14,7 @@
 
 package CombinatorialVickreyAuction
 
+import Int._
 import Rat._
 
 object RatWrapper {
@@ -30,6 +31,6 @@ object RatWrapper {
       case None => 0
     }
     val commonDen = math.pow(10, power).toInt
-    Frct((commonDen * whole.toInt + frac, commonDen))
+    Frct((Int_of_integer(commonDen * whole.toInt + frac), Int_of_integer(commonDen)))
   }
 }

@@ -14,8 +14,9 @@
 
 package CombinatorialVickreyAuction
 
+import Int._
 import Rat._
-import RealDef._
+import Real._
 import Set._
 
 object IsabelleLibraryWrapper {
@@ -28,10 +29,13 @@ object IsabelleLibraryWrapper {
     case Seta(l) => "{%s}".format(seqToPrettyString(l))
     /* Isabelle's reals-from-rationals */
     // matching Frct(num, den) doesn't work, as actually (num, den) is a tuple
-    case Ratreal(Frct((num, den))) => (num.toDouble / den.toDouble).toString /* note that this loses precision! */
+    case Ratreal(Frct((Int_of_integer(num), Int_of_integer(den)))) => (num.toDouble / den.toDouble).toString /* note that this loses precision! */
     /* some Scala structures */
     case s: Seq[Any] => "[%s]".format(seqToPrettyString(s)) /* matches, e.g., List and Vector */
-    case p: Product => "(%s)".format(p.productIterator.toList.map(prettyPrint(_)).mkString(", "))
+    case p: Product => {
+      val recurse = p.productIterator.toList.map(prettyPrint(_)).mkString(", ")
+      if (p.productArity == 1) "%s".format(recurse) else "(%s)".format(recurse)
+    }
     /* anything else */
     case _ => x.toString
   }
