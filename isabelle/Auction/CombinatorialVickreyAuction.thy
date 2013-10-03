@@ -75,7 +75,7 @@ where "\<alpha> G N b n = Max ((value_rel b) ` (possible_allocations_rel G (N - 
 
 text {* algorithmic version of @{text \<alpha>} *}
 fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "\<alpha>_alg G N b n = maximum_alg_list (possible_allocations_alg G N) (value_rel b)"
+where "\<alpha>_alg G N b n = maximum_alg_list (possible_allocations_alg G (N - {n})) (value_rel b)"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition winners'_goods_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> participant option \<Rightarrow> goods" 
@@ -121,21 +121,6 @@ fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_break
 where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 
 text {* alternative algorithmic version of @{text payments_rel}, working around an Isabelle2013 bug *}
-(* CL: expanded definition to work around https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00011.html
-   until Isabelle2014 fixes the bug; see https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2013-July/msg00024.html) *)
-fun payments_alg_workaround :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
-where "payments_alg_workaround G N t b n = 
-  (* \<alpha>_alg G N *) maximum_alg_list (possible_allocations_alg G N) (value_rel b)
-  -
-  (* remaining_value_alg G N t *) (\<Sum> m \<in> N - {n} . b m (eval_rel_or
-    (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
-       but we interpret this case as if 'the empty set' had been allocated to the participant. *)
-    (
-      (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
-      (winning_allocation_alg_CL G N t b)\<inverse>)
-    m (* evaluate the relation for participant m *)
-    {} (* return the empty set if nothing is in relation with m *)
-  ))"
 
 section {* the Combinatorial Vickrey Auction in relational form *}
 
