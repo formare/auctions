@@ -1,92 +1,6 @@
 package CombinatorialVickreyAuction
 
 
-object Nat {
-
-  def apply(numeral: BigInt): Nat = new Nat(numeral max 0)
-  def apply(numeral: Int): Nat = Nat(BigInt(numeral))
-  def apply(numeral: String): Nat = Nat(BigInt(numeral))
-
-}
-
-class Nat private(private val value: BigInt) {
-
-  override def hashCode(): Int = this.value.hashCode()
-
-  override def equals(that: Any): Boolean = that match {
-    case that: Nat => this equals that
-    case _ => false
-  }
-
-  override def toString(): String = this.value.toString
-
-  def equals(that: Nat): Boolean = this.value == that.value
-
-  def as_BigInt: BigInt = this.value
-  def as_Int: Int = if (this.value >= scala.Int.MinValue && this.value <= scala.Int.MaxValue)
-      this.value.intValue
-    else error("Int value out of range: " + this.value.toString)
-
-  def +(that: Nat): Nat = new Nat(this.value + that.value)
-  def -(that: Nat): Nat = Nat(this.value - that.value)
-  def *(that: Nat): Nat = new Nat(this.value * that.value)
-
-  def /%(that: Nat): (Nat, Nat) = if (that.value == 0) (new Nat(0), this)
-    else {
-      val (k, l) = this.value /% that.value
-      (new Nat(k), new Nat(l))
-    }
-
-  def <=(that: Nat): Boolean = this.value <= that.value
-
-  def <(that: Nat): Boolean = this.value < that.value
-
-}
-
-
-object Natural {
-
-  def apply(numeral: BigInt): Natural = new Natural(numeral max 0)
-  def apply(numeral: Int): Natural = Natural(BigInt(numeral))
-  def apply(numeral: String): Natural = Natural(BigInt(numeral))
-
-}
-
-class Natural private(private val value: BigInt) {
-
-  override def hashCode(): Int = this.value.hashCode()
-
-  override def equals(that: Any): Boolean = that match {
-    case that: Natural => this equals that
-    case _ => false
-  }
-
-  override def toString(): String = this.value.toString
-
-  def equals(that: Natural): Boolean = this.value == that.value
-
-  def as_BigInt: BigInt = this.value
-  def as_Int: Int = if (this.value >= scala.Int.MinValue && this.value <= scala.Int.MaxValue)
-      this.value.intValue
-    else error("Int value out of range: " + this.value.toString)
-
-  def +(that: Natural): Natural = new Natural(this.value + that.value)
-  def -(that: Natural): Natural = Natural(this.value - that.value)
-  def *(that: Natural): Natural = new Natural(this.value * that.value)
-
-  def /%(that: Natural): (Natural, Natural) = if (that.value == 0) (new Natural(0), this)
-    else {
-      val (k, l) = this.value /% that.value
-      (new Natural(k), new Natural(l))
-    }
-
-  def <=(that: Natural): Boolean = this.value <= that.value
-
-  def <(that: Natural): Boolean = this.value < that.value
-
-}
-
-
 object Fun {
 
 def id[A]: A => A = (x: A) => x
@@ -128,6 +42,11 @@ trait zero[A] {
 }
 def zero[A](implicit A: zero[A]): A = A.`Groups.zero`
 
+trait minus[A] {
+  val `Groups.minus`: (A, A) => A
+}
+def minus[A](a: A, b: A)(implicit A: minus[A]): A = A.`Groups.minus`(a, b)
+
 trait semigroup_add[A] extends plus[A] {
 }
 
@@ -142,15 +61,6 @@ trait comm_monoid_add[A] extends ab_semigroup_add[A] with monoid_add[A] {
 
 } /* object Groups */
 
-object Num {
-
-abstract sealed class num
-final case class One() extends num
-final case class Bit0(a: num) extends num
-final case class Bit1(a: num) extends num
-
-} /* object Num */
-
 object HOL {
 
 trait equal[A] {
@@ -162,37 +72,48 @@ def eq[A : equal](a: A, b: A): Boolean = equal[A](a, b)
 
 } /* object HOL */
 
-object Nata {
+object Num {
 
-def suc(n: Nat): Nat = n + Nat(1)
+abstract sealed class num
+final case class One() extends num
+final case class Bit0(a: num) extends num
+final case class Bit1(a: num) extends num
 
-implicit def ord_nat: Orderings.ord[Nat] = new Orderings.ord[Nat] {
-  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
-  val `Orderings.less` = (a: Nat, b: Nat) => a < b
+} /* object Num */
+
+object Product_Type {
+
+def fst[A, B](x0: (A, B)): A = x0 match {
+  case (a, b) => a
 }
 
-implicit def equal_nat: HOL.equal[Nat] = new HOL.equal[Nat] {
-  val `HOL.equal` = (a: Nat, b: Nat) => a == b
+def snd[A, B](x0: (A, B)): B = x0 match {
+  case (a, b) => b
 }
 
-implicit def preorder_nat: Orderings.preorder[Nat] = new Orderings.preorder[Nat]
-  {
-  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
-  val `Orderings.less` = (a: Nat, b: Nat) => a < b
+def apsnd[A, B, C](f: A => B, x1: (C, A)): (C, B) = (f, x1) match {
+  case (f, (x, y)) => (x, f(y))
 }
 
-implicit def order_nat: Orderings.order[Nat] = new Orderings.order[Nat] {
-  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
-  val `Orderings.less` = (a: Nat, b: Nat) => a < b
+def product[A, B](x0: Set.set[A], x1: Set.set[B]): Set.set[(A, B)] = (x0, x1)
+  match {
+  case (Set.Seta(xs), Set.Seta(ys)) =>
+    Set.Seta[(A, B)](Lista.maps[A, (A, B)]((x: A) =>
+     Lista.map[B, (A, B)]((a: B) => (x, a), ys),
+    xs))
 }
 
-implicit def linorder_nat: Orderings.linorder[Nat] = new Orderings.linorder[Nat]
-  {
-  val `Orderings.less_eq` = (a: Nat, b: Nat) => a <= b
-  val `Orderings.less` = (a: Nat, b: Nat) => a < b
+def equal_proda[A : HOL.equal, B : HOL.equal](x0: (A, B), x1: (A, B)): Boolean =
+  (x0, x1) match {
+  case ((aa, ba), (a, b)) => HOL.eq[A](aa, a) && HOL.eq[B](ba, b)
 }
 
-} /* object Nata */
+implicit def equal_prod[A : HOL.equal, B : HOL.equal]: HOL.equal[(A, B)] = new
+  HOL.equal[(A, B)] {
+  val `HOL.equal` = (a: (A, B), b: (A, B)) => equal_proda[A, B](a, b)
+}
+
+} /* object Product_Type */
 
 object Set {
 
@@ -332,12 +253,13 @@ def removeAll[A : HOL.equal](x: A, xa1: List[A]): List[A] = (x, xa1) match {
     (if (HOL.eq[A](x, y)) removeAll[A](x, xs) else y :: removeAll[A](x, xs))
 }
 
-def gen_length[A](n: Nat, x1: List[A]): Nat = (n, x1) match {
-  case (n, x :: xs) => gen_length[A](Nata.suc(n), xs)
+def gen_length[A](n: Nat.nat, x1: List[A]): Nat.nat = (n, x1) match {
+  case (n, x :: xs) => gen_length[A](Nat.suc(n), xs)
   case (n, Nil) => n
 }
 
-def size_list[A]: (List[A]) => Nat = (a: List[A]) => gen_length[A](Nat(0), a)
+def size_list[A]: (List[A]) => Nat.nat =
+  (a: List[A]) => gen_length[A](Nat.zero_nat, a)
 
 def map_filter[A, B](f: A => Option[B], x1: List[A]): List[B] = (f, x1) match {
   case (f, Nil) => Nil
@@ -361,84 +283,160 @@ def sorted_list_of_set[A : HOL.equal : Orderings.linorder](x0: Set.set[A]):
 
 } /* object Lista */
 
-object Product_Type {
+object Nat {
 
-def fst[A, B](x0: (A, B)): A = x0 match {
-  case (a, b) => a
+abstract sealed class nat
+final case class Nata(a: BigInt) extends nat
+
+def plus_nat(m: nat, n: nat): nat =
+  Nata(Code_Numeral.integer_of_nat(m) + Code_Numeral.integer_of_nat(n))
+
+def one_nat: nat = Nata(BigInt(1))
+
+def suc(n: nat): nat = plus_nat(n, one_nat)
+
+def less_eq_nat(m: nat, n: nat): Boolean =
+  Code_Numeral.integer_of_nat(m) <= Code_Numeral.integer_of_nat(n)
+
+def less_nat(m: nat, n: nat): Boolean =
+  Code_Numeral.integer_of_nat(m) < Code_Numeral.integer_of_nat(n)
+
+implicit def ord_nat: Orderings.ord[nat] = new Orderings.ord[nat] {
+  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
+  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
 }
 
-def snd[A, B](x0: (A, B)): B = x0 match {
-  case (a, b) => b
+def equal_nata(m: nat, n: nat): Boolean =
+  Code_Numeral.integer_of_nat(m) == Code_Numeral.integer_of_nat(n)
+
+implicit def equal_nat: HOL.equal[nat] = new HOL.equal[nat] {
+  val `HOL.equal` = (a: nat, b: nat) => equal_nata(a, b)
 }
 
-def apsnd[A, B, C](f: A => B, x1: (C, A)): (C, B) = (f, x1) match {
-  case (f, (x, y)) => (x, f(y))
+implicit def preorder_nat: Orderings.preorder[nat] = new Orderings.preorder[nat]
+  {
+  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
+  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
 }
 
-def product[A, B](x0: Set.set[A], x1: Set.set[B]): Set.set[(A, B)] = (x0, x1)
-  match {
-  case (Set.Seta(xs), Set.Seta(ys)) =>
-    Set.Seta[(A, B)](Lista.maps[A, (A, B)]((x: A) =>
-     Lista.map[B, (A, B)]((a: B) => (x, a), ys),
-    xs))
+implicit def order_nat: Orderings.order[nat] = new Orderings.order[nat] {
+  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
+  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
 }
 
-def equal_proda[A : HOL.equal, B : HOL.equal](x0: (A, B), x1: (A, B)): Boolean =
-  (x0, x1) match {
-  case ((aa, ba), (a, b)) => HOL.eq[A](aa, a) && HOL.eq[B](ba, b)
+def zero_nat: nat = Nata(BigInt(0))
+
+implicit def linorder_nat: Orderings.linorder[nat] = new Orderings.linorder[nat]
+  {
+  val `Orderings.less_eq` = (a: nat, b: nat) => less_eq_nat(a, b)
+  val `Orderings.less` = (a: nat, b: nat) => less_nat(a, b)
 }
 
-implicit def equal_prod[A : HOL.equal, B : HOL.equal]: HOL.equal[(A, B)] = new
-  HOL.equal[(A, B)] {
-  val `HOL.equal` = (a: (A, B), b: (A, B)) => equal_proda[A, B](a, b)
-}
-
-} /* object Product_Type */
+} /* object Nat */
 
 object Int {
 
-def abs_int(i: BigInt): BigInt = (if (i < BigInt(0)) (- i) else i)
+abstract sealed class int
+final case class Int_of_integer(a: BigInt) extends int
 
-def sgn_int(i: BigInt): BigInt =
-  (if (i == BigInt(0)) BigInt(0)
-    else (if (BigInt(0) < i) BigInt(1) else (- BigInt(1))))
+def uminus_int(k: int): int =
+  Int_of_integer((- (Code_Numeral.integer_of_int(k))))
 
-implicit def equal_int: HOL.equal[BigInt] = new HOL.equal[BigInt] {
-  val `HOL.equal` = (a: BigInt, b: BigInt) => a == b
+def zero_int: int = Int_of_integer(BigInt(0))
+
+def less_int(k: int, l: int): Boolean =
+  Code_Numeral.integer_of_int(k) < Code_Numeral.integer_of_int(l)
+
+def abs_int(i: int): int = (if (less_int(i, zero_int)) uminus_int(i) else i)
+
+def equal_inta(k: int, l: int): Boolean =
+  Code_Numeral.integer_of_int(k) == Code_Numeral.integer_of_int(l)
+
+implicit def equal_int: HOL.equal[int] = new HOL.equal[int] {
+  val `HOL.equal` = (a: int, b: int) => equal_inta(a, b)
 }
+
+def plus_int(k: int, l: int): int =
+  Int_of_integer(Code_Numeral.integer_of_int(k) +
+                   Code_Numeral.integer_of_int(l))
+
+def minus_int(k: int, l: int): int =
+  Int_of_integer(Code_Numeral.integer_of_int(k) -
+                   Code_Numeral.integer_of_int(l))
+
+def times_int(k: int, l: int): int =
+  Int_of_integer(Code_Numeral.integer_of_int(k) *
+                   Code_Numeral.integer_of_int(l))
+
+def less_eq_int(k: int, l: int): Boolean =
+  Code_Numeral.integer_of_int(k) <= Code_Numeral.integer_of_int(l)
 
 } /* object Int */
 
-object Divides {
+object Code_Numeral {
 
-def divmod_int(k: BigInt, l: BigInt): (BigInt, BigInt) =
+def abs_integer(k: BigInt): BigInt = (if (k < BigInt(0)) (- k) else k)
+
+def sgn_integer(k: BigInt): BigInt =
+  (if (k == BigInt(0)) BigInt(0)
+    else (if (k < BigInt(0)) (- BigInt(1)) else BigInt(1)))
+
+def divmod_integer(k: BigInt, l: BigInt): (BigInt, BigInt) =
   (if (k == BigInt(0)) (BigInt(0), BigInt(0))
     else (if (l == BigInt(0)) (BigInt(0), k)
-           else Product_Type.apsnd[BigInt, BigInt,
-                                    BigInt]((a: BigInt) => Int.sgn_int(l) * a,
-     (if (Int.sgn_int(k) == Int.sgn_int(l))
-       ((k: BigInt) => (l: BigInt) => if (l == 0) (BigInt(0), k) else
-         (k.abs /% l.abs)).apply(k).apply(l)
-       else {
-              val (r, s): (BigInt, BigInt) =
-                ((k: BigInt) => (l: BigInt) => if (l == 0) (BigInt(0), k) else
-                  (k.abs /% l.abs)).apply(k).apply(l);
-              (if (s == BigInt(0)) ((- r), BigInt(0))
-                else ((- r) - BigInt(1), Int.abs_int(l) - s))
-            }))))
+           else (Fun.comp[BigInt, ((BigInt, BigInt)) => (BigInt, BigInt),
+                           BigInt](Fun.comp[BigInt => BigInt,
+     ((BigInt, BigInt)) => (BigInt, BigInt),
+     BigInt]((a: BigInt => BigInt) =>
+               (b: (BigInt, BigInt)) =>
+                 Product_Type.apsnd[BigInt, BigInt, BigInt](a, b),
+              (a: BigInt) => (b: BigInt) => a * b),
+                                    (a: BigInt) =>
+                                      sgn_integer(a))).apply(l).apply((if (sgn_integer(k) ==
+                                     sgn_integer(l))
+                                ((k: BigInt) => (l: BigInt) => if (l == 0)
+                                  (BigInt(0), k) else
+                                  (k.abs /% l.abs)).apply(k).apply(l)
+                                else {
+                                       val (r, s): (BigInt, BigInt) =
+ ((k: BigInt) => (l: BigInt) => if (l == 0) (BigInt(0), k) else
+   (k.abs /% l.abs)).apply(k).apply(l);
+                                       (if (s == BigInt(0)) ((- r), BigInt(0))
+ else ((- r) - BigInt(1), abs_integer(l) - s))
+                                     }))))
 
-def div_int(a: BigInt, b: BigInt): BigInt =
-  Product_Type.fst[BigInt, BigInt](divmod_int(a, b))
+def div_integer(k: BigInt, l: BigInt): BigInt =
+  Product_Type.fst[BigInt, BigInt](divmod_integer(k, l))
 
-def mod_int(a: BigInt, b: BigInt): BigInt =
-  Product_Type.snd[BigInt, BigInt](divmod_int(a, b))
+def mod_integer(k: BigInt, l: BigInt): BigInt =
+  Product_Type.snd[BigInt, BigInt](divmod_integer(k, l))
+
+def integer_of_int(x0: Int.int): BigInt = x0 match {
+  case Int.Int_of_integer(k) => k
+}
+
+def integer_of_nat(x0: Nat.nat): BigInt = x0 match {
+  case Nat.Nata(x) => x
+}
+
+} /* object Code_Numeral */
+
+object Divides {
+
+def div_int(k: Int.int, l: Int.int): Int.int =
+  Int.Int_of_integer(Code_Numeral.div_integer(Code_Numeral.integer_of_int(k),
+       Code_Numeral.integer_of_int(l)))
+
+def mod_int(k: Int.int, l: Int.int): Int.int =
+  Int.Int_of_integer(Code_Numeral.mod_integer(Code_Numeral.integer_of_int(k),
+       Code_Numeral.integer_of_int(l)))
 
 } /* object Divides */
 
 object GCD {
 
-def gcd_int(k: BigInt, l: BigInt): BigInt =
-  Int.abs_int((if (l == BigInt(0)) k
+def gcd_int(k: Int.int, l: Int.int): Int.int =
+  Int.abs_int((if (Int.equal_inta(l, Int.zero_int)) k
                 else gcd_int(l, Divides.mod_int(Int.abs_int(k),
          Int.abs_int(l)))))
 
@@ -449,97 +447,71 @@ object Rat {
 import /*implicits*/ Int.equal_int
 
 abstract sealed class rat
-final case class Frct(a: (BigInt, BigInt)) extends rat
+final case class Frct(a: (Int.int, Int.int)) extends rat
 
-def quotient_of(x0: rat): (BigInt, BigInt) = x0 match {
+def quotient_of(x0: rat): (Int.int, Int.int) = x0 match {
   case Frct(x) => x
 }
 
 def less_rat(p: rat, q: rat): Boolean =
   {
-    val (a, c): (BigInt, BigInt) = quotient_of(p)
-    val (b, d): (BigInt, BigInt) = quotient_of(q);
-    a * d < c * b
+    val (a, c): (Int.int, Int.int) = quotient_of(p)
+    val (b, d): (Int.int, Int.int) = quotient_of(q);
+    Int.less_int(Int.times_int(a, d), Int.times_int(c, b))
   }
 
-def normalize(p: (BigInt, BigInt)): (BigInt, BigInt) =
-  (if (BigInt(0) < Product_Type.snd[BigInt, BigInt](p))
+def normalize(p: (Int.int, Int.int)): (Int.int, Int.int) =
+  (if (Int.less_int(Int.zero_int, Product_Type.snd[Int.int, Int.int](p)))
     {
-      val a: BigInt =
-        GCD.gcd_int(Product_Type.fst[BigInt, BigInt](p),
-                     Product_Type.snd[BigInt, BigInt](p));
-      (Divides.div_int(Product_Type.fst[BigInt, BigInt](p), a),
-        Divides.div_int(Product_Type.snd[BigInt, BigInt](p), a))
+      val a: Int.int =
+        GCD.gcd_int(Product_Type.fst[Int.int, Int.int](p),
+                     Product_Type.snd[Int.int, Int.int](p));
+      (Divides.div_int(Product_Type.fst[Int.int, Int.int](p), a),
+        Divides.div_int(Product_Type.snd[Int.int, Int.int](p), a))
     }
-    else (if (Product_Type.snd[BigInt, BigInt](p) == BigInt(0))
-           (BigInt(0), BigInt(1))
+    else (if (Int.equal_inta(Product_Type.snd[Int.int, Int.int](p),
+                              Int.zero_int))
+           (Int.zero_int, Int.Int_of_integer(BigInt(1)))
            else {
-                  val a: BigInt =
-                    (- (GCD.gcd_int(Product_Type.fst[BigInt, BigInt](p),
-                                     Product_Type.snd[BigInt, BigInt](p))));
-                  (Divides.div_int(Product_Type.fst[BigInt, BigInt](p), a),
-                    Divides.div_int(Product_Type.snd[BigInt, BigInt](p), a))
+                  val a: Int.int =
+                    Int.uminus_int(GCD.gcd_int(Product_Type.fst[Int.int,
+                         Int.int](p),
+        Product_Type.snd[Int.int, Int.int](p)));
+                  (Divides.div_int(Product_Type.fst[Int.int, Int.int](p), a),
+                    Divides.div_int(Product_Type.snd[Int.int, Int.int](p), a))
                 }))
 
 def plus_rat(p: rat, q: rat): rat =
   Frct({
-         val (a, c): (BigInt, BigInt) = quotient_of(p)
-         val (b, d): (BigInt, BigInt) = quotient_of(q);
-         normalize((a * d + b * c, c * d))
+         val (a, c): (Int.int, Int.int) = quotient_of(p)
+         val (b, d): (Int.int, Int.int) = quotient_of(q);
+         normalize((Int.plus_int(Int.times_int(a, d), Int.times_int(b, c)),
+                     Int.times_int(c, d)))
        })
 
-def zero_rat: rat = Frct((BigInt(0), BigInt(1)))
+def zero_rat: rat = Frct((Int.zero_int, Int.Int_of_integer(BigInt(1))))
 
 def equal_rat(a: rat, b: rat): Boolean =
-  Product_Type.equal_proda[BigInt, BigInt](quotient_of(a), quotient_of(b))
+  Product_Type.equal_proda[Int.int, Int.int](quotient_of(a), quotient_of(b))
 
 def minus_rat(p: rat, q: rat): rat =
   Frct({
-         val (a, c): (BigInt, BigInt) = quotient_of(p)
-         val (b, d): (BigInt, BigInt) = quotient_of(q);
-         normalize((a * d - b * c, c * d))
+         val (a, c): (Int.int, Int.int) = quotient_of(p)
+         val (b, d): (Int.int, Int.int) = quotient_of(q);
+         normalize((Int.minus_int(Int.times_int(a, d), Int.times_int(b, c)),
+                     Int.times_int(c, d)))
        })
 
 def less_eq_rat(p: rat, q: rat): Boolean =
   {
-    val (a, c): (BigInt, BigInt) = quotient_of(p)
-    val (b, d): (BigInt, BigInt) = quotient_of(q);
-    a * d <= c * b
+    val (a, c): (Int.int, Int.int) = quotient_of(p)
+    val (b, d): (Int.int, Int.int) = quotient_of(q);
+    Int.less_eq_int(Int.times_int(a, d), Int.times_int(c, b))
   }
 
 } /* object Rat */
 
-object Maximum {
-
-def arg_max_alg_list[A, B : HOL.equal : Orderings.linorder](x0: List[A],
-                     f: A => B):
-      List[A] =
-  (x0, f) match {
-  case (Nil, f) => Nil
-  case (List(x), f) => List(x)
-  case (x :: v :: va, f) =>
-    {
-      val arg_max_xs: List[A] = arg_max_alg_list[A, B](v :: va, f)
-      val prev_max: B = f(Lista.hd[A](arg_max_xs));
-      (if (Orderings.less[B](prev_max, f(x))) List(x)
-        else (if (HOL.eq[B](f(x), prev_max)) x :: arg_max_xs else arg_max_xs))
-    }
-}
-
-def maximum_alg_list[A, B : Orderings.linorder](x0: List[A], b: A => B): B =
-  (x0, b) match {
-  case (Nil, b) => sys.error("undefined")
-  case (List(x), b) => b(x)
-  case (x :: v :: va, b) =>
-    {
-      val max_xs: B = maximum_alg_list[A, B](v :: va, b);
-      (if (Orderings.less[B](max_xs, b(x))) b(x) else max_xs)
-    }
-}
-
-} /* object Maximum */
-
-object RealDef {
+object Real {
 
 abstract sealed class real
 final case class Ratreal(a: Rat.rat) extends real
@@ -579,6 +551,14 @@ implicit def equal_real: HOL.equal[real] = new HOL.equal[real] {
   val `HOL.equal` = (a: real, b: real) => equal_reala(a, b)
 }
 
+def minus_reala(x0: real, x1: real): real = (x0, x1) match {
+  case (Ratreal(x), Ratreal(y)) => Ratreal(Rat.minus_rat(x, y))
+}
+
+implicit def minus_real: Groups.minus[real] = new Groups.minus[real] {
+  val `Groups.minus` = (a: real, b: real) => minus_reala(a, b)
+}
+
 implicit def preorder_real: Orderings.preorder[real] = new
   Orderings.preorder[real] {
   val `Orderings.less_eq` = (a: real, b: real) => less_eq_real(a, b)
@@ -588,10 +568,6 @@ implicit def preorder_real: Orderings.preorder[real] = new
 implicit def order_real: Orderings.order[real] = new Orderings.order[real] {
   val `Orderings.less_eq` = (a: real, b: real) => less_eq_real(a, b)
   val `Orderings.less` = (a: real, b: real) => less_real(a, b)
-}
-
-def minus_real(x0: real, x1: real): real = (x0, x1) match {
-  case (Ratreal(x), Ratreal(y)) => Ratreal(Rat.minus_rat(x, y))
 }
 
 implicit def linorder_real: Orderings.linorder[real] = new
@@ -622,7 +598,50 @@ implicit def comm_monoid_add_real: Groups.comm_monoid_add[real] = new
   val `Groups.plus` = (a: real, b: real) => plus_reala(a, b)
 }
 
-} /* object RealDef */
+} /* object Real */
+
+object Maximum {
+
+def arg_max_alg_list[A, B : HOL.equal : Orderings.linorder](x0: List[A],
+                     f: A => B):
+      List[A] =
+  (x0, f) match {
+  case (Nil, f) => Nil
+  case (List(x), f) => List(x)
+  case (x :: v :: va, f) =>
+    {
+      val arg_max_xs: List[A] = arg_max_alg_list[A, B](v :: va, f)
+      val prev_max: B = f(Lista.hd[A](arg_max_xs));
+      (if (Orderings.less[B](prev_max, f(x))) List(x)
+        else (if (HOL.eq[B](f(x), prev_max)) x :: arg_max_xs else arg_max_xs))
+    }
+}
+
+def maximum_alg_list[A, B : Orderings.linorder](x0: List[A], b: A => B): B =
+  (x0, b) match {
+  case (Nil, b) => sys.error("undefined")
+  case (List(x), b) => b(x)
+  case (x :: v :: va, b) =>
+    {
+      val max_xs: B = maximum_alg_list[A, B](v :: va, b);
+      (if (Orderings.less[B](max_xs, b(x))) b(x) else max_xs)
+    }
+}
+
+} /* object Maximum */
+
+object Lattices {
+
+def minus_funa[A, B : Groups.minus](a: A => B, b: A => B, x: A): B =
+  Groups.minus[B](a(x), b(x))
+
+implicit def minus_fun[A, B : Groups.minus]: Groups.minus[A => B] = new
+  Groups.minus[A => B] {
+  val `Groups.minus` = (a: A => B, b: A => B) => (c: A) =>
+    minus_funa[A, B](a, b, c)
+}
+
+} /* object Lattices */
 
 object Relation {
 
@@ -641,11 +660,19 @@ def range[A, B](r: Set.set[(A, B)]): Set.set[B] =
 def domain[A, B](r: Set.set[(A, B)]): Set.set[A] =
   Set.image[(A, B), A]((a: (A, B)) => Product_Type.fst[A, B](a), r)
 
+def converse[A, B](r: Set.set[(A, B)]): Set.set[(B, A)] =
+  Set.image[(A, B),
+             (B, A)]((a: (A, B)) => {
+                                      val (x, y): (A, B) = a;
+                                      (y, x)
+                                    },
+                      r)
+
 } /* object Relation */
 
 object Finite_Set {
 
-def card[A : HOL.equal](x0: Set.set[A]): Nat = x0 match {
+def card[A : HOL.equal](x0: Set.set[A]): Nat.nat = x0 match {
   case Set.Seta(xs) => Lista.size_list[A].apply(Lista.remdups[A](xs))
 }
 
@@ -729,7 +756,8 @@ def eval_rel_or[A : HOL.equal, B : HOL.equal](r: Set.set[(A, B)], a: A, z: B):
   {
     val im: Set.set[B] =
       Relation.image[A, B](r, Set.insert[A](a, Set.bot_set[A]));
-    (if (Finite_Set.card[B](im) == Nat(1)) Set.the_elem[B](im) else z)
+    (if (Nat.equal_nata(Finite_Set.card[B](im), Nat.one_nat))
+      Set.the_elem[B](im) else z)
   }
 
 def sup_rels_from_alg[A : HOL.equal,
@@ -759,69 +787,89 @@ def injections_alg[A : HOL.equal,
 
 object CombinatorialAuction {
 
-import /*implicits*/ Nata.linorder_nat, RealDef.comm_monoid_add_real,
-  Set.equal_set, Nata.equal_nat
+import /*implicits*/ Nat.linorder_nat, Real.comm_monoid_add_real, Set.equal_set,
+  Nat.equal_nat
 
-def value_rel(b: Nat => (Set.set[Nat]) => RealDef.real,
-               buyer: Set.set[(Set.set[Nat], Nat)]):
-      RealDef.real =
-  Big_Operators.setsum[Set.set[Nat],
-                        RealDef.real]((y: Set.set[Nat]) =>
-(b(RelationOperators.eval_rel[Set.set[Nat], Nat](buyer, y)))(y),
-                                       Relation.domain[Set.set[Nat],
-                Nat](buyer))
+def value_rel(b: Nat.nat => (Set.set[Nat.nat]) => Real.real,
+               buyer: Set.set[(Set.set[Nat.nat], Nat.nat)]):
+      Real.real =
+  Big_Operators.setsum[Set.set[Nat.nat],
+                        Real.real]((y: Set.set[Nat.nat]) =>
+                                     (b(RelationOperators.eval_rel[Set.set[Nat.nat],
+                            Nat.nat](buyer, y)))(y),
+                                    Relation.domain[Set.set[Nat.nat],
+             Nat.nat](buyer))
 
-def possible_allocations_alg(g: Set.set[Nat], n: Set.set[Nat]):
-      List[Set.set[(Set.set[Nat], Nat)]] =
-  Lista.maps[List[Set.set[Nat]],
-              Set.set[(Set.set[Nat],
-                        Nat)]]((y: List[Set.set[Nat]]) =>
-                                 RelationProperties.injections_alg[Set.set[Nat],
-                            Nat](y, n),
-                                Partitions.all_partitions_alg[Nat](g))
+def possible_allocations_alg(g: Set.set[Nat.nat], n: Set.set[Nat.nat]):
+      List[Set.set[(Set.set[Nat.nat], Nat.nat)]] =
+  Lista.maps[List[Set.set[Nat.nat]],
+              Set.set[(Set.set[Nat.nat],
+                        Nat.nat)]]((y: List[Set.set[Nat.nat]]) =>
+                                     RelationProperties.injections_alg[Set.set[Nat.nat],
+                                Nat.nat](y, n),
+                                    Partitions.all_partitions_alg[Nat.nat](g))
 
 } /* object CombinatorialAuction */
 
 object CombinatorialVickreyAuction {
 
-import /*implicits*/ RealDef.equal_real, RealDef.comm_monoid_add_real,
-  RealDef.linorder_real, Set.equal_set, Nata.equal_nat
+import /*implicits*/ Real.equal_real, Real.comm_monoid_add_real, Set.equal_set,
+  Lattices.minus_fun, Real.minus_real, Real.linorder_real, Nat.equal_nat
 
-def winning_allocations_alg_CL(g: Set.set[Nat], n: Set.set[Nat],
-                                b: Nat => (Set.set[Nat]) => RealDef.real):
-      List[Set.set[(Set.set[Nat], Nat)]] =
-  Maximum.arg_max_alg_list[Set.set[(Set.set[Nat], Nat)],
-                            RealDef.real](CombinatorialAuction.possible_allocations_alg(g,
-         n),
-   (a: Set.set[(Set.set[Nat], Nat)]) => CombinatorialAuction.value_rel(b, a))
+def alpha_alg(g: Set.set[Nat.nat], na: Set.set[Nat.nat],
+               b: Nat.nat => (Set.set[Nat.nat]) => Real.real, n: Nat.nat):
+      Real.real =
+  Maximum.maximum_alg_list[Set.set[(Set.set[Nat.nat], Nat.nat)],
+                            Real.real](CombinatorialAuction.possible_allocations_alg(g,
+      Set.remove[Nat.nat](n, na)),
+(a: Set.set[(Set.set[Nat.nat], Nat.nat)]) =>
+  CombinatorialAuction.value_rel(b, a))
 
-def winning_allocation_alg_CL(g: Set.set[Nat], n: Set.set[Nat],
-                               t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
-                                    Set.set[(Set.set[Nat], Nat)],
-                               b: Nat => (Set.set[Nat]) => RealDef.real):
-      Set.set[(Set.set[Nat], Nat)] =
+def winning_allocations_alg_CL(g: Set.set[Nat.nat], n: Set.set[Nat.nat],
+                                b: Nat.nat => (Set.set[Nat.nat]) => Real.real):
+      List[Set.set[(Set.set[Nat.nat], Nat.nat)]] =
+  Maximum.arg_max_alg_list[Set.set[(Set.set[Nat.nat], Nat.nat)],
+                            Real.real](CombinatorialAuction.possible_allocations_alg(g,
+      n),
+(a: Set.set[(Set.set[Nat.nat], Nat.nat)]) =>
+  CombinatorialAuction.value_rel(b, a))
+
+def winning_allocation_alg_CL(g: Set.set[Nat.nat], n: Set.set[Nat.nat],
+                               t: (List[Set.set[(Set.set[Nat.nat],
+          Nat.nat)]]) =>
+                                    Set.set[(Set.set[Nat.nat], Nat.nat)],
+                               b: Nat.nat => (Set.set[Nat.nat]) => Real.real):
+      Set.set[(Set.set[Nat.nat], Nat.nat)] =
   t(winning_allocations_alg_CL(g, n, b))
 
-def payments_alg_workaround(g: Set.set[Nat], na: Set.set[Nat],
-                             t: (List[Set.set[(Set.set[Nat], Nat)]]) =>
-                                  Set.set[(Set.set[Nat], Nat)],
-                             b: Nat => (Set.set[Nat]) => RealDef.real, n: Nat):
-      RealDef.real =
-  RealDef.minus_real(Maximum.maximum_alg_list[Set.set[(Set.set[Nat], Nat)],
-       RealDef.real](CombinatorialAuction.possible_allocations_alg(g, na),
-                      (a: Set.set[(Set.set[Nat], Nat)]) =>
-                        CombinatorialAuction.value_rel(b, a)),
-                      Big_Operators.setsum[Nat,
-    RealDef.real]((m: Nat) =>
-                    (b(m))(RelationProperties.eval_rel_or[Nat,
-                   Set.set[Nat]](Set.image[(Set.set[Nat], Nat),
-    (Nat, Set.set[Nat])]((a: (Set.set[Nat], Nat)) =>
-                           {
-                             val (x, y): (Set.set[Nat], Nat) = a;
-                             (y, x)
-                           },
-                          winning_allocation_alg_CL(g, na, t, b)),
-                                  m, Set.bot_set[Nat])),
-                   Set.remove[Nat](n, na)))
+def remaining_value_alg(g: Set.set[Nat.nat], na: Set.set[Nat.nat],
+                         t: (List[Set.set[(Set.set[Nat.nat], Nat.nat)]]) =>
+                              Set.set[(Set.set[Nat.nat], Nat.nat)],
+                         b: Nat.nat => (Set.set[Nat.nat]) => Real.real,
+                         n: Nat.nat):
+      Real.real =
+  Big_Operators.setsum[Nat.nat,
+                        Real.real]((m: Nat.nat) =>
+                                     (b(m))(RelationProperties.eval_rel_or[Nat.nat,
+                                    Set.set[Nat.nat]](Relation.converse[Set.set[Nat.nat],
+                                 Nat.nat](winning_allocation_alg_CL(g, na, t,
+                             b)),
+               m, Set.bot_set[Nat.nat])),
+                                    Set.remove[Nat.nat](n, na))
+
+def payments_alg(g: Set.set[Nat.nat], n: Set.set[Nat.nat],
+                  t: (List[Set.set[(Set.set[Nat.nat], Nat.nat)]]) =>
+                       Set.set[(Set.set[Nat.nat], Nat.nat)]):
+      (Nat.nat => (Set.set[Nat.nat]) => Real.real) => Nat.nat => Real.real =
+  (a: Nat.nat => (Set.set[Nat.nat]) => Real.real) =>
+    Lattices.minus_funa[Nat.nat => (Set.set[Nat.nat]) => Real.real,
+                         Nat.nat =>
+                           Real.real]((aa:
+ Nat.nat => (Set.set[Nat.nat]) => Real.real)
+=> (b: Nat.nat) => alpha_alg(g, n, aa, b),
+                                       (aa:
+  Nat.nat => (Set.set[Nat.nat]) => Real.real)
+ => (b: Nat.nat) => remaining_value_alg(g, n, t, aa, b),
+                                       a)
 
 } /* object CombinatorialVickreyAuction */
