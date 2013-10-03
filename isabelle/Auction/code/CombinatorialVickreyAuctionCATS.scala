@@ -19,7 +19,7 @@ import CombinatorialVickreyAuction.Nata._
 import CombinatorialVickreyAuction.Rat._
 import CombinatorialVickreyAuction.RealDef._
 import CombinatorialVickreyAuction.Set._
-import CombinatorialVickreyAuction.nVCG_CaseChecker._
+import CombinatorialVickreyAuction.CombinatorialVickreyAuction._
 
 /* our wrappers around the Isabelle library */
 import CombinatorialVickreyAuction.SetWrapper._

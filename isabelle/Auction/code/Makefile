@@ -37,7 +37,7 @@ include $(PREFIX)/Makefile.in
 # getting dependencies of executable classes right
 $(EXECUTABLES): %.class: \
   %.scala \
-  $(PACKAGE)/nVCG_CaseChecker.class \
+  $(PACKAGE)/CombinatorialVickreyAuction.class \
   $(PACKAGE)/IsabelleLibraryWrapper.class \
   $(PACKAGE)/NatSetWrapper.class \
   $(PACKAGE)/RatWrapper.class \
@@ -50,10 +50,10 @@ $(PACKAGE)/%.class: %.scala
 	scalac $<
 
 # need to compile all sources at once to avoid missing dependencies
-$(PACKAGE)/nVCG_CaseChecker.class: generated/$(PACKAGE).scala nVCG_CaseChecker.scala
+$(PACKAGE)/CombinatorialVickreyAuction.class: generated/$(PACKAGE).scala CombinatorialVickreyAuction.scala
 	scalac $(shell perl -lne 'print "$$1.scala" if /^object ([^ ]+) {/' $<)
 
-nVCG_CaseChecker.scala: generated/$(PACKAGE).scala
+CombinatorialVickreyAuction.scala: generated/$(PACKAGE).scala
 	./split-scala-modules.pl < $<
 
 %.jar: %.class
