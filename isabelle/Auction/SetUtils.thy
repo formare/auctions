@@ -140,7 +140,7 @@ text {* When a set of elements @{term A} is non-empty, and a function @{term f} 
 lemma Union_map_non_empty:
   assumes "x \<in> A"
       and "f x \<noteq> {}"
-  shows "\<Union> f ` A \<noteq> {}"
+  shows "\<Union> (f ` A) \<noteq> {}"
 proof -
   from assms(1) have "f ` A \<noteq> {}" by fast
   with assms show ?thesis by force

@@ -548,7 +548,7 @@ qed
 text {* Given a set @{term Ps} of partitions, this is intended to compute the set of all coarser
   partitions (given an extension element) of all partitions in @{term Ps}. *}
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
-where "all_coarser_partitions_with elem Ps = \<Union> coarser_partitions_with elem ` Ps"
+where "all_coarser_partitions_with elem Ps = \<Union> (coarser_partitions_with elem ` Ps)"
 
 text {* the list variant of @{const all_coarser_partitions_with} *}
 definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
@@ -572,8 +572,8 @@ proof -
   also have "\<dots> = \<Union> { set (map set (coarser_partitions_with_list elem P)) | P . P \<in> set Ps }" by auto
   also have "\<dots> = \<Union> { coarser_partitions_with elem (set P) | P . P \<in> set Ps }"
     using distinct coarser_partitions_with_list_alt by fast
-  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set ` (set Ps))" by (simp add: image_Collect_mem)
-  also have "\<dots> = \<Union> coarser_partitions_with elem ` (set (map set Ps))" by simp
+  also have "\<dots> = \<Union> (coarser_partitions_with elem ` (set ` (set Ps)))" by (simp add: image_Collect_mem)
+  also have "\<dots> = \<Union> (coarser_partitions_with elem ` (set (map set Ps)))" by simp
   also have "\<dots> = ?set_expr" unfolding all_coarser_partitions_with_def ..
   finally show ?thesis .
 qed
@@ -666,7 +666,7 @@ next
     have "P \<in> coarser_partitions_with x ?P_without_x"
       using coarser_partitions_inv_without is_partition P_covers
       by (metis List.set.simps(2) insertI1)
-    then have "P \<in> \<Union> coarser_partitions_with x ` set (map set (all_partitions_list xs))"
+    then have "P \<in> \<Union> (coarser_partitions_with x ` set (map set (all_partitions_list xs)))"
       using p_list by blast
     then have "P \<in> all_coarser_partitions_with x (set (map set (all_partitions_list xs)))"
       unfolding all_coarser_partitions_with_def by fast
@@ -686,7 +686,7 @@ next
     finally have P_set: "set (map set (all_partitions_list (x # xs))) = all_coarser_partitions_with x (all_partitions (set xs))" .
 
     with P have "P \<in> all_coarser_partitions_with x (all_partitions (set xs))" by fast
-    then have "P \<in> \<Union> coarser_partitions_with x ` (all_partitions (set xs))"
+    then have "P \<in> \<Union> (coarser_partitions_with x ` (all_partitions (set xs)))"
       unfolding all_coarser_partitions_with_def .
     then obtain Y
       where P_in_Y: "P \<in> Y"
@@ -718,9 +718,9 @@ next
       by simp
     also have "\<dots> = set (concat (map (coarser_partitions_with_list x) (all_partitions_list xs)))"
       unfolding all_coarser_partitions_with_list_def ..
-    also have "\<dots> = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_list xs))"
+    also have "\<dots> = \<Union> ((set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_list xs)))"
       by simp
-    finally have all_parts_unfolded: "set (all_partitions_list (x # xs)) = \<Union> (set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_list xs))" .
+    finally have all_parts_unfolded: "set (all_partitions_list (x # xs)) = \<Union> ((set \<circ> (coarser_partitions_with_list x)) ` (set (all_partitions_list xs)))" .
     (* \<dots> = \<Union> { set (coarser_partitions_with_list x ps) | ps . ps \<in> set (all_partitions_list xs) }
        (more readable, but less useful in proofs) *)
 
