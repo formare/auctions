@@ -53,23 +53,6 @@ value "arg_max_tb {2::nat, 4, 6} (* the participant indices *)
   (\<lambda> i . nth [27::real, 42, 42] (i div 2 - 1::nat))"
 *)
 
-(* original code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
-lemma sorted_list_of_set_remove': (* TODO CL: sorted_list_of_set_not_empty (for which this is needed) should be in the library in 2014; remove then *)
-  assumes "finite A" "x \<in> A"
-  shows "sorted_list_of_set A = insort x (sorted_list_of_set (A - {x}))" (is "?lhs = ?rhs")
-proof -
-  from assms have "insert x (A - {x}) = A" by blast
-  then have "?lhs = sorted_list_of_set (insert x (A - {x}))" by simp
-  also have "\<dots> = ?rhs" using assms by simp
-  finally show ?thesis .
-qed
-
-(* code provided by Lars Noschinski on the Isabelle mailing list, 2013-05-22 *)
-lemma sorted_list_of_set_eq_Nil_iff [simp] : (* TODO CL: should be in the library in 2014; remove then *)
-  assumes "finite S"
-  shows "sorted_list_of_set S = [] \<longleftrightarrow> S = {}"
-using assms by (auto simp: sorted_list_of_set_remove')
-
 text{* The highest bidder, determined by tie-breaking using @{term arg_max_tb},
   is one member of the set of all highest bidders, determined using @{term arg_max}. *}
 lemma arg_max_tb_imp_arg_max :
@@ -85,8 +68,7 @@ proof -
   def Nsort \<equiv> "sorted_list_of_set N"
   from defined have finite: "finite N" and ne: "N \<noteq> {}"
     unfolding maximum_defined_def by (simp_all add: card_gt_0_iff)
-  (* TODO CL: Isabelle 2014 might be able to do the following step more automatically: *)
-  from finite Nsort_def sorted_list_of_set have distinct: "distinct Nsort" by auto
+  from finite Nsort_def sorted_list_of_set have distinct: "distinct Nsort" by fast
   from finite ne Nsort_def have "Nsort \<noteq> []" by simp
   then have stmt_list: "distinct Nsort \<longrightarrow> arg_max_l_tb Nsort t b \<in> arg_max (set Nsort) b"
   proof (induct Nsort rule: list_nonempty_induct)

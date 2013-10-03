@@ -612,7 +612,7 @@ proof induct
   have "Domain {} = {}" by simp
   moreover have "Range {} \<subseteq> Y" by simp
   moreover note runiq_emptyrel
-  moreover have "runiq ({}\<inverse>)" by (simp add: converse_empty runiq_emptyrel)
+  moreover have "runiq ({}\<inverse>)" by (simp add: runiq_emptyrel)
   ultimately have "{} \<in> injections {} Y" unfolding injections_def using CollectI by blast
   then show ?case using assms by fast
 next
@@ -660,7 +660,7 @@ proof (induct xs)
       have "Domain {} = {}" by (rule Domain_empty)
       moreover have "Range {} \<subseteq> Y" by simp
       moreover note runiq_emptyrel
-      moreover have "runiq ({}\<inverse>)" by (simp add: converse_empty runiq_emptyrel)
+      moreover have "runiq ({}\<inverse>)" by (simp add: runiq_emptyrel)
       ultimately have "Domain {} = {} \<and> Range {} \<subseteq> Y \<and> runiq {} \<and> runiq ({}\<inverse>)" by blast
       (* CL: Merging the steps before and after this comment considerably increases complexity. *)
       then have "{} \<in> {R . Domain R = {} \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}" by (rule CollectI)
