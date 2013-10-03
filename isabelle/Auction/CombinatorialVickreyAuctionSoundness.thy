@@ -32,7 +32,7 @@ lemma left_total:
 proof (rule left_totalI)
   fix G::goods and N::"participant set" and b::bids
   assume assm: "valid_input G N b"
-  def x \<equiv> "winning_allocation_rel G N t b"
+  def x \<equiv> "winning_allocation_rel G N t b" (* these are function values and therefore guaranteed to exist *)
   def p \<equiv> "payments_rel G N t b"
   from assm x_def p_def have "nVCG_pred t G N b x p" unfolding nVCG_pred_def by blast
   then show "\<exists> x p . ((G, N, b), (x, p)) \<in> nVCG_auctions t"
