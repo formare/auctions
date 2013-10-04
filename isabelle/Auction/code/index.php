@@ -47,7 +47,7 @@ PageStart();
 <h2>How to run</h2>
 <ol>
   <li>For just executing the generated code, obtain Scala (see <a href="#isabelle-scala">below</a>), or use <a href="http://java.com">Java</a> with a recent version of <a href="https://oss.sonatype.org/content/groups/scala-tools/org/scala-lang/scala-library/">scala-library.jar</a>, e.g. <a href="https://oss.sonatype.org/content/groups/scala-tools/org/scala-lang/scala-library/2.10.2/scala-library-2.10.2.jar">scala-library-2.10.2</a>.  Then follow the instructions in <a href="README">README</a>.</li>
-  <li id="isabelle-scala">For building the code, obtain <a href="https://isabelle.in.tum.de/">Isabelle</a> and <a href="http://www.scala-lang.org">Scala</a>.  Our formalisation is known to work with Isabelle2013; the generated code is known to work with Scala 2.10.</li>
+  <li id="isabelle-scala">For building the code, obtain <a href="https://isabelle.in.tum.de/">Isabelle</a> and <a href="http://www.scala-lang.org">Scala</a>.  Our formalisation is known to work with <a href="http://isabelle.in.tum.de/website-Isabelle2013-1-RC1/">Isabelle2013-1-RC1</a>; the generated code is known to work with Scala 2.10.</li>
   <li>You currently need to manually load and run any of the Isabelle theories that generate code (check the <a href="../..">overview</a> for “code”), e.g. in jEdit.</li>
   <li>The <a href="Makefile">Makefile</a> has several relevant targets; e.g., you can build and run the CAB example as follows:
     <ol>
