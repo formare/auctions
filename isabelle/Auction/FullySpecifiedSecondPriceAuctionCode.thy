@@ -23,9 +23,7 @@ imports
 
 begin
 
-code_include Scala ""
-{*package code
-*}
+code_printing code_module "" => (Scala) {*package code*} 
 export_code fs_spa_winner fs_spa_allocation fs_spa_payments in Scala
 (* In SML, OCaml and Scala "file" is a file name; in Haskell it's a directory name ending with / *)
 module_name Vickrey file "code/generated/code.scala"

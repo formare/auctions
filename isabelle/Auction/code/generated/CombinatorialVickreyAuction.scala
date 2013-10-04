@@ -1,6 +1,5 @@
 package CombinatorialVickreyAuction
 
-
 object Fun {
 
 def id[A]: A => A = (x: A) => x

@@ -1,6 +1,5 @@
 package code
 
-
 object Vickrey {
 
 def id[A]: A => A = (x: A) => x
