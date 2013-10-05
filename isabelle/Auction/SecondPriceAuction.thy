@@ -115,7 +115,7 @@ proof -
   with spa have j_def: "\<forall>j \<in> N - {i} . x j = 0" using spa_allocation by (metis member_remove remove_def)
   then have "(\<Sum> k \<in> N . x k) = 1"
     using `card N > 0` i_def
-    by (metis (mono_tags) card_ge_0_finite monoid_add_class.add.right_neutral setsum.neutral setsum.remove setsum_infinite)
+    by (metis (mono_tags) card_ge_0_finite monoid_add_class.add.right_neutral setsum.neutral setsum.remove)
   then show ?thesis unfolding allocation_def non_negative_def le_def zero_def by (smt spa spa_allocation)
 qed
 
@@ -164,7 +164,7 @@ lemma spa_is_sga_pred :
   assumes "spa_pred N b x p"
   shows "sga_pred N b x p"
   using assms
-  unfolding spa_pred_def spa_admissible_input_def sga_pred_def by simp
+  unfolding spa_pred_def spa_admissible_input_def sga_pred_def admissible_input_def by fast
 
 lemma sga_pred_imp_lift_to_rel_sat:
   fixes P Q p q A
