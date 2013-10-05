@@ -57,7 +57,7 @@ type_synonym payments = "real vector"
 *)
 
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
-type_synonym allocation_rel = "((goods \<times> participant) set)" (* CL: goods set not necessary as the function-as-relation-as-set representation carries its own domain :-) *)
+type_synonym allocation_rel = "(goods \<times> participant) set" (* CL: goods set not necessary as the function-as-relation-as-set representation carries its own domain :-) *)
 
 type_synonym payments = "participant \<Rightarrow> price"
 
