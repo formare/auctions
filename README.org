@@ -1,0 +1,4 @@
+* Auction Theory Toolbox (ATT)
+  For further information and contacting the developers, please go to [[http://www.cs.bham.ac.uk/research/projects/formare/code/auction-theory/][the project homepage]].
+  
+  The formalisations in this archive are subject to [[LICENSE][the ISC and CC-BY licences]].
