@@ -44,12 +44,12 @@ section {* right-unique *}
 text {* splits the outcome of a combinatorial Vickrey auction in relational form into 
   allocation and payment *}
 lemma split_outcome:
-  assumes "((G', N', b'), (x'', p'')) \<in> nVCG_auctions t"
-  shows "x'' = winning_allocation_rel G' N' t b' \<and> p'' = payments_rel G' N' t b'"
+  assumes "((G, N, b), (x, p)) \<in> nVCG_auctions t"
+  shows "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b"
 proof -
-  from assms have "pred_tup (nVCG_pred t) ((G', N', b'), (x'', p''))"
+  from assms have "pred_tup (nVCG_pred t) ((G, N, b), (x, p))"
     unfolding nVCG_auctions_def rel_all_def by fast
-  then show "x'' = winning_allocation_rel G' N' t b' \<and> p'' = payments_rel G' N' t b'"
+  then show "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b"
     unfolding pred_tup_def nVCG_pred_def by blast
 qed
 
