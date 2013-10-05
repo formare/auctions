@@ -1,4 +1,4 @@
 This directory contains experimental, undocumented code, which is still in the process of being
 written.  Any code that turns out to be relevant to the project is ready to be moved to the main
-directory once it complies with the conventions laid out [[../README.md][there]].
+directory once it complies with the conventions laid out [[../README.org][there]].
 
