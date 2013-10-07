@@ -36,11 +36,11 @@ definition tie_breaker :: "tie_breaker_rel \<Rightarrow> bool"
 where "tie_breaker t \<longleftrightarrow> (\<forall> X . X \<noteq> {} \<longrightarrow> t X \<in> X)"
 
 text {* break ties by preferring an arbitrary existing allocation using the choice operator *}
-definition tie_breaker_choice :: "tie_breaker_rel" where "tie_breaker_choice x = (SOME y . y \<in> x)"
+fun tie_breaker_choice :: "tie_breaker_rel" where "tie_breaker_choice x = (SOME y . y \<in> x)"
 
 text {* @{const tie_breaker_choice} is a valid tie-breaker. *}
 lemma "tie_breaker tie_breaker_choice"
-unfolding tie_breaker_def tie_breaker_choice_def
+unfolding tie_breaker_def tie_breaker_choice.simps
 by (metis (lifting) all_not_in_conv some_eq_ex)
 
 (* TODO CL: when proving paper\<longleftrightarrow>algorithm equivalence w.r.t. tie-breakers, we need to make the
