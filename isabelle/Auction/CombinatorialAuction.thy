@@ -110,7 +110,7 @@ begin
   fix Sss::"'a set set"
   fix P::"'a set \<Rightarrow> ('a \<times> 'b) set set"
   (* TODO CL: an example (to be mentioned in the paper) for how hard set theory is for Isabelle:
-     takes several minutes to find, 104 ms to prove *)
+     takes several minutes to find (2013), 104 ms to prove *)
   have "{ R . \<exists> Y \<in> Sss . R \<in> P Y } = \<Union> { P Y | Y . Y \<in> Sss }" by (smt Collect_cong Union_eq mem_Collect_eq)
 end
 
