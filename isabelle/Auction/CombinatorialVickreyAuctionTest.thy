@@ -20,6 +20,8 @@ theory CombinatorialVickreyAuctionTest
 imports
   CombinatorialAuctionTest
   CombinatorialVickreyAuction
+  "~~/src/HOL/Library/Code_Target_Nat"
+
 begin
 
 value "max_revenue_alg paper_example_goods paper_example_participants paper_example_bids"

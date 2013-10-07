@@ -14,6 +14,8 @@ See LICENSE file for details
 
 theory PartitionsTest
 imports PartitionsAlternative
+  "~~/src/HOL/Library/Code_Target_Nat"
+
 begin
 
 (* partition of a set w.r.t. an equivalence relation: *)
