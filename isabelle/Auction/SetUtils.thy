@@ -23,7 +23,7 @@ begin
 section {* Equality *}
 
 text {* An inference rule that combines @{thm equalityI} and @{thm subsetI} to a single step *}
-lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by fast
+lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by blast
 
 section {* Trivial sets *}
 
@@ -71,6 +71,8 @@ lemma trivial_imp_no_distinct:
       and x: "x \<in> X"
       and y: "y \<in> X"
   shows "x = y"
+(* CL: The following takes 17 ms in Isabelle2013-1-RC1:
+   by (metis equals0D insertE triv trivial_cases x y) *)
 proof -
   from triv show "x = y"
   proof (cases rule: trivial_cases)
@@ -86,6 +88,8 @@ text {* If there are no two different elements in a set, it is trivial. *}
 lemma no_distinct_imp_trivial:
   assumes "\<forall> x y . x \<in> X \<and> y \<in> X \<longrightarrow> x = y"
   shows "trivial X"
+(* CL: The following takes 81 ms in Isabelle2013-1-RC1:
+   by (metis assms ex_in_conv insertI1 subsetI subset_singletonD trivial_def trivial_singleton) *)
 unfolding trivial_def
 proof 
   fix x::'a
@@ -110,11 +114,15 @@ lemma singleton_sub_trivial_uniq:
   assumes "{x} \<subseteq> X"
       and "trivial X"
   shows "x = the_elem X"
+(* CL: The following takes 16 ms in Isabelle2013-1-RC1:
+   by (metis assms(1) assms(2) insert_not_empty insert_subset subset_empty subset_insert trivial_def trivial_imp_no_distinct) *)
 using assms unfolding trivial_def by fast
 
 text {* Any subset of a trivial set is trivial. *}
 lemma trivial_subset: fixes X Y assumes "trivial Y" assumes "X \<subseteq> Y" 
 shows "trivial X"
+(* CL: The following takes 36 ms in Isabelle2013-1-RC1:
+   by (metis assms(1) assms(2) equals0D no_distinct_imp_trivial subsetI subset_antisym subset_singletonD trivial_cases) *)
 using assms unfolding trivial_def by (metis (full_types) subset_empty subset_insertI2 subset_singletonD)
 
 section {* The image of a set under a function *}
@@ -126,7 +134,7 @@ lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 section {* Miscellaneous *}
 
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
-lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by fast
+lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by blast
 
 lemma Union_map_member:
   assumes "x \<in> \<Union> { f y | y . y \<in> Z }"
@@ -148,19 +156,16 @@ qed
 
 text {* Two alternative notations for the big union operator involving set comprehension are
   equivalent. *}
-lemma Union_set_compr_eq: "(\<Union> x\<in>A . set x) = \<Union> { set x | x . x \<in> A }"
+lemma Union_set_compr_eq: "(\<Union> x\<in>A . f x) = \<Union> { f x | x . x \<in> A }"
 proof (rule equalitySubsetI)
   fix y
-  assume "y \<in> (\<Union> x\<in>A . set x)"
-  then obtain x where "x\<in>A" and "y\<in>set x" by force
-  then obtain z where "z \<in> { set x | x . x \<in> A }" and "y \<in> z" by blast
-  then show "y \<in> \<Union> { set x | x . x \<in> A }" by (rule UnionI)
+  assume "y \<in> (\<Union> x\<in>A . f x)"
+  then obtain z where "z \<in> { f x | x . x \<in> A }" and "y \<in> z" by blast
+  then show "y \<in> \<Union> { f x | x . x \<in> A }" by (rule UnionI)
 next
   fix y
-  assume "y \<in> \<Union> { set x | x . x \<in> A }"
-  then obtain z where "z \<in> { set x | x . x \<in> A }" and "y \<in> z" by (rule UnionE)
-  then obtain x where "x\<in>A" and "y\<in>set x" by blast
-  then show "y \<in> (\<Union> x\<in>A . set x)" by force
+  assume "y \<in> \<Union> { f x | x . x \<in> A }"
+  then show "y \<in> (\<Union> x\<in>A . f x)" by force
 qed
 
 end
