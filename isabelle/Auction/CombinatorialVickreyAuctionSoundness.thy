@@ -154,7 +154,7 @@ proof (rule wd_outcomeI)
   ultimately have "is_partition_of (Domain x) G" by blast
 
   from xp (* to use Max_in, we need additional assumptions about N and G, so that \<Union> is non-empty *)
-        have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+    have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {})))" by fastforce
 
   have "wd_allocation G N x"
@@ -186,7 +186,10 @@ proof (rule wd_outcomeI)
   moreover have "wd_payments N p" unfolding wd_payments_def
   proof
     fix n assume "n \<in> N"
-    then show "p n \<ge> 0" sorry
+    from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+      - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))" by fast
+    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))" sorry
+    ultimately show "p n \<ge> 0" by fastforce
   qed
   ultimately show "wd_alloc_pay G N b x p" unfolding wd_alloc_pay_def ..
 qed
