@@ -146,6 +146,26 @@ lemma no_empty_eq_class:
 text {* @{term P} is a partition of the set @{term A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
+text {* Every element of a partitioned set ends up in exactly one equivalence class. *}
+lemma elem_in_uniq_eq_class:
+  assumes in_set: "x \<in> A"
+      and part: "is_partition_of P A"
+  shows "\<exists>! X \<in> P . x \<in> X"
+proof -
+  obtain X where *: "X \<in> P \<and> x \<in> X"
+    using part in_set
+    unfolding is_partition_of_def is_partition_def 
+    by (auto simp add: UnionE)
+  moreover {
+    fix Y assume "Y \<in> P \<and> x \<in> Y"
+    then have "Y = X"
+      using part in_set *
+      unfolding is_partition_of_def is_partition_def
+      by (metis disjoint_iff_not_equal)
+  }
+  ultimately show ?thesis by (rule ex1I)
+qed
+
 text {* A non-empty set is a partition of itself. *}
 lemma set_partitions_itself:
   assumes "A \<noteq> {}"

@@ -108,6 +108,16 @@ proof
   then show "x \<in> {the_elem X}" by simp
 qed
 
+text {* If there exists a unique @{term x} with some property, then the set 
+  of all such @{term x} is trivial. *}
+lemma ex1_imp_trivial:
+  assumes "\<exists>! x . P x"
+  shows "trivial { x . P x }"
+proof -
+  from assms have "\<forall> a b . a \<in> { x . P x } \<and> b \<in> { x . P x } \<longrightarrow> a = b" by blast
+  then show ?thesis by (rule no_distinct_imp_trivial)
+qed 
+
 text {* If a trivial set has a singleton subset, the latter is unique. *}
 lemma singleton_sub_trivial_uniq:
   fixes x X

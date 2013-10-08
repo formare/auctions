@@ -163,19 +163,11 @@ proof (rule wd_outcomeI)
     proof
       fix g assume "g \<in> G"
       from inj have "runiq x" unfolding injections_def by simp
-      moreover have "trivial { P \<in> Domain x . g \<in> P }"
+      moreover have "trivial { X \<in> Domain x . g \<in> X }"
       proof -
-        {
-          fix a b assume a: "a \<in> { P \<in> Domain x . g \<in> P }" and b: "b \<in> { P \<in> Domain x . g \<in> P }"
-          have a': "a \<in> Domain x" and "g \<in> a" using a by simp_all
-          have b': "b \<in> Domain x" and "g \<in> b" using b by simp_all
-          from `g \<in> a` `g \<in> b` have "a \<inter> b \<noteq> {}" by blast
-          with `is_partition_of (Domain x) G`
-            have "a = b"
-            unfolding is_partition_of_def is_partition_def
-            using a' b' by simp
-        }
-        then show ?thesis by (simp add: no_distinct_imp_trivial)
+        from `g \<in> G` `is_partition_of (Domain x) G`
+          have "\<exists>! X \<in> Domain x . g \<in> X" by (rule elem_in_uniq_eq_class)
+        then show ?thesis by (rule ex1_imp_trivial)
       qed
       ultimately show "trivial (x `` { P \<in> Domain x . g \<in> P })" by (auto simp only: runiq_def)
     qed
