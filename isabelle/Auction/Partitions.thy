@@ -180,6 +180,26 @@ text {* classical set-theoretical definition of ``all partitions of a set @{term
 definition all_partitions where 
 "all_partitions A = {P . is_partition_of P A}"
 
+text {* A finite set has finitely many partitions. *}
+lemma finite_all_partitions:
+  assumes "finite A"
+  shows "finite (all_partitions A)"
+unfolding all_partitions_def is_partition_of_def is_partition_def
+(* CL: The following takes 74 ms in Isabelle2013-1-RC1:
+   by (smt PowD PowI Union_Pow_eq assms finite_Pow_iff in_mono mem_Collect_eq rev_finite_subset subsetI subset_Pow_Union) *)
+(* TODO CL: make the following more readable.  It was found by Sledgehammer but even after some cleanup I still fail to understand it. *)
+proof
+  have "finite (Pow (Pow A))" using assms by simp
+  moreover have "{ P . \<Union> P = A } \<subseteq> Pow (Pow A)"
+  proof
+    fix P assume "P \<in> { P . \<Union> P = A }"
+    then show "P \<in> Pow (Pow A)" by blast
+  qed
+  ultimately have "finite { P . \<Union> P = A }" by (rule rev_finite_subset)
+    (* CL: If we start with this, Isabelle2013-1-RC1 finds a fast but exceedingly complex Isar proof. *)
+  then show "finite {P . \<Union> P = A} \<or> finite {P. \<forall> X \<in> P . \<forall> Y \<in> P . (X \<inter> Y \<noteq> {}) \<longleftrightarrow> X = Y}" ..
+qed
+
 text {* Any non-empty set has at least one partition. *}
 lemma non_empty_set_has_partitions:
   assumes "A \<noteq> {}"
