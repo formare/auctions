@@ -168,4 +168,21 @@ next
   then show "y \<in> (\<Union> x\<in>A . f x)" by force
 qed
 
+(* TODO CL: find better name *)
+lemma Union_map_compr_eq1:
+  fixes x::'a
+    and f::"'b \<Rightarrow> 'a set"
+    and P::"'b set"
+  shows "x \<in> (\<Union> {f Y | Y . Y \<in> P}) \<longleftrightarrow> (\<exists> Y \<in> P . x \<in> f Y)"
+(* CL: the following proof takes 2.64s in Isabelle2013-1-RC1:
+   by (metis UN_iff Union_set_compr_eq) *)
+proof -
+  have "x \<in> (\<Union> {f Y | Y . Y \<in> P}) \<longleftrightarrow> x \<in> (\<Union> (f ` P))" by (simp add: image_Collect_mem)
+  also have "\<dots> \<longleftrightarrow> (\<exists> y \<in> (f ` P) . x \<in> y)" by (rule Union_iff)
+  also have "\<dots> \<longleftrightarrow> (\<exists> y . y \<in> (f ` P) & x \<in> y)" by force
+  also have "\<dots> \<longleftrightarrow> (\<exists> y \<in> (f ` P) . x \<in> y)" by blast
+  also have "\<dots> \<longleftrightarrow> (\<exists> Y \<in> P . x \<in> (f Y))" by force
+  finally show ?thesis .
+qed
+
 end
