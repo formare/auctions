@@ -201,6 +201,15 @@ proof (rule wd_outcomeI)
       qed
       also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }"
         unfolding injections_def by simp
+      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }"
+      proof - (* doesn't work in a single step *)
+        have "(\<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>)) \<longleftrightarrow>
+          Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y)" by blast
+        then have "{ \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }
+          = { \<Sum> y \<in> Domain x . b (x ,, y) y | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }" by blast
+          (* CL: takes 121 ms in Isabelle2013-1-RC1! *)
+        then show ?thesis by presburger
+      qed
       show ?thesis sorry
     qed
     ultimately show "p n \<ge> 0" by fastforce
