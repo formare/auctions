@@ -57,6 +57,8 @@ lemma subset_is_partition:
   assumes subset: "P \<subseteq> Q"
       and partition: "is_partition Q"
   shows "is_partition P"
+(* CL: The following takes 387 ms with Isabelle2013-1-RC1:
+   by (metis is_partition_def partition set_rev_mp subset) *)
 proof -
   {
     fix X Y assume "X \<in> P \<and> Y \<in> P"
@@ -136,7 +138,9 @@ qed
 text {* In a partition there is no empty equivalence class. *}
 lemma no_empty_eq_class:
   assumes "is_partition p"
-  shows "{} \<notin> p" 
+  shows "{} \<notin> p"
+(* CL: The following takes 36 ms with Isabelle2013-1-RC1:
+   by (metis Int_iff all_not_in_conv assms is_partition_def) *)
   using assms is_partition_def by fast
 
 text {* @{term P} is a partition of the set @{term A}. *}
@@ -146,7 +150,7 @@ text {* A non-empty set is a partition of itself. *}
 lemma set_partitions_itself:
   assumes "A \<noteq> {}"
   shows "is_partition_of {A} A" unfolding is_partition_of_def is_partition_def
-(* CL: the following takes 48 ms on my machine:
+(* CL: the following takes 48 ms on my machine with Isabelle2013:
    by (metis Sup_empty Sup_insert assms inf_idem singletonE sup_bot_right) *)
 proof
   show "\<Union> {A} = A" by simp
@@ -278,6 +282,8 @@ lemma insert_into_member_partition1:
     and eq_class::"'a set"
   (* no need to assume "eq_class \<in> P" *)
   shows "\<Union> insert_into_member elem P eq_class = \<Union> insert (eq_class \<union> {elem}) (P - {eq_class})"
+(* CL: The following takes 12 ms in Isabelle2013-1-RC1:
+   by (metis insert_into_member_def) *)
     unfolding insert_into_member_def
     by fast
 
@@ -756,7 +762,7 @@ text {* The paper-like definition @{const all_partitions} and the algorithmic de
 theorem all_partitions_paper_equiv_alg:
   fixes xs::"'a list"
   shows "distinct xs \<Longrightarrow> set (map set (all_partitions_list xs)) = all_partitions (set xs)"
-using all_partitions_paper_equiv_alg' by blast
+  using all_partitions_paper_equiv_alg' by blast
 
 text {* The function that we will be using in practice to compute all partitions of a set,
   a set-oriented frontend to @{const all_partitions_list} *}
