@@ -643,6 +643,24 @@ next
   with ** show "injections (insert a X) Y \<noteq> {}" by presburger
 qed
 
+text {* There are finitely many injective function from a finite set to another finite set. *}
+lemma finite_injections:
+  fixes X::"'a set"
+    and Y::"'b set"
+  assumes "finite X"
+      and "finite Y"
+  shows "finite (injections X Y)"
+proof (rule rev_finite_subset)
+  from assms show "finite (Pow (X \<times> Y))" by simp
+  moreover show "injections X Y \<subseteq> Pow (X \<times> Y)"
+  proof
+    fix R assume "R \<in> (injections X Y)"
+    then have "Domain R = X \<and> Range R \<subseteq> Y" unfolding injections_def by simp
+    then have "R \<subseteq> X \<times> Y" by fast
+    then show "R \<in> Pow (X \<times> Y)" by simp
+  qed
+qed
+
 text {* The paper-like definition @{const injections} and the algorithmic definition 
   @{const injections_alg} are equivalent. *}
 theorem injections_equiv:
