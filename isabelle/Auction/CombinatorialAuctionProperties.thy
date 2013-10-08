@@ -29,7 +29,7 @@ text {* No good is allocated to more than one bidder.  Given our formalisation o
   for each good the image of the equivalence class(es), in which the good occurs, under
   the allocation relation is @{const trivial}. *}
 definition no_good_allocated_twice :: "goods \<Rightarrow> allocation_rel \<Rightarrow> bool"
-where "no_good_allocated_twice G x \<longleftrightarrow>  (\<forall> g \<in> G . trivial (x `` { P \<in> Domain x . g \<in> P }))"
+where "no_good_allocated_twice G x \<longleftrightarrow> (\<forall> g \<in> G . trivial (x `` { P \<in> Domain x . g \<in> P }))"
 
 text {* well-definedness of an allocation, given the goods and participants: all goods are
   allocated within the set of participants; nothing is allocated twice. *}
