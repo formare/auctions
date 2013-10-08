@@ -188,7 +188,21 @@ proof (rule wd_outcomeI)
     fix n assume "n \<in> N"
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))" by fast
-    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))" sorry
+    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))"
+    proof -
+      have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) = Max { value_rel b x | x . x \<in> (possible_allocations_rel G (N - {n})) }"
+        by (metis image_Collect_mem)
+      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . x \<in> (\<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }) }" by simp
+      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . x \<in> injections Y (N - {n}) }"
+      proof - (* doesn't work in a single step *)
+        have "\<And> x . x \<in> (\<Union> {injections Y (N - {n}) | Y . Y \<in> all_partitions G}) \<longleftrightarrow> (\<exists> Y \<in> all_partitions G . x \<in> injections Y (N - {n}))"
+          by (rule Union_map_compr_eq1)
+        then show ?thesis by simp
+      qed
+      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }"
+        unfolding injections_def by simp
+      show ?thesis sorry
+    qed
     ultimately show "p n \<ge> 0" by fastforce
   qed
   ultimately show "wd_alloc_pay G N b x p" unfolding wd_alloc_pay_def ..
