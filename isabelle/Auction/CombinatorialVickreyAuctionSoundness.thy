@@ -99,60 +99,88 @@ proof (rule wd_outcomeI)
   from xp have x_unfolded: "x = t (arg_max' (value_rel b) (possible_allocations_rel G N))"
     unfolding winning_allocation_rel.simps winning_allocations_rel_def
     by simp
-  
+
+  have alloc_non_empty: "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
+  proof -
+    from valid have "card G > 0" and "card N > 0" unfolding valid_input_def by simp_all
+
+    from `card G > 0` have "finite G" by (rule card_ge_0_finite)
+    from `card N > 0` have "finite N" by (rule card_ge_0_finite)
+
+    from `card G > 0` have "G \<noteq> {}" by force
+    then have "is_partition_of {G} G" by (rule set_partitions_itself)
+    then have *: "{G} \<in> all_partitions G" unfolding all_partitions_def by (rule CollectI)
+    moreover have "injections {G} N \<noteq> {}"
+    proof -
+      have "finite {G}" by simp
+      moreover note `finite N`
+      moreover have "card {G} \<le> card N" using `card N > 0` by auto
+      ultimately show ?thesis by (rule injections_exist)
+    qed
+    ultimately have "(* \<Union> { injections Y N | Y . Y \<in> all_partitions G } = *)
+      possible_allocations_rel G N \<noteq> {}"
+      by (auto simp add: Union_map_non_empty)
+    moreover have "finite (possible_allocations_rel G N)"
+    proof -
+      from `finite G` have "finite (all_partitions G)" by (rule finite_all_partitions)
+      moreover {
+        fix Y
+        assume "Y \<in> all_partitions G"
+        then have "\<Union> Y = G" unfolding all_partitions_def is_partition_of_def
+          by (metis (lifting, full_types) mem_Collect_eq)
+        with `finite G` have "finite Y" by (metis finite_UnionD)
+        then have "finite (injections Y N)" using `finite N` by (rule finite_injections)
+      }
+      ultimately have "finite (\<Union> Y \<in> all_partitions G . injections Y N)" by (rule finite_UN_I)
+      then show ?thesis by (simp add: Union_set_compr_eq)
+    qed
+    ultimately have "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
+      by (rule arg_max'_non_empty_iff)
+    then show ?thesis by fast
+  qed
+  with assms x_unfolded have "x \<in> arg_max' (value_rel b) (possible_allocations_rel G N)"
+    using tie_breaker_def by smt
+  then have "x \<in> { x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G } .
+    value_rel b x = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G }) }" by simp
+  then have "x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G }
+    \<and> value_rel b x = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G })"
+    by (rule CollectD)
+  then have x_alloc: "x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G }" ..
+  then have "\<exists> Y \<in> all_partitions G . x \<in> injections Y N" by (rule Union_map_member)
+  then obtain Y where part: "Y \<in> all_partitions G" and inj: "x \<in> injections Y N" by fast
+
+  from part have "is_partition_of Y G" unfolding all_partitions_def by (rule CollectD)
+  moreover have "Domain x = Y" using inj unfolding injections_def by simp
+  ultimately have "is_partition_of (Domain x) G" by blast
+
   from xp (* to use Max_in, we need additional assumptions about N and G, so that \<Union> is non-empty *)
-    have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+        have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {})))" by fastforce
-  
+
   have "wd_allocation G N x"
   proof -
-    have "no_good_allocated_twice G x"
-    proof -
-      have alloc_non_empty: "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
+    have "no_good_allocated_twice G x" unfolding no_good_allocated_twice_def
+    proof
+      fix g assume "g \<in> G"
+      from inj have "runiq x" unfolding injections_def by simp
+      moreover have "trivial { P \<in> Domain x . g \<in> P }"
       proof -
-        from valid have "card G > 0" and "card N > 0" unfolding valid_input_def by simp_all
-  
-        from `card G > 0` have "G \<noteq> {}" by force
-        then have "is_partition_of {G} G" by (rule set_partitions_itself)
-        then have *: "{G} \<in> all_partitions G" unfolding all_partitions_def by (rule CollectI)
-        moreover have "injections {G} N \<noteq> {}"
-        proof -
-          have "finite {G}" by simp
-          moreover have "finite N" using `card N > 0` by (rule card_ge_0_finite)
-          moreover have "card {G} \<le> card N" using `card N > 0` by auto
-          ultimately show ?thesis by (rule injections_exist)
-        qed
-        ultimately have "(* \<Union> { injections Y N | Y . Y \<in> all_partitions G } = *)
-          possible_allocations_rel G N \<noteq> {}"
-          by (auto simp add: Union_map_non_empty)
-        moreover have "finite (possible_allocations_rel G N)" sorry
-          (* prove using finite_UN_I *)
-        ultimately have "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
-          by (rule arg_max'_non_empty_iff)
-        then show ?thesis by fast
+        {
+          fix a b assume a: "a \<in> { P \<in> Domain x . g \<in> P }" and b: "b \<in> { P \<in> Domain x . g \<in> P }"
+          have a': "a \<in> Domain x" and "g \<in> a" using a by simp_all
+          have b': "b \<in> Domain x" and "g \<in> b" using b by simp_all
+          from `g \<in> a` `g \<in> b` have "a \<inter> b \<noteq> {}" by blast
+          with `is_partition_of (Domain x) G`
+            have "a = b"
+            unfolding is_partition_of_def is_partition_def
+            using a' b' by simp
+        }
+        then show ?thesis by (simp add: no_distinct_imp_trivial)
       qed
-      with assms x_unfolded have "x \<in> arg_max' (value_rel b) (possible_allocations_rel G N)"
-        using tie_breaker_def by smt
-      then have "x \<in> { x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G } .
-        value_rel b x = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G }) }" by simp
-      then have "x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G }
-        \<and> value_rel b x = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G })"
-        by (rule CollectD)
-      then have x_alloc: "x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G }" ..
-  
-      have "is_partition_of (Domain x) G"
-      proof -
-        from x_alloc have "\<exists> Y \<in> all_partitions G . x \<in> injections Y N" by (rule Union_map_member)
-        then obtain Y where part: "Y \<in> all_partitions G" and inj: "x \<in> injections Y N" by fast
-        from part have "is_partition_of Y G" unfolding all_partitions_def by (rule CollectD)
-        moreover have "Domain x = Y" using inj unfolding injections_def by simp
-        ultimately show ?thesis by blast
-      qed
-
-      show ?thesis sorry
+      ultimately show "trivial (x `` { P \<in> Domain x . g \<in> P })" by (auto simp only: runiq_def)
     qed
-    moreover have "\<Union> Domain x \<subseteq> G" sorry
-    moreover have "Range x \<subseteq> N" sorry
+    moreover have "\<Union> Domain x \<subseteq> G" using `is_partition_of (Domain x) G` unfolding is_partition_of_def by blast
+    moreover have "Range x \<subseteq> N" using inj unfolding injections_def by simp
     ultimately show ?thesis unfolding wd_allocation_def by blast
   qed
   moreover have "wd_payments N p" unfolding wd_payments_def
