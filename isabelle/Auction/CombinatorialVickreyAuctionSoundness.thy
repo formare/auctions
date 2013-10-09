@@ -87,6 +87,27 @@ text {* The outcome of the combinatorial Vickrey auction is well-defined, if the
 definition wd_alloc_pay :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
 where "wd_alloc_pay G N b x p \<longleftrightarrow> wd_allocation G N x \<and> wd_payments N p"
 
+text {* an alternative way of expressing @{term remaining_value_rel}, by summing over equivalence
+  classes in an allocation rather than over bidders *}
+lemma remaining_value_alt:
+  "remaining_value_rel G N t b n =
+  (let x = { (y::goods, m::participant) .
+    (* determine the winning allocation, but take out the tuple of bidder n *)
+    (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }
+  in value_rel b x)"
+proof -
+  have "remaining_value_rel G N t b n = (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))" by simp
+  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}))" by simp
+  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = { y::goods . (y, m) \<in> winning_allocation_rel G N t b } in if card im = 1 then the_elem im else {}))"
+  proof -
+    have "\<forall> m . ((winning_allocation_rel G N t b)\<inverse>) `` {m} = { y::goods . (y, m) \<in> winning_allocation_rel G N t b }"
+      by (smt Collect_cong Image_singleton converse_iff)
+    then show ?thesis by presburger
+  qed
+  
+  show ?thesis sorry
+qed
+
 text {* The combinatorial Vickrey auction is well-defined. *}
 lemma wd_outcome:
   fixes t::tie_breaker_rel

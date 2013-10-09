@@ -85,16 +85,16 @@ section {* Allocations *}
 
 text {* the value (according to the bids submitted) of a certain allocation *}
 fun value_rel :: "bids \<Rightarrow> allocation_rel \<Rightarrow> price"
-where "value_rel b buyer = (\<Sum> y \<in> Domain buyer . b (buyer ,, y) y
+where "value_rel b x = (\<Sum> (y::goods) \<in> Domain x . b (x ,, y) y
   (* CL@CR: This implicitly assumes a value of 0 for goods not sold.  OK?
-            Goods not sold don't occur in the potential_buyer relation and 
+            Goods not sold don't occur in the allocation relation x and 
             therefore won't be summands of this sum. *)
 )"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition value_fun :: "bids \<Rightarrow> allocation_fun \<Rightarrow> price"
-where "value_fun b Yp  = (let Y = fst Yp; buyer = snd Yp in
-  \<Sum> y \<in> Y . (let n = buyer y in 
+where "value_fun b Yp  = (let Y = fst Yp; x = snd Yp in
+  \<Sum> y \<in> Y . (let n = x y in 
     case n of None \<Rightarrow> 0 (* CL@CR: OK to assume a value of 0 for goods not sold? *)
             | Some n \<Rightarrow> b n y))"
 *)
@@ -125,10 +125,10 @@ value "possible_allocations_alg {1,2,3::nat} {100,200::nat}"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition possible_allocations_fun :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_fun set"
-where "possible_allocations_fun G N = { (Y,potential_buyer) .
+where "possible_allocations_fun G N = { (Y,x) .
   Y \<in> all_partitions G
-  \<and> (\<forall> y \<in> Y . (\<exists> n \<in> N . potential_buyer y = Some n) \<or> potential_buyer y = None)
-  \<and> inj_on potential_buyer Y
+  \<and> (\<forall> y \<in> Y . (\<exists> n \<in> N . x y = Some n) \<or> x y = None)
+  \<and> inj_on x Y
  }"
 *)
 
