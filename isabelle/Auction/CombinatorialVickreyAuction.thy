@@ -128,14 +128,9 @@ section {* the Combinatorial Vickrey Auction in relational form *}
 
 (* TODO CL: we may need nVCG-specific notions of "valid input" *)
 
-text {* combinatorial Vickrey auction in predicate form, where
-  \begin{itemize}
-  \item input is a valid input to an nVCG auction, and
-  \item outcome is obtained from input according to the definitions above.
-  \end{itemize} *}
+text {* combinatorial Vickrey auction in predicate form, where the outcome is obtained from input according to the definitions above. *}
 definition nVCG_pred :: "tie_breaker_rel \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
 where "nVCG_pred t G N b x p \<longleftrightarrow>
-  valid_input G N b \<and>
   x = winning_allocation_rel G N t b \<and>
   p = payments_rel G N t b"
 
