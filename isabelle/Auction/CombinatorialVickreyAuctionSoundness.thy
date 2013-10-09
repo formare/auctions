@@ -29,6 +29,8 @@ text {* The combinatorial Vickrey auction in relational form is left-total.
 lemma left_total:
   fixes t::tie_breaker_rel (* no need to assume anything about t *)
   shows "left_total (nVCG_auctions t) valid_input"
+(* CL: In Isabelle2013-1-RC2 the following takes 239 ms: 
+   by (metis CombinatorialAuctionProperties.left_totalI nVCG_auctions_def nVCG_pred_def pred_imp_rel_all) *)
 proof (rule left_totalI)
   fix G::goods and N::"participant set" and b::bids
   assume assm: "valid_input G N b"
@@ -102,7 +104,9 @@ proof (rule wd_outcomeI)
 
   have alloc_non_empty: "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
   proof -
-    from valid have "card G > 0" and "card N > 0" unfolding valid_input_def by simp_all
+    from valid have "card G > 0" and "card N > 0"
+      unfolding valid_input_def CombinatorialAuction.valid_input_def
+      by simp_all
 
     from `card G > 0` have "finite G" by (rule card_ge_0_finite)
     from `card N > 0` have "finite N" by (rule card_ge_0_finite)

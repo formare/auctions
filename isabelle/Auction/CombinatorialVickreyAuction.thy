@@ -124,9 +124,20 @@ text {* alternative algorithmic version of @{text payments_rel}, working around 
 
 section {* the Combinatorial Vickrey Auction in relational form *}
 
-(* TODO CL: revise the following as per https://github.com/formare/auctions/issues/35 *)
+text {* Valid input (i.e.\ valid bids w.r.t.\ the goods and participants).  This extends general 
+  combinatorial auctions by the additional requirement that we need at least two participants; 
+  otherwise we wouldn't be able to compute @{term \<alpha>}, i.e.\ the ``second-highest price''. *}
+definition valid_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
+where "valid_input G N b \<longleftrightarrow> card N > 1 \<and> CombinatorialAuction.valid_input G N b"
 
-(* TODO CL: we may need nVCG-specific notions of "valid input" *)
+text {* Simplifying the overall constraints for valid input, combining the general ones for
+  combinatorial auctions with those for the combinatorial Vickrey auction *}
+lemma valid_input:
+  "valid_input G N b \<longleftrightarrow> card G > 0 \<and> card N > 1 \<and> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
+  unfolding valid_input_def CombinatorialAuction.valid_input_def
+  by fastforce
+
+(* TODO CL: revise the following as per https://github.com/formare/auctions/issues/35 *)
 
 text {* combinatorial Vickrey auction in predicate form, where the outcome is obtained from input according to the definitions above. *}
 definition nVCG_pred :: "tie_breaker_rel \<Rightarrow> goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
