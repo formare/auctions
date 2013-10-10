@@ -98,13 +98,39 @@ lemma remaining_value_alt:
 proof -
   have "remaining_value_rel G N t b n = (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))" by simp
   also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}))" by simp
-  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = { y::goods . (y, m) \<in> winning_allocation_rel G N t b } in if card im = 1 then the_elem im else {}))"
+  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) } in if card im = 1 then the_elem im else {}))"
   proof -
-    have "\<forall> m . ((winning_allocation_rel G N t b)\<inverse>) `` {m} = { y::goods . (y, m) \<in> winning_allocation_rel G N t b }"
-      by (smt Collect_cong Image_singleton converse_iff)
+    {
+      fix m
+      have "((winning_allocation_rel G N t b)\<inverse>) `` {m} = { y::goods . (y, m) \<in> winning_allocation_rel G N t b }"
+        by (smt Collect_cong Image_singleton converse_iff)
+      also have "\<dots> = { y::goods . (y, m) \<in> t (arg_max' (value_rel b) (possible_allocations_rel G N)) }" 
+        unfolding winning_allocation_rel.simps winning_allocations_rel_def
+        by simp
+      also have "\<dots> = { y::goods . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) }"
+        by simp
+      also have "\<dots> = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) }"
+        sorry (* CL: TODO use injectivity *)
+      finally have "((winning_allocation_rel G N t b)\<inverse>) `` {m} = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) }" .
+    }
     then show ?thesis by presburger
   qed
-  
+  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G }))))"
+  proof -
+    {
+      fix m
+      have "card { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) } = 1" by simp
+      moreover have "the_elem { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) } =
+        ( THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) )" by (rule the_elem_eq)
+      ultimately have "(let im = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) } in if card im = 1 then the_elem im else {})
+        = (THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })))" by smt
+    }
+    then show ?thesis by presburger
+  qed
+  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (THE y . (y, m) \<in> winning_allocation_rel G N t b))"
+    unfolding winning_allocation_rel.simps winning_allocations_rel_def
+    by simp
+
   show ?thesis sorry
 qed
 
