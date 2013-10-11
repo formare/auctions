@@ -195,4 +195,13 @@ proof -
   finally show ?thesis .
 qed
 
+text {* A set comprehension formed over a property, which is satisfied by exactly 
+  one object, yields a singleton set containing that object. *}
+lemma Collect_uniq_prop_singleton:
+  assumes "\<exists>! x . P x"
+  shows "{ x . P x } = { THE x . P x }"
+using assms
+(* TODO CL: optimise by some manual steps *)
+by (metis (full_types) Collect_cong singleton_conv2 theI')
+
 end

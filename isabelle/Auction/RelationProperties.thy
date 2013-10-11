@@ -97,6 +97,17 @@ next
   then show "runiq R" unfolding runiq_def by fast
 qed
 
+(* TODO CL: document *)
+lemma runiq_conv_imp_singleton_preimage:
+  assumes "runiq (R\<inverse>)"
+      and "y \<in> Range R"
+  shows "{ x . (x, y) \<in> R } = { THE x . (x, y) \<in> R}"
+proof (rule Collect_uniq_prop_singleton)
+  from assms show "\<exists>! x . (x, y) \<in> R"
+    (* TODO CL: optimise by some manual steps *)
+    by (metis Range_iff converse_iff runiq_basic)
+qed
+
 text {* an alternative definition of right-uniqueness in terms of @{const eval_rel} *}
 lemma runiq_wrt_eval_rel:
   fixes R :: "('a \<times> 'b) set"
