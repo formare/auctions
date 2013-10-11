@@ -133,7 +133,10 @@ where "valid_input G N b \<longleftrightarrow> card N > 1 \<and> CombinatorialAu
 text {* Simplifying the overall constraints for valid input, combining the general ones for
   combinatorial auctions with those for the combinatorial Vickrey auction *}
 lemma valid_input:
-  "valid_input G N b \<longleftrightarrow> card G > 0 \<and> card N > 1 \<and> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
+  "valid_input G N b \<longleftrightarrow>
+    card G > 0 \<and> card N > 1 \<and>
+    (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0) \<and>
+    (\<forall> n H . n \<in> N \<longrightarrow> b n {} = 0)"
   unfolding valid_input_def CombinatorialAuction.valid_input_def
   by fastforce
 

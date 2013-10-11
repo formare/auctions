@@ -76,10 +76,14 @@ type_synonym input_validity = "goods \<Rightarrow> participant set \<Rightarrow>
 text {* Valid input (i.e.\ valid bids w.r.t.\ the goods and participants).  As we represent
   @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
   their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}.  All we 
-  can enforce are non-empty finite sets of goods and participants, and that the bids are non-negative. *}
+  can enforce are non-empty finite sets of goods and participants, and that the bids are non-negative,
+  with bids on an empty set of goods being zero. *}
 (* CL: Once we realise general/special auctions using locales, we need a valid_input axiom. *)
 definition valid_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
-where "valid_input G N b \<longleftrightarrow> card G > 0 \<and> card N > 0 \<and> (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0)"
+where "valid_input G N b \<longleftrightarrow>
+  card G > 0 \<and> card N > 0 \<and>
+  (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0) \<and>
+  (\<forall> n . n \<in> N \<longrightarrow> b n {} = 0)"
 
 section {* Allocations *}
 
