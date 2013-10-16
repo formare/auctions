@@ -440,6 +440,18 @@ proof -
   ultimately show ?thesis using runiq runiq_converse_paste by blast
 qed
 
+text {* If a relation is known to be right-unique, it is easier to know when we can evaluate it
+  like a function, using @{const eval_rel_or}. *}
+lemma eval_runiq_rel_or:
+  assumes "runiq R"
+  shows "eval_rel_or R a z = (if a \<in> Domain R then the_elem (R `` {a}) else z)"
+proof -
+  from assms have "card (R `` {a}) = 1 \<longleftrightarrow> a \<in> Domain R"
+    (* TODO CL: optimise, put into RelationProperties.thy; so far takes 98 ms with Isabelle2013-1-RC2 *)
+    by (smt Image_within_runiq_domain card_Suc_eq card_empty ex_in_conv)
+  then show ?thesis by force
+qed
+
 section {* injectivity *}
 
 text {* A relation @{term R} is injective on its domain iff any two domain elements having the same image
@@ -753,9 +765,6 @@ fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
 where "as_part_fun R a = (let im = R `` {a} in 
         if card im = 1 then Some (the_elem im)
         else None)"
-
-fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
-where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
 
 definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a \<times> 'b) set"
 (* MC: the domain can be possibly specified in a separate step, e.g. through || *)

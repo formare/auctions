@@ -148,6 +148,14 @@ unfolding paste_def Outside_def by fast
 
 text {* The range of two pasted relations is a subset of the union of their ranges. *}
 lemma paste_Range: "Range (P +* Q) \<subseteq> Range P \<union> Range Q"
+(* TODO CL: report bug that structured proof found by auto sledgehammer doesn't work *)
 using paste_sub_Un by blast
+
+section {* evaluating a relation as a function *}
+
+text {* If an input has a unique image element under a given relation, return that element; 
+  otherwise return a fallback value. *}
+fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
+where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
 
 end
