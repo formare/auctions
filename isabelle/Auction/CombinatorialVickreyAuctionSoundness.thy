@@ -97,7 +97,42 @@ lemma remaining_value_alt:
   in value_rel b x)"
 proof -
   have "remaining_value_rel G N t b n = (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))" by simp
-  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}))" by simp
+  also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (if m \<in> Domain ((winning_allocation_rel G N t b)\<inverse>) then the_elem (((winning_allocation_rel G N t b)\<inverse>) `` {m}) else {}))"
+  proof -
+    {
+      fix m
+      have "runiq ((winning_allocation_rel G N t b)\<inverse>)" sorry
+      then have "eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}
+        = (if m \<in> Domain ((winning_allocation_rel G N t b)\<inverse>) then the_elem (((winning_allocation_rel G N t b)\<inverse>) `` {m}) else {})"
+        by (rule eval_runiq_rel_or)
+    }
+    then show ?thesis by presburger (* TODO CL: ask why "try" finds sledgehammer proofs > 3s in Isabelle2013-1-RC1 instead of succeeding with try0 *)
+  qed
+  also have "\<dots> = (\<Sum> m \<in> N - {n} \<inter> Range (winning_allocation_rel G N t b) . b m (THE y . (y, m) \<in> winning_allocation_rel G N t b))"
+  proof -
+    {
+      fix m
+      have "finite (N - {n})" sorry
+      moreover have "b m {} = 0" sorry
+      ultimately have "(\<Sum> m \<in> N - {n} . b m (let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}))
+        = (\<Sum> m \<in> N - {n} . b m (let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}))" sorry
+
+
+      have "(let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}) = (THE y . (y, m) \<in> winning_allocation_rel G N t b)"
+      proof cases
+        assume "m \<in> Range (winning_allocation_rel G N t b)"
+        then show ?thesis sorry
+      next
+        assume "m \<notin> Range (winning_allocation_rel G N t b)"
+        then have "((winning_allocation_rel G N t b)\<inverse>) `` {m} = {}" by blast
+        then have "(let im = ((winning_allocation_rel G N t b)\<inverse>) `` {m} in if card im = 1 then the_elem im else {}) = {}" by (smt card_empty)
+        also have "\<dots> = (THE y . (y, m) \<in> winning_allocation_rel G N t b)" sorry
+        finally show ?thesis sorry
+      qed
+    }
+    then show ?thesis sorry
+  qed
+  (*
   also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (let im = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) } in if card im = 1 then the_elem im else {}))"
   proof -
     {
@@ -110,7 +145,11 @@ proof -
       also have "\<dots> = { y::goods . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) }"
         by simp
       also have "\<dots> = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) }"
-        sorry (* CL: TODO use injectivity *)
+      proof -
+        have "runiq ((t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })))\<inverse>)" sorry
+        moreover have "m \<in> Range (t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })))" sorry
+        ultimately show ?thesis by (rule runiq_conv_imp_singleton_preimage)
+      qed
       finally have "((winning_allocation_rel G N t b)\<inverse>) `` {m} = { THE y . (y, m) \<in> t (arg_max' (value_rel b) (\<Union> { injections Y N | Y . Y \<in> all_partitions G })) }" .
     }
     then show ?thesis by presburger
@@ -130,6 +169,7 @@ proof -
   also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (THE y . (y, m) \<in> winning_allocation_rel G N t b))"
     unfolding winning_allocation_rel.simps winning_allocations_rel_def
     by simp
+  *)
 
   show ?thesis sorry
 qed
