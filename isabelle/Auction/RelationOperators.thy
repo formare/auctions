@@ -15,6 +15,7 @@ See LICENSE file for details
 theory RelationOperators
 imports
   Main
+  SetUtils
 
 begin
 
@@ -99,6 +100,50 @@ lemma Range_outside_sub:
 using assms
 using outside_union_restrict
 by (metis Range_mono inf_sup_ord(3) subset_trans)
+
+section {* flipping pairs of relations *}
+
+text {* flipping a pair: exchanging first and second component *}
+definition flip where "flip tup = (snd tup, fst tup)"
+
+text {* Flipped pairs can be found in the converse relation. *}
+lemma flip_in_conv:
+  assumes "tup \<in> R"
+  shows "flip tup \<in> R\<inverse>"
+using assms unfolding flip_def by simp
+
+text {* Flipping a pair twice doesn't change it. *}
+lemma flip_flip: "flip (flip tup) = tup"
+by (metis flip_def fst_conv snd_conv surjective_pairing)
+
+text {* Flipping all pairs in a relation yields the converse relation. *}
+lemma flip_conv: "flip ` R = R\<inverse>"
+proof -
+  have "flip ` R = { flip tup | tup . tup \<in> R }" by (metis image_Collect_mem)
+  also have "\<dots> = { tup . tup \<in> R\<inverse> }" using flip_in_conv by (metis converse_converse flip_flip)
+  also have "\<dots> = R\<inverse>" by simp
+  finally show ?thesis .
+qed
+
+text {* Summing over all pairs of a relation is the same as summing over all pairs of the
+  converse relation after flipping them. *}
+lemma setsum_rel_comm:
+  fixes R::"('a \<times> 'b) set"
+    and f::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>{comm_monoid_add}"
+  shows "(\<Sum> (x, y) \<in> R . f x y) = (\<Sum> (y', x') \<in> R\<inverse> . f x' y')"
+proof -
+  (* TODO CL: manually optimise some metis invocations *)
+  have "inj_on flip (R\<inverse>)"
+    by (metis flip_flip inj_on_def)
+  moreover have "R = flip ` (R\<inverse>)"
+    by (metis converse_converse flip_conv)
+  moreover have "\<And> tup . tup \<in> R\<inverse> \<Longrightarrow> f (snd tup) (fst tup) = f (fst (flip tup)) (snd (flip tup))"
+    by (metis flip_def fst_conv snd_conv)
+  ultimately have "(\<Sum> tup \<in> R . f (fst tup) (snd tup)) = (\<Sum> tup \<in> R\<inverse> . f (snd tup) (fst tup))"
+    by (rule setsum_reindex_cong)
+  then show ?thesis
+    by (metis (mono_tags) setsum_cong2 split_beta)
+qed
 
 section {* evaluation as a function *}
 

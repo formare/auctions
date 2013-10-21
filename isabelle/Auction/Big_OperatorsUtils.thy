@@ -38,5 +38,25 @@ proof -
   finally show ?thesis .
 qed
 
+text {* a variant of @{thm setsum_restrict_fun_zero} for the case that @{term g} also depends on
+  @{term "x \<in> S"} *}
+lemma setsum_restrict_fun_zero':
+  fixes A::"'a set"
+    and S::"'a set"
+    and f::"'a \<Rightarrow> 'b"
+    and g::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>{zero,comm_monoid_add}"
+    and z::'b
+  assumes finite: "finite S"
+      and zero: "\<forall> x \<in> S . g x z = 0"
+  shows "(\<Sum> x \<in> S . g x (if x \<in> A then f x else z)) = (\<Sum> x \<in> S \<inter> A . g x (f x))"
+using assms setsum_restrict_fun_zero
+by (smt setsum.cong setsum_restrict_set)
+
+text {* A variant of @{thm setsum_cong2} that's easier to apply in certain contexts *}
+lemma setsum_cong2':
+  assumes "\<forall> x \<in> S . f x = g x"
+  shows "(\<Sum> x \<in> S . f x) = (\<Sum> x \<in> S . g x)"
+by (metis assms setsum_cong2)
+
 end
 

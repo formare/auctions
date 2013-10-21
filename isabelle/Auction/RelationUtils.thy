@@ -16,7 +16,8 @@ header {* Additional material that we would have expected in Relation.thy *}
 
 theory RelationUtils
 imports
-  Relation
+  Main
+  SetUtils
 
 begin
 
@@ -31,6 +32,33 @@ lemma suprel_left_total_on:
       and "R \<subseteq> Q"
   shows "A \<subseteq> Domain Q"
 using assms by fast
+
+section {* Range *}
+
+(* TODO CL: document *)
+lemma Range_except:
+  fixes R::"('a \<times> 'b) set"
+    and N::"'b set"
+    and n::'b
+  assumes Range: "Range R \<subseteq> N"
+  shows "Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n } = (N - {n}) \<inter> Range R"
+proof (rule equalitySubsetI)
+  fix y
+  assume y: "y \<in> Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n }"
+  have y_in_Range: "y \<in> Range R"
+    using y by (metis (lifting, no_types) Range.simps mem_Collect_eq split_conv)
+  moreover have "y \<in> N" using y_in_Range by (metis Range in_mono)
+  moreover have "y \<noteq> n" using y by (smt Range_Collect_split mem_Collect_eq)
+  ultimately show "y \<in> (N - {n}) \<inter> Range R" by blast
+next
+  fix y
+  assume y: "y \<in> (N - {n}) \<inter> Range R"
+  have "y \<in> N" using y by fast
+  moreover have "y \<noteq> n" using y by fastforce
+  moreover have "y \<in> Range R" using y by fast
+  ultimately show "y \<in> Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n }"
+    by (metis (lifting, mono_tags) Range.simps mem_Collect_eq prod_caseI)
+qed
 
 section {* Image *}
 
