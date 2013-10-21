@@ -172,6 +172,10 @@ proof -
   from inj have runiq_alloc_conv: "runiq ((winning_allocation_rel G N t b)\<inverse>)" unfolding injections_def by simp
   from inj have alloc_Range: "Range (winning_allocation_rel G N t b) \<subseteq> N" unfolding injections_def by simp
 
+  let ?alloc_except_n = "{ (y::goods, m::participant) . (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
+  from alloc_Range have alloc_except_Range: "Range ?alloc_except_n
+    = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)" by (rule Range_except)
+
   have "remaining_value_rel G N t b n = (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))" by simp
   also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (if m \<in> Domain ((winning_allocation_rel G N t b)\<inverse>) then the_elem (((winning_allocation_rel G N t b)\<inverse>) `` {m}) else {}))"
   proof -
@@ -216,9 +220,18 @@ proof -
       = b m (THE y . (y, m) \<in> winning_allocation_rel G N t b)" by blast
     then show ?thesis by (rule setsum_cong2')
   qed
-
-  from alloc_Range have "Range { (y::goods, m::participant) . (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }
-    \<subseteq> (N - {n}) \<inter> Range (winning_allocation_rel G N t b)" by (rule Range_except)
+  also have "\<dots> = (\<Sum> m \<in> Range ?alloc_except_n . b m (THE y . (y, m) \<in> winning_allocation_rel G N t b))"
+    using alloc_except_Range by presburger
+  also have "\<dots> = (\<Sum> m \<in> Range ?alloc_except_n . b m (THE y . (y, m) \<in> ?alloc_except_n))"
+  proof (rule setsum_cong2)
+    fix m
+    assume m_Range: "m \<in> Range ?alloc_except_n"
+    then have "\<forall> y . (y, m) \<in> winning_allocation_rel G N t b \<longleftrightarrow> (y, m) \<in> ?alloc_except_n"
+      using alloc_except_Range by fast
+      (* CL: "try" in Isabelle2013-1-RC3 doesn't give preference to "try0" *)
+    then show "b m (THE y . (y, m) \<in> winning_allocation_rel G N t b) = b m (THE y . (y, m) \<in> ?alloc_except_n)"
+    by presburger
+  qed
 
   (* value_rel b x = (\<Sum> (y::goods) \<in> Domain x . b (x ,, y) y) *)
   show ?thesis sorry
