@@ -169,10 +169,15 @@ lemma remaining_value_alt:
 proof -
   from assms obtain Y where "Y \<in> all_partitions G" and inj: "winning_allocation_rel G N t b \<in> injections Y N"
     by (rule winning_allocation_injective)
+  from inj have runiq_alloc: "runiq (winning_allocation_rel G N t b)" unfolding injections_def by simp
   from inj have runiq_alloc_conv: "runiq ((winning_allocation_rel G N t b)\<inverse>)" unfolding injections_def by simp
   from inj have alloc_Range: "Range (winning_allocation_rel G N t b) \<subseteq> N" unfolding injections_def by simp
 
   let ?alloc_except_n = "{ (y::goods, m::participant) . (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
+  have alloc_except_subrel: "?alloc_except_n \<subseteq> winning_allocation_rel G N t b" by fastforce
+  with runiq_alloc have alloc_except_runiq: "runiq ?alloc_except_n" by (rule subrel_runiq)
+  from alloc_except_subrel have "?alloc_except_n\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
+  with runiq_alloc_conv have alloc_except_conv_runiq: "runiq (?alloc_except_n\<inverse>)" by (rule subrel_runiq)
   from alloc_Range have alloc_except_Range: "Range ?alloc_except_n
     = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)" by (rule Range_except)
 
@@ -230,11 +235,26 @@ proof -
       using alloc_except_Range by fast
       (* CL: "try" in Isabelle2013-1-RC3 doesn't give preference to "try0" *)
     then show "b m (THE y . (y, m) \<in> winning_allocation_rel G N t b) = b m (THE y . (y, m) \<in> ?alloc_except_n)"
-    by presburger
+      by presburger
   qed
-
-  (* value_rel b x = (\<Sum> (y::goods) \<in> Domain x . b (x ,, y) y) *)
-  show ?thesis sorry
+  also have "\<dots> = (\<Sum> y \<in> Domain ?alloc_except_n . b (THE m . (y, m) \<in> ?alloc_except_n) y)"
+    using alloc_except_runiq alloc_except_conv_runiq
+    by (rule setsum_Domain_Range_runiq_rel[symmetric])
+  also have "\<dots> = (\<Sum> y \<in> Domain ?alloc_except_n . b (?alloc_except_n ,, y) y)"
+  proof -
+    {
+      fix y
+      assume "y \<in> Domain ?alloc_except_n"
+      with alloc_except_runiq
+        have "(THE m . (y, m) \<in> ?alloc_except_n) = the_elem (?alloc_except_n `` {y})"
+        by (rule runiq_imp_singleton_image'[symmetric])
+      also have "\<dots> = ?alloc_except_n ,, y" by simp
+      finally have "(THE m . (y, m) \<in> ?alloc_except_n) = ?alloc_except_n ,, y" .
+    }
+    then show ?thesis by auto
+  qed
+  also have "\<dots> = value_rel b ?alloc_except_n" by simp
+  finally show ?thesis .
 qed
 
 text {* The combinatorial Vickrey auction is well-defined. *}
