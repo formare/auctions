@@ -20,6 +20,8 @@ imports
   
 begin
 
+section {* sum of a function over a set *}
+
 lemma setsum_restrict_fun_zero:
   fixes A::"'a set"
     and S::"'a set"
@@ -57,6 +59,15 @@ lemma setsum_cong2':
   assumes "\<forall> x \<in> S . f x = g x"
   shows "(\<Sum> x \<in> S . f x) = (\<Sum> x \<in> S . g x)"
 by (metis assms setsum_cong2)
+
+section {* maximum *}
+
+lemma Max_fun_ge:
+  fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
+  assumes "finite A"
+      and "x \<in> A"
+  shows "Max (f ` A) \<ge> f x"
+  using assms by simp
 
 end
 

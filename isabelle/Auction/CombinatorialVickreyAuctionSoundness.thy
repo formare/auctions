@@ -332,7 +332,14 @@ proof (rule wd_outcomeI)
           (* CL: takes 121 ms in Isabelle2013-1-RC1! *)
         then show ?thesis by presburger
       qed
-      show ?thesis sorry
+      finally (* end chain here for now *)
+        have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
+          = Max { value_rel b x | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }" .
+      
+      have "finite (possible_allocations_rel G (N - {n}))" sorry
+      moreover have "{ (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }
+        \<in> (possible_allocations_rel G (N - {n}))" sorry
+      ultimately show ?thesis by (rule Max_fun_ge)
     qed
     ultimately show "p n \<ge> 0" by fastforce
   qed
