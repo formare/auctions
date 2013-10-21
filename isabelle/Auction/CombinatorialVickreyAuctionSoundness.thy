@@ -278,7 +278,7 @@ proof (rule wd_outcomeI)
 
   from xp (* to use Max_in, we need additional assumptions about N and G, so that \<Union> is non-empty *)
     have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
-      - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {})))" by fastforce
+      - remaining_value_rel G N t b n)" by fastforce
 
   have "wd_allocation G N x"
   proof -
@@ -302,26 +302,33 @@ proof (rule wd_outcomeI)
   proof
     fix n assume "n \<in> N"
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
-      - (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))" by fast
-    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> (\<Sum> m \<in> N - {n} . b m (eval_rel_or (x\<inverse>) m {}))"
+      - remaining_value_rel G N t b n" by fast
+    also have "\<dots> = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+      - value_rel b { (y::goods, m::participant) .
+        (* determine the winning allocation, but take out the tuple of bidder n *)
+        (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" 
+      using valid assms by (metis (lifting, no_types) remaining_value_alt)
+    finally have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+      - value_rel b { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" .
+    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
     proof -
       have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) = Max { value_rel b x | x . x \<in> (possible_allocations_rel G (N - {n})) }"
         by (metis image_Collect_mem)
-      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . x \<in> (\<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }) }" by simp
-      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . x \<in> injections Y (N - {n}) }"
+      also have "\<dots> = Max { value_rel b x | x . x \<in> (\<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }) }" by simp
+      also have "\<dots> = Max { value_rel b x | x . \<exists> Y \<in> all_partitions G . x \<in> injections Y (N - {n}) }"
       proof - (* doesn't work in a single step *)
         have "\<And> x . x \<in> (\<Union> {injections Y (N - {n}) | Y . Y \<in> all_partitions G}) \<longleftrightarrow> (\<exists> Y \<in> all_partitions G . x \<in> injections Y (N - {n}))"
           by (rule Union_map_compr_eq1)
         then show ?thesis by simp
       qed
-      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }"
+      also have "\<dots> = Max { value_rel b x | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }"
         unfolding injections_def by simp
-      also have "\<dots> = Max { \<Sum> y \<in> Domain x . b (x ,, y) y | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }"
+      also have "\<dots> = Max { value_rel b x | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }"
       proof - (* doesn't work in a single step *)
         have "(\<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>)) \<longleftrightarrow>
           Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y)" by blast
-        then have "{ \<Sum> y \<in> Domain x . b (x ,, y) y | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }
-          = { \<Sum> y \<in> Domain x . b (x ,, y) y | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }" by blast
+        then have "{ value_rel b x | x . \<exists> Y \<in> all_partitions G . Domain x = Y \<and> Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) }
+          = { value_rel b x | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }" by blast
           (* CL: takes 121 ms in Isabelle2013-1-RC1! *)
         then show ?thesis by presburger
       qed
