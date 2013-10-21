@@ -18,6 +18,28 @@ imports CombinatorialAuction
 
 begin
 
+section {* Allocations *}
+
+text {* For finite numbers of goods and participants, there are finitely many possible allocations
+  of sets of goods to participants. *}
+lemma allocs_finite:
+  assumes "finite G"
+      and "finite N"
+  shows "finite (possible_allocations_rel G N)"
+proof -
+  from `finite G` have "finite (all_partitions G)" by (rule finite_all_partitions)
+  moreover {
+    fix Y
+    assume "Y \<in> all_partitions G"
+    then have "\<Union> Y = G" unfolding all_partitions_def is_partition_of_def
+      by (metis (lifting, full_types) mem_Collect_eq)
+    with `finite G` have "finite Y" by (metis finite_UnionD)
+    then have "finite (injections Y N)" using `finite N` by (rule finite_injections)
+  }
+  ultimately have "finite (\<Union> Y \<in> all_partitions G . injections Y N)" by (rule finite_UN_I)
+  then show ?thesis by (simp add: Union_set_compr_eq)
+qed
+
 (* TODO CL: revise the following as per https://github.com/formare/auctions/issues/19 *)
 
 section {* Soundness *}

@@ -83,6 +83,54 @@ text {* Payments are well-defined if every bidder has to pay a non-negative amou
 definition wd_payments :: "participant set \<Rightarrow> payments \<Rightarrow> bool"
 where "wd_payments N p \<longleftrightarrow> (\<forall> n \<in> N . p n \<ge> 0)"
 
+text {* In a valid input to a combinatorial Vickrey auction, the set of goods in particular
+  has a non-zero cardinality. *}
+lemma card_goods_gt_0:
+  assumes "valid_input G N b"
+  shows "card G > 0"
+using assms
+unfolding valid_input_def CombinatorialAuction.valid_input_def
+by simp
+
+text {* In a valid input to a combinatorial Vickrey auction, the set of goods in particular
+  is finite. *}
+lemma finite_goods:
+  assumes "valid_input G N b"
+  shows "finite G"
+proof -
+  from assms have "card G > 0" by (rule card_goods_gt_0)
+  then show ?thesis by (rule card_ge_0_finite)
+qed
+
+text {* In a valid input to a combinatorial Vickrey auction, the set of participants in particular
+  has a non-zero cardinality. *}
+lemma card_participants_gt_0:
+  assumes "valid_input G N b"
+  shows "card N > 0"
+using assms
+unfolding valid_input_def CombinatorialAuction.valid_input_def
+by simp
+
+text {* In a valid input to a combinatorial Vickrey auction, the set of participants in particular
+  is finite. *}
+lemma finite_participants:
+  assumes "valid_input G N b"
+  shows "finite N"
+proof -
+  from assms have "card N > 0" by (rule card_participants_gt_0)
+  then show "finite N" by (rule card_ge_0_finite)
+qed
+
+text {* In a valid input to a combinatorial Vickrey auction, the set of participants in particular
+  is finite, and (of course) this also holds after removing one participant from it. *}
+lemma finite_participants_except:
+  assumes "valid_input G N b"
+  shows "finite (N - {n})"
+proof -
+  from assms have "finite N" by (rule finite_participants)
+  then show ?thesis by force
+qed
+
 text {* The outcome of the combinatorial Vickrey auction is well-defined, if the allocation 
   is well-defined and the payments are non-negative. *}
 definition wd_alloc_pay :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
@@ -106,12 +154,10 @@ proof -
     by simp
   have alloc_non_empty: "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
   proof -
-    from valid_input have "card G > 0" and "card N > 0"
-      unfolding valid_input_def CombinatorialAuction.valid_input_def
-      by simp_all
-
-    from `card G > 0` have "finite G" by (rule card_ge_0_finite)
-    from `card N > 0` have "finite N" by (rule card_ge_0_finite)
+    from valid_input have "card G > 0" by (rule card_goods_gt_0)
+    then have "finite G" by (rule card_ge_0_finite)
+    from valid_input have "card N > 0" by (rule card_participants_gt_0)
+    then have "finite N" by (rule card_ge_0_finite)
 
     from `card G > 0` have "G \<noteq> {}" by force
     then have "is_partition_of {G} G" by (rule set_partitions_itself)
@@ -127,19 +173,7 @@ proof -
       possible_allocations_rel G N \<noteq> {}"
       by (auto simp add: Union_map_non_empty)
     moreover have "finite (possible_allocations_rel G N)"
-    proof -
-      from `finite G` have "finite (all_partitions G)" by (rule finite_all_partitions)
-      moreover {
-        fix Y
-        assume "Y \<in> all_partitions G"
-        then have "\<Union> Y = G" unfolding all_partitions_def is_partition_of_def
-          by (metis (lifting, full_types) mem_Collect_eq)
-        with `finite G` have "finite Y" by (metis finite_UnionD)
-        then have "finite (injections Y N)" using `finite N` by (rule finite_injections)
-      }
-      ultimately have "finite (\<Union> Y \<in> all_partitions G . injections Y N)" by (rule finite_UN_I)
-      then show ?thesis by (simp add: Union_set_compr_eq)
-    qed
+      using `finite G` `finite N` by (rule allocs_finite)
     ultimately have "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
       by (rule arg_max'_non_empty_iff)
     then show ?thesis by fast
@@ -158,14 +192,21 @@ proof -
   then show ?thesis ..
 qed
 
+text {* determine the winning allocation, but take out the tuple of participant @{term n} *}
+fun winning_allocation_except
+where "winning_allocation_except G N t b n = { (y::goods, m::participant) .
+  (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
+
+lemma winning_allocation_except_subrel:
+  "winning_allocation_except G N t b n \<subseteq> winning_allocation_rel G N t b"
+by fastforce
+
 text {* an alternative way of expressing @{term remaining_value_rel}, by summing over equivalence
   classes in an allocation rather than over bidders *}
 lemma remaining_value_alt:
   assumes valid_input: "valid_input G N b"
       and tie_breaker: "tie_breaker t"
-  shows "remaining_value_rel G N t b n = value_rel b { (y::goods, m::participant) .
-    (* determine the winning allocation, but take out the tuple of bidder n *)
-    (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
+  shows "remaining_value_rel G N t b n = value_rel b (winning_allocation_except G N t b n)"
 proof -
   from assms obtain Y where "Y \<in> all_partitions G" and inj: "winning_allocation_rel G N t b \<in> injections Y N"
     by (rule winning_allocation_injective)
@@ -173,13 +214,12 @@ proof -
   from inj have runiq_alloc_conv: "runiq ((winning_allocation_rel G N t b)\<inverse>)" unfolding injections_def by simp
   from inj have alloc_Range: "Range (winning_allocation_rel G N t b) \<subseteq> N" unfolding injections_def by simp
 
-  let ?alloc_except_n = "{ (y::goods, m::participant) . (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
-  have alloc_except_subrel: "?alloc_except_n \<subseteq> winning_allocation_rel G N t b" by fastforce
-  with runiq_alloc have alloc_except_runiq: "runiq ?alloc_except_n" by (rule subrel_runiq)
-  from alloc_except_subrel have "?alloc_except_n\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
-  with runiq_alloc_conv have alloc_except_conv_runiq: "runiq (?alloc_except_n\<inverse>)" by (rule subrel_runiq)
-  from alloc_Range have alloc_except_Range: "Range ?alloc_except_n
-    = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)" by (rule Range_except)
+  from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" by (rule subrel_runiq)
+  from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
+  with runiq_alloc_conv have alloc_except_conv_runiq: "runiq ((winning_allocation_except G N t b n)\<inverse>)" by (rule subrel_runiq)
+  from alloc_Range have alloc_except_Range: "Range (winning_allocation_except G N t b n)
+    = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)"
+    unfolding winning_allocation_except.simps by (rule Range_except)
 
   have "remaining_value_rel G N t b n = (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))" by simp
   also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (if m \<in> Domain ((winning_allocation_rel G N t b)\<inverse>) then the_elem (((winning_allocation_rel G N t b)\<inverse>) `` {m}) else {}))"
@@ -195,14 +235,7 @@ proof -
   also have "\<dots> = (\<Sum> m \<in> N - {n} . b m (if m \<in> Range (winning_allocation_rel G N t b) then the_elem (((winning_allocation_rel G N t b)\<inverse>) `` {m}) else {}))" by simp
   also have "\<dots> = (\<Sum> m \<in> (N - {n}) \<inter> Range (winning_allocation_rel G N t b) . b m (the_elem (((winning_allocation_rel G N t b)\<inverse>) `` {m})))"
   proof -
-    have "finite (N - {n})"
-    proof -
-      from valid_input have "card N > 0"
-        unfolding valid_input_def CombinatorialAuction.valid_input_def
-        by simp
-      then have "finite N" by (rule card_ge_0_finite)
-      then show ?thesis by force
-    qed
+    have "finite (N - {n})" using valid_input by (rule finite_participants_except)
     moreover have "\<forall> m \<in> N - {n} . b m {} = 0" (* CL: Sledgehammer of Isabelle2013-1-RC3 doesn't find anything here. *)
     proof -
       from valid_input have "\<forall> m \<in> N . b m {} = 0" unfolding valid_input_def CombinatorialAuction.valid_input_def by fastforce
@@ -225,35 +258,37 @@ proof -
       = b m (THE y . (y, m) \<in> winning_allocation_rel G N t b)" by blast
     then show ?thesis by (rule setsum_cong2')
   qed
-  also have "\<dots> = (\<Sum> m \<in> Range ?alloc_except_n . b m (THE y . (y, m) \<in> winning_allocation_rel G N t b))"
+  also have "\<dots> = (\<Sum> m \<in> Range (winning_allocation_except G N t b n) . b m (THE y . (y, m) \<in> winning_allocation_rel G N t b))"
     using alloc_except_Range by presburger
-  also have "\<dots> = (\<Sum> m \<in> Range ?alloc_except_n . b m (THE y . (y, m) \<in> ?alloc_except_n))"
+  also have "\<dots> = (\<Sum> m \<in> Range (winning_allocation_except G N t b n) . b m (THE y . (y, m) \<in> winning_allocation_except G N t b n))"
   proof (rule setsum_cong2)
     fix m
-    assume m_Range: "m \<in> Range ?alloc_except_n"
-    then have "\<forall> y . (y, m) \<in> winning_allocation_rel G N t b \<longleftrightarrow> (y, m) \<in> ?alloc_except_n"
-      using alloc_except_Range by fast
+    assume m_Range: "m \<in> Range (winning_allocation_except G N t b n)"
+    then have "\<forall> y . (y, m) \<in> winning_allocation_rel G N t b \<longleftrightarrow> (y, m) \<in> (winning_allocation_except G N t b n)"
+      using alloc_except_Range by simp
       (* CL: "try" in Isabelle2013-1-RC3 doesn't give preference to "try0" *)
-    then show "b m (THE y . (y, m) \<in> winning_allocation_rel G N t b) = b m (THE y . (y, m) \<in> ?alloc_except_n)"
+    then show "b m (THE y . (y, m) \<in> winning_allocation_rel G N t b) = b m (THE y . (y, m) \<in> winning_allocation_except G N t b n)"
       by presburger
   qed
-  also have "\<dots> = (\<Sum> y \<in> Domain ?alloc_except_n . b (THE m . (y, m) \<in> ?alloc_except_n) y)"
+  also have "\<dots> = (\<Sum> y \<in> Domain (winning_allocation_except G N t b n) . b (THE m . (y, m) \<in> winning_allocation_except G N t b n) y)"
     using alloc_except_runiq alloc_except_conv_runiq
+    unfolding winning_allocation_except.simps
     by (rule setsum_Domain_Range_runiq_rel[symmetric])
-  also have "\<dots> = (\<Sum> y \<in> Domain ?alloc_except_n . b (?alloc_except_n ,, y) y)"
+  also have "\<dots> = (\<Sum> y \<in> Domain (winning_allocation_except G N t b n) . b ((winning_allocation_except G N t b n) ,, y) y)"
   proof -
     {
       fix y
-      assume "y \<in> Domain ?alloc_except_n"
+      assume "y \<in> Domain (winning_allocation_except G N t b n)"
       with alloc_except_runiq
-        have "(THE m . (y, m) \<in> ?alloc_except_n) = the_elem (?alloc_except_n `` {y})"
+        have "(THE m . (y, m) \<in> winning_allocation_except G N t b n) = the_elem ((winning_allocation_except G N t b n) `` {y})"
+        unfolding winning_allocation_except.simps
         by (rule runiq_imp_singleton_image'[symmetric])
-      also have "\<dots> = ?alloc_except_n ,, y" by simp
-      finally have "(THE m . (y, m) \<in> ?alloc_except_n) = ?alloc_except_n ,, y" .
+      also have "\<dots> = (winning_allocation_except G N t b n) ,, y" by simp
+      finally have "(THE m . (y, m) \<in> winning_allocation_except G N t b n) = (winning_allocation_except G N t b n) ,, y" .
     }
     then show ?thesis by auto
   qed
-  also have "\<dots> = value_rel b ?alloc_except_n" by simp
+  also have "\<dots> = value_rel b (winning_allocation_except G N t b n)" by simp
   finally show ?thesis .
 qed
 
@@ -304,13 +339,11 @@ proof (rule wd_outcomeI)
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
     also have "\<dots> = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
-      - value_rel b { (y::goods, m::participant) .
-        (* determine the winning allocation, but take out the tuple of bidder n *)
-        (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" 
+      - value_rel b (winning_allocation_except G N t b n)" 
       using valid assms by (metis (lifting, no_types) remaining_value_alt)
     finally have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
-      - value_rel b { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" .
-    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }"
+      - value_rel b (winning_allocation_except G N t b n)" .
+    moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
     proof -
       have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) = Max { value_rel b x | x . x \<in> (possible_allocations_rel G (N - {n})) }"
         by (metis image_Collect_mem)
@@ -336,9 +369,21 @@ proof (rule wd_outcomeI)
         have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
           = Max { value_rel b x | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }" .
       
-      have "finite (possible_allocations_rel G (N - {n}))" sorry
-      moreover have "{ (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }
-        \<in> (possible_allocations_rel G (N - {n}))" sorry
+      have "finite (possible_allocations_rel G (N - {n}))"
+      proof (rule allocs_finite)
+        from valid show "finite G" by (rule finite_goods)
+        from valid show "finite (N - {n})" by (rule finite_participants_except)
+      qed
+      moreover have "winning_allocation_except G N t b n
+        \<in> possible_allocations_rel G (N - {n})"
+      proof -
+        from valid assms obtain Y where "Y \<in> all_partitions G" and inj: "winning_allocation_rel G N t b \<in> injections Y N"
+          by (rule winning_allocation_injective)
+
+        have "possible_allocations_rel G (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }" by simp
+
+        show ?thesis sorry
+      qed
       ultimately show ?thesis by (rule Max_fun_ge)
     qed
     ultimately show "p n \<ge> 0" by fastforce
