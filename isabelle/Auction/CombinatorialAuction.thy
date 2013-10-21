@@ -83,7 +83,7 @@ definition valid_input :: "goods \<Rightarrow> participant set \<Rightarrow> bid
 where "valid_input G N b \<longleftrightarrow>
   card G > 0 \<and> card N > 0 \<and>
   (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0) \<and>
-  (\<forall> n . n \<in> N \<longrightarrow> b n {} = 0)"
+  (\<forall> n \<in> N . b n {} = 0)"
 
 section {* Allocations *}
 
