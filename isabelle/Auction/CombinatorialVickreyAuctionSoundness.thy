@@ -377,12 +377,33 @@ proof (rule wd_outcomeI)
       moreover have "winning_allocation_except G N t b n
         \<in> possible_allocations_rel G (N - {n})"
       proof -
-        from valid assms obtain Y where "Y \<in> all_partitions G" and inj: "winning_allocation_rel G N t b \<in> injections Y N"
+        (* TODO CL: get rid of redundancy with beginning of proof of lemma remaining_value_alt *)
+        from valid assms obtain Y where Y: "Y \<in> all_partitions G" and inj: "winning_allocation_rel G N t b \<in> injections Y N"
           by (rule winning_allocation_injective)
 
-        have "possible_allocations_rel G (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }" by simp
+        from inj have runiq_alloc: "runiq (winning_allocation_rel G N t b)" unfolding injections_def by simp
+        from inj have runiq_alloc_conv: "runiq ((winning_allocation_rel G N t b)\<inverse>)" unfolding injections_def by simp
+        from inj have alloc_Domain: "Domain (winning_allocation_rel G N t b) = Y" unfolding injections_def by simp
+        from inj have alloc_Range: "Range (winning_allocation_rel G N t b) \<subseteq> N" unfolding injections_def by simp
 
-        show ?thesis sorry
+        from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" by (rule subrel_runiq)
+        from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
+        with runiq_alloc_conv have alloc_except_conv_runiq: "runiq ((winning_allocation_except G N t b n)\<inverse>)" by (rule subrel_runiq)
+        from alloc_Domain have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) = Y"
+          unfolding winning_allocation_except.simps sorry
+        from alloc_Range have "Range (winning_allocation_except G N t b n)
+          = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)"
+          unfolding winning_allocation_except.simps by (rule Range_except)
+        also have "\<dots> \<subseteq> N - {n}" by fast
+        finally have alloc_except_Range: "Range (winning_allocation_except G N t b n) \<subseteq> N - {n}" .
+        
+        from alloc_except_Domain alloc_except_Range alloc_except_runiq alloc_except_conv_runiq
+          have alloc_except_inj: "winning_allocation_except G N t b n \<in> injections Y (N - {n})"
+          unfolding injections_def by blast
+        moreover note Y
+        ultimately show ?thesis
+          unfolding possible_allocations_rel.simps (* This allows for using blast; otherwise we'd need auto. *)
+          by blast
       qed
       ultimately show ?thesis by (rule Max_fun_ge)
     qed
