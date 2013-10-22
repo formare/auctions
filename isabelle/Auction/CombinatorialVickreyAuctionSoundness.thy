@@ -336,6 +336,7 @@ proof (rule wd_outcomeI)
   moreover have "wd_payments N p" unfolding wd_payments_def
   proof
     fix n assume "n \<in> N"
+
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
     also have "\<dots> = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
@@ -345,6 +346,21 @@ proof (rule wd_outcomeI)
       - value_rel b (winning_allocation_except G N t b n)" .
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
     proof -
+      have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
+        (* If you (re-)allocate the goods without considering those that participant n gets, you 
+           achieve at most the value you'd achieve when allocating everything. *)
+        \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))" sorry
+      also have "Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))
+        \<ge> value_rel b (winning_allocation_except G N t b n)"
+      proof -
+        have "Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))
+          \<ge> value_rel b { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" sorry
+        also have "value_rel b { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n } = value_rel b (winning_allocation_except G N t b n)"
+          unfolding winning_allocation_except.simps by fast
+        finally show ?thesis by fast
+      qed
+      ultimately show ?thesis by linarith
+      (* 
       have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) = Max { value_rel b x | x . x \<in> (possible_allocations_rel G (N - {n})) }"
         by (metis image_Collect_mem)
       also have "\<dots> = Max { value_rel b x | x . x \<in> (\<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }) }" by simp
@@ -368,7 +384,9 @@ proof (rule wd_outcomeI)
       finally (* end chain here for now *)
         have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
           = Max { value_rel b x | x . Range x \<subseteq> N - {n} \<and> runiq x \<and> runiq (x\<inverse>) \<and> (\<exists> Y \<in> all_partitions G . Domain x = Y) }" .
-      
+      *)
+
+      (* CL: The rest of this is most likely flawed; particularly the second step after "moreover" tries to prove a statement that can't be true.
       have "finite (possible_allocations_rel G (N - {n}))"
       proof (rule allocs_finite)
         from valid show "finite G" by (rule finite_goods)
@@ -389,10 +407,16 @@ proof (rule wd_outcomeI)
         from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" by (rule subrel_runiq)
         from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
         with runiq_alloc_conv have alloc_except_conv_runiq: "runiq ((winning_allocation_except G N t b n)\<inverse>)" by (rule subrel_runiq)
-        from alloc_Domain have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) \<in> all_partitions G"
-          unfolding winning_allocation_except.simps sorry
-          (* TODO CL: This doesn't work: most likely we'll end up with a different partition Y' of the sets of goods.
-                      But, and that remains to be shown, Y' \<in> all_partitions G, too *)
+        have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) \<in> all_partitions G"
+        proof -
+          have "winning_allocation_except G N t b n = { (y::goods, m::participant) .
+            (y::goods, m::participant) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" by simp
+          have "\<Union> (Domain (winning_allocation_except G N t b n)) = G" sorry
+          moreover have "is_partition (Domain (winning_allocation_except G N t b n))" sorry
+          ultimately have "is_partition_of (Domain (winning_allocation_except G N t b n)) G"
+            unfolding is_partition_of_def by fast
+          then show ?thesis unfolding all_partitions_def by (rule CollectI)
+        qed
         from alloc_Range have "Range (winning_allocation_except G N t b n)
           = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)"
           unfolding winning_allocation_except.simps by (rule Range_except)
@@ -408,6 +432,7 @@ proof (rule wd_outcomeI)
           by blast
       qed
       ultimately show ?thesis by (rule Max_fun_ge)
+      *)
     qed
     ultimately show "p n \<ge> 0" by fastforce
   qed
