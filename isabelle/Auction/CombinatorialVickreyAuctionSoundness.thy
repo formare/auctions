@@ -389,8 +389,10 @@ proof (rule wd_outcomeI)
         from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" by (rule subrel_runiq)
         from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
         with runiq_alloc_conv have alloc_except_conv_runiq: "runiq ((winning_allocation_except G N t b n)\<inverse>)" by (rule subrel_runiq)
-        from alloc_Domain have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) = Y"
+        from alloc_Domain have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) \<in> all_partitions G"
           unfolding winning_allocation_except.simps sorry
+          (* TODO CL: This doesn't work: most likely we'll end up with a different partition Y' of the sets of goods.
+                      But, and that remains to be shown, Y' \<in> all_partitions G, too *)
         from alloc_Range have "Range (winning_allocation_except G N t b n)
           = (N - {n}) \<inter> Range (winning_allocation_rel G N t b)"
           unfolding winning_allocation_except.simps by (rule Range_except)
@@ -398,7 +400,7 @@ proof (rule wd_outcomeI)
         finally have alloc_except_Range: "Range (winning_allocation_except G N t b n) \<subseteq> N - {n}" .
         
         from alloc_except_Domain alloc_except_Range alloc_except_runiq alloc_except_conv_runiq
-          have alloc_except_inj: "winning_allocation_except G N t b n \<in> injections Y (N - {n})"
+          obtain Y' where "Y' \<in> all_partitions G" and "winning_allocation_except G N t b n \<in> injections Y' (N - {n})"
           unfolding injections_def by blast
         moreover note Y
         ultimately show ?thesis
