@@ -43,7 +43,9 @@ subsection {* Part 1: A second-price auction supports an equilibrium in weakly d
   strategies if all participants bid their valuation. *}
 
 theorem vickreyA:
-  fixes N :: "participant set" and v :: valuations and A :: single_good_auction
+  fixes N::"participant set"
+    and v::valuations
+    and A::single_good_auction
   assumes val: "valuations N v" 
   defines "b \<equiv> v"
   assumes spa: "second_price_auction A"
@@ -92,9 +94,16 @@ proof -
     from spa_pred card_N have pay: "vickrey_payment N p" using spa_vickrey_payment by blast
     from spa_pred' card_N have pay': "vickrey_payment N p'" using spa_vickrey_payment by blast
 
+    {
+      assume "x i \<noteq> 1"
+      with spa_pred alternative_is_bid i_range have "x i = 0"
+        using spa_allocates_binary by blast
+    }
+    note spa_allocates_binary' = this
+
     have weak_dominance:
       "payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)"
-    proof cases
+    proof cases -- {* case 1 of the short proof *}
       assume alloc: "x' i = 1"
       with spa_pred' i_range
       have winner: "second_price_auction_winner N ?b x' p' i"
@@ -129,10 +138,7 @@ proof -
         finally show ?thesis by (rule eq_refl)
       next -- {* case 1b of the short proof *}
         assume "x i \<noteq> 1"
-        (* CL: TODO I'm sure one can use spa_allocates_binary at the top level of the 
-               case distinction, to get rid of having to do this step for each case distinction. *)
-        with spa_pred alternative_is_bid i_range have "x i = 0"
-          using spa_allocates_binary by blast
+        then have "x i = 0" by (rule spa_allocates_binary')
         with spa_pred i_range
         have "payoff (v i) (x i) (p i) = 0"
           by (rule second_price_auction_loser_payoff)
@@ -142,8 +148,6 @@ proof -
 
     next -- {* case 2 of the short proof *}
       assume non_alloc: "x' i \<noteq> 1"
-      (* CL: TODO I'm sure one can use spa_allocates_binary at the top level of the 
-             case distinction, to get rid of having to do this step for each case distinction. *)
       with spa_pred' i_range have "x' i = 0"
         using spa_allocates_binary by blast
       with spa_pred' i_range
@@ -171,8 +175,7 @@ proof -
         finally show ?thesis .
       next -- {* case 2b of the short proof *}
         assume "x i \<noteq> 1"
-        (* CL: TODO I'm sure one can use spa_allocates_binary at the top level of the 
-               case distinction, to get rid of having to do this step for each case distinction. *)
+        then have "x i = 0" by (rule spa_allocates_binary')
         with spa_pred alternative_is_bid i_range have "x i = 0"
           using spa_allocates_binary by blast
         with spa_pred i_range
@@ -188,7 +191,6 @@ proof -
     unfolding equilibrium_weakly_dominant_strategy_def
     by auto
 qed
-
 
 subsection {* Part 2: A second-price auction is efficient if all participants bid their valuation. *}
 
