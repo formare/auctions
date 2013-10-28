@@ -573,6 +573,16 @@ text {* the set of all injective functions from @{term X} to @{term Y}. *}
 definition injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
 where "injections X Y = {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
 
+text {* introduction rule that establishes the injectivity of a relation *}
+lemma injectionsI:
+  fixes R::"('a \<times> 'b) set"
+  assumes "Domain R = X"
+      and "Range R \<subseteq> Y"
+      and "runiq R"
+      and "runiq (R\<inverse>)"
+  shows "R \<in> injections X Y"
+using assms unfolding injections_def using CollectI by blast
+
 text {* the set of all injective partial functions (including total ones) from @{term X} to @{term Y}. *}
 definition partial_injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
 where "partial_injections X Y = {R . Domain R \<subseteq> X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
@@ -628,12 +638,15 @@ proof (rule equalitySubsetI)
   have subrel: "?P \<subseteq> R" unfolding Outside_def by fast
   have subrel_conv: "?P\<inverse> \<subseteq> R\<inverse>" using subrel by blast
 
-  have Domain_pre: "Domain ?P = A" using Domain new by (rule Domain_outside_singleton)
-  moreover have "Range ?P \<subseteq> Y"
-    using Range by (rule Range_outside_sub)
-  moreover have "runiq ?P" using runiq subrel by (rule subrel_runiq)
-  moreover have "runiq (?P\<inverse>)" using runiq_conv subrel_conv by (rule subrel_runiq)
-  ultimately have P_inj: "?P \<in> injections A Y" unfolding injections_def by simp
+  (* We need to establish this fact in a reusable way. *)
+  from Domain new have Domain_pre: "Domain ?P = A" by (rule Domain_outside_singleton)
+  have P_inj: "?P \<in> injections A Y"
+  proof (rule injectionsI)
+    show "Domain ?P = A" by (rule Domain_pre)
+    show "Range ?P \<subseteq> Y" using Range by (rule Range_outside_sub)
+    show "runiq ?P" using runiq subrel by (rule subrel_runiq)
+    show "runiq (?P\<inverse>)" using runiq_conv subrel_conv by (rule subrel_runiq)
+  qed
 
   obtain y where y: "R `` {x} = {y}" using Image_runiq_eq_eval Domain runiq by (metis insertI1)
   from y Range have "y \<in> Y" by fast
@@ -686,24 +699,29 @@ next
         and runiq_pre: "runiq P"
         and runiq_conv_pre: "runiq (P\<inverse>)" by simp_all
 
-  have "Domain R = insert x A"
-  proof -
-    have "Domain R = Domain P \<union> Domain {(x,y)}" using paste_Domain R by metis
-    also have "\<dots> = A \<union> {x}" using Domain_pre by simp
-    finally show ?thesis by auto
+  show "R \<in> injections (insert x A) Y"
+  proof (rule injectionsI)
+    show "Domain R = insert x A"
+    proof -
+      have "Domain R = Domain P \<union> Domain {(x,y)}" using paste_Domain R by metis
+      also have "\<dots> = A \<union> {x}" using Domain_pre by simp
+      finally show ?thesis by auto
+    qed
+
+    show "Range R \<subseteq> Y"
+    proof -
+      have "Range R \<subseteq> Range P \<union> Range {(x,y)} \<and> Range P \<union> Range {(x,y)} \<subseteq> Y \<union> {y}"
+        using paste_Range R Range_pre by force
+      then show ?thesis using y by auto
+    qed
+
+    show "runiq R"
+      using runiq_pre R runiq_singleton_rel runiq_paste2 by fast
+
+    show "runiq (R\<inverse>)"
+      using runiq_conv_pre R y new and runiq_converse_paste_singleton DiffE Domain_pre
+      by metis
   qed
-  moreover have "Range R \<subseteq> Y"
-  proof -
-    have "Range R \<subseteq> Range P \<union> Range {(x,y)} \<and> Range P \<union> Range {(x,y)} \<subseteq> Y \<union> {y}"
-      using paste_Range R Range_pre by force
-    then show ?thesis using y by auto
-  qed
-  moreover have "runiq R"
-    using runiq_pre R runiq_singleton_rel runiq_paste2 by fast
-  moreover have "runiq (R\<inverse>)"
-    using runiq_conv_pre R y new and runiq_converse_paste_singleton DiffE Domain_pre
-    by metis
-  ultimately show "R \<in> injections (insert x A) Y" unfolding injections_def by simp
 qed
 
 text {* There is an injective function from a finite set to any set of a greater cardinality. *}
@@ -716,11 +734,13 @@ lemma injections_exist:
 using finiteX
 proof induct
   case empty
-  have "Domain {} = {}" by simp
-  moreover have "Range {} \<subseteq> Y" by simp
-  moreover note runiq_emptyrel
-  moreover have "runiq ({}\<inverse>)" by (simp add: runiq_emptyrel)
-  ultimately have "{} \<in> injections {} Y" unfolding injections_def using CollectI by blast
+  have "{} \<in> injections {} Y"
+  proof (rule injectionsI)
+    show "Domain {} = {}" by simp
+    show "Range {} \<subseteq> Y" by simp
+    show "runiq {}" by (rule runiq_emptyrel)
+    show "runiq ({}\<inverse>)" by (simp add: runiq_emptyrel)
+  qed
   then show ?case using assms by fast
 next
   case (insert a X)
