@@ -31,21 +31,24 @@ text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e
 definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
 "runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
-text {* alternative characterisation of right-uniqueness: the image of a singleton set is
+text {* the image of a singleton set under a right-unique relation is
    @{const trivial}, i.e.\ an empty or singleton set. *}
-lemma runiq_alt: "runiq R \<longleftrightarrow> (\<forall> x . trivial (R `` {x}))"
-(* CL: The following proof, found by Sledgehammer, takes 26 ms on my machine. *)
-(* unfolding runiq_def by (metis Image_empty trivial_cases trivial_empty trivial_singleton) *)
-proof
-  assume runiq: "runiq R"
-  show "\<forall> x . trivial (R `` {x})"
-  proof
-    fix x::'a
-    have "trivial {x}" unfolding trivial_def by simp
-    with runiq show "trivial (R `` {x})" unfolding runiq_def by fast
-  qed
-next
-  assume triv: "\<forall> x . trivial (R `` {x})"
+lemma runiq_imp_triv_singleton_Im:
+  fixes x
+  assumes runiq: "runiq R"
+  shows "trivial (R `` {x})"
+proof -
+  fix x::'a
+  have "trivial {x}" unfolding trivial_def by simp
+  with runiq show "trivial (R `` {x})" unfolding runiq_def by fast
+qed
+
+text {* If all images of singleton sets under a relation are
+   @{const trivial}, i.e.\ an empty or singleton set, the relation is right-unique. *}
+lemma triv_singleton_Im_imp_runiq:
+  assumes triv: "\<forall> x . trivial (R `` {x})"
+  shows "runiq R"
+proof -
   have "\<forall> X::'a set . trivial X \<longrightarrow> trivial (R `` X)"
   proof (rule allImpI)
     fix X::"'a set"
@@ -59,27 +62,45 @@ next
       with singleton triv show ?thesis by fast
     qed
   qed
-  then show "runiq R" unfolding runiq_def by fast
+  then show ?thesis unfolding runiq_def by fast
 qed
 
-text {* alternative characterisation of right-uniqueness: whenever two range elements are in 
-  relation with a domain element, they are equal. *}
-(* It is surprisingly hard (but possible) to prove this automatically, be it using/unfolding runiq_def, or using runiq_alt. *)
-lemma runiq_basic: "runiq R \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
+text {* alternative characterisation of right-uniqueness: the image of a singleton set is
+   @{const trivial}, i.e.\ an empty or singleton set. *}
+lemma runiq_alt: "runiq R \<longleftrightarrow> (\<forall> x . trivial (R `` {x}))"
+(* CL: The following proof, found by Sledgehammer without taking into account the two lemmas above,
+   takes 26 ms on my machine. *)
+(* unfolding runiq_def by (metis Image_empty trivial_cases trivial_empty trivial_singleton) *)
 proof
-  assume assm: "runiq R"
-  {
-    fix x y y'
-    assume x_R_y: "(x, y) \<in> R" and x_R_y': "(x, y') \<in> R"
-    (* then have "y = y'" using assms sledgehammer doesn't find anything within reasonable time *)
-    have "trivial (R `` {x})" using assm unfolding runiq_alt by simp
-    moreover have "y \<in> R `` {x}" using x_R_y by simp
-    moreover have "y' \<in> R `` {x}" using x_R_y' by simp
-    ultimately have "y = y'" by (rule trivial_imp_no_distinct)
-  }
-  then show "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'" by force
+  assume "runiq R"
+  then show "\<forall> x . trivial (R `` {x})" by (metis runiq_imp_triv_singleton_Im)
 next
-  assume assm: "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'"
+  assume triv: "\<forall> x . trivial (R `` {x})"
+  then show "runiq R" by (rule triv_singleton_Im_imp_runiq)
+qed
+
+text {* Whenever two range elements are in 
+  relation with a domain element and the relation is right-unique, they are equal. *}
+lemma runiq_imp_uniq_right_comp:
+  fixes x y y'
+  assumes runiq: "runiq R"
+      and x_R_y: "(x, y) \<in> R"
+      and x_R_y': "(x, y') \<in> R"
+  shows "y = y'"
+(* Sledgehammer doesn't find anything within reasonable time *)
+proof -
+  have "trivial (R `` {x})" using runiq unfolding runiq_alt by simp
+  moreover have "y \<in> R `` {x}" using x_R_y by simp
+  moreover have "y' \<in> R `` {x}" using x_R_y' by simp
+  ultimately show "y = y'" by (rule trivial_imp_no_distinct)
+qed
+
+text {* If two range elements are equal whenever they are in 
+  relation with the same domain element, the relation is right-unique. *}
+lemma uniq_right_comp_imp_runiq:
+  assumes "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'"
+  shows "runiq R"
+proof -
   have "\<forall> X::'a set . trivial X \<longrightarrow> trivial (R `` X)"
   proof (rule allImpI)
     fix X::"'a set"
@@ -90,11 +111,23 @@ next
       then show ?thesis unfolding trivial_def by simp
     next
       case singleton
-      with assm have "\<forall> y y' . y \<in> R `` X \<and> y' \<in> R `` X \<longrightarrow> y = y'" by simp
+      with assms have "\<forall> y y' . y \<in> R `` X \<and> y' \<in> R `` X \<longrightarrow> y = y'" by simp
       then show ?thesis by (rule no_distinct_imp_trivial)
     qed
   qed
-  then show "runiq R" unfolding runiq_def by fast
+  then show ?thesis unfolding runiq_def by fast
+qed
+
+text {* alternative characterisation of right-uniqueness: whenever two range elements are in 
+  relation with a domain element, they are equal. *}
+(* It is surprisingly hard (but possible) to prove this automatically, be it using/unfolding runiq_def, or using runiq_alt. *)
+lemma runiq_basic: "runiq R \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
+proof
+  assume assm: "runiq R"
+  then show "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'" by (metis runiq_imp_uniq_right_comp)
+next
+  assume assm: "\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y'"
+  then show "runiq R" by (rule uniq_right_comp_imp_runiq)
 qed
 
 text {* For summing over the pairs in a right-unique relation it is sufficient to sum over the 
@@ -105,15 +138,14 @@ lemma setsum_Domain_runiq_rel:
   assumes "runiq R"
   shows "(\<Sum> x \<in> Domain R . f x (THE y . (x, y) \<in> R)) = (\<Sum> (x, y) \<in> R . f x y)"
 proof -
-  (* TODO CL: manually optimise some metis invocations, particularly the first one,
-     which takes >800ms in Isabelle2013-1-RC3. *)
+  (* TODO CL: manually optimise some metis invocations. *)
   have "inj_on fst R"
-    by (metis assms inj_onI runiq_basic surjective_pairing)
+    by (smt assms inj_onI runiq_basic surjective_pairing)
   moreover have "Domain R = fst ` R"
     by (metis fst_eq_Domain)
     (* CL: in Isabelle2013-1-RC3, metis is faster than force here *)
   moreover have "\<And> tup . tup \<in> R \<Longrightarrow> f (fst tup) (snd tup) = f (fst tup) (THE y . (fst tup, y) \<in> R)" 
-    by (metis (lifting, no_types) assms runiq_basic surjective_pairing the_equality)
+    by (smt calculation(1) inj_onD prod.inject surjective_pairing the_equality)
   ultimately have "(\<Sum> x \<in> Domain R . f x (THE y . (x, y) \<in> R)) = (\<Sum> tup \<in> R . f (fst tup) (snd tup))"
     by (rule setsum_reindex_cong)
   also have "\<dots> = (\<Sum> (x, y) \<in> R . f x y)" by (simp add: split_beta')
@@ -249,9 +281,95 @@ next
   ultimately have "\<forall> x . trivial (R `` {x})" by blast
   then show "runiq R" unfolding runiq_alt .
 qed
-
 (* using eval_rel.simps runiq_alt trivial_def Image_within_domain' empty_subsetI subset_refl the_elem_eq trivial_cases 
 sledgehammer min [e] (runiq_wrt_eval_rel Image_within_domain' RelationOperators.eval_rel.simps empty_subsetI runiq_alt subset_refl the_elem_eq trivial_cases *)
+
+(* TODO CL: document *)
+lemma runiq_imp_ex1_right_comp:
+  fixes a
+  assumes "runiq R"
+      and "a \<in> Domain R"
+  shows "\<exists>! b . (a, b) \<in> R"
+using assms
+by (metis Domain_iff runiq_imp_uniq_right_comp)
+
+(* TODO CL: document *)
+lemma ex1_right_comp_imp_runiq:
+  assumes "\<forall> a \<in> Domain R . \<exists>! b . (a, b) \<in> R"
+  shows "runiq R"
+using assms
+  (* TODO CL: This step takes 136 ms in Isabelle2013-1-RC3; optimise manually. *)
+by (metis Domain.simps runiq_basic)
+
+(* TODO CL: document *)
+lemma runiq_wrt_ex1:
+  "runiq R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<exists>! b . (a, b) \<in> R)"
+proof
+  assume "runiq R"
+  then show "\<forall> a \<in> Domain R . \<exists>! b . (a, b) \<in> R" by (metis runiq_imp_ex1_right_comp)
+next
+  assume "\<forall> a \<in> Domain R . \<exists>! b . (a, b) \<in> R"
+  then show "runiq R" by (rule ex1_right_comp_imp_runiq)
+qed
+
+(* TODO CL: document *)
+lemma runiq_imp_THE_right_comp:
+  fixes a and b
+  assumes runiq: "runiq R"
+      and aRb: "(a, b) \<in> R"
+  shows "b = (THE b . (a, b) \<in> R)"
+proof -
+  from aRb runiq have "\<exists>! b . (a, b) \<in> R" by (metis runiq_imp_uniq_right_comp)
+  then show ?thesis using aRb by (rule the1_equality[symmetric])
+qed
+
+(* TODO CL: document *)
+lemma THE_right_comp_imp_runiq:
+  assumes "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)"
+  shows "runiq R"
+using assms
+(* TODO CL: maybe optimise manually; the following takes 39 ms in Isabelle2013-1-RC3 *)
+by (smt DomainE ex1_right_comp_imp_runiq)
+
+text {* another alternative definition of right-uniqueness in terms of @{const The} *}
+lemma runiq_wrt_THE:
+  "runiq R \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R))"
+proof
+  assume "runiq R"
+  then show "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)" by (metis runiq_imp_THE_right_comp)
+next
+  assume "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)"
+  then show "runiq R" by (rule THE_right_comp_imp_runiq)
+qed
+
+(* TODO CL: document *)
+lemma runiq_conv_imp_THE_left_comp:
+  assumes runiq_conv: "runiq (R\<inverse>)" and aRb: "(a, b) \<in> R"
+  shows "a = (THE a . (a, b) \<in> R)"
+(* the following takes 84 ms in Isabelle2013-1-RC3: using assms sledgehammer *)
+proof -
+  from aRb have "(b, a) \<in> R\<inverse>" by simp
+  with runiq_conv have "a = (THE a . (b, a) \<in> R\<inverse>)" by (rule runiq_imp_THE_right_comp)
+  then show ?thesis by fastforce
+qed
+
+(* TODO CL: document *)
+lemma THE_left_comp_imp_runiq_conv:
+  assumes "\<forall> a b . (a, b) \<in> R \<longrightarrow> a = (THE a . (a, b) \<in> R)"
+  shows "runiq (R\<inverse>)"
+proof -
+  from assms have "\<forall> b a . (b, a) \<in> R\<inverse> \<longrightarrow> a = (THE a . (b, a) \<in> R\<inverse>)" by auto
+  then show ?thesis by (rule THE_right_comp_imp_runiq)
+qed
+
+(* TODO CL: document *)
+lemma runiq_conv_wrt_THE:
+  "runiq (R\<inverse>) \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R \<longrightarrow> a = (THE a . (a, b) \<in> R))"
+proof -
+  have "runiq (R\<inverse>) \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R\<inverse> \<longrightarrow> b = (THE b . (a, b) \<in> R\<inverse>))" by (rule runiq_wrt_THE)
+  also have "\<dots> \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R \<longrightarrow> a = (THE a . (a, b) \<in> R))" by auto
+  finally show ?thesis .
+qed
 
 text {* A subrelation of a right-unique relation is right-unique. *}
 lemma subrel_runiq:
@@ -280,13 +398,13 @@ proof -
   have "\<forall> x . trivial ((P \<union> Q) `` {x})"
   proof
     fix x
-    have triv_Im_P: "trivial (P `` {x})" using runiq_P runiq_alt by fast
-    have triv_Im_Q: "trivial (Q `` {x})" using runiq_Q runiq_alt by fast
+    have triv_Im_P: "trivial (P `` {x})" using runiq_P by (metis runiq_imp_triv_singleton_Im)
+    have triv_Im_Q: "trivial (Q `` {x})" using runiq_Q by (metis runiq_imp_triv_singleton_Im)
     have "(P \<union> Q) `` {x} = P `` {x} \<union> Q `` {x}" by fast
     with disj_Dom have "(P \<union> Q) `` {x} = P `` {x} \<or> (P \<union> Q) `` {x} = Q `` {x}" by blast
     then show "trivial ((P \<union> Q) `` {x})" using triv_Im_P triv_Im_Q by force
   qed
-  then show ?thesis using runiq_alt by fast
+  then show ?thesis using triv_singleton_Im_imp_runiq by fast
 qed
 
 text {* A singleton relation is right-unique. *}
@@ -393,6 +511,31 @@ proof -
     using restrict_ext' by blast
   also have "\<dots> \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')" by auto
   finally show ?thesis .
+qed
+
+(* TODO CL: find a better name and document *)
+lemma runiq_relation_except_singleton:
+  assumes runiq: "runiq R"
+      and runiq_conv: "runiq (R\<inverse>)"
+      and Range: "z \<in> Range R"
+  shows "{ (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }
+    = { (x, y) . (x, y) \<in> R \<and> y \<noteq> z }"
+proof (rule equalitySubsetI)
+  fix tup
+  assume "tup \<in> { (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }"
+  then obtain x y where tup_def: "tup = (x, y)" and tup_R: "(x, y) \<in> R" and x_not_R_z: "x \<noteq> (THE x . (x, z) \<in> R)" by blast
+  from runiq_conv x_not_R_z have "y \<noteq> z"
+    (* TODO CL: optimise: takes 612 ms in Isabelle2013-1-RC3 *)
+    by (metis (lifting) converse_iff runiq_basic the_equality tup_R)
+  with tup_def tup_R show "tup \<in> { (x, y) . (x, y) \<in> R \<and> y \<noteq> z }" by fastforce
+next
+  fix tup
+  assume "tup \<in> { (x, y) . (x, y) \<in> R \<and> y \<noteq> z }"
+  then obtain x y where tup_def: "tup = (x, y)" and tup_R: "(x, y) \<in> R" and y_ne_z: "y \<noteq> z" by blast
+  from tup_R y_ne_z have "x \<noteq> (THE x . (x, z) \<in> R)" 
+    (* TODO CL: optimise: takes 111 ms in Isabelle2013-1-RC3 *)
+    by (metis (lifting, no_types) Range RangeE runiq runiq_basic runiq_conv runiq_conv_wrt_THE the_equality)
+  with tup_def tup_R show "tup \<in> { (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }" by fastforce
 qed
 
 subsection {* paste *}
@@ -661,7 +804,7 @@ proof (rule equalitySubsetI)
       from x'_Domain have "x' \<in> A" using Domain_pre by fast
       with new show ?thesis by fast
     qed
-    have "trivial (R\<inverse> `` {y})" using runiq_conv runiq_alt by metis
+    have "trivial (R\<inverse> `` {y})" using runiq_conv by (metis runiq_imp_triv_singleton_Im)
     then have "x' = x" using x'_img x_img by (rule trivial_imp_no_distinct)
     with `x' \<noteq> x` show False ..
   qed
