@@ -21,18 +21,6 @@ imports
 
 begin
 
-section {* Domain *}
-
-text{* If a relation is left-total on a set @{term A}, its superrelations are left-total on @{term A} too. *}
-lemma suprel_left_total_on:
-  fixes R :: "('a \<times> 'b) set"
-    and S :: "('a \<times> 'b) set"
-    and A :: "'a set"
-  assumes "A \<subseteq> Domain R"
-      and "R \<subseteq> Q"
-  shows "A \<subseteq> Domain Q"
-using assms by fast
-
 section {* Range *}
 
 (* TODO CL: document *)
@@ -58,6 +46,51 @@ next
   moreover have "y \<in> Range R" using y by fast
   ultimately show "y \<in> Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n }"
     by (metis (lifting, mono_tags) Range.simps mem_Collect_eq prod_caseI)
+qed
+
+(* TODO CL: document *)
+lemma Range_except_irrelevant:
+  assumes "z \<notin> Range R"
+  shows "{ (x, y) . (x, y) \<in> R \<and> y \<noteq> z } = R"
+(* The following proof found by Sledgehammer in Isabelle2013-1-RC3 takes long, don't remember,
+   maybe 63 ms? *)
+(* by (smt Collect_mem_eq Range_iff assms cond_split_eta) *)
+proof -
+  {
+    fix x y
+    from assms have "(x, y) \<in> R \<longrightarrow> y \<noteq> z" by fast
+    then have "(x, y) \<in> R \<and> y \<noteq> z \<longleftrightarrow> (x, y) \<in> R" by fast
+  }
+  then show ?thesis by auto
+qed
+
+section {* Domain *}
+
+text{* If a relation is left-total on a set @{term A}, its superrelations are left-total on @{term A} too. *}
+lemma suprel_left_total_on:
+  fixes R :: "('a \<times> 'b) set"
+    and S :: "('a \<times> 'b) set"
+    and A :: "'a set"
+  assumes "A \<subseteq> Domain R"
+      and "R \<subseteq> Q"
+  shows "A \<subseteq> Domain Q"
+using assms by fast
+
+(* TODO CL: document *)
+lemma Domain_except:
+  fixes R::"('a \<times> 'b) set"
+    and N::"'a set"
+    and n::'a
+  assumes Domain: "Domain R \<subseteq> N"
+  shows "Domain { (x, y) . (x, y) \<in> R \<and> x \<noteq> n } = (N - {n}) \<inter> Domain R"
+(* TODO CL: Sledgehammer in Isabelle2013-1-RC3 can't prove this. *)
+proof -
+  from Domain have Range: "Range (R\<inverse>) \<subseteq> N" by simp
+  have "Domain {(x, y). (x, y) \<in> R \<and> x \<noteq> n} = Range {(y, x). (y, x) \<in> R\<inverse> \<and> x \<noteq> n}"
+    using Domain_unfold by auto
+  also have "\<dots> = (N - {n}) \<inter> Range (R\<inverse>)" using Range by (rule Range_except)
+  also have "\<dots> = (N - {n}) \<inter> Domain R" by simp
+  finally show ?thesis .
 qed
 
 section {* Image *}
