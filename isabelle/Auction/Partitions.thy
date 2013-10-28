@@ -146,16 +146,38 @@ lemma no_empty_eq_class:
 text {* @{term P} is a partition of the set @{term A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
+text {* Every element of a partitioned set ends up in an equivalence class. *}
+lemma elem_in_eq_class:
+  assumes in_set: "x \<in> A"
+      and part: "is_partition_of P A"
+  obtains X where "x \<in> X" and "X \<in> P"
+using part in_set
+unfolding is_partition_of_def is_partition_def 
+by (auto simp add: UnionE)
+
+text {* Every element of the difference of a set @{term A} and another set @{term B} ends up in 
+  an equivalence class of a partition of @{term A}, but this equivalence class will never be
+  @{term "{B}"}. *}
+lemma diff_elem_in_eq_class:
+  assumes x: "x \<in> A - B"
+      and part: "is_partition_of P A"
+  shows "\<exists> S \<in> P - { B } . x \<in> S"
+(* Sledgehammer in Isabelle2013-1-RC1 can't do this within the default time limit. *)
+proof -
+  from part x obtain X where "x \<in> X" and "X \<in> P"
+    by (metis Diff_iff elem_in_eq_class)
+  with x have "X \<noteq> B" by fast
+  with `x \<in> X` `X \<in> P` show ?thesis by blast
+qed
+
 text {* Every element of a partitioned set ends up in exactly one equivalence class. *}
 lemma elem_in_uniq_eq_class:
   assumes in_set: "x \<in> A"
       and part: "is_partition_of P A"
   shows "\<exists>! X \<in> P . x \<in> X"
 proof -
-  obtain X where *: "X \<in> P \<and> x \<in> X"
-    using part in_set
-    unfolding is_partition_of_def is_partition_def 
-    by (auto simp add: UnionE)
+  from assms obtain X where *: "X \<in> P \<and> x \<in> X"
+    by (rule elem_in_eq_class) blast
   moreover {
     fix Y assume "Y \<in> P \<and> x \<in> Y"
     then have "Y = X"
