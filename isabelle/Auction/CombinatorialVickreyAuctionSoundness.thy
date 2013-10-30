@@ -349,6 +349,9 @@ proof (rule wd_outcomeI)
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
     proof cases
       assume n_gets_something: "n \<in> Range x"
+      have "(THE y . (y, n) \<in> x) \<in> Domain x" (* TOOD CL: reuse *)
+        using n_gets_something runiq_alloc_conv
+        by (rule runiq_conv_imp_Range_rel_Dom)
       show ?thesis
       proof cases
         assume n_gets_part: "(THE y . (y, n) \<in> x) \<noteq> G" (* i.e. participant n gets some but not all goods *)
@@ -370,9 +373,7 @@ proof (rule wd_outcomeI)
               moreover have "G - (THE y . (y, n) \<in> x) \<noteq> {}"
               proof -
                 have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
-                moreover have "(THE y . (y, n) \<in> x) \<in> Domain x"
-                  using n_gets_something runiq_alloc_conv
-                  by (rule runiq_conv_imp_Range_rel_Dom)
+                moreover note `(THE y . (y, n) \<in> x) \<in> Domain x`
                 ultimately have "(THE y . (y, n) \<in> x) \<subseteq> G" by (metis Sup_le_iff subset_refl)
                 then show ?thesis using n_gets_part by blast
               qed
@@ -515,8 +516,27 @@ proof (rule wd_outcomeI)
       next
         assume "\<not> (THE y . (y, n) \<in> x) \<noteq> G"
         then have n_gets_everything: "(THE y . (y, n) \<in> x) = G" by fast
-        have "winning_allocation_except G N t b n = { (y, m) . (y, m) \<in> winning_allocation_rel G N t b \<and> m \<noteq> n }" by simp
-        
+        (* TODO CL: "try" on the following gives no result after an hour with Isabelle2013-1-RC3: *)
+        (* with part' alloc_Domain have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }" unfolding is_partition_of_def is_partition_def sorry *)
+        (* OK, maybe I took into account too few assumptions.  Retry with all assumptions used below. *)
+        have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
+        proof (rule ccontr)
+          assume "{} \<noteq> { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
+          then obtain y m where 0: "(y, m) \<in> x \<and> m \<noteq> n" by (smt empty_Collect_eq prod_caseE)
+          with alloc_Domain have "y \<in> Y" by fast
+          from `(THE y . (y, n) \<in> x) \<in> Domain x` have *: "(THE y . (y, n) \<in> x) \<in> Y" using alloc_Domain by simp
+          with `y \<in> Y` part' have "\<Union> Y = G" unfolding is_partition_of_def is_partition_def by force
+          from * `y \<in> Y` part' have "y \<inter> (THE y . (y, n) \<in> x) \<noteq> {} \<longleftrightarrow> y = (THE y . (y, n) \<in> x)" unfolding is_partition_of_def is_partition_def by force
+          then have **: "y \<inter> G \<noteq> {} \<longleftrightarrow> y = G" unfolding n_gets_everything by fast
+          from `y \<in> Y` `\<Union> Y = G` have "y \<subseteq> G" by fast
+          with `y \<in> Y` have "y \<inter> G \<noteq> {}" by (metis inf.orderE is_partition_of_def no_empty_eq_class part')
+          with ** have "y = G" by blast
+          with 0 have "(G, m) \<in> x \<and> m \<noteq> n" by fastforce
+          with n_gets_everything runiq_alloc runiq_alloc_conv
+            show False
+            by (metis Range_iff converse.simps converse_converse n_gets_something runiq_conv_wrt_THE) (* TODO CL: optimise *)
+        qed
+        have "winning_allocation_except G N t b n = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }" unfolding x' by simp
         show ?thesis sorry
       qed
     next
