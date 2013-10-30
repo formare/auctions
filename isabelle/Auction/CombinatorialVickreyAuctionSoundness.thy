@@ -339,6 +339,9 @@ proof (rule wd_outcomeI)
     moreover have "finite (N - {n})" using valid by (rule finite_participants_except)
     ultimately have "finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))" by (rule allocs_finite)
 
+    have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
+
+
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
     also have "\<dots> = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
@@ -363,7 +366,7 @@ proof (rule wd_outcomeI)
              the assumption 'n \<in> Range x' we assume that n always got something. *)
           \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))"
         proof -
-          have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
+          note `finite (possible_allocations_rel G (N - {n}))`
           moreover note `finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))` (* TODO CL: give this a symbolic name *)
           moreover have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) \<noteq> {}"
           proof (rule ex_allocations)
@@ -536,8 +539,22 @@ proof (rule wd_outcomeI)
             show False
             by (metis Range_iff converse.simps converse_converse n_gets_something runiq_conv_wrt_THE) (* TODO CL: optimise *)
         qed
-        have "winning_allocation_except G N t b n = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }" unfolding x' by simp
-        show ?thesis sorry
+        also have "\<dots> = winning_allocation_except G N t b n" unfolding x' by simp
+        finally have "{} = winning_allocation_except G N t b n" .
+        then have Dom_empty: "Domain (winning_allocation_except G N t b n) = {}" by fast
+
+        have *: "value_rel b (winning_allocation_except G N t b n) = 0"
+          unfolding value_rel.simps Dom_empty by (rule setsum_empty)
+
+        from valid have non_neg_bids: "\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0"
+          unfolding valid_input_def CombinatorialAuction.valid_input_def by blast
+
+        have "\<forall> x . value_rel b x \<ge> 0" sorry (* TODO CL: use non_neg_bids *)
+        moreover note `finite (possible_allocations_rel G (N - {n}))`
+        moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}" sorry
+        ultimately have "0 \<le> Max (value_rel b ` possible_allocations_rel G (N - {n}))" by (rule Max_Im_ge_lower_bound)
+
+        with * show ?thesis by (rule ord_eq_le_trans)
       qed
     next
       assume n_gets_nothing: "n \<notin> Range x" (* i.e. participant n gets nothing *)
