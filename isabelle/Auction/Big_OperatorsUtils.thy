@@ -15,8 +15,7 @@ header {* Additional material that we would have expected in Big_Operators.thy *
 
 theory Big_OperatorsUtils
 imports
-  CombinatorialVickreyAuction
-  CombinatorialAuctionProperties
+  Main
   
 begin
 
