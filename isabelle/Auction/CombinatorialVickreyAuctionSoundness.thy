@@ -159,19 +159,9 @@ proof -
     from valid_input have "card N > 0" by (rule card_participants_gt_0)
     then have "finite N" by (rule card_ge_0_finite)
 
-    from `card G > 0` have "G \<noteq> {}" by force
-    then have "is_partition_of {G} G" by (rule set_partitions_itself)
-    then have *: "{G} \<in> all_partitions G" unfolding all_partitions_def by (rule CollectI)
-    moreover have "injections {G} N \<noteq> {}"
-    proof -
-      have "finite {G}" by simp
-      moreover note `finite N`
-      moreover have "card {G} \<le> card N" using `card N > 0` by auto
-      ultimately show ?thesis by (rule injections_exist)
-    qed
-    ultimately have "(* \<Union> { injections Y N | Y . Y \<in> all_partitions G } = *)
-      possible_allocations_rel G N \<noteq> {}"
-      by (auto simp add: Union_map_non_empty) (* *** *)
+    from `card G > 0` `card N > 0`
+      have "possible_allocations_rel G N \<noteq> {}"
+      by (rule ex_allocations)
     moreover have "finite (possible_allocations_rel G N)"
       using `finite G` `finite N` by (rule allocs_finite)
     ultimately have "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
@@ -292,6 +282,7 @@ proof -
   finally show ?thesis .
 qed
 
+(* TODO CL: once done, factor out parts into lemmas *)
 text {* The combinatorial Vickrey auction is well-defined. *}
 lemma wd_outcome:
   fixes t::tie_breaker_rel
@@ -343,13 +334,10 @@ proof (rule wd_outcomeI)
   moreover have "wd_payments N p" unfolding wd_payments_def
   proof
     fix n assume "n \<in> N"
-    from valid have "finite (N - {n})" by (rule finite_participants_except)
-
-    have "finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))"
-    proof (rule allocs_finite)
-      from `finite G` show "finite (G - (THE y . (y, n) \<in> x))" by (rule finite_Diff)
-      from `finite (N - {n})` show "finite (N - {n})" . (* TODO CL: find out how to abbreviate this *)
-    qed
+    (* TODO CL: find out how to abbreviate "from `X` show X ." *)
+    have "finite (G - (THE y . (y, n) \<in> x))" using `finite G` by (rule finite_Diff)
+    moreover have "finite (N - {n})" using valid by (rule finite_participants_except)
+    ultimately have "finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))" by (rule allocs_finite)
 
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
@@ -371,7 +359,26 @@ proof (rule wd_outcomeI)
       proof -
         have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
         moreover note `finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))` (* TODO CL: give this a symbolic name *)
-        moreover have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) \<noteq> {}" sorry (* TODO CL: reuse *** *)
+        moreover have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) \<noteq> {}"
+        proof (rule ex_allocations)
+          show "card (G - (THE y . (y, n) \<in> x)) > 0"
+          proof -
+            note `finite (G - (THE y . (y, n) \<in> x))`
+            moreover have "G - (THE y . (y, n) \<in> x) \<noteq> {}" sorry
+            ultimately show ?thesis by (metis card_gt_0_iff)
+          qed
+          show "card (N - {n}) > 0"
+          proof -
+            note `finite (N - {n})`
+            moreover have "N - {n} \<noteq> {}"
+            proof - (* TODO CL: try to simplify this; likely another TPTP candidate anyway (document Sledgehammer performance) *)
+              from valid have "card N > 1" unfolding valid_input_def by fast
+              moreover have "finite N" using `card N > 1` by (metis card_infinite not_one_less_zero)
+              ultimately show ?thesis by (smt `n \<in> N` card_Suc_Diff1 card_empty)
+            qed
+            ultimately show ?thesis by fastforce
+          qed
+        qed
         moreover have "\<exists> x' \<in> possible_allocations_rel G (N - {n}) .
           \<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) .
           value_rel b x' \<ge> value_rel b y'"
