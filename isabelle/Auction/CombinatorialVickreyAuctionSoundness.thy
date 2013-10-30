@@ -171,7 +171,7 @@ proof -
     qed
     ultimately have "(* \<Union> { injections Y N | Y . Y \<in> all_partitions G } = *)
       possible_allocations_rel G N \<noteq> {}"
-      by (auto simp add: Union_map_non_empty)
+      by (auto simp add: Union_map_non_empty) (* *** *)
     moreover have "finite (possible_allocations_rel G N)"
       using `finite G` `finite N` by (rule allocs_finite)
     ultimately have "arg_max' (value_rel b) (possible_allocations_rel G N) \<noteq> {}"
@@ -345,6 +345,12 @@ proof (rule wd_outcomeI)
     fix n assume "n \<in> N"
     from valid have "finite (N - {n})" by (rule finite_participants_except)
 
+    have "finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))"
+    proof (rule allocs_finite)
+      from `finite G` show "finite (G - (THE y . (y, n) \<in> x))" by (rule finite_Diff)
+      from `finite (N - {n})` show "finite (N - {n})" . (* TODO CL: find out how to abbreviate this *)
+    qed
+
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
     also have "\<dots> = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
@@ -359,8 +365,24 @@ proof (rule wd_outcomeI)
         (* If you (re-)allocate, to all participants except n,
            the goods except those that participant n gets in the winning allocation,
            you achieve at most the value you'd achieve when allocating everything.
-           If participant n got nothing, \<ge> still holds, with equality. *)
-        \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))" sorry
+           If participant n got nothing, \<ge> still holds, with equality; but note that because of 
+           the assumption 'n \<in> Range x' we assume that n always got something. *)
+        \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))"
+      proof -
+        have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
+        moreover note `finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))` (* TODO CL: give this a symbolic name *)
+        moreover have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) \<noteq> {}" sorry (* TODO CL: reuse *** *)
+        moreover have "\<exists> x' \<in> possible_allocations_rel G (N - {n}) .
+          \<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) .
+          value_rel b x' \<ge> value_rel b y'"
+        proof -
+          (* let G = {a, b}; G - \<dots> = {a}.  part G = {{{a}, {b}}, {{a, b}}}; part G' = {{{a}}}. *)
+          have "possible_allocations_rel G (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }" by simp
+          have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions (G - (THE y . (y, n) \<in> x)) }" by simp
+          show ?thesis sorry
+        qed
+        ultimately show ?thesis by (rule Max_Im_ge_other_Im2)
+      qed
       also have "Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))
         (* The LHS of this inequality asks for the maximum value of an allocation of all goods
            except those that n gets, when allocated to all participants except n.
@@ -370,10 +392,7 @@ proof (rule wd_outcomeI)
         \<ge> value_rel b (winning_allocation_except G N t b n)"
       proof (rule Max_Im_ge)
         show "finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))"
-        proof (rule allocs_finite)
-          from `finite G` show "finite (G - (THE y . (y, n) \<in> x))" by (rule finite_Diff)
-          from `finite (N - {n})` show "finite (N - {n})" . (* TODO CL: find out how to abbreviate this *)
-        qed
+          by (rule `finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))`) (* TODO CL: give this a symbolic name *)
         show "winning_allocation_except G N t b n \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})"
         proof -
           from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" unfolding x' by (rule subrel_runiq)
