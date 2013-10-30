@@ -110,5 +110,13 @@ proof -
   with finiteA show ?thesis by (rule Max_Im_ge_other_Im1)
 qed
 
+lemma Max_Im_ge_lower_bound:
+  assumes "\<forall> x . f x \<ge> z"
+      and "finite S"
+      and "S \<noteq> {}"
+  shows "Max (f ` S) \<ge> z"
+using assms
+by (metis Max_Im_imp_ex_elem)
+
 end
 
