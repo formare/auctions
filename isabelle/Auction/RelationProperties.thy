@@ -636,6 +636,26 @@ proof -
   finally show ?thesis by auto
 qed
 
+(* TODO CL: document *)
+lemma runiq_imp_Dom_rel_Range:
+  assumes "x \<in> Domain R"
+      and "runiq R"
+  shows "(THE y . (x, y) \<in> R) \<in> Range R"
+using assms
+(* takes 63 ms in Isabelle2013-1-RC3 *)
+by (metis Range.intros runiq_imp_THE_right_comp runiq_wrt_ex1)
+
+(* TODO CL: document *)
+lemma runiq_conv_imp_Range_rel_Dom:
+  assumes y_Range: "y \<in> Range R"
+      and runiq_conv: "runiq (R\<inverse>)"
+  shows "(THE x . (x, y) \<in> R) \<in> Domain R"
+proof -
+  from y_Range have "y \<in> Domain (R\<inverse>)" by simp
+  then have "(THE x . (y, x) \<in> R\<inverse>) \<in> Range (R\<inverse>)" using runiq_conv by (rule runiq_imp_Dom_rel_Range)
+  then show ?thesis by simp
+qed
+
 text {* The converse relation of two pasted relations is right-unique, if 
   the relations have disjoint domains and ranges, and if their converses are both
   right-unique. *}
