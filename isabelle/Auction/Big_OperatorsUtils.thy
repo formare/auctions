@@ -61,12 +61,54 @@ by (metis assms setsum_cong2)
 
 section {* maximum *}
 
-lemma Max_fun_ge:
+(* TODO CL: document *)
+lemma Max_Im_ge:
   fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
   assumes "finite A"
       and "x \<in> A"
   shows "Max (f ` A) \<ge> f x"
-  using assms by simp
+using assms by simp
+
+(* TODO CL: document *)
+lemma Max_Im_ge_other_Im1:
+  fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
+  assumes "finite A"
+      and "\<exists> x \<in> A . f x \<ge> Max (f ` B)"
+  shows "Max (f ` A) \<ge> Max (f ` B)"
+using assms
+by (metis Max_Im_ge dual_order.trans)
+
+(* TODO CL: document *)
+lemma Max_Im_imp_ex_elem:
+  assumes "finite A"
+      and "A \<noteq> {}"
+  obtains x where "x \<in> A" and "Max (f ` A) = f x"
+(* This takes 232 ms in Isabelle2013-1-RC3:
+   using assms by (metis (hide_lams, no_types) Max_in all_not_in_conv finite_imageI image_iff)
+*)
+proof -
+  from `finite A` have "finite (f ` A)" by (rule finite_imageI)
+  moreover have "f ` A \<noteq> {}" using `A \<noteq> {}` by simp
+  ultimately have "Max (f ` A) \<in> f ` A" by (rule Max_in)
+  then have "\<exists> x \<in> A . Max (f ` A) = f x" using image_iff by blast
+  then show ?thesis by (metis that) (* TODO CL: ask what "that" is *)
+qed
+
+(* TODO CL: document *)
+lemma Max_Im_ge_other_Im2:
+  fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
+  assumes finiteA: "finite A"
+      and finiteB: "finite B"
+      and B_non_empty: "B \<noteq> {}"
+      and witness: "\<exists> x \<in> A . \<forall> y \<in> B . f x \<ge> f y"
+  shows "Max (f ` A) \<ge> Max (f ` B)"
+proof -
+  from witness obtain x where *: "x \<in> A" and **: "\<forall> y \<in> B . f x \<ge> f y" by blast
+  from finiteB B_non_empty obtain y where "y \<in> B" and "Max (f ` B) = f y" by (rule Max_Im_imp_ex_elem)
+  then have "f x \<ge> Max (f ` B)" using ** by fastforce
+  then have "\<exists> x \<in> A . f x \<ge> Max (f ` B)" using * by blast
+  with finiteA show ?thesis by (rule Max_Im_ge_other_Im1)
+qed
 
 end
 

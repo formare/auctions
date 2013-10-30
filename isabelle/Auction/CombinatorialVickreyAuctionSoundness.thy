@@ -368,7 +368,7 @@ proof (rule wd_outcomeI)
            to all participants except n (as it removes exactly these pairs of the winning 
            allocation of all goods to all participants), so it must be \<le> the LHS. *)
         \<ge> value_rel b (winning_allocation_except G N t b n)"
-      proof (rule Max_fun_ge)
+      proof (rule Max_Im_ge)
         show "finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))"
         proof (rule allocs_finite)
           from `finite G` show "finite (G - (THE y . (y, n) \<in> x))" by (rule finite_Diff)
@@ -493,7 +493,7 @@ proof (rule wd_outcomeI)
       with part have "winning_allocation_except G N t b n \<in> possible_allocations_rel G (N - {n})"
         unfolding x'' possible_allocations_rel.simps (* This allows for using blast; otherwise we'd need auto. *)
         by blast
-      with finite show ?thesis by (rule Max_fun_ge)
+      with finite show ?thesis by (rule Max_Im_ge)
     qed
     ultimately show "p n \<ge> 0" by fastforce
   qed
