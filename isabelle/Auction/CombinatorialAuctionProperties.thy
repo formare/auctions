@@ -40,6 +40,26 @@ proof -
   then show ?thesis by (simp add: Union_set_compr_eq)
 qed
 
+(* TODO CL: document *)
+lemma ex_allocations:
+  assumes "card G > 0"
+      and "card N > 0"
+  shows "(* \<Union> { injections Y N | Y . Y \<in> all_partitions G } = *)
+    possible_allocations_rel G N \<noteq> {}"
+proof -
+  from `card G > 0` have "G \<noteq> {}" by force
+  then have "is_partition_of {G} G" by (rule set_partitions_itself)
+  then have "{G} \<in> all_partitions G" unfolding all_partitions_def by (rule CollectI)
+  moreover have "injections {G} N \<noteq> {}"
+  proof -
+    have "finite {G}" by simp
+    moreover have "finite N" using `card N > 0` by (rule card_ge_0_finite)
+    moreover have "card {G} \<le> card N" using `card N > 0` by auto
+    ultimately show ?thesis by (rule injections_exist)
+  qed
+  ultimately show ?thesis by (auto simp add: Union_map_non_empty)
+qed
+
 (* TODO CL: revise the following as per https://github.com/formare/auctions/issues/19 *)
 
 section {* Soundness *}
