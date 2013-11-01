@@ -111,7 +111,7 @@ proof -
 qed
 
 lemma Max_Im_ge_lower_bound:
-  assumes "\<forall> x . f x \<ge> z"
+  assumes "\<forall> x \<in> S . f x \<ge> z"
       and "finite S"
       and "S \<noteq> {}"
   shows "Max (f ` S) \<ge> z"
