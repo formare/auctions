@@ -192,15 +192,13 @@ proof -
   with tie_breaker alloc_unfolded
     have "winning_allocation_rel G N t b \<in> arg_max' (value_rel b) (possible_allocations_rel G N)"
     using tie_breaker_def by smt
-  then have "winning_allocation_rel G N t b \<in> { x \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G } .
-    value_rel b x = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G }) }" by simp
-  then have "winning_allocation_rel G N t b \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G }
-    \<and> value_rel b (winning_allocation_rel G N t b) = Max ((value_rel b) ` \<Union> { injections Y N | Y . Y \<in> all_partitions G })"
+  then have "winning_allocation_rel G N t b \<in> { x \<in> possible_allocations_rel G N .
+    value_rel b x = Max ((value_rel b) ` (possible_allocations_rel G N)) }" by force
+  then have "winning_allocation_rel G N t b \<in> possible_allocations_rel G N
+    \<and> value_rel b (winning_allocation_rel G N t b) = Max ((value_rel b) ` (possible_allocations_rel G N))"
     by (rule CollectD)
-  then have x_alloc: "winning_allocation_rel G N t b \<in> \<Union> { injections Y N | Y . Y \<in> all_partitions G }" ..
-  then have "\<exists> Y \<in> all_partitions G . winning_allocation_rel G N t b \<in> injections Y N" by (rule Union_map_member)
-  then obtain Y where "Y \<in> all_partitions G" and "winning_allocation_rel G N t b \<in> injections Y N" by fast
-  then show ?thesis ..
+  then have "winning_allocation_rel G N t b \<in> possible_allocations_rel G N" ..
+  then show ?thesis using that by (rule allocation_injective)
 qed
 
 text {* determine the winning allocation, but take out the tuple of participant @{term n} *}
@@ -558,10 +556,28 @@ proof (rule wd_outcomeI)
         have *: "value_rel b (winning_allocation_except G N t b n) = 0"
           unfolding value_rel.simps Dom_empty by (rule setsum_empty)
 
-        from valid have non_neg_bids: "\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0"
-          unfolding valid_input_def CombinatorialAuction.valid_input_def by blast
-
-        have "\<forall> x . value_rel b x \<ge> 0" sorry (* TODO CL: use non_neg_bids *)
+        have "\<forall> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> 0"
+        proof
+          fix x'
+          assume "x' \<in> possible_allocations_rel G (N - {n})"
+          then obtain Y' where Y': "Y' \<in> all_partitions G" and inj': "x' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+          from inj' have Dom_x': "Domain x' = Y'" unfolding injections_def by fast
+          from inj' have Range_x': "Range x' \<subseteq> N - {n}" unfolding injections_def by fast
+          from inj' have runiq_x': "runiq x'" unfolding injections_def by fast
+          from valid have non_neg_bids: "\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0"
+            unfolding valid_input_def CombinatorialAuction.valid_input_def by blast
+          {
+            fix y
+            assume "y \<in> Domain x'"
+            with Dom_x' have 1: "y \<subseteq> G" using Y' all_partitions_def is_partition_of_def
+              by (metis Union_upper mem_Collect_eq)
+            from runiq_x' `y \<in> Domain x'` have "x' ,, y \<in> Range x'" by (rule eval_runiq_in_Range)
+            with Range_x' have 2: "x' ,, y \<in> N" by blast
+            from 1 2 have "y \<subseteq> G" and "x' ,, y \<in> N" .
+          }
+          with non_neg_bids have "\<forall> y \<in> Domain x' . b (x' ,, y) y \<ge> 0" by simp
+          then show "value_rel b x' \<ge> 0" unfolding value_rel.simps by (rule setsum_nonneg)
+        qed
         moreover note `finite (possible_allocations_rel G (N - {n}))`
         moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}"
         proof (rule ex_allocations)
