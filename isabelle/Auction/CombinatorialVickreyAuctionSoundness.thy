@@ -131,6 +131,27 @@ proof -
   then show ?thesis by force
 qed
 
+(* TODO CL: document *)
+lemma card_participants_except_gt_0:
+  assumes "valid_input G N b"
+  shows "card (N - {n}) > 0"
+proof (cases "n \<in> N")
+  case True
+  have "finite (N - {n})" using assms by (rule finite_participants_except)
+  moreover have "N - {n} \<noteq> {}"
+  (* Sledgehammer in Isabelle2013-1-RC3 can't prove this within reasonable time. *)
+  proof -
+    have "card N > 1" using assms unfolding valid_input_def by fast
+    moreover have "finite N" using assms by (rule finite_participants)
+    ultimately show ?thesis using True by (smt card_Suc_Diff1 card_empty)
+  qed
+  ultimately show ?thesis by fastforce
+next
+  case False
+  then have "N - {n} = N" by simp
+  then show ?thesis by (metis assms card_participants_gt_0)
+qed
+
 text {* The outcome of the combinatorial Vickrey auction is well-defined, if the allocation 
   is well-defined and the payments are non-negative. *}
 definition wd_alloc_pay :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel \<Rightarrow> payments \<Rightarrow> bool"
@@ -341,6 +362,7 @@ proof (rule wd_outcomeI)
 
     have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
 
+    have "card (N - {n}) > 0" using valid by (rule card_participants_except_gt_0)
 
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
@@ -382,17 +404,7 @@ proof (rule wd_outcomeI)
               qed
               ultimately show ?thesis by (metis card_gt_0_iff)
             qed
-            show "card (N - {n}) > 0"
-            proof -
-              note `finite (N - {n})`
-              moreover have "N - {n} \<noteq> {}"
-              proof - (* TODO CL: try to simplify this; likely another TPTP candidate anyway (document Sledgehammer performance) *)
-                from valid have "card N > 1" unfolding valid_input_def by fast
-                moreover have "finite N" using `card N > 1` by (metis card_infinite not_one_less_zero)
-                ultimately show ?thesis by (smt `n \<in> N` card_Suc_Diff1 card_empty)
-              qed
-              ultimately show ?thesis by fastforce
-            qed
+            show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
           qed
           moreover have "\<exists> x' \<in> possible_allocations_rel G (N - {n}) .
             \<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) .
@@ -551,7 +563,11 @@ proof (rule wd_outcomeI)
 
         have "\<forall> x . value_rel b x \<ge> 0" sorry (* TODO CL: use non_neg_bids *)
         moreover note `finite (possible_allocations_rel G (N - {n}))`
-        moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}" sorry
+        moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}"
+        proof (rule ex_allocations)
+          from valid show "card G > 0" by (rule card_goods_gt_0)
+          show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
+        qed
         ultimately have "0 \<le> Max (value_rel b ` possible_allocations_rel G (N - {n}))" by (rule Max_Im_ge_lower_bound)
 
         with * show ?thesis by (rule ord_eq_le_trans)
