@@ -462,6 +462,15 @@ proof -
   qed
 qed
 
+text {* Evaluating a right-unique relation as a function on the relation's domain yields an
+  element from its range. *}
+lemma eval_runiq_in_Range:
+  assumes "runiq R"
+      and "a \<in> Domain R"
+  shows "R ,, a \<in> Range R"
+using assms
+by (metis Range_iff eval_runiq_rel)
+
 text {* The image of a singleton set under a right-unique relation is a singleton set. *}
 lemma Image_runiq_eq_eval:
   assumes "x \<in> Domain R"
