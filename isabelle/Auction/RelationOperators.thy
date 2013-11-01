@@ -129,7 +129,7 @@ text {* Summing over all pairs of a relation is the same as summing over all pai
   converse relation after flipping them. *}
 lemma setsum_rel_comm:
   fixes R::"('a \<times> 'b) set"
-    and f::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>{comm_monoid_add}"
+    and f::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>comm_monoid_add"
   shows "(\<Sum> (x, y) \<in> R . f x y) = (\<Sum> (y', x') \<in> R\<inverse> . f x' y')"
 proof -
   (* TODO CL: manually optimise some metis invocations *)
@@ -150,7 +150,7 @@ section {* evaluation as a function *}
 text {* Evaluates a relation @{term R} for a single argument, as if it were a function.
   This will only work if @{term R} is a total function, i.e. if the image is always a singleton set. *}
 fun eval_rel :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b" (infix ",," 75) (* . (Mizar's notation) confuses Isar *)
-where "eval_rel R a = the_elem (R `` {a})"
+where "R ,, a = the_elem (R `` {a})"
 
 section {* paste *}
 
