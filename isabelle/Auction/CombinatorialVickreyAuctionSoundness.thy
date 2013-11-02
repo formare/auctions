@@ -372,7 +372,7 @@ proof (rule wd_outcomeI)
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
     proof cases
       assume n_gets_something: "n \<in> Range x"
-      have "(THE y . (y, n) \<in> x) \<in> Domain x" (* TOOD CL: reuse *)
+      have "(THE y . (y, n) \<in> x) \<in> Domain x"
         using n_gets_something runiq_alloc_conv
         by (rule runiq_conv_imp_Range_rel_Dom)
       show ?thesis
@@ -386,6 +386,12 @@ proof (rule wd_outcomeI)
              the assumption 'n \<in> Range x' we assume that n always got something. *)
           \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})))"
         proof -
+          have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
+          moreover note `(THE y . (y, n) \<in> x) \<in> Domain x`
+          ultimately have n_gets_proper_part: "(THE y . (y, n) \<in> x) \<subset> G" 
+            by (metis Sup_upper n_gets_part psubset_eq)
+          then have n_gets_part': "(THE y . (y, n) \<in> x) \<subseteq> G" by (rule psubsetE)
+
           note `finite (possible_allocations_rel G (N - {n}))`
           moreover note `finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))` (* TODO CL: give this a symbolic name *)
           moreover have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) \<noteq> {}"
@@ -393,25 +399,40 @@ proof (rule wd_outcomeI)
             show "card (G - (THE y . (y, n) \<in> x)) > 0"
             proof -
               note `finite (G - (THE y . (y, n) \<in> x))`
-              moreover have "G - (THE y . (y, n) \<in> x) \<noteq> {}"
-              proof -
-                have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
-                moreover note `(THE y . (y, n) \<in> x) \<in> Domain x`
-                ultimately have "(THE y . (y, n) \<in> x) \<subseteq> G" by (metis Sup_le_iff subset_refl)
-                then show ?thesis using n_gets_part by blast
-              qed
+              moreover have "G - (THE y . (y, n) \<in> x) \<noteq> {}" using n_gets_proper_part by blast
               ultimately show ?thesis by (metis card_gt_0_iff)
             qed
             show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
           qed
           moreover have "\<exists> x' \<in> possible_allocations_rel G (N - {n}) .
             \<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) .
-            value_rel b x' \<ge> value_rel b y'"
+              value_rel b x' \<ge> value_rel b y'"
+            (* There is an allocation of all goods to all participants except n, whose value is higher than
+               the value of any allocation of all goods except those that n actually gets to these participants. *)
           proof -
             (* let G = {a, b}; G - \<dots> = {a}.  part G = {{{a}, {b}}, {{a, b}}}; part G' = {{{a}}}. *)
+            (* Not sure if/when we'll need the following two: *)
             have "possible_allocations_rel G (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }" by simp
             have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions (G - (THE y . (y, n) \<in> x)) }" by simp
-            show ?thesis sorry
+
+            have "(THE y . (y, n) \<in> x) \<noteq> {}"
+            proof -
+              from `(THE y . (y, n) \<in> x) \<in> Domain x` `Domain x = Y` have *: "(THE y . (y, n) \<in> x) \<in> Y" by simp (* TODO CL: use labels where available *)
+              have "is_partition Y" using part unfolding all_partitions_def is_partition_of_def by simp (* TODO CL: let's see if we can reuse this elsewhere *)
+              then have "{} \<notin> Y" by (rule no_empty_eq_class)
+              with * show ?thesis by fastforce
+            qed
+            then have "G - (THE y . (y, n) \<in> x) \<subset> G" using n_gets_proper_part by (rule Diff_psubset_is_psubset)
+
+            def x' \<equiv> "{}::allocation_rel" (* TODO CL: redefine this witness properly *)
+            have x'_alloc: "x' \<in> possible_allocations_rel G (N - {n})" sorry
+            {
+              fix y'
+              assume "y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})"
+              have "value_rel b x' \<ge> value_rel b y'" sorry
+            }
+            then have "\<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
+            with x'_alloc show ?thesis by blast
           qed
           ultimately show ?thesis by (rule Max_Im_ge_other_Im2)
         qed
@@ -530,8 +551,8 @@ proof (rule wd_outcomeI)
         assume "\<not> (THE y . (y, n) \<in> x) \<noteq> G"
         then have n_gets_everything: "(THE y . (y, n) \<in> x) = G" by fast
         (* TODO CL: "try" on the following gives no result after an hour with Isabelle2013-1-RC3: *)
-        (* with part' alloc_Domain have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }" unfolding is_partition_of_def is_partition_def sorry *)
-        (* OK, maybe I took into account too few assumptions.  Retry with all assumptions used below. *)
+        (* with part' alloc_Domain have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }" unfolding is_partition_of_def is_partition_def *)
+        (* OK, maybe I took into account too few assumptions.  TODO CL: retry with all assumptions used below. *)
         have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
         proof (rule ccontr)
           assume "{} \<noteq> { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
