@@ -136,13 +136,6 @@ where "possible_allocations_fun G N = { (Y,x) .
  }"
 *)
 
-(* TODO CL: document *)
-lemma allocation_injective:
-  assumes "x \<in> possible_allocations_rel G N"
-  obtains Y where "Y \<in> all_partitions G" and "x \<in> injections Y N"
-using assms
-by auto
-
 section {* Relational vs. predicate form*}
 
 text {* A general combinatorial auction in predicate form.

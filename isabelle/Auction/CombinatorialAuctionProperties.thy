@@ -60,6 +60,13 @@ proof -
   ultimately show ?thesis by (auto simp add: Union_map_non_empty)
 qed
 
+(* TODO CL: document *)
+lemma allocation_injective:
+  assumes "x \<in> possible_allocations_rel G N"
+  obtains Y where "Y \<in> all_partitions G" and "x \<in> injections Y N"
+using assms
+by auto
+
 (* TODO CL: revise the following as per https://github.com/formare/auctions/issues/19 *)
 
 section {* Soundness *}
