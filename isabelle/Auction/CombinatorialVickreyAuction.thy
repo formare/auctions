@@ -135,8 +135,9 @@ text {* Simplifying the overall constraints for valid input, combining the gener
 lemma valid_input:
   "valid_input G N b \<longleftrightarrow>
     card G > 0 \<and> card N > 1 \<and>
-    (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0) \<and>
-    (\<forall> n H . n \<in> N \<longrightarrow> b n {} = 0)"
+    (\<forall> n H H' . n \<in> N \<and> H \<subseteq> H' \<longrightarrow> b n H \<le> b n H') (* monotonicity *) \<and>
+    (\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0) (* non-negativity *) \<and>
+    (\<forall> n \<in> N . b n {} = 0) (* zero on empty set *)"
   unfolding valid_input_def CombinatorialAuction.valid_input_def
   by fastforce
 
