@@ -438,7 +438,11 @@ proof (rule wd_outcomeI)
             def x' \<equiv> "y' - {(?m's_goods, m)} \<union> {(?n's_goods \<union> ?m's_goods, m)}"
             have "x' \<in> possible_allocations_rel G (N - {n})"
             proof -
-              show ?thesis sorry
+              have x'_Domain: "Domain x' \<in> all_partitions G" sorry
+              have x'_Range: "Range x' \<subseteq> N - {n}" sorry
+              have x'_runiq: "runiq x'" sorry
+              have x'_conv_runiq: "runiq (x'\<inverse>)" sorry
+              from x'_Domain x'_Range x'_runiq x'_conv_runiq show ?thesis unfolding possible_allocations_rel.simps injections_def by blast
             qed
             moreover have "value_rel b x' \<ge> value_rel b y'" sorry
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
@@ -548,11 +552,8 @@ proof (rule wd_outcomeI)
             finally have alloc_except_Range: "Range (winning_allocation_except G N t b n) \<subseteq> N - {n}" .
             
             from alloc_except_Domain alloc_except_Range alloc_except_runiq alloc_except_conv_runiq
-              obtain Y' where "Y' \<in> all_partitions (G - ?n's_goods)" and "winning_allocation_except G N t b n \<in> injections Y' (N - {n})"
-              unfolding injections_def by blast
-            then show ?thesis
-              unfolding possible_allocations_rel.simps (* This allows for using blast; otherwise we'd need auto. *)
-              by blast
+              show ?thesis
+              unfolding possible_allocations_rel.simps injections_def by blast
           qed
         qed
         ultimately show ?thesis by linarith
