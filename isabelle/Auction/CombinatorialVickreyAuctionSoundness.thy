@@ -388,9 +388,7 @@ proof (rule wd_outcomeI)
         proof -
           have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
           moreover note `(THE y . (y, n) \<in> x) \<in> Domain x`
-          ultimately have n_gets_proper_part: "(THE y . (y, n) \<in> x) \<subset> G" 
-            by (metis Sup_upper n_gets_part psubset_eq)
-          then have n_gets_part': "(THE y . (y, n) \<in> x) \<subseteq> G" by (rule psubsetE)
+          ultimately have n_gets_part': "(THE y . (y, n) \<in> x) \<subseteq> G" by (metis Sup_upper)
 
           note `finite (possible_allocations_rel G (N - {n}))`
           moreover note `finite (possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}))` (* TODO CL: give this a symbolic name *)
@@ -399,22 +397,22 @@ proof (rule wd_outcomeI)
             show "card (G - (THE y . (y, n) \<in> x)) > 0"
             proof -
               note `finite (G - (THE y . (y, n) \<in> x))`
-              moreover have "G - (THE y . (y, n) \<in> x) \<noteq> {}" using n_gets_proper_part by blast
+              moreover have "G - (THE y . (y, n) \<in> x) \<noteq> {}"
+                using n_gets_part n_gets_part'
+                by (smt Diff_empty double_diff subset_refl)
               ultimately show ?thesis by (metis card_gt_0_iff)
             qed
             show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
           qed
-          moreover have "\<exists> x' \<in> possible_allocations_rel G (N - {n}) .
-            \<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) .
+          moreover have "\<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) .
+            \<exists> x' \<in> possible_allocations_rel G (N - {n}) .
               value_rel b x' \<ge> value_rel b y'"
-            (* There is an allocation of all goods to all participants except n, whose value is higher than
-               the value of any allocation of all goods except those that n actually gets to these participants. *)
-          proof -
-            (* let G = {a, b}; G - \<dots> = {a}.  part G = {{{a}, {b}}, {{a, b}}}; part G' = {{{a}}}. *)
-            (* Not sure if/when we'll need the following two: *)
-            have "possible_allocations_rel G (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions G }" by simp
-            have "possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) = \<Union> { injections Y (N - {n}) | Y . Y \<in> all_partitions (G - (THE y . (y, n) \<in> x)) }" by simp
-
+            (* TODO CL: generalise this into a lemma value_mono *)
+            (* For each allocation of all goods, except those that n actually gets, to all participants except n,
+               there is an allocation of _all_ goods to these participants, whose value is higher. *)
+          proof
+            fix y'
+            assume "y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})"
             have "(THE y . (y, n) \<in> x) \<noteq> {}"
             proof -
               from `(THE y . (y, n) \<in> x) \<in> Domain x` `Domain x = Y` have *: "(THE y . (y, n) \<in> x) \<in> Y" by simp (* TODO CL: use labels where available *)
@@ -422,17 +420,12 @@ proof (rule wd_outcomeI)
               then have "{} \<notin> Y" by (rule no_empty_eq_class)
               with * show ?thesis by fastforce
             qed
-            then have "G - (THE y . (y, n) \<in> x) \<subset> G" using n_gets_proper_part by (rule Diff_psubset_is_psubset)
-
-            def x' \<equiv> "{}::allocation_rel" (* TODO CL: redefine this witness properly *)
-            have x'_alloc: "x' \<in> possible_allocations_rel G (N - {n})" sorry
-            {
-              fix y'
-              assume "y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n})"
-              have "value_rel b x' \<ge> value_rel b y'" sorry
-            }
-            then have "\<forall> y' \<in> possible_allocations_rel (G - (THE y . (y, n) \<in> x)) (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
-            with x'_alloc show ?thesis by blast
+            (* construct the allocation x' by allocating everything as in y' and allocating 
+               the additional goods to an arbitrary participant *)
+            def x' \<equiv> "y' \<union> {(THE y . (y, n) \<in> x, SOME m . m \<in> N - {n})}"
+            have "x' \<in> possible_allocations_rel G (N - {n})" sorry
+            moreover have "value_rel b x' \<ge> value_rel b y'" sorry
+            ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
           qed
           ultimately show ?thesis by (rule Max_Im_ge_other_Im2)
         qed
