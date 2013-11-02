@@ -100,14 +100,13 @@ lemma Max_Im_ge_other_Im2:
   assumes finiteA: "finite A"
       and finiteB: "finite B"
       and B_non_empty: "B \<noteq> {}"
-      and witness: "\<exists> x \<in> A . \<forall> y \<in> B . f x \<ge> f y"
+      and witnesses: "\<forall> y \<in> B . \<exists> x \<in> A . f x \<ge> f y"
   shows "Max (f ` A) \<ge> Max (f ` B)"
 proof -
-  from witness obtain x where *: "x \<in> A" and **: "\<forall> y \<in> B . f x \<ge> f y" by blast
   from finiteB B_non_empty obtain y where "y \<in> B" and "Max (f ` B) = f y" by (rule Max_Im_imp_ex_elem)
-  then have "f x \<ge> Max (f ` B)" using ** by fastforce
-  then have "\<exists> x \<in> A . f x \<ge> Max (f ` B)" using * by blast
-  with finiteA show ?thesis by (rule Max_Im_ge_other_Im1)
+  with witnesses obtain x where "x \<in> A" and *: "f x \<ge> Max (f ` B)" by fastforce
+  from finiteA `x \<in> A` have "Max (f ` A) \<ge> f x" by (rule Max_Im_ge)
+  with * show ?thesis by (rule order.trans)
 qed
 
 lemma Max_Im_ge_lower_bound:
