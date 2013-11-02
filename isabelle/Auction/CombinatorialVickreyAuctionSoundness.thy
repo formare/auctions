@@ -219,9 +219,9 @@ lemma remaining_value_alt:
 proof -
   from assms obtain Y where "Y \<in> all_partitions G" and inj: "winning_allocation_rel G N t b \<in> injections Y N"
     by (rule winning_allocation_injective)
-  from inj have runiq_alloc: "runiq (winning_allocation_rel G N t b)" unfolding injections_def by simp
-  from inj have runiq_alloc_conv: "runiq ((winning_allocation_rel G N t b)\<inverse>)" unfolding injections_def by simp
-  from inj have alloc_Range: "Range (winning_allocation_rel G N t b) \<subseteq> N" unfolding injections_def by simp
+  from inj have runiq_alloc: "runiq (winning_allocation_rel G N t b)"
+            and runiq_alloc_conv: "runiq ((winning_allocation_rel G N t b)\<inverse>)"
+            and alloc_Range: "Range (winning_allocation_rel G N t b) \<subseteq> N" unfolding injections_def by simp_all
 
   from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" by (rule subrel_runiq)
   from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
@@ -319,13 +319,13 @@ proof (rule wd_outcomeI)
   from valid have "finite G" by (rule finite_goods)
 
   (* TODO CL: get rid of redundancy with beginning of proof of lemma remaining_value_alt *)
-  from inj have runiq_alloc: "runiq x" unfolding injections_def by simp
-  from inj have runiq_alloc_conv: "runiq (x\<inverse>)" unfolding injections_def by simp
-  from inj have alloc_Domain: "Domain x = Y" unfolding injections_def by simp
-  from inj have alloc_Range: "Range x \<subseteq> N" unfolding injections_def by simp
+  from inj have runiq_alloc: "runiq x"
+            and runiq_alloc_conv: "runiq (x\<inverse>)"
+            and alloc_Domain: "Domain x = Y"
+            and alloc_Range: "Range x \<subseteq> N" unfolding injections_def by simp_all
 
   from part have part': "is_partition_of Y G" unfolding all_partitions_def by (rule CollectD)
-  moreover have "Domain x = Y" using inj unfolding injections_def by simp
+  moreover note alloc_Domain
   ultimately have "is_partition_of (Domain x) G" by blast
 
   from xp (* to use Max_in, we need additional assumptions about N and G, so that \<Union> is non-empty *)
@@ -337,7 +337,7 @@ proof (rule wd_outcomeI)
     have "no_good_allocated_twice G x" unfolding no_good_allocated_twice_def
     proof
       fix g assume "g \<in> G"
-      from inj have "runiq x" unfolding injections_def by simp
+      note `runiq x`
       moreover have "trivial { X \<in> Domain x . g \<in> X }"
       proof -
         from `g \<in> G` `is_partition_of (Domain x) G`
@@ -347,7 +347,7 @@ proof (rule wd_outcomeI)
       ultimately show "trivial (x `` { P \<in> Domain x . g \<in> P })" by (auto simp only: runiq_def)
     qed
     moreover have "\<Union> Domain x \<subseteq> G" using `is_partition_of (Domain x) G` unfolding is_partition_of_def by blast
-    moreover have "Range x \<subseteq> N" using inj unfolding injections_def by simp
+    moreover note `Range x \<subseteq> N`
     ultimately show ?thesis unfolding wd_allocation_def by blast
   qed
   moreover have "wd_payments N p" unfolding wd_payments_def
@@ -362,6 +362,10 @@ proof (rule wd_outcomeI)
     have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
 
     have "card (N - {n}) > 0" using valid by (rule card_participants_except_gt_0)
+
+    from valid have monotonic_bids: "\<forall> n H H' . n \<in> N \<and> H \<subseteq> H' \<longrightarrow> b n H \<le> b n H'"
+      and non_neg_bids: "\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0"
+      unfolding valid_input_def CombinatorialAuction.valid_input_def by simp_all
 
     from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n" by fast
@@ -414,6 +418,11 @@ proof (rule wd_outcomeI)
           proof
             fix y'
             assume "y' \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
+            then obtain Y' where "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+            from y'_inj have y'_Domain: "Domain y' = Y'" 
+                         and y'_Range: "Range y' \<subseteq> N - {n}" 
+                         and y'_runiq: "runiq y'" 
+                         and y'_conv_runiq: "runiq (y'\<inverse>)" unfolding injections_def by simp_all
             have "?n's_goods \<noteq> {}"
             proof -
               from `?n's_goods \<in> Domain x` `Domain x = Y` have *: "?n's_goods \<in> Y" by simp (* TODO CL: use labels where available *)
@@ -425,8 +434,12 @@ proof (rule wd_outcomeI)
                the additional goods to an arbitrary participant m, which means enlarging the set of
                goods that m got so far by the additional goods. *)
             def m \<equiv> "SOME m . m \<in> N - {n}"
-            def x' \<equiv> "y' - {} \<union> {(?n's_goods, m)}"
-            have "x' \<in> possible_allocations_rel G (N - {n})" sorry
+            let ?m's_goods = "THE y . (y, m) \<in> x"
+            def x' \<equiv> "y' - {(?m's_goods, m)} \<union> {(?n's_goods \<union> ?m's_goods, m)}"
+            have "x' \<in> possible_allocations_rel G (N - {n})"
+            proof -
+              show ?thesis sorry
+            qed
             moreover have "value_rel b x' \<ge> value_rel b y'" sorry
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
           qed
@@ -578,11 +591,9 @@ proof (rule wd_outcomeI)
           fix x'
           assume "x' \<in> possible_allocations_rel G (N - {n})"
           then obtain Y' where Y': "Y' \<in> all_partitions G" and inj': "x' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
-          from inj' have Dom_x': "Domain x' = Y'" unfolding injections_def by fast
-          from inj' have Range_x': "Range x' \<subseteq> N - {n}" unfolding injections_def by fast
-          from inj' have runiq_x': "runiq x'" unfolding injections_def by fast
-          from valid have non_neg_bids: "\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0"
-            unfolding valid_input_def CombinatorialAuction.valid_input_def by blast
+          from inj' have Dom_x': "Domain x' = Y'"
+                     and Range_x': "Range x' \<subseteq> N - {n}"
+                     and runiq_x': "runiq x'" unfolding injections_def by simp_all
           {
             fix y
             assume "y \<in> Domain x'"
