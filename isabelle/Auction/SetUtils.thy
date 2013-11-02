@@ -141,6 +141,18 @@ section {* The image of a set under a function *}
 text {* an equivalent notation for the image of a set, using set comprehension *}
 lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
+section {* Subsets *}
+
+text {* Subtracting a proper subset from a set yields another proper subset. *}
+lemma Diff_psubset_is_psubset:
+  assumes "A \<noteq> {}"
+      and "A \<subset> B"
+  shows "B - A \<subset> B"
+(* TODO CL: maybe report to Isabelle mailing list: "try" without "using assms" finds a lengthy 
+   Sledgehammer proof, so maybe the obvious "using assms" should always be tried first? *)
+using assms
+by blast
+
 section {* Miscellaneous *}
 
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
