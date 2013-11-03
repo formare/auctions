@@ -141,7 +141,17 @@ section {* The image of a set under a function *}
 text {* an equivalent notation for the image of a set, using set comprehension *}
 lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
-section {* Subsets *}
+section {* Set difference *}
+
+(* TODO CL: document *)
+lemma Diff_replace:
+  assumes "A = B - {x} \<union> {y}"
+      and "B \<subseteq> A"
+      and "x \<in> B"
+  shows "A - B = {y} - {x}"
+(* TODO CL: In Isabelle2013-1-RC3, this is hard for Sledgehammer to find. *)
+using assms
+by (metis Diff_cancel Diff_insert_absorb Un_empty_right Un_insert_right insert_iff Set.set_insert set_rev_mp)
 
 text {* Subtracting a proper subset from a set yields another proper subset. *}
 lemma Diff_psubset_is_psubset:
@@ -205,7 +215,6 @@ proof -
   also have "\<dots> \<longleftrightarrow> (\<exists> Y \<in> P . x \<in> (f Y))" by force
   finally show ?thesis .
 qed
-
 
 text {* Growing, in terms of set union a member @{term x} of a family of sets by a set @{term x'} grows
   the union of all of these sets by @{term x'}. *}
