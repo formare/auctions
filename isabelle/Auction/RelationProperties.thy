@@ -156,7 +156,7 @@ text {* For summing over the pairs in a relation whose converse is right-unique,
   it is sufficient to sum over the range of the relation. *}
 lemma setsum_Range_runiq_conv_rel:
   fixes R::"('a \<times> 'b) set"
-    and f::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>{comm_monoid_add}"
+    and f::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>comm_monoid_add"
   assumes "runiq (R\<inverse>)"
   shows "(\<Sum> y \<in> Range R . f (THE x . (x, y) \<in> R) y) = (\<Sum> (y, x) \<in> R\<inverse> . f x y)"
 proof -
@@ -324,6 +324,17 @@ proof -
 qed
 
 (* TODO CL: document *)
+lemma runiq_imp_THE_right_comp':
+  assumes runiq: "runiq R"
+      and in_Domain: "a \<in> Domain R"
+  shows "(a, THE b. (a, b) \<in> R) \<in> R"
+proof -
+  from in_Domain obtain b where *: "(a, b) \<in> R" by force
+  with runiq have "b = (THE b . (a, b) \<in> R)" by (rule runiq_imp_THE_right_comp)
+  with * show ?thesis by simp
+qed
+
+(* TODO CL: document *)
 lemma THE_right_comp_imp_runiq:
   assumes "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)"
   shows "runiq R"
@@ -351,6 +362,17 @@ proof -
   from aRb have "(b, a) \<in> R\<inverse>" by simp
   with runiq_conv have "a = (THE a . (b, a) \<in> R\<inverse>)" by (rule runiq_imp_THE_right_comp)
   then show ?thesis by fastforce
+qed
+
+(* TODO CL: document *)
+lemma runiq_conv_imp_THE_left_comp':
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and in_Range: "b \<in> Range R"
+  shows "(THE a. (a, b) \<in> R, b) \<in> R"
+proof -
+  from in_Range obtain a where *: "(a, b) \<in> R" by force
+  with runiq_conv have "a = (THE a . (a, b) \<in> R)" by (rule runiq_conv_imp_THE_left_comp)
+  with * show ?thesis by simp
 qed
 
 (* TODO CL: document *)
@@ -547,6 +569,35 @@ next
   with tup_def tup_R show "tup \<in> { (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }" by fastforce
 qed
 
+(* TODO CL: document *)
+lemma Domain_runiq_Diff_singleton:
+  assumes runiq: "runiq R"
+      and in_rel: "(x, y) \<in> R"
+  shows "Domain (R - {(x, y)}) = Domain R - {x}"
+proof
+  show "Domain (R - {(x, y)}) \<subseteq> Domain R - {x}"
+  proof
+    fix z
+    assume assm: "z \<in> Domain (R - {(x, y)})"
+    show "z \<in> Domain R - {x}"
+    proof
+      show "z \<in> Domain R" using assm by blast
+      show "z \<notin> {x}"
+      proof
+        assume "z \<in> {x}"
+        with assm obtain y' where "(x, y') \<in> R - {(x, y)}" by blast
+        then have "(x, y') \<in> R" and "y' \<noteq> y" by simp_all
+        from runiq in_rel `(x, y') \<in> R` have "y = y'" by (rule runiq_imp_uniq_right_comp)
+        with `y' \<noteq> y` show False by simp
+      qed
+    qed
+  qed
+next
+  have "Domain R - {x} = Domain R - Domain {(x, y)}" by blast
+  also have "\<dots> \<subseteq> Domain (R - {(x, y)})" by (rule Domain_Diff_subset)
+  finally show "Domain R - {x} \<subseteq> Domain (R - {(x, y)})" .
+qed
+
 subsection {* paste *}
 
 text {* Pasting @{term Q} on @{term P} yields a right-unique relation if @{term Q} is 
@@ -581,6 +632,100 @@ lemma runiq_paste3:
       and "x \<notin> Domain R" 
   shows "runiq (R +* {(x, y)})"
 using assms runiq_paste2 runiq_singleton_rel by metis
+
+(* TODO CL: document *)
+lemma runiq_except:
+  assumes "runiq R"
+  shows "runiq (R - {(x, y)})"
+using assms
+by (rule subrel_runiq) fast
+
+(* TODO CL: document *)
+lemma runiq_extend_singleton:
+  assumes runiq: "runiq R"
+      and not_in_Domain: "x \<notin> Domain R"
+  shows "runiq (R \<union> {(x, y)})"
+(* Sledgehammer in Isabelle2013-1-RC3 finds a proof that takes 112 ms. *)
+using runiq
+proof (rule disj_Un_runiq)
+  show "runiq {(x, y)}" by (rule runiq_singleton_rel)
+  have "Domain {(x, y)} = {x}" by simp
+  with not_in_Domain show "Domain R \<inter> Domain {(x, y)} = {}" by simp
+qed
+
+(* TODO CL: document *)
+lemma runiq_replace:
+  assumes runiq: "runiq R"
+      and not_in_Domain: "x \<notin> Domain (R - {(x, y)})"
+  shows "runiq (R - {(x, y)} \<union> {(x, z)})"
+proof -
+  from runiq have "runiq (R - {(x, y)})" by (rule runiq_except)
+  then show ?thesis using not_in_Domain by (rule runiq_extend_singleton)
+qed
+
+(* TODO CL: document, and choose better name *)
+lemma runiq_Diff_singleton_Domain:
+  assumes runiq: "runiq R"
+      and in_rel: "(x, y) \<in> R"
+  shows "x \<notin> Domain (R - {(x, y)})"
+(* TODO CL: optimise manually.  Takes 103 ms in Isabelle2013-1-RC3 *)
+using assms
+by (smt DomainE Domain_Un_eq UnI1 Un_Diff_Int member_remove remove_def runiq_wrt_ex1)
+
+(* TODO CL: document *)
+lemma runiq_replace':
+  assumes runiq: "runiq R"
+      and in_rel: "(x, y) \<in> R"
+  shows "runiq (R - {(x, y)} \<union> {(x, z)})"
+using runiq
+proof (rule runiq_replace)
+  from runiq in_rel show "x \<notin> Domain (R - {(x, y)})" by (rule runiq_Diff_singleton_Domain)
+qed
+
+(* TODO CL: document *)
+lemma runiq_conv_extend_singleton:
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and not_in_Domain: "y \<notin> Range R"
+  shows "runiq ((R \<union> {(x, y)})\<inverse>)"
+proof -
+  from not_in_Domain have "y \<notin> Domain (R\<inverse>)" by simp
+  with runiq_conv have "runiq (R\<inverse> \<union> {(y, x)})" by (rule runiq_extend_singleton)
+  moreover have "R\<inverse> \<union> {(y, x)} = (R \<union> {(x, y)})\<inverse>" by fast
+  ultimately show ?thesis by simp
+qed
+
+(* TODO CL: document *)
+lemma runiq_conv_replace:
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and not_in_Range: "y \<notin> Range (R - {(x, y)})"
+  shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
+proof -
+  from not_in_Range have "y \<notin> Domain (R\<inverse> - {(y, x)})" by blast
+  with runiq_conv have "runiq (R\<inverse> - {(y, x)} \<union> {(y, z)})" by (rule runiq_replace)
+  moreover have "R\<inverse> - {(y, x)} \<union> {(y, z)} = (R - {(x, y)} \<union> {(z, y)})\<inverse>" by fast
+  ultimately show ?thesis by simp
+qed
+
+(* TODO CL: document, and choose better name *)
+lemma runiq_conv_Diff_singleton_Range:
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and in_rel: "(x, y) \<in> R"
+  shows "y \<notin> Range (R - {(x, y)})"
+proof -
+  from in_rel have "(y, x) \<in> R\<inverse>" by simp
+  with runiq_conv have "y \<notin> Domain (R\<inverse> - {(y, x)})" by (rule runiq_Diff_singleton_Domain)
+  then show ?thesis by fast
+qed
+
+(* TODO CL: document *)
+lemma runiq_conv_replace':
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and in_rel: "(x, y) \<in> R"
+  shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
+using runiq_conv
+proof (rule runiq_conv_replace)
+  from runiq_conv in_rel show "y \<notin> Range (R - {(x, y)})" by (rule runiq_conv_Diff_singleton_Range)
+qed
 
 subsection {* converse *}
 
