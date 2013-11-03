@@ -213,7 +213,7 @@ proof
     then have "Y = A" by (rule singletonD)
     from `X = A` `Y = A` have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" using assms by simp
   }
-  then show "\<forall> X \<in> {A} . \<forall> Y \<in> {A} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" by force
+  then show "\<forall> X \<in> {A} . \<forall> Y \<in> {A} . X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" by force
 qed
 
 text {* The empty set is a partition of the empty set. *}
