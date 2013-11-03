@@ -77,7 +77,9 @@ text {* Valid input (i.e.\ valid bids w.r.t.\ the goods and participants).  As w
   @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
   their domain is @{term "G \<times> N"} for the given goods @{term G} and participants @{term N}.  All we 
   can enforce are non-empty finite sets of goods and participants, and that the bids are monotonic
-  w.r.t. (sub)sets of goods, and non-negative, with bids on an empty set of goods being zero. *}
+  w.r.t. (sub)sets of goods, and non-negative, with bids on an empty set of goods being zero.
+
+  We need the monotonicity as we do not  *}
 (* CL: Once we realise general/special auctions using locales, we need a valid_input axiom. *)
 definition valid_input :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> bool"
 where "valid_input G N b \<longleftrightarrow>
@@ -105,7 +107,9 @@ where "value_fun b Yp  = (let Y = fst Yp; x = snd Yp in
 *)
 
 text {* all possible allocations of a set of goods to a set of participants: 
-  injective functions that map sets of goods to their potential buyers, i.e.\ participants *}
+  injective functions that map sets of goods to their potential buyers, i.e.\ participants.
+  Here, we assume that everything gets allocated, i.e. that there is no free disposal.
+  This assumption facilitates the paper\<leftrightarrow>algorithm equivalence proof for injective functions. *}
 fun possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
 where "possible_allocations_rel G N = \<Union> { injections Y N | Y . Y \<in> all_partitions G }" 
 

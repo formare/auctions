@@ -85,7 +85,8 @@ text {* well-definedness of an allocation, given the goods and participants: all
 (* TODO CL: allow for partial allocation: in this case, Domain x needs to be a 
    partition of a _subset_ of G *)
 (* CL: Here, we do not care whether every good actually gets allocated.  Our current implementation 
-   does this, but I'm not sure this is a criterion against which the implementation should be verified. *)
+   does this (i.e. it does not assume "free disposal"),
+   but I'm not sure this is a criterion against which the implementation should be verified. *)
 definition wd_allocation :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel \<Rightarrow> bool"
 where "wd_allocation G N x \<longleftrightarrow> 
   no_good_allocated_twice G x \<and>
