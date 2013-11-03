@@ -395,6 +395,10 @@ proof (rule wd_outcomeI)
           moreover note `?n's_goods \<in> Domain x`
           ultimately have n_gets_part': "?n's_goods \<subseteq> G" by (metis Sup_upper)
 
+          have goods_Diff_non_empty: "G - ?n's_goods \<noteq> {}"
+            using n_gets_part n_gets_part'
+            by (smt Diff_empty double_diff subset_refl)
+
           note `finite (possible_allocations_rel G (N - {n}))`
           moreover note `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this a symbolic name *)
           moreover have "possible_allocations_rel (G - ?n's_goods) (N - {n}) \<noteq> {}"
@@ -402,9 +406,7 @@ proof (rule wd_outcomeI)
             show "card (G - ?n's_goods) > 0"
             proof -
               note `finite (G - ?n's_goods)`
-              moreover have "G - ?n's_goods \<noteq> {}"
-                using n_gets_part n_gets_part'
-                by (smt Diff_empty double_diff subset_refl)
+              moreover note goods_Diff_non_empty
               ultimately show ?thesis by (metis card_gt_0_iff)
             qed
             show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
@@ -418,7 +420,7 @@ proof (rule wd_outcomeI)
           proof
             fix y'
             assume "y' \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
-            then obtain Y' where "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+            then obtain Y' where part': "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
             from y'_inj have y'_Domain: "Domain y' = Y'" 
                          and y'_Range: "Range y' \<subseteq> N - {n}" 
                          and y'_runiq: "runiq y'" 
@@ -432,16 +434,42 @@ proof (rule wd_outcomeI)
             qed
             (* construct the allocation x' by allocating everything as in y' and allocating 
                the additional goods to an arbitrary participant m, which means enlarging the set of
-               goods that m got so far by the additional goods. *)
-            def m \<equiv> "SOME m . m \<in> N - {n}"
-            let ?m's_goods = "THE y . (y, m) \<in> x"
-            def x' \<equiv> "y' - {(?m's_goods, m)} \<union> {(?n's_goods \<union> ?m's_goods, m)}"
+               goods that m got so far by the additional goods.  OK, not _quite_ an arbitrary participant:
+               It's easier if we choose someone from "Range y'", i.e. someone who already got something in y'. *)
+            def m \<equiv> "SOME m . m \<in> Range y'"
+            let ?m's_goods_y' = "THE y . (y, m) \<in> y'"
+            def x' \<equiv> "y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}"
             have "x' \<in> possible_allocations_rel G (N - {n})"
             proof -
-              have x'_Domain: "Domain x' \<in> all_partitions G" sorry
-              have x'_Range: "Range x' \<subseteq> N - {n}" sorry
+              from part' have "is_partition_of Y' (G - ?n's_goods)" unfolding all_partitions_def ..
+              with goods_Diff_non_empty have "Y' \<noteq> {}" by (rule non_empty_imp_non_empty_partition)
+              with y'_Domain have "Range y' \<noteq> {}" by fast
+              then have "m \<in> Range y'" unfolding m_def by (metis ex_in_conv tfl_some)
+              with y'_conv_runiq have "(?m's_goods_y', m) \<in> y'" by (rule runiq_conv_imp_THE_left_comp')
+
+              have x'_Domain: "Domain x' \<in> all_partitions G"
+              proof -
+                have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
+                  using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
+                then have "Domain x' = Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
+                  unfolding x'_def y'_Domain by simp
+
+                have "\<Union> (Domain x') = G"
+                proof -
+                  show ?thesis sorry
+                qed
+                moreover have "is_partition (Domain x')" sorry
+                ultimately show ?thesis unfolding all_partitions_def is_partition_of_def by fast
+              qed
+              have x'_Range: "Range x' \<subseteq> N - {n}"
+              proof -
+                have "Range x' = Range y'" unfolding x'_def using `(?m's_goods_y', m) \<in> y'` by auto
+                with y'_Range show ?thesis by presburger
+              qed
               have x'_runiq: "runiq x'" sorry
-              have x'_conv_runiq: "runiq (x'\<inverse>)" sorry
+              have x'_conv_runiq: "runiq (x'\<inverse>)"
+                unfolding x'_def using y'_conv_runiq `(?m's_goods_y', m) \<in> y'`
+                by (rule runiq_conv_replace')
               from x'_Domain x'_Range x'_runiq x'_conv_runiq show ?thesis unfolding possible_allocations_rel.simps injections_def by blast
             qed
             moreover have "value_rel b x' \<ge> value_rel b y'" sorry
