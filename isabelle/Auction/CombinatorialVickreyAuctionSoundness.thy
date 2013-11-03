@@ -441,23 +441,22 @@ proof (rule wd_outcomeI)
             def x' \<equiv> "y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}"
             have "x' \<in> possible_allocations_rel G (N - {n})"
             proof -
-              from part' have "is_partition_of Y' (G - ?n's_goods)" unfolding all_partitions_def ..
+              from part' have part'': "is_partition_of Y' (G - ?n's_goods)" unfolding all_partitions_def ..
               with goods_Diff_non_empty have "Y' \<noteq> {}" by (rule non_empty_imp_non_empty_partition)
               with y'_Domain have "Range y' \<noteq> {}" by fast
               then have "m \<in> Range y'" unfolding m_def by (metis ex_in_conv tfl_some)
               with y'_conv_runiq have "(?m's_goods_y', m) \<in> y'" by (rule runiq_conv_imp_THE_left_comp')
 
+              from part'' have part''': "\<Union> Domain y' = G - ?n's_goods" unfolding is_partition_of_def y'_Domain ..
+
               have x'_Domain: "Domain x' \<in> all_partitions G"
               proof -
                 have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
                   using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
-                then have "Domain x' = Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
-                  unfolding x'_def y'_Domain by simp
-
-                have "\<Union> (Domain x') = G"
-                proof -
-                  show ?thesis sorry
-                qed
+                then have *: "Domain x' = Domain y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
+                  unfolding x'_def by simp
+                from `(THE y. (y, m) \<in> y', m) \<in> y'` have "?m's_goods_y' \<in> Domain y'" by (rule DomainI)
+                with * part''' n_gets_part' have "\<Union> Domain x' = G" by (rule Union_family_grown_member)
                 moreover have "is_partition (Domain x')" sorry
                 ultimately show ?thesis unfolding all_partitions_def is_partition_of_def by fast
               qed
