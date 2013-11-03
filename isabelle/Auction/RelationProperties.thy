@@ -574,6 +574,7 @@ lemma Domain_runiq_Diff_singleton:
   assumes runiq: "runiq R"
       and in_rel: "(x, y) \<in> R"
   shows "Domain (R - {(x, y)}) = Domain R - {x}"
+(* TODO CL: One should think this is easy, but Sledgehammer in Isabelle2013-1-RC3 can't prove it at all. *)
 proof
   show "Domain (R - {(x, y)}) \<subseteq> Domain R - {x}"
   proof
