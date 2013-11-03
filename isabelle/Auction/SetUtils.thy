@@ -153,7 +153,7 @@ lemma Diff_psubset_is_psubset:
 using assms
 by blast
 
-section {* Miscellaneous *}
+section {* Big Union *}
 
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
 lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by blast
@@ -205,6 +205,74 @@ proof -
   also have "\<dots> \<longleftrightarrow> (\<exists> Y \<in> P . x \<in> (f Y))" by force
   finally show ?thesis .
 qed
+
+
+text {* Growing, in terms of set union a member @{term x} of a family of sets by a set @{term x'} grows
+  the union of all of these sets by @{term x'}. *}
+lemma Union_family_grown_member:
+  fixes Q::"'a set set"
+    and P::"'a set set"
+    and A::"'a set"
+    and x::"'a set"
+    and x'::"'a set"
+  assumes grow_member: "Q = P - {x} \<union> {x' \<union> x}"
+      and Union_before: "\<Union> P = A - x'"
+      and increment_sub_set: "x' \<subseteq> A"
+      and old_member_in_family: "x \<in> P"
+  shows "\<Union> Q = A"
+(* CL: This proof was found by Sledgehammer and cleaned up manually, but it may need further cleanups. *)
+(*
+Sledgehammer once found this alternative (something like 104 ms in Isabelle2013-1-RC3) but now can't find it any more:
+by (smt Sup_insert Un_Diff_cancel Un_assoc Un_commute insert_absorb insert_def singleton_conv subset_Un_eq)
+*)
+using assms
+proof -
+  obtain remove :: "'a set \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
+    where remove_def: "\<forall>y S. y \<in> S \<longrightarrow> insert y (remove y S) = S \<and> y \<notin> remove y S"
+    using [[metis_new_skolem]] by (metis Set.set_insert)
+  have f2: "\<forall>B C D. \<not> B \<union> C \<subseteq> D \<or> D \<union> C = D"
+    by auto
+  have f3: "\<forall>y S. \<Union>insert y S = \<Union>S \<union> y"
+    by auto (* TODO CL: make this a lemma of its own *)
+
+  have f4: "\<Union>insert x' P = A"
+    using Union_before increment_sub_set by force
+  then have f5: "\<forall>y. \<Union>insert y (insert x' P) = A \<union> y"
+    by auto
+
+  have f9: "insert (x \<union> x') (P - {x}) = Q"
+    using grow_member by auto
+  then have "\<forall>y . y \<in> Q \<or> x \<union> x' \<noteq> y"
+    by fastforce
+  then have "x \<union> x' \<subseteq> \<Union>Q"
+    by (metis Sup_upper)
+  then have f13: "\<Union>Q = \<Union>insert x Q"
+    using Union_insert by force
+
+  have f12: "insert (x \<union> x') (remove x P) = Q"
+    using remove_def f9 old_member_in_family by (metis Diff_insert_absorb)
+
+  have "x \<subseteq> A"
+    using f4 old_member_in_family by auto
+  moreover have "\<forall>y. \<not> y \<subseteq> A \<or> y \<union> x' \<subseteq> A"
+    using increment_sub_set by simp
+  ultimately have "x \<union> x' \<subseteq> A"
+    by blast
+  moreover have "\<forall>y. \<Union>insert x' (insert y P) = A \<union> y"
+    using f5 by auto
+  moreover have "insert x Q = insert (x \<union> x') P"
+    using remove_def f12 old_member_in_family by (metis insert_commute)
+  ultimately have "\<Union>insert x' (insert x Q) = A"
+    by (metis Un_absorb2)
+  moreover have "\<forall>y y'. x \<union> x' \<noteq> y \<or> y \<in> insert y' Q"
+    using f9 by fastforce
+  ultimately have "\<Union>insert x Q = A"
+    using f2 f3 by (metis Sup_upper)
+  then show ?thesis
+    using f13 by fastforce
+qed
+
+section {* Miscellaneous *}
 
 text {* A set comprehension formed over a property, which is satisfied by exactly 
   one object, yields a singleton set containing that object. *}
