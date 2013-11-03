@@ -146,6 +146,15 @@ lemma no_empty_eq_class:
 text {* @{term P} is a partition of the set @{term A}. *}
 definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
+text {* No partition of a non-empty set is empty. *}
+lemma non_empty_imp_non_empty_partition:
+  assumes "A \<noteq> {}"
+      and "is_partition_of P A"
+  shows "P \<noteq> {}"
+using assms
+unfolding is_partition_of_def
+by fast
+
 text {* Every element of a partitioned set ends up in an equivalence class. *}
 lemma elem_in_eq_class:
   assumes in_set: "x \<in> A"
