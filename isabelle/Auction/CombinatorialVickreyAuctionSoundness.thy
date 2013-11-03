@@ -447,17 +447,46 @@ proof (rule wd_outcomeI)
               then have "m \<in> Range y'" unfolding m_def by (metis ex_in_conv tfl_some)
               with y'_conv_runiq have "(?m's_goods_y', m) \<in> y'" by (rule runiq_conv_imp_THE_left_comp')
 
-              from part'' have part''': "\<Union> Domain y' = G - ?n's_goods" unfolding is_partition_of_def y'_Domain ..
+              have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
+                using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
+              then have x'_Domain_wrt_y': "Domain x' = Domain y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
+                unfolding x'_def by simp
 
               have x'_Domain: "Domain x' \<in> all_partitions G"
               proof -
-                have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
-                  using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
-                then have *: "Domain x' = Domain y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
-                  unfolding x'_def by simp
-                from `(THE y. (y, m) \<in> y', m) \<in> y'` have "?m's_goods_y' \<in> Domain y'" by (rule DomainI)
-                with * part''' n_gets_part' have "\<Union> Domain x' = G" by (rule Union_family_grown_member)
-                moreover have "is_partition (Domain x')" sorry
+                have "\<Union> Domain x' = G" using x'_Domain_wrt_y'
+                proof (rule Union_family_grown_member)
+                  show "\<Union> Domain y' = G - ?n's_goods" using part'' unfolding is_partition_of_def y'_Domain ..
+                  show "?n's_goods \<subseteq> G" using n_gets_part' .
+                  show "?m's_goods_y' \<in> Domain y'" using `(THE y. (y, m) \<in> y', m) \<in> y'`  by (rule DomainI)
+                qed
+                moreover have "is_partition (Domain x')"
+                proof -
+                  {
+                    fix X Y
+                    assume assm: "X \<in> Domain x' \<and> Y \<in> Domain x'"
+                    have "(X \<inter> Y \<noteq> {}) \<longleftrightarrow> (X = Y)"
+                    proof cases
+                      assume "X \<in> Domain y' \<and> Y \<in> Domain y'"
+                      with y'_Domain part' show ?thesis
+                        unfolding all_partitions_def is_partition_of_def is_partition_def by simp
+                    next
+                      assume "\<not> (X \<in> Domain y' \<and> Y \<in> Domain y')"
+                      with assm have "X \<in> Domain x' - Domain y' \<or> Y \<in> Domain x' - Domain y'" by blast
+                      have "Domain x' - Domain y' = {?n's_goods \<union> ?m's_goods_y'} - {?m's_goods_y'}"
+                        using x'_Domain_wrt_y' try
+                      show ?thesis
+                      proof
+                        assume "X \<inter> Y \<noteq> {}"
+                        show "X = Y" sorry
+                      next
+                        assume "X = Y"
+                        show "X \<inter> Y \<noteq> {}" sorry
+                      qed
+                    qed
+                  }
+                  then show ?thesis unfolding is_partition_def by simp
+                qed
                 ultimately show ?thesis unfolding all_partitions_def is_partition_of_def by fast
               qed
               have x'_Range: "Range x' \<subseteq> N - {n}"
