@@ -21,4 +21,14 @@ begin
 text {* An inference rule that combines @{thm allI} and @{thm impI} to a single step *}
 lemma allImpI: "(\<And> x . p x \<Longrightarrow> q x) \<Longrightarrow> \<forall> x . p x \<longrightarrow> q x" by simp
 
+(* TODO CL: document *)
+lemma case_split_2_times_2 [case_names TrueTrue FalseTrue TrueFalse FalseFalse]:
+  assumes "P \<and> Q \<Longrightarrow> R"
+      and "\<not>P \<and> Q \<Longrightarrow> R"
+      and "P \<and> \<not>Q \<Longrightarrow> R"
+      and "\<not>P \<and> \<not>Q \<Longrightarrow> R"
+  shows "R"
+using assms
+by blast
+
 end
