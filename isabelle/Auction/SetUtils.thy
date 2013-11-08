@@ -53,14 +53,14 @@ notepad
 begin
   fix Q
   fix X::"'a set"
-  have "trivial X" sorry
+  have "trivial X" sorry (* prove *)
   then have "Q X"
   proof (cases rule: trivial_cases)
     case empty
-    then show ?thesis sorry
+    then show ?thesis sorry (* prove *)
   next
     case (singleton x)
-    then show ?thesis sorry
+    then show ?thesis sorry (* prove *)
   qed
 end
 *)
@@ -143,15 +143,33 @@ lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
 section {* Set difference *}
 
+(*
+A = {1,2}
+B = {1,3}
+A = B - {3} \<union> {2}
+*)
+
 (* TODO CL: document *)
 lemma Diff_replace:
-  assumes "A = B - {x} \<union> {y}"
-      and "B \<subseteq> A"
-      and "x \<in> B"
+  assumes A_repl_B: "A = B - {x} \<union> {y}"
+      and card_eq: "card B = card A"
+      and old_elem: "x \<in> B"
   shows "A - B = {y} - {x}"
-(* TODO CL: In Isabelle2013-1-RC3, this is hard for Sledgehammer to find. *)
+(* TODO CL: In Isabelle2013-1-RC3, this is hard for Sledgehammer to find.
+   Maybe optimise manually. *)
+proof cases
+  assume "x = y"
+  then show ?thesis
+    by (metis A_repl_B Diff_cancel Un_insert_right insert_Diff_single insert_absorb old_elem sup_bot_right)
+next
+  assume "x \<noteq> y"
+  with A_repl_B have "A - A \<inter> B = {y}" try
+oops
+(*
+This was the proof when when we had assumed B \<subseteq> A, which we are actually not interested in:
 using assms
 by (metis Diff_cancel Diff_insert_absorb Un_empty_right Un_insert_right insert_iff Set.set_insert set_rev_mp)
+*)
 
 text {* Subtracting a proper subset from a set yields another proper subset. *}
 lemma Diff_psubset_is_psubset:
