@@ -433,7 +433,8 @@ proof (rule wd_outcomeI)
               with * show ?thesis by fastforce
             qed
             (* construct the allocation x' by allocating everything as in y' and allocating 
-               the additional goods to an arbitrary participant m, which means enlarging the set of
+               the leftover goods (i.e. those that n got in the winning allocation x)
+               to an arbitrary participant m, which means enlarging the set of
                goods that m got so far by the additional goods.  OK, not _quite_ an arbitrary participant:
                It's easier if we choose someone from "Range y'", i.e. someone who already got something in y'. *)
             def m \<equiv> "SOME m . m \<in> Range y'"
@@ -449,40 +450,96 @@ proof (rule wd_outcomeI)
 
               have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
                 using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
-              then have x'_Domain_wrt_y': "Domain x' = Domain y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
-                unfolding x'_def by simp
+              then have x'_Domain_wrt_y': "Domain x' = Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
+                unfolding x'_def y'_Domain by simp
 
               have x'_Domain: "Domain x' \<in> all_partitions G"
               proof -
-                have "\<Union> Domain x' = G" using x'_Domain_wrt_y'
-                proof (rule Union_family_grown_member)
-                  show "\<Union> Domain y' = G - ?n's_goods" using part'' unfolding is_partition_of_def y'_Domain ..
-                  show "?n's_goods \<subseteq> G" using n_gets_part' .
-                  show "?m's_goods_y' \<in> Domain y'" using `(THE y. (y, m) \<in> y', m) \<in> y'`  by (rule DomainI)
-                qed
+                note x'_Domain_wrt_y'
+                moreover have Union_Domain_y': "\<Union> Y' = G - ?n's_goods" using part'' unfolding is_partition_of_def y'_Domain ..
+                moreover note n_gets_part'
+                moreover have m's_goods_Domain_y': "?m's_goods_y' \<in> Y'"
+                  unfolding y'_Domain[symmetric] using `(THE y. (y, m) \<in> y', m) \<in> y'`  by (rule DomainI)
+                ultimately have "\<Union> Domain x' = G" by (rule Union_family_grown_member)
+
                 moreover have "is_partition (Domain x')"
+                (* Domain x' partitions the goods as Domain y' does, except that those goods that
+                   Domain y' doesn't cover (i.e. those that n got in the winning allocation x)
+                   are added to the equivalence class of those goods that participant m gets.
+
+                   We have shown above that Domain x' covers the whole set G of goods.
+
+                   It remains to be shown that Domain x' is a partition, i.e. that all of its
+                   members are mutually disjoint.  This is the case for all members "inherited" 
+                   from Domain y'.  It remains to be shown that the one new equivalence class
+                   *)
                 proof -
                   {
-                    fix X Y
-                    assume assm: "X \<in> Domain x' \<and> Y \<in> Domain x'"
-                    have "(X \<inter> Y \<noteq> {}) \<longleftrightarrow> (X = Y)"
-                    proof cases
-                      assume "X \<in> Domain y' \<and> Y \<in> Domain y'"
+                    fix X'' Y''
+                    assume assm: "X'' \<in> Domain x' \<and> Y'' \<in> Domain x'"
+                    have "(X'' \<inter> Y'' \<noteq> {}) \<longleftrightarrow> (X'' = Y'')"
+                    proof (cases rule: case_split_2_times_2)
+                      assume TrueTrue: "X'' \<in> Y' \<and> Y'' \<in> Y'"
                       with y'_Domain part' show ?thesis
                         unfolding all_partitions_def is_partition_of_def is_partition_def by simp
                     next
-                      assume "\<not> (X \<in> Domain y' \<and> Y \<in> Domain y')"
-                      with assm have "X \<in> Domain x' - Domain y' \<or> Y \<in> Domain x' - Domain y'" by blast
-                      have "Domain x' - Domain y' = {?n's_goods \<union> ?m's_goods_y'} - {?m's_goods_y'}"
-                        using x'_Domain_wrt_y' try
+                      assume FalseTrue: "X'' \<notin> Y' \<and> Y'' \<in> Y'"
+                      with assm have "X'' \<in> Domain x' - Y'" by blast
+                      (* What do we know about Domain x' and Domain y' = Y'?
+                         y'_Domain
+                         x'_Domain_wrt_y'
+                      *)
+                      moreover have "Domain x' - Y' = {?n's_goods \<union> ?m's_goods_y'} - {?m's_goods_y'}"
+                        (* For this we'd need Diff_replace, which we don't know how to prove right now.
+                           Let's first find out whether we really need _this_ fact below. *)
+                        sorry
+                      ultimately have "X'' \<in> {?n's_goods \<union> ?m's_goods_y'} - {?m's_goods_y'}" by (rule back_subst)
+                      moreover have "\<not> ?n's_goods \<subseteq> ?m's_goods_y'"
+                      proof
+                        assume "?n's_goods \<subseteq> ?m's_goods_y'"
+                        moreover have "?m's_goods_y' \<subseteq> G - ?n's_goods"
+                          using m's_goods_Domain_y' Union_Domain_y' by blast
+                        ultimately show False using `?n's_goods \<noteq> {}` by blast
+                      qed
+                      ultimately have X: "X'' = ?n's_goods \<union> ?m's_goods_y'" by fast
                       show ?thesis
                       proof
-                        assume "X \<inter> Y \<noteq> {}"
-                        show "X = Y" sorry
+                        assume "X'' \<inter> Y'' \<noteq> {}"
+                        show "X'' = Y''"
+                        proof (rule equalitySubsetI)
+                          fix h assume "h \<in> X''"
+                          with X have *: "h \<in> ?n's_goods \<or> h \<in> ?m's_goods_y'" by blast
+                          show "h \<in> Y''"
+                          proof (cases "h \<in> ?n's_goods")
+                            case True
+                            (* h \<in> THE y . (y, n) \<in> x
+                               ?n's_goods \<in> Domain x
+                               n_gets_part: "?n's_goods \<noteq> G"
+                               ?n's_goods \<subseteq> G
+                               ?n's_goods \<in> Y \<Rightarrow> h is an equivalence class in a partition of all goods
+                               *)
+                            from FalseTrue have "Y'' \<in> Y'" by blast
+                              (* \<dots> i.e. Y'' is an equivalence class in a partition of all goods except ?n's_goods *)
+                            show ?thesis sorry
+                          next
+                            case False
+                            with * have "h \<in> ?m's_goods_y'" by blast
+                            show ?thesis sorry
+                          qed
+                        next
+                          fix h assume "h \<in> Y''"
+                          show "h \<in> X''" sorry
+                        qed
                       next
-                        assume "X = Y"
-                        show "X \<inter> Y \<noteq> {}" sorry
+                        assume "X'' = Y''"
+                        show "X'' \<inter> Y'' \<noteq> {}" sorry
                       qed
+                    next
+                      assume TrueFalse: "X'' \<in> Y' \<and> Y'' \<notin> Y'"
+                      show ?thesis sorry
+                    next
+                      assume FalseFalse: "X'' \<notin> Y' \<and> Y'' \<notin> Y'"
+                      show ?thesis sorry
                     qed
                   }
                   then show ?thesis unfolding is_partition_def by simp
