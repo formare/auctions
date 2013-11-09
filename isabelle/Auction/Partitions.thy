@@ -18,6 +18,7 @@ theory Partitions
 imports
   Main
   SetUtils
+  HOLUtils
 
 begin
 
@@ -850,5 +851,73 @@ corollary [code_unfold]:
 (* all_partitions internally works with a list representing a set
    (this allows us to use the recursive function all_partitions_list).
    For a general list we can only guarantee compliance once we establish distinctness. *)
+
+lemma
+  assumes part: "is_partition_of P A"
+      and eq_class_old: "Xold \<in> P" (* Xold is an equivalence class of the old partition *)
+      and eq_class_sub: "Xold \<subseteq> Xnew" (* The new equivalence class contains more elements. *)
+      and eq_class_ext_new: "(Xnew - Xold) \<inter> A = {}" (* The additional elements are not in the original set. *)
+  shows "is_partition (P - {Xold} \<union> {Xnew})"
+proof -
+  {
+    fix X' P' Y' Xold' Xnew' A'
+    assume 
+        X': "X' \<in> P' - {Xold'} \<union> {Xnew'}"
+       and Y': "Y' \<in> P' - {Xold'} \<union> {Xnew'}"
+       and eq_class_old': "Xold' \<in> P'"
+       and "\<Union> P' = A'"
+       and part': "is_partition_of P' A'"
+       and eq_class_old': "Xold' \<in> P'"
+       and eq_class_ext_new': "(Xnew' - Xold') \<inter> A' = {}"
+       and FalseTrue': "X' \<notin> P' \<and> Y' \<in> P'"
+    then have "X' \<notin> P'" and "Y' \<in> P'" by simp_all
+    from `X' \<notin> P'` have "X' = Xnew'" using X' eq_class_old' by fast
+    then have "Y' \<in> P' - {Xold'}" using Y' by (metis FalseTrue' Un_commute Un_empty_left Un_insert_left insert_iff)
+    {
+      fix x assume "x \<in> Xnew'"
+      then have "\<not>(\<exists> Z . Z \<in> P' - {Xold'} \<and> x \<in> Z)"
+      proof (cases "x \<in> Xold'")
+        case True
+        with eq_class_old' part' show ?thesis using is_partition_of_def is_partition_def 
+          by (smt disjoint_iff_not_equal insertI1 Diff_iff)
+      next
+        case False
+        then have "x \<in> Xnew' - Xold'" using `x \<in> Xnew'` by simp
+        then have "x \<notin> A'" using eq_class_ext_new' by blast
+        with `\<Union> P' = A'` show ?thesis by blast
+      qed
+    }
+    then have "X' \<inter> Y' = {}" using `X' = Xnew'` `Y' \<in> P' - {Xold'}` by blast
+    then have "X' \<inter> Y' \<noteq> {} \<longleftrightarrow> X' = Y'" using FalseTrue' by blast
+  }
+  note foo = this
+  have "\<Union> P = A" using part unfolding is_partition_of_def ..
+  {
+    fix X Y
+    assume X: "X \<in> P - {Xold} \<union> {Xnew}"
+       and Y: "Y \<in> P - {Xold} \<union> {Xnew}"
+    have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y"
+    proof (cases rule: case_split_2_times_2)
+      assume "X \<in> P \<and> Y \<in> P"
+      with part show ?thesis unfolding is_partition_of_def is_partition_def by force
+    next
+      assume FalseTrue: "X \<notin> P \<and> Y \<in> P"
+      with X Y eq_class_old `\<Union> P = A` part eq_class_old eq_class_ext_new show ?thesis by (rule foo)
+    next
+      assume TrueFalse: "X \<in> P \<and> Y \<notin> P"
+      then have "Y \<notin> P \<and> X \<in> P" by blast
+      with Y X eq_class_old `\<Union> P = A` part eq_class_old eq_class_ext_new have "Y \<inter> X \<noteq> {} \<longleftrightarrow> Y = X" by (rule foo)
+      then show ?thesis by blast
+    next
+      assume FalseFalse: "X \<notin> P \<and> Y \<notin> P"
+      with X Y have "X = Xnew \<and> Y = Xnew" by fast
+      then have "X = Y" by simp
+      moreover have "X \<inter> Y \<noteq> {}" using eq_class_old eq_class_sub
+        by (metis FalseFalse `X = Xnew \<and> Y = Xnew` inf_idem subset_empty)
+      ultimately show ?thesis by simp
+    qed
+  }   
+  then show ?thesis unfolding is_partition_def by force
+qed
 
 end
