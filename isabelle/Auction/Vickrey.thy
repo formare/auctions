@@ -176,8 +176,6 @@ proof -
       next -- {* case 2b of the short proof *}
         assume "x i \<noteq> 1"
         then have "x i = 0" by (rule spa_allocates_binary')
-        with spa_pred alternative_is_bid i_range have "x i = 0"
-          using spa_allocates_binary by blast
         with spa_pred i_range
         have "payoff (v i) (x i) (p i) = 0"
           by (rule second_price_auction_loser_payoff)
