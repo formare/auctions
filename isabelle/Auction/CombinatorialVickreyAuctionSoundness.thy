@@ -396,14 +396,17 @@ proof (rule wd_outcomeI)
     (* The maximum value (always: according to bids) over all allocations of the goods to all participants except n,
        is \<ge> the value of the allocation that wins the auction of the goods to all participants
        (excluding the goods that this allocation would have allocated to participant n). *)
+    (* Proof strategy: multi-level case distinction.  Identify easy cases, prove them first. *)
     proof cases
-      assume n_gets_something: "n \<in> Range x" (* note x': "x = winning_allocation_rel G N t b" *)
       (* This is the hard case.  The other one is easier. *)
+      assume n_gets_something: "n \<in> Range x" (* note x': "x = winning_allocation_rel G N t b" *)
+      (* The same, expressed in terms of goods: *)
       have "?n's_goods \<in> Domain x"
         using n_gets_something runiq_alloc_conv
         by (rule runiq_conv_imp_Range_rel_Dom)
       show ?thesis
       proof cases
+        (* This is the hard case.  The other one is easier. *)
         assume n_gets_part: "?n's_goods \<noteq> G" (* i.e. participant n gets some but not all goods *)
         have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
           (* If you (re-)allocate, to all participants except n,
@@ -701,13 +704,16 @@ proof (rule wd_outcomeI)
         qed
         ultimately show ?thesis by linarith
       next
-        assume "\<not> ?n's_goods \<noteq> G"
+        assume "\<not> ?n's_goods \<noteq> G" (* participant n gets everything *)
         then have n_gets_everything: "?n's_goods = G" by fast
+
         (* TODO CL: "try" on the following gives no result after an hour with Isabelle2013-1-RC3: *)
         (* with part' alloc_Domain have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }" unfolding is_partition_of_def is_partition_def *)
-        (* OK, maybe I took into account too few assumptions.  TODO CL: retry with all assumptions used below. *)
+        (* OK, maybe I took into account too few assumptions.  TODO CL: retry with all assumptions actually used below. *)
+
+        (* No sets of goods get allocated to participants other than n: *)
         have "{} = { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
-        proof (rule ccontr)
+        proof (rule ccontr) (* TODO CL: clean up the following.  Intuitively it's clear anyway, but the formalisation needs to become more readable. *)
           assume "{} \<noteq> { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
           then obtain y m where 0: "(y, m) \<in> x \<and> m \<noteq> n" by (smt empty_Collect_eq prod_caseE)
           with alloc_Domain have "y \<in> Y" by fast
@@ -724,41 +730,43 @@ proof (rule wd_outcomeI)
             by (metis Range_iff converse.simps converse_converse n_gets_something runiq_conv_wrt_THE) (* TODO CL: optimise *)
         qed
         also have "\<dots> = winning_allocation_except G N t b n" unfolding x' by simp
+        (* Removing from the winning allocation the tuple of participant n leaves over nothing: *)
         finally have "{} = winning_allocation_except G N t b n" .
         then have Dom_empty: "Domain (winning_allocation_except G N t b n) = {}" by fast
 
-        have *: "value_rel b (winning_allocation_except G N t b n) = 0"
+        have "value_rel b (winning_allocation_except G N t b n) = 0"
           unfolding value_rel.simps Dom_empty by (rule setsum_empty)
-
-        have "\<forall> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> 0"
-        proof
-          fix x'
-          assume "x' \<in> possible_allocations_rel G (N - {n})"
-          then obtain Y' where Y': "Y' \<in> all_partitions G" and inj': "x' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
-          from inj' have Dom_x': "Domain x' = Y'"
-                     and Range_x': "Range x' \<subseteq> N - {n}"
-                     and runiq_x': "runiq x'" unfolding injections_def by simp_all
-          {
-            fix y
-            assume "y \<in> Domain x'"
-            with Dom_x' have 1: "y \<subseteq> G" using Y' all_partitions_def is_partition_of_def
-              by (metis Union_upper mem_Collect_eq)
-            from runiq_x' `y \<in> Domain x'` have "x' ,, y \<in> Range x'" by (rule eval_runiq_in_Range)
-            with Range_x' have 2: "x' ,, y \<in> N" by blast
-            from 1 2 have "y \<subseteq> G" and "x' ,, y \<in> N" .
-          }
-          with non_neg_bids have "\<forall> y \<in> Domain x' . b (x' ,, y) y \<ge> 0" by simp
-          then show "value_rel b x' \<ge> 0" unfolding value_rel.simps by (rule setsum_nonneg)
+        moreover have "0 \<le> Max (value_rel b ` possible_allocations_rel G (N - {n}))"
+        proof -
+          have "\<forall> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> 0"
+          proof
+            fix x'
+            assume "x' \<in> possible_allocations_rel G (N - {n})"
+            then obtain Y' where Y': "Y' \<in> all_partitions G" and inj': "x' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+            from inj' have Dom_x': "Domain x' = Y'"
+                       and Range_x': "Range x' \<subseteq> N - {n}"
+                       and runiq_x': "runiq x'" unfolding injections_def by simp_all
+            {
+              fix y
+              assume "y \<in> Domain x'"
+              with Dom_x' have 1: "y \<subseteq> G" using Y' all_partitions_def is_partition_of_def
+                by (metis Union_upper mem_Collect_eq)
+              from runiq_x' `y \<in> Domain x'` have "x' ,, y \<in> Range x'" by (rule eval_runiq_in_Range)
+              with Range_x' have 2: "x' ,, y \<in> N" by blast
+              from 1 2 have "y \<subseteq> G" and "x' ,, y \<in> N" .
+            }
+            with non_neg_bids have "\<forall> y \<in> Domain x' . b (x' ,, y) y \<ge> 0" by simp
+            then show "value_rel b x' \<ge> 0" unfolding value_rel.simps by (rule setsum_nonneg)
+          qed
+          moreover note `finite (possible_allocations_rel G (N - {n}))`
+          moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}"
+          proof (rule ex_allocations)
+            from valid show "card G > 0" by (rule card_goods_gt_0)
+            show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
+          qed
+          ultimately show ?thesis by (rule Max_Im_ge_lower_bound)
         qed
-        moreover note `finite (possible_allocations_rel G (N - {n}))`
-        moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}"
-        proof (rule ex_allocations)
-          from valid show "card G > 0" by (rule card_goods_gt_0)
-          show "card (N - {n}) > 0" using `card (N - {n}) > 0` .
-        qed
-        ultimately have "0 \<le> Max (value_rel b ` possible_allocations_rel G (N - {n}))" by (rule Max_Im_ge_lower_bound)
-
-        with * show ?thesis by (rule ord_eq_le_trans)
+        ultimately show ?thesis by (rule ord_eq_le_trans)
       qed
     next
       assume n_gets_nothing: "n \<notin> Range x" (* i.e. participant n gets nothing *)
