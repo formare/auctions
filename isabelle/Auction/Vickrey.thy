@@ -161,7 +161,7 @@ proof -
         with defined spa_pred' i_range
         have "second_price_auction_winner N ?b x' p' i"
           using only_max_bidder_wins by simp
-        with non_alloc show False unfolding second_price_auction_winner_def second_price_auction_winner_outcome_def by fast
+        with non_alloc show False unfolding second_price_auction_winner_def second_price_auction_winner_outcome_def by blast
       qed
 
       show ?thesis
