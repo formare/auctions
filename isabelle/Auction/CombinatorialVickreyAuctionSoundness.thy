@@ -310,30 +310,42 @@ lemma wd_outcome:
 proof (rule wd_outcomeI)
   fix G N b x p
   assume "((G, N, b), (x, p)) \<in> nVCG_auctions t"
+  (* isolate the outcome of the auction (given in relational form) *)
   then have xp: "x = winning_allocation_rel G N t b \<and> p = payments_rel G N t b" by (rule split_outcome)
   then have x': "x = winning_allocation_rel G N t b" by fast
 
+  (* As we are doing the overall proof by rule wd_outcomeI, we need to show
+     wd_alloc_pay G N b x p
+     under the following assumption: *)
   assume valid: "valid_input G N b"
   with x' assms obtain Y where part: "Y \<in> all_partitions G" and inj: "x \<in> injections Y N"
     using winning_allocation_injective by blast
   from valid have "finite G" by (rule finite_goods)
 
   (* TODO CL: get rid of redundancy with beginning of proof of lemma remaining_value_alt *)
+  (* properties of the winning allocation x being an injective functional relation: *)
   from inj have runiq_alloc: "runiq x"
             and runiq_alloc_conv: "runiq (x\<inverse>)"
             and alloc_Domain: "Domain x = Y"
             and alloc_Range: "Range x \<subseteq> N" unfolding injections_def by simp_all
 
   from part have part': "is_partition_of Y G" unfolding all_partitions_def by (rule CollectD)
-  moreover note alloc_Domain
-  ultimately have "is_partition_of (Domain x) G" by blast
+  with alloc_Domain have "is_partition_of (Domain x) G" by blast
 
-  from xp (* to use Max_in, we need additional assumptions about N and G, so that \<Union> is non-empty *)
+ (* TODO CL: figure out what to do with the following comment, which seems useful but
+    has never quite belonged _here_:
+    To take advantage of Big_Operators.Max_in (* finite ?A \<Longrightarrow> ?A \<noteq> {} \<Longrightarrow> Max ?A \<in> ?A *),
+    we need additional assumptions about N and G,
+    so that the \<Union>, which possible_allocations_rel is defined to be, ends up non-empty. *)
+
+  from xp
     have p_unfolded: "p = (\<lambda>n . (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
       - remaining_value_rel G N t b n)" by fastforce
 
+  (* the first aspect of a well-defined outcome: the allocation is well-defined: *)
   have "wd_allocation G N x"
   proof -
+    (* 1. No good is allocated twice. *)
     have "no_good_allocated_twice G x" unfolding no_good_allocated_twice_def
     proof
       fix g assume "g \<in> G"
@@ -346,37 +358,47 @@ proof (rule wd_outcomeI)
       qed
       ultimately show "trivial (x `` { P \<in> Domain x . g \<in> P })" by (auto simp only: runiq_def)
     qed
+    (* 2. We only allocate goods we have. *)
     moreover have "\<Union> Domain x \<subseteq> G" using `is_partition_of (Domain x) G` unfolding is_partition_of_def by blast
+    (* 3. We only allocate to participants of the auction. *)
     moreover note `Range x \<subseteq> N`
     ultimately show ?thesis unfolding wd_allocation_def by blast
   qed
+  (* the second aspect of a well-defined outcome: the payments are well-defined: *)
   moreover have "wd_payments N p" unfolding wd_payments_def
   proof
-    fix n assume "n \<in> N"
+    fix n assume "n \<in> N" (* For any such participant, we need to show "p n \<ge> 0". *)
     let ?n's_goods = "THE y . (y, n) \<in> x" (* the goods that participant n gets in the winning allocation x *)
     (* TODO CL: find out how to abbreviate "from `X` show X ." *)
+
+    (* establishing some properties about the finiteness and cardinality of the
+       set of all participants except n and of some other sets derived from it: *)
     have "finite (G - ?n's_goods)" using `finite G` by (rule finite_Diff)
     moreover have "finite (N - {n})" using valid by (rule finite_participants_except)
     ultimately have "finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))" by (rule allocs_finite)
-
     have "finite (possible_allocations_rel G (N - {n}))" using `finite G` `finite (N - {n})` by (rule allocs_finite)
-
     have "card (N - {n}) > 0" using valid by (rule card_participants_except_gt_0)
 
     from valid have monotonic_bids: "\<forall> n H H' . n \<in> N \<and> H \<subseteq> H' \<longrightarrow> b n H \<le> b n H'"
       and non_neg_bids: "\<forall> n H . n \<in> N \<and> H \<subseteq> G \<longrightarrow> b n H \<ge> 0"
       unfolding valid_input_def CombinatorialAuction.valid_input_def by simp_all
 
-    from p_unfolded have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+    (* We rewrite "p n" into a form that makes it easier to tell something about its
+       non-negativeness: *)
+    from p_unfolded have "p n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
       - remaining_value_rel G N t b n" by fast
-    also have "\<dots> = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+    also have "\<dots> = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
       - value_rel b (winning_allocation_except G N t b n)" 
       using valid assms by (metis (lifting, no_types) remaining_value_alt)
-    finally have "p n = (Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))))
+    finally have "p n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
       - value_rel b (winning_allocation_except G N t b n)" .
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
+    (* The maximum value (always: according to bids) over all allocations of the goods to all participants except n,
+       is \<ge> the value of the allocation that wins the auction of the goods to all participants
+       (excluding the goods that this allocation would have allocated to participant n). *)
     proof cases
-      assume n_gets_something: "n \<in> Range x"
+      assume n_gets_something: "n \<in> Range x" (* note x': "x = winning_allocation_rel G N t b" *)
+      (* This is the hard case.  The other one is easier. *)
       have "?n's_goods \<in> Domain x"
         using n_gets_something runiq_alloc_conv
         by (rule runiq_conv_imp_Range_rel_Dom)
@@ -471,7 +493,15 @@ proof (rule wd_outcomeI)
 
                    It remains to be shown that Domain x' is a partition, i.e. that all of its
                    members are mutually disjoint.  This is the case for all members "inherited" 
-                   from Domain y'.  It remains to be shown that the one new equivalence class
+                   from Domain y'.  It remains to be shown that the one new equivalence class,
+                   which equals the union of the goods that m got in y'
+                                          and the goods that n got in x,
+                   is disjoint from all other equivalence classes.  This is the case when none of 
+                   the elements _newly_ added to the new equivalence class has been a member of the
+                   previously partitioned set (all goods except n's in x), i.e. when 
+                   (ClassAfterAddition - ClassBeforeAddition) \<inter> PreviouslyPartitionedSet = {}
+
+                   TODO CL: First add this as a lemma to Partitions.thy.
                    *)
                 proof -
                   {
