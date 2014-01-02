@@ -129,7 +129,7 @@ definition equilibrium_weakly_dominant_strategy ::
   "equilibrium_weakly_dominant_strategy N v b A \<longleftrightarrow>
     valuations N v \<and> bids N b \<and> single_good_auction A \<and>
     (\<forall>i \<in> N.
-      (\<forall>whatever_bid . bids N whatever_bid \<and> whatever_bid i \<noteq> b i \<longrightarrow>
+      (\<forall>whatever_bid . bids N whatever_bid \<longrightarrow>
         (let b' = whatever_bid(i := b i)
          in 
          (\<forall> x p x' p' . ((N, whatever_bid), (x, p)) \<in> A \<and> ((N, b'), (x', p')) \<in> A
