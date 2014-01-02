@@ -48,7 +48,9 @@ next
     by (metis (lifting, mono_tags) Range.simps mem_Collect_eq prod_caseI)
 qed
 
-(* TODO CL: document *)
+text{* If @{term z} is not in the range of a binary relation, removing all tuples with @{term z}
+  as their second component from the relation doesn't change the relation
+  (because no such tuples exist). *}
 lemma Range_except_irrelevant:
   assumes "z \<notin> Range R"
   shows "{ (x, y) . (x, y) \<in> R \<and> y \<noteq> z } = R"
