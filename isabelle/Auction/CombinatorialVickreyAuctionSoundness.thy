@@ -467,6 +467,7 @@ proof (rule wd_outcomeI)
               then have "{} \<notin> Y" by (rule no_empty_eq_class)
               with * show ?thesis by fastforce
             qed
+
             (* We construct the allocation x', for which we'd like to prove that its value is higher than that of y',
                by allocating everything as in y' and allocating the leftover goods (i.e. those that n got in the winning allocation x)
                to an arbitrary participant m, which means enlarging the set of
@@ -475,21 +476,24 @@ proof (rule wd_outcomeI)
                It's easier if we choose someone from "Range y'", i.e. someone who already got something in y'. *)
             def m \<equiv> "SOME m . m \<in> Range y'"
             let ?m's_goods_y' = "THE y . (y, m) \<in> y'"
+
+            from part' have part'': "is_partition_of Y' (G - ?n's_goods)" unfolding all_partitions_def ..
+            with goods_Diff_non_empty have "Y' \<noteq> {}" by (rule non_empty_imp_non_empty_partition)
+            with y'_Domain have "Range y' \<noteq> {}" by fast
+            then have "m \<in> Range y'" unfolding m_def by (metis ex_in_conv tfl_some)
+            with y'_conv_runiq have "(?m's_goods_y', m) \<in> y'" by (rule runiq_conv_imp_THE_left_comp')
+
             def x' \<equiv> "y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}"
+
+            (* Some properties of x': *)
+            have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
+              using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
+            then have x'_Domain_wrt_y': "Domain x' = Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
+              unfolding x'_def y'_Domain by simp
 
             (* 1. First we need to show that x' is indeed an allocation of all goods to all participants except n. *)
             have "x' \<in> possible_allocations_rel G (N - {n})"
             proof -
-              from part' have part'': "is_partition_of Y' (G - ?n's_goods)" unfolding all_partitions_def ..
-              with goods_Diff_non_empty have "Y' \<noteq> {}" by (rule non_empty_imp_non_empty_partition)
-              with y'_Domain have "Range y' \<noteq> {}" by fast
-              then have "m \<in> Range y'" unfolding m_def by (metis ex_in_conv tfl_some)
-              with y'_conv_runiq have "(?m's_goods_y', m) \<in> y'" by (rule runiq_conv_imp_THE_left_comp')
-
-              have "Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}"
-                using y'_runiq `(?m's_goods_y', m) \<in> y'` by (rule Domain_runiq_Diff_singleton)
-              then have x'_Domain_wrt_y': "Domain x' = Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
-                unfolding x'_def y'_Domain by simp
 
               (* 1. The domain of x' is a partition of all goods. *)
               have x'_Domain: "Domain x' \<in> all_partitions G"
@@ -633,7 +637,39 @@ proof (rule wd_outcomeI)
             qed
             (* 2. After having shown that x' is an allocation of all goods to all participants except n,
                   we need to show that its value is higher than that of y'. *)
-            moreover have "value_rel b x' \<ge> value_rel b y'" sorry
+            moreover have "value_rel b x' \<ge> value_rel b y'"
+            proof -
+              have "value_rel b x' = (\<Sum> (y::goods) \<in> Domain x' . b (x' ,, y) y)" by simp
+              (* "also have" in the following line gives "vacuous calculation result": *)
+              have "\<dots> = (\<Sum> (y::goods) \<in> Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
+                using x'_Domain_wrt_y'
+                unfolding x'_def
+                by presburger
+              have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                - (\<Sum> y \<in> {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + (\<Sum> y \<in> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
+              proof (rule setsum_diff_union)
+                show "finite Y'" sorry
+                show "{?m's_goods_y'} \<subseteq> Y'" sorry
+                show "finite {?n's_goods \<union> ?m's_goods_y'}" sorry
+                show "(Y' - {?m's_goods_y'}) \<inter> {?n's_goods \<union> ?m's_goods_y'} = {}" sorry
+              qed
+
+              (* TODO CL: maybe reuse in completing the proof: *)
+              (*
+              have "value_rel b y' = (\<Sum> (y::goods) \<in> Domain y' . b (y' ,, y) y)" by simp
+              also have "\<dots> = b (y' ,, ?m's_goods_y') ?m's_goods_y' + (\<Sum> (y::goods) \<in> (Domain y' - {?m's_goods_y'}) . b (y' ,, y) y)"
+              proof -
+                have "finite (Domain y')" sorry
+                moreover have "?m's_goods_y' \<in> Domain y'" sorry
+                ultimately show "(\<Sum> (y::goods) \<in> Domain y' . b (y' ,, y) y)
+                  = b (y' ,, ?m's_goods_y') ?m's_goods_y' + (\<Sum> (y::goods) \<in> (Domain y' - {?m's_goods_y'}) . b (y' ,, y) y)"
+                  by (rule setsum.remove)
+              qed
+              *)
+
+              show ?thesis sorry
+            qed
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
           qed
           ultimately show ?thesis by (rule Max_Im_ge_other_Im)
