@@ -725,7 +725,8 @@ proof -
   then show ?thesis by fast
 qed
 
-(* TODO CL: document *)
+text {* Replacing the first component of one pair in a relation, whose converse is right-unique,
+  leaves its converse right-unique. *}
 lemma runiq_conv_replace':
   assumes runiq_conv: "runiq (R\<inverse>)"
       and in_rel: "(x, y) \<in> R"
