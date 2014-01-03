@@ -519,13 +519,47 @@ proof (rule wd_outcomeI)
                    previously partitioned set (all goods except n's in x), i.e. when 
                    (ClassAfterAddition - ClassBeforeAddition) \<inter> PreviouslyPartitionedSet = {}
 
-                   TODO CL: First add this as a lemma to Partitions.thy.
+                   TODO CL: factor parts out into a lemma in Partitions.thy.
                    *)
                 proof -
                   {
                     fix X'' Y''
                     assume assm: "X'' \<in> Domain x' \<and> Y'' \<in> Domain x'"
                     then have X''x': "X'' \<in> Domain x'" and Y''x': "Y'' \<in> Domain x'" by simp_all
+
+                    (* The cases FalseTrue and TrueFalse of the proof below are symmetric;
+                       therefore we establish their common part here: *)
+                    {
+                      fix X'' Y''
+                      assume assm: "X'' \<in> Domain x' \<and> Y'' \<in> Domain x'"
+                      then have X''x': "X'' \<in> Domain x'" and Y''x': "Y'' \<in> Domain x'" by simp_all
+
+                      assume FalseTrue: "X'' \<notin> Y' \<and> Y'' \<in> Y'"
+                      then have X''Y': "X'' \<notin> Y'" and Y''Y': "Y'' \<in> Y'" by simp_all
+                      then have X: "X'' = ?n's_goods \<union> ?m's_goods_y'" using X''x' x'_Domain_wrt_y' by simp
+                      then have "?n's_goods \<subseteq> X''" by fast
+                      moreover have "\<not> ?n's_goods \<subseteq> Y''"
+                        using part' `?n's_goods \<noteq> {}` Y''Y' unfolding all_partitions_def is_partition_of_def 
+                        by blast
+                      ultimately have "X'' \<noteq> Y''" by blast
+                      moreover have "X'' \<inter> Y''= {}"
+                      proof -
+                        have "?n's_goods \<inter> Y'' = {}" using Y''Y' Union_Domain_y' by (smt Diff_disjoint Int_Diff Sup_upper le_iff_inf) (* TODO CL: maybe optimise performance by manual proof (so far: 59 ms in Isabelle2013-2) *)
+                        moreover have "?m's_goods_y' \<inter> Y'' = {}"
+                        proof -
+                          have "?m's_goods_y' \<in> Domain y'" using m's_goods_Domain_y' y'_Domain by simp
+                          then have "?m's_goods_y' \<notin> Domain (y' - {(?m's_goods_y', m)})"
+                            by (metis DiffD2 `Domain (y' - {(THE y. (y, m) \<in> y', m)}) = Domain y' - {THE y. (y, m) \<in> y'}` insertI1)
+                          with `?n's_goods \<noteq> {}` have "?m's_goods_y' \<notin> Domain x'" using m's_goods_Domain_y' X X''Y'  `Domain (y' - {(THE y. (y, m) \<in> y', m)}) = Domain y' - {THE y. (y, m) \<in> y'}` x'_Domain_wrt_y' y'_Domain
+                            by (smt Un_iff singleton_iff) (* TODO CL: This step is fast but not intuitive. *)
+                          with Y''x' have "?m's_goods_y' \<noteq> Y''" by fast
+                          with m's_goods_Domain_y' Y''Y' part'' show ?thesis unfolding is_partition_of_def is_partition_def by metis 
+                        qed
+                        ultimately show ?thesis using X by (smt UnE disjoint_iff_not_equal) (* TODO CL: maybe optimise performance by manual proof (so far: 44 ms in Isabelle2013-2) *)
+                      qed
+                      ultimately have "(X'' \<inter> Y'' \<noteq> {}) \<longleftrightarrow> (X'' = Y'')" by auto
+                    }
+                    note FalseTrueRule = this
 
                     have "(X'' \<inter> Y'' \<noteq> {}) \<longleftrightarrow> (X'' = Y'')"
                     proof (cases rule: case_split_2_times_2)
@@ -534,45 +568,14 @@ proof (rule wd_outcomeI)
                         unfolding all_partitions_def is_partition_of_def is_partition_def by simp
                     next
                       assume FalseTrue: "X'' \<notin> Y' \<and> Y'' \<in> Y'"
-                      then have X''Y': "X'' \<notin> Y'" and Y''Y': "Y'' \<in> Y'" by simp_all
-
-                      have X: "X'' = ?n's_goods \<union> ?m's_goods_y'" using X''x' x'_Domain_wrt_y' X''Y' by simp
-
-                      show ?thesis
-                      proof
-                        assume "X'' \<inter> Y'' \<noteq> {}"
-                        show "X'' = Y''"
-                        proof (rule equalitySubsetI)
-                          fix h assume "h \<in> X''"
-                          with X have *: "h \<in> ?n's_goods \<or> h \<in> ?m's_goods_y'" by blast
-                          show "h \<in> Y''"
-                          proof (cases "h \<in> ?n's_goods")
-                            case True
-                            (* h \<in> THE y . (y, n) \<in> x
-                               ?n's_goods \<in> Domain x
-                               n_gets_part: "?n's_goods \<noteq> G"
-                               ?n's_goods \<subseteq> G
-                               ?n's_goods \<in> Y \<Rightarrow> h is an equivalence class in a partition of all goods
-                               *)
-                            from FalseTrue have "X'' \<notin> Y'" sorry
-
-                            show ?thesis sorry
-                          next
-                            case False
-                            with * have "h \<in> ?m's_goods_y'" by blast
-                            show ?thesis sorry
-                          qed
-                        next
-                          fix h assume "h \<in> Y''"
-                          show "h \<in> X''" sorry
-                        qed
-                      next
-                        assume "X'' = Y''"
-                        show "X'' \<inter> Y'' \<noteq> {}" sorry
-                      qed
+                      with assm show ?thesis by (rule FalseTrueRule)
                     next
                       assume TrueFalse: "X'' \<in> Y' \<and> Y'' \<notin> Y'"
-                      show ?thesis sorry
+                      (* symmetric to case FalseTrue *)
+                      from assm have "Y'' \<in> Domain x' \<and> X'' \<in> Domain x'" by simp
+                      moreover have "Y'' \<notin> Y' \<and> X'' \<in> Y'" using TrueFalse by simp
+                      ultimately have "(Y'' \<inter> X'' \<noteq> {}) \<longleftrightarrow> (Y'' = X'')" by (rule FalseTrueRule)
+                      then show ?thesis by blast
                     next
                       assume FalseFalse: "X'' \<notin> Y' \<and> Y'' \<notin> Y'"
                       then have X''Y': "X'' \<notin> Y'" and Y''Y': "Y'' \<notin> Y'" by simp_all
