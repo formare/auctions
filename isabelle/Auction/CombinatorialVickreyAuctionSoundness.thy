@@ -602,7 +602,26 @@ proof (rule wd_outcomeI)
                 with y'_Range show ?thesis by presburger
               qed
               (* 3. x' is a right-unique relation. *)
-              have x'_runiq: "runiq x'" sorry
+              have x'_runiq: "runiq x'"
+                unfolding x'_def
+                using y'_runiq
+              proof (rule runiq_replace_fst)
+                show "?n's_goods \<union> ?m's_goods_y' \<notin> Domain y'"
+                proof (rule ccontr)
+                  assume "\<not> ?n's_goods \<union> ?m's_goods_y' \<notin> Domain y'"
+                  then have "?n's_goods \<union> ?m's_goods_y' \<in> Domain y'" by fast
+                  then have "?n's_goods \<subseteq> \<Union> (Domain y')"
+                  proof -
+                    have "{g. g \<in> ?n's_goods \<or> g \<in> ?m's_goods_y'} \<in> Domain y'"
+                      by (metis Un_def `?n's_goods \<union> ?m's_goods_y' \<in> Domain y'`)
+                    then show ?thesis by auto
+                  qed
+                  moreover have *: "\<Union> (Domain y') = G - ?n's_goods"
+                    using y'_Domain part''
+                    unfolding is_partition_of_def by fast
+                  ultimately show False using `?n's_goods \<noteq> {}` by blast
+                qed
+              qed
               (* 4. The converse relation of x' is also right-unique.*)
               have x'_conv_runiq: "runiq (x'\<inverse>)"
                 unfolding x'_def
