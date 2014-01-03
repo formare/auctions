@@ -393,7 +393,7 @@ proof (rule wd_outcomeI)
     finally have "p n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
       - value_rel b (winning_allocation_except G N t b n)" .
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
-    (* The maximum value (always: according to bids) over all allocations of the goods to all participants except n,
+    (* The maximum value (always: according to bids) of an allocation of the goods to all participants except n,
        is \<ge> the value of the allocation that wins the auction of the goods to all participants
        (excluding the goods that this allocation would have allocated to participant n). *)
     (* Proof strategy: multi-level case distinction.  Identify easy cases, prove them first. *)
@@ -401,7 +401,7 @@ proof (rule wd_outcomeI)
       (* This is the hard case.  The other one is easier. *)
       assume n_gets_something: "n \<in> Range x" (* note x': "x = winning_allocation_rel G N t b" *)
       (* The same, expressed in terms of goods: *)
-      have "?n's_goods \<in> Domain x"
+      have n_gets_some_goods: "?n's_goods \<in> Domain x"
         using n_gets_something runiq_alloc_conv
         by (rule runiq_conv_imp_Range_rel_Dom)
       show ?thesis
@@ -416,14 +416,16 @@ proof (rule wd_outcomeI)
              the assumption 'n \<in> Range x' we assume that n always got something. *)
           \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - ?n's_goods) (N - {n})))"
         proof -
+          (* Participant n gets a subset of the goods: *)
           have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
-          moreover note `?n's_goods \<in> Domain x`
-          ultimately have n_gets_part': "?n's_goods \<subseteq> G" by (metis Sup_upper)
+          with n_gets_some_goods have n_gets_part': "?n's_goods \<subseteq> G" by (metis Sup_upper)
 
+          (* After removing n's goods, there are still some left: *)
           have goods_Diff_non_empty: "G - ?n's_goods \<noteq> {}"
             using n_gets_part n_gets_part'
             by (smt Diff_empty double_diff subset_refl)
 
+          (* Therefore, there is an allocation of all goods except n's goods to all participants except n: *)
           note `finite (possible_allocations_rel G (N - {n}))`
           moreover note `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this a symbolic name *)
           moreover have "possible_allocations_rel (G - ?n's_goods) (N - {n}) \<noteq> {}"
@@ -441,7 +443,8 @@ proof (rule wd_outcomeI)
               value_rel b x' \<ge> value_rel b y'"
             (* TODO CL: generalise this into a lemma value_mono *)
             (* For each allocation of all goods, except those that n actually gets, to all participants except n,
-               there is an allocation of _all_ goods to these participants, whose value is higher. *)
+               there is an allocation of _all_ goods to these participants, whose value is higher.
+               This is hard to prove. *)
           proof
             fix y'
             assume "y' \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
@@ -452,19 +455,22 @@ proof (rule wd_outcomeI)
                          and y'_conv_runiq: "runiq (y'\<inverse>)" unfolding injections_def by simp_all
             have "?n's_goods \<noteq> {}"
             proof -
-              from `?n's_goods \<in> Domain x` `Domain x = Y` have *: "?n's_goods \<in> Y" by simp (* TODO CL: use labels where available *)
+              from n_gets_some_goods alloc_Domain have *: "?n's_goods \<in> Y" by simp
               have "is_partition Y" using part unfolding all_partitions_def is_partition_of_def by simp (* TODO CL: let's see if we can reuse this elsewhere *)
               then have "{} \<notin> Y" by (rule no_empty_eq_class)
               with * show ?thesis by fastforce
             qed
-            (* construct the allocation x' by allocating everything as in y' and allocating 
-               the leftover goods (i.e. those that n got in the winning allocation x)
+            (* We construct the allocation x', for which we'd like to prove that its value is higher than that of y',
+               by allocating everything as in y' and allocating the leftover goods (i.e. those that n got in the winning allocation x)
                to an arbitrary participant m, which means enlarging the set of
-               goods that m got so far by the additional goods.  OK, not _quite_ an arbitrary participant:
+               goods that m got so far by the additional goods.
+               OK, not _quite_ an arbitrary participant:
                It's easier if we choose someone from "Range y'", i.e. someone who already got something in y'. *)
             def m \<equiv> "SOME m . m \<in> Range y'"
             let ?m's_goods_y' = "THE y . (y, m) \<in> y'"
             def x' \<equiv> "y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}"
+
+            (* 1. First we need to show that x' is indeed an allocation of all goods to all participants except n. *)
             have "x' \<in> possible_allocations_rel G (N - {n})"
             proof -
               from part' have part'': "is_partition_of Y' (G - ?n's_goods)" unfolding all_partitions_def ..
@@ -478,6 +484,7 @@ proof (rule wd_outcomeI)
               then have x'_Domain_wrt_y': "Domain x' = Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'}"
                 unfolding x'_def y'_Domain by simp
 
+              (* 1. The domain of x' is a partition of all goods. *)
               have x'_Domain: "Domain x' \<in> all_partitions G"
               proof -
                 note x'_Domain_wrt_y'
@@ -579,17 +586,23 @@ proof (rule wd_outcomeI)
                 qed
                 ultimately show ?thesis unfolding all_partitions_def is_partition_of_def by fast
               qed
+              (* 2. The range of x' is a subset of the set of all participants except n. *)
               have x'_Range: "Range x' \<subseteq> N - {n}"
               proof -
                 have "Range x' = Range y'" unfolding x'_def using `(?m's_goods_y', m) \<in> y'` by auto
                 with y'_Range show ?thesis by presburger
               qed
+              (* 3. x' is a right-unique relation. *)
               have x'_runiq: "runiq x'" sorry
+              (* 4. The converse relation of x' is also right-unique. *)
               have x'_conv_runiq: "runiq (x'\<inverse>)"
                 unfolding x'_def using y'_conv_runiq `(?m's_goods_y', m) \<in> y'`
                 by (rule runiq_conv_replace')
+              (* Therefore, x' is an allocation of all goods to all participants except n. *)
               from x'_Domain x'_Range x'_runiq x'_conv_runiq show ?thesis unfolding possible_allocations_rel.simps injections_def by blast
             qed
+            (* 2. After having shown that x' is an allocation of all goods to all participants except n,
+                  we need to show that its value is higher than that of y'. *)
             moreover have "value_rel b x' \<ge> value_rel b y'" sorry
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
           qed
@@ -734,18 +747,28 @@ proof (rule wd_outcomeI)
         finally have "{} = winning_allocation_except G N t b n" .
         then have Dom_empty: "Domain (winning_allocation_except G N t b n) = {}" by fast
 
+        (* Therefore, the value of the allocation that wins the auction of the goods to all participants,
+           excluding the goods that this allocation would have allocated to participant n,
+           is 0. *)
         have "value_rel b (winning_allocation_except G N t b n) = 0"
           unfolding value_rel.simps Dom_empty by (rule setsum_empty)
         moreover have "0 \<le> Max (value_rel b ` possible_allocations_rel G (N - {n}))"
+        (* We also show that the maximum value of an allocation of the goods to all participants except n
+           is \<ge> 0. *)
         proof -
+          (* 1. For any such allocation (if one exists), its value is \<ge> 0 *)
           have "\<forall> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> 0"
           proof
             fix x'
             assume "x' \<in> possible_allocations_rel G (N - {n})"
-            then obtain Y' where Y': "Y' \<in> all_partitions G" and inj': "x' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+            then obtain Y' where Y': "Y' \<in> all_partitions G" and inj': "x' \<in> injections Y' (N - {n})"
+              using that by (rule allocation_injective)
             from inj' have Dom_x': "Domain x' = Y'"
                        and Range_x': "Range x' \<subseteq> N - {n}"
                        and runiq_x': "runiq x'" unfolding injections_def by simp_all
+            (* For any such allocation and any y that it allocates, this y is a set of available goods,
+               and it gets allocated to one of the participants. *)
+            (* TODO CL: Can this be factored out? *)
             {
               fix y
               assume "y \<in> Domain x'"
@@ -755,10 +778,15 @@ proof (rule wd_outcomeI)
               with Range_x' have 2: "x' ,, y \<in> N" by blast
               from 1 2 have "y \<subseteq> G" and "x' ,, y \<in> N" .
             }
+            (* Therefore, as we have a valid input of non-negative bids,
+               the value of any such set of goods is non-negative, \<dots> *)
             with non_neg_bids have "\<forall> y \<in> Domain x' . b (x' ,, y) y \<ge> 0" by simp
+            (* \<dots> and so is the value of their overall allocation. *)
             then show "value_rel b x' \<ge> 0" unfolding value_rel.simps by (rule setsum_nonneg)
           qed
+          (* 2. There are finitely many such allocations. *)
           moreover note `finite (possible_allocations_rel G (N - {n}))`
+          (* 3. There exists such an allocation. *)
           moreover have "possible_allocations_rel G (N - {n}) \<noteq> {}"
           proof (rule ex_allocations)
             from valid show "card G > 0" by (rule card_goods_gt_0)
@@ -773,20 +801,24 @@ proof (rule wd_outcomeI)
       have "winning_allocation_except G N t b n = { (y::goods, m::participant) .
         (y::goods, m::participant) \<in> x \<and> m \<noteq> n }" unfolding x' by simp
       also have "\<dots> = x" using n_gets_nothing by (rule Range_except_irrelevant)
+      (* As n gets nothing, removing its goods from the winning allocation doesn't change anything. *)
       finally have x'': "winning_allocation_except G N t b n = x" .
 
-      have finite: "finite (possible_allocations_rel G (N - {n}))"
-        using `finite G` `finite (N - {n})` by (rule allocs_finite)
-
+      (* Therefore, the winning allocation (with or without n's goods, which is the same)
+         also is an allocation of all goods to all participants except n: *)
       note alloc_Domain
       moreover have "Range x \<subseteq> N - {n}" using alloc_Range n_gets_nothing by fast
       moreover note runiq_alloc
       moreover note runiq_alloc_conv
       ultimately have "x \<in> injections Y (N - {n})" by (rule injectionsI)
       with part have "winning_allocation_except G N t b n \<in> possible_allocations_rel G (N - {n})"
-        unfolding x'' possible_allocations_rel.simps (* This allows for using blast; otherwise we'd need auto. *)
+        unfolding x'' possible_allocations_rel.simps (* Unfolding allows for using blast; otherwise we'd need auto. *)
         by blast
-      with finite show ?thesis by (rule Max_Im_ge)
+      (* Therefore, the value of the winning allocation is \<le>
+         the maximum value of all allocations of all goods to all participants except n: *)
+      with `finite (possible_allocations_rel G (N - {n}))`
+        show "value_rel b (winning_allocation_except G N t b n) \<le> Max (value_rel b ` possible_allocations_rel G (N - {n}))"
+        by (rule Max_Im_ge)
     qed
     ultimately show "p n \<ge> 0" by fastforce
   qed
