@@ -408,6 +408,13 @@ proof (rule wd_outcomeI)
       proof cases
         (* This is the hard case.  The other one is easier. *)
         assume n_gets_part: "?n's_goods \<noteq> G" (* i.e. participant n gets some but not all goods *)
+
+        (* We have to show that the maximum value of an allocation of the goods to all participants except n (=: a)
+           is \<ge> the value of the winning allocation of the goods to all participants after removing n's goods (=: c).
+           We do this by showing a \<ge> b \<ge> c, for
+           b := the maximum value of an allocation of all goods except n's goods to all participants except n.
+           *)
+        (* 1. "a \<ge> b" *)
         have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
           (* If you (re-)allocate, to all participants except n,
              the goods except those that participant n gets in the winning allocation,
@@ -609,6 +616,7 @@ proof (rule wd_outcomeI)
           qed
           ultimately show ?thesis by (rule Max_Im_ge_other_Im)
         qed
+        (* 2. "b \<ge> c" *)
         also have "Max ((value_rel b) ` (possible_allocations_rel (G - ?n's_goods) (N - {n})))
           (* The LHS of this inequality asks for the maximum value of an allocation of all goods
              except those that n gets, when allocated to all participants except n.
@@ -616,107 +624,115 @@ proof (rule wd_outcomeI)
              to all participants except n (as it removes exactly these pairs of the winning 
              allocation of all goods to all participants), so it must be \<le> the LHS. *)
           \<ge> value_rel b (winning_allocation_except G N t b n)"
+          using `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this a symbolic name *)
         proof (rule Max_Im_ge)
-          show "finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))"
-            by (rule `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))`) (* TODO CL: give this a symbolic name *)
-          show "winning_allocation_except G N t b n \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
+          (* We need to show that the winning allocation of the goods to all participants, with n's goods removed,
+             is one possible allocation of all goods except n's to all participants except n. *)
+
+          (* 1. The relation is right-unique. *)
+          from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" unfolding x' by (rule subrel_runiq)
+          from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
+          (* 2. Its converse is also right-unique. *)
+          with runiq_alloc_conv have alloc_except_conv_runiq: "runiq ((winning_allocation_except G N t b n)\<inverse>)" unfolding x' by (rule subrel_runiq)
+
+          (* 3. Its domain is a partition of the goods except n's. *)
+          have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) \<in> all_partitions (G - ?n's_goods)"
           proof -
-            from runiq_alloc winning_allocation_except_subrel have alloc_except_runiq: "runiq (winning_allocation_except G N t b n)" unfolding x' by (rule subrel_runiq)
-            from winning_allocation_except_subrel have "(winning_allocation_except G N t b n)\<inverse> \<subseteq> (winning_allocation_rel G N t b)\<inverse>" by fastforce
-            with runiq_alloc_conv have alloc_except_conv_runiq: "runiq ((winning_allocation_except G N t b n)\<inverse>)" unfolding x' by (rule subrel_runiq)
-            have alloc_except_Domain: "Domain (winning_allocation_except G N t b n) \<in> all_partitions (G - ?n's_goods)"
+            have "winning_allocation_except G N t b n = { (y::goods, m::participant) .
+              (y::goods, m::participant) \<in> x \<and> m \<noteq> n }" unfolding x' by simp
+            (* 1. The big union of the domain is the set of goods except n's. *)
+            have "\<Union> (Domain (winning_allocation_except G N t b n)) = G - ?n's_goods"
             proof -
-              have "winning_allocation_except G N t b n = { (y::goods, m::participant) .
-                (y::goods, m::participant) \<in> x \<and> m \<noteq> n }" unfolding x' by simp
-              have "\<Union> (Domain (winning_allocation_except G N t b n)) = G - ?n's_goods"
+              (* We first show that the domain is the same as the partition of the set of all goods according to the winning allocation, minus the goods that n got there. *)
+              have "Y - { ?n's_goods } = Domain { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
               proof -
-                have "Y - { ?n's_goods } = Domain { (y, m) . (y, m) \<in> x \<and> m \<noteq> n }"
-                proof -
-                  (* have \<dots> moreover have \<dots> ultimately have \<dots> also have \<dots> finally have \<dots>
-                     wouldn't work; Isabelle would complain about a "vacuous calculation result". *)
-                  from runiq_alloc runiq_alloc_conv n_gets_something
-                    have "{ (y, m) . (y, m) \<in> x \<and> m \<noteq> n } = { (y, m) . (y, m) \<in> x \<and> y \<noteq> ?n's_goods }"
-                    by (rule runiq_relation_except_singleton[symmetric])
-                  moreover have "Domain { (y, m) . (y, m) \<in> x \<and> y \<noteq> ?n's_goods }
-                      = Y - { ?n's_goods }"
-                    using alloc_Domain
-                    by (auto simp add: Domain_except)
-                  ultimately show ?thesis by presburger
-                qed
-                also have "\<dots> = Domain (winning_allocation_except G N t b n)" unfolding x' by simp
-                finally have Dom_Y: "Y - { ?n's_goods } = Domain (winning_allocation_except G N t b n)" .
-  
-                show ?thesis
-                proof
-                  {
-                    fix g
-                    assume "\<exists> A \<in> Domain (winning_allocation_except G N t b n) . g \<in> A"
-                    then obtain A where "g \<in> A" and *: "A \<in> Domain (winning_allocation_except G N t b n)" by blast
-                    from * have A_in_Y: "A \<in> Y - { ?n's_goods }" using Dom_Y by presburger
-                    have "g \<in> G - ?n's_goods"
-                    proof -
-                      from A_in_Y have "A \<in> Y" by fast
-                      with `g \<in> A` have "g \<in> G"
-                        using part unfolding all_partitions_def by (auto simp add: is_partition_of_def)
-                      have "g \<notin> ?n's_goods"
-                      proof
-                        assume "g \<in> ?n's_goods" (* Assume that g is one of the goods that n gets. *)
-                        from alloc_Domain n_gets_something runiq_alloc runiq_alloc_conv
-                          have *: "?n's_goods \<in> Y" 
-                          by (metis Domain_iff Range.simps runiq_conv_imp_THE_left_comp)
-                        with `g \<in> G`
-                             `g \<in> ?n's_goods` `?n's_goods \<in> Y` (* g in one equivalence class *)
-                             `g \<in> A` `A \<in> Y` (* g in another equivalence class *)
-                             part'
-                          have "A = ?n's_goods" (* \<Rightarrow> both equivalence classes are equal *)
-                          using elem_in_uniq_eq_class by smt
-                        with A_in_Y show False by fast
-                      qed
-                      with `g \<in> G` show ?thesis by (rule DiffI)
-                    qed
-                  }
-                  then show "\<Union> (Domain (winning_allocation_except G N t b n)) \<subseteq> G - ?n's_goods" by auto
-                next
-                  {
-                    fix g
-                    assume "g \<in> G - ?n's_goods" (* Let g be one of the goods that n doesn't get. *)
-                    moreover note part'
-                    ultimately have "\<exists> A \<in> Y - { ?n's_goods } . g \<in> A" by (rule diff_elem_in_eq_class)
-                    with Dom_Y have "\<exists> A \<in> Domain (winning_allocation_except G N t b n) . g \<in> A" by presburger
-                  }
-                  then show "G - ?n's_goods \<subseteq> \<Union> (Domain (winning_allocation_except G N t b n))" by fast
-                qed
+                (* have \<dots> moreover have \<dots> ultimately have \<dots> also have \<dots> finally have \<dots>
+                   wouldn't work; Isabelle would complain about a "vacuous calculation result". *)
+                from runiq_alloc runiq_alloc_conv n_gets_something
+                  have "{ (y, m) . (y, m) \<in> x \<and> m \<noteq> n } = { (y, m) . (y, m) \<in> x \<and> y \<noteq> ?n's_goods }"
+                  by (rule runiq_relation_except_singleton[symmetric])
+                moreover have "Domain { (y, m) . (y, m) \<in> x \<and> y \<noteq> ?n's_goods }
+                    = Y - { ?n's_goods }"
+                  using alloc_Domain
+                  by (auto simp add: Domain_except)
+                ultimately show ?thesis by presburger
               qed
-              moreover have "is_partition (Domain (winning_allocation_except G N t b n))"
-              proof -
-                {
-                  fix X Y
-                  assume X_Dom: "X \<in> Domain (winning_allocation_except G N t b n)"
-                  assume Y_Dom: "Y \<in> Domain (winning_allocation_except G N t b n)"
-                  from X_Dom have X_Dom': "X \<in> Domain x" unfolding x' by auto
-                  from Y_Dom have Y_Dom': "Y \<in> Domain x" unfolding x' by auto
-                  from part alloc_Domain have "Domain x \<in> all_partitions G" by simp
-                  then have "is_partition (Domain x)" unfolding all_partitions_def is_partition_of_def by fast
-                  then have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" by (metis X_Dom' Y_Dom' is_partition_def)
-                }
-                then show ?thesis by (simp add: is_partition_def)
-              qed
-              ultimately have "is_partition_of (Domain (winning_allocation_except G N t b n)) (G - ?n's_goods)"
-                unfolding is_partition_of_def by fast
-              then show ?thesis unfolding all_partitions_def by (rule CollectI)
-            qed
-            from alloc_Range have "Range (winning_allocation_except G N t b n)
-              = (N - {n}) \<inter> Range x"
-              unfolding winning_allocation_except.simps x' by (rule Range_except)
-            also have "\<dots> \<subseteq> N - {n}" by fast
-            finally have alloc_except_Range: "Range (winning_allocation_except G N t b n) \<subseteq> N - {n}" .
-            
-            from alloc_except_Domain alloc_except_Range alloc_except_runiq alloc_except_conv_runiq
+              also have "\<dots> = Domain (winning_allocation_except G N t b n)" unfolding x' by simp
+              finally have Dom_Y: "Y - { ?n's_goods } = Domain (winning_allocation_except G N t b n)" .
+
               show ?thesis
-              unfolding possible_allocations_rel.simps injections_def by blast
+              proof (* "\<subseteq>" *)
+                {
+                  fix g
+                  assume "\<exists> A \<in> Domain (winning_allocation_except G N t b n) . g \<in> A"
+                  then obtain A where "g \<in> A" and *: "A \<in> Domain (winning_allocation_except G N t b n)" by blast
+                  from * have A_in_Y: "A \<in> Y - { ?n's_goods }" using Dom_Y by presburger
+                  have "g \<in> G - ?n's_goods"
+                  proof -
+                    from A_in_Y have "A \<in> Y" by fast
+                    with `g \<in> A` have "g \<in> G"
+                      using part unfolding all_partitions_def by (auto simp add: is_partition_of_def)
+                    have "g \<notin> ?n's_goods"
+                    proof
+                      assume "g \<in> ?n's_goods" (* Assume that g is one of the goods that n gets. *)
+                      from alloc_Domain n_gets_something runiq_alloc runiq_alloc_conv
+                        have *: "?n's_goods \<in> Y" 
+                        by (metis Domain_iff Range.simps runiq_conv_imp_THE_left_comp)
+                      with `g \<in> G`
+                           `g \<in> ?n's_goods` `?n's_goods \<in> Y` (* g in one equivalence class *)
+                           `g \<in> A` `A \<in> Y` (* g in another equivalence class *)
+                           part'
+                        have "A = ?n's_goods" (* \<Rightarrow> both equivalence classes are equal *)
+                        using elem_in_uniq_eq_class by smt
+                      with A_in_Y show False by fast
+                    qed
+                    with `g \<in> G` show ?thesis by (rule DiffI)
+                  qed
+                }
+                then show "\<Union> (Domain (winning_allocation_except G N t b n)) \<subseteq> G - ?n's_goods" by auto
+                  (* Sledgehammer in Isabelle2013-2 can't prove this with default timeouts. *)
+              next (* "\<subseteq>" *)
+                {
+                  fix g
+                  assume "g \<in> G - ?n's_goods" (* Let g be one of the goods that n doesn't get. *)
+                  moreover note part'
+                  ultimately have "\<exists> A \<in> Y - { ?n's_goods } . g \<in> A" by (rule diff_elem_in_eq_class)
+                  with Dom_Y have "\<exists> A \<in> Domain (winning_allocation_except G N t b n) . g \<in> A" by presburger
+                }
+                then show "G - ?n's_goods \<subseteq> \<Union> (Domain (winning_allocation_except G N t b n))" by fast
+              qed
+            qed
+            (* 2. The domain is a partition. *)
+            moreover have "is_partition (Domain (winning_allocation_except G N t b n))"
+            proof -
+              {
+                fix X Y
+                assume X_Dom: "X \<in> Domain (winning_allocation_except G N t b n)"
+                assume Y_Dom: "Y \<in> Domain (winning_allocation_except G N t b n)"
+                from X_Dom have X_Dom': "X \<in> Domain x" unfolding x' by auto
+                from Y_Dom have Y_Dom': "Y \<in> Domain x" unfolding x' by auto
+                from part alloc_Domain have "Domain x \<in> all_partitions G" by simp
+                then have "is_partition (Domain x)" unfolding all_partitions_def is_partition_of_def by fast
+                then have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" by (metis X_Dom' Y_Dom' is_partition_def)
+              }
+              then show ?thesis by (simp add: is_partition_def)
+            qed
+            ultimately have "is_partition_of (Domain (winning_allocation_except G N t b n)) (G - ?n's_goods)"
+              unfolding is_partition_of_def by fast
+            then show ?thesis unfolding all_partitions_def by (rule CollectI)
           qed
+          (* 4. The range of the relation is a subset of the participants except n. *)
+          from alloc_Range have "Range (winning_allocation_except G N t b n)
+            = (N - {n}) \<inter> Range x"
+            unfolding winning_allocation_except.simps x' by (rule Range_except)
+          also have "\<dots> \<subseteq> N - {n}" by fast
+          finally have alloc_except_Range: "Range (winning_allocation_except G N t b n) \<subseteq> N - {n}" .
+          
+          from alloc_except_Domain alloc_except_Range alloc_except_runiq alloc_except_conv_runiq
+            show "winning_allocation_except G N t b n \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
+            unfolding possible_allocations_rel.simps injections_def by blast
         qed
-        ultimately show ?thesis by linarith
+        ultimately show ?thesis by linarith (* a \<ge> b \<and> b \<ge> c \<longrightarrow> a \<ge> c *)
       next
         assume "\<not> ?n's_goods \<noteq> G" (* participant n gets everything *)
         then have n_gets_everything: "?n's_goods = G" by fast
