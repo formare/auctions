@@ -668,8 +668,16 @@ proof -
   then show ?thesis using not_in_Domain by (rule runiq_extend_singleton)
 qed
 
-(* TODO CL: document *)
-lemma runiq_replace_1st
+text {* Replacing the first component of a pair in a right-unique relation leaves the relation
+  right-unique if the replacement has not been in the domain of the relation before. *}
+lemma runiq_replace_fst:
+  assumes runiq: "runiq R"
+      and not_in_Domain: "z \<notin> Domain R"
+  shows "runiq (R - {(x, y)} \<union> {(z, y)})"
+proof (rule runiq_extend_singleton)
+  from runiq show "runiq (R - {(x, y)})" by (rule runiq_except)
+  from not_in_Domain show "z \<notin> Domain (R - {(x, y)})" by blast
+qed
 
 (* TODO CL: document, and choose better name *)
 lemma runiq_Diff_singleton_Domain:
