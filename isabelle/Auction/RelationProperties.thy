@@ -634,10 +634,12 @@ lemma runiq_paste3:
   shows "runiq (R +* {(x, y)})"
 using assms runiq_paste2 runiq_singleton_rel by metis
 
-(* TODO CL: document *)
+subsection {* difference *}
+
+text {* Removing one pair from a right-unique relation still leaves it right-unique. *}
 lemma runiq_except:
   assumes "runiq R"
-  shows "runiq (R - {(x, y)})"
+  shows "runiq (R - {tup})"
 using assms
 by (rule subrel_runiq) fast
 
