@@ -487,13 +487,14 @@ proof (rule wd_outcomeI)
               (* 1. The domain of x' is a partition of all goods. *)
               have x'_Domain: "Domain x' \<in> all_partitions G"
               proof -
+                (* 1. We first show "\<Union> Domain x' = G" but need to do the steps on this level as we'd like to reuse some of them below. *)
                 note x'_Domain_wrt_y'
                 moreover have Union_Domain_y': "\<Union> Y' = G - ?n's_goods" using part'' unfolding is_partition_of_def y'_Domain ..
                 moreover note n_gets_part'
                 moreover have m's_goods_Domain_y': "?m's_goods_y' \<in> Y'"
                   unfolding y'_Domain[symmetric] using `(THE y. (y, m) \<in> y', m) \<in> y'`  by (rule DomainI)
                 ultimately have "\<Union> Domain x' = G" by (rule Union_family_grown_member)
-
+                (* 2. We then show that the domain of x' is a partition. *)
                 moreover have "is_partition (Domain x')"
                 (* Domain x' partitions the goods as Domain y' does, except that those goods that
                    Domain y' doesn't cover (i.e. those that n got in the winning allocation x)
