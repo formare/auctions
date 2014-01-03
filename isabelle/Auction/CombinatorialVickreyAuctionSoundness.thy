@@ -847,8 +847,7 @@ proof (rule wd_outcomeI)
          also is an allocation of all goods to all participants except n: *)
       note alloc_Domain
       moreover have "Range x \<subseteq> N - {n}" using alloc_Range n_gets_nothing by fast
-      moreover note runiq_alloc
-      moreover note runiq_alloc_conv
+      moreover note runiq_alloc runiq_alloc_conv
       ultimately have "x \<in> injections Y (N - {n})" by (rule injectionsI)
       with part have "winning_allocation_except G N t b n \<in> possible_allocations_rel G (N - {n})"
         unfolding x'' possible_allocations_rel.simps (* Unfolding allows for using blast; otherwise we'd need auto. *)
