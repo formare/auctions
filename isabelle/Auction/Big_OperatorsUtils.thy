@@ -69,16 +69,7 @@ lemma Max_Im_ge:
   shows "Max (f ` A) \<ge> f x"
 using assms by simp
 
-(* TODO CL: document *)
-lemma Max_Im_ge_other_Im1:
-  fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
-  assumes "finite A"
-      and "\<exists> x \<in> A . f x \<ge> Max (f ` B)"
-  shows "Max (f ` A) \<ge> Max (f ` B)"
-using assms
-by (metis Max_Im_ge dual_order.trans)
-
-(* TODO CL: document *)
+text {* For any function, a finite, non-empty set has an element on which the function reaches its maximum. *}
 lemma Max_Im_imp_ex_elem:
   assumes "finite A"
       and "A \<noteq> {}"
