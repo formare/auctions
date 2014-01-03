@@ -688,7 +688,8 @@ proof (rule runiq_replace)
   from runiq in_rel show "x \<notin> Domain (R - {(x, y)})" by (rule runiq_Diff_singleton_Domain)
 qed
 
-(* TODO CL: document *)
+text {* Extending a relation, whose converse is right-unique, by one pair leaves its converse
+  right-unique if the second component of the pair has not been in the range of the relation already. *}
 lemma runiq_conv_extend_singleton:
   assumes runiq_conv: "runiq (R\<inverse>)"
       and not_in_Domain: "y \<notin> Range R"
