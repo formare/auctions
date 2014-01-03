@@ -587,7 +587,19 @@ proof (rule wd_outcomeI)
                       show ?thesis sorry
                     next
                       assume FalseFalse: "X'' \<notin> Y' \<and> Y'' \<notin> Y'"
-                      show ?thesis sorry
+                      then have X''Y': "X'' \<notin> Y'" and Y''Y': "Y'' \<notin> Y'" by simp_all
+
+                      from assm have X''x': "X'' \<in> Domain x'" and Y''x': "Y'' \<in> Domain x'" by simp_all
+
+                      have "X'' = ?n's_goods \<union> ?m's_goods_y'" using X''x' x'_Domain_wrt_y' X''Y' by simp
+                      moreover have "Y'' = ?n's_goods \<union> ?m's_goods_y'" using Y''x' x'_Domain_wrt_y' Y''Y' by simp
+                      ultimately have "X'' = Y''" by force
+                      moreover have "X'' \<inter> Y'' \<noteq> {}"
+                      proof -
+                        from `?n's_goods \<noteq> {}` have "?n's_goods \<union> ?m's_goods_y' \<noteq> {}" by fast
+                        with `X'' = ?n's_goods \<union> ?m's_goods_y'` `X'' = Y''` show ?thesis by blast
+                      qed
+                      ultimately show ?thesis by force
                     qed
                   }
                   then show ?thesis unfolding is_partition_def by simp
