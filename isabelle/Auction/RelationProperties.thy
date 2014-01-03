@@ -643,7 +643,8 @@ lemma runiq_except:
 using assms
 by (rule subrel_runiq) fast
 
-(* TODO CL: document *)
+text {* Extending a right-unique relation by one pair leaves it right-unique
+  if the first component of the pair has not been in the domain of the relation already. *}
 lemma runiq_extend_singleton:
   assumes runiq: "runiq R"
       and not_in_Domain: "x \<notin> Domain R"
