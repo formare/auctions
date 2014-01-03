@@ -714,7 +714,7 @@ qed
 
 text {* Replacing the first component of one pair in a relation, whose converse is right-unique,
   leaves its converse right-unique. *}
-lemma runiq_conv_replace:
+lemma runiq_conv_replace_fst:
   assumes runiq_conv: "runiq (R\<inverse>)"
       and not_in_Range: "y \<notin> Range (R - {(x, y)})"
   shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
@@ -738,12 +738,12 @@ qed
 
 text {* Replacing the first component of one pair in a relation, whose converse is right-unique,
   leaves its converse right-unique. *}
-lemma runiq_conv_replace':
+lemma runiq_conv_replace_fst':
   assumes runiq_conv: "runiq (R\<inverse>)"
       and in_rel: "(x, y) \<in> R"
   shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
 using runiq_conv                    
-proof (rule runiq_conv_replace)
+proof (rule runiq_conv_replace_fst)
   from runiq_conv in_rel show "y \<notin> Range (R - {(x, y)})" by (rule runiq_conv_Diff_singleton_Range)
 qed
 

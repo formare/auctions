@@ -608,7 +608,7 @@ proof (rule wd_outcomeI)
                 unfolding x'_def
                 (* x'_def is simply formed from y' by replacing the first component of one pair. *)
                 using y'_conv_runiq `(?m's_goods_y', m) \<in> y'`
-                by (rule runiq_conv_replace')
+                by (rule runiq_conv_replace_fst')
               (* Therefore, x' is an allocation of all goods to all participants except n. *)
               from x'_Domain x'_Range x'_runiq x'_conv_runiq show ?thesis unfolding possible_allocations_rel.simps injections_def by blast
             qed
