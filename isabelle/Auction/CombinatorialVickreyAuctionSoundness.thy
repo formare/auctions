@@ -593,7 +593,7 @@ proof (rule wd_outcomeI)
             moreover have "value_rel b x' \<ge> value_rel b y'" sorry
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
           qed
-          ultimately show ?thesis by (rule Max_Im_ge_other_Im2)
+          ultimately show ?thesis by (rule Max_Im_ge_other_Im)
         qed
         also have "Max ((value_rel b) ` (possible_allocations_rel (G - ?n's_goods) (N - {n})))
           (* The LHS of this inequality asks for the maximum value of an allocation of all goods

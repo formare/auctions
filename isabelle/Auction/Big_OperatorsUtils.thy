@@ -85,8 +85,11 @@ proof -
   then show ?thesis by (metis that) (* TODO CL: ask what "that" is *)
 qed
 
-(* TODO CL: document *)
-lemma Max_Im_ge_other_Im2:
+text {* Assume a finite set @{term A} and a finite, non-empty set @{term B}.
+  Suppose that for any element of @{term B} there exists an element of @{term A},
+  for which a given function returns a greater or equal value.
+  Then, the maximum of this function on @{term A} is greater or equal its maximum on @{term B}. *}
+lemma Max_Im_ge_other_Im:
   fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
   assumes finiteA: "finite A"
       and finiteB: "finite B"
