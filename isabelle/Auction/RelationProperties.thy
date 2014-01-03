@@ -701,7 +701,8 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-(* TODO CL: document *)
+text {* Replacing the first component of one pair in a relation, whose converse is right-unique,
+  leaves its converse right-unique. *}
 lemma runiq_conv_replace:
   assumes runiq_conv: "runiq (R\<inverse>)"
       and not_in_Range: "y \<notin> Range (R - {(x, y)})"
