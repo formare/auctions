@@ -659,7 +659,7 @@ qed
 
 text {* Replacing the second component of one pair in a right-unique relation
   leaves it right-unique. *}
-lemma runiq_replace_2nd:
+lemma runiq_replace_snd:
   assumes runiq: "runiq R"
       and not_in_Domain: "x \<notin> Domain (R - {(x, y)})"
   shows "runiq (R - {(x, y)} \<union> {(x, z)})"
@@ -667,6 +667,9 @@ proof -
   from runiq have "runiq (R - {(x, y)})" by (rule runiq_except)
   then show ?thesis using not_in_Domain by (rule runiq_extend_singleton)
 qed
+
+(* TODO CL: document *)
+lemma runiq_replace_1st
 
 (* TODO CL: document, and choose better name *)
 lemma runiq_Diff_singleton_Domain:
@@ -679,12 +682,12 @@ by (smt DomainE Domain_Un_eq UnI1 Un_Diff_Int member_remove remove_def runiq_wrt
 
 text {* Replacing the second component of one pair in a right-unique relation
   leaves it right-unique. *}
-lemma runiq_replace_2nd':
+lemma runiq_replace_snd':
   assumes runiq: "runiq R"
       and in_rel: "(x, y) \<in> R"
   shows "runiq (R - {(x, y)} \<union> {(x, z)})"
 using runiq
-proof (rule runiq_replace_2nd)
+proof (rule runiq_replace_snd)
   from runiq in_rel show "x \<notin> Domain (R - {(x, y)})" by (rule runiq_Diff_singleton_Domain)
 qed
 
@@ -709,7 +712,7 @@ lemma runiq_conv_replace:
   shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
 proof -
   from not_in_Range have "y \<notin> Domain (R\<inverse> - {(y, x)})" by blast
-  with runiq_conv have "runiq (R\<inverse> - {(y, x)} \<union> {(y, z)})" by (rule runiq_replace_2nd)
+  with runiq_conv have "runiq (R\<inverse> - {(y, x)} \<union> {(y, z)})" by (rule runiq_replace_snd)
   moreover have "R\<inverse> - {(y, x)} \<union> {(y, z)} = (R - {(x, y)} \<union> {(z, y)})\<inverse>" by fast
   ultimately show ?thesis by simp
 qed
