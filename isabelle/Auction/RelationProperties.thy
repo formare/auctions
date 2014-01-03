@@ -657,7 +657,8 @@ proof (rule disj_Un_runiq)
   with not_in_Domain show "Domain R \<inter> Domain {(x, y)} = {}" by simp
 qed
 
-(* TODO CL: document *)
+text {* Replacing the second component of one pair in a right-unique relation
+  leaves it right-unique. *}
 lemma runiq_replace:
   assumes runiq: "runiq R"
       and not_in_Domain: "x \<notin> Domain (R - {(x, y)})"
