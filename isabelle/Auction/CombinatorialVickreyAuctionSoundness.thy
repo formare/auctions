@@ -603,9 +603,11 @@ proof (rule wd_outcomeI)
               qed
               (* 3. x' is a right-unique relation. *)
               have x'_runiq: "runiq x'" sorry
-              (* 4. The converse relation of x' is also right-unique. *)
+              (* 4. The converse relation of x' is also right-unique.*)
               have x'_conv_runiq: "runiq (x'\<inverse>)"
-                unfolding x'_def using y'_conv_runiq `(?m's_goods_y', m) \<in> y'`
+                unfolding x'_def
+                (* x'_def is simply formed from y' by replacing the first component of one pair. *)
+                using y'_conv_runiq `(?m's_goods_y', m) \<in> y'`
                 by (rule runiq_conv_replace')
               (* Therefore, x' is an allocation of all goods to all participants except n. *)
               from x'_Domain x'_Range x'_runiq x'_conv_runiq show ?thesis unfolding possible_allocations_rel.simps injections_def by blast
