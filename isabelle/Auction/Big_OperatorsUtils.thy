@@ -59,6 +59,26 @@ lemma setsum_cong2':
   shows "(\<Sum> x \<in> S . f x) = (\<Sum> x \<in> S . g x)"
 by (metis assms setsum_cong2)
 
+text {* combination of @{thm setsum.union_disjoint} and @{thm setsum_diff} *}
+lemma setsum_diff_union:
+  fixes A::"'a set" and B::"'a set" and C::"'a set" and f::"'a \<Rightarrow> 'b::{comm_monoid_add,ab_group_add}"
+  assumes finiteA: "finite A"
+      and B_sub_A: "B \<subseteq> A"
+      and finiteC: "finite C"
+      and disj: "(A - B) \<inter> C = {}"
+  shows "(\<Sum> x \<in> A - B  \<union> C . f x) = (\<Sum> x \<in> A . f x) - (\<Sum> x \<in> B . f x) + (\<Sum> x \<in> C . f x)"
+proof -
+  from finiteA have "finite (A - B)" ..
+  moreover note finiteC disj
+  ultimately have "(\<Sum> x \<in> A - B  \<union> C . f x) = (\<Sum> x \<in> A - B . f x) + (\<Sum> x \<in> C . f x)" by (rule setsum.union_disjoint)
+  also have "\<dots> = (\<Sum> x \<in> A . f x) - (\<Sum> x \<in> B . f x) + (\<Sum> x \<in> C . f x)"
+  proof -
+    from finiteA B_sub_A have "(\<Sum> x \<in> A - B . f x) = (\<Sum> x \<in> A . f x) - (\<Sum> x \<in> B . f x)" by (rule setsum_diff)
+    then show ?thesis by presburger
+  qed
+  finally show ?thesis .
+qed
+
 section {* maximum *}
 
 text {* The maximum of a function @{term f} on a finite set
