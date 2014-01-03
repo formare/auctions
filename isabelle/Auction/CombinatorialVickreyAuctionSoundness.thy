@@ -525,6 +525,8 @@ proof (rule wd_outcomeI)
                   {
                     fix X'' Y''
                     assume assm: "X'' \<in> Domain x' \<and> Y'' \<in> Domain x'"
+                    then have X''x': "X'' \<in> Domain x'" and Y''x': "Y'' \<in> Domain x'" by simp_all
+
                     have "(X'' \<inter> Y'' \<noteq> {}) \<longleftrightarrow> (X'' = Y'')"
                     proof (cases rule: case_split_2_times_2)
                       assume TrueTrue: "X'' \<in> Y' \<and> Y'' \<in> Y'"
@@ -532,24 +534,10 @@ proof (rule wd_outcomeI)
                         unfolding all_partitions_def is_partition_of_def is_partition_def by simp
                     next
                       assume FalseTrue: "X'' \<notin> Y' \<and> Y'' \<in> Y'"
-                      with assm have "X'' \<in> Domain x' - Y'" by blast
-                      (* What do we know about Domain x' and Domain y' = Y'?
-                         y'_Domain
-                         x'_Domain_wrt_y'
-                      *)
-                      moreover have "Domain x' - Y' = {?n's_goods \<union> ?m's_goods_y'} - {?m's_goods_y'}"
-                        (* For this we'd need Diff_replace, which we don't know how to prove right now.
-                           Let's first find out whether we really need _this_ fact below. *)
-                        sorry
-                      ultimately have "X'' \<in> {?n's_goods \<union> ?m's_goods_y'} - {?m's_goods_y'}" by (rule back_subst)
-                      moreover have "\<not> ?n's_goods \<subseteq> ?m's_goods_y'"
-                      proof
-                        assume "?n's_goods \<subseteq> ?m's_goods_y'"
-                        moreover have "?m's_goods_y' \<subseteq> G - ?n's_goods"
-                          using m's_goods_Domain_y' Union_Domain_y' by blast
-                        ultimately show False using `?n's_goods \<noteq> {}` by blast
-                      qed
-                      ultimately have X: "X'' = ?n's_goods \<union> ?m's_goods_y'" by fast
+                      then have X''Y': "X'' \<notin> Y'" and Y''Y': "Y'' \<in> Y'" by simp_all
+
+                      have X: "X'' = ?n's_goods \<union> ?m's_goods_y'" using X''x' x'_Domain_wrt_y' X''Y' by simp
+
                       show ?thesis
                       proof
                         assume "X'' \<inter> Y'' \<noteq> {}"
@@ -566,8 +554,8 @@ proof (rule wd_outcomeI)
                                ?n's_goods \<subseteq> G
                                ?n's_goods \<in> Y \<Rightarrow> h is an equivalence class in a partition of all goods
                                *)
-                            from FalseTrue have "Y'' \<in> Y'" by blast
-                              (* \<dots> i.e. Y'' is an equivalence class in a partition of all goods except ?n's_goods *)
+                            from FalseTrue have "X'' \<notin> Y'" sorry
+
                             show ?thesis sorry
                           next
                             case False
@@ -588,8 +576,6 @@ proof (rule wd_outcomeI)
                     next
                       assume FalseFalse: "X'' \<notin> Y' \<and> Y'' \<notin> Y'"
                       then have X''Y': "X'' \<notin> Y'" and Y''Y': "Y'' \<notin> Y'" by simp_all
-
-                      from assm have X''x': "X'' \<in> Domain x'" and Y''x': "Y'' \<in> Domain x'" by simp_all
 
                       have "X'' = ?n's_goods \<union> ?m's_goods_y'" using X''x' x'_Domain_wrt_y' X''Y' by simp
                       moreover have "Y'' = ?n's_goods \<union> ?m's_goods_y'" using Y''x' x'_Domain_wrt_y' Y''Y' by simp
