@@ -61,7 +61,8 @@ by (metis assms setsum_cong2)
 
 section {* maximum *}
 
-(* TODO CL: document *)
+text {* The maximum of a function @{term f} on a finite set
+  is greater or equal than @{term "f x"} for any element @{term x} of the set. *}
 lemma Max_Im_ge:
   fixes f::"'a \<Rightarrow> 'b\<Colon>linorder"
   assumes "finite A"
@@ -103,6 +104,7 @@ proof -
   with * show ?thesis by (rule order.trans)
 qed
 
+(* TODO CL: document *)
 lemma Max_Im_ge_lower_bound:
   assumes "\<forall> x \<in> S . f x \<ge> z"
       and "finite S"
