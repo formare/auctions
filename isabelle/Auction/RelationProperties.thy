@@ -677,7 +677,8 @@ lemma runiq_Diff_singleton_Domain:
 using assms
 by (smt DomainE Domain_Un_eq UnI1 Un_Diff_Int member_remove remove_def runiq_wrt_ex1)
 
-(* TODO CL: document *)
+text {* Replacing the second component of one pair in a right-unique relation
+  leaves it right-unique. *}
 lemma runiq_replace':
   assumes runiq: "runiq R"
       and in_rel: "(x, y) \<in> R"
