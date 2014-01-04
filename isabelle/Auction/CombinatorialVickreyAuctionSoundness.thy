@@ -640,35 +640,52 @@ proof (rule wd_outcomeI)
             moreover have "value_rel b x' \<ge> value_rel b y'"
             proof -
               have "value_rel b x' = (\<Sum> (y::goods) \<in> Domain x' . b (x' ,, y) y)" by simp
-              (* "also have" in the following line gives "vacuous calculation result": *)
-              have "\<dots> = (\<Sum> (y::goods) \<in> Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
+              also have "\<dots> = (\<Sum> (y::goods) \<in> Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
                 using x'_Domain_wrt_y'
                 unfolding x'_def
                 by presburger
-              have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 - (\<Sum> y \<in> {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 + (\<Sum> y \<in> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
               proof (rule setsum_diff_union)
+                (* TODO CL: By factoring things out of step 1 above (x' is an allocation),
+                   we should get most of the following for free: *)
                 show "finite Y'" sorry
                 show "{?m's_goods_y'} \<subseteq> Y'" sorry
                 show "finite {?n's_goods \<union> ?m's_goods_y'}" sorry
                 show "(Y' - {?m's_goods_y'}) \<inter> {?n's_goods \<union> ?m's_goods_y'} = {}" sorry
               qed
-
-              (* TODO CL: maybe reuse in completing the proof: *)
-              (*
-              have "value_rel b y' = (\<Sum> (y::goods) \<in> Domain y' . b (y' ,, y) y)" by simp
-              also have "\<dots> = b (y' ,, ?m's_goods_y') ?m's_goods_y' + (\<Sum> (y::goods) \<in> (Domain y' - {?m's_goods_y'}) . b (y' ,, y) y)"
-              proof -
-                have "finite (Domain y')" sorry
-                moreover have "?m's_goods_y' \<in> Domain y'" sorry
-                ultimately show "(\<Sum> (y::goods) \<in> Domain y' . b (y' ,, y) y)
-                  = b (y' ,, ?m's_goods_y') ?m's_goods_y' + (\<Sum> (y::goods) \<in> (Domain y' - {?m's_goods_y'}) . b (y' ,, y) y)"
-                  by (rule setsum.remove)
-              qed
-              *)
-
-              show ?thesis sorry
+              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                - b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' (* = 0 because in x' ?m's_goods_y' are in a package together with ?n's_goods, which is \<noteq> {} *)
+                + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')" by force
+              (* We remove the 2nd summand as it is 0: *)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')" sorry
+              (* We evaluate the relation in the 2nd summand: *)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m (?n's_goods \<union> ?m's_goods_y')" sorry
+              (* We make the 2nd summand smaller thanks to the monotonicity requirement: *)
+              also have "\<dots> \<ge> (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m ?m's_goods_y'" sorry
+              (* We need to end this chain here, as continuing would give us the error message "vacuous calculation result" *)
+              finally have "value_rel b x' \<ge> 
+                (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m ?m's_goods_y'" .
+              (* As bids are non-negative, we make a sum smaller by removing elements from the set to be summed over: *)
+              moreover have "\<dots> \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m ?m's_goods_y'" sorry
+              ultimately have "value_rel b x' \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m ?m's_goods_y'" by fast
+              (* Neither ?m's_goods_y' nor ?n's_goods are in Y' - {?m's_goods_y'}, so removing them from the relation in the 1st summand doesn't change what it evaluates to on that set: *)
+              (* also *) have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
+                + b m ?m's_goods_y'" sorry
+              also have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
+                + b (y' ,, ?m's_goods_y') ?m's_goods_y'" sorry
+              (* We put the sums together (using some setsum_* lemma) *)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b (y' ,, y) y)" sorry
+              also have "\<dots> = (\<Sum> y \<in> Domain y' . b (y' ,, y) y)" unfolding y'_Domain ..
+              also have "\<dots> = value_rel b y'" by simp
+              finally show ?thesis by linarith
             qed
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
           qed
