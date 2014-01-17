@@ -852,6 +852,15 @@ corollary [code_unfold]:
    (this allows us to use the recursive function all_partitions_list).
    For a general list we can only guarantee compliance once we establish distinctness. *)
 
+(* TODO CL: choose a better name, and document *)
+lemma remove_singleton_eq_class_from_part:
+  assumes singleton_eq_class: "{X} \<subseteq> P"
+      and part: "is_partition P"
+  shows "(P - {X}) \<inter> {Y \<union> X} = {}"
+    using assms unfolding is_partition_def
+    by (metis Diff_disjoint Diff_iff Int_absorb2 Int_insert_right_if0 Un_upper2 empty_Diff insert_subset subset_refl)
+
+(* TODO CL: document if we need this *)
 lemma
   assumes part: "is_partition_of P A"
       and eq_class_old: "Xold \<in> P" (* Xold is an equivalence class of the old partition *)
