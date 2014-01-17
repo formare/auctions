@@ -456,6 +456,13 @@ proof (rule wd_outcomeI)
             fix y'
             assume "y' \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
             then obtain Y' where part': "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+            from part' have "\<Union> Y' = G - ?n's_goods" unfolding all_partitions_def is_partition_of_def by fast
+
+            have "finite Y'"
+            proof (rule finite_UnionD)
+              from `\<Union> Y' = G - ?n's_goods` `finite (G - ?n's_goods)` show "finite (\<Union> Y')" by presburger
+            qed
+
             from y'_inj have y'_Domain: "Domain y' = Y'" 
                          and y'_Range: "Range y' \<subseteq> N - {n}" 
                          and y'_runiq: "runiq y'" 
@@ -482,6 +489,7 @@ proof (rule wd_outcomeI)
             with y'_Domain have "Range y' \<noteq> {}" by fast
             then have "m \<in> Range y'" unfolding m_def by (metis ex_in_conv tfl_some)
             with y'_conv_runiq have "(?m's_goods_y', m) \<in> y'" by (rule runiq_conv_imp_THE_left_comp')
+            then have m's_goods_Domain_y': "?m's_goods_y' \<in> Y'" using y'_Domain by fast
 
             def x' \<equiv> "y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}"
 
@@ -502,8 +510,7 @@ proof (rule wd_outcomeI)
                 note x'_Domain_wrt_y'
                 moreover have Union_Domain_y': "\<Union> Y' = G - ?n's_goods" using part'' unfolding is_partition_of_def y'_Domain ..
                 moreover note n_gets_part'
-                moreover have m's_goods_Domain_y': "?m's_goods_y' \<in> Y'"
-                  unfolding y'_Domain[symmetric] using `(THE y. (y, m) \<in> y', m) \<in> y'`  by (rule DomainI)
+                moreover note m's_goods_Domain_y'
                 ultimately have "\<Union> Domain x' = G" by (rule Union_family_grown_member)
                 (* 2. We then show that the domain of x' is a partition. *)
                 moreover have "is_partition (Domain x')"
@@ -647,20 +654,39 @@ proof (rule wd_outcomeI)
               also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 - (\<Sum> y \<in> {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 + (\<Sum> y \<in> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
+                using `finite Y'`
               proof (rule setsum_diff_union)
+                show "{?m's_goods_y'} \<subseteq> Y'" using `?m's_goods_y' \<in> Y'` by simp
                 (* TODO CL: By factoring things out of step 1 above (x' is an allocation),
                    we should get most of the following for free: *)
-                show "finite Y'" sorry
-                show "{?m's_goods_y'} \<subseteq> Y'" sorry
-                show "finite {?n's_goods \<union> ?m's_goods_y'}" sorry
-                show "(Y' - {?m's_goods_y'}) \<inter> {?n's_goods \<union> ?m's_goods_y'} = {}" sorry
+                show "finite {?n's_goods \<union> ?m's_goods_y'}"
+                proof -
+                  have "finite ?n's_goods"
+                    using `finite G` n_gets_part' by (rule rev_finite_subset)
+                  moreover have "finite ?m's_goods_y'"
+                    using `?m's_goods_y' \<in> Y'`
+                     `\<Union> Y' = G - ?n's_goods`
+                     `finite (G - ?n's_goods)`
+                     by (metis Sup_upper rev_finite_subset)
+                  ultimately show ?thesis by simp
+                qed
+                show "(Y' - {?m's_goods_y'}) \<inter> {?n's_goods \<union> ?m's_goods_y'} = {}"
+                  using `{?m's_goods_y'} \<subseteq> Y'`
+                proof (rule remove_singleton_eq_class_from_part)
+                  show "is_partition Y'"
+                    using part' unfolding all_partitions_def is_partition_of_def by fast
+                qed
               qed
               also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                - b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' (* = 0 because in x' ?m's_goods_y' are in a package together with ?n's_goods, which is \<noteq> {} *)
+                - b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' (* = 0 (see below) *)
                 + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')" by force
-              (* We remove the 2nd summand as it is 0: *)
+              (* We remove the 2nd summand as it is 0 (because in x' ?m's_goods_y' are in a package together with ?n's_goods, which is \<noteq> {}): *)
               also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')" sorry
+                + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')"
+              proof -
+                have "b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' = 0" sorry
+                then show ?thesis by arith
+              qed
               (* We evaluate the relation in the 2nd summand: *)
               also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 + b m (?n's_goods \<union> ?m's_goods_y')" sorry
