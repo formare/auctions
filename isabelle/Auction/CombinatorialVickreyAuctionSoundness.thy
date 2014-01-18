@@ -649,13 +649,14 @@ proof (rule wd_outcomeI)
             moreover have "value_rel b x' \<ge> value_rel b y'"
             proof -
               have "value_rel b x' = (\<Sum> (y::goods) \<in> Domain x' . b (x' ,, y) y)" by simp
-              also have "\<dots> = (\<Sum> (y::goods) \<in> Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
+              (* We decompose the set over which the sum runs: *)
+              also have "\<dots> = (\<Sum> (y::goods) \<in> Y' - {?m's_goods_y'} \<union> {?n's_goods \<union> ?m's_goods_y'} . b (x' ,, y) y)"
                 using x'_Domain_wrt_y'
-                unfolding x'_def
                 by presburger
-              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                - (\<Sum> y \<in> {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                + (\<Sum> y \<in> {?n's_goods \<union> ?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)"
+              (* We decompose the sum according to the composition of the set it runs over: *)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b (x' ,, y) y)
+                - (\<Sum> y \<in> {?m's_goods_y'} . b (x' ,, y) y)
+                + (\<Sum> y \<in> {?n's_goods \<union> ?m's_goods_y'} . b (x' ,, y) y)"
                 using `finite Y'`
               proof (rule setsum_diff_union)
                 show "{?m's_goods_y'} \<subseteq> Y'" using `?m's_goods_y' \<in> Y'` by simp
