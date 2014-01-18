@@ -455,7 +455,8 @@ proof (rule wd_outcomeI)
           proof
             fix y'
             assume "y' \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
-            then obtain Y' where part': "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})" using that by (rule allocation_injective)
+            then obtain Y' where part': "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})"
+              using that by (rule allocation_injective)
             from part' have "\<Union> Y' = G - ?n's_goods" unfolding all_partitions_def is_partition_of_def by fast
 
             have "finite Y'"
