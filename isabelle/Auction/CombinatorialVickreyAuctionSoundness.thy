@@ -697,7 +697,7 @@ proof (rule wd_outcomeI)
               (* We make the 2nd summand smaller thanks to the monotonicity requirement: *)
               also have "\<dots> \<ge> (\<Sum> y \<in> Y' . b (x' ,, y) y)
                 + b m ?m's_goods_y'" sorry
-              (* We need to end this chain here, as continuing would give us the error message "vacuous calculation result" *)
+              (* We need to end this chain here, as continuing would give us the error message "vacuous calculation result" a few steps below. *)
               finally have "value_rel b x' \<ge> 
                 (\<Sum> y \<in> Y' . b (x' ,, y) y)
                 + b m ?m's_goods_y'" .
