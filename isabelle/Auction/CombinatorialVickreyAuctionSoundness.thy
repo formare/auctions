@@ -688,7 +688,34 @@ proof (rule wd_outcomeI)
               also have "\<dots> = (\<Sum> y \<in> Y' . b (x' ,, y) y)
                 + b (x' ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')"
               proof -
-                have "b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' = 0" sorry
+                have "b (x' ,, ?m's_goods_y') ?m's_goods_y' = 0"
+                proof -
+                  note n_gets_something'
+                  (*
+                  How are ?n's_goods and ?m's_goods_y' related to each other?
+                  
+                  let ?n's_goods = "THE y . (y, n) \<in> x" (* n's goods in the winning allocation of G to N *)
+                  let ?m's_goods_y' = "THE y . (y, m) \<in> y'"
+                    (* m's goods in an arbitrary allocation of (G - ?n's_goods) to (N - {n}),
+                       where m is really just somebody who gets something. *)
+                  *)
+                  (* TODO CL: clean up the following if we need it: *)
+                  have "\<not> ?n's_goods \<subseteq> ?m's_goods_y'"
+                    by (smt Diff_iff Sup_upper2 `\<Union>Y' = G - (THE y. (y, n) \<in> x)` ex_in_conv in_mono m's_goods_Domain_y' n_gets_something')
+                  then have *: "?n's_goods \<union> ?m's_goods_y' \<supset> ?m's_goods_y'"
+                    by (smt sup.cobounded2 sup.semilattice_strict_iff_order sup_commute)
+                  have "?n's_goods \<union> ?m's_goods_y' \<in> Domain x'" 
+                    using x'_Domain_wrt_y'
+                    by (metis UnCI insertI1)
+                  have x'_Domain: "Domain x' \<in> all_partitions G" sorry (* TODO refactor from above if needed *)
+                  then have "is_partition (Domain x')"
+                    by (metis all_partitions_def is_partition_of_def mem_Collect_eq)
+                  with n_gets_something' * have "?m's_goods_y' \<notin> Domain x'"
+                    by (metis (mono_tags) Diff_iff Un_def mem_Collect_eq singleton_conv2 sup.semilattice_strict_iff_order x'_Domain_wrt_y')
+                  then have "x' `` {?m's_goods_y'} = {}" by (metis Image_within_domain')
+                  (* Therefore, "x' ,, ?m's_goods_y'" is undefined! *)
+                  show ?thesis sorry
+                qed
                 then show ?thesis by arith
               qed
               (* We evaluate the relation in the 2nd summand: *)
