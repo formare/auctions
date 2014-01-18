@@ -468,7 +468,7 @@ proof (rule wd_outcomeI)
                          and y'_Range: "Range y' \<subseteq> N - {n}" 
                          and y'_runiq: "runiq y'" 
                          and y'_conv_runiq: "runiq (y'\<inverse>)" unfolding injections_def by simp_all
-            have "?n's_goods \<noteq> {}"
+            have n_gets_something': "?n's_goods \<noteq> {}"
             proof -
               from n_gets_some_goods alloc_Domain have *: "?n's_goods \<in> Y" by simp
               have "is_partition Y" using part unfolding all_partitions_def is_partition_of_def by simp (* TODO CL: let's see if we can reuse this elsewhere *)
