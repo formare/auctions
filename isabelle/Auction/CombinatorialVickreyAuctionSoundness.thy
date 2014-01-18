@@ -680,28 +680,29 @@ proof (rule wd_outcomeI)
                     using part' unfolding all_partitions_def is_partition_of_def by fast
                 qed
               qed
-              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                - b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' (* = 0 (see below) *)
-                + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')" by force
+              (* We simplify those sums that run over singleton sets: *)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b (x' ,, y) y)
+                - b (x' ,, ?m's_goods_y') ?m's_goods_y' (* = 0 (see below) *)
+                + b (x' ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')" by force
               (* We remove the 2nd summand as it is 0 (because in x' ?m's_goods_y' are in a package together with ?n's_goods, which is \<noteq> {}): *)
-              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                + b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')"
+              also have "\<dots> = (\<Sum> y \<in> Y' . b (x' ,, y) y)
+                + b (x' ,, (?n's_goods \<union> ?m's_goods_y')) (?n's_goods \<union> ?m's_goods_y')"
               proof -
                 have "b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, ?m's_goods_y') ?m's_goods_y' = 0" sorry
                 then show ?thesis by arith
               qed
               (* We evaluate the relation in the 2nd summand: *)
-              also have "\<dots> = (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b (x' ,, y) y)
                 + b m (?n's_goods \<union> ?m's_goods_y')" sorry
               (* We make the 2nd summand smaller thanks to the monotonicity requirement: *)
-              also have "\<dots> \<ge> (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+              also have "\<dots> \<ge> (\<Sum> y \<in> Y' . b (x' ,, y) y)
                 + b m ?m's_goods_y'" sorry
               (* We need to end this chain here, as continuing would give us the error message "vacuous calculation result" *)
               finally have "value_rel b x' \<ge> 
-                (\<Sum> y \<in> Y' . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                (\<Sum> y \<in> Y' . b (x' ,, y) y)
                 + b m ?m's_goods_y'" .
               (* As bids are non-negative, we make a sum smaller by removing elements from the set to be summed over: *)
-              moreover have "\<dots> \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+              moreover have "\<dots> \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (x' ,, y) y)
                 + b m ?m's_goods_y'" sorry
               ultimately have "value_rel b x' \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 + b m ?m's_goods_y'" by fast
