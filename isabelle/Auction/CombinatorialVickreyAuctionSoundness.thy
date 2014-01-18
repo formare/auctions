@@ -664,7 +664,7 @@ proof (rule wd_outcomeI)
                 show "finite {?n's_goods \<union> ?m's_goods_y'}"
                 proof -
                   have "finite ?n's_goods"
-                    using `finite G` n_gets_part' by (rule rev_finite_subset)
+                    using `finite G` n_gets_part' by (rule rev_finite_subset)
                   moreover have "finite ?m's_goods_y'"
                     using `?m's_goods_y' \<in> Y'`
                      `\<Union> Y' = G - ?n's_goods`
