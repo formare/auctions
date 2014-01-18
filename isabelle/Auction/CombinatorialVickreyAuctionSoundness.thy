@@ -710,9 +710,20 @@ proof (rule wd_outcomeI)
               (* also *) have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
                 + b m ?m's_goods_y'" sorry
               also have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
-                + b (y' ,, ?m's_goods_y') ?m's_goods_y'" sorry
-              (* We put the sums together (using some setsum_* lemma) *)
-              also have "\<dots> = (\<Sum> y \<in> Y' . b (y' ,, y) y)" sorry
+                + b (y' ,, ?m's_goods_y') ?m's_goods_y'"
+              proof -
+                (* TODO CL: generalise this into a lemma about RelationOperators.eval_rel *)
+                have "m = y' ,, ?m's_goods_y'"
+                  using `(?m's_goods_y', m) \<in> y'` m's_goods_Domain_y' y'_Domain y'_runiq
+                  by (smt eval_runiq_rel runiq_wrt_ex1)
+                then show ?thesis by (rule arg_cong)
+              qed
+              also have "\<dots> = b (y' ,, ?m's_goods_y') ?m's_goods_y'
+                + (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)" by linarith
+              (* We put the sums together: *)
+              also have "\<dots> = (\<Sum> y \<in> Y' . b (y' ,, y) y)"
+                using `finite Y'` m's_goods_Domain_y'
+                by (rule setsum.remove[symmetric])
               also have "\<dots> = (\<Sum> y \<in> Domain y' . b (y' ,, y) y)" unfolding y'_Domain ..
               also have "\<dots> = value_rel b y'" by simp
               finally show ?thesis by linarith
