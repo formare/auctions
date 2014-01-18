@@ -705,7 +705,7 @@ proof (rule wd_outcomeI)
               moreover have "\<dots> \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (x' ,, y) y)
                 + b m ?m's_goods_y'" sorry
               ultimately have "value_rel b x' \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
-                + b m ?m's_goods_y'" by fast
+                + b m ?m's_goods_y'" unfolding x'_def by fast
               (* Neither ?m's_goods_y' nor ?n's_goods are in Y' - {?m's_goods_y'}, so removing them from the relation in the 1st summand doesn't change what it evaluates to on that set: *)
               (* also *) have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
                 + b m ?m's_goods_y'" sorry
