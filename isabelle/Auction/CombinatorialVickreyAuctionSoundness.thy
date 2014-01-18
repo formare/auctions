@@ -562,7 +562,8 @@ proof (rule wd_outcomeI)
                           have "?m's_goods_y' \<in> Domain y'" using m's_goods_Domain_y' y'_Domain by simp
                           then have "?m's_goods_y' \<notin> Domain (y' - {(?m's_goods_y', m)})"
                             by (metis DiffD2 `Domain (y' - {(THE y. (y, m) \<in> y', m)}) = Domain y' - {THE y. (y, m) \<in> y'}` insertI1)
-                          with `?n's_goods \<noteq> {}` have "?m's_goods_y' \<notin> Domain x'" using m's_goods_Domain_y' X X''Y'  `Domain (y' - {(THE y. (y, m) \<in> y', m)}) = Domain y' - {THE y. (y, m) \<in> y'}` x'_Domain_wrt_y' y'_Domain
+                          with `?n's_goods \<noteq> {}` have "?m's_goods_y' \<notin> Domain x'"
+                            using m's_goods_Domain_y' X X''Y' `Domain (y' - {(?m's_goods_y', m)}) = Domain y' - {?m's_goods_y'}` x'_Domain_wrt_y' y'_Domain
                             by (smt Un_iff singleton_iff) (* TODO CL: This step is fast but not intuitive. *)
                           with Y''x' have "?m's_goods_y' \<noteq> Y''" by fast
                           with m's_goods_Domain_y' Y''Y' part'' show ?thesis unfolding is_partition_of_def is_partition_def by metis 
