@@ -20,6 +20,12 @@ imports
 begin
 
 section {* sum of a function over a set *}
+(* TODO CL: generalise some of the following by putting them into
+context comm_monoid_set
+begin
+  \<dots>
+end
+*)
 
 lemma setsum_restrict_fun_zero:
   fixes A::"'a set"
