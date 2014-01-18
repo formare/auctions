@@ -481,7 +481,7 @@ proof (rule wd_outcomeI)
                to an arbitrary participant m, which means enlarging the set of
                goods that m got so far by the additional goods.
                OK, not _quite_ an arbitrary participant:
-               It's easier if we choose someone from "Range y'", i.e. someone who already got something in y'. *)
+               It's easier to prove if we choose someone from "Range y'", i.e. someone who already got something in y'. *)
             def m \<equiv> "SOME m . m \<in> Range y'"
             let ?m's_goods_y' = "THE y . (y, m) \<in> y'"
 
