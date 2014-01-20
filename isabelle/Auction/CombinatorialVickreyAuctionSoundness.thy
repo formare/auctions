@@ -212,6 +212,8 @@ by fastforce
 
 text {* an alternative way of expressing @{term remaining_value_rel}, by summing over equivalence
   classes in an allocation rather than over bidders *}
+(* TODO CL: generalise this into a lemma about sums involving relations, and put it into
+   SumsInvolvingRelations.thy. *)
 lemma remaining_value_alt:
   assumes valid_input: "valid_input G N b"
       and tie_breaker: "tie_breaker t"
