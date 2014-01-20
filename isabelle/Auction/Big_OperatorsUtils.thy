@@ -27,6 +27,7 @@ context comm_monoid_set
 begin
   \<dots>
 end
+   At the time of this writing, there are no such lemmas below, though.
 *)
 
 lemma setsum_restrict_fun_zero:
