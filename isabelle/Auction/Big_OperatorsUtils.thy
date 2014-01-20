@@ -20,7 +20,9 @@ imports
 begin
 
 section {* sum of a function over a set *}
-(* TODO CL: generalise some of the following by putting them into
+(* TODO CL: If there are any lemmas that don't rely on setsum specific stuff (BigOperators.setsum_* )
+   but only on stuff that setsum inherits from the type class comm_monoid_set (i.e. stuff that's
+   reused below as setsum.* ), we can generalise these lemmas below by putting them into:
 context comm_monoid_set
 begin
   \<dots>
