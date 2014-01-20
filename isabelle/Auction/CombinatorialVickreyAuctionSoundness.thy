@@ -18,6 +18,7 @@ imports
   CombinatorialVickreyAuction
   CombinatorialAuctionProperties
   Big_OperatorsUtils
+  SumsInvolvingRelations
   
 begin
 
