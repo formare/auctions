@@ -11,7 +11,7 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-theory d
+theory d1
 
 imports c SupInf (* SEQ *)
 
@@ -20,21 +20,20 @@ begin
 type_synonym price = real
 type_synonym participant = nat
 type_synonym good = nat
-
+(*
 type_synonym allocation = real
 type_synonym bid = "(participant \<times> price) set"
-
+*)
 (*
 definition prices where "prices = \<real>"
 definition allocations where "allocations = \<real>"
 *)
 definition indices where "indices = \<nat>"
 
-(*
 type_synonym allocation = "good => participant"
 type_synonym valuation = "allocation => price"
 type_synonym bid = "(participant \<times> valuation) set"
-*)
+
 
 (* MC: have to investigate what entities we require 
 the currency and the allocation values to be represented by.
@@ -46,10 +45,10 @@ to tackle that, so for the moment let's stick to \<rat>, \<real>. *)
 
 definition weakdom
 (* ::"participant => (bid \<times> allocation) set => (bid \<times> price) set => bool" *)
-where "weakdom i a p = 
+where "weakdom i a p \<eta> = 
 ( \<forall> b::bid .\<forall> Y. 
 (Y \<noteq> {} & {b, b+*({i}\<times>Y)} \<subseteq> (Domain a \<inter> (Domain p)) & i \<in> Domain b) \<longrightarrow> 
-(EX y.(y (a,, b))-(p,, b) \<le> y (a,, (b+* ({i}\<times>Y))) - (p,, (b+* ({i}\<times>Y)))
+((\<eta>(b,Y) (a,, b))-(p,, b) \<le> \<eta>(b,Y) (a,, (b+* ({i}\<times>Y))) - (p,, (b+* ({i}\<times>Y)))
 ))"
 (*MC: Later, we will require a or p to be defined only on runiq bids, 
 so that R must be a singleton and we can use r=the_elem R *)
