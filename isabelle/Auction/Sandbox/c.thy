@@ -630,8 +630,6 @@ using is_partition_def by (rule exE_realizer)
 thus ?thesis using ll68 assms by fast 
 qed
 
-notation is_partition_of (infix "partitions" 75)
-
 lemma ll79: assumes "runiq f" shows "kernel f partitions (Domain f)"
 proof -
 have 0: "Domain f = \<Union> kernel f" using ll65 by blast

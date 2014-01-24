@@ -145,7 +145,8 @@ lemma no_empty_eq_class:
   using assms is_partition_def by fast
 
 text {* @{term P} is a partition of the set @{term A}. *}
-definition is_partition_of where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
+definition is_partition_of (infix "partitions" 75)
+where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
 text {* No partition of a non-empty set is empty. *}
 lemma non_empty_imp_non_empty_partition:
