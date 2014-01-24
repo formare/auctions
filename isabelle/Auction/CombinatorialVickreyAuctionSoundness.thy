@@ -426,6 +426,13 @@ proof (rule wd_outcomeI)
              If participant n got nothing, \<ge> still holds, with equality; but note that because of 
              the assumption 'n \<in> Range x' we assume that n always got something. *)
           \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - ?n's_goods) (N - {n})))"
+          (* TODO CL: reconsider that it probably doesn't matter that we are subtracting ?n's_goods,
+             but really just that we are subtracting a non-empty set *)
+          (* TODO MC: monotonicity of bids holds over (sub)sets of goods, whereas partitions
+             (i.e. the domains of allocations-as-relations) are families of such sets.
+             MK: So maybe we need an abstract lemma: Given two partitions P and Q of a set, if for every 
+             p \<in> P there is a q \<in> Q such that p \<subseteq> q, then (with the monotonicity requirement)
+             the f(q) must be \<ge> f(p). *)
         proof -
           (* Participant n gets a subset of the goods: *)
           have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
