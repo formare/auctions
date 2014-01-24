@@ -663,8 +663,6 @@ proof (rule wd_outcomeI)
                 using `finite Y'`
               proof (rule setsum_diff_union)
                 show "{?m's_goods_y'} \<subseteq> Y'" using `?m's_goods_y' \<in> Y'` by simp
-                (* TODO CL: By factoring things out of step 1 above (x' is an allocation),
-                   we should get most of the following for free: *)
                 show "finite {?n's_goods \<union> ?m's_goods_y'}"
                 proof -
                   have "finite ?n's_goods"
