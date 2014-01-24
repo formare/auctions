@@ -367,7 +367,7 @@ proof (rule wd_outcomeI)
     moreover note `Range x \<subseteq> N`
     ultimately show ?thesis unfolding wd_allocation_def by blast
   qed
-  (* the second aspect of a well-defined outcome: the payments are well-defined: *)
+  (* the second aspect of a well-defined outcome: the payments are well-defined, i.e. \<ge> 0 *)
   moreover have "wd_payments N p" unfolding wd_payments_def
   proof
     fix n assume "n \<in> N" (* For any such participant, we need to show "p n \<ge> 0". *)
@@ -395,6 +395,7 @@ proof (rule wd_outcomeI)
       using valid assms by (metis (lifting, no_types) remaining_value_alt)
     finally have "p n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
       - value_rel b (winning_allocation_except G N t b n)" .
+    (* We have "p n = a - b" and thus prove "p n \<ge> 0" by proving "a \<ge> b". *)
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
     (* The maximum value (always: according to bids) of an allocation of the goods to all participants except n,
        is \<ge> the value of the allocation that wins the auction of the goods to all participants
@@ -415,7 +416,7 @@ proof (rule wd_outcomeI)
         (* We have to show that the maximum value of an allocation of the goods to all participants except n (=: a)
            is \<ge> the value of the winning allocation of the goods to all participants after removing n's goods (=: c).
            We do this by showing a \<ge> b \<ge> c, for
-           b := the maximum value of an allocation of all goods except n's goods to all participants except n.
+           b := the maximum value of an allocation of all goods (except n's goods) to all participants except n.
            *)
         (* 1. "a \<ge> b" *)
         have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
@@ -435,9 +436,10 @@ proof (rule wd_outcomeI)
             using n_gets_part n_gets_part'
             by (smt Diff_empty double_diff subset_refl)
 
-          (* Therefore, there is an allocation of all goods except n's goods to all participants except n: *)
+          (* Therefore, there exist allocations of all goods except n's goods to all participants except n,
+             and they have the following properties:  *)
           note `finite (possible_allocations_rel G (N - {n}))`
-          moreover note `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this a symbolic name *)
+          moreover note `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this statement a symbolic label *)
           moreover have "possible_allocations_rel (G - ?n's_goods) (N - {n}) \<noteq> {}"
           proof (rule ex_allocations)
             show "card (G - ?n's_goods) > 0"
