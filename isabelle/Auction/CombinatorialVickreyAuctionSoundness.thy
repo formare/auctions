@@ -737,8 +737,15 @@ proof (rule wd_outcomeI)
               ultimately have "value_rel b x' \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 + b m ?m's_goods_y'" unfolding x'_def by fast
               (* Neither ?m's_goods_y' nor ?n's_goods are in Y' - {?m's_goods_y'}, so removing them from the relation in the 1st summand doesn't change what it evaluates to on that set: *)
-              (* also *) have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
-                + b m ?m's_goods_y'" sorry
+              (* "also have" with \<dots> doesn't work here *)
+              moreover have "(\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m ?m's_goods_y' = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
+                + b m ?m's_goods_y'"
+              proof -
+                have "(\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                  = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)" sorry
+                then show ?thesis by presburger
+              qed
               also have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
                 + b (y' ,, ?m's_goods_y') ?m's_goods_y'"
               proof -
