@@ -367,7 +367,7 @@ proof (rule wd_outcomeI)
     moreover note `Range x \<subseteq> N`
     ultimately show ?thesis unfolding wd_allocation_def by blast
   qed
-  (* the second aspect of a well-defined outcome: the payments are well-defined: *)
+  (* the second aspect of a well-defined outcome: the payments are well-defined, i.e. \<ge> 0 *)
   moreover have "wd_payments N p" unfolding wd_payments_def
   proof
     fix n assume "n \<in> N" (* For any such participant, we need to show "p n \<ge> 0". *)
@@ -395,6 +395,7 @@ proof (rule wd_outcomeI)
       using valid assms by (metis (lifting, no_types) remaining_value_alt)
     finally have "p n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
       - value_rel b (winning_allocation_except G N t b n)" .
+    (* We have "p n = a - b" and thus prove "p n \<ge> 0" by proving "a \<ge> b". *)
     moreover have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n}))) \<ge> value_rel b (winning_allocation_except G N t b n)"
     (* The maximum value (always: according to bids) of an allocation of the goods to all participants except n,
        is \<ge> the value of the allocation that wins the auction of the goods to all participants
@@ -415,7 +416,7 @@ proof (rule wd_outcomeI)
         (* We have to show that the maximum value of an allocation of the goods to all participants except n (=: a)
            is \<ge> the value of the winning allocation of the goods to all participants after removing n's goods (=: c).
            We do this by showing a \<ge> b \<ge> c, for
-           b := the maximum value of an allocation of all goods except n's goods to all participants except n.
+           b := the maximum value of an allocation of all goods (except n's goods) to all participants except n.
            *)
         (* 1. "a \<ge> b" *)
         have "Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))
@@ -425,6 +426,13 @@ proof (rule wd_outcomeI)
              If participant n got nothing, \<ge> still holds, with equality; but note that because of 
              the assumption 'n \<in> Range x' we assume that n always got something. *)
           \<ge> Max ((value_rel b) ` (possible_allocations_rel (G - ?n's_goods) (N - {n})))"
+          (* TODO CL: reconsider that it probably doesn't matter that we are subtracting ?n's_goods,
+             but really just that we are subtracting a non-empty set *)
+          (* TODO MC: monotonicity of bids holds over (sub)sets of goods, whereas partitions
+             (i.e. the domains of allocations-as-relations) are families of such sets.
+             MK: So maybe we need an abstract lemma: Given two partitions P and Q of a set, if for every 
+             p \<in> P there is a q \<in> Q such that p \<subseteq> q, then (with the monotonicity requirement)
+             the f(q) must be \<ge> f(p). *)
         proof -
           (* Participant n gets a subset of the goods: *)
           have "\<Union> (Domain x) = G" using alloc_Domain part' unfolding is_partition_of_def by simp
@@ -435,9 +443,10 @@ proof (rule wd_outcomeI)
             using n_gets_part n_gets_part'
             by (smt Diff_empty double_diff subset_refl)
 
-          (* Therefore, there is an allocation of all goods except n's goods to all participants except n: *)
+          (* Therefore, there exist allocations of all goods except n's goods to all participants except n,
+             and they have the following properties:  *)
           note `finite (possible_allocations_rel G (N - {n}))`
-          moreover note `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this a symbolic name *)
+          moreover note `finite (possible_allocations_rel (G - ?n's_goods) (N - {n}))` (* TODO CL: give this statement a symbolic label *)
           moreover have "possible_allocations_rel (G - ?n's_goods) (N - {n}) \<noteq> {}"
           proof (rule ex_allocations)
             show "card (G - ?n's_goods) > 0"
@@ -663,8 +672,6 @@ proof (rule wd_outcomeI)
                 using `finite Y'`
               proof (rule setsum_diff_union)
                 show "{?m's_goods_y'} \<subseteq> Y'" using `?m's_goods_y' \<in> Y'` by simp
-                (* TODO CL: By factoring things out of step 1 above (x' is an allocation),
-                   we should get most of the following for free: *)
                 show "finite {?n's_goods \<union> ?m's_goods_y'}"
                 proof -
                   have "finite ?n's_goods"
@@ -737,8 +744,15 @@ proof (rule wd_outcomeI)
               ultimately have "value_rel b x' \<ge> (\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
                 + b m ?m's_goods_y'" unfolding x'_def by fast
               (* Neither ?m's_goods_y' nor ?n's_goods are in Y' - {?m's_goods_y'}, so removing them from the relation in the 1st summand doesn't change what it evaluates to on that set: *)
-              (* also *) have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
-                + b m ?m's_goods_y'" sorry
+              (* "also have" with \<dots> doesn't work here *)
+              moreover have "(\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                + b m ?m's_goods_y' = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
+                + b m ?m's_goods_y'"
+              proof -
+                have "(\<Sum> y \<in> Y' - {?m's_goods_y'} . b ((y' - {(?m's_goods_y', m)} \<union> {(?n's_goods \<union> ?m's_goods_y', m)}) ,, y) y)
+                  = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)" sorry
+                then show ?thesis by presburger
+              qed
               also have "\<dots> = (\<Sum> y \<in> Y' - {?m's_goods_y'} . b (y' ,, y) y)
                 + b (y' ,, ?m's_goods_y') ?m's_goods_y'"
               proof -
