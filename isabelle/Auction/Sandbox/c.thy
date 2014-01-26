@@ -854,7 +854,7 @@ have "?d ?ff = ?d R" by auto
     then have "?ff``{x} = {R``{x}}" using ll88 by blast
     then have "?f `` {x} \<subseteq> {R``{x}}" using 0 by simp
   }
-  then have  "\<Union> ?f `` {x} \<subseteq> R``X" using 1 2 by fast
+  then have  "\<Union> (?f `` {x}) \<subseteq> R``X" using 1 2 by fast
 }
 thus ?thesis by blast
 qed
