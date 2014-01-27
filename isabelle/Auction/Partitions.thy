@@ -861,22 +861,16 @@ lemma remove_singleton_eq_class_from_part:
     using assms unfolding is_partition_def
     by (metis Diff_disjoint Diff_iff Int_absorb2 Int_insert_right_if0 Un_upper2 empty_Diff insert_subset subset_refl)
 
-text {* If new elements are added to a set, one can obtain for any partition @{term P} of the original set
-  a partition @{term Q} of the enlarged set such that each equivalence class in @{term P} is a 
-  subset of one equivalence class in @{term Q}. *}
-(* TODO CL: choose a more appropriate name *)
-lemma exists_partition_of_larger_set:
+text {* If new elements are added to a set, for any partition @{term P} of the original set,
+  we can obtain a partition @{term Q} of the enlarged set by adding the new elements as a new equivalence class,
+  and each equivalence class in @{term P} is a subset of one equivalence class in @{term Q}. *}
+lemma exists_partition_of_strictly_larger_set:
   assumes part: "P partitions A"
       and new: "B \<inter> A = {}"
-  shows "\<exists> Q . Q partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> Q . X \<subseteq> Y)"
-proof cases
-  assume "B = {}"
-  with part have "P partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P . X \<subseteq> Y)" unfolding is_partition_of_def by auto
-  then show ?thesis by fast
-next
-  assume non_empty: "B \<noteq> {}"
-  let ?Q = "P \<union> {B}"
-  have "?Q partitions (A \<union> B)"
+      and non_empty: "B \<noteq> {}"
+  shows "(P \<union> {B}) partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y)"
+proof
+  show "(P \<union> {B}) partitions (A \<union> B)"
     unfolding is_partition_of_def is_partition_def
   proof
     from part have "\<Union> P = A" unfolding is_partition_of_def ..
@@ -920,13 +914,32 @@ next
       qed
     qed
   qed
-  moreover have "\<forall> X \<in> P . \<exists> Y \<in> ?Q . X \<subseteq> Y"
+  show "\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y"
   proof
     fix X assume "X \<in> P"
-    then have "X \<in> ?Q" by (rule UnI1)
-    then show "\<exists> Y \<in> ?Q . X \<subseteq> Y" by blast
+    then have "X \<in> P \<union> {B}" by (rule UnI1)
+    then show "\<exists> Y \<in> P \<union> {B} . X \<subseteq> Y" by blast
   qed
-  ultimately show ?thesis by blast
+qed
+
+text {* If zero or more new elements are added to a set,
+  one can obtain for any partition @{term P} of the original set
+  a partition @{term Q} of the enlarged set such that each equivalence class in @{term P} is a 
+  subset of one equivalence class in @{term Q}. *}
+(* TODO CL: choose a more appropriate name *)
+lemma exists_partition_of_larger_set:
+  assumes part: "P partitions A"
+      and new: "B \<inter> A = {}"
+  shows "\<exists> Q . Q partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> Q . X \<subseteq> Y)"
+proof cases
+  assume "B = {}"
+  with part have "P partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P . X \<subseteq> Y)" unfolding is_partition_of_def by auto
+  then show ?thesis by fast
+next
+  assume non_empty: "B \<noteq> {}"
+  with part new have "(P \<union> {B}) partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y)"
+    by (rule exists_partition_of_strictly_larger_set)
+  then show ?thesis by blast
 qed
 
 (* TODO CL: document if we need this *)
