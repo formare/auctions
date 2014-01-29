@@ -46,6 +46,7 @@ lemma
   assumes finite: "finite A"
       and new: "B \<inter> A = {}"
       and non_empty: "B \<noteq> {}"
+      and f_non_neg: "\<forall> x . f x \<ge> (0::'a::{comm_monoid_add, ordered_ab_semigroup_add})"
     (* TODO CL: assume something about f, e.g. monotonicity wrt. subsets *)
   shows "\<forall> P . P partitions A \<longrightarrow>
     (\<exists> Q . Q partitions (A \<union> B)
@@ -59,15 +60,10 @@ proof (rule allImpI)
   then have partB: "(P \<union> {B}) partitions (A \<union> B)"
         and sub: "\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y" by simp_all
 
-  (*
-  lemma setsum_mono:
-    assumes le: "\<And>i. i\<in>K \<Longrightarrow> f (i::'a) \<le> ((g i)::('b::{comm_monoid_add, ordered_ab_semigroup_add}))"
-    shows "(\<Sum>i\<in>K. f i) \<le> (\<Sum>i\<in>K. g i)"
-  *)
-
   have "(\<Sum> X \<in> P . f X) \<le> (\<Sum> Y \<in> P \<union> {B} . f Y)"
   proof -
-    have "(\<Sum> X \<in> P . f X) \<le> (\<Sum> X \<in> P . f X) + f B" sorry
+    from f_non_neg have "(\<Sum> X \<in> P . f X) \<le> (\<Sum> X \<in> P . f X) + f B"
+        by (metis add_left_mono comm_monoid_add_class.add.right_neutral)
     also have "\<dots> = (\<Sum> X \<in> P \<union> {B} . f X)"
     proof -
       have "finite P" using finite partA unfolding is_partition_of_def by (metis finite_UnionD)
