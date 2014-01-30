@@ -1,6 +1,7 @@
 theory e
 
-imports d SEQ
+imports d (* SEQ *) Real
+Real_Vector_Spaces Limits Conditionally_Complete_Lattices
 
 begin
 lemma ll57: fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
@@ -426,7 +427,7 @@ proof -
     have "?r ?b2 = ?r ?bb \<union> (?r (?I \<times> {v2 j})) " using paste_def by auto
     also have "... = ?r ?bb \<union> {v2 j}" by simp 
     also have "... = insert (v2 j) (?r ?bb)" by auto
-    ultimately have "Sup (?r ?b2)=max (v2 j) ?M" using 0 Sup_insert_if by metis
+    ultimately have "Sup (?r ?b2)=max (v2 j) ?M" using 0 by (metis (lifting) cSup_insert sup_real_def)
     also have "... = v2 j" using 2 by fastforce
     ultimately have "?b2``?I={Sup (?r ?b2)}" using 3 by presburger
     then moreover have "?b2^-1``{Sup (?r ?b2)} \<supseteq> ?I" by blast
@@ -466,8 +467,8 @@ proof -
     have "?r ?b1 = ?r ?bb \<union> (?r (?I \<times> {v1 j})) " using paste_def by auto
     also have "... = ?r ?bb \<union> {v1 j}" by simp 
     also have "... = insert (v1 j) (?r ?bb)" by auto
-    ultimately have "Sup (?r ?b1)=max (v1 j) ?M" using Sup_insert_if 0 by metis then
-    have "{v1 j} \<noteq> {Sup (?r ?b1)}" using 8 by force
+    ultimately have "Sup (?r ?b1)=max (v1 j) ?M" using 0 by (metis (lifting) cSup_insert sup_real_def) 
+    then have "{v1 j} \<noteq> {Sup (?r ?b1)}" using 8 by force
     also have "?d (?I \<times> {v1 j})=?I" by blast then
     moreover have "?b1``(?I-{})=(?I \<times> {v1 j})``(?I-{})" using ll25 by metis
     ultimately have "\<not> {i} \<subseteq> ?b1^-1``{Sup (?r ?b1)}" by force

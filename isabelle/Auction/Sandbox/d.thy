@@ -13,7 +13,7 @@ See LICENSE file for details
 
 theory d
 
-imports c SupInf (* SEQ *)
+imports c (* SupInf SEQ *) Real
 
 begin
 

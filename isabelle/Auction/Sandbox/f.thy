@@ -5,6 +5,7 @@ imports
 (* SupInf *)
 c 
 Real 
+Real_Vector_Spaces
 (*
 Set_Interval
 Rings  
@@ -132,7 +133,7 @@ shows "\<forall>n::nat. (P n)" using assms by (metis nat_induct)
 lemma lll05: fixes P Q y assumes 
 "P^-1``{y} \<inter> (Q^-1``{y})={}" "finite (P^-1``{y})" "finite (Q^-1``{y})" 
 shows "card ((P \<union> Q)^-1 ``{y})= card (P^-1``{y}) + card (Q^-1``{y})"
-using assms converse_Un by (metis Un_Image card.union_inter_neutral empty_iff)
+using assms converse_Un Un_Image by (metis Nat.add_0_right card_Un_Int card_empty)
 
 lemma lll08: fixes f assumes "finite {x. f x>0}" shows
 "count (Abs_multiset f) = f" using assms 
@@ -345,12 +346,12 @@ lemma lll14: assumes "P \<subseteq> Q" "\<forall>y. finite (Q^-1``{y})"
 (* "finite {y. card (Q^-1``{y}) > 0}" *)
 shows
 "!y. (%y. (card (P^-1``{y}))) y \<le> (%y. (card (Q^-1``{y}))) y" 
-using assms lll13 converse_subrel by metis
+using assms lll13 by (metis converse_mono)
 
 lemma lll35: fixes P Q y assumes "P \<subseteq> Q" 
 "finite (Q^-1``{y})"
 shows "card (P^-1 `` {y}) \<le> card (Q^-1``{y})"
-using assms by (metis converse_subrel lll13)
+using assms by (metis converse_mono lll13)
 
 lemma lll36: assumes "P \<subseteq> Q" 
 "\<forall>y. finite (Q^-1``{y})" 
@@ -518,7 +519,6 @@ let ?p="%k. (k<x \<longrightarrow> (foo k x=1/(x+1)))"
   ultimately show "!n::nat. ?p n" by presburger
 qed
 
-
 abbreviation bar where "bar x k == foo k x"
 
 lemma lll53: fixes b::"('a \<times> real) set" fixes P::"real multiset => real"
@@ -583,14 +583,18 @@ definition pred2 where "pred2 b (i1::'a) i2 (b0::real) X =
 (J \<subseteq> Domain b & ((Domain b \<union> {i1,i2})\<times>{b0}) +< (b||J) \<in> X & RRange(b||J)=m)
 )))"
 
+definition pred22 where "pred22 B I1 I2 b0 X=
+(\<forall> i2\<in>{I1,I2}. \<forall>i1\<in>{I1,I2} \<union> Domain B - {i2}. \<forall> b. 
+b = B outside {i1,i2} \<longrightarrow> pred2 b i1 i2 b0 X)"
+
 definition pred3 where 
 "pred3 b (i1::'a) i2 (b0::real) X f = 
 (\<forall> J. (((Domain b \<union> {i1,i2}) \<times> {b0}) +< (b || J) \<in> X) \<longrightarrow> 
 (f (((Domain b \<union> {i1,i2}) \<times> {b0}) +< (b||J)) = f ((Domain b \<union> {i1,i2}) \<times> {b0})))"
 
-definition pred22 where "pred22 B I1 I2 b0 X=
+definition pred33 where "pred33 B I1 I2 b0 X f=
 (\<forall> i2\<in>{I1,I2}. \<forall>i1\<in>{I1,I2} \<union> Domain B - {i2}. \<forall> b. 
-b = B outside {i1,i2} \<longrightarrow> pred2 b i1 i2 b0 X)"
+b = B outside {i1,i2} \<longrightarrow> pred3 b i1 i2 b0 X f)"
 
 lemma lll55:
 fixes X::"(('a \<times> real) set) set" fixes b b0 i1 i2 f P
@@ -622,10 +626,6 @@ proof -
   moreover have "i1 \<noteq> i2 & Domain b \<inter>{i1,i2}={}" using assms(4) by auto
   ultimately show ?thesis using lll53 by fast
 qed
-
-definition pred33 where "pred33 B I1 I2 b0 X f=
-(\<forall> i2\<in>{I1,I2}. \<forall>i1\<in>{I1,I2} \<union> Domain B - {i2}. \<forall> b. 
-b = B outside {i1,i2} \<longrightarrow> pred3 b i1 i2 b0 X f)"
 
 lemma lll54: fixes X b fixes b0::real fixes i1::'a fixes i2 f P fixes k::nat 
 assumes 
@@ -992,6 +992,8 @@ qed
 
 abbreviation const where "const n \<equiv> bar (real (n+1)) n"
 
+lemma lll67d: "const n=1/(n+2)" by (smt lll67c real_of_nat_Suc)
+
 abbreviation pred4 where "pred4 F b f P h==(\<forall> i \<in> Domain b. \<exists> j i1 i2 b0 X. 
 (F b i=(i1,i2,b0,X) & j \<in> Domain b - {i} & 
 pred2 (b outside {i,j}) i1 i2 b0 X & 
@@ -1005,7 +1007,7 @@ definition counterexample where "counterexample f b1 b2 h=(Domain b1=Domain b2 &
 (\<exists> g. (h`(Domain b1)={f,g} & {f b2-(f b1), g b2-(g b1)}\<supset>{0})))"
 
 lemma assumes "X \<inter> Y={}" "finite (X \<union> Y)" shows "card (X \<union> Y)=card X + card Y"
-using assms by (metis card.union_disjoint finite_Un)
+using assms finite_Un by (metis card_Un_disjoint)
 
 lemma lll05b: assumes "P \<inter> Q={}" "finite (P^-1``{y})" "finite (Q^-1``{y})"
 shows "card ((P \<union> Q)^-1``{y}) = card (P^-1``{y}) + card (Q^-1``{y})" 
@@ -1058,8 +1060,8 @@ qed
 lemma lll59: assumes "trivial Y" shows "runiq (X \<times> Y)" using assms 
 runiq_def Image_subset ll84 trivial_subset by (metis ll83)
 
-lemma lll66: "RRange ({x} \<times> {y})= {# y #}" using ll00 lll52 lll51 by (metis 
-card.insert card_empty comm_monoid_add_class.add.right_neutral empty_iff finite.emptyI)
+lemma lll66: "RRange ({x} \<times> {y})= {# y #}" using ll00 lll52 lll51 
+card.insert card_empty empty_iff finite.emptyI by (metis One_nat_def)
 
 lemma lll68: fixes F b f P h assumes "pred4 F b f P h"
 "finite b"
@@ -1162,7 +1164,7 @@ proof -
   let ?I1="?d b1" let ?I2="?d b2" let ?n="(card ?I1) - (2::nat)" 
   let ?C="const ?n"
   have 
-  3: "finite ?I1" using assms(2) card_def by (metis not_numeral_le_zero)
+  3: "finite ?I1" using assms(2) card_def not_numeral_le_zero by fastforce
   have 
   4: "?I1=?I2" using assms counterexample_def by metis    
   have "?n+(2::nat)=card ?I1" using assms(2) by fastforce
@@ -1322,8 +1324,8 @@ proof -
   24: "?d ?b \<union> {i1,i2}=?d b \<union> {I1,I2} & ?d ?BB=?d b \<union> {I1,I2}" by presburger
   moreover have "finite (?d b) & finite {I1,I2}" using assms finite_Domain by blast
   moreover have "finite (?d ?b) & finite {i1,i2}" using 11 finite_Domain by fast
-  ultimately moreover have "?n + ?c {I1,I2}=?c (?d ?BB)" using 22 by (smt card.union_disjoint)
-  ultimately moreover have "...=?c (?d ?b)+ ?c{i1,i2}" using 12 by (smt card.union_disjoint)
+  ultimately moreover have "?n + ?c {I1,I2}=?c (?d ?BB)" using 22 by (metis card_Un_disjoint)
+  ultimately moreover have "...=?c (?d ?b)+ ?c{i1,i2}" using 12 by (smt card_Un_disjoint)
   ultimately have "?n + 2=?c (?d ?b)+2" using 0 1 by auto
   then have 
   31: "?n=?c (?d ?b)" by auto  
@@ -1350,9 +1352,10 @@ proof -
   moreover have "...={b0}" using 0 by fast
   ultimately have "?R (?B--i1)=?R({i2}\<times>{b0}) + ?R ?b" by presburger
   moreover have "?R({i2}\<times>{b0})= onemember b0 1" 
-  using lll51 
-  (* by (metis Nat.add_0_right card.insert card_empty empty_iff finite.emptyI lll44 lll45 lll46)*)
+  using lll51 lll52 by (metis ll00 lll66)
+  (* by (metis Nat.add_0_right card.insert card_empty empty_iff finite.emptyI lll44 lll45 lll46)
   by (metis card.insert card_empty empty_iff finite.emptyI lll52 monoid_add_class.add.right_neutral)
+*)
   moreover have "...={#b0#}" by (metis ll00) 
   ultimately have "{#b0#}+?R ?b  = ?R (?B -- i1)" by presburger
   then have
@@ -1378,13 +1381,13 @@ qed
 corollary 
 fixes X b i1 I1 I2 P f fixes b0::real
 assumes "I1 \<noteq> I2" "finite b" "runiq b" 
-"{I1,I2} \<inter> Domain b={}" "\<forall> bb\<in>X. pred0 bb P f"
+"{I1,I2} \<inter> Domain b={}" 
+"\<forall> bb\<in>X. pred0 bb P f"
 "pred22 (b +< ({I1,I2} \<times> {b0})) I1 I2 b0 X"
 "pred33 (b +< ({I1,I2} \<times> {b0})) I1 I2 b0 X f"
-"pred0 (b +< ({I1,I2}\<times>{b0})) P f"
+"pred0 (b +< ({I1,I2}\<times>{b0})) P f" (* superfluous assumption *)
 shows "setsum (%i. P (RRange ((b+< ({I1,I2}\<times>{b0})) -- i))) ({I1,I2} \<union> Domain b) = 
-(bar (card (Domain b)+1) (card (Domain b)))*f((Domain b \<union> {I1,I2}) \<times> {b0})*
-(card(Domain b)+2)"
+f((Domain b \<union> {I1,I2}) \<times> {b0})"
 proof -
 let ?d=Domain let ?c=card
 let ?B="b +< ({I1,I2}\<times>{b0})" let ?f="%i. P (RRange (?B--i))" let ?n="?c (?d b)"
@@ -1405,9 +1408,18 @@ ultimately have "setsum ?f (?i \<union> ?I)= (?c (?i \<union> ?I))*bar (?n+1) ?n
 f((?i \<union> ?I) \<times> {b0})" using real_eq_of_nat by force
 moreover have "finite ?i & finite ?I" using assms finite_Domain by fast
 then moreover have "?c (?i \<union> ?I) = ?n + ?c ?i" 
-using card.union_disjoint assms(1,2,4) by force
+using card_Union_disjoint assms(1,2,4) by force
 moreover have "... = ?n+2" using assms(1) by force
-ultimately show ?thesis by auto
+(* ultimately show ?thesis by auto 
+moreover have "bar (?n+1) ?n=const ?n" try0 by fast *)
+ultimately have "setsum ?f (?i \<union> ?I) = const ?n* f((?I \<union> ?i) \<times> {b0})*(?c ?I + 2)"
+by auto 
+moreover have "...=((1/(?n + 2)) * f ((?I \<union> ?i) \<times> {b0})) * (?c ?I + 2)" using lll67d 
+by (metis real_of_nat_add real_of_nat_numeral)
+moreover have "... = (?c ?I + 2)/(?n + 2) * f((?I \<union> ?i) \<times> {b0})"by simp
+moreover have "... = 1 * f((?I \<union> ?i) \<times> {b0})" by fastforce
+ultimately show ?thesis by force
+(*
 have "setsum ?f (?d ?B)=f ?B" using assms (8) by force
 moreover have "?d (?i\<times>{b0})=?i" by force
 then moreover have "?d ?B=?i \<union> ?I" using assms by (smt paste_Domain sup_commute)
@@ -1416,6 +1428,7 @@ have "(?n+2)*bar (?n+1) ?n * f((?i \<union> ?I)\<times>{b0}) = f ?B" sorry
 moreover have "... = f((?i \<union> ?I) \<times> {b0})" sorry
 ultimately have "(?n+2)*bar (?n+1) ?n * f((?i \<union> ?I)\<times>{b0}) = f((?i \<union> ?I)\<times>{b0})"
 sorry
+*)
 qed
 
 (*
