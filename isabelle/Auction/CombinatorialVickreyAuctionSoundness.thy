@@ -465,6 +465,16 @@ proof (rule wd_outcomeI)
                there is an allocation of _all_ goods to these participants, whose value is higher.
                This is hard to prove. *)
           proof
+            (* CL: as of 2014-02-03 we are first trying to see what set-theoretical lemmas we need to establish: *)
+            have "\<And> P A B . P partitions A \<Longrightarrow> B \<inter> A = {} \<Longrightarrow> B \<noteq> {} \<Longrightarrow>
+              let Z = (SOME Z . Z \<in> P) in
+                let P' = P - {Z} \<union> {Z \<union> B} in
+                  P' partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P' . X \<subseteq> Y)" sorry
+
+
+            (*
+            CL: commented out on 2014-02-03 as we are starting over by proving an abstract prerequisite of this in set theory
+
             fix y'
             assume "y' \<in> possible_allocations_rel (G - ?n's_goods) (N - {n})"
             then obtain Y' where part': "Y' \<in> all_partitions (G - ?n's_goods)" and y'_inj: "y' \<in> injections Y' (N - {n})"
@@ -773,6 +783,7 @@ proof (rule wd_outcomeI)
               finally show ?thesis by linarith
             qed
             ultimately show "\<exists> x' \<in> possible_allocations_rel G (N - {n}) . value_rel b x' \<ge> value_rel b y'" by blast
+            *)
           qed
           ultimately show ?thesis by (rule Max_Im_ge_other_Im)
         qed
