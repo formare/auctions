@@ -4,6 +4,7 @@ imports d (* SEQ *) Real
 Real_Vector_Spaces Limits Conditionally_Complete_Lattices
 
 begin
+
 lemma ll57: fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
 using assms by (metis real_scaleR_def real_vector.scale_right_diff_distrib)
 
@@ -91,10 +92,6 @@ type_synonym allocation = "good => participant"
 type_synonym valuation = "allocation => price"
 type_synonym bid = "(participant \<times> valuation) set"
 *)
-
-definition singlepaste where "singlepaste F f = F +* ({fst f} \<times> {snd f})"
-notation singlepaste (infix "+<" 75)
-value "{(1::nat,3::nat)} +< (1,2)"
 
 (*
 definition eff0 where "eff0 

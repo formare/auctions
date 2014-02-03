@@ -141,48 +141,6 @@ by (metis (full_types) Abs_multiset_inverse mem_Collect_eq multiset_def)
 
 lemma lll09: shows "Abs_multiset o count=id" using count_inverse by fastforce
 
-lemma lll07: shows "(P \<inter> Q)``{x} = (P``{x} \<inter> (Q``{x}))" by fastforce
-
-lemma assumes "P \<inter> Q={}" shows "P^-1 \<inter> Q^-1={}" using assms by fast
-
-lemma lll00: shows "P||X = P outside (Domain P - X)" 
-using Outside_def restrict_def by fastforce
-
-lemma lll06a: shows "Domain (P outside X) \<inter> Domain (Q || X) \<subseteq> {}" using lll00 by 
-(metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute ll41 ll42 restrict_empty subset_empty)
-
-lemma lll06b: shows "(P outside X) \<inter> (Q || X) = {}" using lll06a by fast
-
-lemma lll11b: shows "P || (X \<inter> Y) \<subseteq> P||X & P outside (X \<union> Y) \<subseteq> P outside X" using 
-Outside_def restrict_def Sigma_Un_distrib1 Un_upper1 inf_mono Diff_mono 
-subset_refl by (metis (lifting) Sigma_mono inf_le1)
-
-lemma lll06c: shows "(P outside (X \<union> Y)) \<inter> (Q || (X)) = {} & 
-(P outside (X)) \<inter> (Q || (X \<inter> Z)) = {}
-" using assms Outside_def restrict_def lll06b lll11b by fast
-
-lemma lll11: shows "P || X \<subseteq> P||(X \<union> Y) & P outside X \<subseteq> P outside (X \<inter> Y)" 
-using lll11b distrib_sup_le sup_idem inf_commute
-by (smt le_inf_iff le_sup_iff subset_antisym sup.right_idem sup_commute)
-
-lemma lll03: shows "P outside X \<subseteq> P outside (X \<inter> Domain P)" 
-using Outside_def restrict_def lll11b by (smt Diff_Int Sigma_Int_distrib1 sup_ge1)
-
-lemma lll01b: shows "P outside X \<subseteq> P || ((Domain P)-X)" 
-using lll00 lll11 by (metis Int_commute ll41 outside_reduces_domain)
-
-lemma lll01: shows "P outside X = P || (Domain P -X)" 
-using Outside_def restrict_def  lll01b by fast
-
-lemma lll02: shows "(P || X) || Y = P || (X \<inter> Y)" using lll00 ll52 
-by (smt Int_commute Int_left_commute ll41 lll01 restriction_within_domain)
-
-lemma lll04: shows "(P || X) outside Y = P || (X-Y)" using restrict_def
-lll02 by (metis Diff_Compl double_complement ll42 lll00 lll01)
-
-lemma lll06: shows "(P outside (X \<union> Y)) \<inter> (Q || (X \<inter> Z)) = {}" 
-using lll06c by (metis (hide_lams, no_types) inf_commute lll02)
-
 lemma ll57: (*repetition*) fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
 using assms by (metis real_scaleR_def real_vector.scale_right_diff_distrib)
 
@@ -191,13 +149,6 @@ using assms ll57 by (metis comm_semiring_1_class.normalizing_semiring_rules(7))
 
 lemma ll44: fixes x::real fixes y z shows "x*(y + z)=x*y + x*z" 
 by (metis comm_semiring_1_class.normalizing_semiring_rules(34))
-
-notation paste (infix "+<" 75)
-
-abbreviation prova (infix "--" 75) where "f -- x \<equiv> f outside {x}"
-
-abbreviation ler_in where "ler_in r == (\<Union>x. ({x} \<times> (r x -` {True})))"
-(* inverts in_rel *)
 
 abbreviation DDomain
 ::"('a \<times> 'b) set => ('a multiset)"

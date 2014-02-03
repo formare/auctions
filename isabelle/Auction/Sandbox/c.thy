@@ -30,6 +30,15 @@ imports
 
 begin
 
+notation paste (infix "+<" 75)
+abbreviation singlepaste where "singlepaste F f == F +* {(fst f, snd f)}"
+notation singlepaste (infix "+<" 75) (* Type of g in f +< g should avoid ambiguities *)
+abbreviation prova (infix "--" 75) where "f -- x \<equiv> f outside {x}"
+abbreviation ler_ni where "ler_ni r == (\<Union>x. ({x} \<times> (r x -` {True})))"
+(* inverts in_rel *)
+value "{(1::nat,3::nat)} +< (1,2)"
+
+
 definition Graph (* compare with Function_Order.thy; 
 what about Russell's antinomy, here? *)
 :: "('a => 'b) => ('a \<times> 'b) set"
@@ -1144,8 +1153,77 @@ qed
 corollary ll39: assumes "runiq f" shows "cartesian (Domain (graph runiqs F)) f x"
 using ll38 ll37 assms by metis
 
+lemma lll40: shows "(P \<union> Q) || X = (P || X) \<union> (Q||X)" using assms restrict_def 
+proof -
+let ?R="P \<union> Q" have "P \<inter> (X \<times> Range ?R) = P \<inter> (X \<times> Range P)" by blast moreover have 
+"Q \<inter> (X \<times> Range ?R) = Q \<inter> (X \<times> Range Q)"by fast
+ultimately show ?thesis using restrict_def by (metis inf_sup_aci(1) inf_sup_distrib2)
+qed
+
+
+lemma lll07: shows "(P \<inter> Q)``{x} = (P``{x} \<inter> (Q``{x}))" by fastforce
+
+lemma assumes "P \<inter> Q={}" shows "P^-1 \<inter> Q^-1={}" using assms by fast
+
+lemma lll00: shows "P||X = P outside (Domain P - X)" 
+using Outside_def restrict_def by fastforce
+
+lemma lll06a: shows "Domain (P outside X) \<inter> Domain (Q || X) \<subseteq> {}" using lll00 by 
+(metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute ll41 ll42 restrict_empty subset_empty)
+
+lemma lll06b: shows "(P outside X) \<inter> (Q || X) = {}" using lll06a by fast
+
+lemma lll11b: shows "P || (X \<inter> Y) \<subseteq> P||X & P outside (X \<union> Y) \<subseteq> P outside X" using 
+Outside_def restrict_def Sigma_Un_distrib1 Un_upper1 inf_mono Diff_mono 
+subset_refl by (metis (lifting) Sigma_mono inf_le1)
+
+lemma lll06c: shows "(P outside (X \<union> Y)) \<inter> (Q || (X)) = {} & 
+(P outside (X)) \<inter> (Q || (X \<inter> Z)) = {}
+" using assms Outside_def restrict_def lll06b lll11b by fast
+
+lemma lll11: shows "P || X \<subseteq> P||(X \<union> Y) & P outside X \<subseteq> P outside (X \<inter> Y)" 
+using lll11b distrib_sup_le sup_idem inf_commute
+by (smt le_inf_iff le_sup_iff subset_antisym sup.right_idem sup_commute)
+
+lemma lll03: shows "P outside X \<subseteq> P outside (X \<inter> Domain P)" 
+using Outside_def restrict_def lll11b by (smt Diff_Int Sigma_Int_distrib1 sup_ge1)
+
+lemma lll01b: shows "P outside X \<subseteq> P || ((Domain P)-X)" 
+using lll00 lll11 by (metis Int_commute ll41 outside_reduces_domain)
+
+lemma lll01: shows "P outside X = P || (Domain P -X)" 
+using Outside_def restrict_def  lll01b by fast
+
+lemma lll02: shows "(P || X) || Y = P || (X \<inter> Y)" using lll00 ll52 
+by (smt Int_commute Int_left_commute ll41 lll01 restriction_within_domain)
+
+lemma lll04: shows "(P || X) outside Y = P || (X-Y)" using restrict_def
+lll02 by (metis Diff_Compl double_complement ll42 lll00 lll01)
+
+lemma lll06: shows "(P outside (X \<union> Y)) \<inter> (Q || (X \<inter> Z)) = {}" 
+using lll06c by (metis (hide_lams, no_types) inf_commute lll02)
+
+
+
+lemma lll71: shows "(P +* (Q::('a \<times> 'b) set)) || X = (P || X) +* (Q || X)"  
+proof -
+  let ?R="P+*Q" let ?d=Domain let ?dQ="?d Q" have 
+  "?R || X = ((P outside ?dQ) || X) \<union> (Q || X)" using lll40 by (metis paste_def) moreover 
+  have "(P outside ?dQ) || X = P ||(X - ?dQ)" using Outside_def restrict_def by (smt 
+  Domain_Un_eq inf_sup_aci(5) ll52 lll00 lll04 outside_reduces_domain paste_Domain paste_def)
+  moreover have "... = P || (X - (X \<inter> ?dQ))" by (metis Diff_Int_distrib Int_Diff Int_absorb)
+  moreover have "... = (P || X) outside (X \<inter> ?dQ)" by (metis lll04)
+  ultimately show ?thesis by (metis Int_commute ll41 paste_def)
+qed
+
 definition ler_in where "ler_in r= (\<Union>x. ({x} \<times> (r x -` {True})))"
 (* inverts in_rel *)
+
+lemma lll72: "(P +* Q) outside X = (P outside X) +* (Q outside X)" by (metis (hide_lams, no_types) 
+Un_Diff_cancel Un_commute ll51 ll52 outside_reduces_domain paste_def)
+
+lemma lll73: assumes "runiq f" shows "runiq (f +< (x,y))" using runiq_paste2 assms
+runiq_singleton_rel by metis
 
 end
 
