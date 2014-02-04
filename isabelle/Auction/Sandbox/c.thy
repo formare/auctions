@@ -807,11 +807,11 @@ proof -
 let ?d=Domain let ?r=Range let ?u=runiq let ?t=trivial
 {
   fix z::"'a \<times> 'b" let ?x="fst z" let ?y="snd z" assume 
-  1: "z\<in>f" hence "?x\<in>?d f" using Domain_def by (metis fst_eq_Domain imageI) hence 
+  1: "z\<in>f" hence "?x\<in>?d f" by (metis fst_eq_Domain imageI) hence 
   0: "?x \<in> ?d R" using assms(3) by blast
   hence "R``{?x} \<subseteq> f``{?x} & R``{?x} \<noteq> {}" using assms(1) by fast
-  also have "?t (f``{?x})" using assms(2) runiq_def by (metis l32)
-  ultimately have "f``{?x} \<subseteq> R``{?x}" using 0 trivial_def by (metis (full_types) inf_absorb2 ll69)
+  also have "?t (f``{?x})" using assms(2) by (metis l32)
+  ultimately have "f``{?x} \<subseteq> R``{?x}" using 0 by (metis (full_types) inf_absorb2 ll69)
   also have "?y \<in> f``{?x}" using Image_def 1 by auto
   ultimately have "?y \<in> R``{?x}" by blast hence "z \<in> R" using 0 by fastforce
 }
@@ -1092,8 +1092,6 @@ qed
 
 lemma ll41: shows "Domain (R||X) = Domain R \<inter> X" using restrict_def by fastforce
 
-lemma ll42: shows "Domain (R outside X)=Domain R - X" using Outside_def by blast
-
 lemma ll40: assumes "trivial X" "trivial Y" shows "trivial (X \<times> Y)"
 proof -
 let ?e=the_elem let ?x="?e X" let ?y="?e Y" let ?Z="X \<times> Y"
@@ -1169,7 +1167,7 @@ lemma lll00: shows "P||X = P outside (Domain P - X)"
 using Outside_def restrict_def by fastforce
 
 lemma lll06a: shows "Domain (P outside X) \<inter> Domain (Q || X) \<subseteq> {}" using lll00 by 
-(metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute ll41 ll42 restrict_empty subset_empty)
+(metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute ll41 outside_reduces_domain restrict_empty subset_empty)
 
 lemma lll06b: shows "(P outside X) \<inter> (Q || X) = {}" using lll06a by fast
 
@@ -1198,7 +1196,7 @@ lemma lll02: shows "(P || X) || Y = P || (X \<inter> Y)" using lll00 ll52
 by (smt Int_commute Int_left_commute ll41 lll01 restriction_within_domain)
 
 lemma lll04: shows "(P || X) outside Y = P || (X-Y)" using restrict_def
-lll02 by (metis Diff_Compl double_complement ll42 lll00 lll01)
+lll02 by (metis Diff_Compl double_complement outside_reduces_domain lll00 lll01)
 
 lemma lll06: shows "(P outside (X \<union> Y)) \<inter> (Q || (X \<inter> Z)) = {}" 
 using lll06c by (metis (hide_lams, no_types) inf_commute lll02)
