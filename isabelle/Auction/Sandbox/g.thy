@@ -67,8 +67,8 @@ qed
 lemma lll81a: assumes "a \<in> possible_allocations_rel G N" shows
 "(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
 proof -
-  let ?P=all_partitions let ?I=injections obtain Y where
-  0: "a \<in> ?I Y N & Y \<in> ?P G" using assms possible_allocations_rel_def by auto
+  obtain Y where
+  0: "a \<in> injections Y N & Y \<in> all_partitions G" using assms possible_allocations_rel_def by auto
   show ?thesis using 0 injections_def by (smt all_partitions_def mem_Collect_eq)
 qed
 
