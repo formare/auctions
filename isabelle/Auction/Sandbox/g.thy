@@ -64,7 +64,7 @@ proof -
   show ?thesis using is_partition_of_def by blast
 qed
 
-lemma lll81a: assumes "(a \<in> possible_allocations_rel G N)" shows
+lemma lll81a: assumes "a \<in> possible_allocations_rel G N" shows
 "(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
 using assms possible_allocations_rel_def
 proof -
