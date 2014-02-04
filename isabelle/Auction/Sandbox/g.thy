@@ -30,10 +30,10 @@ by (metis Domain_converse converse_Un disj_Un_runiq)
 lemma lll77b: assumes "Range P \<inter> (Range Q)={}" "runiq (P\<inverse>)" "runiq (Q\<inverse>)" shows "runiq ((P +* Q)\<inverse>)"
 using lll77 assms subrel_runiq by (metis converse_converse converse_subset_swap paste_sub_Un)
 
-lemma assumes "runiq P" shows "P\<inverse>``((Range P)-X) \<inter> ((P\<inverse>)``X) \<subseteq> {}"
+lemma assumes "runiq P" shows "P\<inverse>``((Range P)-X) \<inter> ((P\<inverse>)``X) = {}"
 using assms ll71 by blast
 
-lemma lll78: assumes "runiq (P\<inverse>)" shows "P``(Domain P -X) \<inter> (P``X) = {}"
+lemma lll78: assumes "runiq (P\<inverse>)" shows "P``(Domain P - X) \<inter> (P``X) = {}"
 using assms ll71 by fast
 
 abbreviation "eval_rel2 R x == \<Union> (R``{x})"
