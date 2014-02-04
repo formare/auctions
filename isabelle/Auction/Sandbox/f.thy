@@ -86,20 +86,6 @@ using assms by (metis diff_divide_distrib)
 
 lemma lll64: fixes x::int shows "x-y+y=x" by force
 
-lemma lll43: "(X2 \<times> {y}) outside X1 = (X2 - X1) \<times> {y}" using assms Outside_def 
-by auto
-
-lemma lll31: assumes "runiq P" shows "inj_on fst P" using assms 
-runiq_def inj_on_def by (smt runiq_basic surjective_pairing)
-
-lemma lll32: assumes "inj_on fst P" shows "runiq P" using assms 
-inj_on_def by (metis (hide_lams, mono_tags) Pair_inject fst_conv runiq_basic)
-
-lemma lll33: "runiq P=inj_on fst P" using lll31 lll32 by blast
-(* Another characterization of runiq, reducing to lambda-functional injectivity *)
-
-lemma lll34: assumes "runiq P" shows "card (Domain P) = card P" 
-using assms lll33 card_image by (metis Domain_fst)
 
 lemma lll22: shows "set_of M = (count M) -` {0<..}" using set_of_def by fast
 

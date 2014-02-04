@@ -1225,5 +1225,20 @@ Un_Diff_cancel Un_commute ll51 ll52 outside_reduces_domain paste_def)
 lemma lll73: assumes "runiq f" shows "runiq (f +< (x,y))" using runiq_paste2 assms
 runiq_singleton_rel by metis
 
+lemma lll43: "(X2 \<times> {y}) outside X1 = (X2 - X1) \<times> {y}" using assms Outside_def 
+by auto
+
+lemma lll31: assumes "runiq P" shows "inj_on fst P" using assms 
+runiq_def inj_on_def by (smt runiq_basic surjective_pairing)
+
+lemma lll32: assumes "inj_on fst P" shows "runiq P" using assms 
+inj_on_def by (metis (hide_lams, mono_tags) Pair_inject fst_conv runiq_basic)
+
+lemma lll33: "runiq P=inj_on fst P" using lll31 lll32 by blast
+(* Another characterization of runiq, reducing to lambda-functional injectivity *)
+
+lemma lll34: assumes "runiq P" shows "card (Domain P) = card P" 
+using assms lll33 card_image by (metis Domain_fst)
+
 end
 
