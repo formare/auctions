@@ -21,11 +21,10 @@ abbreviation "proceeds (b::altbids) (allo::allocation_conv) == setsum b allo"
 lemma lll23: assumes "finite A" shows "setsum f A = setsum f (A \<inter> B) + setsum f (A - B)" using 
 assms by (metis DiffD2 Int_iff Un_Diff_Int Un_commute finite_Un setsum.union_inter_neutral)
 
-lemma shows "(P||(Domain Q)) +* Q = Q"  using restrict_def paste_def
-by (metis Int_lower2 ll41 ll56)
+lemma shows "(P||(Domain Q)) +* Q = Q" by (metis Int_lower2 ll41 ll56)
 
 lemma lll77: assumes "Range P \<inter> (Range Q)={}" "runiq (P^-1)" "runiq (Q^-1)" shows "runiq ((P \<union> Q)^-1)"
-using runiq_def paste_def assms
+using assms
 by (metis Domain_converse converse_Un disj_Un_runiq)
 
 lemma lll77b: assumes "Range P \<inter> (Range Q)={}" "runiq (P^-1)" "runiq (Q^-1)" shows "runiq ((P +* Q)^-1)"

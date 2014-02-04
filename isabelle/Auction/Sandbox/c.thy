@@ -807,11 +807,11 @@ proof -
 let ?d=Domain let ?r=Range let ?u=runiq let ?t=trivial
 {
   fix z::"'a \<times> 'b" let ?x="fst z" let ?y="snd z" assume 
-  1: "z\<in>f" hence "?x\<in>?d f" using Domain_def by (metis fst_eq_Domain imageI) hence 
+  1: "z\<in>f" hence "?x\<in>?d f" by (metis fst_eq_Domain imageI) hence 
   0: "?x \<in> ?d R" using assms(3) by blast
   hence "R``{?x} \<subseteq> f``{?x} & R``{?x} \<noteq> {}" using assms(1) by fast
-  also have "?t (f``{?x})" using assms(2) runiq_def by (metis l32)
-  ultimately have "f``{?x} \<subseteq> R``{?x}" using 0 trivial_def by (metis (full_types) inf_absorb2 ll69)
+  also have "?t (f``{?x})" using assms(2) by (metis l32)
+  ultimately have "f``{?x} \<subseteq> R``{?x}" using 0 by (metis (full_types) inf_absorb2 ll69)
   also have "?y \<in> f``{?x}" using Image_def 1 by auto
   ultimately have "?y \<in> R``{?x}" by blast hence "z \<in> R" using 0 by fastforce
 }
