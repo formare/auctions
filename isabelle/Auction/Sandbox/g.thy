@@ -23,17 +23,17 @@ assms by (metis DiffD2 Int_iff Un_Diff_Int Un_commute finite_Un setsum.union_int
 
 lemma shows "(P||(Domain Q)) +* Q = Q" by (metis Int_lower2 ll41 ll56)
 
-lemma lll77: assumes "Range P \<inter> (Range Q)={}" "runiq (P^-1)" "runiq (Q^-1)" shows "runiq ((P \<union> Q)^-1)"
+lemma lll77: assumes "Range P \<inter> (Range Q)={}" "runiq (P\<inverse>)" "runiq (Q\<inverse>)" shows "runiq ((P \<union> Q)\<inverse>)"
 using assms
 by (metis Domain_converse converse_Un disj_Un_runiq)
 
-lemma lll77b: assumes "Range P \<inter> (Range Q)={}" "runiq (P^-1)" "runiq (Q^-1)" shows "runiq ((P +* Q)^-1)"
+lemma lll77b: assumes "Range P \<inter> (Range Q)={}" "runiq (P\<inverse>)" "runiq (Q\<inverse>)" shows "runiq ((P +* Q)\<inverse>)"
 using lll77 assms subrel_runiq by (metis converse_converse converse_subset_swap paste_sub_Un)
 
-lemma assumes "runiq P" shows "P^-1``((Range P)-X) \<inter> ((P^-1)``X) \<subseteq> {}"
+lemma assumes "runiq P" shows "P\<inverse>``((Range P)-X) \<inter> ((P\<inverse>)``X) \<subseteq> {}"
 using assms ll71 by blast
 
-lemma lll78: assumes "runiq (P^-1)" shows "P``(Domain P -X) \<inter> (P``X) = {}"
+lemma lll78: assumes "runiq (P\<inverse>)" shows "P``(Domain P -X) \<inter> (P``X) = {}"
 using assms ll71 by fast
 
 abbreviation "eval_rel2 R x == \<Union> (R``{x})"
@@ -61,7 +61,7 @@ proof -
 qed
 
 lemma lll81a: assumes "(a \<in> possible_allocations_rel G N)" shows
-"(runiq a & runiq (a^-1) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
+"(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
 using assms possible_allocations_rel_def
 proof -
   let ?P=all_partitions let ?I=injections obtain Y where
@@ -69,7 +69,7 @@ proof -
   show ?thesis using 0 injections_def by (smt all_partitions_def mem_Collect_eq)
 qed
 
-lemma lll81b: assumes "(runiq a & runiq (a^-1) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
+lemma lll81b: assumes "(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
 shows "a \<in> possible_allocations_rel G N"
 proof -
   have "a \<in> injections (Domain a) N" using injections_def assms by blast
@@ -78,15 +78,15 @@ proof -
 qed
 
 lemma lll81: "(a \<in> possible_allocations_rel G N) =
-(runiq a & runiq (a^-1) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)"
+(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)"
 using lll81a lll81b by blast
 
-lemma lll74: assumes "a^-1 \<in> possible_allocations_rel G N" 
+lemma lll74: assumes "a\<inverse> \<in> possible_allocations_rel G N" 
 "Y2 \<inter> (G - a,,,x)={}"
 "Y2 \<noteq> {}"
-shows "(a +< (x,Y2))^-1 \<in> possible_allocations_rel (G-(a,,,x)\<union>Y2) (N \<union> {x})"
+shows "(a +< (x,Y2))\<inverse> \<in> possible_allocations_rel (G-(a,,,x)\<union>Y2) (N \<union> {x})"
 proof -
-let ?Y1="a,,,x" let ?u=runiq let ?A=possible_allocations_rel let ?aa="a^-1" let ?I=injections
+let ?Y1="a,,,x" let ?u=runiq let ?A=possible_allocations_rel let ?aa="a\<inverse>" let ?I=injections
 let ?P=all_partitions let ?r=Range let ?a2="a +< (x, Y2)" let ?d=Domain
 obtain pG where 
 1: "?aa \<in> ?I pG N & pG \<in> ?P G" using assms(1) possible_allocations_rel_def by fastforce
@@ -116,19 +116,19 @@ then have
 then have "Y2 \<notin> (?r (a -- x))" using lll79 assms subsetI by metis
 then have "?r {(x, Y2)} \<inter> ?r (a -- x) = {}" using assms by blast
 moreover have "?u {(x, Y2)}" by (metis runiq_singleton_rel)
-moreover have "(a--x)^-1 \<subseteq> ?aa" using Outside_def
+moreover have "(a--x)\<inverse> \<subseteq> ?aa" using Outside_def
 by blast
-moreover then  have "?u ((a -- x)^-1)" using 0 Outside_def subrel_runiq by metis
-ultimately moreover have "?u (((a -- x) \<union> {(x, Y2)})^-1)" using 0 lll77 by (metis 
+moreover then  have "?u ((a -- x)\<inverse>)" using 0 Outside_def subrel_runiq by metis
+ultimately moreover have "?u (((a -- x) \<union> {(x, Y2)})\<inverse>)" using 0 lll77 by (metis 
 IntI Range_insert empty_iff insert_iff runiq_conv_extend_singleton)
 ultimately have 
-11: "?u (?a2^-1)" using 3 by metis
+11: "?u (?a2\<inverse>)" using 3 by metis
 moreover have "?d a \<subseteq> N" using assms lll81 by simp
 moreover have "?d {(x, Y2)}={x}" by simp
-ultimately moreover have "?r (?a2^-1) \<subseteq> N \<union> {x}" using paste_Domain
+ultimately moreover have "?r (?a2\<inverse>) \<subseteq> N \<union> {x}" using paste_Domain
 by (smt Domain_insert Range_converse Un_iff fst_conv set_rev_mp subsetI)
 ultimately have 
-13: "?a2^-1 \<in> injections (?r ?a2) (N \<union> {x})" using injections_def 12
+13: "?a2\<inverse> \<in> injections (?r ?a2) (N \<union> {x})" using injections_def 12
  Domain_converse converse_converse injectionsI by (metis (hide_lams, no_types) equalityE)
 have "Y2 \<inter> \<Union> (?r (a -- x)) = {}" using 4 assms by presburger
 moreover have "is_partition (?r (a --x ))" using 5 by (metis is_partition_of_def)
@@ -142,7 +142,7 @@ moreover have "... = (G - (a,,,x)) \<union> Y2" by (metis "4")
 ultimately have "is_partition_of (?r ?a2) ((G - (a,,,x)) \<union> Y2)"
 by (metis "6" Un_commute insert_def is_partition_of_def singleton_conv)
 then have "?r ?a2 \<in> ?P (G - (a,,,x) \<union> Y2)" using all_partitions_def by (metis mem_Collect_eq)
-then have "(?a2^-1) \<in> injections (?r ?a2) (N \<union> {x}) & ?r ?a2 \<in> ?P (G - (a,,,x) \<union> Y2)"
+then have "(?a2\<inverse>) \<in> injections (?r ?a2) (N \<union> {x}) & ?r ?a2 \<in> ?P (G - (a,,,x) \<union> Y2)"
 using 13 by fast
 then show ?thesis using possible_allocations_rel_def by auto
 qed
@@ -197,12 +197,12 @@ qed
 lemma lll76: 
 assumes "a \<in> possible_allocations_rel G N"
 shows "Max (proceeds b ` (converse ` (possible_allocations_rel G (N - {n})))) \<ge> 
-proceeds b ((a^-1) -- n)"
+proceeds b ((a\<inverse>) -- n)"
 proof -
-  let ?P=possible_allocations_rel let ?aa="a^-1 -- n" let ?d=Domain let ?Yn="a^-1,,,n"
+  let ?P=possible_allocations_rel let ?aa="a\<inverse> -- n" let ?d=Domain let ?Yn="a\<inverse>,,,n"
   let ?p=proceeds let ?X="converse ` (?P G (N-{n}))" let ?u=runiq let ?r=Range
   have 
-2: "?aa \<noteq> {}& ?u ?aa & ?u a & ?u (a^-1) & ?u (?aa^-1)" sorry then
+2: "?aa \<noteq> {}& ?u ?aa & ?u a & ?u (a\<inverse>) & ?u (?aa\<inverse>)" sorry then
   obtain i where 
   0: "i \<in> ?d ?aa" by auto
   let ?Y1="?aa,,,i" let ?Y2="?Y1 \<union> ?Yn"
@@ -212,7 +212,7 @@ then have
 6: "N - {n} \<union> {i} = N -{n}" using 0 by blast
 have
 3: "is_partition_of (?d a) G" using assms lll81 by blast then
-have "is_partition (?r (a^-1))" using  is_partition_of_def by (metis Range_converse)
+have "is_partition (?r (a\<inverse>))" using  is_partition_of_def by (metis Range_converse)
 then have 
 4: "is_partition (?r ?aa)" using all_partitions_def is_partition_of_def 
 Outside_def subset_is_partition lll81 assms by (metis Range_outside_sub equalityE)
@@ -224,20 +224,20 @@ ultimately have "?Y2 \<noteq> {}" using is_partition_def 0 by (metis Un_empty  i
   ultimately have 
   1: "?aa +< (i, ?Y1) = ?aa" using 0 paste_def eval_rel_def ll84 by (metis fst_conv snd_conv)
 
-have "?r ?aa = ?r (a^-1) - {?Yn}" using 2 sorry
-moreover have "{?Yn} \<subseteq> ?r (a^-1)" sorry
-moreover have "\<Union> (?r (a^-1))=G" sorry
+have "?r ?aa = ?r (a\<inverse>) - {?Yn}" using 2 sorry
+moreover have "{?Yn} \<subseteq> ?r (a\<inverse>)" sorry
+moreover have "\<Union> (?r (a\<inverse>))=G" sorry
 ultimately
 have "is_partition_of (?r ?aa) (G - ?Yn)" using lll80 3 2 4 by (metis `is_partition (Range (a\<inverse>))` cSup_singleton)
 moreover have "?u ?aa" by (metis "2")
-moreover have "?u (?aa^-1)" using 2 by fast
+moreover have "?u (?aa\<inverse>)" using 2 by fast
 moreover have "?d ?aa \<subseteq> (N -{n})" by (metis Diff_mono Domain_converse assms lll81 outside_reduces_domain subset_refl)
-  ultimately have "?aa^-1 \<in> ?P (G-?Yn) (N-{n})" using assms lll81 by (metis Domain_converse converse_converse)
+  ultimately have "?aa\<inverse> \<in> ?P (G-?Yn) (N-{n})" using assms lll81 by (metis Domain_converse converse_converse)
   moreover have "?Y2 \<inter> (G -?Yn - ?Y1)={}" by fast
-  ultimately have "(?aa +< (i, ?Y2))^-1 \<in> ?P (G - ?Yn - ?Y1 \<union> ?Y2) (N-{n} \<union> {i})" 
+  ultimately have "(?aa +< (i, ?Y2))\<inverse> \<in> ?P (G - ?Yn - ?Y1 \<union> ?Y2) (N-{n} \<union> {i})" 
   using lll74 by (metis `(a\<inverse> -- n) ,,, i \<union> a\<inverse> ,,, n \<noteq> {}`)
   then have 
-  "(?aa +< (i, ?Y2))^-1 \<in> ?P (G \<union> ?Y2) (N-{n} \<union> {i})" by (smt Un_Diff_cancel Un_commute Un_left_commute)
+  "(?aa +< (i, ?Y2))\<inverse> \<in> ?P (G \<union> ?Y2) (N-{n} \<union> {i})" by (smt Un_Diff_cancel Un_commute Un_left_commute)
 
 moreover have "?Yn \<subseteq> G"
 by (metis Union_upper `\<Union>Range (a\<inverse>) = G` `{a\<inverse> ,,, n} \<subseteq> Range (a\<inverse>)` insert_subset)
@@ -248,9 +248,9 @@ by (metis Sup_le_iff `(a\<inverse> -- n) ,,, i \<in> Range (a\<inverse> -- n)`)
 ultimately moreover have "?Y2 \<subseteq> G" by simp
 
   ultimately have 
-  "(?aa +< (i, ?Y2))^-1 \<in> ?P G ((N-{n}) \<union> {i})" by (metis Un_absorb2)
+  "(?aa +< (i, ?Y2))\<inverse> \<in> ?P G ((N-{n}) \<union> {i})" by (metis Un_absorb2)
   then have 
-  "(?aa +< (i, ?Y2))^-1 \<in> ?P G (N-{n})" using 6 by force
+  "(?aa +< (i, ?Y2))\<inverse> \<in> ?P G (N-{n})" using 6 by force
   then have "?aa +< (i, ?Y2) \<in> ?X" by (metis converse_converse image_eqI)
   then have "?p b (?aa +< (i, ?Y2)) \<in> (?p b)`?X" by blast
   moreover have "finite (?p b ` ?X)" sorry
@@ -262,7 +262,7 @@ ultimately moreover have "?Y2 \<subseteq> G" by simp
   ultimately show ?thesis  using 1 by force
 qed
 
-lemma "value_rel (b::bids) a = proceeds (altbids b) (a^-1)" using value_rel_def sorry
+lemma "value_rel (b::bids) a = proceeds (altbids b) (a\<inverse>)" using value_rel_def sorry
 
 end
 
