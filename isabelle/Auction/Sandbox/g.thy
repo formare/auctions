@@ -72,12 +72,12 @@ proof -
   show ?thesis using 0 injections_def by (smt all_partitions_def mem_Collect_eq)
 qed
 
-lemma lll81b: assumes "runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N"
+lemma lll81b: assumes "runiq a" "runiq (a\<inverse>)" "is_partition_of (Domain a) (G)" "Range a \<subseteq> N"
 shows "a \<in> possible_allocations_rel G N"
 proof -
-  have "a \<in> injections (Domain a) N" using injections_def assms by blast
-  moreover have "Domain a \<in> all_partitions G" using assms all_partitions_def by fast
-  ultimately show ?thesis using assms possible_allocations_rel_def by auto
+  have "a \<in> injections (Domain a) N" unfolding injections_def using assms(1) assms(2)  assms(4) by blast
+  moreover have "Domain a \<in> all_partitions G" using assms(3) all_partitions_def by fast
+  ultimately show ?thesis using assms(1) possible_allocations_rel_def by auto
 qed
 
 lemma lll81: "a \<in> possible_allocations_rel G N \<longleftrightarrow>
