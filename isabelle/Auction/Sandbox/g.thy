@@ -54,12 +54,12 @@ lemma lll79: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" sh
 lemma lll80: assumes "is_partition XX" "YY \<subseteq> XX" shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
 using is_partition_of_def is_partition_def assms
 proof -
-  let ?i=is_partition let ?I=is_partition_of let ?xx="XX - YY" let ?X="\<Union> XX" let ?Y="\<Union> YY"
+  let ?xx="XX - YY" let ?X="\<Union> XX" let ?Y="\<Union> YY"
   let ?x="?X - ?Y"
   have "\<forall> y \<in> YY. \<forall> x\<in>?xx. y \<inter> x={}" using assms is_partition_def by (metis Diff_iff set_rev_mp)
   then have "\<Union> ?xx \<subseteq> ?x" using assms by blast
   then have "\<Union> ?xx = ?x" by blast
-  moreover have "?i ?xx" using subset_is_partition by (metis Diff_subset assms(1))
+  moreover have "is_partition ?xx" using subset_is_partition by (metis Diff_subset assms(1))
   ultimately
   show ?thesis using is_partition_of_def by blast
 qed
