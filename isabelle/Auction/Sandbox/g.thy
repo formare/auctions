@@ -65,14 +65,14 @@ proof -
 qed
 
 lemma lll81a: assumes "a \<in> possible_allocations_rel G N" shows
-"(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
+"runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N" 
 proof -
   obtain Y where
   0: "a \<in> injections Y N & Y \<in> all_partitions G" using assms possible_allocations_rel_def by auto
   show ?thesis using 0 injections_def by (smt all_partitions_def mem_Collect_eq)
 qed
 
-lemma lll81b: assumes "(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)" 
+lemma lll81b: assumes "runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N"
 shows "a \<in> possible_allocations_rel G N"
 proof -
   have "a \<in> injections (Domain a) N" using injections_def assms by blast
@@ -80,8 +80,8 @@ proof -
   ultimately show ?thesis using assms possible_allocations_rel_def by auto
 qed
 
-lemma lll81: "(a \<in> possible_allocations_rel G N) =
-(runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N)"
+lemma lll81: "a \<in> possible_allocations_rel G N \<longleftrightarrow>
+runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N"
 using lll81a lll81b by blast
 
 lemma lll74: assumes "a\<inverse> \<in> possible_allocations_rel G N" 
