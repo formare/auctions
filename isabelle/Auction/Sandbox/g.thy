@@ -40,9 +40,13 @@ abbreviation "eval_rel2 R x == \<Union> (R``{x})"
 notation eval_rel2 (infix ",,," 75)
 (* MC: realized that eval_rel2 could be preferable to eval_rel, because it generalizes the latter 
 while evaluating to {} outside of the domain, and to something defined in general when eval_rel is not. 
-This is generally a better behaviour from the formal point of view (cmp. lll74)*)
+This is generally a better behaviour from the formal point of view (cmp. lll74)
+   CL: very nice indeed! *)
 
-lemma lll82: assumes "x \<in> Domain f" "runiq f" shows "f,,x = f,,,x" using eval_rel_def 
+lemma lll82: assumes "x \<in> Domain f" "runiq f" shows "f,,x = f,,,x"
+(* CL: Interesting: metis says that eval_rel_def is unused in the proof, but when I use it,
+   the proof takes much longer (too long for me to wait) *)
+using eval_rel_def 
 assms by (metis Image_runiq_eq_eval cSup_singleton)
 
 lemma lll79: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" shows "x \<inter> X \<noteq> {}" using assms by blast
