@@ -65,14 +65,14 @@ proof -
 qed
 
 lemma lll81a: assumes "a \<in> possible_allocations_rel G N" shows
-"runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N" 
+"runiq a & runiq (a\<inverse>) & (Domain a) partitions G & Range a \<subseteq> N" 
 proof -
   obtain Y where
   0: "a \<in> injections Y N & Y \<in> all_partitions G" using assms possible_allocations_rel_def by auto
   show ?thesis using 0 injections_def by (smt all_partitions_def mem_Collect_eq)
 qed
 
-lemma lll81b: assumes "runiq a" "runiq (a\<inverse>)" "is_partition_of (Domain a) (G)" "Range a \<subseteq> N"
+lemma lll81b: assumes "runiq a" "runiq (a\<inverse>)" "(Domain a) partitions G" "Range a \<subseteq> N"
 shows "a \<in> possible_allocations_rel G N"
 proof -
   have "a \<in> injections (Domain a) N" unfolding injections_def using assms(1) assms(2)  assms(4) by blast
@@ -81,7 +81,7 @@ proof -
 qed
 
 lemma lll81: "a \<in> possible_allocations_rel G N \<longleftrightarrow>
-runiq a & runiq (a\<inverse>) & is_partition_of (Domain a) (G) & Range a \<subseteq> N"
+runiq a & runiq (a\<inverse>) & (Domain a) partitions G & Range a \<subseteq> N"
 using lll81a lll81b by blast
 
 lemma lll74: assumes "a\<inverse> \<in> possible_allocations_rel G N" 
@@ -113,7 +113,7 @@ ultimately moreover have "?r (a -- x) = ?r a - a``{x}" by auto
 moreover have "is_partition (?r a) & (\<Union> (?r a))=G" using 1 by (metis Domain_converse assms(1) is_partition_of_def lll81)
 ultimately moreover have "a``{x} \<subseteq> ?r a" by (metis Un_upper2)
 ultimately have 
-5: "is_partition_of (?r (a -- x)) (G - \<Union>(a``{x}))" using lll80 by metis
+5: "(?r (a -- x)) partitions (G - \<Union>(a``{x}))" using lll80 by metis
 then have 
 4: "\<Union> (?r (a -- x)) = (G - a,,,x)" using is_partition_of_def by (metis set_eq_subset)
 then have "Y2 \<notin> (?r (a -- x))" using lll79 assms subsetI by metis
@@ -142,7 +142,7 @@ then have "is_partition (?r ?a2)" by (metis "6")
 moreover have "\<Union> (?r ?a2) = \<Union> (?r (a -- x)) \<union> Y2"
 by (metis "6" Union_Un_distrib cSup_singleton)
 moreover have "... = (G - (a,,,x)) \<union> Y2" by (metis "4")
-ultimately have "is_partition_of (?r ?a2) ((G - (a,,,x)) \<union> Y2)"
+ultimately have "(?r ?a2) partitions ((G - (a,,,x)) \<union> Y2)"
 by (metis "6" Un_commute insert_def is_partition_of_def singleton_conv)
 then have "?r ?a2 \<in> ?P (G - (a,,,x) \<union> Y2)" using all_partitions_def by (metis mem_Collect_eq)
 then have "(?a2\<inverse>) \<in> injections (?r ?a2) (N \<union> {x}) & ?r ?a2 \<in> ?P (G - (a,,,x) \<union> Y2)"
@@ -214,7 +214,7 @@ have
 then have 
 6: "N - {n} \<union> {i} = N -{n}" using 0 by blast
 have
-3: "is_partition_of (?d a) G" using assms lll81 by blast then
+3: "(?d a) partitions G" using assms lll81 by blast then
 have "is_partition (?r (a\<inverse>))" using  is_partition_of_def by (metis Range_converse)
 then have 
 4: "is_partition (?r ?aa)" using all_partitions_def is_partition_of_def 
@@ -231,7 +231,7 @@ have "?r ?aa = ?r (a\<inverse>) - {?Yn}" using 2 sorry
 moreover have "{?Yn} \<subseteq> ?r (a\<inverse>)" sorry
 moreover have "\<Union> (?r (a\<inverse>))=G" sorry
 ultimately
-have "is_partition_of (?r ?aa) (G - ?Yn)" using lll80 3 2 4 by (metis `is_partition (Range (a\<inverse>))` cSup_singleton)
+have "(?r ?aa) partitions (G - ?Yn)" using lll80 3 2 4 by (metis `is_partition (Range (a\<inverse>))` cSup_singleton)
 moreover have "?u ?aa" by (metis "2")
 moreover have "?u (?aa\<inverse>)" using 2 by fast
 moreover have "?d ?aa \<subseteq> (N -{n})" by (metis Diff_mono Domain_converse assms lll81 outside_reduces_domain subset_refl)
