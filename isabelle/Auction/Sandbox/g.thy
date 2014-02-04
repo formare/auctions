@@ -99,12 +99,12 @@ then have
 12: "?u (a +< (x,Y2))" using lll73 by metis
 have "?r (a -- x)=a``(?d a - {x})" using Outside_def by blast
 moreover have 
-0: "?u ?aa & ?u a" using assms ll81 by (metis `runiq a` lll81) ultimately
-have "?r (a -- x) \<inter> (a``{x}) = {}" using lll78 Outside_def 
+0: "?u ?aa & ?u a" using assms by (metis `runiq a` lll81) ultimately
+have "?r (a -- x) \<inter> (a``{x}) = {}" using lll78 
 by metis 
 moreover have 
 3: "(a -- x) \<union> {(x, Y2)} = ?a2" using paste_def 
-by (metis Domain_empty Domain_insert fst_conv l37 snd_conv)
+by (metis Domain_empty Domain_insert fst_conv snd_conv)
 have 
 6: "?r ?a2 = ?r (a -- x) \<union> {Y2}" using 3 by auto
 moreover have "?r a = ?r (a -- x) \<union> (a``{x})" using Outside_def
@@ -115,14 +115,14 @@ ultimately moreover have "a``{x} \<subseteq> ?r a" by (metis Un_upper2)
 ultimately have 
 5: "(?r (a -- x)) partitions (G - \<Union>(a``{x}))" using lll80 by metis
 then have 
-4: "\<Union> (?r (a -- x)) = (G - a,,,x)" using is_partition_of_def by (metis set_eq_subset)
+4: "\<Union> (?r (a -- x)) = (G - a,,,x)" unfolding is_partition_of_def by fast
 then have "Y2 \<notin> (?r (a -- x))" using lll79 assms subsetI by metis
 then have "?r {(x, Y2)} \<inter> ?r (a -- x) = {}" using assms by blast
 moreover have "?u {(x, Y2)}" by (metis runiq_singleton_rel)
 moreover have "(a--x)\<inverse> \<subseteq> ?aa" using Outside_def
 by blast
-moreover then  have "?u ((a -- x)\<inverse>)" using 0 Outside_def subrel_runiq by metis
-ultimately moreover have "?u (((a -- x) \<union> {(x, Y2)})\<inverse>)" using 0 lll77 by (metis 
+moreover then  have "?u ((a -- x)\<inverse>)" using 0 subrel_runiq by metis
+ultimately moreover have "?u (((a -- x) \<union> {(x, Y2)})\<inverse>)" using 0 by (metis 
 IntI Range_insert empty_iff insert_iff runiq_conv_extend_singleton)
 ultimately have 
 11: "?u (?a2\<inverse>)" using 3 by metis
@@ -131,8 +131,8 @@ moreover have "?d {(x, Y2)}={x}" by simp
 ultimately moreover have "?r (?a2\<inverse>) \<subseteq> N \<union> {x}" using paste_Domain
 by (smt Domain_insert Range_converse Un_iff fst_conv set_rev_mp subsetI)
 ultimately have 
-13: "?a2\<inverse> \<in> injections (?r ?a2) (N \<union> {x})" using injections_def 12
- Domain_converse converse_converse injectionsI by (metis (hide_lams, no_types) equalityE)
+13: "?a2\<inverse> \<in> injections (?r ?a2) (N \<union> {x})" using 12
+ Domain_converse converse_converse injectionsI by (metis (hide_lams, no_types))
 have "Y2 \<inter> \<Union> (?r (a -- x)) = {}" using 4 assms by presburger
 moreover have "is_partition (?r (a --x ))" using 5 by (metis is_partition_of_def)
 ultimately have "is_partition (insert Y2 (?r (a -- x)))" using partition_extension1 assms
@@ -173,7 +173,7 @@ proof -
   11: "setsum b ?a1 = b ?z1 + setsum b (?a1 outside {xx})"
   by simp
   have "?a1 = (?a1 -- xx) \<union> (?a1 || {xx}) " 
-  using paste_def Outside_def outside_union_restrict by metis
+  using outside_union_restrict by metis
   moreover
   have "finite ?a2" sorry
   moreover have "?a2||{xx} = (a || {xx}) +* ({?z2} || {xx})" using lll71
@@ -217,8 +217,8 @@ have
 3: "(?d a) partitions G" using assms lll81 by blast then
 have "is_partition (?r (a\<inverse>))" using  is_partition_of_def by (metis Range_converse)
 then have 
-4: "is_partition (?r ?aa)" using all_partitions_def is_partition_of_def 
-Outside_def subset_is_partition lll81 assms by (metis Range_outside_sub equalityE)
+4: "is_partition (?r ?aa)" using 
+ subset_is_partition lll81 assms by (metis Range_outside_sub equalityE)
 moreover have "?Y1 \<in> (?r ?aa)" using 0 lll82 by (metis "2" eval_runiq_in_Range)
 ultimately have "?Y2 \<noteq> {}" using is_partition_def 0 by (metis Un_empty  inf_bot_right)
 
