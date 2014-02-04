@@ -5,13 +5,18 @@ imports f "../CombinatorialVickreyAuction"
 
 begin
 
+(* CL@MC: What's the rationale behind this?  Bringing allocation and bids into the 
+   same structure, so that it is easier to compute a sum over them?  If so, this 
+   will be worth mentioning in the paper, as it is an important design choice
+   in formalisation. *)
 type_synonym altbids = "(participant \<times> goods) \<Rightarrow> price"
-type_synonym altallo = "(participant \<times> goods) set"
+type_synonym allocation_conv = "(participant \<times> goods) set"
 
 abbreviation "altbids (b::bids) == split b"
 term "altbids b"
 term "(altbids (b::bids))=(x::altbids)"
-abbreviation "proceeds (b::altbids) (allo::altallo) == setsum b allo"
+(* CL: I don't understand the choice of the name "proceeds". *)
+abbreviation "proceeds (b::altbids) (allo::allocation_conv) == setsum b allo"
 
 lemma lll23: assumes "finite A" shows "setsum f A = setsum f (A \<inter> B) + setsum f (A - B)" using 
 assms by (metis DiffD2 Int_iff Un_Diff_Int Un_commute finite_Un setsum.union_inter_neutral)
@@ -144,7 +149,7 @@ then show ?thesis using possible_allocations_rel_def by auto
 qed
 
 lemma lll75: assumes "finite a" "(b::altbids) (xx, yy1) \<le> b (xx, yy2)" shows 
-"setsum b ((a::altallo) +< (xx,yy1)) \<le> setsum b (a +< (xx,yy2))"
+"setsum b ((a::allocation_conv) +< (xx,yy1)) \<le> setsum b (a +< (xx,yy2))"
 proof -
   let ?z1="(xx, yy1)" let ?z2="(xx, yy2)" let ?a0="a -- xx" let ?a1="a +< ?z1" let ?a2="a +< ?z2"
   have 
