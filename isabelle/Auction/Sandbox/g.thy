@@ -51,7 +51,7 @@ assms by (metis Image_runiq_eq_eval cSup_singleton)
 
 lemma lll79: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" shows "x \<inter> X \<noteq> {}" using assms by blast
 
-lemma lll80: assumes "is_partition XX" "YY \<subseteq> XX" shows "is_partition_of (XX - YY) (\<Union> XX - \<Union> YY)"
+lemma lll80: assumes "is_partition XX" "YY \<subseteq> XX" shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
 using is_partition_of_def is_partition_def assms
 proof -
   let ?i=is_partition let ?I=is_partition_of let ?xx="XX - YY" let ?X="\<Union> XX" let ?Y="\<Union> YY"
