@@ -47,10 +47,10 @@ proof -
     have 
     2: "?D ?B2 = ?D b" using 0 assms by (metis paste_Domain sup_absorb1) 
     (* also have "b \<in> (?D a) & b \<in> ?D p" using assms by blast *)
-    have "?B1 \<in> ?D a" using assms cartesian_def by force
-    moreover have "?B1 \<in> ?D p" using assms cartesian_def by force
-    moreover have "?B2 \<in> ?D a" using assms cartesian_def by force
-    moreover have "?B2 \<in> ?D p" using assms cartesian_def by force
+    have "?B1 \<in> ?D a" using assms by force
+    moreover have "?B1 \<in> ?D p" using assms by force
+    moreover have "?B2 \<in> ?D a" using assms by force
+    moreover have "?B2 \<in> ?D p" using assms by force
     ultimately have 
     "?B1 \<in> ?D a & ?B2 \<in> ?D a & ?B1 \<in> ?D p & ?B2 \<in> ?D p"
     by blast
@@ -258,7 +258,7 @@ proof -
     & ?d (?b1 j)=?I \<union> {i} & ?d (?b2 j)=?I \<union> {i}" 
     using ll19 Un_empty_right Un_insert_right paste_Domain by metis
     then moreover have "?d (?b1 j)=?I & ?I = ?d (?b2 j)" using 3 by blast
-    then moreover have "?b1 j \<in> ?d a & ?b2 j \<in> ?d a" using 3 cartesian_def by metis
+    then moreover have "?b1 j \<in> ?d a & ?b2 j \<in> ?d a" using 3 by metis
     ultimately have 
     10: "(?b1 j) outside {i}=?bb & (?b2 j) outside {i}=?bb 
     & ?d (?b1 j)=?I & ?d (?b2 j)=?I & ?b1 j \<in> ?d a & ?b2 j \<in> ?d a" by presburger
@@ -531,7 +531,7 @@ proof -
   let ?bb="b outside ?I" let ?c=converter let ?a="?c A i" let ?p="?c P i"
   let ?pf="%b. P b,,i" let ?GG="graph ?B ?af" let ?v="Sup(?r(b outside {i}))"
   have "?d (b || ?I) = (?d b) \<inter> ?I" using ll41 by metis
-  then have "?d (b||?I) \<subseteq> ?I & ?d ?bb = (?d b) - ?I" using ll42 by (metis Int_lower2)
+  then have "?d (b||?I) \<subseteq> ?I & ?d ?bb = (?d b) - ?I" using Int_lower2 by (metis outside_reduces_domain)
   then have "?d ?bb \<inter> (?d (b || ?I))={}" by blast
   then have "?bb \<inter> (b||?I)={}" by fast
   hence "?bb=?bb \<union> (b||?I) - (b||?I)" by blast
@@ -555,15 +555,24 @@ proof -
   moreover have "?u ?a" using ll37 converter_def by metis
   moreover have "?r ?bb \<noteq> {}" using 2 by auto
   then moreover have "?w ?GG i b ?v ?z ?o" using ll30 assms by auto
-  ultimately have "?w ?a i b ?v ?z ?o" using ll35 by fastforce
-  moreover have "i \<in> ?d b" using assms by force
-  moreover have "b \<in> ?d ?a" using 1 by fastforce
-  moreover have "?C (?d ?a) b i" using ll39 converter_def assms by metis
-  moreover have "?C (?d ?p) b i" using ll39 converter_def assms by metis
-  moreover have "?u ?p" using ll37 converter_def by metis
-  moreover have "?d ?a \<subseteq> ?d ?p" using 1 by auto
-  moreover have "dom4 i ?a ?p" using assms by fast
-  moreover have "functional (?d ?a)" using 1 runiqs_def functional_def by fast
+  ultimately have 
+  11: "?w ?a i b ?v ?z ?o" using ll35 by fastforce
+  moreover have 
+  12: "i \<in> ?d b" using assms by force
+  moreover have 
+  13: "b \<in> ?d ?a" using 1 by fastforce
+  moreover have 
+  14: "?C (?d ?a) b i" using ll39 converter_def assms by (metis (mono_tags))
+  moreover have 
+  15: "?C (?d ?p) b i" using ll39 converter_def assms by (metis (mono_tags))
+  moreover have 
+  16: "?u ?p" using ll37 converter_def by metis
+  moreover have 
+  17: "?d ?a \<subseteq> ?d ?p" using 1 by auto
+  moreover have 
+  18: "dom4 i ?a ?p" using assms by fast
+  moreover have 
+  19: "functional (?d ?a)" using 1 runiqs_def functional_def by fast
   ultimately have
   "
   ((?a,,b=?z) \<longrightarrow> (?p,,b=reducedprice ?p i ?a,,(?d b, b outside {i}, ?z)))
@@ -571,7 +580,7 @@ proof -
   ((?a,,b=?o) \<longrightarrow> (?p,,b = ?v*(?o-?z) + 
   (reducedprice ?p i ?a ,, (Domain b, b outside {i}, ?z))))
   " 
-  using ll31 assms by fastforce
+  using ll31 by simp
   moreover have "?v*(?o-?z) = ?v" by fastforce
   moreover have "?a``{b} = ?g ?U ?af``{b}" using converter_def by fast
   moreover have "... = {(x, ?af x)|x. x\<in>?U}``{b}" using graph_def by force

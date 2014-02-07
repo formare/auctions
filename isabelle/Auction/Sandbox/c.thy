@@ -1126,10 +1126,8 @@ definition runiqs where "runiqs={f. runiq f}"
 definition functional where "functional X = (\<forall>x \<in> X. runiq x)"
 (*MC: Alternatively, say X \<subseteq> runiqs *)
 
-definition cartesian where 
-(*TODO@MC: make apply cartesian to Domain a, rather than to a itself 
-Also consider moving i as an argument: cartesian i a = ...*) 
-"cartesian X R x = (\<forall>y. (R+*({x}\<times>{y})\<in>X))"
+abbreviation cartesian where  
+"cartesian X R x == (\<forall>y. (R+*({x}\<times>{y})\<in>X))"
 (*
 "cartesian a = (\<forall> b i y. ((b \<in> Domain a 
 & i \<in> Domain b)
@@ -1145,7 +1143,7 @@ proof -
     using assms runiq_singleton_rel runiq_paste2 by fastforce
     hence "f +* ({x}\<times>{y})\<in>?U" using runiqs_def by fast
   }
-  thus ?thesis using cartesian_def by fast
+  thus ?thesis by fast
 qed
 
 corollary ll39: assumes "runiq f" shows "cartesian (Domain (graph runiqs F)) f x"
@@ -1156,6 +1154,7 @@ proof -
 let ?R="P \<union> Q" have "P \<inter> (X \<times> Range ?R) = P \<inter> (X \<times> Range P)" by blast moreover have 
 "Q \<inter> (X \<times> Range ?R) = Q \<inter> (X \<times> Range Q)"by fast
 ultimately show ?thesis using restrict_def by (metis inf_sup_aci(1) inf_sup_distrib2)
+(* MC: very slow *)
 qed
 
 
@@ -1237,6 +1236,16 @@ lemma lll33: "runiq P=inj_on fst P" using lll31 lll32 by blast
 
 lemma lll34: assumes "runiq P" shows "card (Domain P) = card P" 
 using assms lll33 card_image by (metis Domain_fst)
+
+abbreviation "eval_rel2 (R::('a \<times> ('b set)) set) (x::'a) == \<Union> (R``{x})"
+notation eval_rel2 (infix ",,," 75)
+(* MC: realized that eval_rel2 could be preferable to eval_rel, because it generalizes the latter 
+while evaluating to {} outside of the domain, and to something defined in general when eval_rel is not. 
+This is generally a better behaviour from the formal point of view (cmp. lll74)
+   CL: very nice indeed! *)
+(* MC: Realized that ,,, seems to work only with set-yielding relations! 
+This has to do with the fact that in HOL not everything is a set, as it happens in ZF
+*)
 
 end
 

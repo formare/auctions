@@ -51,14 +51,7 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-abbreviation "eval_rel2 R x == \<Union> (R``{x})"
-notation eval_rel2 (infix ",,," 75)
-(* MC: realized that eval_rel2 could be preferable to eval_rel, because it generalizes the latter 
-while evaluating to {} outside of the domain, and to something defined in general when eval_rel is not. 
-This is generally a better behaviour from the formal point of view (cmp. lll74)
-   CL: very nice indeed! *)
-
-lemma lll82: assumes "x \<in> Domain f" "runiq f" shows "f,,x = f,,,x"
+lemma lll82: assumes "(x::'a) \<in> Domain f" "runiq f" shows "f,,x = f,,,x"
 (* CL: Interesting: metis says that eval_rel_def is unused in the proof, but when I use it,
    the proof takes much longer (too long for me to wait) *)
 using assms by (metis Image_runiq_eq_eval cSup_singleton)
@@ -189,7 +182,6 @@ proof -
   by (metis "0") then have
   11: "setsum b ?a1 = b ?z1 + setsum b (?a1 outside {xx})"
   by simp
-
 
   have "setsum b ?a2 = setsum b (?a2||{xx}) + setsum b (?a2 outside {xx})" using 2
   by (metis finite_Un lll00 lll01 lll06b outside_union_restrict setsum.union_disjoint)
