@@ -36,8 +36,6 @@ using assms ll71 by blast
 lemma lll78: assumes "runiq (P\<inverse>)" shows "P``(Domain P - X) \<inter> (P``X) = {}"
 using assms ll71 by fast
 
-lemma lll83: "P``X = P``(X \<inter> Domain P)" by blast
-
 lemma lll84: "P``(X \<inter> Domain P)=P``X" by blast
 
 lemma lll85: "Range (P||X) = P``X" 
