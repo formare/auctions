@@ -47,7 +47,6 @@ where "Graph f = {(x, f x) | x . True}"
 definition toFunction (* inverts Graph *)
 where "toFunction R = (\<lambda> x . (R ,, x))"
 
-
 definition projector where "projector R =
 { (x,R``{x}) | x . 
 x \<in> Domain R 
@@ -1244,8 +1243,41 @@ while evaluating to {} outside of the domain, and to something defined in genera
 This is generally a better behaviour from the formal point of view (cmp. lll74)
    CL: very nice indeed! *)
 (* MC: Realized that ,,, seems to work only with set-yielding relations! 
-This has to do with the fact that in HOL not everything is a set, as it happens in ZF
-*)
+This has to do with the fact that in HOL not everything is a set, as it happens in ZF *)
+
+corollary lll91b: "(P +* Q) outside (Domain Q)=P outside (Domain Q)" using ll19 by (metis Un_absorb)
+
+corollary lll91c: "(P +< (x,y)) -- x = P -- x" using lll91b by (metis Domain_empty Domain_insert fst_conv)
+
+lemma lll89: "P +< (x,y) = P +* {x}\<times>{y}" by simp
+
+corollary ll50b: "(P +* ({x}\<times>{y})),,x=y"
+proof -
+  let ?f="{x}\<times>{y}" let ?d=Domain have "?d ?f={x}" by simp 
+  then have "(P +* ?f)``{x}=?f``{x}" using ll50 subset_refl inf_absorb2 by metis
+  moreover have "...={y}" by fast ultimately show ?thesis by simp
+qed
+
+lemma ll71b: assumes "runiq f" "X \<subseteq> (f^-1)``Y" shows "f``X \<subseteq> Y" using assms ll71 by (metis Image_mono order_refl subset_trans)
+
+
+corollary lll93: "{R+<(x,y)| y. True} = {(R +< (x,yy)) +< (x,y)| y. True}"
+using assms by (metis (hide_lams, no_types) Domain_empty Domain_insert lll91c paste_def surjective_pairing)
+
+corollary lll94: "cartesian X R x = ({R+<(x,y)| y. True} \<subseteq> X)" by auto
+
+corollary lll93b: "({R+<(x,y)| y. True} \<subseteq> X) = ({(R+<(x,yy))+<(x,y)| y. True} \<subseteq> X)"
+using lll93 by metis
+
+corollary lll93c: "(cartesian X R x)=(cartesian X (R+<(x,yy)) x)" (is "?lh=?rh") 
+using lll93b lll94 snd_conv lll93 
+proof -
+  have "?lh = ({R+<(x,y)| y. True} \<subseteq> X)" using lll93 by auto
+  moreover have "... = ({(R+<(x,yy))+<(x,y)| y. True} \<subseteq> X)" using lll93 by metis
+  ultimately show ?thesis using lll94 by auto
+qed
+
+lemma lll99: "R``(X-Y) = (R||X)``(X-Y)" using restrict_def by blast
 
 end
 

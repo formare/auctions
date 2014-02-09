@@ -4,21 +4,6 @@ imports e
 
 begin
 
-corollary lll91b: "(P +* Q) outside (Domain Q)=P outside (Domain Q)" using ll19 by (metis Un_absorb)
-
-corollary lll91c: "(P +< (x,y)) -- x = P -- x" using lll91b by (metis Domain_empty Domain_insert fst_conv)
-
-lemma lll89: "P +< (x,y) = P +* {x}\<times>{y}" by simp
-
-corollary ll50b: "(P +* ({x}\<times>{y})),,x=y"
-proof -
-  let ?f="{x}\<times>{y}" let ?d=Domain have "?d ?f={x}" by simp 
-  then have "(P +* ?f)``{x}=?f``{x}" using ll50 subset_refl inf_absorb2 by metis
-  moreover have "...={y}" by fast ultimately show ?thesis by simp
-qed
-
-lemma ll71b: assumes "runiq f" "X \<subseteq> (f^-1)``Y" shows "f``X \<subseteq> Y" using assms ll71 by (metis Image_mono order_refl subset_trans)
-
 lemma lll92: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
 "\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=g2 x)))" shows 
 "g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2)" 
@@ -96,32 +81,6 @@ proof -
   moreover have "... = (?fx-f1)*?g2/(f2-f1) + ?g1*((f1-f2)/(f1-f2))" by simp
   moreover have "... = (?fx-f1)*?g2/(f2-f1) + ?g1*1" using assms by force
   ultimately show ?thesis by linarith
-qed
-
-corollary lll93: "{R+<(x,y)| y. True} = {(R +< (x,yy)) +< (x,y)| y. True}"
-using assms by (metis (hide_lams, no_types) Domain_empty Domain_insert lll91c paste_def surjective_pairing)
-
-corollary lll94: "cartesian X R x = ({R+<(x,y)| y. True} \<subseteq> X)" by auto
-
-corollary lll93b: "({R+<(x,y)| y. True} \<subseteq> X) = ({(R+<(x,yy))+<(x,y)| y. True} \<subseteq> X)"
-using lll93 by metis
-
-corollary lll93c: "(cartesian X R x)=(cartesian X (R+<(x,yy)) x)" (is "?lh=?rh") 
-using lll93b lll94 snd_conv lll93 
-proof -
-  have "?lh = ({R+<(x,y)| y. True} \<subseteq> X)" using lll93 by auto
-  moreover have "... = ({(R+<(x,yy))+<(x,y)| y. True} \<subseteq> X)" using lll93 by metis
-  ultimately show ?thesis using lll94 by auto
-qed
-
-corollary ll31b: assumes "Domain a \<subseteq> Domain p" "runiq p" "dom4 i a p"
-"i \<in> Domain b" "b \<in> Domain a" "cartesian (Domain a) b i" "functional (Domain a)"
-"weakefficient a i b v a1 a2" shows
-"((a,,b=a1) \<longrightarrow> (p,,b=reducedprice p i a,,(Domain b, b outside {i}, a1))) & 
-((a,,b=a2) \<longrightarrow> (p,,b = v*(a2-a1) + 
-(reducedprice p i a ,, (Domain b, b outside {i}, a1))))"
-proof -
-  have "cartesian (Domain p) b i" using assms by fast then show ?thesis using ll31 assms by auto
 qed
 
 
@@ -297,7 +256,6 @@ proof -
   then show ?thesis using 0 weakefficient_def lll89 by fastforce
 qed
 
-
 corollary lll97: assumes "runiq a" "runiq p" "Domain a \<subseteq> Domain p" "functional (Domain a)"
 "cartesian (Domain a) b0 i"
 "intersectioncondition a w a1 a2 i"
@@ -368,8 +326,6 @@ corollary lll98b: assumes "b \<in> {b0+<(i,v)| (v::price) . True} \<inter> (a^-1
 "dom4 i a p"
 "g1=(%x. reducedprice p i a ,, ({i} \<union> Domain x, x, a1))"
 shows "p,,b = (a,,b - a1)*(w (b--i)) + (g1 (b--i))" using assms lll98 by auto
-
-lemma lll99: "R``(X-Y) = (R||X)``(X-Y)" using restrict_def by blast
 
 corollary lm02: assumes "\<forall> b\<in>Domain a. cartesian (Domain a) b i & runiq (b||{i}) & i \<in> Domain b" 
 "Domain a \<subseteq> (a^-1)``{a1, a2}" "a1 \<noteq> a2" "runiq a" "runiq p" "Domain a \<subseteq> Domain p"

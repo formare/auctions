@@ -361,6 +361,16 @@ proof -
   ultimately show ?thesis by (metis (hide_lams, no_types) "0" `reducedprice p i a ,, (reducedbid i a ,, b) = reducedprice p i a ,, (Domain b, b outside {i}, a ,, b)`)
 qed
 
+corollary ll31b: assumes "Domain a \<subseteq> Domain p" "runiq p" "dom4 i a p"
+"i \<in> Domain b" "b \<in> Domain a" "cartesian (Domain a) b i" "functional (Domain a)"
+"weakefficient a i b v a1 a2" shows
+"((a,,b=a1) \<longrightarrow> (p,,b=reducedprice p i a,,(Domain b, b outside {i}, a1))) & 
+((a,,b=a2) \<longrightarrow> (p,,b = v*(a2-a1) + 
+(reducedprice p i a ,, (Domain b, b outside {i}, a1))))"
+proof -
+  have "cartesian (Domain p) b i" using assms by fast then show ?thesis using ll31 assms by auto
+qed
+
 definition effic 
 ::"allocation => allocation => (bid => (participant \<times> allocation) set) => bool"
 (*MC: needed for reasoning *)

@@ -1178,7 +1178,7 @@ proof -
   thus ?thesis using 4 by auto
 qed
 
-corollary assumes
+corollary tt01: assumes
 "finite b1"
 "finite b2"
 "runiq b1"
@@ -1213,6 +1213,7 @@ using assms(7,8) lll69 by blast
 ultimately show ?thesis by presburger
 qed
 
+(*
 corollary lll60: fixes X b i1 I1 I2 P f fixes b0::real
 assumes "I1 \<noteq> I2" "finite b" "runiq b" "i1 \<in> {I1,I2} \<union> Domain b"
 "{I1,I2} \<inter> Domain b={}" "\<forall> bb\<in>X. pred0 bb P f"
@@ -1368,7 +1369,6 @@ sorry
 *)
 qed
 
-(*
 lemma shows "inj_on ler_in UNIV" using assms inj_on_def sorry
 lemma fixes n shows "count (Abs_multiset id) n = 1" sorry
 lemma "onemember x n = onemember2 x n" using assms onemember_def sorry
