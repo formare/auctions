@@ -310,4 +310,43 @@ using assms
 (* TODO CL: optimise by some manual steps *)
 by (metis (full_types) Collect_cong singleton_conv2 theI')
 
+lemma ll69: assumes "trivial t" "t \<inter> X \<noteq> {}" shows "t \<subseteq> X" using trivial_def assms 
+by (smt disjoint_iff_not_equal in_mono singleton_iff subsetI)
+
+lemma ll97: assumes "finite X" shows "trivial X=(card X \<le> 1)" (is "?LH=?RH") using trivial_def assms 
+proof -
+  {
+    assume "card X=1" 
+    hence "X = {the_elem X}" 
+    using assms the_elem_def card_def by (smt card_eq_SucD the_elem_eq)
+    hence "?LH" using trivial_def by auto
+  }
+  also have "card X=0 \<longrightarrow> X={} \<longrightarrow> ?LH" using trivial_def by fast
+  hence "card X=0 \<longrightarrow> ?LH" by (metis assms card_eq_0_iff)
+  ultimately have "?RH \<longrightarrow> ?LH" by linarith
+  also have "?LH \<longrightarrow> ?RH" using trivial_def assms 
+  by (smt bot_set_def card.insert card_empty card_gt_0_iff card_mono empty_def equals0D finite.emptyI finite.insertI finite.simps insert_absorb insert_not_empty)
+  ultimately show ?thesis by fast
+qed
+
+
+lemma ll10: shows "trivial {x}" by (metis order_refl the_elem_eq trivial_def)
+
+lemma ll11: assumes "trivial X" "{x} \<subseteq> X" shows "{x}=X" 
+using singleton_sub_trivial_uniq assms by (metis subset_antisym trivial_def)
+
+
+lemma ll26: assumes "\<not> trivial X" "trivial T" shows "X-T \<noteq> {}"
+using assms by (metis Diff_iff empty_iff subsetI trivial_subset)
+
+
+lemma ll40: assumes "trivial X" "trivial Y" shows "trivial (X \<times> Y)"
+proof -
+let ?e=the_elem let ?x="?e X" let ?y="?e Y" let ?Z="X \<times> Y"
+have "X \<subseteq> {?x} & Y \<subseteq> {?y}" using assms trivial_def by metis
+hence "?Z \<subseteq> {(?x,?y)}" by blast
+thus ?thesis using trivial_subset trivial_singleton by metis
+qed
+
+
 end
