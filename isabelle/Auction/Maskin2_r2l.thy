@@ -13,7 +13,9 @@ See LICENSE file for details
 
 theory Maskin2_r2l
 
-imports Maskin2_l2r_stage2
+imports 
+Real_Vector_Spaces
+Maskin2_l2r_stage1
 
 begin
 
