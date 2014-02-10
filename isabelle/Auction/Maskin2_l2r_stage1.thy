@@ -11,9 +11,17 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-theory d
+theory Maskin2_l2r_stage1
 
-imports c (* SupInf SEQ *) Real
+imports 
+(* Equiv_Relations 
+  SetUtils
+  Partitions
+*)
+  RelationProperties 
+  
+
+ (* SupInf SEQ *) Real
 
 begin
 

@@ -1,6 +1,19 @@
-theory e
+(*
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
-imports d (* SEQ *) Real
+Authors:
+* Marco B. Caminati <marco.caminati@gmail.com>
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
+
+theory Maskin2_l2r_stage2
+
+imports Maskin2_l2r_stage1 (* SEQ *) Real
 Real_Vector_Spaces Limits Conditionally_Complete_Lattices
 
 begin
