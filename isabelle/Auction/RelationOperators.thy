@@ -12,6 +12,9 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
+header {* Additional operators on relations, going beyond Relations.thy,
+  and properties of these operators *}
+
 theory RelationOperators
 imports
   Main
