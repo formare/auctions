@@ -57,7 +57,12 @@ type_synonym payments = "real vector"
 *)
 
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
-type_synonym allocation_rel = "(goods \<times> participant) set" (* CL: goods set not necessary as the function-as-relation-as-set representation carries its own domain :-) *)
+type_synonym allocation_rel = "(goods \<times> participant) set"
+(* CL: providing a separate "goods set", as for allocation_fun below, is not necessary,
+   as the function-as-relation-as-set representation already includes the domain
+   on which we intend the function to work :-)  When representing the allocation as a function,
+   we do need the set on which we intend to use the function, as Isabelle's functions are
+   always total. *)
 
 type_synonym payments = "participant \<Rightarrow> price"
 
