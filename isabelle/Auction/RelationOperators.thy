@@ -70,7 +70,7 @@ text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term
   tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
   from the domain of @{term R}. *}
 definition Outside :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "outside" 75) (* MC: 75 or whatever, for what I know *)
-where "Outside R X = R - (X \<times> Range R)"
+where "R outside X = R - (X \<times> Range R)"
 
 text {* Considering a relation outside some set @{term X} reduces its domain by @{term X}. *}
 lemma outside_reduces_domain: "Domain (P outside X) = Domain P - X"

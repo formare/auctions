@@ -160,7 +160,7 @@ shows
 "genvick a p i w"
 proof -
 let ?d=Domain let ?u=runiq let ?g1="%x. reducedprice p i a ,, ({i} \<union> Domain x, x, a1)" 
-let ?X="(% b. Outside b {i})`(?d a)"
+let ?X="(% b. b outside {i})`(?d a)"
 {
   fix b assume 
   1: "b\<in> ?d a \<inter> (?d p)" then have
