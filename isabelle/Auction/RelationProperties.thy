@@ -1138,22 +1138,9 @@ next
   finally show ?case .
 qed
 
-(* TODO CL: check how much of the following we still need *)
-section {* Christoph's old stuff *}
-
-text {* A relation is a function on a set @{term A}, if it is left-total on @{term A} and right-unique. *}
-definition function_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
-where "function_on R A \<longleftrightarrow> (A \<subseteq> Domain R) \<and> runiq R"
-
-fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
-where "as_part_fun R a = (let im = R `` {a} in 
-        if card im = 1 then Some (the_elem im)
-        else None)"
-
 definition to_relation :: "('a \<Rightarrow> 'b) \<Rightarrow> ('a \<times> 'b) set"
 (* MC: the domain can be possibly specified in a separate step, e.g. through || *)
 where "to_relation f = {(x, f x) | x . True}"
-
 
 lemma l14: fixes f P shows "runiq {(x,f x) | x . P x}"
 proof -
@@ -1379,7 +1366,6 @@ finally have "X \<subseteq> {x}" by fast
 thus ?thesis using trivial_def by (metis "1" Image_within_domain' subset_singletonD the_elem_eq)
 qed
 
-
 lemma l28: fixes r p x q assumes "projector p ,, x \<in> Domain (quotient r p q)"
 assumes "runiq (quotient r p q)"
 assumes "q \<subseteq> Graph id"
@@ -1393,7 +1379,8 @@ hence 2: "?Y \<in> Range (projector q)" using l12 by blast
 thus "trivial ?Y" using l10 2 assms by blast
 qed
 
-corollary l29: 
+corollary 
+(* l29: *)
 fixes r x p q
 assumes "equiv (Domain p) p" 
 assumes "runiq (quotient r p q)" (* l23, l24 for that *)
@@ -1466,7 +1453,8 @@ let ?GG="{(x,y)| x y. y \<in> ?RQ & x \<in> ?RP & x \<times> y \<inter> g \<note
 {
   fix X Y1 Y2 assume "(X, Y1) \<in> ?GG" hence 3: "X \<in> ?RP & Y1 \<in> ?RQ & X \<times> Y1 \<inter> g \<noteq> {}" by simp
   hence "X \<in> Range {(x, p `` {x})|x. x\<in> Domain p}" using projector_def by metis
-  then obtain x where 10: "x\<in> Domain p & X = p``{x}" 
+  then obtain x where 
+  10: "x\<in> Domain p & X = p``{x}" 
   using projector_def Range_def by blast
   obtain x1 y1 where 1: "(x1, y1) \<in> X \<times> Y1 \<inter> g" using 3 by auto  
   assume "(X, Y2) \<in> ?GG" hence 4: "Y2 \<in> ?RQ & X \<times> Y2 \<inter> g \<noteq> {}" by simp
@@ -1519,7 +1507,6 @@ using restrict_to_singleton outside_union_restrict by metis
 corollary l40: shows "R = (R outside {x}) +* ({x} \<times> (R `` {x}))" 
 by (metis paste_outside_restrict restrict_to_singleton)
 
-
 lemma l43: shows "\<Union> ((op `` R) ` X)= R ``(\<Union> X)" using Image_def by blast
 
 lemma l44: shows "\<Union> Range (projector R) \<supseteq> Range R" 
@@ -1541,7 +1528,6 @@ using part2rel_def by blast
 lemma assumes "runiq R" shows 
 "(\<forall> x y1 y2. (x,y1) \<in> R & (x,y2)\<in>R \<longrightarrow> y1=y2)"
 using assms l31 by metis
-
 
 lemma l30: fixes R shows "runiq { (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
 (is "runiq ?f") 
@@ -1715,7 +1701,6 @@ also have "... = quotient r p q" using quotient_def by fastforce
 ultimately show ?thesis by presburger
 qed
 
-
 lemma ll51: shows "(P \<union> Q) outside X = P outside X \<union> (Q outside X)"
 using Outside_def Un_assoc
 proof -
@@ -1773,7 +1758,6 @@ l40 l38 paste_def Outside_def by fast
 
 corollary ll84: shows "R = R +* ({x} \<times> (R``{x}))" using ll82 ll83 by force
 
-
 lemma ll85: assumes "runiq f" shows "runiq (f^-1 O f)"
 proof -
 let ?g="f^-1" let ?it="?g O f" have "\<forall> Y. f``(?g``Y) = ?it``Y" by fast
@@ -1818,7 +1802,6 @@ ultimately show "?II = ?g (?r f) id" using ll81 by metis
 qed
 
 lemma ll90: shows "(\<Union> ((projector R)``X)) \<supseteq> R``X" using projector_def by blast
-
 
 lemma ll89: fixes X::"'a set" fixes R::"('a \<times> 'b) set" shows "\<Union> ((projector R)``X) \<subseteq> R``X" 
 (* MC: shorten this proof *)
@@ -1953,7 +1936,6 @@ corollary ll05: assumes "runiq f" shows
 "f O (projector (f^-1)) = projector (part2rel (kernel f))"
 using assms ll03 ll04 by metis
 
-
 lemma ll16: shows "(P +* Q) outside (Domain Q) \<supseteq> P outside (Domain Q)" 
 using assms paste_def Outside_def l38 l37 ll51 by (smt Un_commute Un_upper2)
 
@@ -1966,7 +1948,6 @@ lemma ll19: shows "(P +* Q) outside (X \<union> Domain Q) =
 P outside (X \<union> Domain Q)" using assms paste_def ll51 ll52 ll18 
 (* by (metis outside_union_restrict restrict_empty sup.right_idem)*)
 by (metis (hide_lams, no_types) empty_subsetI le_sup_iff subset_refl sup_absorb1 sup_absorb2)
-
 
 lemma ll12: fixes f::"('a \<times> 'b) set" assumes "runiq f" shows 
 "Range (projector (f^-1)) = Range (projector (part2rel (kernel f)))"
@@ -2036,7 +2017,6 @@ have "?G,,x = f x" by (rule l16)
 thus ?thesis using Graph_def by metis
 qed
 
-
 corollary ll25: shows "(P +* Q) `` (Domain Q - X) = Q``(Domain Q - X)"
 proof -
 let ?d=Domain let ?D="?d Q" let ?R="P +* Q" 
@@ -2046,7 +2026,6 @@ ultimately show ?thesis by auto
 qed
 
 lemma ll41: shows "Domain (R||X) = Domain R \<inter> X" using restrict_def by fastforce
-
 
 lemma ll37: shows "runiq(graph X f) & Domain(graph X f)=X" 
 proof -
@@ -2068,7 +2047,6 @@ let ?P="%xx. xx\<in>X" let ?g="{(x, f x)|x. ?P x}"
 have "?P x" using assms by fast then have "?g,,x=f x" by (rule l16)
 thus ?thesis using graph_def by metis
 qed
-
 
 definition runiqs where "runiqs={f. runiq f}"
 
@@ -2097,7 +2075,6 @@ qed
 
 corollary ll39: assumes "runiq f" shows "cartesian (Domain (graph runiqs F)) f x"
 using ll38 ll37 assms by metis
-
 
 lemma lll00: shows "P||X = P outside (Domain P - X)" 
 using Outside_def restrict_def by fastforce
@@ -2148,7 +2125,6 @@ proof -
   ultimately show ?thesis by (metis Int_commute ll41 paste_def)
 qed
 
-
 lemma lll72: "(P +* Q) outside X = (P outside X) +* (Q outside X)" by (metis (hide_lams, no_types) 
 Un_Diff_cancel Un_commute ll51 ll52 outside_reduces_domain paste_def)
 
@@ -2157,7 +2133,6 @@ runiq_singleton_rel by metis
 
 lemma lll43: "(X2 \<times> {y}) outside X1 = (X2 - X1) \<times> {y}" using assms Outside_def 
 by auto
-
 
 lemma lll31: assumes "runiq P" shows "inj_on fst P" using assms 
 runiq_def inj_on_def by (smt runiq_basic surjective_pairing)
@@ -2168,10 +2143,8 @@ inj_on_def by (metis (hide_lams, mono_tags) Pair_inject fst_conv runiq_basic)
 lemma lll33: "runiq P=inj_on fst P" using lll31 lll32 by blast
 (* Another characterization of runiq, reducing to lambda-functional injectivity *)
 
-
 lemma lll34: assumes "runiq P" shows "card (Domain P) = card P" 
 using assms lll33 card_image by (metis Domain_fst)
-
 
 corollary lll91b: "(P +* Q) outside (Domain Q)=P outside (Domain Q)" using ll19 by (metis Un_absorb)
 
@@ -2187,7 +2160,6 @@ proof -
 qed
 
 lemma ll71b: assumes "runiq f" "X \<subseteq> (f^-1)``Y" shows "f``X \<subseteq> Y" using assms ll71 by (metis Image_mono order_refl subset_trans)
-
 
 corollary lll93: "{R+<(x,y)| y. True} = {(R +< (x,yy)) +< (x,y)| y. True}"
 using assms by (metis (hide_lams, no_types) Domain_empty Domain_insert lll91c paste_def surjective_pairing)
@@ -2207,5 +2179,16 @@ qed
 
 lemma lll99: "R``(X-Y) = (R||X)``(X-Y)" using restrict_def by blast
 
+(* TODO CL: check how much of the following we still need *)
+section {* Christoph's old stuff *}
+
+text {* A relation is a function on a set @{term A}, if it is left-total on @{term A} and right-unique. *}
+definition function_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
+where "function_on R A \<longleftrightarrow> (A \<subseteq> Domain R) \<and> runiq R"
+
+fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
+where "as_part_fun R a = (let im = R `` {a} in 
+        if card im = 1 then Some (the_elem im)
+        else None)"
 
 end

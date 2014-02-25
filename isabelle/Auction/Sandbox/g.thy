@@ -1,7 +1,8 @@
 theory g
 
-imports f "../CombinatorialVickreyAuction"
+imports "../CombinatorialVickreyAuction"
 "~~/src/HOL/Library/Code_Target_Nat"
+Relation
 
 begin
 
@@ -49,7 +50,7 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-lemma lll82: assumes "(x::'a) \<in> Domain f" "runiq f" shows "f,,x = f,,,x"
+lemma lll82: assumes "(x::'a) \<in> Domain (f::(('a \<times> ('b set)) set))" "runiq f" shows "f,,x = f,,,x"
 (* CL: Interesting: metis says that eval_rel_def is unused in the proof, but when I use it,
    the proof takes much longer (too long for me to wait) *)
 using assms by (metis Image_runiq_eq_eval cSup_singleton)
@@ -318,7 +319,11 @@ lemma "value_rel (b::bids) a = proceeds (altbids b) (a^-1)" using value_rel_def 
 sorry
 
 corollary assumes "runiq (P^-1)" shows "Range (P outside X) \<inter> Range (P || X)={}"
-using assms lll78 Outside_def Range_def by (metis lll01 lll85)
+using assms lll78 by (metis lll01 lll85)
+
+value "{(0::nat,10),(1,11),(1,12::nat)} ,, 0"
+value "({(0::nat,10),(1,11),(1,12)} +< (1,13::nat)) ,, 1"
+term "%x. (R,,x)"
 
 end
 

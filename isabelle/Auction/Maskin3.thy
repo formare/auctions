@@ -1,9 +1,9 @@
-theory f
+theory Maskin3
 
 imports 
 (* "~~/src/HOL/Cardinals/Cardinal_Order_Relation_Base" *) 
 (* SupInf *)
-c 
+"RelationProperties"
 Real 
 Real_Vector_Spaces
 (*

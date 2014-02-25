@@ -19,6 +19,7 @@ theory RelationOperators
 imports
   Main
   SetUtils
+  "~~/src/HOL/Library/Code_Target_Nat"
 
 begin
 
@@ -213,7 +214,7 @@ notation singlepaste (infix "+<" 75) (* Type of g in f +< g should avoid ambigui
 abbreviation prova (infix "--" 75) where "f -- x \<equiv> f outside {x}"
 abbreviation ler_ni where "ler_ni r == (\<Union>x. ({x} \<times> (r x -` {True})))"
 (* inverts in_rel *)
-value "{(1::nat,3::nat)} +< (1,2)"
+value "({(1::nat,3::nat),(2,5)} +* {(1,2),(1,4)} ),,2"
 
 
 definition Graph (* compare with Function_Order.thy; 
@@ -285,10 +286,8 @@ definition graph where "graph X f = {(x, f x) | x. x \<in> X}"
 (* duplicates Function_Order, which is otherwise unneeded,
 and I don't have enough hardware to import *)
 
-
 definition ler_in where "ler_in r= (\<Union>x. ({x} \<times> (r x -` {True})))"
 (* inverts in_rel *)
-
 
 abbreviation "eval_rel2 (R::('a \<times> ('b set)) set) (x::'a) == \<Union> (R``{x})"
 notation eval_rel2 (infix ",,," 75)

@@ -1,9 +1,15 @@
 theory t
 imports Main "../Maximum"
 "~~/src/HOL/Library/Code_Target_Nat"
+"../RelationProperties"
+Fun
 
 begin
-type_synonym instant=nat
+type_synonym instant=nat (*CR: defining instant in case later want to change instant type*)
+type_synonym participant=nat
+type_synonym price=nat
+type_synonym newbid="instant => (bool \<times> price)"
+type_synonym bids="instant => (participant => price)"
 
 (*MC: first basic approach. We have bids for each (natural) instant, from which we calculate, at a given instant,
 a pair (boolean, lastvalidprice).
@@ -22,6 +28,19 @@ definition stopauctionat where "stopauctionat l =
 filterpositions2 (%x. (x=True)) (sametomyleft l)"
 (* MC: I reuse what introduced to calculate argmax *)
 
+definition stopauctionat2 where "stopauctionat2 f=Min (Domain ((graph UNIV (%t. f (t+1::nat))) \<inter> 
+(graph UNIV f)))"
+
+definition stopauctionat3 where "stopauctionat3 f=
+the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
+
+term "%x. (if (x=1) then True else False)"
+
+term stopauctionat2
+term "(%x::nat. (if (x=1) then 2 else 3))"
+term "stopauctionat3 (%x::nat. (if (x=1) then (2::nat) else (3::nat)))"
+
+(* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
 definition flag where "flag prev cur = (if 
 ((snd cur) < (snd prev) \<or> \<not> (fst cur)) 
 then False else True)"
@@ -30,17 +49,42 @@ definition lastvalidbid where
 "lastvalidbid prev cur = (if flag prev cur then (snd cur) else (snd prev))"
 
 fun amendedbid where
-"amendedbid b 0 = (b 0)" 
-|
+"amendedbid b 0 = (b 0)" |
 "amendedbid b (Suc n) = 
 (flag (amendedbid b n) (b (Suc n)), lastvalidbid (amendedbid b n) (b (Suc n)))"
 
-value "(%n::nat. (if (n=0) then 0 else 1))"
+definition swap where "swap d = (% i. (%t. d t i))" 
+
+abbreviation interface where "interface c == (nth (zip [n<0. n <- c] c))"
+
+abbreviation tolist where "tolist N (f::(nat => 'a)) == [ (f i). i <- [0 ..< (Suc N)]]"
+
+value "tolist (3::nat) (%x::nat. (if (x=1) then (2::nat) else 3))"
+
+term amendedbid
+abbreviation lastrounds where "lastrounds B == graph {1,2,3} (% i. 
+set (stopauctionat ((map snd) (tolist 10 (amendedbid (B i))))))"
 
 abbreviation example where 
-"example == %n::nat. (if (n=0) then (True, 10::nat) else (True, 1))"
+"example == %n::instant. (if (n=0) then (True, 10::nat) else (True, 1))"
 
-value "amendedbid example (1::nat)"
+abbreviation lastround where "lastround B == Min (\<Inter> (Range  (lastrounds B)))"
 
+abbreviation Example where "Example == (%i. example)"
+
+value "lastround Example"
+
+value "%i. (Example i (lastround Example))"
+
+term "%i. ((map snd) (B i))"
+value "stopauctionat [1,2,3::nat,2,2,3,4,5,5]"
+
+term interface
+value amendedbid
+value "amendedbid (interface B)"
+value "(%n::instant. (if (n=0) then 0 else 1))"
+
+value "amendedbid example (1::instant)"
+find_consts "'a list => (nat => 'a)"
 end
 

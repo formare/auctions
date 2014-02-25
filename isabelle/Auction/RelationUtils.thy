@@ -135,13 +135,11 @@ lemma ll60: shows "P O Q O R =
 lemma ll61: assumes "refl_on X P" "x\<in>X" shows "x \<in> P``{x}" using refl_on_def assms
 by (metis Image_singleton_iff)
 
-
 lemma ll88: assumes "P xx" shows "{(x, f x)|x. P x}``{xx} = {f xx}"
 using Image_def assms by blast
 
 lemma lll07: shows "(P \<inter> Q)``{x} = (P``{x} \<inter> (Q``{x}))" by fastforce
 
 lemma assumes "P \<inter> Q={}" shows "P^-1 \<inter> Q^-1={}" using assms by fast
-
 
 end
