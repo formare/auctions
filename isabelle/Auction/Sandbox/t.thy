@@ -66,7 +66,7 @@ abbreviation lastrounds where "lastrounds B == graph {1,2,3} (% i.
 set (stopauctionat ((map snd) (tolist 10 (amendedbid (B i))))))"
 
 abbreviation example where 
-"example == %n::instant. (if (n=0) then (True, 10::nat) else (True, 1))"
+"example == %t::instant. (if (t=0) then (True, 10::nat) else (True, 1))"
 
 abbreviation lastround where "lastround B == Min (\<Inter> (Range  (lastrounds B)))"
 
