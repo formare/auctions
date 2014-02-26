@@ -13,7 +13,7 @@ type_synonym bids="instant => (participant => price)"
 
 (*MC: first basic approach. We have bids for each (natural) instant, from which we calculate, at a given instant,
 a pair (boolean, lastvalidprice).
-The first is a flag saying whether that bidder is still into play, and can be freely set by the bidder himself.
+The first is a flag liveliness saying whether that bidder is still into play, and can be freely set by the bidder himself.
 But it also turn into false if the bid is invalid (which for the moment just coincides with the fact that his bid has decreased, 
 but can be enriched with other conditions, like reserve price, minimal increase, etc...).
 The second preserves the last valid bid, which for the moment coincides with the price of last time we computed a true flag. *)
@@ -41,17 +41,17 @@ term "(%x::nat. (if (x=1) then 2 else 3))"
 term "stopauctionat3 (%x::nat. (if (x=1) then (2::nat) else (3::nat)))"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
-definition flag where "flag prev cur = (if 
+definition liveliness where "liveliness prev cur = (if 
 ((snd cur) < (snd prev) \<or> \<not> (fst cur)) 
 then False else True)"
 
 definition lastvalidbid where 
-"lastvalidbid prev cur = (if flag prev cur then (snd cur) else (snd prev))"
+"lastvalidbid prev cur = (if liveliness prev cur then (snd cur) else (snd prev))"
 
 fun amendedbid where
 "amendedbid b 0 = (b 0)" |
 "amendedbid b (Suc t) = 
-(flag (amendedbid b t) (b (Suc t)), lastvalidbid (amendedbid b t) (b (Suc t)))"
+(liveliness (amendedbid b t) (b (Suc t)), lastvalidbid (amendedbid b t) (b (Suc t)))"
 
 definition swap where "swap d = (% i. (%t. d t i))" 
 
