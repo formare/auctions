@@ -50,12 +50,12 @@ definition lastvalidbid where
 
 fun amendedbid where
 "amendedbid b 0 = (b 0)" |
-"amendedbid b (Suc n) = 
-(flag (amendedbid b n) (b (Suc n)), lastvalidbid (amendedbid b n) (b (Suc n)))"
+"amendedbid b (Suc t) = 
+(flag (amendedbid b t) (b (Suc t)), lastvalidbid (amendedbid b t) (b (Suc t)))"
 
 definition swap where "swap d = (% i. (%t. d t i))" 
 
-abbreviation interface where "interface c == (nth (zip [n<0. n <- c] c))"
+abbreviation interface where "interface c == (nth (zip [t<0. t <- c] c))"
 
 abbreviation tolist where "tolist N (f::(nat => 'a)) == [ (f i). i <- [0 ..< (Suc N)]]"
 
@@ -82,7 +82,7 @@ value "stopauctionat [1,2,3::nat,2,2,3,4,5,5]"
 term interface
 value amendedbid
 value "amendedbid (interface B)"
-value "(%n::instant. (if (n=0) then 0 else 1))"
+value "(%t::instant. (if (t=0) then 0 else 1))"
 
 value "amendedbid example (1::instant)"
 find_consts "'a list => (nat => 'a)"
