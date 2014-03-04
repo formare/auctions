@@ -26,6 +26,20 @@ begin
 
 section {* value-maximising allocation (for winner determination) *}
 
+(* CL@MC: What's the rationale behind this?  Bringing allocation and bids into the 
+   same structure, so that it is easier to compute a sum over them?  If so, this 
+   will be worth mentioning in the paper, as it is an important design choice
+   in formalisation. *)
+type_synonym altbids = "(participant \<times> goods) \<Rightarrow> price"
+abbreviation "altbids (b::bids) == split b"
+(* CL: I don't understand the choice of the name "proceeds". *)
+abbreviation "proceeds (b::altbids) (allo::allocation) == setsum b allo"
+
+abbreviation participants where "participants (a::allocation) == Domain a"
+abbreviation goods::"allocation => goods" where "goods (allo::allocation) == \<Union> (Range allo)"
+
+abbreviation "winningAllocationsRel N G (b::altbids) == arg_max' (proceeds b) (possibleAllocationsRel N G)"
+
 text {* the set of value-maximising allocations (according to the bids submitted), i.e.\ the ``arg max''
   of @{const value_rel} on the set of all possible allocations *}
 definition winning_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel set"
@@ -42,29 +56,44 @@ text {* the unique winning allocation that remains from @{const winning_allocati
 fun winning_allocation_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> allocation_rel"
 where "winning_allocation_rel G N t b = t (winning_allocations_rel G N b)"
 
+abbreviation "winningAllocationRel N G t b == t (winningAllocationsRel N G b)"
+
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition winning_allocation_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> allocation_fun"
 where "winning_allocation_fun G N t b = t (winning_allocations_fun G N b)"
 *)
 
 text {* algorithmic version of @{const winning_allocations_rel} *}
-fun winning_allocations_alg_CL :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel list"
-where "winning_allocations_alg_CL G N b = (arg_max_alg_list
-    (possible_allocations_alg G N)
-    (value_rel b))"
+fun winning_allocations_alg_CL :: "goods \<Rightarrow> participant set \<Rightarrow> bids => allocation list
+(* bids \<Rightarrow> allocation_rel list *)
+" 
+where "winning_allocations_alg_CL G N b = (argmax
+(proceeds (split b)) (map converse (possible_allocations_alg G N))
+(*    (possible_allocations_alg G N)
+    (value_rel b) *)    
+)"
 
 text {* alternative algorithmic version of @{const winning_allocations_rel} *}
-fun winning_allocations_alg_MC :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation_rel list"
-where "winning_allocations_alg_MC G N b = (let all = possible_allocations_alg G N in
-  map (nth all) (max_positions (map (value_rel b) all)))"
+fun winning_allocations_alg_MC :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> allocation list"
+where "winning_allocations_alg_MC G N b = (let all = (map converse (possible_allocations_alg G N)) 
+in map (nth all) (max_positions (map (proceeds (split b)) all)))"
+
+type_synonym tieBreakerRel = "allocation set \<Rightarrow> allocation"
+type_synonym tieBreakerAlg = "allocation list \<Rightarrow> allocation"
+
+abbreviation "winningAllocationsAlg N G b == argmax (proceeds b) (possibleAllocationsAlg N G)"
 
 text {* algorithmic version of @{const winning_allocation_rel} *}
-fun winning_allocation_alg_CL :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel"
+fun winning_allocation_alg_CL 
+(* :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel" *)
 where "winning_allocation_alg_CL G N t b = t (winning_allocations_alg_CL G N b)"
 
 text {* alternative algorithmic version of @{const winning_allocation_rel} *}
-fun winning_allocation_alg_MC :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel"
+fun winning_allocation_alg_MC 
+(* :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel" *)
 where "winning_allocation_alg_MC G N t b = t (winning_allocations_alg_MC G N b)"
+
+abbreviation "winningAllocationAlg N G t b == t (winningAllocationsAlg N G b)"
 
 text {* payments *}
 
@@ -73,9 +102,16 @@ text {* the maximum sum of bids of all bidders except bidder @{text n}'s bid, co
 fun \<alpha> :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha> G N b n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))"
 
+abbreviation "alpha N G b n == Max ((proceeds b)`(possibleAllocationsRel (N-{n}) G))"
+
+abbreviation "remainingValueRel N G t b n == proceeds b (winningAllocationRel N G t b -- n)"
+
 text {* algorithmic version of @{text \<alpha>} *}
 fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha>_alg G N b n = maximum_alg_list (possible_allocations_alg G (N - {n})) (value_rel b)"
+
+abbreviation "alphaAlg N G b n == Max ((proceeds b)`(set (possibleAllocationsAlg (N-{n}) G)))"
+value "Max (set [1::nat,2])" 
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition winners'_goods_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> participant option \<Rightarrow> goods" 
@@ -92,11 +128,20 @@ text {* the sum of bids of all bidders except bidder @{text n} on those goods th
   according to the winning allocation *}
 fun remaining_value_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "remaining_value_rel G N t b n =
-  (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {}))"
+setsum (split b) ((winning_allocation_rel G N t b)^-1 -- n)
+(*   (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {})) *)
+"
+
+term "winningAllocationAlg N G t b"
+
+abbreviation "remainingValueAlg N G t b n == proceeds b (winningAllocationAlg N G t b -- n)"
+
+(*
 
 text {* algorithmic version of @{text remaining_value_rel} *}
 fun remaining_value_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "remaining_value_alg G N t b n =
+setsum (split b) ((winning_allocation_alg_MC G N t b)^-1 -- n) (*
   (\<Sum> m \<in> N - {n} . b m (eval_rel_or
     (* When a participant doesn't gain any goods, there is no participant \<times> goods pair in this relation,
        but we interpret this case as if 'the empty set' had been allocated to the participant. *)
@@ -104,8 +149,9 @@ where "remaining_value_alg G N t b n =
       (* the winning allocation after tie-breaking: a goods \<times> participant relation, which we have to invert *)
       (winning_allocation_alg_CL G N t b)\<inverse>)
     m (* evaluate the relation for participant m *)
-    {} (* return the empty set if nothing is in relation with m *)
-  ))"
+    {} (* return the empty set if nothing is in relation with m *) )) *)
+"
+*)
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition payments_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
@@ -116,9 +162,15 @@ text {* the payments per bidder *}
 fun payments_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_rel G N t = \<alpha> G N - remaining_value_rel G N t"
 
+abbreviation "paymentsRel N G t == alpha N G - remainingValueRel N G t"
+
+(*
 text {* algorithmic version of @{text payments_rel} *}
 fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
+*)
+
+abbreviation "paymentsAlg N G t == alphaAlg N G - remainingValueAlg N G t"
 
 text {* alternative algorithmic version of @{text payments_rel}, working around an Isabelle2013 bug *}
 

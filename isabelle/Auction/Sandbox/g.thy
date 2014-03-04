@@ -2,22 +2,22 @@ theory g
 
 imports "../CombinatorialVickreyAuction"
 "~~/src/HOL/Library/Code_Target_Nat"
+(* "../CombinatorialVickreyAuctionSoundness" *)
+"../CombinatorialAuctionProperties"
 Relation
 
 begin
 
-(* CL@MC: What's the rationale behind this?  Bringing allocation and bids into the 
-   same structure, so that it is easier to compute a sum over them?  If so, this 
-   will be worth mentioning in the paper, as it is an important design choice
-   in formalisation. *)
-type_synonym altbids = "(participant \<times> goods) \<Rightarrow> price"
-type_synonym allocation_conv = "(participant \<times> goods) set"
+abbreviation "allInjections == {R. (runiq R) & (runiq (R^-1))}"
 
-abbreviation "altbids (b::bids) == split b"
-term "altbids b"
-term "(altbids (b::bids))=(x::altbids)"
-(* CL: I don't understand the choice of the name "proceeds". *)
-abbreviation "proceeds (b::altbids) (allo::allocation_conv) == setsum b allo"
+lemma "injections' X Y \<subseteq> allInjections" by fast
+lemma "injections' X Y = {R. Domain R = X & Range R \<subseteq> Y} \<inter> allInjections" by fastforce
+
+lemma fixes N::"participant set" fixes G::goods fixes a::"allocation" assumes 
+"a \<in> possibleAllocationsRel N G" shows 
+"a^-1 \<in> injections (Range a) N & Range a partitions G & Domain a \<subseteq> N"
+using assms all_partitions_def Domain_converse allocation_injective converse_converse 
+image_iff injections_def mem_Collect_eq by smt
 
 lemma lll23: assumes "finite A" shows "setsum f A = setsum f (A \<inter> B) + setsum f (A - B)" using 
 assms by (metis DiffD2 Int_iff Un_Diff_Int Un_commute finite_Un setsum.union_inter_neutral)
@@ -157,7 +157,7 @@ then show ?thesis using possible_allocations_rel_def by auto
 qed
 
 lemma lll75: assumes "finite a" "(b::altbids) (xx, yy1) \<le> b (xx, yy2)" shows 
-"setsum b ((a::allocation_conv) +< (xx,yy1)) \<le> setsum b (a +< (xx,yy2))"
+"setsum b ((a::allocation) +< (xx,yy1)) \<le> setsum b (a +< (xx,yy2))"
 proof -
   let ?z1="(xx, yy1)" let ?z2="(xx, yy2)" let ?a0="a -- xx" let ?a1="a +< ?z1" let ?a2="a +< ?z2"
   have 
@@ -222,9 +222,34 @@ qed
 lemma lll86: assumes "X \<inter> Y={}" shows "R``X = (R outside Y)``X"
 using assms Outside_def Image_def by blast
 
+(*
+lemma shows 
+(*remaining_value_rel G N t b n*)
+"setsum 
+(%m. (b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {})) )
+(N-{n})
+= setsum (altbids b) ((winning_allocation_rel G N t b)^-1 -- n)"
+using remaining_value_rel_def winning_allocation_rel_def Outside_def 
+proof -
+let ?w="winning_allocation_rel" let ?W="?w G N t b"
+term "altbids b"
+term "(?W^-1)"
+  {
+    fix m let ?M="(m, (?W^-1),,m)"
+    assume "m \<in> (N-{n})" then
+    have "card (?W^-1 `` {m}) \<noteq> 0" sledgehammer
+    have "b m (eval_rel_or (?W^-1) m {}) = (altbids b) ?M" 
+    using eval_rel_or_def winning_allocation_rel_def sorry
+    have "True" sorry
+  }
+  show ?thesis sorry
+qed
+*)
+
 lemma lll76: assumes "a \<in> possible_allocations_rel G N"
 "n \<in> Range a"
-"finite (possible_allocations_rel G (N-{n}))" (*MC: qv allocs_finite *)
+"finite (possibleAllocationsRel (N-{n}) G)"
+(* "finite (possible_allocations_rel G (N-{n}))" (*MC: qv allocs_finite *) *)
 "finite a" (*MC: the two finiteness requirements can be replaced by finiteness of N, G*)
 "EX i. i\<in>Domain (a^-1 -- n) & b (i, (a^-1),,,i) \<le> b (i, (a^-1),,,i \<union> (a^-1),,,n)"
 (* MC: this is monotonicity assumption *)
@@ -253,8 +278,8 @@ proof -
   then have 
   6: "N - {n} \<union> {i} = N -{n}" using 0 by blast
   have
-  3: "is_partition_of (?d a) G" using assms lll81 by blast then
-  have "is_partition (?r (a^-1))" using  is_partition_of_def by (metis Range_converse)
+  3: "(?d a) partitions G" using assms lll81 by blast then
+  have "is_partition (?r (a^-1))" using is_partition_of_def by (metis Range_converse)
   then have 
   4: "is_partition (?r ?aa)" using all_partitions_def is_partition_of_def 
   Outside_def subset_is_partition lll81 assms by (metis Range_outside_sub equalityE)
@@ -315,8 +340,84 @@ proof -
   ultimately show ?thesis  using 1 by force
 qed
 
-lemma "value_rel (b::bids) a = proceeds (altbids b) (a^-1)" using value_rel_def split_def 
-sorry
+corollary lm01:
+assumes "a \<in> possibleAllocationsRel N G"
+"n \<in> Domain a"
+"finite (possibleAllocationsRel (N-{n}) G)" (*MC: qv allocs_finite *)
+"finite a" (*MC: the two finiteness requirements can be replaced by finiteness of N, G*)
+"EX i. i\<in>Domain (a -- n) & b (i, a,,,i) \<le> b (i, a,,,i \<union> a,,,n)"
+(* MC: this is monotonicity assumption *)
+shows "alpha N G b n \<ge> 
+proceeds b (a -- n)" using lll76 assms converse_def 
+proof -
+  let ?p="possible_allocations_rel" let ?a="a^-1" let ?f=finite
+  have "?a \<in> ?p G N" using assms by fastforce
+  moreover have "n \<in> Range ?a" using assms
+by fast
+  moreover have "?f ?a" using assms by fast
+  moreover have 
+"EX i. i\<in>Domain (?a^-1 -- n) & b (i, (?a^-1),,,i) \<le> b (i, (?a^-1),,,i \<union> (?a^-1),,,n)"
+using assms 
+by simp
+ultimately have 
+"Max (proceeds b ` (converse ` (?p G (N - {n})))) \<ge> 
+proceeds b ((?a\<inverse>) -- n)" using lll76 assms by blast
+thus ?thesis by simp
+qed
+
+lemma lm02: "arg_max' f A = { x \<in> A . f x = Max (f ` A) }" using assms
+by simp
+
+abbreviation "isChoice R == \<forall>x. R``{x} \<subseteq> x"
+
+lemma lm04: "graph (X \<inter> Y) f \<subseteq> graph X f || Y" using graph_def assms restrict_def
+by (smt Int_iff mem_Collect_eq restrict_ext subrelI)
+
+lemma lm06: "graph X f = Graph f || X" using graph_def Graph_def restrict_def
+by (smt inf_top.left_neutral  lm04 mem_Collect_eq prod.inject restrict_ext subsetI subset_antisym)
+
+lemma lm05: "graph (X \<inter> Y) f = graph X f || Y" using lll02 lm06 by metis
+
+lemma lm07: assumes "isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))" shows 
+"t (winningAllocationsRel N G b) \<in> winningAllocationsRel N G b" 
+using assms
+proof - (* MC: to be cleaned *)
+let ?W="winningAllocationsRel N G b" let ?T="graph {?W} t" let ?TT="graph UNIV t" let ?TTT="Graph t"
+have "?T``{?W} \<subseteq> ?W" using assms by fast
+moreover have "?TTT``{?W} = (?TTT || {?W})``{?W}" using restrict_def Image_def by fast
+moreover have "?TTT || {?W} = ?TT || {?W}" using ll36 by metis
+moreover have "... = ?T" using graph_def restrict_def Graph_def lm05 by (metis Int_UNIV_left)
+moreover have "?T``{?W} = ?TTT``{?W}" using graph_def Graph_def by (metis calculation(2) lm06)
+moreover have "?T``{?W} \<subseteq> t`{?W}" using l4 l5 ll36 by (metis calculation(5) subsetI)
+ultimately show ?thesis using assms by (metis (hide_lams, no_types) image_eqI insertI1 l4 set_rev_mp)
+qed
+
+corollary lm03: "winningAllocationsRel N G (b::altbids) \<subseteq> possibleAllocationsRel N G" 
+using assms lm02 by (smt mem_Collect_eq subsetI)
+
+corollary lm08: assumes 
+"a \<in> winningAllocationsRel N G b"
+"n \<in> Domain a"
+"finite (possibleAllocationsRel (N-{n}) G)"
+"finite a"
+"EX i. i\<in>Domain (a -- n) & b (i, a,,,i) \<le> b (i, a,,,i \<union> a,,,n)"
+(* MC: this is monotonicity assumption *)
+shows "alpha N G b n \<ge> 
+proceeds b (a -- n)" using assms lm01 lm03 by simp
+
+corollary assumes 
+"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
+"n \<in> Domain (winningAllocationRel N G t b)" 
+"finite (possibleAllocationsRel (N-{n}) G)"
+"finite (winningAllocationRel N G t b)"
+"EX i. i\<in>Domain ((winningAllocationRel N G t b) -- n) & 
+b (i, (winningAllocationRel N G t b),,,i) \<le> 
+b (i, (winningAllocationRel N G t b),,,i \<union> (winningAllocationRel N G t b),,,n)"
+shows "alpha N G b n \<ge> remainingValueRel N G t b n"
+using lm08 assms lm07 by blast
+
+lemma assumes "n \<notin> N" shows "Max ((proceeds b)`(possibleAllocationsRel (N-{n}) G)) = 
+proceeds b (winningAllocationRel N G t b -- n)" using assms sorry
 
 corollary assumes "runiq (P^-1)" shows "Range (P outside X) \<inter> Range (P || X)={}"
 using assms lll78 by (metis lll01 lll85)

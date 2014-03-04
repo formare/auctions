@@ -304,6 +304,23 @@ proof -
   finally show ?thesis .
 qed
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (* TODO CL: once done, factor out parts into lemmas *)
 text {* The combinatorial Vickrey auction is well-defined. *}
 lemma wd_outcome:
@@ -368,7 +385,7 @@ proof (rule wd_outcomeI)
     ultimately show ?thesis unfolding wd_allocation_def by blast
   qed
   (* the second aspect of a well-defined outcome: the payments are well-defined, i.e. \<ge> 0 *)
-  moreover have "wd_payments N p" unfolding wd_payments_def
+  moreover have "wd_payments N p" unfolding wd_payments_def (* MC: start of wd_payments proof *)
   proof
     fix n assume "n \<in> N" (* For any such participant, we need to show "p n \<ge> 0". *)
     let ?n's_goods = "THE y . (y, n) \<in> x" (* the goods that participant n gets in the winning allocation x *)
@@ -1009,7 +1026,7 @@ proof (rule wd_outcomeI)
         by (rule Max_Im_ge)
     qed
     ultimately show "p n \<ge> 0" by fastforce
-  qed
+  qed (*MC: end of wd_payments proof *)
   ultimately show "wd_alloc_pay G N b x p" unfolding wd_alloc_pay_def ..
 qed
 

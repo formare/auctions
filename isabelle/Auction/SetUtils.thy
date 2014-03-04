@@ -329,16 +329,13 @@ proof -
   ultimately show ?thesis by fast
 qed
 
-
 lemma ll10: shows "trivial {x}" by (metis order_refl the_elem_eq trivial_def)
 
 lemma ll11: assumes "trivial X" "{x} \<subseteq> X" shows "{x}=X" 
 using singleton_sub_trivial_uniq assms by (metis subset_antisym trivial_def)
 
-
 lemma ll26: assumes "\<not> trivial X" "trivial T" shows "X-T \<noteq> {}"
 using assms by (metis Diff_iff empty_iff subsetI trivial_subset)
-
 
 lemma ll40: assumes "trivial X" "trivial Y" shows "trivial (X \<times> Y)"
 proof -
@@ -347,6 +344,5 @@ have "X \<subseteq> {?x} & Y \<subseteq> {?y}" using assms trivial_def by metis
 hence "?Z \<subseteq> {(?x,?y)}" by blast
 thus ?thesis using trivial_subset trivial_singleton by metis
 qed
-
 
 end

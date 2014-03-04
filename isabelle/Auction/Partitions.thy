@@ -289,7 +289,9 @@ lemma emptyset_part_emptyset3:
    therefore doesn't work with recursive _functions_.
    Then equivalence with all_partitions is inductively shown *)
 (* MC: update: now I probably would know how to utterly eliminate lists from this.
-   CL@MC: Is this comment still up to date? *)
+   CL@MC: Is this comment still up to date? 
+   MC@CL: I no longer know! :)
+*)
 
 text {* inserts an element into a specified set inside the given set of sets *}
 definition insert_into_member :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"

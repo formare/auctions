@@ -211,7 +211,7 @@ where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im
 notation paste (infix "+<" 75)
 abbreviation singlepaste where "singlepaste F f == F +* {(fst f, snd f)}"
 notation singlepaste (infix "+<" 75) (* Type of g in f +< g should avoid ambiguities *)
-abbreviation prova (infix "--" 75) where "f -- x \<equiv> f outside {x}"
+abbreviation singleoutside (infix "--" 75) where "f -- x \<equiv> f outside {x}"
 abbreviation ler_ni where "ler_ni r == (\<Union>x. ({x} \<times> (r x -` {True})))"
 (* inverts in_rel *)
 value "({(1::nat,3::nat),(2,5)} +* {(1,2),(1,4)} ),,2"

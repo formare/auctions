@@ -86,7 +86,6 @@ using assms by (metis diff_divide_distrib)
 
 lemma lll64: fixes x::int shows "x-y+y=x" by force
 
-
 lemma lll22: shows "set_of M = (count M) -` {0<..}" using set_of_def by fast
 
 lemma lll15:  fixes P and n :: nat
@@ -94,7 +93,7 @@ lemma lll15:  fixes P and n :: nat
   shows "\<And>q. q \<le> n \<Longrightarrow> P q" using assms by (metis (full_types) infinite_descent)
 
 lemma lll16: fixes P and n :: nat
-  assumes step: "!m. (!l<m. P l) \<longrightarrow> P m"
+assumes step: "!m. (!l<m. P l) \<longrightarrow> P m"
 shows "\<forall>q \<le> n. P q" 
 using assms lll15 by blast
 

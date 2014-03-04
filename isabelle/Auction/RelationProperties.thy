@@ -1585,6 +1585,7 @@ hence "?T \<subseteq> Y" by blast thus ?thesis using assms by (metis trivial_sub
 qed
 
 lemma ll71: fixes f Y assumes "runiq f" shows "f `` (f^-1 `` Y) \<subseteq> Y" 
+(* MC: Maybe an easier proof could be obtained by converting f to a lambda function beforehand *)
 proof -
 let ?g="f^-1" let ?X="?g `` Y" let ?LH="f `` ?X" let ?I="?g O f" let ?t=trivial
 {
@@ -1720,7 +1721,7 @@ proof -
   ultimately show ?thesis by presburger
 qed
 
-lemma ll53: shows "(P +* Q) +* R = P +* (Q +* R)" (is "?LH = ?RH")
+lemma ll53: "(P +* Q) +* R = P +* (Q +* R)" (is "?LH = ?RH")
 proof -
 let ?D="Domain" let ?dp="?D P" let ?dq="?D Q" let ?dr="?D R" have 
 "?LH=(P outside ?dq \<union> Q) outside ?dr \<union> R" using paste_def by metis also have 
@@ -2030,7 +2031,7 @@ lemma ll41: shows "Domain (R||X) = Domain R \<inter> X" using restrict_def by fa
 lemma ll37: shows "runiq(graph X f) & Domain(graph X f)=X" 
 proof -
 let ?F="{(x, f x)|x. x\<in>X}"
-have "runiq?F" using l14 by fast 
+have "runiq ?F" using l14 by fast 
 also have "Domain ?F=X" by blast
 ultimately show ?thesis using graph_def by metis
 qed

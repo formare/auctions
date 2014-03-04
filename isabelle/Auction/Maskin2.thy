@@ -12,10 +12,8 @@ abbreviation intersectioncondition where "intersectioncondition a w (a1::allocat
 
 lemma lll96: assumes "intersectioncondition a w a1 a2 i" 
 "cartesian (Domain a) b i" 
-
 "b \<in> Domain a" 
 "runiq a" 
-
 shows "pseudomax a (w (b--i)) b i"
 proof -
   let ?w="w (b--i)" let ?a="a,,b" 
@@ -178,7 +176,7 @@ then have "\<forall>b \<in> ?d a \<inter> (?d p). (p,,b = (w (b--i))*(a,,b - a1)
 thus ?thesis by fast
 qed
 
-corollary assumes "\<forall> b\<in>Domain a. cartesian (Domain a) b i & 
+theorem th10: assumes "\<forall> b\<in>Domain a. cartesian (Domain a) b i & 
 runiq (b||{i}) (* MC: this is implied by functional (Domain a) below *)
 & i \<in> Domain b" 
 "Domain a \<subseteq> (a^-1)``{a1, a2}" "a1 \<noteq> a2" "runiq a" "runiq p" "Domain a \<subseteq> Domain p"

@@ -223,7 +223,7 @@ qed
 rather than doing our own recursion to calculate argmax *)
 
 definition filterpositions 
-(*Non(directly)recursive generalization for max_positions, possibly less efficient.
+(* MC: Non(directly)recursive generalization for max_positions, have no idea about efficiency.
 Given a list l, yields the indices of its elements which satisfy a given pred P*)
 :: "('a => bool) => 'a list => nat list"
 where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))"

@@ -26,6 +26,7 @@ section {* Types *}
 
 type_synonym tie_breaker_rel = "allocation_rel set \<Rightarrow> allocation_rel"
 type_synonym tie_breaker_alg = "allocation_rel list \<Rightarrow> allocation_rel"
+type_synonym tieBreaker = "allocation set => allocation"
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 type_synonym tie_breaker_fun = "allocation_fun set \<Rightarrow> allocation_fun"
 *)

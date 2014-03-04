@@ -10,6 +10,12 @@ type_synonym participant=nat
 type_synonym price=nat
 type_synonym newbid="instant => (bool \<times> price)"
 type_synonym bids="instant => (participant => price)"
+type_synonym submission="bool \<times> price"
+type_synonym dynbid="submission list"
+type_synonym dynbids="(instant \<times> dynbid) set"
+
+abbreviation "unzip1 == map fst"
+abbreviation "unzip2 == map snd"
 
 (*MC: first basic approach. We have bids for each (natural) instant, from which we calculate, at a given instant,
 a pair (boolean, lastvalidprice).
@@ -36,9 +42,18 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 
 term "%x. (if (x=1) then True else False)"
 
-term stopauctionat2
-term "(%x::nat. (if (x=1) then 2 else 3))"
-term "stopauctionat3 (%x::nat. (if (x=1) then (2::nat) else (3::nat)))"
+definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})"
+
+(* value "stopat {(10,[1,2,3,4::nat,4,4::nat]), (20::nat,[1,2,3,5,5,5::nat])}" *)
+
+abbreviation "example02 == {
+(10::nat, zip (replicate (10::nat) True) 
+[1::nat,6,4,1,2,2,2]),
+(20, zip (replicate (10::nat) True) 
+[5::nat,4,7,7,8,3,3,3])
+}"
+
+value "stopat example02"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
 definition liveliness where "liveliness prev cur = (if 
@@ -49,9 +64,24 @@ definition lastvalidbid where
 "lastvalidbid prev cur = (if liveliness prev cur then (snd cur) else (snd prev))"
 
 fun amendedbid where
-"amendedbid b 0 = (b 0)" |
+"amendedbid (b::dynbid) 0 = (b!0)" |
 "amendedbid b (Suc t) = 
-(liveliness (amendedbid b t) (b (Suc t)), lastvalidbid (amendedbid b t) (b (Suc t)))"
+(liveliness (amendedbid b t) (b!(Suc t)), lastvalidbid (amendedbid b t) (b!(Suc t)))"
+
+fun amendedbidlist where (*MC: this assumes that the list of bids grows on the left through time *)
+"amendedbidlist [] = [(True, 0::nat)]" |
+"amendedbidlist (x # b) = 
+(liveliness (last (amendedbidlist b)) x, lastvalidbid (last (amendedbidlist b)) x) # (amendedbidlist b)"
+
+abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist)"
+
+term example02
+value "stopat (amendedbids example02)"
+
+(* MC: Not employed at the moment, could be used to model feedback to bidders 
+for them to decide future bids based on how the auction's going *)
+fun bid ::"('a list => 'a) => 'a list => 'a list"  where
+"bid feedback []=[]" | "bid feedback (x#b) = (feedback (x#b))#b"
 
 definition swap where "swap d = (% i. (%t. d t i))" 
 

@@ -58,6 +58,7 @@ type_synonym payments = "real vector"
 
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation_rel = "(goods \<times> participant) set"
+type_synonym allocation = "(participant \<times> goods) set"
 (* CL: providing a separate "goods set", as for allocation_fun below, is not necessary,
    as the function-as-relation-as-set representation already includes the domain
    on which we intend the function to work :-)  When representing the allocation as a function,
@@ -118,6 +119,17 @@ text {* all possible allocations of a set of goods to a set of participants:
 fun possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
 where "possible_allocations_rel G N = \<Union> { injections Y N | Y . Y \<in> all_partitions G }" 
 
+abbreviation "is_partition_of' P A == (\<Union> P = A \<and> is_partition P)"
+
+abbreviation "all_partitions' A == {P . is_partition_of' P A}"
+
+abbreviation "injections' X Y == {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
+
+abbreviation "possible_allocations_rel' (G::goods) (N::participant set) == (\<Union> { injections' Y N | Y . Y \<in> all_partitions' G })"
+
+abbreviation possibleAllocationsRel where 
+"possibleAllocationsRel N G == converse ` (possible_allocations_rel G N)"
+
 notepad
 begin
   fix Rs::"('a \<times> 'b) set set"
@@ -132,9 +144,13 @@ text {* algorithmic version of @{const possible_allocations_rel} *}
 fun possible_allocations_alg :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
 where "possible_allocations_alg G N = concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
 
+abbreviation "possibleAllocationsAlg N G == (map converse (possible_allocations_alg G N))"
+
 (* example (uncomment to run): possibilities to allocate goods {1,2,3} to participants {100,200} *)
 (*
 value "possible_allocations_alg {1,2,3::nat} {100,200::nat}"
+value "map converse (possible_allocations_alg {1,2,3::nat} {100,200::nat})"
+value "possibleAllocationsAlg {100,200::nat} {1,2,3::nat}"
 *)
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
