@@ -53,6 +53,16 @@ abbreviation "example02 == {
 [5::nat,4,7,7,8,3,3,3])
 }"
 
+abbreviation "example03 == {
+(10::nat, zip (replicate (10::nat) True) 
+[1::nat,4,4,5,6,6,6,6,6,6]),
+(20, zip (replicate (10::nat) True) 
+[5::nat,4,7,7,9,9,9,9,9,9])
+(*0,   ,1,2,3,4,5,6,7,8,9*)
+}"
+
+value "(example02,,10)!0"
+
 value "stopat example02"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
@@ -71,12 +81,14 @@ fun amendedbid where
 fun amendedbidlist where (*MC: this assumes that the list of bids grows on the left through time *)
 "amendedbidlist [] = [(True, 0::nat)]" |
 "amendedbidlist (x # b) = 
-(liveliness (last (amendedbidlist b)) x, lastvalidbid (last (amendedbidlist b)) x) # (amendedbidlist b)"
+(liveliness ((amendedbidlist b)!0) x, lastvalidbid ((amendedbidlist b)!0) x) # (amendedbidlist b)"
 
-abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist)"
+abbreviation "amendedbidlist2 b == rev (amendedbidlist (rev b))"
+
+abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist2)"
 
 term example02
-value "stopat (amendedbids example02)"
+value "stopat (amendedbids example03)"
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
 for them to decide future bids based on how the auction's going *)
