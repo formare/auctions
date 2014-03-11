@@ -776,7 +776,7 @@ qed
 text {* The converse relation of two pasted relations is right-unique, if 
   the relations have disjoint domains and ranges, and if their converses are both
   right-unique. *}
-lemma runiq_converse_paste:
+lemma runiq_converse_paste: (* MC: Too strong hypotheses; superseded by ll777b *)
   assumes runiq_P_conv: "runiq (P\<inverse>)"
       and runiq_Q_conv: "runiq (Q\<inverse>)"
       and disj_D: "Domain P \<inter> Domain Q = {}"

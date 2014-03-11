@@ -163,7 +163,7 @@ proof cases
     by (metis A_repl_B Diff_cancel Un_insert_right insert_Diff_single insert_absorb old_elem sup_bot_right)
 next
   assume "x \<noteq> y"
-  with A_repl_B have "A - A \<inter> B = {y}" try
+  with A_repl_B have "A - A \<inter> B = {y}" sorry
 oops
 (*
 This was the proof when when we had assumed B \<subseteq> A, which we are actually not interested in:

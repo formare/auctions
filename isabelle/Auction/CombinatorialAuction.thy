@@ -125,7 +125,7 @@ abbreviation "all_partitions' A == {P . is_partition_of' P A}"
 
 abbreviation "injections' X Y == {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
 
-abbreviation "possible_allocations_rel' (G::goods) (N::participant set) == (\<Union> { injections' Y N | Y . Y \<in> all_partitions' G })"
+abbreviation "possible_allocations_rel' G N == (\<Union> { injections' Y N | Y . Y \<in> all_partitions' G })"
 
 abbreviation possibleAllocationsRel where 
 "possibleAllocationsRel N G == converse ` (possible_allocations_rel G N)"
