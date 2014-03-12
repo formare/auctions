@@ -632,9 +632,9 @@ abbreviation "condition2 b N == EX i1 i2. (i1 \<in> N - {i2} & i2 \<in> N - {i1}
 
 corollary lm61e:
 assumes 
-"condition2 b N" 
-"finite N"
-"finite G"
+"condition2 (b::altbids) N" 
+"finite (N::participant set)"
+"finite (G::goods)"
 "isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
 shows
 "paymentsRel N G t b n \<ge> 0"
@@ -795,6 +795,7 @@ proof -
   ultimately show ?thesis using 11 12 assms by smt
 qed
 BIGSKIP*)
+(*BIGSKIP
 lemma lll76: assumes "a \<in> possible_allocations_rel G N"
 "n \<in> Range a"
 "finite (possibleAllocationsRel (N-{n}) G)"
