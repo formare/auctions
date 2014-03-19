@@ -340,6 +340,15 @@ off the braces from a singleton: {x} \<longmapsto> x *)
 (* Old def: "reducedprice p i a = ((reducedbid i a)^-1) O (Quotientbid i a) O 
 (quotient p (quotientbid i a) (Graph id)) O (Graph the_elem)" *)
 
+lemma shows "reducedprice p i a = 
+(projector ((reducedbid i a)^-1)) O (quotient p (Kernel (reducedbid i a)) Id) O ((projector Id)^-1)" 
+using assms reducedprice_def quotientbid_def by simp
+
+lemma l24b: assumes "functional (Domain a)" "Domain a \<subseteq> Domain p" 
+"dom4 i a p" "runiq p" shows 
+"compatible p (Kernel (reducedbid i a)) Id" 
+using assms l24 ll23 ll95 by (metis comp_apply)
+
 definition dom1 
 (* ::"_ => _ => _ => valuation => _" *)
 where "dom1 i a p v = 

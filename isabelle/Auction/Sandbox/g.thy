@@ -8,7 +8,84 @@ Relation
 
 begin
 
-lemma lm54:  assumes "trivial X" shows "finite X" using trivial_def by (metis assms finite.simps trivial_cases)
+lemma lm63: assumes "Y \<in> set (all_partitions_alg X)" shows "distinct Y"
+using assms coarser_partitions_with_list_distinct distinct_sorted_list_of_set 
+by (metis all_partitions_alg_def all_partitions_paper_equiv_alg')
+
+lemma lm64: assumes "finite X" shows "set (sorted_list_of_set X)=X" using assms 
+by simp
+
+lemma lm65: assumes "finite G" shows 
+"all_partitions G = set ` (set (all_partitions_alg G))"
+using lm64 all_partitions_alg_def all_partitions_def all_partitions_paper_equiv_alg
+lm63 
+by (metis assms distinct_sorted_list_of_set image_set order_refl)
+
+term "all_partitions G"
+
+lemma assumes "Y \<in> set (all_partitions_alg G)" "card N > 0" "finite N" "finite G" 
+shows "injections (set Y) N = set (injections_alg Y N)"
+using assms injections_equiv lm63 all_partitions_paper_equiv_alg lm64 lm65 
+by metis
+
+term "injections_alg Y N"
+
+abbreviation "Nex == {0::nat,1,2}"
+abbreviation "Gex == [10::nat, 11, 12, 13]"
+
+value "\<Union> (set [set (injections_alg Y Nex) . Y \<leftarrow> all_partitions_list Gex])"
+
+lemma lm66: assumes "\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N" shows 
+"set [set (g2 l N). l <- g1 G] = {f2 P N| P. P \<in> set (map set (g1 G))}" using assms by auto
+lemma lm66b: fixes G N f1 f2 g1 g2 shows "(\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N) --> 
+{f2 P N| P. P \<in> set (map set (g1 G))} = set [set (g2 l N). l <- g1 G]" using lm66 
+proof -
+  {
+    assume "(\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N)"
+    then have "{f2 P N| P. P \<in> set (map set (g1 G))} = set [set (g2 l N). l <- g1 G]" by auto
+  }
+  thus ?thesis by fast
+qed
+lemma lm67: assumes "l \<in> set (all_partitions_list G)" "distinct G" shows "distinct l" 
+using assms coarser_partitions_with_list_distinct all_partitions_list_def
+by (metis all_partitions_paper_equiv_alg')
+lemma lm68: assumes "card N > 0" "distinct G" shows 
+"\<forall>l \<in> set (all_partitions_list G). set (injections_alg l N) = injections (set l) N"
+using lm67 injections_equiv assms by blast
+
+lemma lm69: assumes "card N > 0" "distinct G"
+shows "{injections P N| P. P \<in> all_partitions (set G)} =
+set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G]" using assms lm66 lm68 lm66b 
+proof -
+  let ?g1=all_partitions_list let ?f2=injections let ?g2=injections_alg
+  have "\<forall>l \<in> set (?g1 G). set (?g2 l N) = ?f2 (set l) N" using assms lm68 by blast
+  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule lm66) done
+  moreover have "... = {?f2 P N| P. P \<in> all_partitions (set G)}" using all_partitions_paper_equiv_alg
+  assms by blast
+  ultimately show ?thesis by presburger
+qed
+
+abbreviation "possibleAllocationsAlg2 N G == 
+converse ` (\<Union> set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"
+
+lemma lm70: assumes "card N > 0" "distinct G" shows 
+"\<Union> {injections P N| P. P \<in> all_partitions (set G)} =
+\<Union> (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" using lm69 assms 
+by (smt Collect_cong ex_map_conv map_ext)
+
+lemma assumes "card N > 0" "distinct G" shows 
+"possibleAllocationsRel N (set G) = possibleAllocationsAlg2 N G" (is "?L = ?R") using assms lm70 
+possible_allocations_rel_def 
+proof -
+  let ?LL="\<Union> {injections P N| P. P \<in> all_partitions (set G)}"
+  let ?RR="\<Union> (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"
+  have "?LL = ?RR" using assms apply (rule lm70) done
+  then have "converse ` ?LL = converse ` ?RR" by presburger
+  thus ?thesis using possible_allocations_rel_def by force
+qed
+
+lemma lm54:  assumes "trivial X" shows "finite X" 
+using trivial_def by (metis assms finite.simps trivial_cases)
 
 abbreviation "isChoice R == \<forall>x. R``{x} \<subseteq> x"
 abbreviation "dualOutside R Y == R - (Domain R \<times> Y)"
@@ -643,6 +720,17 @@ proof -
   0: "i \<in> N-{n} & condition1 b i" using assms(1) by blast
   show ?thesis using 0 assms lm61d by auto
 qed
+
+abbreviation "monotonebids == condition2"
+
+corollary lm61f:
+assumes 
+"monotonebids (b::altbids) N" 
+"finite (N::participant set)"
+"finite (G::goods)"
+"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
+shows
+"\<forall>n::participant. paymentsRel N G t b n \<ge> 0" using assms lm61e by presburger
 
 (* BIGSKIP
 lemma "possibleAllocationsRel N G \<subseteq> allAllocations" using assms possible_allocations_rel_def 

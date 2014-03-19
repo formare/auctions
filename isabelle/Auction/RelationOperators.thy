@@ -298,5 +298,6 @@ This is generally a better behaviour from the formal point of view (cmp. lll74)
 (* MC: Realized that ,,, seems to work only with set-yielding relations! 
 This has to do with the fact that in HOL not everything is a set, as it happens in ZF *)
 
+abbreviation "Kernel == part2rel \<circ> kernel"
 
 end
