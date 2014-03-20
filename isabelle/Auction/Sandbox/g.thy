@@ -543,9 +543,9 @@ using assms lm47 is_partition_of_def is_partition_def by blast
 corollary lm50: "possibleAllocationsRel N G \<subseteq> allAllocations" using lm48 lm49 by simp
 
 lemma lm51: assumes  
-"(a::allocation) \<in> possibleAllocationsRel N G" 
+"a \<in> possibleAllocationsRel N G" 
 "i\<in>N-X" 
-"Domain a \<inter> (X::participant set) \<noteq> {}" 
+"Domain a \<inter> X \<noteq> {}" 
 shows 
 "a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}) \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))"
 proof -
@@ -554,8 +554,8 @@ proof -
   1: "a \<in> allAllocations" using assms lm50 by (metis (lifting, no_types) set_rev_mp)
   have "i \<notin> X" using assms by fast then have 
   2: "?d a - X \<union> {i} = ?d a \<union> {i} - X" by fast
-  have "?aa \<in> allAllocations & ?U (?r ?aa) = ?U (?r a)" using 1 assms lm43c sorry
-  (*MC: how to use solve_direct's output is a great mistery *)
+  have "a \<in> allAllocations" using 1 by fast moreover have "?d a \<inter> X \<noteq> {}" using assms by fast 
+  ultimately have "?aa \<in> allAllocations & ?U (?r ?aa) = ?U (?r a)" apply (rule lm43c) done
   then moreover have "?aa \<in> possibleAllocationsRel (?d ?aa) (?U (?r a))"
   using lm34 by (metis (lifting, no_types))
   moreover have "?d a - X \<union> {i} = ?d ?aa \<union> (?d a - X \<union> {i})" using Outside_def by auto
