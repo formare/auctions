@@ -24,7 +24,6 @@ imports
   SetUtils
   Finite_SetUtils
   ListUtils
-  Partitions (*MC: needed for ll76 *)
 
 begin
 
@@ -1609,20 +1608,6 @@ lemma ll66: assumes "runiq f" "y1 \<in> Range f" "y2 \<in> Range f" shows
 "(f^-1 `` {y1} \<inter> f^-1 `` {y2} \<noteq> {}) = (y1=y2)"
 using assms ll71 by fast
 
-lemma ll72: assumes "runiq f" shows "is_partition {f^-1 `` {y}| y. y\<in> Range f}" 
-proof -
-let ?i=is_partition let ?R=Range let ?r=runiq let ?g="f^-1"
-let ?P="{?g `` {y}| y. y\<in> ?R f}" have "?thesis = (\<forall> X\<in> ?P . \<forall> Y \<in> ?P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))" 
-using is_partition_def by (rule exE_realizer)
-thus ?thesis using ll68 assms by fast 
-qed
-
-lemma ll79: assumes "runiq f" shows "kernel f partitions (Domain f)"
-proof -
-have 0: "Domain f = \<Union> kernel f" using ll65 by blast
-have "is_partition (kernel f)" using assms ll72 ll65 by metis
-thus ?thesis using 0 is_partition_of_def by metis
-qed
 
 lemma ll73: fixes x y XX shows "(x,y) \<in> part2rel XX = (EX X. X\<in>XX & x\<in>X & y\<in>X)"
 using assms part2rel_def by blast
@@ -1636,32 +1621,11 @@ thus ?thesis using refl_on_def 0 by metis
 qed
 
 lemma ll75: fixes XX shows "sym (part2rel XX)" 
-using assms ll73 sym_def is_partition_def 
+using assms ll73 sym_def 
 proof -
 let ?R="part2rel XX" {fix x y assume "(x,y)\<in>?R" hence "(y,x)\<in>?R" using ll73 by metis}
 thus ?thesis using sym_def by blast
 qed
-
-lemma ll76: assumes "is_partition XX" shows "trans (part2rel XX)" 
-proof -
-let ?f=part2rel let ?R="?f XX"
-{
-  fix x y z assume "(x,y) \<in> ?R" then obtain X1 where 
-  1: "X1\<in>XX & x\<in>X1 & y\<in>X1" using ll73 by metis 
-  assume "(y,z)\<in>?R" then obtain X2 where 
-  2: "X2\<in>XX & y\<in>X2 & z\<in>X2" using ll73 by metis
-  have "{y} \<subseteq> X1 \<inter> X2" using 1 2 by fast
-  hence "X1=X2" using assms 1 2 by (metis empty_iff is_partition_def singleton_iff subset_empty)
-  hence "(x,z)\<in>?R" using ll73 1 2 by fast
-}
-thus ?thesis using trans_def by blast
-qed
-
-lemma ll77: assumes "is_partition XX" shows "equiv (Union XX) (part2rel XX)" 
-using assms ll74 ll75 ll76 equiv_def by fast
-
-corollary ll78: assumes "runiq f" shows "equiv (Domain f) (part2rel (kernel f))"
-using assms ll77 ll79 is_partition_of_def by metis
 
 lemma ll62: fixes x X assumes "equiv (Domain p) p" "X \<in> Range (projector p)"
 shows "(x,X) \<in> projector p = (x \<in> X)" (is "?LH = ?RH")

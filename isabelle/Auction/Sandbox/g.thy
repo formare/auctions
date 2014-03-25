@@ -28,13 +28,6 @@ shows "injections (set Y) N = set (injections_alg Y N)"
 using assms injections_equiv lm63 all_partitions_paper_equiv_alg lm64 lm65 
 by metis
 
-term "injections_alg Y N"
-
-abbreviation "Nex == {0::nat,1,2}"
-abbreviation "Gex == [10::nat, 11, 12, 13]"
-
-value "\<Union> (set [set (injections_alg Y Nex) . Y \<leftarrow> all_partitions_list Gex])"
-
 lemma lm66: assumes "\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N" shows 
 "set [set (g2 l N). l <- g1 G] = {f2 P N| P. P \<in> set (map set (g1 G))}" using assms by auto
 lemma lm66b: fixes G N f1 f2 g1 g2 shows "(\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N) --> 
