@@ -81,7 +81,7 @@ in map (nth all) (max_positions (map (proceeds (split b)) all)))"
 type_synonym tieBreakerRel = "allocation set \<Rightarrow> allocation"
 type_synonym tieBreakerAlg = "allocation list \<Rightarrow> allocation"
 
-abbreviation "winningAllocationsAlg N G b == argmax (proceeds b) (possibleAllocationsAlg N G)"
+abbreviation "winningAllocationsAlg N G b == argmax (proceeds b) (possibleAllocationsAlg3 N G)"
 
 text {* algorithmic version of @{const winning_allocation_rel} *}
 fun winning_allocation_alg_CL 
@@ -93,7 +93,7 @@ fun winning_allocation_alg_MC
 (* :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_alg \<Rightarrow> bids \<Rightarrow> allocation_rel" *)
 where "winning_allocation_alg_MC G N t b = t (winning_allocations_alg_MC G N b)"
 
-abbreviation "winningAllocationAlg N G t b == t (winningAllocationsAlg N G b)"
+definition "winningAllocationAlg N G t b == t (winningAllocationsAlg N G b)"
 
 text {* payments *}
 
@@ -110,8 +110,7 @@ text {* algorithmic version of @{text \<alpha>} *}
 fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha>_alg G N b n = maximum_alg_list (possible_allocations_alg G (N - {n})) (value_rel b)"
 
-abbreviation "alphaAlg N G b n == Max ((proceeds b)`(set (possibleAllocationsAlg (N-{n}) G)))"
-value "Max (set [1::nat,2])" 
+abbreviation "alphaAlg N G b n == Max ((proceeds b)`(set (possibleAllocationsAlg3 (N-{n}) (G::_ list))))"
 
 (* CL: probably not needed, neither for close-to-paper nor for computable version
 definition winners'_goods_fun :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_fun \<Rightarrow> bids \<Rightarrow> participant option \<Rightarrow> goods" 
@@ -170,7 +169,7 @@ fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_break
 where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 *)
 
-abbreviation "paymentsAlg N G t == alphaAlg N G - remainingValueAlg N G t"
+definition "paymentsAlg N G t == alphaAlg N G - remainingValueAlg N G t"
 
 text {* alternative algorithmic version of @{text payments_rel}, working around an Isabelle2013 bug *}
 
@@ -211,6 +210,22 @@ where "nVCG_auction t = rel_sat_pred (nVCG_pred t)"
 text {* The combinatorial Vickrey auction in relational form *}
 definition nVCG_auctions :: "tie_breaker_rel \<Rightarrow> combinatorial_auction_rel"
 where "nVCG_auctions t = rel_all (nVCG_pred t)"
+
+term possibleAllocationsAlg
+term possibleAllocationsAlg2
+
+definition "gEx = [10::good,11,12]"
+definition "nEx = {0::participant,1,2}"
+abbreviation "bex=={((0::participant,{10,11::nat}),100::price),((0,{12}),20),((1,{10,11,12}),30)}"
+definition "bEx = toFunction ((nEx \<times> (Pow (set gEx)))\<times>{0} +* bex)"
+(*abbreviation "bEx == (% x. if x=(0::participant,{10::good,11}) then (100::price) else 20)"*)
+definition "tEx == %x. (x!0)"
+(* export_code winningAllocationAlg nEx gEx tEx bEx paymentsAlg in Scala module_name Nvcg file "Nvcg.scala" *)
+
+value "bEx (0,{10,11})"
+value "possibleAllocationsAlg3 nEx gEx"
+value "winningAllocationAlg nEx gEx tEx bEx"
+value "paymentsAlg nEx gEx tEx bEx 0"
 
 end
 

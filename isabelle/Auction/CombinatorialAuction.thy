@@ -27,6 +27,7 @@ begin
 section {* Types *}
 
 type_synonym participant = index
+type_synonym good = nat
 type_synonym goods = "nat set" (* CL: actually we'd prefer "'a set", as we really don't care about the type *)
 type_synonym price = real
 
@@ -145,6 +146,12 @@ fun possible_allocations_alg :: "goods \<Rightarrow> participant set \<Rightarro
 where "possible_allocations_alg G N = concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
 
 abbreviation "possibleAllocationsAlg N G == (map converse (possible_allocations_alg G N))"
+abbreviation "possibleAllocationsAlg2 N G == 
+converse ` (\<Union> set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"
+abbreviation "possibleAllocationsAlg3 N G == 
+map converse (concat [(injections_alg l N) . l \<leftarrow> all_partitions_list G])"
+lemma "set (possibleAllocationsAlg3 (N::participant set) (G::good list)) = possibleAllocationsAlg2 (N::participant set) (G::good list)"
+using assms by simp
 
 (* example (uncomment to run): possibilities to allocate goods {1,2,3} to participants {100,200} *)
 (*

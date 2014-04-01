@@ -58,9 +58,6 @@ proof -
   ultimately show ?thesis by presburger
 qed
 
-abbreviation "possibleAllocationsAlg2 N G == 
-converse ` (\<Union> set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"
-
 lemma lm70: assumes "card N > 0" "distinct G" shows 
 "\<Union> {injections P N| P. P \<in> all_partitions (set G)} =
 \<Union> (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" using lm69 assms 
