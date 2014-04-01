@@ -59,7 +59,9 @@ abbreviation "example03 == {
 (20, zip (replicate (10::nat) True) 
 [5::nat,4,7,7,9,9,9,9,9,9])
 (*0,   ,1,2,3,4,5,6,7,8,9*)
-}"
+}" (*MC: This means that bidder 10 always submit a True ("I'm game"), and the temporal sequence of bids 
+1,4,4,5,6,6,6,6,6,6.
+*)
 
 value "(example02,,10)!0"
 
@@ -87,8 +89,22 @@ abbreviation "amendedbidlist2 b == rev (amendedbidlist (rev b))"
 
 abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist2)"
 
-term example02
+(*abbreviation "bidsattime B t == (snd o (%x. x!t))`(Range B)"*)
+abbreviation "bidsattime B t == B O (graph (Range B) (%x. snd (x!t)))"
+
+definition "winner B = arg_max' (toFunction (bidsattime (amendedbids B) (stopat (amendedbids B))))
+(Domain (bidsattime (amendedbids B) (stopat (amendedbids B))))"
+
+value "amendedbids example03"
+value "bidsattime (amendedbids example03) (stopat example03)"
+value "amendedbids example03 O (graph (Range (amendedbids example03)) (%x. snd (x!6)))"
 value "stopat (amendedbids example03)"
+value "snd (nth (amendedbids example03,,20) 6)"
+value "(% x. x!6)` ( Range (amendedbids example03))"
+value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
+value "winner example03"
+definition "Example = example03"
+export_code winner Example in Scala module_name Dyna file "Dyna.scala"
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
 for them to decide future bids based on how the auction's going *)
