@@ -24,6 +24,7 @@ object Auction {
 
     def roundOfBidding(j: Int) = {
     for(i <- 0 to n-1) {
+        print("Input the bid for bidder " + (i+1) + " in round " + j +".\n")
         val x = readLine;
         val newBid = localToInt(x);
         if (validBid(newBid,i,j)) {
