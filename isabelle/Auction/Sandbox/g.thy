@@ -713,6 +713,20 @@ qed
 
 abbreviation "monotonebids == condition2"
 
+
+lemma lm71: fixes N b assumes
+"EX i1 i2. i1 \<in> N - {i2} & i2 \<in> N - {i1} & 
+(\<forall> t t'. (trivial t & trivial t' & Union t \<subseteq> Union t') \<longrightarrow>
+setsum b ({i1}\<times>t) \<le> setsum b ({i1}\<times>t') & setsum b ({i2}\<times>t) \<le> setsum b ({i2}\<times>t'))"
+shows "condition2 (b::altbids) N" using assms by blast
+
+lemma lm72: assumes "\<forall>x \<in> X. t x \<in> x" shows "isChoice (graph X t)" using assms 
+by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 runiq_wrt_eval_rel subset_trans)
+
+lemma lm72b: assumes "t (winningAllocationsRel N G b) \<in> winningAllocationsRel N G b" shows
+"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))" using assms lm72 
+by blast
+
 corollary lm61f:
 assumes 
 "monotonebids (b::altbids) N" 

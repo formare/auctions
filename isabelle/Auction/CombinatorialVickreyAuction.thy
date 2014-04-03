@@ -131,8 +131,6 @@ setsum (split b) ((winning_allocation_rel G N t b)^-1 -- n)
 (*   (\<Sum> m \<in> N - {n} . b m (eval_rel_or ((winning_allocation_rel G N t b)\<inverse>) m {})) *)
 "
 
-term "winningAllocationAlg N G t b"
-
 abbreviation "remainingValueAlg N G t b n == proceeds b (winningAllocationAlg N G t b -- n)"
 
 (*

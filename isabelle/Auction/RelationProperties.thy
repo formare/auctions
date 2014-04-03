@@ -1153,6 +1153,11 @@ let ?F="{(x, f x) | x. P x}"
 thus ?thesis by (metis (lifting, no_types) eval_rel.simps runiq_wrt_eval_rel trivial_def)
 qed
 
+lemma l14b: "runiq (Graph f)"
+proof -
+  have "runiq {(x, f x)|x. True}" using l14 by fast thus ?thesis using Graph_def by metis
+qed
+
 corollary l15: fixes R::"('a \<times> 'b) set" shows "runiq (projector R)"
 proof -
 let ?f="%x . R``{x}" let ?P="%x . x\<in>Domain R" let ?F="projector R"
