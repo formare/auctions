@@ -661,14 +661,14 @@ qed
 
 corollary lm61: (*MC: of lm60 and lm53b*) assumes
 "condition1 b i" 
-"a \<in> possibleAllocationsRel N G" 
-"i\<in>N-{n}" 
+"a \<in> possibleAllocationsRel N G"
+"i\<in>N-{n}"
 "finite N"
 "finite G"
 shows "alpha N G b n \<ge> proceeds b (a -- n)" using assms lm53b lm60 by metis
 
 corollary lm61b: assumes
-"condition1 b i" 
+"condition1 b i"  
 "a \<in> winningAllocationsRel N G c" 
 "i\<in>N-{n}" 
 "finite N"

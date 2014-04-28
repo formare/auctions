@@ -13,7 +13,7 @@ type_synonym bids="instant => (participant => price)"
 type_synonym submission="bool \<times> price"
 type_synonym dynbid="submission list"
 type_synonym dynbids="(instant \<times> dynbid) set"
-
+(* abbreviation "toSubmission p == (True,p)" *)
 abbreviation "unzip1 == map fst"
 abbreviation "unzip2 == map snd"
 
@@ -42,10 +42,10 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 
 term "%x. (if (x=1) then True else False)"
 
-definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})"
-
-(* value "stopat {(10,[1,2,3,4::nat,4,4::nat]), (20::nat,[1,2,3,5,5,5::nat])}" *)
-
+definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})" 
+abbreviation "duration B == Max (size ` (Range B))"
+abbreviation "livelinessProfile B == ({0..<duration B} \<times> {True})
++* ({stopat B} \<times> {False})"
 abbreviation "example02 == {
 (10::nat, zip (replicate (10::nat) True) 
 [1::nat,6,4,1,2,2,2]),
@@ -63,6 +63,8 @@ abbreviation "example03 == {
 1,4,4,5,6,6,6,6,6,6.
 *)
 
+value example03
+value "toFunction (livelinessProfile example03)"
 value "(example02,,10)!0"
 
 value "stopat example02"
@@ -91,7 +93,6 @@ abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist2)"
 
 (*abbreviation "bidsattime B t == (snd o (%x. x!t))`(Range B)"*)
 abbreviation "bidsattime B t == B O (graph (Range B) (%x. snd (x!t)))"
-
 definition "winner B = arg_max' (toFunction (bidsattime (amendedbids B) (stopat (amendedbids B))))
 (Domain (bidsattime (amendedbids B) (stopat (amendedbids B))))"
 
@@ -104,7 +105,7 @@ value "(% x. x!6)` ( Range (amendedbids example03))"
 value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
 value "winner example03"
 definition "Example = example03"
-export_code winner Example in Scala module_name Dyna file "Dyna.scala"
+(*export_code winner Example in Scala module_name Dyna file "Dyna.scala"*)
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
 for them to decide future bids based on how the auction's going *)
