@@ -42,18 +42,21 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 
 term "%x. (if (x=1) then True else False)"
 
-definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})" 
+definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})"
 abbreviation "duration B == Max (size ` (Range B))"
-abbreviation "livelinessProfile B == ({0..<duration B} \<times> {True})
-+* ({stopat B} \<times> {False})"
-abbreviation "example02 == {
+abbreviation "livelinessList B == True # list_update (replicate (duration B) True) (stopat B) False"
+definition "life (B::(participant \<times> (bool \<times> price) list) set) = nth (livelinessList B)"
+abbreviation "AddSingleBid B part b == B +< (part, (B,,part)@[(True,b)])"
+definition "addSingleBid (B::(participant \<times> ((bool \<times> price) list)) set) (part::participant) (b::price) = 
+B +< (part, (B,,part)@[(True,b)])"
+abbreviation "Example02 == {
 (10::nat, zip (replicate (10::nat) True) 
 [1::nat,6,4,1,2,2,2]),
 (20, zip (replicate (10::nat) True) 
 [5::nat,4,7,7,8,3,3,3])
 }"
 
-abbreviation "example03 == {
+abbreviation "Example03 == {
 (10::nat, zip (replicate (10::nat) True) 
 [1::nat,4,4,5,6,6,6,6,6,6]),
 (20, zip (replicate (10::nat) True) 
@@ -63,7 +66,16 @@ abbreviation "example03 == {
 1,4,4,5,6,6,6,6,6,6.
 *)
 
-value example03
+(*abbreviation "nullBid == ([]::(bool \<times> price) list)"*)
+abbreviation "BidMatrix == {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])}"
+definition "bidMatrix = {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])}"
+term "bidMatrix"
+definition "example02=addSingleBid bidMatrix (0::nat) (4::nat)"
+value "bidMatrix +< (0::nat, bidMatrix,,(0::nat)@[(True,4::nat)])"
+definition "(n::nat) = (card bidMatrix)"
+definition "example=life bidMatrix (0::nat)"
+value "(True,1) # (bidMatrix,,0)"
+value "livelinessList example03"
 value "toFunction (livelinessProfile example03)"
 value "(example02,,10)!0"
 
@@ -104,8 +116,7 @@ value "snd (nth (amendedbids example03,,20) 6)"
 value "(% x. x!6)` ( Range (amendedbids example03))"
 value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
 value "winner example03"
-definition "Example = example03"
-(*export_code winner Example in Scala module_name Dyna file "Dyna.scala"*)
+(* export_code life addSingleBid bidMatrix n example example02 in Scala module_name Dyna file "/dev/shm/scala/Dyna.scala" *)
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
 for them to decide future bids based on how the auction's going *)
@@ -129,21 +140,7 @@ abbreviation example where
 
 abbreviation lastround where "lastround B == Min (\<Inter> (Range  (lastrounds B)))"
 
-abbreviation Example where "Example == (%i. example)"
+term "life bidMatrix"
 
-value "lastround Example"
-
-value "%i. (Example i (lastround Example))"
-
-term "%i. ((map snd) (B i))"
-value "stopauctionat [1,2,3::nat,2,2,3,4,5,5]"
-
-term interface
-value amendedbid
-value "amendedbid (interface B)"
-value "(%t::instant. (if (t=0) then 0 else 1))"
-
-value "amendedbid example (1::instant)"
-find_consts "'a list => (nat => 'a)"
 end
 
