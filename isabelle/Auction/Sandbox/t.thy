@@ -5,6 +5,12 @@ imports Main "../Maximum"
 Fun
 
 begin
+
+
+fun update where "update l1 l2 [] = l1"| "update l1 l2 (x#xs) = list_update (update l1 l2 xs) x (l2!x)"
+abbreviation "tolist f n == map f [0..<n]"  
+abbreviation "update2 l X f == tolist (override_on (nth l) f X) (size l)"
+
 type_synonym instant=nat (*CR: defining instant in case later want to change instant type*)
 type_synonym participant=nat
 type_synonym price=nat
@@ -24,11 +30,15 @@ But it also turn into false if the bid is invalid (which for the moment just coi
 but can be enriched with other conditions, like reserve price, minimal increase, etc...).
 The second preserves the last valid bid, which for the moment coincides with the price of last time we computed a true flag. *)
 
-definition sametomyleft where 
-"sametomyleft l = [fst x = snd x. x <- zip l (((hd l) + 1)# l)]"
+definition sametomyleft where (*MC: try to use rotate instead *)
+(* "sametomyleft l = [fst x = snd x. x <- zip l (((hd l) + 1)# l)]" *)
+"sametomyleft l = take (size l) (False # [fst x = snd x. x <- drop 1 (zip l ((0) # l))])" 
+
+value "drop 1 (zip [0,1] ((SOME x. True) # [0::nat,1]))"
 
 definition sametomyright where 
 "sametomyright l = [fst x = snd x. x <- zip l (drop 1 l)]"
+(* definition "sametomyleft l = take (size l) (False # (sametomyright l))" *)
 
 definition stopauctionat where "stopauctionat l = 
 filterpositions2 (%x. (x=True)) (sametomyleft l)"
@@ -42,9 +52,11 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 
 term "%x. (if (x=1) then True else False)"
 
-definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})"
+definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})" 
+definition "stops B = \<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B}" 
 abbreviation "duration B == Max (size ` (Range B))"
-abbreviation "livelinessList B == True # list_update (replicate (duration B) True) (stopat B) False"
+(* abbreviation "livelinessList B == True # list_update (replicate (duration B) True) (stopat B) False" *)
+definition "livelinessList B = True # update2 (replicate (duration B) True) (stops B) (%x. False)"
 definition "life (B::(participant \<times> (bool \<times> price) list) set) = nth (livelinessList B)"
 abbreviation "AddSingleBid B part b == B +< (part, (B,,part)@[(True,b)])"
 definition "addSingleBid (B::(participant \<times> ((bool \<times> price) list)) set) (part::participant) (b::price) = 
@@ -69,17 +81,21 @@ abbreviation "Example03 == {
 (*abbreviation "nullBid == ([]::(bool \<times> price) list)"*)
 abbreviation "BidMatrix == {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])}"
 definition "bidMatrix = {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])}"
-term "bidMatrix"
+(*definition "bidMatrix = {(0::nat, ([(True,1)]::(bool \<times> price) list)),(1::nat, [(True,1)])}"*)
 definition "example02=addSingleBid bidMatrix (0::nat) (4::nat)"
-value "bidMatrix +< (0::nat, bidMatrix,,(0::nat)@[(True,4::nat)])"
-definition "(n::nat) = (card bidMatrix)"
-definition "example=life bidMatrix (0::nat)"
-value "(True,1) # (bidMatrix,,0)"
-value "livelinessList example03"
-value "toFunction (livelinessProfile example03)"
-value "(example02,,10)!0"
+lemma "life B 0 = True" using assms life_def by simp
+abbreviation "M == addSingleBid bidMatrix 0 0"
+abbreviation "MM == addSingleBid M 1 0"
+abbreviation "MMM == addSingleBid MM 0 0"
+abbreviation "MMMM == addSingleBid MMM 1 0"
+value "livelinessList MM"
+value "rotate 1 [1,2,3::nat]"
+value "sublist [1,2,3::nat] {0,2}"
+value "List.find (%x::nat. x=1) [1,2,1::nat]"
+value "sorted [1, 1::nat, 3, 3, 678]"
 
-value "stopat example02"
+definition "(n::nat) = (card bidMatrix)"
+definition "example=life bidMatrix n"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
 definition liveliness where "liveliness prev cur = (if 
@@ -127,11 +143,7 @@ definition swap where "swap d = (% i. (%t. d t i))"
 
 abbreviation interface where "interface c == (nth (zip [t<0. t <- c] c))"
 
-abbreviation tolist where "tolist N (f::(nat => 'a)) == [ (f i). i <- [0 ..< (Suc N)]]"
-
-value "tolist (3::nat) (%x::nat. (if (x=1) then (2::nat) else 3))"
-
-term amendedbid
+(*
 abbreviation lastrounds where "lastrounds B == graph {1,2,3} (% i. 
 set (stopauctionat ((map snd) (tolist 10 (amendedbid (B i))))))"
 
@@ -139,6 +151,7 @@ abbreviation example where
 "example == %t::instant. (if (t=0) then (True, 10::nat) else (True, 1))"
 
 abbreviation lastround where "lastround B == Min (\<Inter> (Range  (lastrounds B)))"
+*)
 
 term "life bidMatrix"
 

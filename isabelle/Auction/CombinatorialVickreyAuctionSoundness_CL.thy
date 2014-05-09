@@ -13,7 +13,7 @@ See LICENSE file for details
 
 header {* Soundness verification of the combinatorial Vickrey auction *}
 
-theory CombinatorialVickreyAuctionSoundness
+theory CombinatorialVickreyAuctionSoundness_CL
 imports
   CombinatorialVickreyAuction
   CombinatorialAuctionProperties

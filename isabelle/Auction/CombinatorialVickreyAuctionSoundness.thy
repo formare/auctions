@@ -4,9 +4,13 @@ imports "Sandbox/g"
 
 begin
 
+term "Domain (Graph (\<lambda> b N G. winningAllocationRel N G t b))"
+
 (* MC: left-totality for allocations *)
 lemma assumes "winningAllocationRel N G t b \<in> winningAllocationsRel N G b"
-shows "winningAllocationRel N G t b \<in> possibleAllocationsRel N G" using assms by force
+shows "(\<exists> winningAllocationRel N G t b. True) & winningAllocationRel N G t b \<in> possibleAllocationsRel N G &
+Domain (Graph (\<lambda> N G b. winningAllocationRel N G t b))=Domain (Graph (\<lambda> N G b. winningAllocationRel N G t b))" 
+using assms by force
 
 (* MC: price-nonnegativity & left-totality for prices *)
 lemma fixes N::"participant set" fixes G::goods fixes b t n assumes
