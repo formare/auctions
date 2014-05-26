@@ -52,12 +52,12 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 
 term "%x. (if (x=1) then True else False)"
 
-definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B})" 
+definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i::nat. i \<in> Domain B})" 
 definition "stops B = \<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B}" 
 abbreviation "duration B == Max (size ` (Range B))"
 (* abbreviation "livelinessList B == True # list_update (replicate (duration B) True) (stopat B) False" *)
 definition "livelinessList B = True # update2 (replicate (duration B) True) (stops B) (%x. False)"
-definition "life (B::(participant \<times> (bool \<times> price) list) set) = nth (livelinessList B)"
+definition "alive (B::(participant \<times> (bool \<times> price) list) set) = nth (livelinessList B)"
 abbreviation "AddSingleBid B part b == B +< (part, (B,,part)@[(True,b)])"
 definition "addSingleBid (B::(participant \<times> ((bool \<times> price) list)) set) (part::participant) (b::price) = 
 B +< (part, (B,,part)@[(True,b)])"
@@ -83,7 +83,7 @@ abbreviation "BidMatrix == {(0::nat, ([]::(bool \<times> price) list)),(1::nat, 
 definition "bidMatrix = {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])}"
 (*definition "bidMatrix = {(0::nat, ([(True,1)]::(bool \<times> price) list)),(1::nat, [(True,1)])}"*)
 definition "example02=addSingleBid bidMatrix (0::nat) (4::nat)"
-lemma "life B 0 = True" using assms life_def by simp
+lemma "alive B 0 = True" using assms alive_def sorry
 abbreviation "M == addSingleBid bidMatrix 0 0"
 abbreviation "MM == addSingleBid M 1 0"
 abbreviation "MMM == addSingleBid MM 0 0"
@@ -95,7 +95,7 @@ value "List.find (%x::nat. x=1) [1,2,1::nat]"
 value "sorted [1, 1::nat, 3, 3, 678]"
 
 definition "(n::nat) = (card bidMatrix)"
-definition "example=life bidMatrix n"
+definition "example=alive bidMatrix n"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
 definition liveliness where "liveliness prev cur = (if 
@@ -120,7 +120,7 @@ abbreviation "amendedbidlist2 b == rev (amendedbidlist (rev b))"
 abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist2)"
 
 (*abbreviation "bidsattime B t == (snd o (%x. x!t))`(Range B)"*)
-abbreviation "bidsattime B t == B O (graph (Range B) (%x. snd (x!t)))"
+abbreviation "bidsattime B (t::nat) == B O (graph (Range B) (%x::((bool\<times>nat) list). snd (x!t)))"
 definition "winner B = arg_max' (toFunction (bidsattime (amendedbids B) (stopat (amendedbids B))))
 (Domain (bidsattime (amendedbids B) (stopat (amendedbids B))))"
 
@@ -131,8 +131,9 @@ value "stopat (amendedbids example03)"
 value "snd (nth (amendedbids example03,,20) 6)"
 value "(% x. x!6)` ( Range (amendedbids example03))"
 value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
-value "winner example03"
-(* export_code life addSingleBid bidMatrix n example example02 in Scala module_name Dyna file "/dev/shm/scala/Dyna.scala" *)
+term "bidsattime"
+value "stopat (amendedbids MMMM)"
+(* export_code alive addSingleBid bidMatrix n example example02 in Scala module_name Dyna file "/dev/shm/scala/Dyna.scala" *)
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
 for them to decide future bids based on how the auction's going *)
@@ -153,7 +154,22 @@ abbreviation example where
 abbreviation lastround where "lastround B == Min (\<Inter> (Range  (lastrounds B)))"
 *)
 
-term "life bidMatrix"
-
+value "(filterpositions2 (%x. x = False) (livelinessList MMMM)) ! 0"
+value "Max (*this is the tie breaker*)
+ ((bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))) (*This is the last bidvector *) ^-1 `` 
+{Max (Range (bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))))}
+)" (* This is the winner *)
+value "
+(bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))),,
+(
+Max (*this is the tie breaker*)
+ ((bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))) (*This is the last bidvector *) ^-1 `` 
+{Max (Range (bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))))}
+)
+)
+" (* This is the price for winner *)
+value "Max {2::nat}"
+value "toFunction (bidsattime (MMMM) (stopat (MMMM))) (1::nat)"
+value "the_elem {0,0::nat}"
 end
 

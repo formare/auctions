@@ -31,10 +31,28 @@ lemma "runiq (Graph (\<lambda> N. paymentsRel N G t b))" using l14b by fast
 lemma "runiq (Graph (\<lambda> G. paymentsRel N G t b))" using l14b by fast
 lemma "runiq (Graph (\<lambda> b. paymentsRel N G t b))" using l14b by fast
 
-lemma (*MC: each good gets allocated exactly once, and no other thing gets allocated *)
-assumes "winningAllocationRel N G t b \<in> winningAllocationsRel N G b" shows
-"Range (winningAllocationRel N G t b) partitions G"
+lemma lm81: (*MC: each good gets allocated exactly once, and no other thing gets allocated *)
+assumes "winningAllocationRel N G t b \<in> winningAllocationsRel N G b" 
+(*this is an assumption about t, not about b, G or N*)
+shows "Range (winningAllocationRel N G t b) partitions G"
 using assms by (metis (hide_lams, no_types) lm03 lm47 set_rev_mp)
+
+term "winningAllocationsRel N G (b::altbids)"
+
+lemma assumes "winningAllocationRel N G t b \<in> winningAllocationsRel N G b"
+(*this is an assumption about t, not about b, G or N*)
+"n1 \<in> N" "n2 \<in> N"
+shows 
+"
+(* (G=(\<Union>n \<in> N. winningAllocationRel N G t b,,n)) 
+*)
+
+(winningAllocationRel N G t b),,n1 \<inter> 
+((winningAllocationRel N G t b),,n2) = {}
+
+"
+using lm81 assms possible_allocations_rel_def injections_def all_partitions_def is_partition_of_def 
+is_partition_def runiq_def sledgehammer
 
 end
 
