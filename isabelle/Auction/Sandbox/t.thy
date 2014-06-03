@@ -133,7 +133,6 @@ value "(% x. x!6)` ( Range (amendedbids example03))"
 value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
 term "bidsattime"
 value "stopat (amendedbids MMMM)"
-(* export_code alive addSingleBid bidMatrix n example example02 in Scala module_name Dyna file "/dev/shm/scala/Dyna.scala" *)
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
 for them to decide future bids based on how the auction's going *)
@@ -159,17 +158,19 @@ value "Max (*this is the tie breaker*)
  ((bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))) (*This is the last bidvector *) ^-1 `` 
 {Max (Range (bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))))}
 )" (* This is the winner *)
-value "
-(bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))),,
-(
-Max (*this is the tie breaker*)
+value "(bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))),,
+(Max (*this is the tie breaker*)
  ((bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))) (*This is the last bidvector *) ^-1 `` 
-{Max (Range (bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))))}
-)
-)
-" (* This is the price for winner *)
-value "Max {2::nat}"
-value "toFunction (bidsattime (MMMM) (stopat (MMMM))) (1::nat)"
-value "the_elem {0,0::nat}"
+{Max (Range (bidsattime MMMM ((Max (size ` snd ` MMMM)) - (1::nat))))}))" (* This is the price for winner *)
+definition wdp where "wdp matrix =
+Max ((bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))) ^-1 `` 
+{Max (Range (bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))))})"
+definition "price matrix =
+(bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))),,
+(Max ((bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat)))^-1 `` 
+{Max (Range (bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))))}))"
+
+(* export_code alive addSingleBid bidMatrix n example example02 wdp price in Scala module_name Dyna file "/dev/shm/scala/Dyna.scala" *)
+
 end
 

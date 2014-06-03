@@ -38,7 +38,8 @@ abbreviation "proceeds (b::altbids) (allo::allocation) == setsum b allo"
 abbreviation participants where "participants (a::allocation) == Domain a"
 abbreviation goods::"allocation => goods" where "goods (allo::allocation) == \<Union> (Range allo)"
 
-abbreviation "winningAllocationsRel N G (b::altbids) == arg_max' (proceeds b) (possibleAllocationsRel N G)"
+abbreviation "winningAllocationsRel N G (b::altbids) == 
+arg_max' (proceeds b) (possibleAllocationsRel N G)"
 
 text {* the set of value-maximising allocations (according to the bids submitted), i.e.\ the ``arg max''
   of @{const value_rel} on the set of all possible allocations *}

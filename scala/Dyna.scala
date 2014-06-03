@@ -115,6 +115,18 @@ List[(Boolean, nat)])]((one_nat, Nil), bot_set[(nat, List[(Boolean, nat)])]))
 
 def n: nat = card[(nat, List[(Boolean, nat)])](bidMatrix)
 
+def map[A, B](f: A => B, x1: List[A]): List[B] = (f, x1) match {
+  case (f, Nil) => Nil
+  case (f, x :: xs) => f(x) :: map[A, B](f, xs)
+}
+
+def image[A, B](f: A => B, x1: set[A]): set[B] = (f, x1) match {
+  case (f, Set(xs)) => Set[B](map[A, B](f, xs))
+}
+
+def graph[A, B](x: set[A], f: A => B): set[(A, B)] =
+  image[A, (A, B)]((xa: A) => (xa, f(xa)), x)
+
 trait ord[A] {
   val `Dyna.less_eq`: (A, A) => Boolean
   val `Dyna.less`: (A, A) => Boolean
@@ -131,6 +143,13 @@ trait order[A] extends preorder[A] {
 trait linorder[A] extends order[A] {
 }
 
+def converse[A, B](r: set[(A, B)]): set[(B, A)] =
+  image[(A, B), (B, A)]((a: (A, B)) => {
+ val (x, y): (A, B) = a;
+ (y, x)
+                                       },
+                         r)
+
 def max[A : ord](a: A, b: A): A = (if (less_eq[A](a, b)) b else a)
 
 def fold[A, B](f: A => B => B, x1: List[A], s: B): B = (f, x1, s) match {
@@ -140,6 +159,33 @@ def fold[A, B](f: A => B => B, x1: List[A], s: B): B = (f, x1, s) match {
 
 def maxa[A : linorder](x0: set[A]): A = x0 match {
   case Set(x :: xs) => fold[A, A]((a: A) => (b: A) => max[A](a, b), xs, x)
+}
+
+def snd[A, B](x0: (A, B)): B = x0 match {
+  case (a, b) => b
+}
+
+def fst[A, B](x0: (A, B)): A = x0 match {
+  case (a, b) => a
+}
+
+def maps[A, B](f: A => List[B], x1: List[A]): List[B] = (f, x1) match {
+  case (f, Nil) => Nil
+  case (f, x :: xs) => f(x) ++ maps[A, B](f, xs)
+}
+
+def relcomp[A, B : equal, C](x0: set[(A, B)], x1: set[(B, C)]): set[(A, C)] =
+  (x0, x1) match {
+  case (Set(xys), Set(yzs)) =>
+    Set[(A, C)](maps[(A, B),
+                      (A, C)]((xy: (A, B)) =>
+                                maps[(B, C),
+                                      (A,
+C)]((yz: (B, C)) =>
+      (if (eq[B](snd[A, B](xy), fst[B, C](yz)))
+        List((fst[A, B](xy), snd[B, C](yz))) else Nil),
+     yzs),
+                               xys))
 }
 
 def less_eq_nat(m: nat, n: nat): Boolean =
@@ -167,54 +213,8 @@ implicit def linorder_nat: linorder[nat] = new linorder[nat] {
   val `Dyna.less` = (a: nat, b: nat) => less_nat(a, b)
 }
 
-def member[A : equal](x: A, xa1: set[A]): Boolean = (x, xa1) match {
-  case (x, Coset(xs)) => ! (membera[A](xs, x))
-  case (x, Set(xs)) => membera[A](xs, x)
-}
-
-def override_on[A : equal, B](f: A => B, g: A => B, a: set[A]): A => B =
-  (aa: A) => (if (member[A](aa, a)) g(aa) else f(aa))
-
-def snd[A, B](x0: (A, B)): B = x0 match {
-  case (a, b) => b
-}
-
-def map[A, B](f: A => B, x1: List[A]): List[B] = (f, x1) match {
-  case (f, Nil) => Nil
-  case (f, x :: xs) => f(x) :: map[A, B](f, xs)
-}
-
-def image[A, B](f: A => B, x1: set[A]): set[B] = (f, x1) match {
-  case (f, Set(xs)) => Set[B](map[A, B](f, xs))
-}
-
 def range[A, B](r: set[(A, B)]): set[B] =
   image[(A, B), B]((a: (A, B)) => snd[A, B](a), r)
-
-implicit def ord_integer: ord[BigInt] = new ord[BigInt] {
-  val `Dyna.less_eq` = (a: BigInt, b: BigInt) => a <= b
-  val `Dyna.less` = (a: BigInt, b: BigInt) => a < b
-}
-
-def minus_nat(m: nat, n: nat): nat =
-  Nat(max[BigInt](BigInt(0), integer_of_nat(m) - integer_of_nat(n)))
-
-def replicate[A](n: nat, x: A): List[A] =
-  (if (equal_nata(n, zero_nata)) Nil
-    else x :: replicate[A](minus_nat(n, one_nat), x))
-
-trait zero[A] {
-  val `Dyna.zero`: A
-}
-def zero[A](implicit A: zero[A]): A = A.`Dyna.zero`
-
-def upt(i: nat, j: nat): List[nat] =
-  (if (less_nat(i, j)) i :: upt(suc(i), j) else Nil)
-
-def nth[A](x0: List[A], n: nat): A = (x0, n) match {
-  case (x :: xs, n) =>
-    (if (equal_nata(n, zero_nata)) x else nth[A](xs, minus_nat(n, one_nat)))
-}
 
 def map_filter[A, B](f: A => Option[B], x1: List[A]): List[B] = (f, x1) match {
   case (f, Nil) => Nil
@@ -229,6 +229,11 @@ def map_project[A, B](f: A => Option[B], x1: set[A]): set[B] = (f, x1) match {
   case (f, Set(xs)) => Set[B](map_filter[A, B](f, xs))
 }
 
+def member[A : equal](x: A, xa1: set[A]): Boolean = (x, xa1) match {
+  case (x, Coset(xs)) => ! (membera[A](xs, x))
+  case (x, Set(xs)) => membera[A](xs, x)
+}
+
 def imagea[A : equal, B](r: set[(A, B)], s: set[A]): set[B] =
   map_project[(A, B),
                B]((a: (A, B)) =>
@@ -237,6 +242,68 @@ def imagea[A : equal, B](r: set[(A, B)], s: set[A]): set[B] =
                       (if (member[A](x, s)) Some[B](y) else None)
                     },
                    r)
+
+implicit def ord_integer: ord[BigInt] = new ord[BigInt] {
+  val `Dyna.less_eq` = (a: BigInt, b: BigInt) => a <= b
+  val `Dyna.less` = (a: BigInt, b: BigInt) => a < b
+}
+
+def minus_nat(m: nat, n: nat): nat =
+  Nat(max[BigInt](BigInt(0), integer_of_nat(m) - integer_of_nat(n)))
+
+def nth[A](x0: List[A], n: nat): A = (x0, n) match {
+  case (x :: xs, n) =>
+    (if (equal_nata(n, zero_nata)) x else nth[A](xs, minus_nat(n, one_nat)))
+}
+
+def wdp[A : linorder](matrix: set[(A, List[(Boolean, nat)])]): A =
+  maxa[A](imagea[nat, A](converse[A, nat](relcomp[A, List[(Boolean, nat)],
+           nat](matrix,
+                 graph[List[(Boolean, nat)],
+                        nat](range[A, List[(Boolean, nat)]](matrix),
+                              (x: List[(Boolean, nat)]) =>
+                                snd[Boolean,
+                                     nat](nth[(Boolean,
+        nat)](x, minus_nat(maxa[nat](image[List[(Boolean, nat)],
+    nat](size_list[(Boolean, nat)],
+          image[(A, List[(Boolean, nat)]),
+                 List[(Boolean,
+                        nat)]]((a: (A, List[(Boolean, nat)])) =>
+                                 snd[A, List[(Boolean, nat)]](a),
+                                matrix))),
+                            one_nat)))))),
+                          insert[nat](maxa[nat](range[A,
+               nat](relcomp[A, List[(Boolean, nat)],
+                             nat](matrix,
+                                   graph[List[(Boolean, nat)],
+  nat](range[A, List[(Boolean, nat)]](matrix),
+        (x: List[(Boolean, nat)]) =>
+          snd[Boolean,
+               nat](nth[(Boolean,
+                          nat)](x, minus_nat(maxa[nat](image[List[(Boolean,
+                            nat)],
+                      nat](size_list[(Boolean, nat)],
+                            image[(A, List[(Boolean, nat)]),
+                                   List[(Boolean,
+  nat)]]((a: (A, List[(Boolean, nat)])) => snd[A, List[(Boolean, nat)]](a),
+          matrix))),
+      one_nat))))))),
+                                       bot_set[nat])))
+
+def override_on[A : equal, B](f: A => B, g: A => B, a: set[A]): A => B =
+  (aa: A) => (if (member[A](aa, a)) g(aa) else f(aa))
+
+def replicate[A](n: nat, x: A): List[A] =
+  (if (equal_nata(n, zero_nata)) Nil
+    else x :: replicate[A](minus_nat(n, one_nat), x))
+
+trait zero[A] {
+  val `Dyna.zero`: A
+}
+def zero[A](implicit A: zero[A]): A = A.`Dyna.zero`
+
+def upt(i: nat, j: nat): List[nat] =
+  (if (less_nat(i, j)) i :: upt(suc(i), j) else Nil)
 
 def the_elem[A](x0: set[A]): A = x0 match {
   case Set(List(x)) => x
@@ -270,18 +337,9 @@ def inf_seta[A : equal](x0: set[set[A]]): set[A] = x0 match {
                    top_set[A])
 }
 
-def maps[A, B](f: A => List[B], x1: List[A]): List[B] = (f, x1) match {
-  case (f, Nil) => Nil
-  case (f, x :: xs) => f(x) ++ maps[A, B](f, xs)
-}
-
 def filterpositions2[A](p: A => Boolean, l: List[A]): List[nat] =
   maps[nat, nat]((n: nat) => (if (p(nth[A](l, n))) List(n) else Nil),
                   upt(zero_nata, size_list[A].apply(l)))
-
-def fst[A, B](x0: (A, B)): A = x0 match {
-  case (a, b) => a
-}
 
 def take[A](n: nat, x1: List[A]): List[A] = (n, x1) match {
   case (n, Nil) => Nil
@@ -345,10 +403,58 @@ implicit def zero_nat: zero[nat] = new zero[nat] {
   val `Dyna.zero` = zero_nata
 }
 
-def life(b: set[(nat, List[(Boolean, nat)])]): nat => Boolean =
+def alive(b: set[(nat, List[(Boolean, nat)])]): nat => Boolean =
   (a: nat) => nth[Boolean](livelinessList[nat, Boolean, nat](b), a)
 
-def example: Boolean = (life(bidMatrix)).apply(n)
+def price[A : equal : linorder](matrix: set[(A, List[(Boolean, nat)])]): nat =
+  eval_rel[A, nat](relcomp[A, List[(Boolean, nat)],
+                            nat](matrix,
+                                  graph[List[(Boolean, nat)],
+ nat](range[A, List[(Boolean, nat)]](matrix),
+       (x: List[(Boolean, nat)]) =>
+         snd[Boolean,
+              nat](nth[(Boolean,
+                         nat)](x, minus_nat(maxa[nat](image[List[(Boolean,
+                           nat)],
+                     nat](size_list[(Boolean, nat)],
+                           image[(A, List[(Boolean, nat)]),
+                                  List[(Boolean,
+ nat)]]((a: (A, List[(Boolean, nat)])) => snd[A, List[(Boolean, nat)]](a),
+         matrix))),
+     one_nat))))),
+                    maxa[A](imagea[nat, A](converse[A,
+             nat](relcomp[A, List[(Boolean, nat)],
+                           nat](matrix,
+                                 graph[List[(Boolean, nat)],
+nat](range[A, List[(Boolean, nat)]](matrix),
+      (x: List[(Boolean, nat)]) =>
+        snd[Boolean,
+             nat](nth[(Boolean,
+                        nat)](x, minus_nat(maxa[nat](image[List[(Boolean, nat)],
+                    nat](size_list[(Boolean, nat)],
+                          image[(A, List[(Boolean, nat)]),
+                                 List[(Boolean,
+nat)]]((a: (A, List[(Boolean, nat)])) => snd[A, List[(Boolean, nat)]](a),
+        matrix))),
+    one_nat)))))),
+    insert[nat](maxa[nat](range[A, nat](relcomp[A, List[(Boolean, nat)],
+         nat](matrix,
+               graph[List[(Boolean, nat)],
+                      nat](range[A, List[(Boolean, nat)]](matrix),
+                            (x: List[(Boolean, nat)]) =>
+                              snd[Boolean,
+                                   nat](nth[(Boolean,
+      nat)](x, minus_nat(maxa[nat](image[List[(Boolean, nat)],
+  nat](size_list[(Boolean, nat)],
+        image[(A, List[(Boolean, nat)]),
+               List[(Boolean,
+                      nat)]]((a: (A, List[(Boolean, nat)])) =>
+                               snd[A, List[(Boolean, nat)]](a),
+                              matrix))),
+                          one_nat))))))),
+                 bot_set[nat]))))
+
+def example: Boolean = (alive(bidMatrix)).apply(n)
 
 def sup_set[A : equal](x0: set[A], a: set[A]): set[A] = (x0, a) match {
   case (Coset(xs), a) => Coset[A](filter[A]((x: A) => ! (member[A](x, a)), xs))
@@ -392,6 +498,8 @@ List[(Boolean,
 def example02: set[(nat, List[(Boolean, nat)])] =
   addSingleBid(bidMatrix, zero_nata, nat_of_integer(BigInt(4)))
 
+  
+
     def localToInt(s: String):Int = {
         // from http://alvinalexander.com/scala/how-cast-string-to-int-in-scala-string-int-conversion
         try {
@@ -403,7 +511,7 @@ def example02: set[(nat, List[(Boolean, nat)])] =
 
     def main(args: Array[String]) {
         var M=bidMatrix; var j: BigInt = 0;
-        while ( life(M).apply(Nat(j)) ) {
+        while ( alive(M).apply(Nat(j)) ) {
           j = j+1; var i: BigInt=0;
           while (i < integer_of_nat(n)) { // Can't use for loop with BigInt
             print("Input the bid for bidder " + i + " in round " + j +".\n")
@@ -416,6 +524,10 @@ def example02: set[(nat, List[(Boolean, nat)])] =
           println ("debug2");
           print ("debug3");
         }
-    }
-
+        println("Outcome:");
+        println (wdp(M));
+        println (price(M));
+    }  
+  
+  
 } /* object Dyna */
