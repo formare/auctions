@@ -170,6 +170,16 @@ definition "price matrix =
 (Max ((bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat)))^-1 `` 
 {Max (Range (bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))))}))"
 
+definition "a1 matrix=bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))"
+definition "b1 matrix=
+(Max ((bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat)))^-1 `` 
+{Max (Range (bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))))}))"
+
+value MMMM
+value "a1 MMMM"
+value "(a1 MMMM),,(b1 MMMM)"
+value "{(0, 0), (0, 0), (1, 0), (1, 0)},, (b1 MMMM)"
+value "the_elem {0, 0}"
 (* export_code alive addSingleBid bidMatrix n example example02 wdp price in Scala module_name Dyna file "/dev/shm/scala/Dyna.scala" *)
 
 end
