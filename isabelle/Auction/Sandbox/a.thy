@@ -5,6 +5,7 @@ imports Main Random Random_Sequence
 "../Maskin3"
 "../CombinatorialVickreyAuction"
 "~~/src/HOL/Library/Code_Target_Nat"
+"~~/src/HOL/Library/Permutations"
 (* "~~/src/HOL/Library/DAList" *)
 
 begin
@@ -111,6 +112,75 @@ by (metis le_trans)
 lemma mm07b: assumes "finite Z" "X <~ Y" "Y \<subseteq> Z" shows "X <~ Z" using assms card_mono diff_le_mono 
 by (metis le_trans)
 
+value "sublist [0::nat, 1, 2, 3] {0..<1}"
+definition "insertRightOf x l n = sublist l {0..<1+n} @ [x] @ sublist l {n+1..< 1+size l}"
+value "insertRightOf 44 [0::nat, 1, 2, 3] 2"
+value "insertRightOf (44::nat) [] 0"
+value "fact (12::nat)"
+
+value "{0::nat ..<2}"
+
+(* 
+fun perm where 
+"perm [] = {}" | "perm (x#l) = 
+{(n::nat, insertRightOf x (perm l,,(n div size l)) (n mod (size l)))| n . fact (size l) < n & n <= fact (1 + (size l))}
++* (perm l)"
+*)
+term graph
+value "(10::nat) div 6 "
+fun perm::"'a list => (nat \<times> ('a list)) set" where 
+"perm [] = {}" | "perm (x#l) = 
+graph {fact (size l) ..< 1+fact (1 + (size l))}
+(%n::nat. insertRightOf x (perm l,,(n div size l)) (n mod (size l)))
++* (perm l)"
+
+value "perm [1::nat]``{1::nat}"
+value "(id (1::nat := 3)) 4"
+
+fun permL where (* associate to every n=1...(size l)! a unique permutation of l, 
+parsing all and only the possible permutations (assuming distinct l)*)
+"permL [] = (%n. [])"|
+"permL (x#l) = (%n. 
+if (fact (size l) < n & n <= fact (1 + (size l))) 
+then
+(insertRightOf x (permL l (n div size l)) (n mod (size l)))
+else
+(x # (permL l n))
+)"
+
+value "fact (5::nat)"
+
+value "permL [0::nat,1,2,3,4,5] 79"
+abbreviation "indexof l x == hd (filterpositions2 (%y. x=y) l)"
+notation indexof (infix "!-`" 75)
+value "[10::nat, 11, 12] !-` 12" 
+
+abbreviation "one N G random index == 
+(% g n. (permL (sorted_list_of_set N) (random (index g))) !-` n + (card N)^(index g))"
+
+term "split (one {0::nat, 1} {10::nat, 11} id id)"
+
+abbreviation "tieBreakBidsSingle N G random index == % n g. 
+(permL (sorted_list_of_set N) (random (index g))) !-` n + (card N)^(index g)
+" (* Gives, for each _single_ good, and each participant, a bid.
+In such a way that the resulting proceeds are unique for each possible allocation
+(as soon as index is injective)
+*)
+
+abbreviation "tieBreakBids N G random index == split (% n X.
+setsum (tieBreakBidsSingle N G random index n) X
+)"
+
+value "proceeds (tieBreakBids {0::nat, 1} {10::nat,1} id id)"
+
+abbreviation "tieBreaker N G random index == 
+%X. arg_max' (proceeds (tieBreakBids N G random index))X "
+
+lemma "!X. card (tieBreaker N G random index X) = 1" sorry
+
+abbreviation "tieBreakerSeq N G random index== %n. (if (n=0) then (%X. tieBreaker N G random index X) else
+id)"
+
 lemma assumes "!n. !X. t n X <~ X" shows 
 "card ((auction b t) 
 (card (auction b t 0 X) - 1)
@@ -130,7 +200,7 @@ then have "\<forall>n. \<forall>X. ?f (n+1) X <~ X" by blast
 then have "?c (?g ?f (?c (?g ?f 0 X) - 1) X) - 1 <= 0" using mm05 by fast
 moreover have "auction b t=?g ?f" by fast
 ultimately have "?c (auction b t (?c (auction b t 0 X) - 1) X) - 1 <= 0" by fast
-then have ?thesis by fast
+then show ?thesis by fast
 qed
 
 lemma assumes "finite N" "finite G" 
@@ -163,8 +233,8 @@ using assms infinite_descent sorry
 
 lemma assumes "\<forall>(n::nat). (f n) - 1 >= f (n + (g n))" shows "EX n. f n = (0::nat)" 
 using assms infinite_descent nat_induct sorry
-
-value "Random.next (1,1)"
+term "Random_Sequence.not_random_dseq"
+value "fst (Random.next (1,1))"
 
 value "Random.pick [(1::natural,10::nat),(2,12),(3,13)] 3"
 
