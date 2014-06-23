@@ -1837,6 +1837,14 @@ proof -
   thus ?thesis using paste_def by blast
 qed
 
+corollary ll25: shows "(P +* Q) `` (Domain Q - X) = Q``(Domain Q - X)"
+proof -
+let ?d=Domain let ?D="?d Q" let ?R="P +* Q" 
+have "?R``(?D \<inter> (?D - X))=Q``(?D \<inter> (?D - X))" using ll50 by metis
+also have "?D - X=?D \<inter> (?D - X)" by fastforce
+ultimately show ?thesis by auto
+qed
+
 lemma shows "sym (graph X id)" 
 proof -
 have "graph X id={(x,id x)|x. x\<in> X}" using graph_def by blast
@@ -1985,14 +1993,6 @@ let ?P="%xx. True" let ?G="{(x, f x)|x. ?P x}"
 have "?P x" by fast then 
 have "?G,,x = f x" by (rule l16)
 thus ?thesis using Graph_def by metis
-qed
-
-corollary ll25: shows "(P +* Q) `` (Domain Q - X) = Q``(Domain Q - X)"
-proof -
-let ?d=Domain let ?D="?d Q" let ?R="P +* Q" 
-have "?R``(?D \<inter> (?D - X))=Q``(?D \<inter> (?D - X))" using ll50 by metis
-also have "?D - X=?D \<inter> (?D - X)" by fastforce
-ultimately show ?thesis by auto
 qed
 
 lemma ll41: shows "Domain (R||X) = Domain R \<inter> X" using restrict_def by fastforce

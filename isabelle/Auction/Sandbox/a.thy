@@ -1,14 +1,233 @@
 theory a
 
 imports Main Random Random_Sequence
+g
 "../Maximum"
 "../Maskin3"
 "../CombinatorialVickreyAuction"
 "~~/src/HOL/Library/Code_Target_Nat"
 "~~/src/HOL/Library/Permutations"
+"~~/src/HOL/Library/Indicator_Function"
 (* "~~/src/HOL/Library/DAList" *)
 
 begin
+
+
+lemma mm24: "setsum ((curry f) x) Y = setsum f ({x} \<times> Y)" 
+proof -
+let ?f="% y. (x, y)" let ?g="(curry f) x" let ?h=f
+have "inj_on ?f Y" by (metis Pair_inject inj_onI) 
+moreover have "{x} \<times> Y = ?f ` Y" by fast
+moreover have "\<forall> y. y \<in> Y \<longrightarrow> ?g y = ?h (?f y)" by simp
+ultimately show ?thesis using setsum_reindex_cong by metis
+qed
+
+lemma mm24b: "setsum (%y. f (x,y)) Y = setsum f ({x} \<times> Y)" using assms mm24 by (smt Sigma_cong curry_def setsum.cong)
+
+abbreviation "Chi X Y == (Y \<times> {0::nat}) +* (X \<times> {1})"
+notation Chi (infix "<||" 80)
+abbreviation "chii X Y == toFunction (X <|| Y)"
+notation chii (infix "<|" 80)
+abbreviation "chi X == indicator X"
+
+lemma mm13: "runiq (X <|| Y)" by (metis lll59 runiq_paste2 trivial_singleton)
+
+corollary mm12: assumes "finite X" shows "setsum f X = setsum f (X-Y) + (setsum f (X \<inter> Y))" 
+using assms Diff_iff IntD2 Un_Diff_Int finite_Un inf_commute setsum.union_inter_neutral by metis
+
+corollary "(P +* Q) `` (X \<inter> (Domain Q))= Q``X"  by (metis Image_within_domain Int_commute ll50)
+
+corollary mm19: assumes "X \<inter> Domain Q = {}" (is "X \<inter> ?dq={}") shows "(P +* Q) `` X = (P outside ?dq)`` X" 
+using assms ll50 ll25 paste_def l38 Outside_def 
+by (metis Diff_disjoint Image_empty Image_within_domain Un_Image sup_inf_absorb)
+
+lemma mm20: assumes  "X \<inter> Y = {}"  shows "(P outside Y)``X=P``X"
+using assms Outside_def by blast
+
+corollary mm19b: assumes "X \<inter> Domain Q = {}" shows "(P +* Q) `` X = P``X" 
+using assms mm19 mm20 by metis
+
+lemma mm14: assumes "x \<in> X \<union> Y" shows "(X <| Y) x = chi X x" using assms toFunction_def 
+mm13 sorry
+
+corollary mm15: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) Z = setsum (chi X) Z" 
+using assms mm14 setsum_cong by (smt in_mono)
+
+corollary mm16: "setsum (chi X) (Z - X) = 0" by simp
+
+corollary mm17: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) (Z - X) = 0" using assms mm16 mm15 
+by (smt Diff_iff in_mono setsum.cong subsetI transfer_nat_int_sum_prod2(1))
+
+corollary mm18: assumes "finite Z" shows "setsum (X <| Y) Z = setsum (X <| Y) (Z - X) 
++(setsum (X <| Y) (Z \<inter> X))" using mm12 assms by blast
+
+corollary mm18b: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "setsum (X <| Y) Z = setsum (X <| Y) (Z \<inter> X)" 
+using assms mm12 mm18 by (smt mm17)
+
+corollary mm21: assumes "finite Z" shows "setsum (chi X) Z = card (X \<inter> Z)" using assms 
+setsum_indicator_eq_card by (metis Int_commute)
+
+corollary mm22: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "setsum (X <| Y) Z = card (Z \<inter> X)"
+using assms mm21 by (metis mm15 setsum_indicator_eq_card)
+
+corollary mm28: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "(setsum (X <| Y) X) - (setsum (X <| Y) Z) =
+card X - card (Z \<inter> X)" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+
+lemma mm23: assumes "finite X" "finite Y" "card (X \<inter> Y) = card X" shows "X \<subseteq> Y" using assms 
+by (metis Int_lower1 Int_lower2 card_seteq order_refl)
+
+lemma assumes "finite X" "finite Y" "card X = card Y" shows "(card (X \<inter> Y)=card X) = (X = Y)"
+using assms mm23 by (metis card_seteq le_iff_inf order_refl)
+term allAllocations
+
+
+
+
+
+
+
+
+
+
+
+abbreviation "N00 == {1,2::nat}"
+abbreviation "G00 == [11::nat, 12, 13]"
+abbreviation "A00 == {(0,{10,11::nat}), (1,{12,13})}"
+abbreviation "b00 == 
+{
+((1,{11}),3),
+((1,{12}),0),
+((1::participant,{11,12::nat}),4::price),
+((2,{11}),2),
+((2,{12}),2),
+((2,{11,12}),1)
+}"
+
+abbreviation "b11 == toFunction ((N00 \<times> (Pow (set G00)))\<times>{0} +* b00)"
+
+abbreviation "omega pair == {fst pair} \<times> (finestpart (snd pair))"
+abbreviation "pseudoAllocation allocation == \<Union> (omega ` allocation)"
+abbreviation "allocation2Goods allocation == \<Union> (snd ` allocation)"
+abbreviation "bidMaximizedBy allocation (N::participant set) (G::goods) == 
+(* (N \<times> finestpart G) \<times> {0::price} +* ((pseudoAllocation allocation) \<times> {1}) *)
+pseudoAllocation allocation <|| (N \<times> (finestpart G))"
+abbreviation "partialCompletionOf bids pair == ((fst pair, snd pair), setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
+abbreviation "linearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
+
+corollary mm25: "snd (partialCompletionOf bids pair)=setsum bids (omega pair)" using mm24 by force
+
+lemma mm26: "card (finestpart X) = card X" using finestpart_def by (metis (lifting) card_image inj_on_inverseI the_elem_eq)
+
+lemma mm27: assumes "finite  (finestpart (snd pair))" shows 
+"card (omega pair) = card (finestpart (snd pair))" using assms by force
+
+corollary assumes "finite (snd pair)" shows "card (omega pair) = card (snd pair)" 
+using assms mm26 mm27 by (metis card_cartesian_product_singleton)
+
+lemma mm29: assumes "X \<noteq> {}" shows "finestpart X \<noteq> {}" using assms finestpart_def by blast
+
+lemma assumes "f \<in> allPartitionvalued" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_eq_class)
+
+lemma mm30: assumes "{} \<notin> Range f" "runiq f" shows "is_partition (omega ` f)" 
+using assms is_partition_def image_def runiq_def mm29 rev_image_eqI snd_eq_Range
+runiq_imp_uniq_right_comp surjective_pairing Int_absorb Times_empty insert_not_empty
+try0
+proof -
+let ?X="omega ` f" let ?p=finestpart
+  { fix y1 y2; assume "y1 \<in> ?X & y2 \<in> ?X"
+    then obtain pair1 pair2 where 
+    0: "y1 = omega pair1 & y2 = omega pair2 & pair1 \<in> f & pair2 \<in> f" by blast
+    then moreover have "snd pair1 \<noteq> {} & snd pair1 \<noteq> {}" using assms
+by (metis rev_image_eqI snd_eq_Range)
+    ultimately moreover have "fst pair1 = fst pair2 \<longleftrightarrow> pair1 = pair2" using assms runiq_def 
+by (metis runiq_imp_uniq_right_comp surjective_pairing)
+    ultimately moreover have "y1 \<inter> y2 \<noteq> {} \<longrightarrow> y1 = y2" using assms 0 by fast
+    ultimately have "y1 = y2 \<longleftrightarrow> y1 \<inter> y2 \<noteq> {}" using assms mm29 
+    by (metis Int_absorb Times_empty insert_not_empty)
+    }
+  thus ?thesis using is_partition_def by (metis (lifting, no_types) inf_commute inf_sup_aci(1))
+qed
+
+lemma assumes "a \<in> allAllocations" shows "is_partition (omega ` a)" 
+using assms is_partition_def sorry
+
+lemma assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
+"card (\<Union> XX) = setsum card XX" using assms is_partition_def card_Union_disjoint by fast
+
+lemma "card (pseudoAllocation a) = setsum (card \<circ> omega) a" sorry
+
+lemma assumes "allocation \<in> allAllocations" shows
+"is_partition (omega ` allocation)" using assms is_partition_def sorry
+
+lemma assumes "finite G" "finite N" "a \<in> possibleAllocationsRel N G" shows 
+"card (pseudoAllocation a) = card G" 
+using assms possible_allocations_rel_def injections_def all_partitions_def sorry
+
+lemma assumes "finite a" "\<forall>x \<in> a. finite (snd x)" shows "finite (pseudoAllocation a)" 
+using assms sorry
+
+lemma "pseudoAllocation a \<subseteq> (Domain a \<times> (finestpart (\<Union> Range a)))" 
+using assms finestpart_def sorry
+
+lemma 
+assumes "pseudoAllocation aa \<subseteq> pseudoAllocation a \<union> (N \<times> (finestpart G))" 
+"finite (pseudoAllocation aa)"
+shows
+"setsum (toFunction (bidMaximizedBy a N G)) (pseudoAllocation a) - 
+(setsum (toFunction (bidMaximizedBy a N G)) (pseudoAllocation aa)) = 
+card (pseudoAllocation a) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" using mm28 assms
+by blast
+
+
+lemma assumes "finite a" "N = Domain a" "G = \<Union> (snd ` a)" shows
+"setsum (toFunction (linearCompletion bids N G)) a = setsum bids (pseudoallocation a)"
+sorry
+
+lemma assumes "finite a" "N = Domain a" "G = \<Union> (snd ` a)" "z \<in> a" shows 
+"(linearCompletion bids N G),,z \<le>
+setsum id (bids ` )"
+using assms toFunction_def finestpart_def sledgehammer
+
+term "(bidMaximizedBy A00 N00 (set G00))"
+term A00
+value "Pow {} - {{}}"
+value "linearCompletion (toFunction (bidMaximizedBy A00 N00 (set G00))) N00 (set G00)"
+
+lemma mm08: assumes "finite X" shows 
+"setsum f X <= card X * Max (Range (graph X f)) & 
+setsum f X <= card X * Max (Range (graph X f))" using assms graph_def sorry
+
+lemma mm09: assumes "finite a" "finite N" "finite G" shows 
+"Min (Range (bidMaximizedBy a N G || a)) >= 1 &
+Max (Range (bidMaximizedBy a N G || a)) <= 1" using assms Range_def paste_def
+sorry
+
+lemma assumes "runiq f" shows "Graph (toFunction f) \<supseteq> f" using assms Graph_def toFunction_def 
+runiq_def sorry
+
+lemma mm10: assumes "runiq f" "X \<subseteq> Domain f" shows 
+"graph X (toFunction f) = (f||X)" using assms graph_def toFunction_def Outside_def 
+restrict_def
+by (smt Collect_mono Domain_mono Int_commute eval_runiq_rel ll37 ll41 ll81 restrict_ext restriction_is_subrel set_rev_mp subrel_runiq)
+
+lemma mm11: assumes "runiq f" shows 
+"graph (X \<inter> Domain f) (toFunction f) = (f||X)" using assms mm10 
+by (metis Int_lower2 restriction_within_domain)
+
+lemma "setsum f X = setsum f (X - (f -` {0}))" using assms sorry
+
+lemma assumes "finite aa" shows "proceeds (toFunction (bidMaximizedBy aa N G)) a = 
+proceeds (toFunction (bidMaximizedBy aa N G)) (a \<inter> aa)"
+using assms mm10 mm09 mm08 sledgehammer
+
+lemma assumes "finite a1" "runiq (a1^-1)" "\<Union> (snd ` a1) = G" "Domain a1=N" shows 
+"proceeds (toFunction (bidMaximizedBy a1 N G)) a1 = card a1 * Max (Range ((bidMaximizedBy a1 N G)))"
+using assms runiq_def mm08 mm09 mm10 sorry
+
+
+lemma assumes "runiq (a2^-1)" "runiq (a1^-1)" "\<Union> (snd ` a1) = G" "\<Union> (snd ` a2) = G" shows 
+"proceeds (toFunction (bidMaximizedBy a1 N G)) a2 >= card G"
+using assms runiq_def sorry
 
 lemma "arg_max' f A \<subseteq> f -` {Max (f ` A)}"
 using assms arg_max'_def Max_def image_def 

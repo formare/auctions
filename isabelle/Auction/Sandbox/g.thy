@@ -713,7 +713,6 @@ qed
 
 abbreviation "monotonebids == condition2"
 
-
 lemma lm71: fixes N b assumes
 "EX i1 i2. i1 \<in> N - {i2} & i2 \<in> N - {i1} & 
 (\<forall> t t'. (trivial t & trivial t' & Union t \<subseteq> Union t') \<longrightarrow>
