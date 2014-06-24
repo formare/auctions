@@ -116,7 +116,12 @@ abbreviation "linearCompletion bids N G == (partialCompletionOf bids) ` (N \<tim
 
 corollary mm25: "snd (partialCompletionOf bids pair)=setsum bids (omega pair)" using mm24 by force
 
-lemma mm26: "card (finestpart X) = card X" using finestpart_def by (metis (lifting) card_image inj_on_inverseI the_elem_eq)
+lemma mm26: "card (finestpart X) = card X" 
+using finestpart_def by (metis (lifting) card_image inj_on_inverseI the_elem_eq)
+corollary mm26b: "finestpart {} = {} & card \<circ> finestpart = card" using mm26 finestpart_def by fastforce
+
+lemma mm40: "finite (finestpart X) = finite X" using assms finestpart_def mm26b by (metis card_eq_0_iff empty_is_image finite.simps mm26)
+lemma "finite \<circ> finestpart = finite" using mm40 by fastforce
 
 lemma mm27: assumes "finite  (finestpart (snd pair))" shows 
 "card (omega pair) = card (finestpart (snd pair))" using assms by force
@@ -129,9 +134,6 @@ lemma mm29: assumes "X \<noteq> {}" shows "finestpart X \<noteq> {}" using assms
 lemma assumes "f \<in> allPartitionvalued" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_eq_class)
 
 lemma mm30: assumes "{} \<notin> Range f" "runiq f" shows "is_partition (omega ` f)" 
-using assms is_partition_def image_def runiq_def mm29 rev_image_eqI snd_eq_Range
-runiq_imp_uniq_right_comp surjective_pairing Int_absorb Times_empty insert_not_empty
-try0
 proof -
 let ?X="omega ` f" let ?p=finestpart
   { fix y1 y2; assume "y1 \<in> ?X & y2 \<in> ?X"
@@ -151,10 +153,108 @@ qed
 lemma assumes "a \<in> allAllocations" shows "is_partition (omega ` a)" 
 using assms is_partition_def sorry
 
-lemma assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
+lemma mm33: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
 "card (\<Union> XX) = setsum card XX" using assms is_partition_def card_Union_disjoint by fast
 
-lemma "card (pseudoAllocation a) = setsum (card \<circ> omega) a" sorry
+corollary mm33b: assumes "XX partitions X" "finite X" "finite XX" shows 
+"card (\<Union> XX) = setsum card XX"
+using assms mm33 by (metis is_partition_of_def lll41)
+
+lemma assumes "inj_on g X" shows "setsum f (g`X) = setsum (f \<circ> g) X" using assms 
+by (metis setsum.reindex)
+
+lemma mm31: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
+
+corollary mm31b: "inj_on finestpart UNIV" using mm31 ll64 by (metis (lifting, no_types) injI)
+
+lemma mm32: assumes "{} \<notin> Range X" shows "inj_on omega X" using assms 
+proof -
+let ?p=finestpart
+{
+  fix pair1 pair2 assume "pair1 \<in> X & pair2 \<in> X" then have 
+  0: "snd pair1 \<noteq> {} & snd pair2 \<noteq> {}" using assms by (metis Range.intros surjective_pairing)
+  assume "omega pair1 = omega pair2" then moreover have "?p (snd pair1) = ?p (snd pair2)" by blast
+  then moreover have "snd pair1 = snd pair2" by (metis ll64 mm31)
+  ultimately moreover have "{fst pair1} = {fst pair2}" using 0 mm29 by (metis fst_image_times)
+  ultimately have "pair1 = pair2" by (metis prod_eqI singleton_inject)
+}
+thus ?thesis by (metis (lifting, no_types) inj_onI)
+qed
+
+lemma mm36: assumes "{} \<notin> Range a" 
+"finite (omega ` a)" "\<forall>X \<in> omega ` a. finite X" "is_partition (omega ` a)"
+shows "card (pseudoAllocation a) = setsum (card \<circ> omega) a" 
+using assms mm33 mm32 setsum.reindex by smt
+
+lemma mm34: "card ({x} \<times> Y) = card Y" by (metis card_cartesian_product_singleton)
+
+lemma mm35: "card (omega pair)= card (snd pair)" using mm26 card_cartesian_product_singleton 
+by metis
+
+corollary mm35b: "card \<circ> omega = card \<circ> snd" using mm35 by fastforce
+
+corollary mm37: assumes "{} \<notin> Range a" "\<forall> pair \<in> a. finite (snd pair)" "finite a" "runiq a" 
+shows "card (pseudoAllocation a) = setsum (card \<circ> snd) a"
+proof -
+let ?P=pseudoAllocation let ?c=card
+have "\<forall> pair \<in> a. finite (omega pair)" using mm40 assms by blast moreover
+have "is_partition (omega ` a)" using assms mm30 by blast ultimately
+have "?c (?P a) = setsum (?c \<circ> omega) a" using assms mm36 by blast
+moreover have "... = setsum (?c \<circ> snd) a" using mm35b by metis
+ultimately show ?thesis by presburger
+qed
+
+lemma mm38c: "inj_on fst P = inj_on snd (P^-1)" using  Pair_inject
+by (smt converse.intros converseE inj_on_def surjective_pairing)
+
+lemma mm39: assumes "runiq (a^-1)" shows "setsum (card \<circ> snd) a = setsum card (Range a)" 
+using assms setsum.reindex lll33 mm38c converse_converse by (metis snd_eq_Range)
+
+corollary mm46: assumes "runiq (a^-1)" "runiq a" "finite a" "{} \<notin> Range a" 
+"\<forall> pair \<in> a. finite (snd pair)"
+shows "card (pseudoAllocation a) = setsum card (Range a)" using assms mm39 mm37 by force
+
+lemma mm47: "(\<forall> pair \<in> a. finite (snd pair)) = (\<forall> y \<in> Range a. finite y)" by fastforce
+
+lemma mm41: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows
+"\<forall> y \<in> Range a. finite y" using assms is_partition_of_def lm47 by (metis Union_upper rev_finite_subset)
+
+lemma mm42: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "finite (Range a)" using assms lm47 
+lm55 by (metis lm28)
+
+lemma mm43: assumes "runiq f" shows "finite (Domain f) = finite f" 
+using assms Domain_empty_iff card_eq_0_iff finite.emptyI lll34 by metis
+
+corollary mm44: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "finite a"
+using assms mm42 mm43 lm47 injections_def by (smt finite_converse mem_Collect_eq)
+
+lemma mm45: assumes "XX \<in> allPartitionvalued" shows "{} \<notin> Range XX" using assms 
+mem_Collect_eq no_empty_eq_class by auto
+
+corollary mm45b: assumes "a \<in> possibleAllocationsRel N G" shows "{} \<notin> Range a" using assms mm45 
+lm50 by blast
+
+lemma assumes "a \<in> possibleAllocationsRel N G" shows "\<Union> Range a = G" using assms 
+by (metis is_partition_of_def lm47)
+
+corollary mm33c: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
+"card G = setsum card (Range a)" using assms mm33b mm42 lm47 by (metis is_partition_of_def)
+
+corollary mm48: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "card (pseudoAllocation a) = card G"  
+proof -
+  have "{} \<notin> Range a" using assms mm45b by blast
+  moreover have "\<forall> pair \<in> a. finite (snd pair)" using assms mm41 mm47 by metis
+  moreover have "finite a" using assms mm44 by blast
+  moreover have "runiq a" using assms by (metis (lifting) Int_lower1 in_mono lm19 mem_Collect_eq)
+  moreover have "runiq (a^-1)" using assms by (metis (mono_tags) injections_def lm28b mem_Collect_eq)
+  ultimately have "card (pseudoAllocation a) = setsum card (Range a)" using mm46 by blast
+  moreover have "... = card G" using assms mm33c by metis
+  ultimately show ?thesis by presburger
+qed
+
+lemma assumes "\<forall>x. x \<in> X \<longrightarrow> finite (snd x)" "finite X" 
+"is_partition (snd ` X)" shows 
+"setsum (card \<circ> snd) X = card (\<Union> (snd ` X))" using assms sorry
 
 lemma assumes "allocation \<in> allAllocations" shows
 "is_partition (omega ` allocation)" using assms is_partition_def sorry
@@ -183,10 +283,9 @@ lemma assumes "finite a" "N = Domain a" "G = \<Union> (snd ` a)" shows
 "setsum (toFunction (linearCompletion bids N G)) a = setsum bids (pseudoallocation a)"
 sorry
 
-lemma assumes "finite a" "N = Domain a" "G = \<Union> (snd ` a)" "z \<in> a" shows 
-"(linearCompletion bids N G),,z \<le>
-setsum id (bids ` )"
-using assms toFunction_def finestpart_def sledgehammer
+lemma assumes "!x. x \<in> Range a \<longrightarrow> finite x" "is_partition (Range a)" shows 
+"card (pseudoAllocation a) = card (\<Union> Range a)"
+using assms is_partition_def mm26 sorry
 
 term "(bidMaximizedBy A00 N00 (set G00))"
 term A00
@@ -218,7 +317,7 @@ lemma "setsum f X = setsum f (X - (f -` {0}))" using assms sorry
 
 lemma assumes "finite aa" shows "proceeds (toFunction (bidMaximizedBy aa N G)) a = 
 proceeds (toFunction (bidMaximizedBy aa N G)) (a \<inter> aa)"
-using assms mm10 mm09 mm08 sledgehammer
+using assms mm10 mm09 mm08 sorry
 
 lemma assumes "finite a1" "runiq (a1^-1)" "\<Union> (snd ` a1) = G" "Domain a1=N" shows 
 "proceeds (toFunction (bidMaximizedBy a1 N G)) a1 = card a1 * Max (Range ((bidMaximizedBy a1 N G)))"

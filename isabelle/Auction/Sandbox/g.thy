@@ -21,8 +21,6 @@ using lm64 all_partitions_alg_def all_partitions_def all_partitions_paper_equiv_
 lm63 
 by (metis assms distinct_sorted_list_of_set image_set order_refl)
 
-term "all_partitions G"
-
 lemma assumes "Y \<in> set (all_partitions_alg G)" "card N > 0" "finite N" "finite G" 
 shows "injections (set Y) N = set (injections_alg Y N)"
 using assms injections_equiv lm63 all_partitions_paper_equiv_alg lm64 lm65 
@@ -74,7 +72,7 @@ proof -
   thus ?thesis using possible_allocations_rel_def by force
 qed
 
-lemma lm54:  assumes "trivial X" shows "finite X" 
+lemma lm54: assumes "trivial X" shows "finite X" 
 using trivial_def by (metis assms finite.simps trivial_cases)
 
 abbreviation "isChoice R == \<forall>x. R``{x} \<subseteq> x"
