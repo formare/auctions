@@ -96,7 +96,7 @@ lemma lm25b: "injections X Y \<subseteq> allInjections" using assms possible_all
 injections_def all_partitions_def is_partition_of_def by blast
 lemma lm26: "injections' X Y = totalRels X Y \<inter> allInjections" by fastforce
 
-lemma lm47: fixes N::"participant set" fixes G::goods fixes a::"allocation" assumes 
+lemma lm47: fixes N fixes G fixes a assumes 
 "a \<in> possibleAllocationsRel N G" shows 
 "a^-1 \<in> injections (Range a) N & Range a partitions G & Domain a \<subseteq> N"
 using assms all_partitions_def Domain_converse allocation_injective converse_converse 
