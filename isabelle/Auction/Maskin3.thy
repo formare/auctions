@@ -4,6 +4,7 @@ imports
 (* "~~/src/HOL/Cardinals/Cardinal_Order_Relation_Base" *) 
 (* SupInf *)
 "RelationProperties"
+"RelationMisc"
 Real 
 Real_Vector_Spaces
 (*
@@ -214,6 +215,8 @@ abbreviation onemember2
 ::"'a => nat => 'a multiset"
 where "onemember2 x n == RRange ({1..<n+1}\<times>{x})"
 
+abbreviation "singlenton x n == onemember2 x n"
+
 lemma ll00: shows "onemember x 1 = single x" by (metis onemember.abs_eq single.abs_eq)
 
 lemma lll44: fixes n::nat shows "card {1..<n+1} =n" using assms 
@@ -317,9 +320,6 @@ proof -
   moreover have "?f (?r P) & ?f (?r Q)" using assms(2,3) finite_Range by blast
   ultimately show ?thesis using lll26 lll05f assms finite_subset by metis
 qed
-
-lemma lll59: assumes "trivial Y" shows "runiq (X \<times> Y)" using assms 
-runiq_def Image_subset ll84 trivial_subset by (metis ll83)
 
 lemma lll66: "RRange ({x} \<times> {y})= {# y #}" using ll00 lll52 lll51 
 card.insert card_empty empty_iff finite.emptyI by (metis One_nat_def)

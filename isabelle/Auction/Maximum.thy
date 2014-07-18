@@ -111,6 +111,13 @@ fun arg_max' :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Ri
 where "arg_max' f A = { x \<in> A . f x = Max (f ` A) }"
 
 text {* The arg max of a function over a non-empty set is non-empty. *}
+
+lemma mm79: "arg_max' f A = A \<inter> f -` {Max (f ` A)}" by force
+lemma mm86b: assumes "y \<in> f`A" shows "A \<inter> f -` {y} \<noteq> {}" using assms by blast
+corollary arg_max'_non_empty_iff: assumes "finite X" "X \<noteq> {}" shows "arg_max' f X \<noteq>{}" 
+using assms Max_in finite_imageI image_is_empty mm79 mm86b by metis
+
+(*
 lemma arg_max'_non_empty_iff:
   fixes f::"'a \<Rightarrow> 'b::linorder"
     and A::"'a set"
@@ -123,6 +130,7 @@ proof -
   then have "\<exists> x . x \<in> A \<and> f x = Max (f ` A)" by blast
   then show ?thesis by simp
 qed
+*)
 
 text{* the set of all indices of maximum components of a vector *}
 definition arg_max :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
@@ -375,6 +383,15 @@ proof -
   also have "...= [x <- l. ?P (f x)]" using map_nth by metis
   finally show ?thesis by force
 qed
+
+
+lemma mk01: "[ x <- l. f x \<ge> Max (f`(set l))] = [ x <- l. f x = Max (f`(set l))]" using  
+List.finite_set Max.coboundedI eq_iff finite_imageI image_eqI filter_cong
+by smt
+
+corollary "set (argmax f l) = arg_max' f (set l)" 
+using assms argmaxadequacy mk01 sledgehammer
+by (metis (full_types) arg_max'.elims set_filter)  
 
 end
 

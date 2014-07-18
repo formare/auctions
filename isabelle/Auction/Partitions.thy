@@ -845,7 +845,7 @@ definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set li
 where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
 
 (* TODO CL: maybe delete as per https://github.com/formare/auctions/issues/21 *)
-corollary [code_unfold]:
+corollary mm90[code_unfold]: 
   fixes X
   assumes "finite X"
   shows "all_partitions X = set (map set (all_partitions_alg X))"

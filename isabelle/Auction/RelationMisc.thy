@@ -140,4 +140,7 @@ using assms ll74 ll75 ll76 equiv_def by fast
 corollary ll78: assumes "runiq f" shows "equiv (Domain f) (part2rel (kernel f))"
 using assms ll77 ll79 is_partition_of_def by metis
 
+lemma lll59: assumes "trivial Y" shows "runiq (X \<times> Y)" using assms 
+runiq_def Image_subset ll84 trivial_subset by (metis ll83)
+
 end

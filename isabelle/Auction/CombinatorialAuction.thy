@@ -143,9 +143,10 @@ end
 
 text {* algorithmic version of @{const possible_allocations_rel} *}
 fun possible_allocations_alg :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
-where "possible_allocations_alg G N = concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
-
-abbreviation "possibleAllocationsAlg N G == (map converse (possible_allocations_alg G N))"
+where "possible_allocations_alg G N = 
+concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
+abbreviation "possibleAllocationsAlg N G == 
+(map converse (possible_allocations_alg G N))"
 abbreviation "possibleAllocationsAlg2 N G == 
 converse ` (\<Union> set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"
 abbreviation "possibleAllocationsAlg3 N G == 
