@@ -22,14 +22,31 @@ injective functions.  Some of this may be obsolete now, or it may be worth prese
 an "alternative" section; compare Partitions.
 *)
 imports
+  Real
   Equiv_Relations
   "../SetUtils"
   "../RelationProperties"
   "../Partitions"
+  "../Maximum"
 (*"$AFP/Collections/common/Misc"*)
 
 begin
+  term "semilattice_set.F max"
+  
+value "quotient {(0::nat,10::nat), (1, 11)} {(0::nat,0)} {(11,11::nat)}"
+  
+  
+value "all_partitions {1::nat}"
+value "Max ((%x. 1+1/(real (x::nat)))`({1..<123}))"
+value "arg_max' (%x. 1/(real (x::nat))) {1..<123}"
 
+type_synonym ('a,'b)rel = "'a => ('b set)"
+abbreviation "Dom (R::(('a,'b)rel)) == R -` (UNIV - {{}})"
+abbreviation "Ran (R::(('a,'b)rel)) == \<Union> (range R)"
+abbreviation "eval (R::(('a, 'b) rel)) x == the_elem (R x)"
+abbreviation "convert r == {(x,y)| x y. x \<in> Dom r & y \<in> r x}"
+abbreviation "deconvert R == %x. R``{x}"
+abbreviation "Runiq r == ??"
 (*
 definition kernel where
 "kernel R=(op `` (R^-1)) ` (Range (projector (Graph id)))"

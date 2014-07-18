@@ -61,7 +61,7 @@ lemma lm70: assumes "card N > 0" "distinct G" shows
 \<Union> (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" using lm69 assms 
 by (smt Collect_cong ex_map_conv map_ext)
 
-lemma assumes "card N > 0" "distinct G" shows 
+corollary lm70b: assumes "card N > 0" "distinct G" shows 
 "possibleAllocationsRel N (set G) = possibleAllocationsAlg2 N G" (is "?L = ?R") using assms lm70 
 possible_allocations_rel_def 
 proof -
@@ -423,7 +423,11 @@ proof -
     moreover have "?d ?a1 \<inter> (?d ?a2) = {}" by blast
     moreover have "?a1 \<in> allAllocations" by (smt assms(1) lm35)
     moreover have "?a2 \<in> allAllocations" using lm38 by fastforce
-    ultimately have ?t1 using lm23 by smt (*MC: use solve_direct *)
+    ultimately have "?a1 \<in> allAllocations & 
+    ?a2 \<in> allAllocations &
+    \<Union>Range ?a1 \<inter> \<Union>Range ?a2 = {} & Domain ?a1 \<inter> Domain ?a2 = {}" 
+by blast then have 
+?t1 using lm23 by auto       
     then have ?thesis using 6 7 by presburger
   }
   then show ?thesis using 3 by linarith
