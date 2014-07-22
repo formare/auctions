@@ -13,7 +13,14 @@ g
 (*"~~/src/HOL/Library/DAList"*)
 
 begin
-
+term "f(x:=y)"
+abbreviation "Fun_upd X y == (%f x. if x \<in> X then y else f x)"
+notation Fun_upd (infix ":==" 80)
+term "(X :== y) f"
+abbreviation "auctioneer == 0"
+abbreviation "toFullBid (bids::altbids) Goods == (({auctioneer} \<times> Pow (Goods)) :== 0) bids"
+term "winningAllocationsRel N G (b::altbids)"
+abbreviation "toPartialAllo a == a -- auctioneer"
 
 lemma mm85: "arg_max' f {x} = {x}" using arg_max'_def by auto
 
