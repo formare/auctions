@@ -1,6 +1,6 @@
 theory e1
 
-imports d SEQ
+imports d1 (* SEQ *) Limits
 
 begin
 lemma ll57: fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"

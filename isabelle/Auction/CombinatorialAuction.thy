@@ -57,6 +57,7 @@ type_synonym allocation = "participant \<Rightarrow> endowment_subset"
 type_synonym payments = "real vector"
 *)
 
+type_synonym bids3 = "((participant \<times> goods) \<times> price) set"
 type_synonym bids = "participant \<Rightarrow> goods \<Rightarrow> price"
 type_synonym allocation_rel = "(goods \<times> participant) set"
 type_synonym allocation = "(participant \<times> goods) set"

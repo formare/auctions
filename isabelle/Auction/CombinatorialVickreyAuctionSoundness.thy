@@ -52,7 +52,7 @@ shows
 
 "
 using lm81 assms possible_allocations_rel_def injections_def all_partitions_def is_partition_of_def 
-is_partition_def runiq_def sledgehammer
+is_partition_def runiq_def sorry
 
 end
 

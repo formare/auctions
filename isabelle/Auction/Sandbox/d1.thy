@@ -13,7 +13,7 @@ See LICENSE file for details
 
 theory d1
 
-imports c SupInf (* SEQ *)
+imports "../Maskin2" (* SupInf SEQ*) Limits 
 
 begin
 

@@ -520,7 +520,7 @@ proof -
   0: "?U ?t1 \<subseteq> ?U ?t2" by blast
   have "?u a" using assms by fast 
   moreover have "?R \<subseteq> a" using Outside_def by blast ultimately
-  have "?u ?R" using Outside_def subrel_runiq by metis
+  have "?u ?R" using subrel_runiq by metis
   then have "trivial ?t1" by (metis runiq_imp_triv_singleton_Im)
   moreover have "trivial ?t2" by (metis trivial_singleton)
   ultimately show ?thesis using assms 0 by blast
@@ -605,8 +605,7 @@ lemma lm57: "(finite (Domain Q) & finite (Range Q)) = finite Q" using
 rev_finite_subset finite_SigmaI lm56 finite_Domain finite_Range by metis
 
 lemma lm58: assumes "finite N" "finite G" "a \<in> possibleAllocationsRel N G"
-shows "finite a" using assms lm57 mem_Collect_eq rev_finite_subset 
-by (metis lm28b lm55)
+shows "finite a" using assms lm57 rev_finite_subset by (metis lm28b lm55)
 
 lemma lm59: assumes "finite N" "finite G" shows "finite (possibleAllocationsRel N G)"
 by (metis allocs_finite assms(1) assms(2) finite_imageI)
@@ -689,11 +688,7 @@ term "alpha N G b n"
 
 lemma lm62: "(a::real) \<ge> b = (a - b \<ge> 0)" by linarith
 
-corollary lm61d: assumes
-"condition1 b i" 
-"i\<in>N-{n}" 
-"finite N"
-"finite G"
+corollary lm61d: assumes "condition1 b i" "i\<in>N-{n}" "finite N" "finite G"
 "isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
 shows "paymentsRel N G t b n \<ge> 0" using assms lm61c lm62 by auto
 

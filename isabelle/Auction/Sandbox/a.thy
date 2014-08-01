@@ -13,14 +13,97 @@ g
 (*"~~/src/HOL/Library/DAList"*)
 
 begin
-term "f(x:=y)"
-abbreviation "Fun_upd X y == (%f x. if x \<in> X then y else f x)"
+abbreviation "Fun_upd X g == (%f x. if x \<in> X then (g x) else f x)"
 notation Fun_upd (infix ":==" 80)
-term "(X :== y) f"
-abbreviation "auctioneer == 0"
-abbreviation "toFullBid (bids::altbids) Goods == (({auctioneer} \<times> Pow (Goods)) :== 0) bids"
-term "winningAllocationsRel N G (b::altbids)"
+abbreviation "auctioneer == 0::participant"
+(*MC: converters*)
+(* abbreviation "toFullBid Goods (bids::altbids) == (({auctioneer} \<times> Pow (Goods)) :== (%x. (0::price))) bids" *)
+abbreviation "toFullBid Goods (bids::altbids) == (({auctioneer} \<times> UNIV) :== (%x. (0::price))) bids"
+(* MC: restore previous definition, after changing condition1 *)
 abbreviation "toPartialAllo a == a -- auctioneer"
+term "winningAllocationsAlg N G (toFullBid (set G) b)"
+(* abbreviation "vcga N G b == map (toPartialAllo) (winningAllocationsAlg (N \<union> {auctioneer}) G (toFullBid (set G) b))" *)
+abbreviation "vcgas N G b == winningAllocationsRel (N \<union> {auctioneer}) G (toFullBid G b)"
+abbreviation "vcga N G b t == toPartialAllo  (t (vcgas N G b))" 
+(*MC: t must come first of toPartialAllo due to how we implemented tie breaking (homogeneously)*)
+(* abbreviation "alpha' N G b == (alpha N G) \<circ> (toFullBid G)" *)
+abbreviation "alpha' N G b == alpha (N\<union>{auctioneer}) G (toFullBid G b)"
+abbreviation "vcgp N G b t n == alpha' N G b n - 
+(setsum (toFullBid G b) ((winningAllocationRel (N \<union> {auctioneer}) G t (toFullBid G b)) -- n))"
+term "alpha N G b (n::participant)"
+lemma "alpha' N G b n = alpha (N\<union>{auctioneer}) G (toFullBid G b) (n::participant)" by fast
+lemma "alpha' N G b n = Max ((setsum (toFullBid G b))`(possibleAllocationsRel ((N\<union>{auctioneer})-{n}) G))"
+by fast
+term "winningAllocationsAlg N G (toFullBid (set G) b)"
+
+term "(t1::('a \<times> 'b \<times> 'c))= (t2::('a \<times> ('b \<times> 'c)))"
+
+term "toFunction (b3::bids3) = (b::altbids)"
+
+lemma nn07: "\<forall>x \<in> ({auctioneer} \<times> t). (toFullBid G b) x = (%x. 0) x" by fastforce 
+
+lemma nn08: assumes "finite ({auctioneer} \<times> t)" 
+"\<forall>x \<in> ({auctioneer} \<times> t). (toFullBid G b) x = ((%x. 0) x)" 
+shows
+"setsum (toFullBid G b) ({auctioneer} \<times> t) = setsum (%x. 0) ({auctioneer} \<times> t)" 
+using assms 
+by (smt setsum_cong2)
+
+corollary nn09: assumes "trivial t" shows "setsum (toFullBid G b) ({auctioneer} \<times> t) = 0"
+using assms nn07 nn08 lm54 by auto
+
+corollary nn09b: "condition1 (toFullBid G b) auctioneer" using assms nn09 by auto
+
+corollary nn10: assumes
+"condition1 (toFullBid G b) auctioneer" 
+"n \<noteq> auctioneer"
+"finite (N \<union> {auctioneer})"
+"finite G"
+"isChoice (graph {winningAllocationsRel (N\<union>{auctioneer}) G (toFullBid G b)} (t::tieBreaker))"
+shows "alpha (N\<union>{auctioneer}) G (toFullBid G b) n \<ge> remainingValueRel (N\<union>{auctioneer}) G t (toFullBid G b) n" 
+using assms lm61c by auto
+
+corollary nn10b: assumes "n \<noteq> auctioneer" "finite N" "finite G"
+"isChoice (graph {winningAllocationsRel (N\<union>{auctioneer}) G (toFullBid G b)} (t::tieBreaker))"
+shows 
+"alpha' N G b n \<ge> ((remainingValueRel (N\<union>{auctioneer}) G t (toFullBid G b) n)::price)"
+using assms nn10 nn09b by force
+
+lemma nn10c: "x - y >=0 = ((x::price) >= y)" by fastforce
+
+corollary nn10d: assumes "n \<noteq> auctioneer" "finite N" "finite G"
+"isChoice (graph {winningAllocationsRel (N\<union>{auctioneer}) G (toFullBid G b)} (t::tieBreaker))"
+shows "alpha' N G b n - remainingValueRel (N\<union>{auctioneer}) G t (toFullBid G b) n >=0" 
+using assms nn10b nn10c by presburger
+
+lemma nn10e: assumes "f x \<in> x" shows "isChoice (graph {x} f)" by (metis (full_types) Collect_mem_eq assms empty_iff insert_iff lm72)
+
+corollary nn10f: assumes "n \<noteq> auctioneer" "finite N" "finite G"
+"isChoice (graph {winningAllocationsRel (N\<union>{auctioneer}) G (toFullBid G b)} (t::tieBreaker))"
+shows "vcgp N G b t n >= 0" using assms nn10d by blast
+
+corollary assumes "n \<noteq> auctioneer" "finite N" "finite G" "t (vcgas N G b) \<in> vcgas N G b"
+shows "vcgp N G b t n >= 0" using assms nn10e nn10f by (metis (lifting)) 
+
+corollary assumes "a \<in> vcgas N G b" 
+shows "(Range a) partitions G" using assms lm47 is_partition_of_def 
+by (metis (lifting, no_types) lm03 subsetD)
+
+lemma n12: "Range (toPartialAllo a) \<subseteq> Range a" 
+by (metis Range_outside_sub subset_refl)
+
+lemma nn11: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
+
+corollary nn12a: assumes "t (vcgas N G b) \<in> vcgas N G b" shows "is_partition (Range (vcga N G b t))"
+using assms lm47 is_partition_of_def Range_outside_sub subset_refl by (smt in_mono lm03 subset_is_partition)
+
+corollary nn12b: assumes "t (vcgas N G b) \<in> vcgas N G b" shows "Range (vcga N G b t) \<subseteq> Pow G"
+using assms in_mono lm03 lm47 is_partition_of_def nn11 Range_outside_sub  by (metis (lifting, no_types))
+
+corollary nn12: assumes "t (vcgas N G b) \<in> vcgas N G bcon" 
+(*this is an assumption about t, not about b, G or N*)
+shows "is_partition (Range (vcga N G b t)) & Range (vcga N G b t) \<subseteq> Pow G"
+using assms nn12a nn12b by blast
 
 lemma mm85: "arg_max' f {x} = {x}" using arg_max'_def by auto
 
