@@ -895,7 +895,8 @@ text {* the list of all injective functions (represented as relations) from one 
   (represented as a list) to another set *}
 fun injections_alg :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
 where "injections_alg [] Y = [{}]" |
-      "injections_alg (x # xs) Y = concat [ sup_rels_from_alg R x Y . R \<leftarrow> injections_alg xs Y ]"
+      "injections_alg (x # xs) Y = concat [ [ R +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range R) ]
+      . R \<leftarrow> injections_alg xs Y ]"
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
 

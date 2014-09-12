@@ -1,3 +1,4 @@
+
 theory a
 
 imports Main Random Random_Sequence
@@ -16,31 +17,34 @@ begin
 abbreviation "Fun_upd X g == (%f x. if x \<in> X then (g x) else f x)"
 notation Fun_upd (infix ":==" 80)
 abbreviation "auctioneer == 0::participant"
+abbreviation "seller == auctioneer"
 (*MC: converters*)
 (* abbreviation "toFullBid Goods (bids::altbids) == (({auctioneer} \<times> Pow (Goods)) :== (%x. (0::price))) bids" *)
-abbreviation "toFullBid Goods (bids::altbids) == (({auctioneer} \<times> UNIV) :== (%x. (0::price))) bids"
+abbreviation "toFullBid Goods (bids::altbids) == (({auctioneer} \<times> (Pow Goods)) :== (%x. (0::price))) bids"
+term "toFullBid G b"
 (* MC: restore previous definition, after changing condition1 *)
 abbreviation "toPartialAllo a == a -- auctioneer"
-term "winningAllocationsAlg N G (toFullBid (set G) b)"
+term "winningAllocationsAlg N G "
 (* abbreviation "vcga N G b == map (toPartialAllo) (winningAllocationsAlg (N \<union> {auctioneer}) G (toFullBid (set G) b))" *)
 abbreviation "vcgas N G b == winningAllocationsRel (N \<union> {auctioneer}) G (toFullBid G b)"
-abbreviation "vcga N G b t == toPartialAllo  (t (vcgas N G b))" 
+abbreviation "Vcgas N G b == winningAllocationsAlg (N \<union> {auctioneer}) G (toFullBid (set G) b)"
+abbreviation "vcga N G b t == toPartialAllo (t (vcgas N G b))" 
 (*MC: t must come first of toPartialAllo due to how we implemented tie breaking (homogeneously)*)
 (* abbreviation "alpha' N G b == (alpha N G) \<circ> (toFullBid G)" *)
+abbreviation "Vcga N G b t == toPartialAllo (t (Vcgas N G b))"
 abbreviation "alpha' N G b == alpha (N\<union>{auctioneer}) G (toFullBid G b)"
+abbreviation "alphaAlg' N G b == alphaAlg (N\<union>{auctioneer}) G (toFullBid (set G) b)"
 abbreviation "vcgp N G b t n == alpha' N G b n - 
 (setsum (toFullBid G b) ((winningAllocationRel (N \<union> {auctioneer}) G t (toFullBid G b)) -- n))"
+abbreviation "Vcgp N G b t n == alphaAlg' N G b n - 
+(setsum (toFullBid (set G) b) ((winningAllocationAlg (N \<union> {auctioneer}) G t (toFullBid (set G) b)) -- n))"
 term "alpha N G b (n::participant)"
 lemma "alpha' N G b n = alpha (N\<union>{auctioneer}) G (toFullBid G b) (n::participant)" by fast
 lemma "alpha' N G b n = Max ((setsum (toFullBid G b))`(possibleAllocationsRel ((N\<union>{auctioneer})-{n}) G))"
 by fast
-term "winningAllocationsAlg N G (toFullBid (set G) b)"
+term "(Vcga N G b t)::allocation"
 
-term "(t1::('a \<times> 'b \<times> 'c))= (t2::('a \<times> ('b \<times> 'c)))"
-
-term "toFunction (b3::bids3) = (b::altbids)"
-
-lemma nn07: "\<forall>x \<in> ({auctioneer} \<times> t). (toFullBid G b) x = (%x. 0) x" by fastforce 
+lemma nn07: "\<forall>x \<in> ({auctioneer} \<times> t). (toFullBid G b) x = (%x. 0) x" sorry 
 
 lemma nn08: assumes "finite ({auctioneer} \<times> t)" 
 "\<forall>x \<in> ({auctioneer} \<times> t). (toFullBid G b) x = ((%x. 0) x)" 
@@ -50,7 +54,7 @@ using assms
 by (smt setsum_cong2)
 
 corollary nn09: assumes "trivial t" shows "setsum (toFullBid G b) ({auctioneer} \<times> t) = 0"
-using assms nn07 nn08 lm54 by auto
+using assms nn07 nn08 lm54 sorry
 
 corollary nn09b: "condition1 (toFullBid G b) auctioneer" using assms nn09 by auto
 
@@ -103,7 +107,7 @@ using assms in_mono lm03 lm47 is_partition_of_def nn11 Range_outside_sub  by (me
 corollary nn12: assumes "t (vcgas N G b) \<in> vcgas N G bcon" 
 (*this is an assumption about t, not about b, G or N*)
 shows "is_partition (Range (vcga N G b t)) & Range (vcga N G b t) \<subseteq> Pow G"
-using assms nn12a nn12b by blast
+using assms nn12a nn12b by fast
 
 lemma mm85: "arg_max' f {x} = {x}" using arg_max'_def by auto
 
@@ -930,8 +934,8 @@ qed
 
 corollary mm70d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
 "aa \<noteq> a" shows "setsum (tiebids a N G) aa < setsum (tiebids a N G) a" using assms mm70c 
-by presburger 
-                                      
+by presburger
+
 lemma assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "setsum (maxbid a N G) a = card G"
 using assms sorry
 
@@ -1015,7 +1019,6 @@ using assms mm10 mm09 mm08 sorry
 lemma assumes "finite a1" "runiq (a1^-1)" "\<Union> (snd ` a1) = G" "Domain a1=N" shows 
 "proceeds (toFunction (bidMaximizedBy a1 N G)) a1 = card a1 * Max (Range ((bidMaximizedBy a1 N G)))"
 using assms runiq_def mm08 mm09 mm10 sorry
-
 
 lemma assumes "runiq (a2^-1)" "runiq (a1^-1)" "\<Union> (snd ` a1) = G" "\<Union> (snd ` a2) = G" shows 
 "proceeds (toFunction (bidMaximizedBy a1 N G)) a2 >= card G"
@@ -1150,7 +1153,6 @@ abbreviation "rotateRight n l == rotateLeft (size l - (n mod (size l))) l"
 abbreviation "insertAt x l n == rotateRight n (x#(rotateLeft n l))"
 (* for n in {0, ..., size l} inserts x in l so that it will have index n in the output*)
 (* note that for other n, the behaviour is not guaranteed to be consistent with that *)
-value "insertAt 100 [10::nat,11,12] 8"
 fun perm2 where
 "perm2 [] = (%n. [])" | 
 "perm2 (x#l) = (%n. insertAt x ((perm2 l) (n div (1+size l))) (n mod (1+size l)))"
@@ -1158,15 +1160,10 @@ fun perm2 where
 perm2 l n gives all and only the possible permutations of l *)
 abbreviation "takeAll pre list == map (nth list) (filterpositions2 pre list)"
 abbreviation "subList l xl == map (nth l) (takeAll (%x. x \<le> size l) xl)"
-value "[0::nat..3]"
-value "sublist [10::nat, 11, 12] {0,2,11}"
-value "subList [10::nat, 11, 12] [11]"
 abbreviation "insertRightOf2 x l n == (subList l (map nat [0..n])) @ [x] @ 
 (subList l (map nat [n+1..size l - 1]))"
 abbreviation "insertRightOf3 x l n == insertRightOf2 x l (Min {n, size l - 1})"
-value "subList [10,11::nat] (map nat [3..1])"
 definition "insertRightOf x l n = sublist l {0..<1+n} @ [x] @ sublist l {n+1..< 1+size l}"
-value "insertRightOf3 30 [10,11,12::nat] 22"
 lemma "set (insertRightOf x l n) = set (sublist l {0..<1+n}) \<union> (set [x]) \<union> 
 set (sublist l {n+1..<1+size l})" using insertRightOf_def 
 by (metis append_assoc set_append)
@@ -1210,10 +1207,17 @@ lemma assumes "distinct list" shows "perm (permL list n) list"
 using assms permL_def sorry
 
 abbreviation "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
-
-abbreviation "terminatingAuctionRel N G bids random == arg_max' 
-(setsum (resolvingBid N G bids random))
+abbreviation "Vcga' N G R b == arg_max' (setsum (resolvingBid N G b R)) (set (Vcgas N G b))"
+abbreviation "terminatingAuctionRel N G bids random == arg_max' (setsum (resolvingBid N G bids random))
 (arg_max' (setsum bids) (possibleAllocationsRel N (set G)))"
+abbreviation "vcga' N G bids random == the_elem 
+(arg_max' (setsum (resolvingBid (N\<union>{auctioneer}) G (toFullBid (set G) bids) random))
+(vcgas N (set G) bids))"
+abbreviation "vcgp' N G b r n == alpha' N (set G) b n - 
+(setsum (toFullBid (set G) b) (vcga' N G b r -- n))"
+
+lemma nn13: "vcga' N G bids random = the_elem (terminatingAuctionRel (N\<union>{auctioneer}) G (toFullBid (set G) bids) random)"
+by fast
 
 lemma mm93: "terminatingAuctionRel N G bids random = (((arg_max' \<circ> setsum) (resolvingBid N G bids random))
 \<circ> ((arg_max' \<circ> setsum) bids)) (possibleAllocationsRel N (set G))" by auto
@@ -1224,8 +1228,7 @@ by (metis all_partitions_list.cases list.distinct(1) perm2.simps(2) rotate_is_Ni
 lemma mm84c: assumes "\<exists> n \<in> {0..<size l}. P (l!n)" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []"
 using assms by auto
 lemma mm84d: assumes "ll \<in> set (l::'a list)" shows "\<exists> n\<in> (nth l) -` (set l). ll=l!n"
-using assms 
-by (metis in_set_conv_nth vimageI2)
+using assms(1) by (metis in_set_conv_nth vimageI2)
 lemma mm84e: assumes "ll \<in> set (l::'a list)" shows "\<exists> n. ll=l!n & n < size l & n >= 0"
 using assms in_set_conv_nth by (metis le0)
 lemma "(nth l) -` (set l) \<supseteq> {0..<size l}" using assms 
@@ -1391,6 +1394,123 @@ ultimately have "{?a} = arg_max' ?f ?X" using mm80 by presburger
 moreover have "... = ?t N G bids random" by fast
 ultimately show ?thesis by presburger
 qed
+
+corollary mm92b: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N"  
+shows "vcga' N G bids random = chosenAllocation (N\<union>{auctioneer}) G (toFullBid (set G) bids) random" 
+using assms mm92 nn13 by simp
+
+corollary mm92c: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" shows 
+"vcga' N G bids random \<in> winningAllocationsRel (N \<union> {auctioneer}) (set G) (toFullBid (set G) bids)" 
+using assms mm92b mm82 by simp
+
+corollary nn14: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
+"Range (vcga' N G b r) partitions (set G)"
+using assms mm92b mm82 lm47 lm03 
+proof -
+let ?p=possibleAllocationsRel let ?a="vcga' N G b r"
+let ?w=winningAllocationsRel let ?B="toFullBid (set G) b"
+have "?a \<in> ?w (N\<union>{auctioneer}) (set G) ?B" using assms mm92b mm82 lm47 lm03 by auto
+moreover have "?w (N\<union>{auctioneer}) (set G) ?B \<subseteq> ?p (N\<union>{auctioneer}) (set G)" 
+using assms mm92b mm82 lm47 lm03 by presburger
+ultimately have "?a \<in> ?p (N\<union>{auctioneer}) (set G)" by fast
+then show "Range ?a partitions (set G)" using lm47 by presburger
+qed
+
+lemma nn15: assumes "f,,,x \<noteq> {}" shows "x \<in> Domain f" using assms by fast
+lemma nn15b: assumes "runiq f" "f,,,x \<noteq> {}" shows "f,,,x \<in> Range f" 
+using assms nn15 lll82 by (metis eval_runiq_in_Range)
+
+corollary lll81b: assumes "a \<in> possibleAllocationsRel N G" shows 
+"runiq a & runiq (a\<inverse>) & (Range a) partitions G & Domain a \<subseteq> N" 
+using assms  image_iff lll81 converse_converse by (metis lm47)
+
+corollary lll81c: assumes "a \<in> winningAllocationsRel N G b" shows 
+"runiq a & runiq (a\<inverse>) & (Range a) partitions G & Domain a \<subseteq> N" 
+using assms lll81b by (metis (hide_lams, no_types) in_mono lm03)
+
+lemma nn16: assumes "is_partition P"  
+shows "(p1 \<in> P & p2 \<in> P & p1 \<inter> p2 \<noteq> {}) \<longrightarrow> p1 = p2" using assms is_partition_def by metis 
+
+lemma nn17: assumes "runiq f" "runiq (f^-1)" "x1 \<in> Domain f" "x2 \<in> Domain f" "f,,x1 = f,,x2" shows "x1=x2"
+using assms by (metis DomainE converse_iff l31)
+
+abbreviation "evalRel3 R x == if (Range R\<in>Pow UNIV) then (\<Union> (R``{x})) else the_elem (R``{x})"
+(*MC: does not solve my problem because the if condition automatically makes R have values of set type*)
+
+lemma assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
+"g \<in> ((vcga' N G b r),,,n1)" "g \<in> ((vcga' N G b r),,,n2)" shows "n1 = n2" 
+using assms nn14 eval_rel_def 
+proof -
+let ?d=Domain let ?r=Range let ?a="vcga' N G b r" let ?P="Range ?a" 
+let ?p1="?a,,,n1" let ?p2="?a,,,n2" have 
+2: "n1 \<in> ?d ?a & n2\<in>?d ?a" using assms by fast moreover have 
+0: "runiq ?a & runiq (?a^-1)" using assms lll81c mm92c by blast ultimately have 
+3: "?p1=?a,,n1 & ?p2=?a,,n2" using lll82 by fast
+have "is_partition ?P" using assms nn14 is_partition_of_def by blast
+then have "(?p1 \<in> ?P & ?p2 \<in> ?P & ?p1 \<inter> ?p2 \<noteq> {}) \<longrightarrow> ?p1 = ?p2" using nn16 by blast
+moreover have 
+1: "?p1 \<in> ?r ?a & ?p2 \<in> ?r ?a" using nn15b assms 0 by fast
+moreover have "?p1 \<inter> ?p2 \<noteq> {}" using assms by fast
+ultimately have "?p1 = ?p2" by linarith
+then show "n1 = n2" using 0 2 nn17 3 by fast
+qed
+
+lemma nn18: assumes "P partitions A" shows "\<Union> P = A \<and> is_partition P" using assms is_partition_of_def by metis
+
+lemma assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
+"g \<in> ((vcga' N G b r),,,m)" shows "g \<in> set G"
+proof -
+let ?r=Range let ?d=Domain let ?a="vcga' N G b r"
+have "(?r ?a) partitions (set G)" using assms nn14 by presburger then have 
+0: "\<Union> (?r ?a) = set G" using nn18 by blast
+have "runiq ?a & runiq (?a^-1)" using assms lll81c mm92c by blast
+then have "?a,,,m \<in> Range ?a" using assms nn15b by fast
+thus ?thesis using 0 assms by blast 
+qed
+
+lemma nn19: "condition1 (toFullBid (set G) b) auctioneer" sorry
+lemma lm61g: assumes "condition1 (toFullBid (set G) b) auctioneer" 
+"auctioneer \<noteq> n" "finite N" "a \<in> winningAllocationsRel (N\<union>{auctioneer}) (set G) c"
+shows "alpha' N (set G) b n >= setsum (toFullBid (set G) b) (a -- n)" using assms lm61b by blast
+lemma assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" "seller\<noteq>n" shows "vcgp' N G b r n >= 0" using assms lm61g nn19 mm92c 
+proof -
+let ?w=winningAllocationsRel let ?N="N\<union>{auctioneer}" let ?a="vcga' N G b r"
+let ?b="toFullBid (set G) b"
+have "?a \<in> ?w ?N (set G) ?b" using assms mm92c by blast
+then have "alpha' N (set G) b n >= setsum ?b (?a -- n)" using assms lm61g nn19 by blast
+thus ?thesis by linarith
+qed
+
+theorem "\<forall> (b::bidvector). \<exists>! (a::allocation). a=vcga' N G b t" by fast
+theorem "\<forall> (b::bidvector). \<exists>! (p::participant => price). p=vcgp' N G b t" by fast
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 corollary mm92b: assumes "finite G" "finite N"  shows 
 "(((arg_max' \<circ> setsum) (resolvingBid N G bids random))

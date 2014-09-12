@@ -89,6 +89,9 @@ abbreviation "allAllocations == allInjections \<inter> allPartitionvalued"
 abbreviation "totalRels X Y == {R. Domain R = X & Range R \<subseteq> Y}"
 abbreviation "strictCovers G == Union -` {G}"
 
+lemma lm72: assumes "\<forall>x \<in> X. t x \<in> x" shows "isChoice (graph X t)" using assms
+by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 runiq_wrt_eval_rel subset_trans)
+
 lemma "R |- Y = (R^-1 -| Y)^-1" using Outside_def by auto
 lemma lm24: "injections' X Y = injections X Y" using injections_def by metis
 lemma lm25: "injections' X Y \<subseteq> allInjections" by fast
@@ -137,12 +140,10 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-lemma lll82: assumes 
-"runiq (f::(('a \<times> ('b set)) set))"
-"(x::'a) \<in> Domain f" shows "f,,x = f,,,x"
+lemma lll82: assumes "runiq (f::(('a \<times> ('b set)) set))" "x \<in> Domain f" shows "f,,x = f,,,x"
 (* CL: Interesting: metis says that eval_rel_def is unused in the proof, but when I use it,
-   the proof takes much longer (too long for me to wait) *)
-using assms by (metis Image_runiq_eq_eval cSup_singleton)
+   the proof takes much longer (too long for me to wait) 
+MC: I think this no longer applies? *) using assms Image_runiq_eq_eval cSup_singleton by metis
 
 lemma lll79: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" shows "x \<inter> X \<noteq> {}" using assms by blast
 
@@ -443,8 +444,7 @@ lemma lm44: "{x}-{y}={} = (x=y)" by auto
 lemma assumes "R \<noteq> {}" "Domain R \<inter> X \<noteq> {}" shows "R``X \<noteq> {}" using assms
 by (metis Image_outside_domain Int_commute)
 
-lemma "R``{}={}" 
-by (metis Image_empty)
+lemma "R``{}={}" by (metis Image_empty)
 
 lemma lm45: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allAllocations" shows
 "\<Union>(a``X) \<noteq> {}" (*MC: Should be stated in more general form *)
@@ -567,7 +567,7 @@ lemma lm52: assumes
 "(a::allocation) \<in> allAllocations" 
 "Domain a \<inter> (X::participant set) \<noteq> {}" 
 "finite a" shows 
-"proceeds b (a outside X) \<le> proceeds b (a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}))"
+"setsum b (a outside X) \<le> setsum b (a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}))"
 proof -
   let ?R="a outside X" let ?I="{i}" let ?U=Union let ?u=runiq let ?r=Range let ?d=Domain
   let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {?U(a``(X\<union>{i}))})"
@@ -611,7 +611,7 @@ lemma lm59: assumes "finite N" "finite G" shows "finite (possibleAllocationsRel 
 by (metis allocs_finite assms(1) assms(2) finite_imageI)
 
 corollary lm53: assumes
-"condition1 (b::altbids) (i::participant)" 
+"condition1 (b::altbids) (i::participant)"
 "(a::allocation) \<in> possibleAllocationsRel N G" 
 "i\<in>N-X" 
 "Domain a \<inter> (X::participant set) \<noteq> {}"
@@ -621,7 +621,7 @@ shows
 "Max ((proceeds b)`(possibleAllocationsRel (N-X) G)) \<ge> 
 proceeds b (a outside X)"
 proof -
-let ?aa="(a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}))"
+let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))})"
 have "a \<in> allAllocations" using assms(2) lm50 by blast 
 moreover have "finite a" using assms lm58 by presburger ultimately have 
 0: "proceeds b (a outside X) \<le> proceeds b ?aa" using assms lm52 by presburger
@@ -688,6 +688,10 @@ term "alpha N G b n"
 
 lemma lm62: "(a::real) \<ge> b = (a - b \<ge> 0)" by linarith
 
+lemma lm72b: assumes "t (winningAllocationsRel N G b) \<in> winningAllocationsRel N G b" shows
+"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))" using assms lm72 
+by blast
+
 corollary lm61d: assumes "condition1 b i" "i\<in>N-{n}" "finite N" "finite G"
 "isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
 shows "paymentsRel N G t b n \<ge> 0" using assms lm61c lm62 by auto
@@ -715,13 +719,6 @@ lemma lm71: fixes N b assumes
 (\<forall> t t'. (trivial t & trivial t' & Union t \<subseteq> Union t') \<longrightarrow>
 setsum b ({i1}\<times>t) \<le> setsum b ({i1}\<times>t') & setsum b ({i2}\<times>t) \<le> setsum b ({i2}\<times>t'))"
 shows "condition2 (b::altbids) N" using assms by blast
-
-lemma lm72: assumes "\<forall>x \<in> X. t x \<in> x" shows "isChoice (graph X t)" using assms 
-by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 runiq_wrt_eval_rel subset_trans)
-
-lemma lm72b: assumes "t (winningAllocationsRel N G b) \<in> winningAllocationsRel N G b" shows
-"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))" using assms lm72 
-by blast
 
 corollary lm61f:
 assumes 

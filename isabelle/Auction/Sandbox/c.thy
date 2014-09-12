@@ -23,12 +23,12 @@ an "alternative" section; compare Partitions.
 *)
 imports
   Real
-  Equiv_Relations
+(*  Equiv_Relations
   "../SetUtils"
   "../RelationProperties"
   "../Partitions"
   "../Maximum"
-(*"$AFP/Collections/common/Misc"*)
+"$AFP/Collections/common/Misc"*)
 
 begin
   term "semilattice_set.F max"
@@ -184,7 +184,7 @@ qed
 *)
 
 
-
+lemma True try
 
 
 end

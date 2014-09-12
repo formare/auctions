@@ -39,20 +39,22 @@ using assms by (metis (hide_lams, no_types) lm03 lm47 set_rev_mp)
 
 term "winningAllocationsRel N G (b::altbids)"
 
+lemma nn01: assumes "runiq f" "runiq (f^-1)" "x1 \<noteq> x2" "x1 \<in> Domain f" "x2 \<in> Domain f" shows
+"f,,x1 \<noteq> f,,x2" using assms by (metis Domain.cases converse_iff l31)
+
 lemma assumes "winningAllocationRel N G t b \<in> winningAllocationsRel N G b"
-(*this is an assumption about t, not about b, G or N*)
-"n1 \<in> N" "n2 \<in> N"
+"n1 \<in> Domain(winningAllocationRel N G t b)" "n2 \<in> Domain(winningAllocationRel N G t b)"
+"n1 \<noteq> n2" shows 
+"(winningAllocationRel N G t b),,n1 \<inter> ((winningAllocationRel N G t b),,n2) = {}" 
+using lm03 lm19 nn01 lm81 assms is_partition_of_def is_partition_def eval_runiq_in_Range 
+by (smt Int_iff in_mono mem_Collect_eq)
+
+lemma assumes "winningAllocationAlg3 N G t b \<in> winningAllocationsAlg3 N G b"
+"n1 \<in> Domain(winningAllocationAlg3 N G t b)" "n2 \<in> Domain(winningAllocationAlg3 N G t b)"
+(*"n1 \<noteq> n2"*)
 shows 
-"
-(* (G=(\<Union>n \<in> N. winningAllocationRel N G t b,,n)) 
-*)
-
-(winningAllocationRel N G t b),,n1 \<inter> 
-((winningAllocationRel N G t b),,n2) = {}
-
-"
-using lm81 assms possible_allocations_rel_def injections_def all_partitions_def is_partition_of_def 
-is_partition_def runiq_def sorry
+"(winningAllocationAlg3 N G t b),,n1 \<inter> ((winningAllocationAlg3 N G t b),,n2) = {}"
+nitpick
 
 end
 

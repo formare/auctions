@@ -31,6 +31,7 @@ section {* value-maximising allocation (for winner determination) *}
    will be worth mentioning in the paper, as it is an important design choice
    in formalisation. *)
 type_synonym altbids = "(participant \<times> goods) \<Rightarrow> price"
+type_synonym bidvector=altbids
 abbreviation "altbids (b::bids) == split b"
 (* CL: I don't understand the choice of the name "proceeds". *)
 abbreviation "proceeds (b::altbids) (allo::allocation) == setsum b allo"
@@ -160,7 +161,8 @@ text {* the payments per bidder *}
 fun payments_rel :: "goods \<Rightarrow> participant set \<Rightarrow> tie_breaker_rel \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "payments_rel G N t = \<alpha> G N - remaining_value_rel G N t"
 
-abbreviation "paymentsRel N G t == alpha N G - remainingValueRel N G t"
+abbreviation "paymentsRel N G t == alpha N G - remainingValueRel N G t" 
+(* abbreviation "paymentsRel N G t b i == b (i, ((winningAllocationRel N G t b),,i))" *)
 
 (*
 text {* algorithmic version of @{text payments_rel} *}
@@ -168,7 +170,10 @@ fun payments_alg :: "goods \<Rightarrow> participant set \<Rightarrow> tie_break
 where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 *)
 
-definition "paymentsAlg N G t == alphaAlg N G - remainingValueAlg N G t"
+definition "paymentsAlg N G t == alphaAlg N G - remainingValueAlg N G t" 
+term "winningAllocationsAlg N G b"
+(* abbreviation "paymentsAlg N G t (b::altbids) i == b (i, winningAllocationAlg N G t b,,i)" *) 
+
 
 text {* alternative algorithmic version of @{text payments_rel}, working around an Isabelle2013 bug *}
 
