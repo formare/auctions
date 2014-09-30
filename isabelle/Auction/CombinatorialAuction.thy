@@ -118,7 +118,7 @@ text {* all possible allocations of a set of goods to a set of participants:
   injective functions that map sets of goods to their potential buyers, i.e.\ participants.
   Here, we assume that everything gets allocated, i.e. that there is no free disposal.
   This assumption facilitates the paper\<leftrightarrow>algorithm equivalence proof for injective functions. *}
-fun possible_allocations_rel :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"
+fun possible_allocations_rel (*:: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"*)
 where "possible_allocations_rel G N = \<Union> { injections Y N | Y . Y \<in> all_partitions G }" 
 
 abbreviation "is_partition_of' P A == (\<Union> P = A \<and> is_partition P)"

@@ -44,7 +44,7 @@ lemma nn01: assumes "runiq f" "runiq (f^-1)" "x1 \<noteq> x2" "x1 \<in> Domain f
 
 lemma assumes "winningAllocationRel N G t b \<in> winningAllocationsRel N G b"
 "n1 \<in> Domain(winningAllocationRel N G t b)" "n2 \<in> Domain(winningAllocationRel N G t b)"
-"n1 \<noteq> n2" shows 
+"n1 \<noteq> n2" shows
 "(winningAllocationRel N G t b),,n1 \<inter> ((winningAllocationRel N G t b),,n2) = {}" 
 using lm03 lm19 nn01 lm81 assms is_partition_of_def is_partition_def eval_runiq_in_Range 
 by (smt Int_iff in_mono mem_Collect_eq)

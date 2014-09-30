@@ -1,22 +1,17 @@
 theory f
 
 imports Main
+(*
 Random 
 Random_Sequence
+*)
 "../Maximum"
-"../Maskin3"
 "../CombinatorialVickreyAuction"
-"../Maskin3"
+"../Misc"
 g
-"~~/src/HOL/Library/Indicator_Function"
 "~~/src/HOL/Library/Code_Target_Nat"
 
 begin
-abbreviation "Chi X Y == (Y \<times> {0::nat}) +* (X \<times> {1})"
-notation Chi (infix "<||" 80)
-abbreviation "chii X Y == toFunction (X <|| Y)"
-notation chii (infix "<|" 80)
-abbreviation "chi X == indicator X"
 
 abbreviation "omega pair == {fst pair} \<times> (finestpart (snd pair))"
 abbreviation "pseudoAllocation allocation == \<Union> (omega ` allocation)"
@@ -28,9 +23,11 @@ pseudoAllocation allocation <|| (N \<times> (finestpart G))"
 abbreviation "maxbid a N G == toFunction (bidMaximizedBy a N G)"
 abbreviation "partialCompletionOf bids pair == (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
 abbreviation "LinearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
-abbreviation "linearCompletion (bids::(('b::linorder) \<times> ('a set))=>price) N G == toFunction (LinearCompletion bids N G)"
+abbreviation "linearCompletion (bids::(('b::linorder) \<times> ('a set))=>price) N G == 
+toFunction (LinearCompletion bids N G)"
 (* MC: why is :: spec needed here? *)
 abbreviation "tiebids a N G == linearCompletion (maxbid a N G) N G"
+abbreviation "tiebids' a N G == LinearCompletion (real\<circ>maxbid a N G) N G"
 
 abbreviation "rotateLeft == rotate"
 abbreviation "rotateRight n l == rotateLeft (size l - (n mod (size l))) l"
@@ -44,71 +41,34 @@ fun perm2 where
 perm2 l n gives all and only the possible permutations of l *)
 abbreviation "takeAll pre list == map (nth list) (filterpositions2 pre list)"
 
-abbreviation "chosenAllocation N G bids random ==
-hd (perm2
-(takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg3 N G))
-random)"
+abbreviation "chosenAllocation N G bids random == 
+hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg3 N G)) random)"
 
 abbreviation "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
 abbreviation "terminatingAuctionRel N G bids random == 
-arg_max' (setsum (resolvingBid N G bids (nat random))) (arg_max' (setsum bids) (possibleAllocationsRel N (set G)))"
+arg_max' (setsum (resolvingBid N G bids random)) (arg_max' (setsum bids) (possibleAllocationsRel N (set G)))"
 abbreviation "uniformTieBreaking random N G bids == 
 Union \<circ> (arg_max' (setsum (resolvingBid N G bids (nat random))))"
 (* Union here acts as the_elem: picking the element of a singleton (i.e., stripping away the braces from {x}) *)
-abbreviation "uniformTieBreaking2 random N G bids == % X. \<Union> (arg_max' (setsum (resolvingBid N G bids (nat random))) X)"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+abbreviation "uniformTieBreaking2 random N G bids == 
+% X. \<Union> (arg_max' (setsum (resolvingBid N G bids (nat random))) X)"
 
 abbreviation "Fun_upd X g == (%f x. if x \<in> X then (g x) else f x)"
 notation Fun_upd (infix ":==" 80)
-
-abbreviation "auctioneer == 0"
-(* MC: restore previous definition, after changing condition1 *)
-abbreviation "toPartialAllo a == a -- auctioneer"
-term "winningAllocationsAlg N G "
-(*abbreviation "seller == auctioneer"*)
-(*MC: converters*)
-(* abbreviation "toFullBid Goods (bids::altbids) == (({auctioneer} \<times> Pow (Goods)) :== (%x. (0::price))) bids" *)
-abbreviation "toFullBid Goods bids == (({auctioneer} \<times> (Pow Goods)) :== (%x. 0)) bids"
-abbreviation "vcgas' N G b == winningAllocationsRel (N \<union> {auctioneer}) G (toFullBid G b)"
-abbreviation "Vcgas N G b == winningAllocationsAlg (N \<union> {auctioneer}) G (toFullBid (set G) b)"
-abbreviation "vcga N G b t == toPartialAllo (t (vcgas' N G b))" 
-abbreviation "vcga' N G bids random == the_elem 
-(arg_max' (setsum (resolvingBid (N\<union>{auctioneer}) G (toFullBid (set G) bids) random))
-(vcgas' N (set G) bids))"
-
-lemma n12: "Range (toPartialAllo a) \<subseteq> Range a" by (metis Range_outside_sub subset_refl)
-
 lemma nn11: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
-
-corollary nn12a: assumes "t (vcgas' N G b) \<in> vcgas' N G b" shows "is_partition (Range (vcga N G b t))"
-using assms lm47 is_partition_of_def Range_outside_sub subset_refl by (smt in_mono lm03 subset_is_partition)
-
-corollary nn12b: assumes "t (vcgas' N G b) \<in> vcgas' N G b" shows "Range (vcga N G b t) \<subseteq> Pow G"
-using assms in_mono lm03 lm47 is_partition_of_def nn11 Range_outside_sub  by (metis (lifting, no_types))
-
-corollary nn12: assumes "t (vcgas' N G b) \<in> vcgas' N G bcon" 
-(*this is an assumption about t, not about b, G or N*)
-shows "is_partition (Range (vcga N G b t)) & Range (vcga N G b t) \<subseteq> Pow G"
-using assms nn12a nn12b by fast
 
 lemma mm85: "arg_max' f {x} = {x}" using arg_max'_def by auto
 
-lemma mm86: assumes "finite A" "A \<noteq> {}" shows "Max (f`A) \<in> f`A" using assms 
-by (metis Max_in finite_imageI image_is_empty)
- 
+lemma lm35b: assumes "a \<in> allocationsUniverse" "c \<subseteq> a" shows "c \<in> allocationsUniverse"  
+proof - have "c=a-(a-c)" using assms(2) by blast thus ?thesis using assms(1) lm35 by (metis (no_types)) qed
+lemma lm35c: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse"
+using assms lm35 Outside_def by (metis (no_types))
+lemma nn43: "{(x,X)}-{(x,{})} = {x}\<times>({X}-{{}})" by blast
+corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 nn43 by metis
+corollary lm38b: "{(x,{y})} \<in> allocationsUniverse" using lm38 
+by (smt Pair_inject insert_Diff_if insert_not_empty lm44)
+corollary lm38c: "allocationsUniverse\<noteq> {}" using lm38b by fast
+corollary nn39: "{} \<in> allocationsUniverse" using lm35b lm38b by (metis (lifting, mono_tags) empty_subsetI)
 lemma mm87: assumes "G \<noteq> {}" shows "{G} \<in> all_partitions G" using all_partitions_def is_partition_of_def 
 is_partition_def assms by force
 lemma mm88: assumes "n \<in> N" shows "{(G,n)} \<in> totalRels {G} N" using assms by force
@@ -129,81 +89,10 @@ using assms mm90b lm59 arg_max'_non_empty_iff by (metis lm03 rev_finite_subset)
 
 lemma mm71: "x \<in> X = ({x} \<in> finestpart X)" using finestpart_def by force
 
-lemma "arg_max' f A \<subseteq> f -` {Max (f ` A)}" by force
-
-lemma mm78: "arg_max' f A = A \<inter>{ x . f x = Max (f ` A) }" by auto
-
-lemma mm10: assumes "runiq f" "X \<subseteq> Domain f" shows 
-"graph X (toFunction f) = (f||X)" using assms graph_def toFunction_def Outside_def 
-restrict_def
-by (smt Collect_mono Domain_mono Int_commute eval_runiq_rel ll37 ll41 ll81 restrict_ext restriction_is_subrel set_rev_mp subrel_runiq)
-
-lemma mm11: assumes "runiq f" shows 
-"graph (X \<inter> Domain f) (toFunction f) = (f||X)" using assms mm10 
-by (metis Int_lower2 restriction_within_domain)
-
-lemma mm65:"{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" using graph_def lm05 by metis
-lemma mm51: "Range -` {{}} = {{}}" by auto
 lemma mm52: "possibleAllocationsRel N {} \<subseteq> {{}}" using emptyset_part_emptyset3 mm51 
 by (smt lm28b mem_Collect_eq subsetI vimage_def)
 (* lemma "possibleAllocationsRel N {} \<supseteq> {{}}" using lm31 lm28b emptyset_part_emptyset3 mm51 
 mem_Collect_eq subsetI vimage_def *)
-
-lemma mm47: "(\<forall> pair \<in> a. finite (snd pair)) = (\<forall> y \<in> Range a. finite y)" by fastforce
-
-lemma mm38c: "inj_on fst P = inj_on snd (P^-1)" using Pair_inject
-by (smt converse.intros converseE inj_on_def surjective_pairing)
-
-lemma mm39: assumes "runiq (a^-1)" shows "setsum (card \<circ> snd) a = setsum card (Range a)" 
-using assms setsum.reindex lll33 mm38c converse_converse by (metis snd_eq_Range)
-
-lemma mm29: assumes "X \<noteq> {}" shows "finestpart X \<noteq> {}" using assms finestpart_def by blast
-
-lemma assumes "f \<in> allPartitionvalued" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_eq_class)
-
-lemma mm33: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
-"card (\<Union> XX) = setsum card XX" using assms is_partition_def card_Union_disjoint by fast
-
-corollary mm33b: assumes "XX partitions X" "finite X" "finite XX" shows 
-"card (\<Union> XX) = setsum card XX" using assms mm33 by (metis is_partition_of_def lll41)
-
-lemma assumes "inj_on g X" shows "setsum f (g`X) = setsum (f \<circ> g) X" using assms by (metis setsum.reindex)
-
-lemma mm31: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
-
-corollary mm31b: "inj_on finestpart UNIV" using mm31 ll64 by (metis (lifting, no_types) injI)
-
-lemma mm60: assumes "runiq R" "z \<in> R" shows "R,,(fst z) = snd z" 
-using assms runiq_def eval_rel_def by (metis l31 surjective_pairing)
-
-lemma mm59: assumes "runiq R" shows "setsum (toFunction R) (Domain R) = setsum snd R" using 
-assms toFunction_def setsum_reindex_cong mm60 lll31 by (metis (no_types) fst_eq_Domain)
-corollary mm59b: assumes "runiq (f||X)" shows "setsum (toFunction (f||X)) (X \<inter> Domain f) =
-setsum snd (f||X)" using assms mm59 by (metis Int_commute ll41)
-lemma "(R||X) `` X = R``X" 
-by (metis Int_absorb lll02 lll85 lll99)
-lemma mm61: assumes "x \<in> Domain (f||X)" shows "(f||X)``{x} = f``{x}" using assms
-lll02 lll85 lll99 by (metis Int_empty_right Int_iff Int_insert_right_if1 ll41)
-lemma mm61b: assumes "x \<in> X \<inter> Domain f" "runiq (f||X)" shows "(f||X),,x = f,,x" 
-using assms lll02 lll85 Int_empty_right Int_iff Int_insert_right_if1 eval_rel.simps by metis
-
-lemma mm61c: assumes "runiq (f||X)" shows 
-"setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum (toFunction f) (X \<inter> Domain f)" 
-using assms setsum_cong2 mm61b toFunction_def by metis
-corollary mm59c: assumes "runiq (f||X)" shows 
-"setsum (toFunction f) (X \<inter> Domain f) = setsum snd (f||X)" using assms mm59b mm61c by fastforce
-
-corollary assumes "runiq (f||X)" shows "setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum snd (f||X)" 
-using assms mm59 restrict_def ll41 Int_commute by metis
-lemma mm26: "card (finestpart X) = card X" 
-using finestpart_def by (metis (lifting) card_image inj_on_inverseI the_elem_eq)
-corollary mm26b: "finestpart {} = {} & card \<circ> finestpart = card" using mm26 finestpart_def by fastforce
-
-lemma mm40: "finite (finestpart X) = finite X" using assms finestpart_def mm26b by (metis card_eq_0_iff empty_is_image finite.simps mm26)
-lemma "finite \<circ> finestpart = finite" using mm40 by fastforce
-
-lemma mm43: assumes "runiq f" shows "finite (Domain f) = finite f" 
-using assms Domain_empty_iff card_eq_0_iff finite.emptyI lll34 by metis
 
 lemma mm42: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "finite (Range a)" using assms lm47 
 lm55 by (metis lm28)
@@ -226,88 +115,6 @@ lemma mm41: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows
 corollary mm33c: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
 "card G = setsum card (Range a)" using assms mm33b mm42 lm47 by (metis is_partition_of_def)
 
-lemma mm24: "setsum ((curry f) x) Y = setsum f ({x} \<times> Y)"
-proof -
-let ?f="% y. (x, y)" let ?g="(curry f) x" let ?h=f
-have "inj_on ?f Y" by (metis Pair_inject inj_onI) 
-moreover have "{x} \<times> Y = ?f ` Y" by fast
-moreover have "\<forall> y. y \<in> Y \<longrightarrow> ?g y = ?h (?f y)" by simp
-ultimately show ?thesis using setsum_reindex_cong by metis
-qed
-
-lemma mm24b: "setsum (%y. f (x,y)) Y = setsum f ({x} \<times> Y)" using assms mm24 by (smt Sigma_cong curry_def setsum.cong)
-
-lemma mm13: "runiq (X <|| Y)" by (metis lll59 runiq_paste2 trivial_singleton)
-
-corollary mm12: assumes "finite X" shows "setsum f X = setsum f (X-Y) + (setsum f (X \<inter> Y))" 
-using assms Diff_iff IntD2 Un_Diff_Int finite_Un inf_commute setsum.union_inter_neutral by metis
-
-corollary "(P +* Q) `` (X \<inter> (Domain Q))= Q``X"  by (metis Image_within_domain Int_commute ll50)
-
-corollary mm19: assumes "X \<inter> Domain Q = {}" (is "X \<inter> ?dq={}") shows "(P +* Q) `` X = (P outside ?dq)`` X" 
-using assms ll50 ll25 paste_def l38 Outside_def 
-by (metis Diff_disjoint Image_empty Image_within_domain Un_Image sup_inf_absorb)
-
-lemma mm20: assumes  "X \<inter> Y = {}"  shows "(P outside Y)``X=P``X"
-using assms Outside_def by blast
-
-corollary mm19b: assumes "X \<inter> Domain Q = {}" shows "(P +* Q) `` X = P``X" 
-using assms mm19 mm20 by metis
-
-lemma mm14b: "runiq ((X \<times> {x}) +* (Y \<times> {y}))" using assms lll59 trivial_singleton runiq_paste2 by metis
-
-lemma mm14c: assumes "x \<in> X" shows "1 \<in> (X <|| Y) `` {x}" using assms toFunction_def 
-paste_def Outside_def runiq_def mm14b by blast
-
-lemma mm14d: assumes "x \<in> Y-X" shows "0 \<in> (X <|| Y) `` {x}" using assms toFunction_def
-paste_def Outside_def runiq_def mm14b by blast
-
-lemma l31b: assumes "y \<in> f``{x}" "runiq f" shows "f,,x = y" using assms
-by (metis Image_singleton_iff l31)
-
-lemma mm14e: assumes "x \<in> X \<union> Y" shows "(X <|| Y),,x = chi X x" (is "?L=?R")using assms toFunction_def 
-mm13 paste_def Outside_def mm14b mm14c mm14d l31b by (metis DiffI Un_iff indicator_simps(1) indicator_simps(2))
-
-lemma mm14f: assumes "x \<in> X \<union> Y" shows "(X <| Y) x = chi X x" (is "?L=?R") 
-using assms toFunction_def mm13 paste_def Outside_def mm14b mm14c mm14d mm14e by metis
-
-corollary mm15: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) Z = setsum (chi X) Z" 
-using assms mm14f setsum_cong by (smt in_mono)
-
-corollary mm16: "setsum (chi X) (Z - X) = 0" by simp
-
-corollary mm17: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) (Z - X) = 0" using assms mm16 mm15 
-by (smt Diff_iff in_mono setsum.cong subsetI transfer_nat_int_sum_prod2(1))
-
-corollary mm18: assumes "finite Z" shows "setsum (X <| Y) Z = setsum (X <| Y) (Z - X) 
-+(setsum (X <| Y) (Z \<inter> X))" using mm12 assms by blast
-
-corollary mm18b: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "setsum (X <| Y) Z = setsum (X <| Y) (Z \<inter> X)" 
-using assms mm12 mm17 comm_monoid_add_class.add.left_neutral by metis
-
-corollary mm21: assumes "finite Z" shows "setsum (chi X) Z = card (X \<inter> Z)" using assms 
-setsum_indicator_eq_card by (metis Int_commute)
-
-corollary mm22: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "setsum (X <| Y) Z = card (Z \<inter> X)"
-using assms mm21 by (metis mm15 setsum_indicator_eq_card)
-
-corollary mm28: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "(setsum (X <| Y) X) - (setsum (X <| Y) Z) =
-card X - card (Z \<inter> X)" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
-
-corollary mm28b: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "int (setsum (X <| Y) X) - int (setsum (X <| Y) Z) =
-int (card X) - int (card (Z \<inter> X))" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
-
-lemma mm28c: "int (n::nat) = real n" by simp
-
-corollary mm28d: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "real (setsum (X <| Y) X) - real (setsum (X <| Y) Z) =
-real (card X) - real (card (Z \<inter> X))" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
-
-lemma mm23: assumes "finite X" "finite Y" "card (X \<inter> Y) = card X" shows "X \<subseteq> Y" using assms 
-by (metis Int_lower1 Int_lower2 card_seteq order_refl)
-
-lemma mm23b: assumes "finite X" "finite Y" "card X = card Y" shows "(card (X \<inter> Y)=card X) = (X = Y)"
-using assms mm23 by (metis card_seteq le_iff_inf order_refl)
-term allAllocations
 
 
 
@@ -650,15 +457,6 @@ using assms mm67 by (smt imageE mm47)
 lemma assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "\<forall>y \<in> (Range a). finite y"
 using assms by (metis mm41)
 
-corollary setsum_Union_disjoint_2: assumes "\<forall>x\<in>X. finite x" "is_partition X" shows
-"setsum f (\<Union> X) = setsum (setsum f) X" using assms setsum_Union_disjoint is_partition_def by fast
-
-corollary setsum_Union_disjoint_3: assumes "\<forall>x\<in>X. finite x" "X partitions XX" shows
-"setsum f XX = setsum (setsum f) X" using assms by (metis is_partition_of_def setsum_Union_disjoint_2)
-
-corollary setsum_associativity: assumes "finite x" "X partitions x" shows
-"setsum f x = setsum (setsum f) X" using assms setsum_Union_disjoint_3 by (metis is_partition_of_def lll41)
-
 corollary mm67c: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "\<forall>x\<in>(omega ` a). finite x" 
 using assms mm67b mm41 by smt
 
@@ -910,9 +708,11 @@ else
 (x # (permL l n))
 )"
 
+(*
 lemma nn13: 
 "vcga' N G bids random = the_elem (terminatingAuctionRel (N\<union>{auctioneer}) G (toFullBid (set G) bids) random)"
 by auto
+*)
 
 lemma mm93: "terminatingAuctionRel N G bids random = (((arg_max' \<circ> setsum) (resolvingBid N G bids random))
 \<circ> ((arg_max' \<circ> setsum) bids)) (possibleAllocationsRel N (set G))" by auto
@@ -1008,68 +808,9 @@ moreover have "?l \<noteq> []" using assms nn05b by blast
 ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
 qed
 
-lemma mm81: assumes
-"N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
-"aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation N G bids random}" shows 
-"setsum (resolvingBid N G bids random) aa < setsum (resolvingBid N G bids random) (chosenAllocation N G bids random)" 
-proof -
-let ?a="chosenAllocation N G bids random" let ?p=possibleAllocationsRel let ?G="set G"
-have "?a \<in> winningAllocationsRel N (set G) bids" using assms mm82 by blast
-moreover have "winningAllocationsRel N (set G) bids \<subseteq> ?p N ?G" using assms lm03 by metis
-ultimately have "?a \<in> ?p N ?G" using mm82 assms lm03 set_rev_mp by blast
-then show ?thesis using assms 
-(* mm70d by blast *) sorry
-qed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(* MC: troubles start here *)
 lemma mm49b: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "real (setsum (maxbid a N G) (pseudoAllocation a)) - setsum (maxbid a N G) (pseudoAllocation aa) = 
-real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
+shows "real(setsum(maxbid a N G)(pseudoAllocation a)) - setsum(maxbid a N G)(pseudoAllocation aa) 
+= real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
 proof -
 let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid let ?B="?m a N G" have 
 2: "?p aa \<subseteq> N \<times> ?f G" using assms mm73c by (metis (lifting, mono_tags)) then have 
@@ -1162,6 +903,18 @@ qed
 corollary mm70d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
 "aa \<noteq> a" shows "setsum (tiebids a N G) aa < setsum (tiebids a N G) a" using assms mm70c by blast
 
+lemma mm81: assumes
+"N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
+"aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation N G bids random}" shows 
+"setsum (resolvingBid N G bids random) aa < setsum (resolvingBid N G bids random) (chosenAllocation N G bids random)" 
+proof -
+let ?a="chosenAllocation N G bids random" let ?p=possibleAllocationsRel let ?G="set G"
+have "?a \<in> winningAllocationsRel N (set G) bids" using assms mm82 by blast
+moreover have "winningAllocationsRel N (set G) bids \<subseteq> ?p N ?G" using assms lm03 by metis
+ultimately have "?a \<in> ?p N ?G" using mm82 assms lm03 set_rev_mp by blast
+then show ?thesis using assms mm70d by blast 
+qed
+
 (* MC: termination theorem *)
 corollary mm92: assumes 
 "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
@@ -1187,8 +940,6 @@ ultimately have "{?a} = arg_max' ?f ?X" using mm80 by presburger
 moreover have "... = ?t N G bids random" by simp
 ultimately show ?thesis by presburger
 qed
-
-
 
 
 

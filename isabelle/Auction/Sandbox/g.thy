@@ -5,6 +5,7 @@ imports "../CombinatorialVickreyAuction"
 (* "../CombinatorialVickreyAuctionSoundness" *)
 "../CombinatorialAuctionProperties"
 Relation
+"~~/src/HOL/Library/Indicator_Function"
 
 begin
 
@@ -12,8 +13,7 @@ lemma lm63: assumes "Y \<in> set (all_partitions_alg X)" shows "distinct Y"
 using assms coarser_partitions_with_list_distinct distinct_sorted_list_of_set 
 by (metis all_partitions_alg_def all_partitions_paper_equiv_alg')
 
-lemma lm64: assumes "finite X" shows "set (sorted_list_of_set X)=X" using assms 
-by simp
+lemma lm64: assumes "finite X" shows "set (sorted_list_of_set X)=X" using assms by simp
 
 lemma lm65: assumes "finite G" shows 
 "all_partitions G = set ` (set (all_partitions_alg G))"
@@ -85,7 +85,7 @@ lemma "allPartitions \<subseteq> Pow UNIV" by simp
 abbreviation "allPartitionvalued == \<Union> P \<in> allPartitions. Pow (UNIV \<times> P)"
 lemma "allPartitionvalued \<subseteq> Pow (UNIV \<times> (Pow UNIV))" by simp
 abbreviation "allInjections == {R. (runiq R) & (runiq (R^-1))}"
-abbreviation "allAllocations == allInjections \<inter> allPartitionvalued"
+abbreviation "allocationsUniverse == allInjections \<inter> allPartitionvalued"
 abbreviation "totalRels X Y == {R. Domain R = X & Range R \<subseteq> Y}"
 abbreviation "strictCovers G == Union -` {G}"
 
@@ -118,7 +118,7 @@ lemma lll77b: assumes "Range P \<inter> (Range Q)={}" "runiq (P^-1)" "runiq (Q^-
 shows "runiq ((P +* Q)^-1)"
 using lll77 assms subrel_runiq by (metis converse_converse converse_subset_swap paste_sub_Un)
 
-lemma assumes "runiq P" shows "P\<inverse>``((Range P)-X) \<inter> ((P\<inverse>)``X) = {}"
+lemma lll71b: assumes "runiq P" shows "P\<inverse>``((Range P)-X) \<inter> ((P\<inverse>)``X) = {}"
 using assms ll71 by blast
 
 lemma lll78: assumes "runiq (P\<inverse>)" shows "P``(Domain P - X) \<inter> (P``X) = {}"
@@ -194,7 +194,7 @@ by (smt inf_top.left_neutral  lm04 mem_Collect_eq prod.inject restrict_ext subse
 
 lemma lm05: "graph (X \<inter> Y) f = graph X f || Y" using lll02 lm06 by metis
 
-lemma lm07: assumes "isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))" shows 
+lemma lm07: assumes "isChoice (graph {winningAllocationsRel N G b} t)" shows 
 "t (winningAllocationsRel N G b) \<in> winningAllocationsRel N G b" 
 using assms
 proof - (* MC: to be cleaned *)
@@ -208,7 +208,7 @@ moreover have "?T``{?W} \<subseteq> t`{?W}" using l4 l5 ll36 by (metis calculati
 ultimately show ?thesis using assms by (metis (hide_lams, no_types) image_eqI insertI1 l4 set_rev_mp)
 qed
 
-corollary lm03: "winningAllocationsRel N G (b::altbids) \<subseteq> possibleAllocationsRel N G" 
+corollary lm03: "winningAllocationsRel N G b \<subseteq> possibleAllocationsRel N G" 
 using assms lm02 by (smt mem_Collect_eq subsetI)
 
 corollary assumes "runiq (P^-1)" shows "Range (P outside X) \<inter> Range (P || X)={}"
@@ -254,14 +254,18 @@ using assms lm13 lm16 lm17 lm18
 proof -
   let ?A="possible_allocations_rel G N" let ?c=converse let ?I=allInjections 
   let ?P="all_partitions G" let ?d=Domain let ?r=Range
-  have "?c`?A = (?c`?I) \<inter> ?c` ({a. ?r a \<subseteq> N & ?d a \<in> ?P})" using lm18 lm17 by force
+  have "?c`?A = (?c`?I) \<inter> ?c` ({a. ?r a \<subseteq> N & ?d a \<in> ?P})" using lm18 lm17 by fastforce
   moreover have "... = (?c`?I) \<inter> {aa. ?d aa \<subseteq> N & ?r aa \<in> ?P}" using lm16 by fastforce
   moreover have "... = ?I \<inter> {aa. ?d aa \<subseteq> N & ?r aa \<in> ?P}" using lm16 by metis
   ultimately show ?thesis by presburger
 qed
 
+corollary lm19c: "a \<in> possibleAllocationsRel N G = 
+(a \<in> allInjections & Domain a \<subseteq> N & Range a \<in> all_partitions G)" using lm19 
+by (metis (lifting) Int_Collect Int_iff)
+
 corollary lm19b: "possibleAllocationsRel N1 G \<subseteq> possibleAllocationsRel (N1 \<union> N2) G"
-using lm19 assms by auto
+using lm19c by (smt image_eqI image_subsetI sup.coboundedI2 sup_commute)
 
 lemma lm20: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1" "is_partition P2" shows
 "is_partition (P1 \<union> P2)" using assms is_partition_def by (smt UnE UnionI disjoint_iff_not_equal)
@@ -283,8 +287,8 @@ proof -
 by (metis mem_Collect_eq subset_is_partition)
 qed
 
-lemma lm23: assumes "a1 \<in> allAllocations" "a2 \<in> allAllocations" "\<Union> (Range a1) \<inter> (\<Union> (Range a2))={}"
-"Domain a1 \<inter> (Domain a2) = {}" shows "a1 \<union> a2 \<in> allAllocations"
+lemma lm23: assumes "a1 \<in> allocationsUniverse" "a2 \<in> allocationsUniverse" "\<Union> (Range a1) \<inter> (\<Union> (Range a2))={}"
+"Domain a1 \<inter> (Domain a2) = {}" shows "a1 \<union> a2 \<in> allocationsUniverse"
 proof -
   let ?a="a1 \<union> a2" let ?b1="a1^-1" let ?b2="a2^-1" let ?r=Range let ?d=Domain
   let ?I=allInjections let ?P=allPartitions let ?PV=allPartitionvalued let ?u=runiq
@@ -305,11 +309,13 @@ qed
 lemma lm27: assumes "a \<in> allInjections" shows "a - b \<in> allInjections" using assms 
 by (metis (lifting) Diff_subset converse_mono mem_Collect_eq subrel_runiq)
 
-lemma lm30: "possibleAllocationsRel N G \<subseteq> allInjections \<inter> (Range -` (all_partitions G))
-\<inter> (Domain -`(Pow N))"
-using assms possible_allocations_rel_def lm25b lm25 lm26 Domain_converse
-Range_converse Pow_def IntD2 image_subsetI lm17 mem_Collect_eq vimage_eq
-by force
+lemma lm30b: "{a. Domain a \<subseteq> N & Range a \<in> all_partitions G} =
+(Range -` (all_partitions G)) \<inter> (Domain -`(Pow N))" 
+by fastforce
+
+lemma lm30: "possibleAllocationsRel N G = allInjections \<inter> ((Range -` (all_partitions G))
+\<inter> (Domain -`(Pow N)))"
+using lm19 lm30b by metis 
 
 lemma lm28: "a \<in> possibleAllocationsRel N G = (a^-1 \<in> injections (Range a) N & Range a \<in> all_partitions G)"
 using assms possible_allocations_rel_def Domain_converse Range_converse lm16
@@ -326,18 +332,18 @@ lemma lm29: "possibleAllocationsRel N G \<supseteq> allInjections \<inter> (Rang
 by (smt Int_Collect Pow_iff converse_converse inf_sup_aci(1) injectionsI subsetI)
 
 corollary lm31: "possibleAllocationsRel N G = allInjections \<inter> (Range -` (all_partitions G))
-\<inter> (Domain -`(Pow N))" using lm29 lm30 by (smt subset_antisym)
+\<inter> (Domain -`(Pow N))" using lm30 by (metis Int_assoc)
 
 lemma lm32: assumes "a \<in> allPartitionvalued" shows "a - b \<in> allPartitionvalued" 
 using assms subset_is_partition by fast
 
-lemma lm35: assumes "a \<in> allAllocations" shows "a - b \<in> allAllocations" using assms 
+lemma lm35: assumes "a \<in> allocationsUniverse" shows "a - b \<in> allocationsUniverse" using assms 
 lm27 lm32 by auto
 
 lemma lm33: assumes "a \<in> allInjections" shows "a \<in> injections (Domain a) (Range a)"
 using assms by (metis (lifting) injectionsI mem_Collect_eq order_refl)
 
-lemma lm34: assumes "a \<in> allAllocations" shows "a \<in> possibleAllocationsRel (Domain a) (\<Union> (Range a))"
+lemma lm34: assumes "a \<in> allocationsUniverse" shows "a \<in> possibleAllocationsRel (Domain a) (\<Union> (Range a))"
 proof -
   let ?r=Range let ?p=is_partition let ?P=all_partitions have "?p (?r a)" 
   using assms lm22 Int_iff by smt then have "?r a \<in> ?P (\<Union> (?r a))" using all_partitions_def 
@@ -352,7 +358,7 @@ lemma lm36b: "{(x, X)} - {(x, {})} \<in> allPartitionvalued" using lm36 by auto
 lemma lm37: "{(x, X)} \<in> allInjections" by 
 (metis Domain_converse Domain_empty Un_empty_left converse_empty empty_iff mem_Collect_eq runiq_conv_extend_singleton runiq_emptyrel runiq_singleton_rel)
 
-lemma lm38: "{(x,X)} - {(x,{})} \<in> allAllocations" using lm36b lm37 by (metis (no_types) Int_iff lm27)
+lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" using lm36b lm37 by (metis (no_types) Int_iff lm27)
 
 lemma lm41: assumes "is_partition PP" "is_partition (Union PP)" shows "is_partition (Union ` PP)"
 proof -
@@ -381,20 +387,20 @@ lemma lm42: "(\<forall> x \<in> X. \<forall> y \<in> Y. x \<inter> y = {})=(\<Un
 lemma "Domain ((a outside (X \<union> {i})) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) ) 
 \<subseteq> Domain a - X \<union> {i}" using assms Outside_def by auto
 
-lemma lm43: assumes "a \<in> allAllocations" shows 
-"(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allAllocations & 
+lemma lm43: assumes "a \<in> allocationsUniverse" shows 
+"(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse & 
 \<Union> (Range ((a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}))) = \<Union>(Range a)"
 proof -
   let ?d=Domain let ?r=Range let ?U=Union let ?p=is_partition let ?P=allPartitions let ?u=runiq 
   let ?Xi="X \<union> {i}" let ?b="?Xi \<times> (?r a)" let ?a1="a - ?b" let ?Yi="a``?Xi" let ?Y="?U ?Yi" 
   let ?A2="{(i, ?Y)}" let ?a3="{(i,{})}" let ?a2="?A2 - ?a3" let ?aa1="a outside ?Xi" 
-  let ?c="?a1 \<union> ?a2" let ?t1="?c \<in> allAllocations" have 
+  let ?c="?a1 \<union> ?a2" let ?t1="?c \<in> allocationsUniverse" have 
   7: "?U(?r(?a1\<union>?a2))=?U(?r ?a1) \<union> (?U(?r ?a2))" by (metis Range_Un_eq Union_Un_distrib) have 
   5: "?U(?r a) \<subseteq> ?U(?r ?a1) \<union> ?U(a``?Xi) & ?U(?r ?a1) \<union> ?U(?r ?a2) \<subseteq> ?U(?r a)" by blast have
   1: "?u a & ?u (a^-1) & ?p (?r a) & ?r ?a1 \<subseteq> ?r a & ?Yi \<subseteq> ?r a" 
   using assms Int_iff lm22 mem_Collect_eq by auto then have 
   2: "?p (?r ?a1) & ?p ?Yi" using subset_is_partition Diff_subset Range_mono by metis have 
-  "?a1 \<in> allAllocations & ?a2 \<in> allAllocations" using lm38 by (smt assms(1) lm35) then have 
+  "?a1 \<in> allocationsUniverse & ?a2 \<in> allocationsUniverse" using lm38 by (smt assms(1) lm35) then have 
   "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?t1" using Outside_def Range_empty Un_empty_left runiqs_def 
   vimage_Collect_eq by (metis (lifting, no_types) Un_absorb2 empty_subsetI) moreover have 
   "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?U (?r a) = ?U (?r ?a1) \<union> ?U (?r ?a2)" by fast ultimately have 
@@ -422,10 +428,10 @@ proof -
     ultimately have "?U (?r ?a1) \<inter> ?Y = {}" using lm42 by smt then have 
     "?U (?r ?a1) \<inter> (?U (?r ?a2)) = {}" by blast
     moreover have "?d ?a1 \<inter> (?d ?a2) = {}" by blast
-    moreover have "?a1 \<in> allAllocations" by (smt assms(1) lm35)
-    moreover have "?a2 \<in> allAllocations" using lm38 by fastforce
-    ultimately have "?a1 \<in> allAllocations & 
-    ?a2 \<in> allAllocations &
+    moreover have "?a1 \<in> allocationsUniverse" by (smt assms(1) lm35)
+    moreover have "?a2 \<in> allocationsUniverse" using lm38 by fastforce
+    ultimately have "?a1 \<in> allocationsUniverse & 
+    ?a2 \<in> allocationsUniverse &
     \<Union>Range ?a1 \<inter> \<Union>Range ?a2 = {} & Domain ?a1 \<inter> Domain ?a2 = {}" 
 by blast then have 
 ?t1 using lm23 by auto       
@@ -446,7 +452,7 @@ by (metis Image_outside_domain Int_commute)
 
 lemma "R``{}={}" by (metis Image_empty)
 
-lemma lm45: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allAllocations" shows
+lemma lm45: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" shows
 "\<Union>(a``X) \<noteq> {}" (*MC: Should be stated in more general form *)
 proof -
   let ?p=is_partition let ?r=Range
@@ -457,20 +463,20 @@ proof -
   ultimately show ?thesis by (metis Union_member all_not_in_conv no_empty_eq_class)
 qed
 
-corollary lm45b: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allAllocations" shows 
+corollary lm45b: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" shows 
 "{\<Union>(a``(X\<union>{i}))}-{{}} = {\<Union>(a``(X\<union>{i}))}" using assms lm45 by fast
 
-corollary lm43b: assumes "a \<in> allAllocations" shows 
-"(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allAllocations & 
+corollary lm43b: assumes "a \<in> allocationsUniverse" shows 
+"(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse & 
 \<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})))) = \<Union>(Range a)"
 proof -
 have "a - ((X\<union>{i})\<times>(Range a)) = a outside (X \<union> {i})" using Outside_def by metis
-moreover have "(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allAllocations"
+moreover have "(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse"
 using assms lm43 by fastforce
 moreover have "\<Union> (Range ((a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}))) = \<Union>(Range a)"
 using assms lm43 by (metis (no_types))
 ultimately have
-"(a outside (X\<union>{i})) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allAllocations & 
+"(a outside (X\<union>{i})) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse & 
 \<Union> (Range ((a outside (X\<union>{i})) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}))) = \<Union>(Range a)" by
 presburger
 moreover have "{(i, \<Union> (a``(X \<union> {i})))} - {(i,{})} = {i} \<times> ({\<Union> (a``(X\<union>{i}))} - {{}})" 
@@ -478,23 +484,23 @@ by fast
 ultimately show ?thesis by auto
 qed
 
-corollary lm43c: assumes "a \<in> allAllocations" "Domain a \<inter> X \<noteq> {}" shows 
-"(a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}) \<in> allAllocations & 
+corollary lm43c: assumes "a \<in> allocationsUniverse" "Domain a \<inter> X \<noteq> {}" shows 
+"(a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}) \<in> allocationsUniverse & 
 \<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}))) = \<Union>(Range a)"
 using assms lm43b lm45b
 proof -
-let ?t1="(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allAllocations"
+let ?t1="(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse"
 let ?t2="\<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})))) = \<Union>(Range a)"
 have 
-0: "a \<in> allAllocations" using assms(1) by fast 
+0: "a \<in> allocationsUniverse" using assms(1) by fast 
 then have "?t1 & ?t2" using lm43b 
 proof - 
 (*MC: Isabelle cannot do elementary logic steps, only could make it work via this ugly proof found by sledgehammer *)
-  have "a \<in> allAllocations \<longrightarrow> a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allAllocations"
+  have "a \<in> allocationsUniverse \<longrightarrow> a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
     using lm43b by fastforce
-  hence "a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allAllocations"
+  hence "a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
     by (metis "0")
-  thus "a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allAllocations \<and> \<Union>Range (a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}})) = \<Union>Range a"
+  thus "a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse \<and> \<Union>Range (a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}})) = \<Union>Range a"
     using "0" by (metis (no_types) lm43b)
 qed
 moreover have 
@@ -517,7 +523,7 @@ proof -
   moreover have "... \<subseteq> ?U (a``(X\<union>?I))" using Outside_def by blast
   ultimately have "?U (?R``?I) \<subseteq> ?U (a``(X\<union>?I))" by auto
   then have 
-  0: "?U ?t1 \<subseteq> ?U ?t2" by blast
+  0: "?U ?t1 \<subseteq> ?U ?t2" by auto
   have "?u a" using assms by fast 
   moreover have "?R \<subseteq> a" using Outside_def by blast ultimately
   have "?u ?R" using subrel_runiq by metis
@@ -526,13 +532,13 @@ proof -
   ultimately show ?thesis using assms 0 by blast
 qed
 
-lemma lm48: "possibleAllocationsRel N G \<subseteq> allInjections" using assms
-by (metis (lifting, no_types) inf.cobounded1 inf_sup_aci(2) lm31)
+lemma lm48: "possibleAllocationsRel N G \<subseteq> allInjections" using  lm19 by fast
 
 lemma lm49: "possibleAllocationsRel N G \<subseteq> allPartitionvalued"
 using assms lm47 is_partition_of_def is_partition_def by blast
 
-corollary lm50: "possibleAllocationsRel N G \<subseteq> allAllocations" using lm48 lm49 by simp
+corollary lm50: "possibleAllocationsRel N G \<subseteq> allocationsUniverse" using lm48 lm49 
+by (metis (lifting, mono_tags) inf.bounded_iff)
 
 lemma lm51: assumes  
 "a \<in> possibleAllocationsRel N G" 
@@ -543,19 +549,18 @@ shows
 proof -
   let ?R="a outside X" let ?I="{i}" let ?U=Union let ?u=runiq let ?r=Range let ?d=Domain
   let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {?U(a``(X\<union>{i}))})" have 
-  1: "a \<in> allAllocations" using assms lm50 by (metis (lifting, no_types) set_rev_mp)
+  1: "a \<in> allocationsUniverse" using assms(1) lm50  set_rev_mp by blast
   have "i \<notin> X" using assms by fast then have 
   2: "?d a - X \<union> {i} = ?d a \<union> {i} - X" by fast
-  have "a \<in> allAllocations" using 1 by fast moreover have "?d a \<inter> X \<noteq> {}" using assms by fast 
-  ultimately have "?aa \<in> allAllocations & ?U (?r ?aa) = ?U (?r a)" apply (rule lm43c) done
+  have "a \<in> allocationsUniverse" using 1 by fast moreover have "?d a \<inter> X \<noteq> {}" using assms by fast 
+  ultimately have "?aa \<in> allocationsUniverse & ?U (?r ?aa) = ?U (?r a)" apply (rule lm43c) done
   then moreover have "?aa \<in> possibleAllocationsRel (?d ?aa) (?U (?r a))"
-  using lm34 by (metis (lifting, no_types))
+  using lm34 by (metis (lifting, mono_tags))
   moreover have "?d a - X \<union> {i} = ?d ?aa \<union> (?d a - X \<union> {i})" using Outside_def by auto
   ultimately have "?aa \<in> possibleAllocationsRel (?d a - X \<union> {i}) (?U (?r a))"
   using lm19b by (smt in_mono)
   then have "?aa \<in> possibleAllocationsRel (?d a \<union> {i} - X) (?U (?r a))" using 2 by simp
-  moreover have "?d a \<subseteq> N" using assms lm19 
-  by auto 
+  moreover have "?d a \<subseteq> N" using assms(1) lm19c by metis
   then moreover have "(?d a \<union> {i} - X) \<union> (N - X) = N - X" using assms by fast
   ultimately have "?aa \<in> possibleAllocationsRel (N - X) (?U (?r a))" using lm19b 
   by (metis (lifting, no_types) in_mono)
@@ -563,9 +568,9 @@ proof -
 qed
 
 lemma lm52: assumes 
-"condition1 (b::altbids) (i::participant)" 
-"(a::allocation) \<in> allAllocations" 
-"Domain a \<inter> (X::participant set) \<noteq> {}" 
+"condition1 (b::_ => real) i" 
+"a \<in> allocationsUniverse" 
+"Domain a \<inter> X \<noteq> {}" 
 "finite a" shows 
 "setsum b (a outside X) \<le> setsum b (a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}))"
 proof -
@@ -610,42 +615,36 @@ shows "finite a" using assms lm57 rev_finite_subset by (metis lm28b lm55)
 lemma lm59: assumes "finite N" "finite G" shows "finite (possibleAllocationsRel N G)"
 by (metis allocs_finite assms(1) assms(2) finite_imageI)
 
-corollary lm53: assumes
-"condition1 (b::altbids) (i::participant)"
-"(a::allocation) \<in> possibleAllocationsRel N G" 
-"i\<in>N-X" 
-"Domain a \<inter> (X::participant set) \<noteq> {}"
-"finite N"
-"finite G"
-shows
-"Max ((proceeds b)`(possibleAllocationsRel (N-X) G)) \<ge> 
-proceeds b (a outside X)"
+corollary lm53: assumes "condition1 (b::_ => real) i" "a \<in> possibleAllocationsRel N G" "i\<in>N-X" 
+"Domain a \<inter> X \<noteq> {}" "finite N" "finite G" shows
+"Max ((setsum b)`(possibleAllocationsRel (N-X) G)) \<ge> setsum b (a outside X)"
 proof -
 let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))})"
-have "a \<in> allAllocations" using assms(2) lm50 by blast 
-moreover have "finite a" using assms lm58 by presburger ultimately have 
-0: "proceeds b (a outside X) \<le> proceeds b ?aa" using assms lm52 by presburger
-have "?aa \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))" using assms lm51 by presburger
+have "condition1 (b::_ => real) i" using assms(1) by fast
+moreover have "a \<in> allocationsUniverse" using assms(2) lm50 by blast
+moreover have "Domain a \<inter> X \<noteq> {}" using assms(4) by auto
+moreover have "finite a" using assms lm58 by metis ultimately have 
+0: "setsum b (a outside X) \<le> setsum b ?aa" by (rule lm52)
+have "?aa \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))" using assms lm51 by metis
 moreover have "\<Union> (Range a) = G" using assms lm47 is_partition_of_def by metis
-ultimately have "proceeds b ?aa \<in> (proceeds b)`(possibleAllocationsRel (N-X) G)" 
-by (metis imageI)
-moreover have "finite ((proceeds b)`(possibleAllocationsRel (N-X) G))" using assms lm59 by auto
-ultimately have "proceeds b ?aa \<le> Max ((proceeds b)`(possibleAllocationsRel (N-X) G))" by auto
+ultimately have "setsum b ?aa \<in> (setsum b)`(possibleAllocationsRel (N-X) G)" by (metis imageI)
+moreover have "finite ((setsum b)`(possibleAllocationsRel (N-X) G))" using assms lm59 assms(5,6)
+by (metis finite_Diff finite_imageI)
+ultimately have "setsum b ?aa \<le> Max ((setsum b)`(possibleAllocationsRel (N-X) G))" by auto
 then show ?thesis using 0 by linarith
 qed
 
-corollary lm53b: assumes
-"condition1 (b::altbids) (i::participant)" 
-"(a::allocation) \<in> possibleAllocationsRel N G" 
-"i\<in>N-{n}" 
-"n \<in> Domain a"
-"finite N"
-"finite G"
+corollary lm53b: assumes "condition1 (b::_ => real) i"  "a \<in> possibleAllocationsRel N G" 
+"i\<in>N-{n}" "n \<in> Domain a" "finite N" "finite G"
 shows
-"alpha N G b n \<ge> proceeds b (a -- n)" using assms lm53 by simp
+"alpha N G b n \<ge> setsum b (a -- n)" (is "?L \<ge> ?R") using assms lm53 
+proof -
+let ?X="{n}" have "Domain a \<inter> ?X \<noteq> {}" using assms by blast
+then show "Max ((setsum b)`(possibleAllocationsRel (N-?X) G)) \<ge> setsum b (a outside ?X)" using assms lm53 by metis
+qed
 
 lemma lm60: assumes "n \<notin> Domain a" "a \<in> possibleAllocationsRel N G" "finite G" "finite N" shows 
-"alpha N G b n \<ge> proceeds b (a -- n)"
+"alpha N G b n \<ge> setsum b (a -- n)"
 proof -
 let ?a="a -- n" let ?d=Domain
 have "?a = a" using assms Outside_def by blast
@@ -653,38 +652,37 @@ moreover have "?d ?a \<subseteq> N-{n}" using assms lm34
 by (smt Diff_iff Diff_insert_absorb calculation lm28b set_rev_mp subsetI)
 ultimately have "a \<in> possibleAllocationsRel (N-{n}) G" using assms 
 by (metis (full_types) lm28b)
-then have "proceeds b a \<in> (proceeds b ` (possibleAllocationsRel (N-{n}) G))"
+then have "setsum b a \<in> (setsum b ` (possibleAllocationsRel (N-{n}) G))"
 by blast
-moreover have "finite (possibleAllocationsRel (N-{n}) G)" using allocs_finite assms by simp
+moreover have "finite (possibleAllocationsRel (N-{n}) G)" using allocs_finite assms lm59 by (metis finite_Diff)
 ultimately show ?thesis using Max.coboundedI
 by (metis (hide_lams, no_types) `a -- n = a` finite_imageI)
 qed
 
 corollary lm61: (*MC: of lm60 and lm53b*) assumes
-"condition1 b i" 
+"condition1 (b::_ => real) i" 
 "a \<in> possibleAllocationsRel N G"
 "i\<in>N-{n}"
 "finite N"
 "finite G"
-shows "alpha N G b n \<ge> proceeds b (a -- n)" using assms lm53b lm60 by metis
+shows "alpha N G b n \<ge> setsum b (a -- n)" using assms lm53b lm60 by metis
 
-corollary lm61b: assumes
-"condition1 b i"  
-"a \<in> winningAllocationsRel N G c" 
-"i\<in>N-{n}" 
-"finite N"
-"finite G"
-shows "alpha N G b n \<ge> proceeds b (a -- n)" using assms lm03 lm61 by blast
+corollary lm61b: assumes "condition1 (b::_ => real) i" "a \<in> winningAllocationsRel N G c" 
+"i\<in>N-{n}" "finite N" "finite G" shows "alpha N G b n \<ge> setsum b (a -- n)"  
+proof -
+have "a \<in> possibleAllocationsRel N G" using assms(2) lm03 try0 by fast
+then show ?thesis using assms lm61 by metis
+qed
 
-corollary lm61c: assumes
-"condition1 b i" 
-"i\<in>N-{n}" 
-"finite N"
-"finite G"
-"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
-shows "alpha N G b n \<ge> remainingValueRel N G t b n" using assms lm03 lm61 lm07 by simp
-
-term "alpha N G b n"
+corollary lm61c: assumes "condition1 (b::_ => real) i" "i\<in>N-{n}" "finite N" "finite G"
+"isChoice (graph {winningAllocationsRel N G b} t)" shows 
+"alpha N G b n \<ge> remainingValueRel N G t b n" (is "?L \<ge> ?R") 
+using assms lm03 lm61 lm07 set_rev_mp 
+proof -
+have "winningAllocationRel N G t b \<in> winningAllocationsRel N G b" 
+using assms(5) lm07 by (metis (hide_lams, no_types))
+then show ?thesis using lm61b assms by metis
+qed
 
 lemma lm62: "(a::real) \<ge> b = (a - b \<ge> 0)" by linarith
 
@@ -692,24 +690,27 @@ lemma lm72b: assumes "t (winningAllocationsRel N G b) \<in> winningAllocationsRe
 "isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))" using assms lm72 
 by blast
 
-corollary lm61d: assumes "condition1 b i" "i\<in>N-{n}" "finite N" "finite G"
-"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
-shows "paymentsRel N G t b n \<ge> 0" using assms lm61c lm62 by auto
+corollary lm61d: assumes "condition1 (b::_=>real) i" "i\<in>N-{n}" "finite N" "finite G"
+"isChoice (graph {winningAllocationsRel N G b} t)" shows "paymentsRel N G t b n \<ge> 0" 
+proof - have "alpha N G b n \<ge> remainingValueRel N G t b n" using assms lm61c by metis thus ?thesis using lm62 by simp qed
 
 abbreviation "condition2 b N == EX i1 i2. (i1 \<in> N - {i2} & i2 \<in> N - {i1} & condition1 b i1 & condition1 b i2)"
 
 corollary lm61e:
 assumes 
-"condition2 (b::altbids) N" 
-"finite (N::participant set)"
-"finite (G::goods)"
-"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
+"condition2 (b::_=>real) N" 
+"finite N"
+"finite G"
+"isChoice (graph {winningAllocationsRel N G b} t)"
 shows
 "paymentsRel N G t b n \<ge> 0"
 proof -
   obtain i where 
-  0: "i \<in> N-{n} & condition1 b i" using assms(1) by blast
-  show ?thesis using 0 assms lm61d by auto
+  0: "condition1 b i & i \<in> N-{n}" using assms(1) by blast
+  then have "condition1 b i" by blast moreover have "i \<in> N-{n}" using 0 by fast 
+  moreover have "finite N" using assms(2) by simp moreover have "finite G" using assms(3) by auto  
+  moreover have "isChoice (graph {winningAllocationsRel N G b} t)" using assms(4) by fast  
+  ultimately show ?thesis by (rule lm61d)
 qed
 
 abbreviation "monotonebids == condition2"
@@ -718,25 +719,22 @@ lemma lm71: fixes N b assumes
 "EX i1 i2. i1 \<in> N - {i2} & i2 \<in> N - {i1} & 
 (\<forall> t t'. (trivial t & trivial t' & Union t \<subseteq> Union t') \<longrightarrow>
 setsum b ({i1}\<times>t) \<le> setsum b ({i1}\<times>t') & setsum b ({i2}\<times>t) \<le> setsum b ({i2}\<times>t'))"
-shows "condition2 (b::altbids) N" using assms by blast
+shows "condition2 (b) N" using assms by blast
 
-corollary lm61f:
-assumes 
-"monotonebids (b::altbids) N" 
-"finite (N::participant set)"
-"finite (G::goods)"
-"isChoice (graph {winningAllocationsRel N G b} (t::tieBreaker))"
-shows
-"\<forall>n::participant. paymentsRel N G t b n \<ge> 0" using assms lm61e by presburger
+corollary lm61f: assumes "monotonebids (b::_=>real) N" "finite N" "finite G"
+"isChoice (graph {winningAllocationsRel N G b} t)" shows "\<forall>n. paymentsRel N G t b n \<ge> 0"  
+proof -
+{fix n have "paymentsRel N G t b n \<ge> 0" using assms by (rule lm61e)} then show ?thesis by fastforce
+qed
 
 (* BIGSKIP
-lemma "possibleAllocationsRel N G \<subseteq> allAllocations" using assms possible_allocations_rel_def 
+lemma "possibleAllocationsRel N G \<subseteq> allocationsUniverse" using assms possible_allocations_rel_def 
 injections_def all_partitions_def is_partition_of_def lm24 lm25 lm25b lm26 
 sorry
 
 lemma assumes "X \<in> (strictCovers G)" shows "(\<Union> X) = G" sorry
 lemma "all_partitions G = allPartitions \<inter> (strictCovers G)" sorry
-lemma "possibleAllocationsRel N G \<subseteq> allAllocations \<inter> ((Union \<circ> Range) -` {G}) \<inter> (Dom -` (Pow N))" 
+lemma "possibleAllocationsRel N G \<subseteq> allocationsUniverse \<inter> ((Union \<circ> Range) -` {G}) \<inter> (Dom -` (Pow N))" 
 using assms possible_allocations_rel_def sorry
 
 lemma assumes "a1 \<in> possibleAllocationsRel N1 G1" "a2 \<in> possibleAllocationsRel N2 (G2-G1)"
@@ -1023,5 +1021,334 @@ shows "alpha N G b n \<ge> remainingValueRel N G t b n"
 using lm08 assms lm07 by blast
 BIGSKIP *)
 
-end
 
+(*MISC*)
+
+
+abbreviation "Outside' X f == f outside X"
+abbreviation "Chi X Y == (Y \<times> {0::nat}) +* (X \<times> {1})"
+notation Chi (infix "<||" 80)
+abbreviation "chii X Y == toFunction (X <|| Y)"
+notation chii (infix "<|" 80)
+abbreviation "chi X == indicator X"
+
+lemma lll41: assumes "finite (\<Union> XX)" shows "\<forall>X \<in> XX. finite X" using assms
+by (metis Union_upper finite_subset)
+
+lemma ll57: (*repetition*) fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
+using assms by (metis real_scaleR_def real_vector.scale_right_diff_distrib)
+
+lemma lll62: fixes a::real fixes b c shows "a*b - c*b=(a-c)*b" (*MC: repetition*)
+using assms ll57 by (metis comm_semiring_1_class.normalizing_semiring_rules(7))
+
+lemma lll92: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
+"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=g2 x)))" shows 
+"g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2)" 
+proof -
+  let ?fx="f,,xx" let ?h2="(?fx-f1)*(g2 xx)/(f2-f1)" let ?h1="(?fx-f2)*(g1 xx)/(f1-f2)" 
+  let ?gx="g,,xx" have
+  1: "?fx=f1 \<longrightarrow> ?gx=(g1 xx)" using assms by fast have
+  2: "?fx=f2 \<longrightarrow> ?gx=(g2 xx)" using assms by fast  
+  have "{xx} \<subseteq> (f^-1)``{f1,f2}" using assms by fast
+  then have "f``{xx} \<subseteq> {f1,f2}" using assms(3) ll71b by metis
+  then have 
+  4: "f,,xx=f1 \<or> f,,xx=f2" using assms(3) by (metis Image_iff Image_singleton_iff Int_absorb1 
+  Int_empty_left `{xx} \<subseteq> f\<inverse> \`\` {f1, f2}` converseD equals0D insert_subset l31 subset_insert)
+  {
+    assume "f,,xx=f1" then moreover have "?h2 = 0" by simp
+    ultimately moreover have "?h1=g1 xx" using 1 assms by auto
+    ultimately have "?gx=?h2 + ?h1" using 1 by simp 
+  }
+  then have
+  3: "f,,xx=f1 \<longrightarrow> (?gx=?h2+?h1)" by fast
+  {
+    assume "f,,xx=f2" then moreover have "?h1 = 0" by simp
+    ultimately moreover have "?h2=g2 xx" using 1 assms by auto
+    ultimately have "?gx=?h2 + ?h1" using 2 by simp 
+  }
+  then have "?gx=?h2+?h1" using 3 4 by fast then show ?thesis by fast
+qed
+
+corollary lll92b: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
+"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=(%x. ((g1 x)+(g2 x))) x)))" 
+shows "g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (g1 xx)"
+proof -
+  let ?fx="f,,xx" let ?g1="g1 xx" let ?g2="g2 xx" let ?g="%x. (g1 x)+(g2 x)"
+  have "\<forall> g2. ((xx \<in> X \<inter> (f^-1)``{f1,f2} &f1 \<noteq> f2 & runiq f &
+  (\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=g2 x))))) \<longrightarrow>
+  g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2))" using lll92 
+  by smt
+  then have 
+  "((xx \<in> X \<inter> (f^-1)``{f1,f2} &f1 \<noteq> f2 & runiq f &
+  (\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=?g x))))) \<longrightarrow>
+  g,,xx = (f,,xx - f1)*(?g xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2))"
+  by fast
+  then have "g,,xx = (?fx-f1)*(?g xx)/(f2-f1) + (?fx-f2)*?g1/(f1-f2)" using lll92 assms by blast
+  moreover have "...=(?fx-f1)*((?g xx)/(f2-f1)) + (?fx-f2)*?g1/(f1-f2)" try0
+  by auto
+  moreover have "... = ?fx*((?g1+?g2)/(f2-f1)) - f1*(?g1+?g2)/(f2-f1) + (?fx-f2)*(?g1/(f1-f2))" 
+  by (metis lll62 times_divide_eq_right) moreover have "... = 
+  ?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) + (?fx-f2)*(?g1/(f1-f2))" by (metis 
+  (hide_lams, mono_tags) add_divide_distrib comm_semiring_1_class.normalizing_semiring_rules(34) 
+  times_divide_eq_right)
+  moreover have "... = 
+  ?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) + ?fx*(?g1/(f1-f2)) - 
+  f2*(?g1/(f1-f2))" by (smt lll62)
+  moreover have "... = ?fx*?g1/(f2-f1) + ?fx*?g1/(-(f2-f1)) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) - 
+  f2*(?g1/(f1-f2))" by force
+  moreover have "... = ?fx*?g1/(f2-f1) - ?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) - 
+  f2*(?g1/(f1-f2))"
+  by (metis (hide_lams, mono_tags) minus_divide_right minus_real_def)
+  moreover have "... = ?fx*?g2/(f2-f1) - f1*((?g1+?g2)/(f2-f1)) - 
+  f2*(?g1/(f1-f2))" by force
+  moreover have "... = ?fx*?g2/(f2-f1) - (f1*?g1/(f2-f1) + f1*?g2/(f2-f1)) -
+  f2*?g1/(f1-f2)"
+  by (metis (hide_lams, no_types) add_divide_distrib comm_semiring_1_class.normalizing_semiring_rules(34) times_divide_eq_right)
+  moreover have "... = ?fx*?g2/(f2-f1) - f1*?g1/(-(f1-f2)) - f1*?g2/(f2-f1) -
+  f2*?g1/(f1-f2)" by force
+  moreover have "... = ?fx*(?g2/(f2-f1)) + f1*(?g1/(f1-f2)) - f1*(?g2/(f2-f1)) -
+  f2*(?g1/(f1-f2))" by (metis (hide_lams, mono_tags) diff_minus_eq_add minus_divide_right times_divide_eq_right)
+  moreover have "... = ?fx*(?g2/(f2-f1)) + (f1-f2)*(?g1/(f1-f2)) - f1*(?g2/(f2-f1))" by (smt lll62)
+  moreover have "... = (?fx-f1)*(?g2/(f2-f1)) + (f1-f2)*(?g1/(f1-f2))" by (smt lll62)
+  moreover have "... = (?fx-f1)*?g2/(f2-f1) + ?g1*((f1-f2)/(f1-f2))" by simp
+  moreover have "... = (?fx-f1)*?g2/(f2-f1) + ?g1*1" using assms by force
+  ultimately show ?thesis by linarith
+qed
+
+
+lemma ll76: assumes "is_partition XX" shows "trans (part2rel XX)" 
+proof -
+let ?f=part2rel let ?R="?f XX"
+{
+  fix x y z assume "(x,y) \<in> ?R" then obtain X1 where 
+  1: "X1\<in>XX & x\<in>X1 & y\<in>X1" using ll73 by metis 
+  assume "(y,z)\<in>?R" then obtain X2 where 
+  2: "X2\<in>XX & y\<in>X2 & z\<in>X2" using ll73 by metis
+  have "{y} \<subseteq> X1 \<inter> X2" using 1 2 by fast
+  hence "X1=X2" using assms 1 2 by (metis empty_iff is_partition_def singleton_iff subset_empty)
+  hence "(x,z)\<in>?R" using ll73 1 2 by fast
+}
+thus ?thesis using trans_def by blast
+qed
+
+lemma ll72: assumes "runiq f" shows "is_partition {f^-1 `` {y}| y. y\<in> Range f}" 
+proof -
+let ?i=is_partition let ?R=Range let ?r=runiq let ?g="f^-1"
+let ?P="{?g `` {y}| y. y\<in> ?R f}" have "?thesis = (\<forall> X\<in> ?P . \<forall> Y \<in> ?P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))" 
+using is_partition_def by (rule exE_realizer)
+thus ?thesis using ll68 assms by fast 
+qed
+
+lemma ll79: assumes "runiq f" shows "kernel f partitions (Domain f)"
+proof -
+have 0: "Domain f = \<Union> kernel f" using ll65 by blast
+have "is_partition (kernel f)" using assms ll72 ll65 by metis
+thus ?thesis using 0 is_partition_of_def by metis
+qed
+
+lemma ll77: assumes "is_partition XX" shows "equiv (Union XX) (part2rel XX)" 
+using assms ll74 ll75 ll76 equiv_def by fast
+
+corollary ll78: assumes "runiq f" shows "equiv (Domain f) (part2rel (kernel f))"
+using assms ll77 ll79 is_partition_of_def by metis
+
+lemma lll59: assumes "trivial Y" shows "runiq (X \<times> Y)" using assms 
+runiq_def Image_subset ll84 trivial_subset by (metis ll83)
+
+lemma "inj_on  (%a. ((fst a, fst (snd a)), snd (snd a))) UNIV" 
+by (metis (lifting, mono_tags) Pair_fst_snd_eq Pair_inject injI)
+lemma "(X={the_elem X}) = (card X=1)" 
+by (smt card_empty card_eq_SucD card_insert_disjoint finite.emptyI insert_absorb insert_not_empty the_elem_eq)
+lemma nn27: assumes "finite X" "x > Max X" shows "x \<notin> X" using assms Max.coboundedI by (metis leD)
+
+lemma mm86: assumes "finite A" "A \<noteq> {}" shows "Max (f`A) \<in> f`A" 
+using assms by (metis Max_in finite_imageI image_is_empty)
+
+lemma "arg_max' f A \<subseteq> f -` {Max (f ` A)}" by force
+
+lemma mm78: "arg_max' f A = A \<inter>{ x . f x = Max (f ` A) }" by auto
+
+lemma mm10: assumes "runiq f" "X \<subseteq> Domain f" shows 
+"graph X (toFunction f) = (f||X)" using assms graph_def toFunction_def Outside_def 
+restrict_def
+by (smt Collect_mono Domain_mono Int_commute eval_runiq_rel ll37 ll41 ll81 restrict_ext restriction_is_subrel set_rev_mp subrel_runiq)
+
+lemma mm11: assumes "runiq f" shows 
+"graph (X \<inter> Domain f) (toFunction f) = (f||X)" using assms mm10 
+by (metis Int_lower2 restriction_within_domain)
+
+lemma mm65:"{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" using graph_def lm05 by metis
+lemma mm51: "Range -` {{}} = {{}}" by auto
+
+lemma mm47: "(\<forall> pair \<in> a. finite (snd pair)) = (\<forall> y \<in> Range a. finite y)" by fastforce
+
+lemma mm38c: "inj_on fst P = inj_on snd (P^-1)" using Pair_inject
+by (smt converse.intros converseE inj_on_def surjective_pairing)
+
+lemma mm39: assumes "runiq (a^-1)" shows "setsum (card \<circ> snd) a = setsum card (Range a)" 
+using assms setsum.reindex lll33 mm38c converse_converse by (metis snd_eq_Range)
+
+lemma mm29: assumes "X \<noteq> {}" shows "finestpart X \<noteq> {}" using assms finestpart_def by blast
+
+lemma assumes "f \<in> allPartitionvalued" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_eq_class)
+
+lemma mm33: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
+"card (\<Union> XX) = setsum card XX" using assms is_partition_def card_Union_disjoint by fast
+
+corollary mm33b: assumes "XX partitions X" "finite X" "finite XX" shows 
+"card (\<Union> XX) = setsum card XX" using assms mm33 by (metis is_partition_of_def lll41)
+
+lemma assumes "inj_on g X" shows "setsum f (g`X) = setsum (f \<circ> g) X" using assms by (metis setsum.reindex)
+
+lemma mm31: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
+
+corollary mm31b: "inj_on finestpart UNIV" using mm31 ll64 by (metis (lifting, no_types) injI)
+
+lemma mm60: assumes "runiq R" "z \<in> R" shows "R,,(fst z) = snd z" 
+using assms runiq_def eval_rel_def by (metis l31 surjective_pairing)
+
+lemma mm59: assumes "runiq R" shows "setsum (toFunction R) (Domain R) = setsum snd R" using 
+assms toFunction_def setsum_reindex_cong mm60 lll31 by (metis (no_types) fst_eq_Domain)
+corollary mm59b: assumes "runiq (f||X)" shows "setsum (toFunction (f||X)) (X \<inter> Domain f) =
+setsum snd (f||X)" using assms mm59 by (metis Int_commute ll41)
+lemma "(R||X) `` X = R``X" 
+by (metis Int_absorb lll02 lll85 lll99)
+lemma mm61: assumes "x \<in> Domain (f||X)" shows "(f||X)``{x} = f``{x}" using assms
+lll02 lll85 lll99 by (metis Int_empty_right Int_iff Int_insert_right_if1 ll41)
+lemma mm61b: assumes "x \<in> X \<inter> Domain f" "runiq (f||X)" shows "(f||X),,x = f,,x" 
+using assms lll02 lll85 Int_empty_right Int_iff Int_insert_right_if1 eval_rel.simps by metis
+
+lemma mm61c: assumes "runiq (f||X)" shows 
+"setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum (toFunction f) (X \<inter> Domain f)" 
+using assms setsum_cong2 mm61b toFunction_def by metis
+corollary mm59c: assumes "runiq (f||X)" shows 
+"setsum (toFunction f) (X \<inter> Domain f) = setsum snd (f||X)" using assms mm59b mm61c by fastforce
+
+corollary assumes "runiq (f||X)" shows "setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum snd (f||X)" 
+using assms mm59 restrict_def ll41 Int_commute by metis
+lemma mm26: "card (finestpart X) = card X" 
+using finestpart_def by (metis (lifting) card_image inj_on_inverseI the_elem_eq)
+corollary mm26b: "finestpart {} = {} & card \<circ> finestpart = card" using mm26 finestpart_def by fastforce
+
+lemma mm40: "finite (finestpart X) = finite X" using assms finestpart_def mm26b by (metis card_eq_0_iff empty_is_image finite.simps mm26)
+lemma "finite \<circ> finestpart = finite" using mm40 by fastforce
+
+lemma mm43: assumes "runiq f" shows "finite (Domain f) = finite f" 
+using assms Domain_empty_iff card_eq_0_iff finite.emptyI lll34 by metis
+
+
+lemma mm24: "setsum ((curry f) x) Y = setsum f ({x} \<times> Y)"
+proof -
+let ?f="% y. (x, y)" let ?g="(curry f) x" let ?h=f
+have "inj_on ?f Y" by (metis Pair_inject inj_onI) 
+moreover have "{x} \<times> Y = ?f ` Y" by fast
+moreover have "\<forall> y. y \<in> Y \<longrightarrow> ?g y = ?h (?f y)" by simp
+ultimately show ?thesis using setsum_reindex_cong by metis
+qed
+
+lemma mm24b: "setsum (%y. f (x,y)) Y = setsum f ({x} \<times> Y)" using assms mm24 by (smt Sigma_cong curry_def setsum.cong)
+
+lemma mm13: "runiq (X <|| Y)" by (metis lll59 runiq_paste2 trivial_singleton)
+
+corollary mm12: assumes "finite X" shows "setsum f X = setsum f (X-Y) + (setsum f (X \<inter> Y))" 
+using assms Diff_iff IntD2 Un_Diff_Int finite_Un inf_commute setsum.union_inter_neutral by metis
+
+corollary "(P +* Q) `` (X \<inter> (Domain Q))= Q``X"  by (metis Image_within_domain Int_commute ll50)
+
+corollary mm19: assumes "X \<inter> Domain Q = {}" (is "X \<inter> ?dq={}") shows "(P +* Q) `` X = (P outside ?dq)`` X" 
+using assms ll50 ll25 paste_def l38 Outside_def 
+by (metis Diff_disjoint Image_empty Image_within_domain Un_Image sup_inf_absorb)
+
+lemma mm20: assumes  "X \<inter> Y = {}"  shows "(P outside Y)``X=P``X"
+using assms Outside_def by blast
+
+corollary mm19b: assumes "X \<inter> Domain Q = {}" shows "(P +* Q) `` X = P``X" 
+using assms mm19 mm20 by metis
+
+lemma mm14b: "runiq ((X \<times> {x}) +* (Y \<times> {y}))" using assms lll59 trivial_singleton runiq_paste2 by metis
+
+lemma mm14c: assumes "x \<in> X" shows "1 \<in> (X <|| Y) `` {x}" using assms toFunction_def 
+paste_def Outside_def runiq_def mm14b by blast
+
+lemma mm14d: assumes "x \<in> Y-X" shows "0 \<in> (X <|| Y) `` {x}" using assms toFunction_def
+paste_def Outside_def runiq_def mm14b by blast
+
+lemma l31b: assumes "y \<in> f``{x}" "runiq f" shows "f,,x = y" using assms
+by (metis Image_singleton_iff l31)
+
+lemma mm14e: assumes "x \<in> X \<union> Y" shows "(X <|| Y),,x = chi X x" (is "?L=?R")using assms toFunction_def 
+mm13 paste_def Outside_def mm14b mm14c mm14d l31b by (metis DiffI Un_iff indicator_simps(1) indicator_simps(2))
+
+lemma mm14f: assumes "x \<in> X \<union> Y" shows "(X <| Y) x = chi X x" (is "?L=?R") 
+using assms toFunction_def mm13 paste_def Outside_def mm14b mm14c mm14d mm14e by metis
+
+corollary mm15: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) Z = setsum (chi X) Z" 
+using assms mm14f setsum_cong by (smt in_mono)
+
+corollary mm16: "setsum (chi X) (Z - X) = 0" by simp
+
+corollary mm17: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) (Z - X) = 0" using assms mm16 mm15 
+by (smt Diff_iff in_mono setsum.cong subsetI transfer_nat_int_sum_prod2(1))
+
+corollary mm18: assumes "finite Z" shows "setsum (X <| Y) Z = setsum (X <| Y) (Z - X) 
++(setsum (X <| Y) (Z \<inter> X))" using mm12 assms by blast
+
+corollary mm18b: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "setsum (X <| Y) Z = setsum (X <| Y) (Z \<inter> X)" 
+using assms mm12 mm17 comm_monoid_add_class.add.left_neutral by metis
+
+corollary mm21: assumes "finite Z" shows "setsum (chi X) Z = card (X \<inter> Z)" using assms 
+setsum_indicator_eq_card by (metis Int_commute)
+
+corollary mm22: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "setsum (X <| Y) Z = card (Z \<inter> X)"
+using assms mm21 by (metis mm15 setsum_indicator_eq_card)
+
+corollary mm28: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "(setsum (X <| Y) X) - (setsum (X <| Y) Z) =
+card X - card (Z \<inter> X)" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+
+corollary mm28b: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "int (setsum (X <| Y) X) - int (setsum (X <| Y) Z) =
+int (card X) - int (card (Z \<inter> X))" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+
+lemma mm28c: "int (n::nat) = real n" by simp
+
+corollary mm28d: assumes "Z \<subseteq> X \<union> Y" "finite Z" shows "real (setsum (X <| Y) X) - real (setsum (X <| Y) Z) =
+real (card X) - real (card (Z \<inter> X))" using assms mm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+
+lemma mm23: assumes "finite X" "finite Y" "card (X \<inter> Y) = card X" shows "X \<subseteq> Y" using assms 
+by (metis Int_lower1 Int_lower2 card_seteq order_refl)
+
+lemma mm23b: assumes "finite X" "finite Y" "card X = card Y" shows "(card (X \<inter> Y)=card X) = (X = Y)"
+using assms mm23 by (metis card_seteq le_iff_inf order_refl)
+
+corollary setsum_Union_disjoint_2: assumes "\<forall>x\<in>X. finite x" "is_partition X" shows
+"setsum f (\<Union> X) = setsum (setsum f) X" using assms setsum_Union_disjoint is_partition_def by fast
+
+corollary setsum_Union_disjoint_3: assumes "\<forall>x\<in>X. finite x" "X partitions XX" shows
+"setsum f XX = setsum (setsum f) X" using assms by (metis is_partition_of_def setsum_Union_disjoint_2)
+
+corollary setsum_associativity: assumes "finite x" "X partitions x" shows
+"setsum f x = setsum (setsum f) X" using assms setsum_Union_disjoint_3 by (metis is_partition_of_def lll41)
+
+lemma "toFunction (Graph f)=f" (is "?L=_")
+proof-{fix x have "?L x=f x" unfolding toFunction_def ll28 by metis}thus ?thesis by blast qed
+
+
+lemma nn29: "R outside X \<subseteq> R" by (metis outside_union_restrict subset_Un_eq sup_left_idem)
+
+corollary nn24a: "(allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})\<subseteq>possibleAllocationsRel N G"
+using assms lm19 by (smt Int_iff lm34 mem_Collect_eq subsetI)
+corollary nn24b: "possibleAllocationsRel N G \<subseteq> allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G}"
+using assms lm19 Int_iff lm34 mem_Collect_eq subsetI lm50 is_partition_of_def
+by (smt Range_converse image_iff lll81 set_rev_mp)
+corollary nn24: "possibleAllocationsRel N G = (allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})" 
+(is "?L = ?R") proof -
+  have "?L \<subseteq> ?R" using nn24b by metis moreover have "?R \<subseteq> ?L" using nn24a by fast
+  ultimately show ?thesis by force
+qed
+corollary nn24d: assumes
+"(b \<in> possibleAllocationsRel N G)" shows "(b\<in>allocationsUniverse& Domain b \<subseteq> N & \<Union> Range b = G)" 
+using assms nn24 Int_Collect Int_iff nn24a nn24b by smt
+
+corollary nn24c: "b \<in> possibleAllocationsRel N G=(b\<in>allocationsUniverse& Domain b\<subseteq>N & \<Union>Range b = G)" 
+using assms nn24 Int_Collect Int_iff nn24a nn24b nn24d by smt
+
+end

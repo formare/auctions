@@ -225,9 +225,6 @@ where "Graph f = {(x, f x) | x . True}"
 definition toFunction (* inverts Graph *)
 where "toFunction R = (\<lambda> x . (R ,, x))"
 
-abbreviation "toFunctionWithFallback R fallback == (% x. if (x \<in> Domain R) then (R,,x) else fallback)"
-notation toFunctionWithFallback (infix "Else" 75)
-
 definition projector where "projector R =
 { (x,R``{x}) | x . 
 x \<in> Domain R 

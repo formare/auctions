@@ -1988,7 +1988,7 @@ qed
 lemma ll14: assumes "x\<in>Domain f" "runiq f" shows "f,,x \<in> Range f"
 using assms by (metis Range_iff eval_runiq_rel)
 
-lemma ll28: shows "Graph f,,x=f x"
+lemma ll28: "Graph f,,x=f x"
 proof -
 let ?P="%xx. True" let ?G="{(x, f x)|x. ?P x}"
 have "?P x" by fast then 

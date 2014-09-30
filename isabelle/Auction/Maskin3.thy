@@ -4,7 +4,7 @@ imports
 (* "~~/src/HOL/Cardinals/Cardinal_Order_Relation_Base" *) 
 (* SupInf *)
 "RelationProperties"
-"RelationMisc"
+Misc
 Real 
 Real_Vector_Spaces
 (*

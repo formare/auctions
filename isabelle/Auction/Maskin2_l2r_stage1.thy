@@ -19,7 +19,7 @@ imports
   Partitions
 *)
   RelationProperties 
-  RelationMisc
+  Misc
   
 
  (* SupInf SEQ *) Real

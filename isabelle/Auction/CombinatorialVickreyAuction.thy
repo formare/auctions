@@ -39,8 +39,8 @@ abbreviation "proceeds (b::altbids) (allo::allocation) == setsum b allo"
 abbreviation participants where "participants (a::allocation) == Domain a"
 abbreviation goods::"allocation => goods" where "goods (allo::allocation) == \<Union> (Range allo)"
 
-abbreviation "winningAllocationsRel N G (b::altbids) == 
-arg_max' (proceeds b) (possibleAllocationsRel N G)"
+abbreviation "winningAllocationsRel N G b == 
+arg_max' (setsum b) (possibleAllocationsRel N G)"
 
 text {* the set of value-maximising allocations (according to the bids submitted), i.e.\ the ``arg max''
   of @{const value_rel} on the set of all possible allocations *}
@@ -104,9 +104,9 @@ text {* the maximum sum of bids of all bidders except bidder @{text n}'s bid, co
 fun \<alpha> :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"
 where "\<alpha> G N b n = Max ((value_rel b) ` (possible_allocations_rel G (N - {n})))"
 
-abbreviation "alpha N G b n == Max ((proceeds b)`(possibleAllocationsRel (N-{n}) G))"
+abbreviation "alpha N G b n == Max ((setsum b)`(possibleAllocationsRel (N-{n}) G))"
 
-abbreviation "remainingValueRel N G t b n == proceeds b (winningAllocationRel N G t b -- n)"
+abbreviation "remainingValueRel N G t b n == setsum b (winningAllocationRel N G t b -- n)"
 
 text {* algorithmic version of @{text \<alpha>} *}
 fun \<alpha>_alg :: "goods \<Rightarrow> participant set \<Rightarrow> bids \<Rightarrow> participant \<Rightarrow> price"

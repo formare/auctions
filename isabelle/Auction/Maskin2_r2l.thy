@@ -16,7 +16,7 @@ theory Maskin2_r2l
 imports 
 Real_Vector_Spaces
 Maskin2_l2r_stage1
-RelationMisc
+Misc
 
 begin
 
