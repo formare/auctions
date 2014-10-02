@@ -464,6 +464,10 @@ have "vcga' N G b r \<in> allocationsUniverse" using CombiAuction58e assms by bl
 thus ?thesis using CombiAuction64c assms by fast
 qed
 
+(* lemma assumes "n \<in> Domain a" "a \<in> allAllocations' N G" "G\<noteq>{}" shows "a,,n \<noteq> {}"
+using assms sledgehammer
+*)
+
 lemma assumes "R,,,x \<noteq> {}" shows "x \<in> Domain R" using assms  
 proof - have "\<Union> (R``{x}) \<noteq> {}" using assms(1) by fast
 then have "R``{x} \<noteq> {}" by fast thus ?thesis by blast qed
@@ -471,7 +475,7 @@ then have "R``{x} \<noteq> {}" by fast thus ?thesis by blast qed
 lemma assumes "runiq f" and "x \<in> Domain f" shows "(f ,, x) \<in> Range f" using assms 
 by (rule eval_runiq_in_Range)
 
-theorem assumes "distinct G" "set G \<noteq> {}" "finite N" "g \<in> (vcga' N G b r),,,n" 
+theorem CombiAuction_OnlyGoodsAllocated: assumes "distinct G" "set G \<noteq> {}" "finite N" "g \<in> (vcga' N G b r),,,n" 
 shows "g \<in> set G" 
 proof - 
 let ?a="vcga' N G b r" 
@@ -485,10 +489,29 @@ moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) CombiAuct
 ultimately show ?thesis by blast
 qed
 
-theorem counterexample_CombiAuction64c: assumes "a \<in> allocationsUniverse" 
+(* theorem CombiAuction_PairwiseDisjointAllocations_Counter:
+assumes "distinct G" "set G \<noteq> {}" "finite N"  
+"n1 \<in> Domain (vcga' N G b r)" "n2 \<in> Domain (vcga' N G b r)" 
+shows "(vcga' N G b r),,,n1 \<inter> (vcga' N G b r),,,n2={}" 
+nitpick [card int = 1, card nat = 1, card "int \<times> 'a set" = 1, 
+         card "'a set list \<times> 'a set list" = 1, 
+         card "'b option" = 1, card "nat list list" = 1,
+         card "'a set list list" = 1, card "('a set \<times> int) set list list" = 1,
+    card "'a set list list list" = 1, card "real list" = 1,  card "real option" = 1,
+    card "'a list" = 1,   card "'a" = 1,  card "int list" = 1, card "nat list" = 1,
+    card "'a set list" = 1, card "(int \<times> 'a set) set list" = 1,
+    card "('a set \<times> int) set list" = 1,  card "'b" = 1, 
+verbose, show_consts]
+
+proof -
+have "vcga' N G b r \<in> allocationsUniverse" using CombiAuction58e assms by blast
+thus ?thesis using CombiAuction64c assms by fast
+qed *)
+
+(* theorem counterexample_CombiAuction64c: assumes "a \<in> allocationsUniverse" 
 "n1\<in> Domain a" "n2 \<in> Domain a"
 shows "a,,,n1 \<inter> a,,,n2={}" nitpick
-
+*)
 (*
 value "LinearCompletion (b00 Else 0) (int`N00) (set G00)"
   

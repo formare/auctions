@@ -18,7 +18,7 @@ See LICENSE file for details
 header {* Maximum components of vectors, and their properties *}
 
 theory Maximum
-imports Main 
+imports Main
 (* "~~/src/HOL/Library/AList" *)
 begin
 
