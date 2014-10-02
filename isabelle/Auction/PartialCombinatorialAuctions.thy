@@ -23,9 +23,9 @@ abbreviation "allStrictAllocations' N G == possibleAllocationsRel N G"
 abbreviation "allStrictAllocations'' N \<Omega> == allInjections \<inter> 
 {a. Domain a \<subseteq> N & Range a \<in> all_partitions \<Omega>}" 
 abbreviation "allStrictAllocations''' N G == allocationsUniverse\<inter>{a. Domain a \<subseteq> N & \<Union> Range a = G}"
-lemma nn28: "allStrictAllocations' N G=allStrictAllocations'' N G & 
-allStrictAllocations' N G=allStrictAllocations''' N G" using lm19 nn24 by metis
-lemma nn28b: "(a \<in> allStrictAllocations''' N G) = (a \<in> allocationsUniverse& Domain a \<subseteq> N & \<Union> Range a = G)"
+lemma CombiAuction28: "allStrictAllocations' N G=allStrictAllocations'' N G & 
+allStrictAllocations' N G=allStrictAllocations''' N G" using lm19 CombiAuction24 by metis
+lemma CombiAuction28b: "(a \<in> allStrictAllocations''' N G) = (a \<in> allocationsUniverse& Domain a \<subseteq> N & \<Union> Range a = G)"
 by force
 abbreviation "allAllocations' N \<Omega> == 
 (Outside' {addedBidder'}) ` (allStrictAllocations' (N \<union> {addedBidder'}) \<Omega>)"
@@ -33,36 +33,36 @@ abbreviation "allAllocations'' N \<Omega> ==
 (Outside' {addedBidder'}) ` (allStrictAllocations'' (N \<union> {addedBidder'}) \<Omega>)"
 abbreviation "allAllocations''' N \<Omega> == 
 (Outside' {addedBidder'}) ` (allStrictAllocations''' (N \<union> {addedBidder'}) \<Omega>)"
-lemma nn28c: 
+lemma CombiAuction28c: 
 "allAllocations' N G = allAllocations'' N G & allAllocations'' N G = allAllocations''' N G"
-using assms nn28 by metis
-corollary nn28d: "allAllocations' = allAllocations'' & allAllocations'' = allAllocations'''
-& allAllocations' = allAllocations'''" using nn28c by metis
-lemma nn32: "allAllocations' (N-{addedBidder'}) G \<subseteq> allAllocations' N G" using Outside_def by simp
+using assms CombiAuction28 by metis
+corollary CombiAuction28d: "allAllocations' = allAllocations'' & allAllocations'' = allAllocations'''
+& allAllocations' = allAllocations'''" using CombiAuction28c by metis
+lemma CombiAuction32: "allAllocations' (N-{addedBidder'}) G \<subseteq> allAllocations' N G" using Outside_def by simp
 
-lemma nn34: "(a \<in> allocationsUniverse) = (a \<in> allStrictAllocations''' (Domain a) (\<Union> Range a))"
+lemma CombiAuction34: "(a \<in> allocationsUniverse) = (a \<in> allStrictAllocations''' (Domain a) (\<Union> Range a))"
 by blast
-lemma nn35: assumes "N1 \<subseteq> N2" shows "allStrictAllocations''' N1 G \<subseteq> allStrictAllocations''' N2 G" 
+lemma CombiAuction35: assumes "N1 \<subseteq> N2" shows "allStrictAllocations''' N1 G \<subseteq> allStrictAllocations''' N2 G" 
 using assms by auto
-lemma nn36: assumes "a \<in> allStrictAllocations''' N G" shows "Domain (a -- x) \<subseteq> N-{x}" 
+lemma CombiAuction36: assumes "a \<in> allStrictAllocations''' N G" shows "Domain (a -- x) \<subseteq> N-{x}" 
 using assms Outside_def by fastforce
-lemma nn37: assumes "a \<in> allAllocations' N G" shows "a \<in> allocationsUniverse"
-using assms lm35 Outside_def image_iff nn24c by smt
-lemma nn38: assumes "a \<in> allAllocations' N G" shows "a \<in> allStrictAllocations''' (Domain a) (\<Union>Range a)"
-proof - show ?thesis using assms nn37 by blast qed
+lemma CombiAuction37: assumes "a \<in> allAllocations' N G" shows "a \<in> allocationsUniverse"
+using assms lm35 Outside_def image_iff CombiAuction24c by smt
+lemma CombiAuction38: assumes "a \<in> allAllocations' N G" shows "a \<in> allStrictAllocations''' (Domain a) (\<Union>Range a)"
+proof - show ?thesis using assms CombiAuction37 by blast qed
 lemma  assumes "N1 \<subseteq> N2" shows "allAllocations''' N1 G \<subseteq> allAllocations''' N2 G"
-using assms nn35 nn36 nn37 nn24c nn28b nn28 nn34 nn38 Outside_def by blast
-lemma nn39a: "{} \<in> allInjections" by (metis converse_empty mem_Collect_eq runiq_emptyrel)
-lemma nn39b: "{} \<in> allPartitionvalued" by (metis (lifting) Pow_bottom UN_iff lm36b)
-(* corollary nn39: "{} \<in> allocationsUniverse using nn39a nn39b by blast*)
+using assms CombiAuction35 CombiAuction36 CombiAuction37 CombiAuction24c CombiAuction28b CombiAuction28 CombiAuction34 CombiAuction38 Outside_def by blast
+lemma CombiAuction39a: "{} \<in> allInjections" by (metis converse_empty mem_Collect_eq runiq_emptyrel)
+lemma CombiAuction39b: "{} \<in> allPartitionvalued" by (metis (lifting) Pow_bottom UN_iff lm36b)
+(* corollary CombiAuction39: "{} \<in> allocationsUniverse using CombiAuction39a CombiAuction39b by blast*)
 lemma lll59b: "runiq (X\<times>{y})" using lll59 by (metis trivial_singleton)
 lemma lm37b: "{x}\<times>{y} \<in> allInjections" using lm37 by fastforce
-lemma nn40b: assumes "a \<in> allAllocations''' N G" shows "\<Union> Range a \<subseteq> G" using assms Outside_def by blast
-lemma nn41: "a \<in> allAllocations''' N G = 
+lemma CombiAuction40b: assumes "a \<in> allAllocations''' N G" shows "\<Union> Range a \<subseteq> G" using assms Outside_def by blast
+lemma CombiAuction41: "a \<in> allAllocations''' N G = 
 (EX aa. aa -- (addedBidder')=a & aa\<in>allStrictAllocations''' (N \<union> {addedBidder'}) G)" by blast
 
-lemma nn37e: assumes "a \<in> allocationsUniverse" "Domain a \<subseteq> N-{addedBidder'}" "\<Union> Range a \<subseteq> G" shows
-"a \<in> allAllocations''' N G" using assms nn41 
+lemma CombiAuction37e: assumes "a \<in> allocationsUniverse" "Domain a \<subseteq> N-{addedBidder'}" "\<Union> Range a \<subseteq> G" shows
+"a \<in> allAllocations''' N G" using assms CombiAuction41 
 proof -
 let ?i="addedBidder'" let ?Y="{G-\<Union> Range a}-{{}}" let ?b="{?i}\<times>?Y" let ?aa="a\<union>?b"
 let ?aa'="a +* ?b" 
@@ -74,8 +74,8 @@ have "?b \<subseteq> {(?i,G-\<Union> Range a)} - {(?i, {})}" by fastforce then h
 4: "Domain a \<inter> Domain ?b ={}" using assms by fast
 have "?aa \<in> allocationsUniverse" using 1 2 3 4 by (rule lm23)
 then have "?aa \<in> allStrictAllocations''' (Domain ?aa) 
-(\<Union> Range ?aa)" unfolding nn34 by metis then have 
-"?aa \<in> allStrictAllocations''' (N\<union>{?i}) (\<Union> Range ?aa)" using nn35 assms paste_def by auto
+(\<Union> Range ?aa)" unfolding CombiAuction34 by metis then have 
+"?aa \<in> allStrictAllocations''' (N\<union>{?i}) (\<Union> Range ?aa)" using CombiAuction35 assms paste_def by auto
 moreover have "Range ?aa = Range a \<union> ?Y" by blast then moreover have 
 "\<Union> Range ?aa = G" using Un_Diff_cancel Un_Diff_cancel2 Union_Un_distrib Union_empty Union_insert  
 by (metis (lifting, no_types) assms(3) cSup_singleton subset_Un_eq) moreover have 
@@ -84,56 +84,56 @@ ultimately have "?aa' \<in> allStrictAllocations''' (N\<union>{?i}) G" by simp
 moreover have "Domain ?b \<subseteq> {?i}" by fast then moreover have "?aa' -- ?i = a -- ?i" using ll19 
 by (smt Un_empty_right empty_subsetI insert_subset subset_Un_eq subset_antisym subset_insert)
 moreover have "... = a" using Outside_def assms(2) by auto 
-ultimately show ?thesis using nn41 by auto
+ultimately show ?thesis using CombiAuction41 by auto
 qed
 
-lemma nn23: 
+lemma CombiAuction23: 
 "a\<in>allStrictAllocations' N \<Omega>=(a\<in>allInjections & Domain a\<subseteq>N & Range a\<in>all_partitions \<Omega>)" 
 by (metis (full_types) lm19c)
 
-lemma nn37b: assumes "a \<in> allAllocations''' N G" shows "Domain a \<subseteq> N-{addedBidder'} & a \<in> allocationsUniverse"  
+lemma CombiAuction37b: assumes "a \<in> allAllocations''' N G" shows "Domain a \<subseteq> N-{addedBidder'} & a \<in> allocationsUniverse"  
 proof -
 let ?i="addedBidder'" obtain aa where
-0: "a=aa -- ?i & aa \<in> allStrictAllocations''' (N \<union> {?i}) G" using assms(1) nn41 by blast
-then have "Domain aa \<subseteq> N \<union> {?i}" using nn23 by blast
+0: "a=aa -- ?i & aa \<in> allStrictAllocations''' (N \<union> {?i}) G" using assms(1) CombiAuction41 by blast
+then have "Domain aa \<subseteq> N \<union> {?i}" using CombiAuction23 by blast
 then have "Domain a \<subseteq> N - {?i}" using 0 Outside_def by blast
-moreover have "a \<in> allAllocations' N G" using assms nn28d by metis
-then moreover have "a \<in> allocationsUniverse" using nn37 by blast
+moreover have "a \<in> allAllocations' N G" using assms CombiAuction28d by metis
+then moreover have "a \<in> allocationsUniverse" using CombiAuction37 by blast
 ultimately show ?thesis by blast
 qed
 
-corollary nn37c: assumes "a \<in> allAllocations''' N G" shows 
+corollary CombiAuction37c: assumes "a \<in> allAllocations''' N G" shows 
 "a \<in> allocationsUniverse & Domain a \<subseteq> N-{addedBidder'} & \<Union> Range a \<subseteq> G"
 proof -
-have "a \<in> allocationsUniverse" using assms nn37b by blast
-moreover have "Domain a \<subseteq> N-{addedBidder'}" using assms nn37b by blast
-moreover have "\<Union> Range a \<subseteq> G" using assms nn40b by blast
+have "a \<in> allocationsUniverse" using assms CombiAuction37b by blast
+moreover have "Domain a \<subseteq> N-{addedBidder'}" using assms CombiAuction37b by blast
+moreover have "\<Union> Range a \<subseteq> G" using assms CombiAuction40b by blast
 ultimately show ?thesis by blast
 qed
 
-corollary nn37d: 
+corollary CombiAuction37d: 
 "(a\<in>allAllocations''' N G)=(a\<in>allocationsUniverse& Domain a \<subseteq> N-{addedBidder'} & \<Union> Range a \<subseteq> G)" 
-using nn37c nn37e by (metis (mono_tags))
+using CombiAuction37c CombiAuction37e by (metis (mono_tags))
 
-lemma nn42: "(a\<in>allocationsUniverse& Domain a \<subseteq> N-{addedBidder'} & \<Union> Range a \<subseteq> G) = 
+lemma CombiAuction42: "(a\<in>allocationsUniverse& Domain a \<subseteq> N-{addedBidder'} & \<Union> Range a \<subseteq> G) = 
 (a\<in>allocationsUniverse& a\<in>{aa. Domain aa \<subseteq> N-{addedBidder'} & \<Union> Range aa \<subseteq> G})" 
 by (metis (lifting, no_types) mem_Collect_eq)
 
-corollary nn37f: "(a\<in>allAllocations''' N G)=
+corollary CombiAuction37f: "(a\<in>allAllocations''' N G)=
 (a\<in>allocationsUniverse& a\<in>{aa. Domain aa \<subseteq> N-{addedBidder'} & \<Union> Range aa \<subseteq> G})" (is "?L = ?R") 
 proof -
-  have "?L = (a\<in>allocationsUniverse& Domain a \<subseteq> N-{addedBidder'} & \<Union> Range a \<subseteq> G)" by (rule nn37d)
-  moreover have "... = ?R" by (rule nn42) ultimately show ?thesis by presburger
+  have "?L = (a\<in>allocationsUniverse& Domain a \<subseteq> N-{addedBidder'} & \<Union> Range a \<subseteq> G)" by (rule CombiAuction37d)
+  moreover have "... = ?R" by (rule CombiAuction42) ultimately show ?thesis by presburger
 qed
 
-corollary nn37g: "a\<in>allAllocations''' N G=
+corollary CombiAuction37g: "a\<in>allAllocations''' N G=
 (a\<in> (allocationsUniverse \<inter> {aa. Domain aa \<subseteq> N-{addedBidder'} & \<Union> Range aa \<subseteq> G}))" 
-using nn37f by (metis (mono_tags) Int_iff)
+using CombiAuction37f by (metis (mono_tags) Int_iff)
 
 abbreviation "allAllocations'''' N G == 
 allocationsUniverse\<inter>{aa. Domain aa\<subseteq>N-{addedBidder'} & \<Union>Range aa\<subseteq>G}"
 
-theorem nn44: assumes "a \<in> allAllocations'''' N G" shows "a -- n \<in> allAllocations'''' (N-{n}) G"
+theorem CombiAuction44: assumes "a \<in> allAllocations'''' N G" shows "a -- n \<in> allAllocations'''' (N-{n}) G"
 proof -
   let ?bb=addedBidder' let ?d=Domain let ?r=Range let ?X2="{aa. ?d aa\<subseteq>N-{?bb} & \<Union>?r aa\<subseteq>G}" 
   let ?X1="{aa. ?d aa\<subseteq>N-{n}-{?bb} & \<Union>?r aa\<subseteq>G}" 
@@ -146,21 +146,21 @@ proof -
   "a--n \<in> allocationsUniverse" using assms by (smt Int_iff lm35d) ultimately show ?thesis by blast
 qed
 
-corollary nn37h: "allAllocations''' N G=allAllocations'''' N G"
-(is "?L=?R") proof - {fix a have "a \<in> ?L = (a \<in> ?R)" by (rule nn37g)} thus ?thesis by blast qed
+corollary CombiAuction37h: "allAllocations''' N G=allAllocations'''' N G"
+(is "?L=?R") proof - {fix a have "a \<in> ?L = (a \<in> ?R)" by (rule CombiAuction37g)} thus ?thesis by blast qed
 
-theorem nn28e: "allAllocations'=allAllocations'' & allAllocations''=allAllocations''' &
-allAllocations'''=allAllocations''''" using nn37h nn28d by metis
+theorem CombiAuction28e: "allAllocations'=allAllocations'' & allAllocations''=allAllocations''' &
+allAllocations'''=allAllocations''''" using CombiAuction37h CombiAuction28d by metis
 
-corollary nn37i: assumes "G1 \<subseteq> G2" shows "allAllocations'''' N G1 \<subseteq> allAllocations'''' N G2"
+corollary CombiAuction37i: assumes "G1 \<subseteq> G2" shows "allAllocations'''' N G1 \<subseteq> allAllocations'''' N G2"
 using assms by blast
 
-corollary nn33: assumes "G1 \<subseteq> G2" shows "allAllocations''' N G1 \<subseteq> allAllocations''' N G2"
-using assms nn37i nn37h 
+corollary CombiAuction33: assumes "G1 \<subseteq> G2" shows "allAllocations''' N G1 \<subseteq> allAllocations''' N G2"
+using assms CombiAuction37i CombiAuction37h 
 proof -
-have "allAllocations''' N G1 = allAllocations'''' N G1" by (rule nn37h)
-moreover have "... \<subseteq> allAllocations'''' N G2" using assms(1) by (rule nn37i)
-moreover have "... = allAllocations''' N G2" using nn37h by metis
+have "allAllocations''' N G1 = allAllocations'''' N G1" by (rule CombiAuction37h)
+moreover have "... \<subseteq> allAllocations'''' N G2" using assms(1) by (rule CombiAuction37i)
+moreover have "... = allAllocations''' N G2" using CombiAuction37h by metis
 ultimately show ?thesis by auto
 qed
 
@@ -179,7 +179,7 @@ corollary lm43d: assumes "a \<in> allocationsUniverse" shows
 "(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse" using assms lm43b 
 by fastforce
 
-lemma nn27c: "addedBidder' \<notin> int `N" by fastforce
+lemma CombiAuction27c: "addedBidder' \<notin> int `N" by fastforce
 
 abbreviation "randomBids N \<Omega> b random==resolvingBid (N\<union>{addedBidder'}) \<Omega> b random"
 
@@ -200,51 +200,51 @@ maximalStrictAllocations' N (set G) b" by auto
 abbreviation "vcga' N G b r == (Union
 (arg_max' (setsum (randomBids N G b r)) (maximalStrictAllocations' N (set G) b))) -- addedBidder'"
 
-corollary nn58: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+corollary CombiAuction58: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 "Union
 (arg_max' (setsum (randomBids N G b r)) (maximalStrictAllocations' N (set G) b)) \<in>
-(maximalStrictAllocations' N (set G) b)" (is "Union ?X \<in> ?R") using assms mm92b nn57
+(maximalStrictAllocations' N (set G) b)" (is "Union ?X \<in> ?R") using assms mm92b CombiAuction57
 proof -
 have "card ?X=1" using assms by (rule mm92b) moreover have "?X \<subseteq> ?R" by auto
-ultimately show ?thesis using nn57 by blast
+ultimately show ?thesis using CombiAuction57 by blast
 qed
 
-corollary nn58b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
+corollary CombiAuction58b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "vcga' N G b r \<in> (Outside' {addedBidder'})`(maximalStrictAllocations' N (set G) b)"
-using assms nn58 by blast
+using assms CombiAuction58 by blast
 
-lemma nn62: "(Outside' {addedBidder'})`(maximalStrictAllocations' N G b) \<subseteq> allAllocations' N G"
+lemma CombiAuction62: "(Outside' {addedBidder'})`(maximalStrictAllocations' N G b) \<subseteq> allAllocations' N G"
 using Outside_def by force
 
-theorem nn58d: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
-"vcga' N G b r \<in> allAllocations' N (set G)" (is "?a \<in> ?A") using assms nn58b nn62 
+theorem CombiAuction58d: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
+"vcga' N G b r \<in> allAllocations' N (set G)" (is "?a \<in> ?A") using assms CombiAuction58b CombiAuction62 
 proof - have "?a \<in> (Outside' {addedBidder'})`(maximalStrictAllocations' N (set G) b)" 
-using assms by (rule nn58b) thus ?thesis using nn62  by fastforce qed
+using assms by (rule CombiAuction58b) thus ?thesis using CombiAuction62  by fastforce qed
 
-corollary nn59b: assumes "\<forall>X. X \<in> Range a \<longrightarrow>b (addedBidder', X)=0" "finite a" shows 
+corollary CombiAuction59b: assumes "\<forall>X. X \<in> Range a \<longrightarrow>b (addedBidder', X)=0" "finite a" shows 
 "setsum b a = setsum b (a--addedBidder')"
 proof -
 let ?n=addedBidder' have "finite (a||{?n})" using assms restrict_def by (metis finite_Int) 
 moreover have "\<forall>z \<in> a||{?n}. b z=0" using assms restrict_def by fastforce
-ultimately have "setsum b (a||{?n}) = 0" using assms restrict_def by (metis setsum.neutral)
-thus ?thesis using nn59 assms(2) by (metis comm_monoid_add_class.add.right_neutral)
+ultimately have "setsum b (a||{?n}) = 0" using assms by (metis setsum.neutral)
+thus ?thesis using CombiAuction59 assms(2) by (metis comm_monoid_add_class.add.right_neutral)
 qed
 
-corollary nn59c: assumes "\<forall>a\<in>A. finite a & (\<forall> X. X\<in>Range a \<longrightarrow> b (addedBidder', X)=0)"
-shows "{setsum b a| a. a\<in>A}={setsum b (a -- addedBidder')| a. a\<in>A}" using assms nn59b 
-by (metis (lifting, no_types) Collect_cong)
-corollary nn58c: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+corollary CombiAuction59c: assumes "\<forall>a\<in>A. finite a & (\<forall> X. X\<in>Range a \<longrightarrow> b (addedBidder', X)=0)"
+shows "{setsum b a| a. a\<in>A}={setsum b (a -- addedBidder')| a. a\<in>A}" using assms CombiAuction59b 
+by (metis (lifting, no_types))
+corollary CombiAuction58c: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 "EX a. ((a \<in> (maximalStrictAllocations' N (set G) b)) 
 & (vcga' N G b r = a -- addedBidder') 
 & (a \<in> arg_max' (setsum b) (allStrictAllocations' ({addedBidder'}\<union>N) (set G)))
 )" (is "EX a. _ & _ & a \<in> ?X")
-using assms nn58b arg_max'_def by fast
+using assms CombiAuction58b arg_max'_def by fast
 
 lemma assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "\<forall>aa\<in>allStrictAllocations' ({addedBidder'}\<union>N) (set G). finite aa"
 using assms by (metis List.finite_set mm44)
 
-theorem nn61: assumes "distinct G" "set G \<noteq> {}" "finite N" 
+theorem CombiAuction61: assumes "distinct G" "set G \<noteq> {}" "finite N" 
 "\<forall>aa\<in>allStrictAllocations' ({addedBidder'}\<union>N) (set G). \<forall> X \<in> Range aa. b (addedBidder', X)=0"
 (is "\<forall>aa\<in>?X. _") shows "setsum b (vcga' N G b r)=Max{setsum b aa| aa. aa \<in> allAllocations' N (set G)}"
 (*MC: adequacy theorem *)
@@ -252,17 +252,17 @@ proof -
 let ?n=addedBidder' let ?s=setsum let ?a="vcga' N G b r" obtain a where 
 0: "a \<in> maximalStrictAllocations' N (set G) b & ?a=a--?n & 
 (a\<in>arg_max' (setsum b) (allStrictAllocations'({addedBidder'}\<union>N)(set G)))"(is "_ & ?a=_ & a\<in>?Z")
-using assms(1,2,3) nn58c by blast have 
+using assms(1,2,3) CombiAuction58c by blast have 
 1: "\<forall>aa\<in>?X. finite aa & (\<forall> X. X\<in>Range aa \<longrightarrow> b (?n, X)=0)" using assms(4) 
 List.finite_set mm44 by metis have 
 2: "a \<in> ?X" using 0 by auto have "a \<in> ?Z" using 0 by fast 
 then have "a \<in> ?X\<inter>{x. ?s b x = Max (?s b ` ?X)}" using mm78 by simp
 then have "?s b a = Max {?s b aa| aa. aa\<in>?X}" using Collect_cong Int_iff image_Collect_mem mem_Collect_eq by smt
-moreover have "{?s b aa| aa. aa\<in>?X} = {?s b (aa--?n)| aa. aa\<in>?X}" using 1 by (rule nn59c)
+moreover have "{?s b aa| aa. aa\<in>?X} = {?s b (aa--?n)| aa. aa\<in>?X}" using 1 by (rule CombiAuction59c)
 moreover have "... = {?s b aa| aa. aa \<in> Outside' {?n}`?X}" by blast
 moreover have "... = {?s b aa| aa. aa \<in> allAllocations' N (set G)}" by simp
 ultimately have "Max {?s b aa| aa. aa \<in> allAllocations' N (set G)} = ?s b a" by presburger
-moreover have "... = ?s b (a--?n)" using 1 2 nn59b by (metis (lifting, no_types))
+moreover have "... = ?s b (a--?n)" using 1 2 CombiAuction59b by (metis (lifting, no_types))
 ultimately show "?s b ?a=Max{?s b aa| aa. aa \<in> allAllocations' N (set G)}" using 0 by presburger
 qed
 
@@ -322,24 +322,24 @@ qed
 
 
 
-corollary nn61b: assumes "distinct G" "set G \<noteq> {}" "finite N" "\<forall> X. b (addedBidder', X)=0" 
+corollary CombiAuction61b: assumes "distinct G" "set G \<noteq> {}" "finite N" "\<forall> X. b (addedBidder', X)=0" 
 shows "setsum b (vcga' N G b r)=Max{setsum b aa| aa. aa \<in> allAllocations' N (set G)}"
-using assms nn61 by blast
+using assms CombiAuction61 by blast
 
-corollary nn58e: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
-"vcga' N G b r \<in> allocationsUniverse & \<Union> Range (vcga' N G b r) \<subseteq> set G" using assms nn58b 
+corollary CombiAuction58e: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+"vcga' N G b r \<in> allocationsUniverse & \<Union> Range (vcga' N G b r) \<subseteq> set G" using assms CombiAuction58b 
 proof -
 let ?a="vcga' N G b r" let ?n=addedBidder'
 obtain a where 
 0: "?a=a -- addedBidder' & a \<in> maximalStrictAllocations' N (set G) b"
-using assms nn58b by blast
+using assms CombiAuction58b by blast
 then moreover have 
 1: "a \<in> allStrictAllocations' ({?n}\<union>N) (set G)" by auto
 moreover have "maximalStrictAllocations' N (set G) b \<subseteq> allocationsUniverse" 
 by (metis (lifting, mono_tags) lm03 lm50 subset_trans)
 ultimately moreover have "?a=a -- addedBidder' & a \<in> allocationsUniverse" by blast
 then have "?a \<in> allocationsUniverse" using lm35d by auto
-moreover have "\<Union> Range a= set G" using nn24d 1 by metis
+moreover have "\<Union> Range a= set G" using CombiAuction24d 1 by metis
 then moreover have "\<Union> Range ?a \<subseteq> set G" using Outside_def 0 by fast
 ultimately show ?thesis using lm35d Outside_def by blast
 qed
@@ -349,19 +349,19 @@ lemma "vcga' N G b r = Union ((arg_max' \<circ> setsum) (randomBids N G b r)
 abbreviation "vcgp' N G b r n ==
 (Max (setsum b ` (allAllocations' (N-{n}) (set G)))) - (setsum b (vcga' N G b r -- n))"
 
-lemma nn63: assumes "x \<in> X" "finite X" shows "Max (f`X) >= f x" (is "?L >= ?R") using assms 
+lemma CombiAuction63: assumes "x \<in> X" "finite X" shows "Max (f`X) >= f x" (is "?L >= ?R") using assms 
 by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
-theorem nn44b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
+theorem CombiAuction44b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "vcgp' N G (b::_=>price) r n >= 0" 
 proof - 
 let ?a="vcga' N G b r" let ?A=allAllocations' let ?A'=allAllocations'''' let ?f="setsum b" 
-have "?a \<in> ?A N (set G)" using assms by (rule nn58d)
-then have "?a \<in> ?A' N (set G)" using nn28e by metis then have "?a -- n \<in> ?A' (N-{n}) (set G)" by (rule nn44) 
-then have "?a -- n \<in> ?A (N-{n}) (set G)" using nn28e by metis
+have "?a \<in> ?A N (set G)" using assms by (rule CombiAuction58d)
+then have "?a \<in> ?A' N (set G)" using CombiAuction28e by metis then have "?a -- n \<in> ?A' (N-{n}) (set G)" by (rule CombiAuction44) 
+then have "?a -- n \<in> ?A (N-{n}) (set G)" using CombiAuction28e by metis
 moreover have "finite (?A (N-{n}) (set G))" 
 by (metis List.finite_set assms(3) finite.emptyI finite_Diff finite_Un finite_imageI finite_insert lm59) 
-ultimately have "Max (?f`(?A (N-{n}) (set G))) >= ?f (?a -- n)" (is "?L >= ?R") by (rule nn63)
+ultimately have "Max (?f`(?A (N-{n}) (set G))) >= ?f (?a -- n)" (is "?L >= ?R") by (rule CombiAuction63)
 then have "?L - ?R >=0" by linarith thus ?thesis by fast
 qed
 
@@ -383,12 +383,12 @@ abbreviation "b00 ==
 
 abbreviation "Goods bids == \<Union>((snd\<circ>fst)`bids)"
 
-corollary nn45: assumes "a \<in> allAllocations'''' N G" shows "Range a \<in> allPartitions" using assms 
-Outside_def 
+corollary CombiAuction45: assumes "a \<in> allAllocations'''' N G" shows "Range a \<in> allPartitions" using assms 
+
 by (metis (lifting, mono_tags) Int_iff lm22 mem_Collect_eq)
 
-corollary nn45a: assumes "a \<in> allAllocations' N G" shows "Range a \<in> allPartitions"
-proof - have "a \<in> allAllocations'''' N G" using assms nn28e by metis thus ?thesis by (rule nn45) qed
+corollary CombiAuction45a: assumes "a \<in> allAllocations' N G" shows "Range a \<in> allPartitions"
+proof - have "a \<in> allAllocations'''' N G" using assms CombiAuction28e by metis thus ?thesis by (rule CombiAuction45) qed
 
 corollary assumes 
 "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
@@ -409,7 +409,7 @@ lemma "terminatingAuctionRel N G b r =
 term "(Union \<circ> (arg_max' (setsum (resolvingBid N G b (nat r)))) \<circ> (arg_max' (setsum b)))
 (possibleAllocationsRel N (set G))"
 
-lemma nn55: "tiebids a N G = toFunction (tiebids' a N G)" by simp
+lemma CombiAuction55: "tiebids a N G = toFunction (tiebids' a N G)" by simp
 
 lemma "maximalStrictAllocations' N G b=winningAllocationsRel ({addedBidder'} \<union> N) G b" by fast
 
@@ -429,15 +429,15 @@ qed then have
 0: "a \<inter> Domain ?g'=a & aa \<inter> Domain ?g'=aa" by blast moreover have 
 1: "finite a & finite aa" using assms by (metis mm44) moreover have 
 2: "runiq ?g'"  by (rule mm62)
-ultimately moreover have "?s (toFunction ?g') (a \<inter> (Domain ?g')) = ?s' ?g' a" using nn48d by fast
-moreover have "?s (toFunction ?g') (aa \<inter> (Domain ?g')) = ?s' ?g' aa" using nn48d 1 2 by blast
-ultimately have "?s ?g a = ?s' ?g' a & ?s ?g aa = ?s' ?g' aa" using nn55 by auto 
+ultimately moreover have "?s (toFunction ?g') (a \<inter> (Domain ?g')) = ?s' ?g' a" using CombiAuction48d by fast
+moreover have "?s (toFunction ?g') (aa \<inter> (Domain ?g')) = ?s' ?g' aa" using CombiAuction48d 1 2 by blast
+ultimately have "?s ?g a = ?s' ?g' a & ?s ?g aa = ?s' ?g' aa" using CombiAuction55 by auto 
 moreover have "?s ?g aa < ?s ?g a" using assms by (rule mm70d)
 ultimately moreover have "?s ?g aa < ?s' ?g' a" by presburger
 ultimately show ?thesis by presburger  
 qed
 
-lemma nn64: assumes "a \<in> allocationsUniverse" 
+lemma CombiAuction64: assumes "a \<in> allocationsUniverse" 
 "n1 \<in> Domain a" "n2 \<in> Domain a"
 "n1 \<noteq> n2" 
 shows "a,,n1 \<inter> a,,n2={}" using assms is_partition_def lm22 mem_Collect_eq 
@@ -450,18 +450,18 @@ by (metis (lifting, no_types) converse.intros eval_runiq_rel mem_Collect_eq runi
 ultimately show ?thesis using is_partition_def by (metis (lifting, no_types) assms(3) eval_runiq_in_Range mem_Collect_eq)
 qed
 
-lemma nn64c: assumes "a \<in> allocationsUniverse" 
+lemma CombiAuction64c: assumes "a \<in> allocationsUniverse" 
 "n1 \<in> Domain a" "n2 \<in> Domain a"
 "n1 \<noteq> n2" 
-shows "a,,,n1 \<inter> a,,,n2={}" using assms nn64 lll82 by fastforce 
+shows "a,,,n1 \<inter> a,,,n2={}" using assms CombiAuction64 lll82 by fastforce 
 
-theorem nn64b:
+theorem CombiAuction_PairwiseDisjointAllocations:
 assumes "distinct G" "set G \<noteq> {}" "finite N"  
 "n1 \<in> Domain (vcga' N G b r)" "n2 \<in> Domain (vcga' N G b r)" "n1 \<noteq> n2" 
 shows "(vcga' N G b r),,,n1 \<inter> (vcga' N G b r),,,n2={}"  
 proof -
-have "vcga' N G b r \<in> allocationsUniverse" using nn58e assms by blast
-thus ?thesis using nn64c assms by fast
+have "vcga' N G b r \<in> allocationsUniverse" using CombiAuction58e assms by blast
+thus ?thesis using CombiAuction64c assms by fast
 qed
 
 lemma assumes "R,,,x \<noteq> {}" shows "x \<in> Domain R" using assms  
@@ -475,17 +475,17 @@ theorem assumes "distinct G" "set G \<noteq> {}" "finite N" "g \<in> (vcga' N G 
 shows "g \<in> set G" 
 proof - 
 let ?a="vcga' N G b r" 
-have "?a \<in> allocationsUniverse" using assms(1,2,3) nn58e by blast
+have "?a \<in> allocationsUniverse" using assms(1,2,3) CombiAuction58e by blast
 then have "runiq ?a" using assms(1,2,3) by blast
 moreover have "n \<in> Domain ?a" using assms(4) eval_rel_def by fast
 ultimately moreover have "?a,,n \<in> Range ?a" using eval_runiq_in_Range by fast 
 ultimately have "?a,,,n \<in> Range ?a" using lll82 by fastforce
 then have "g \<in> \<Union> Range ?a" using assms by blast 
-moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) nn58e by fast
+moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) CombiAuction58e by fast
 ultimately show ?thesis by blast
 qed
 
-theorem counterexample_nn64c: assumes "a \<in> allocationsUniverse" 
+theorem counterexample_CombiAuction64c: assumes "a \<in> allocationsUniverse" 
 "n1\<in> Domain a" "n2 \<in> Domain a"
 shows "a,,,n1 \<inter> a,,,n2={}" nitpick
 
