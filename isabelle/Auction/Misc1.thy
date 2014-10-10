@@ -9,11 +9,12 @@ Real_Vector_Spaces (*for ll57 lll62*)
 
 begin
 
-lemma nn56: "card X=1 = (X={the_elem X})" 
+lemma CombiAuction56: "card X=1 = (X={the_elem X})" 
 by (smt card_eq_SucD card_gt_0_imp_non_empty card_insert_disjoint finite.emptyI insert_absorb insert_not_empty the_elem_eq)
-lemma nn57: assumes "card X=1" "X \<subseteq> Y" shows "Union X \<in> Y" using assms nn56 by (metis cSup_singleton insert_subset)
-lemma nn57b: assumes "card X=1" "X \<subseteq> Y" shows "the_elem X \<in> Y" using assms 
-by (metis (full_types) insert_subset nn56)
+lemma nn56: "card X=1 = (X={the_elem X})" sorry
+lemma nn57: assumes "card X=1" "X \<subseteq> Y" shows "Union X \<in> Y" using assms nn56  cSup_singleton insert_subset
+sorry
+lemma nn57b: assumes "card X=1" "X \<subseteq> Y" shows "the_elem X \<in> Y" using assms by (metis (full_types) insert_subset nn56)
 
 corollary ll52b: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis ll52 sup_commute)
 lemma assumes "card X = 1" shows "X = {the_elem X}" using assms by (smt card_eq_SucD the_elem_eq)
@@ -57,9 +58,9 @@ lemma mm55b: "{(fst pair, {y})| y. y \<in>  snd pair} = {fst pair} \<times> {{y}
 
 lemma mm71: "x \<in> X = ({x} \<in> finestpart X)" using finestpart_def by force
 
-lemma nn43: "{(x,X)}-{(x,{})} = {x}\<times>({X}-{{}})" by blast
+lemma CombiAuction43: "{(x,X)}-{(x,{})} = {x}\<times>({X}-{{}})" by blast
 
-lemma nn11: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
+lemma CombiAuction11: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
 
 lemma mm85: "arg_max' f {x} = {x}" using arg_max'_def by auto
 
@@ -144,7 +145,7 @@ lemma "inj_on  (%a. ((fst a, fst (snd a)), snd (snd a))) UNIV"
 by (metis (lifting, mono_tags) Pair_fst_snd_eq Pair_inject injI)
 lemma "(X={the_elem X}) = (card X=1)" 
 by (smt card_empty card_eq_SucD card_insert_disjoint finite.emptyI insert_absorb insert_not_empty the_elem_eq)
-lemma nn27: assumes "finite X" "x > Max X" shows "x \<notin> X" using assms Max.coboundedI by (metis leD)
+lemma CombiAuction27: assumes "finite X" "x > Max X" shows "x \<notin> X" using assms Max.coboundedI by (metis leD)
 
 lemma mm86: assumes "finite A" "A \<noteq> {}" shows "Max (f`A) \<in> f`A" 
 using assms by (metis Max_in finite_imageI image_is_empty)
@@ -153,10 +154,10 @@ lemma "arg_max' f A \<subseteq> f -` {Max (f ` A)}" by force
 
 lemma mm78: "arg_max' f A = A \<inter>{ x . f x = Max (f ` A) }" by auto
 
-lemma nn60: "(x \<in> arg_max' f X) = (x \<in> X & f x = Max {f xx| xx. xx \<in> X})" using arg_max'_def 
+lemma CombiAuction60: "(x \<in> arg_max' f X) = (x \<in> X & f x = Max {f xx| xx. xx \<in> X})" using arg_max'_def 
 by (smt Collect_cong Int_iff image_Collect_mem mem_Collect_eq mm78)
 
-corollary nn59: assumes "finite g" shows "setsum f g = setsum f (g outside X) + (setsum f (g||X))" 
+corollary CombiAuction59: assumes "finite g" shows "setsum f g = setsum f (g outside X) + (setsum f (g||X))" 
 proof -
 let ?A="g outside X" let ?B="g||X"
 have "finite ?A" using assms(1) Outside_def by (metis finite_Diff)
@@ -265,13 +266,13 @@ using assms mm23 by (metis card_seteq le_iff_inf order_refl)
 lemma "toFunction (Graph f)=f" (is "?L=_")
 proof-{fix x have "?L x=f x" unfolding toFunction_def ll28 by metis}thus ?thesis by blast qed
 
-lemma nn29: "R outside X \<subseteq> R" by (metis outside_union_restrict subset_Un_eq sup_left_idem)
+lemma CombiAuction29: "R outside X \<subseteq> R" by (metis outside_union_restrict subset_Un_eq sup_left_idem)
 
-lemma nn30a: "Range(f outside X) \<supseteq> (Range f)-(f``X)" using assms Outside_def by blast
-lemma nn30b: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) \<subseteq> (Range f)-(f``X)" using assms
+lemma CombiAuction30a: "Range(f outside X) \<supseteq> (Range f)-(f``X)" using assms Outside_def by blast
+lemma CombiAuction30b: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) \<subseteq> (Range f)-(f``X)" using assms
 Diff_triv lll78 lll85b Diff_iff ImageE Range_iff subsetI by smt
-lemma nn30: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) = (Range f)-(f``X)" 
-using assms nn30a nn30b by (metis order_class.order.antisym)
+lemma CombiAuction30: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) = (Range f)-(f``X)" 
+using assms CombiAuction30a CombiAuction30b by (metis order_class.order.antisym)
 
 lemma lm40: assumes "runiq (R^-1)" "runiq R" "X1 \<inter> X2 = {}" shows "R``X1 \<inter> (R``X2) = {}"
 using assms by (metis disj_Domain_imp_disj_Image inf_assoc inf_bot_right)
@@ -418,17 +419,17 @@ qed
 lemma mm84g: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []" 
 using assms filterpositions2_def mm84f mm84c by metis
 
-lemma nn06: "(nth l) ` set ([n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)]) \<subseteq> X\<inter>set l" by force
-corollary nn06b: "(nth l)` set (filterpositions2 (%x.(x\<in>X)) l) \<subseteq> X \<inter>  set l" using filterpositions2_def nn06
+lemma CombiAuction06: "(nth l) ` set ([n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)]) \<subseteq> X\<inter>set l" by force
+corollary CombiAuction06b: "(nth l)` set (filterpositions2 (%x.(x\<in>X)) l) \<subseteq> X \<inter>  set l" using filterpositions2_def CombiAuction06
 proof -
 have " filterpositions2 (%x.(x\<in>X)) l= [n. n \<leftarrow> [0..<size l], (%x. (x\<in>X)) (l!n)]" 
 using filterpositions2_def by blast
-moreover have "(nth l) ` set [n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)] \<subseteq> X\<inter>set l" by (rule nn06) 
+moreover have "(nth l) ` set [n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)] \<subseteq> X\<inter>set l" by (rule CombiAuction06) 
 ultimately show ?thesis by presburger
 qed
 
 lemma "(n\<in>{0..<N}) = ((n::nat) < N)" using atLeast0LessThan lessThan_iff by metis
-lemma nn01: assumes "X \<subseteq> {0..<size list}" shows "(nth list)`X \<subseteq> set list" 
+lemma CombiAuction01: assumes "X \<subseteq> {0..<size list}" shows "(nth list)`X \<subseteq> set list" 
 using assms atLeastLessThan_def atLeast0LessThan lessThan_iff by auto
 lemma mm99: "set ([n. n \<leftarrow> [0..<size l], P (l!n)]) \<subseteq> {0..<size l}" by force
 lemma mm99b: "set (filterpositions2 pre list) \<subseteq> {0..<size list}" using filterpositions2_def mm99 by metis
@@ -497,22 +498,22 @@ lemma mm83: assumes "l \<noteq> []" shows "perm2 l n \<noteq> []"
 using assms perm2_def perm2.simps(2) rotate_is_Nil_conv by (metis neq_Nil_conv)
 lemma mm98: "set (takeAll pre list) = ((nth list) ` set (filterpositions2 pre list))" by simp
 
-corollary nn06c: "set (takeAll (%x.(x\<in>X)) l) \<subseteq> X\<inter>set l" using nn06b mm98 by metis
+corollary CombiAuction06c: "set (takeAll (%x.(x\<in>X)) l) \<subseteq> X\<inter>set l" using CombiAuction06b mm98 by metis
 
-corollary nn02: "set (takeAll pre list) \<subseteq> set list" using mm99b mm98 nn01 by metis
-lemma nn03: "set (insertAt x l n) = {x} \<union> set l" by simp
-lemma nn04a: "\<forall>n. set (perm2 [] n) = set []" by simp
-lemma nn04b: assumes "\<forall>n. (set (perm2 l n) = set l)" shows "set (perm2 (x#l) n) = {x} \<union> set l" 
-using assms perm2_def nn03 by force
-corollary nn04: "\<forall>n. set (perm2 l n) = set l" 
+corollary CombiAuction02: "set (takeAll pre list) \<subseteq> set list" using mm99b mm98 CombiAuction01 by metis
+lemma CombiAuction03: "set (insertAt x l n) = {x} \<union> set l" by simp
+lemma CombiAuction04a: "\<forall>n. set (perm2 [] n) = set []" by simp
+lemma CombiAuction04b: assumes "\<forall>n. (set (perm2 l n) = set l)" shows "set (perm2 (x#l) n) = {x} \<union> set l" 
+using assms perm2_def CombiAuction03 by force
+corollary CombiAuction04: "\<forall>n. set (perm2 l n) = set l" 
 (* MC: this is weaker than saying (perm2 l n) is a permutation of l *) 
 proof (induct l)
 let ?P="%l. (\<forall>n. set (perm2 l n)=set l)"
-show "?P []" using nn04a by force next let ?P="%l. (\<forall>n. set (perm2 l n)=set l)"
+show "?P []" using CombiAuction04a by force next let ?P="%l. (\<forall>n. set (perm2 l n)=set l)"
 fix x fix l assume "?P l" then show "?P (x#l)" by force
 qed
 
-corollary nn05a: "set (perm2 (takeAll (%x.(x\<in>X)) l) n) \<subseteq> X \<inter> set l" using nn06c nn04 by metis
+corollary CombiAuction05a: "set (perm2 (takeAll (%x.(x\<in>X)) l) n) \<subseteq> X \<inter> set l" using CombiAuction06c CombiAuction04 by metis
 
 
 
@@ -530,37 +531,37 @@ abbreviation "setsum'' R X == setsum (toFunction R) (X \<inter> Domain R)"
 abbreviation "setsum''' R X == setsum' R (X\<inter>Domain R)"
 abbreviation "setsum'''' R X == setsum (%x. setsum id (R``{x})) X"
 
-lemma nn47: assumes "runiq f" "x \<in> Domain f" shows "(f Else 0) x = (toFunction f) x" using assms 
+lemma CombiAuction47: assumes "runiq f" "x \<in> Domain f" shows "(f Else 0) x = (toFunction f) x" using assms 
 by (metis Image_runiq_eq_eval toFunction_def)
 
-lemma nn48b: assumes "runiq f" shows "setsum (f Else 0) (X\<inter>(Domain f)) = setsum (toFunction f) (X\<inter>(Domain f))" 
-using assms setsum_cong2 nn47 by fastforce
-lemma nn51: assumes "Y \<subseteq> f-`{0}" shows "setsum f Y=0" using assms 
+lemma CombiAuction48b: assumes "runiq f" shows "setsum (f Else 0) (X\<inter>(Domain f)) = setsum (toFunction f) (X\<inter>(Domain f))" 
+using assms setsum_cong2 CombiAuction47 by fastforce
+lemma CombiAuction51: assumes "Y \<subseteq> f-`{0}" shows "setsum f Y=0" using assms 
 by (metis set_rev_mp setsum.neutral vimage_singleton_eq)
-lemma nn49: assumes "Y \<subseteq> f-`{0}" "finite X" shows "setsum f X = setsum f (X-Y)" using assms 
+lemma CombiAuction49: assumes "Y \<subseteq> f-`{0}" "finite X" shows "setsum f X = setsum f (X-Y)" using assms 
 proof -
 let ?X0="Y" let ?X1="X\<inter>?X0" let ?X2="X-?X0"
 have "finite ?X1" using assms by simp moreover
 have "finite ?X2" using assms by simp moreover
 have "?X1 \<inter> ?X2={}" by fast
 ultimately moreover have "setsum f (?X1 \<union> ?X2) = setsum f ?X1 + (setsum f ?X2)" by (rule setsum_Un_disjoint)
-ultimately moreover have "setsum f ?X1 = 0" using assms nn51 by (metis inf.coboundedI2)
+ultimately moreover have "setsum f ?X1 = 0" using assms CombiAuction51 by (metis inf.coboundedI2)
 ultimately moreover have "setsum f (?X1 \<union> ?X2) = setsum f X" by (metis assms lll23)
 ultimately show ?thesis by auto
 qed
 
-lemma nn50: "-(Domain f) \<subseteq> (f Else 0)-`{0}" by fastforce
+lemma CombiAuction50: "-(Domain f) \<subseteq> (f Else 0)-`{0}" by fastforce
 
-corollary nn52: assumes "finite X" shows "setsum (f Else 0) X=setsum (f Else 0) (X\<inter>Domain f)" proof - 
-have "X\<inter>Domain f = X - (-Domain f)" by simp thus ?thesis using assms nn50 nn49 by fastforce qed
+corollary CombiAuction52: assumes "finite X" shows "setsum (f Else 0) X=setsum (f Else 0) (X\<inter>Domain f)" proof - 
+have "X\<inter>Domain f = X - (-Domain f)" by simp thus ?thesis using assms CombiAuction50 CombiAuction49 by fastforce qed
 
-corollary nn48c: assumes "finite X" "runiq f" shows "setsum (f Else 0) X = setsum (toFunction f) (X\<inter>Domain f)" 
-using assms nn52 nn48b by (smt setsum.cong)
+corollary CombiAuction48c: assumes "finite X" "runiq f" shows "setsum (f Else 0) X = setsum (toFunction f) (X\<inter>Domain f)" 
+using assms CombiAuction52 CombiAuction48b by (smt setsum.cong)
 
-lemma nn53: "setsum (f Else 0) X = setsum' f X" by fast
+lemma CombiAuction53: "setsum (f Else 0) X = setsum' f X" by fast
 
-corollary nn48d: assumes "finite X" "runiq f" shows "setsum (toFunction f) (X\<inter>Domain f) = setsum' f X"
-using assms nn53 nn48c by fastforce
+corollary CombiAuction48d: assumes "finite X" "runiq f" shows "setsum (toFunction f) (X\<inter>Domain f) = setsum' f X"
+using assms CombiAuction53 CombiAuction48c by fastforce
 lemma "arg_max' (setsum' b) = (arg_max' \<circ> setsum') b" by simp
 
 end

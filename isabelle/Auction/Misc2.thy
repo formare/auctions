@@ -735,22 +735,22 @@ corollary setsum_Union_disjoint_3: assumes "\<forall>x\<in>X. finite x" "X parti
 corollary setsum_associativity: assumes "finite x" "X partitions x" shows
 "setsum f x = setsum (setsum f) X" using assms setsum_Union_disjoint_3 by (metis is_partition_of_def lll41)
 
-corollary nn24a: "(allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})\<subseteq>possibleAllocationsRel N G"
+corollary CombiAuction24a: "(allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})\<subseteq>possibleAllocationsRel N G"
 using assms lm19 by (smt Int_iff lm34 mem_Collect_eq subsetI)
-corollary nn24b: "possibleAllocationsRel N G \<subseteq> allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G}"
+corollary CombiAuction24b: "possibleAllocationsRel N G \<subseteq> allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G}"
 using assms lm19 Int_iff lm34 mem_Collect_eq subsetI lm50 is_partition_of_def
 by (smt Range_converse image_iff lll81 set_rev_mp)
-corollary nn24: "possibleAllocationsRel N G = (allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})" 
+corollary CombiAuction24: "possibleAllocationsRel N G = (allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})" 
 (is "?L = ?R") proof -
-  have "?L \<subseteq> ?R" using nn24b by metis moreover have "?R \<subseteq> ?L" using nn24a by fast
+  have "?L \<subseteq> ?R" using CombiAuction24b by metis moreover have "?R \<subseteq> ?L" using CombiAuction24a by fast
   ultimately show ?thesis by force
 qed
-corollary nn24d: assumes
+corollary CombiAuction24d: assumes
 "(b \<in> possibleAllocationsRel N G)" shows "(b\<in>allocationsUniverse& Domain b \<subseteq> N & \<Union> Range b = G)" 
-using assms nn24 Int_Collect Int_iff nn24a nn24b by smt
+using assms CombiAuction24 Int_Collect Int_iff CombiAuction24a CombiAuction24b by smt
 
-corollary nn24c: "b \<in> possibleAllocationsRel N G=(b\<in>allocationsUniverse& Domain b\<subseteq>N & \<Union>Range b = G)" 
-using assms nn24 Int_Collect Int_iff nn24a nn24b nn24d by smt
+corollary CombiAuction24c: "b \<in> possibleAllocationsRel N G=(b\<in>allocationsUniverse& Domain b\<subseteq>N & \<Union>Range b = G)" 
+using assms CombiAuction24 Int_Collect Int_iff CombiAuction24a CombiAuction24b CombiAuction24d by smt
 
 corollary lm35d: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse" using assms Outside_def
 by (metis (lifting, mono_tags) lm35)
