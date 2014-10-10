@@ -152,8 +152,8 @@ abbreviation "possibleAllocationsAlg2 N G ==
 converse ` (\<Union> set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"
 abbreviation "possibleAllocationsAlg3 N G == 
 map converse (concat [(injections_alg l N) . l \<leftarrow> all_partitions_list G])"
-lemma "set (possibleAllocationsAlg3 (N::participant set) (G::good list)) = possibleAllocationsAlg2 (N::participant set) (G::good list)"
-using assms by simp
+lemma 01: "set (possibleAllocationsAlg3 N G) = possibleAllocationsAlg2 N G"
+using assms by auto
 
 (* example (uncomment to run): possibilities to allocate goods {1,2,3} to participants {100,200} *)
 (*

@@ -18,28 +18,23 @@ abbreviation "pseudoAllocation allocation == \<Union> (omega ` allocation)"
 
 abbreviation "bidMaximizedBy allocation N G == 
 (* (N \<times> finestpart G) \<times> {0::price} +* ((pseudoAllocation allocation) \<times> {1}) *)
-pseudoAllocation allocation <|| (N \<times> (finestpart G))"
-abbreviation "maxbid a N G == toFunction (bidMaximizedBy a N G)"
+pseudoAllocation allocation <|| ((N \<times> (finestpart G)))"
+abbreviation "maxbid' a N G == toFunction (bidMaximizedBy a N G)"
 abbreviation "partialCompletionOf bids pair == (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
 abbreviation "LinearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
-abbreviation "linearCompletion (bids::(('b::linorder) \<times> ('a set))=>price) N G == 
- toFunction (LinearCompletion bids N G) 
-"
-(* MC: why is :: spec needed here? *)
-abbreviation "tiebids a N G == linearCompletion (maxbid a N G) N G"
-abbreviation "tiebids' a N G == LinearCompletion (real\<circ>maxbid a N G) N G"
-
-abbreviation "chosenAllocation N G bids random == 
+abbreviation "linearCompletion' (bids::_=>price) N G == toFunction (LinearCompletion bids N G)" (* MC: why is :: spec needed here? *)
+abbreviation "tiebids' a N G == linearCompletion' (maxbid' a N G) N G"
+abbreviation "Tiebids a N G == LinearCompletion (real\<circ>maxbid' a N G) N G"
+abbreviation "chosenAllocation' N G bids random == 
 hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg3 N G)) random)"
-
-abbreviation "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
+abbreviation "resolvingBid' N G bids random == tiebids' (chosenAllocation' N G bids random) N (set G)"
 abbreviation "terminatingAuctionRel N G bids random == 
-arg_max' (setsum (resolvingBid N G bids random)) (arg_max' (setsum bids) (possibleAllocationsRel N (set G)))"
+arg_max' (setsum (resolvingBid' N G bids random)) (arg_max' (setsum bids) (possibleAllocationsRel N (set G)))"
 abbreviation "uniformTieBreaking random N G bids == 
-Union \<circ> (arg_max' (setsum (resolvingBid N G bids (nat random))))"
+Union \<circ> (arg_max' (setsum (resolvingBid' N G bids (nat random))))"
 (* Union here acts as the_elem: picking the element of a singleton (i.e., stripping away the braces from {x}) *)
 abbreviation "uniformTieBreaking2 random N G bids == 
-% X. \<Union> (arg_max' (setsum (resolvingBid N G bids (nat random))) X)"
+% X. \<Union> (arg_max' (setsum (resolvingBid' N G bids (nat random))) X)"
 
 abbreviation "Fun_upd X g == (%f x. if x \<in> X then (g x) else f x)"
 notation Fun_upd (infix ":==" 80)
@@ -247,8 +242,8 @@ by blast
 
 corollary mm49c: assumes 
 "pseudoAllocation aa \<subseteq> pseudoAllocation a \<union> (N \<times> (finestpart G))" "finite (pseudoAllocation aa)"
-shows "int (setsum (maxbid a N G) (pseudoAllocation a)) - 
-int (setsum (maxbid a N G) (pseudoAllocation aa)) = 
+shows "int (setsum (maxbid' a N G) (pseudoAllocation a)) - 
+int (setsum (maxbid' a N G) (pseudoAllocation aa)) = 
 int (card (pseudoAllocation a)) - int (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" using mm28b assms
 by blast
 
@@ -316,7 +311,7 @@ using assms mm55f inj_on_def runiq_def mm55h
 
 corollary assumes "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
 "finite G" shows
-"setsum (maxbid a N G) (pseudoAllocation a) - setsum (maxbid a N G) (pseudoAllocation aa) = 0 
+"setsum (maxbid' a N G) (pseudoAllocation a) - setsum (maxbid' a N G) (pseudoAllocation aa) = 0 
 = (a=aa)" 
 *)
 
@@ -337,13 +332,13 @@ moreover have "N \<times> (Pow G - {{}})=Domain (?L bids N G)" using mm64 by bla
 ultimately show ?thesis by blast
 qed
 
-corollary mm59d: "setsum (linearCompletion bids N G) (a \<inter> (Domain (LinearCompletion bids N G))) = 
+corollary mm59d: "setsum (linearCompletion' bids N G) (a \<inter> (Domain (LinearCompletion bids N G))) = 
 setsum snd ((LinearCompletion bids N G) || a)" using assms mm59c mm62b by fast
 
 corollary mm59e: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (linearCompletion bids N G) a = setsum snd ((LinearCompletion bids N G) || a)" 
+"setsum (linearCompletion' bids N G) a = setsum snd ((LinearCompletion bids N G) || a)" 
 proof -
-let ?l=linearCompletion let ?L=LinearCompletion
+let ?l=linearCompletion' let ?L=LinearCompletion
 have "a \<subseteq> Domain (?L bids N G)" using assms by (rule mm63d) then
 have "a = a \<inter> Domain (?L bids N G)" by blast then
 have "setsum (?l bids N G) a = setsum (?l bids N G) (a \<inter> Domain (?L bids N G))" by presburger
@@ -354,20 +349,20 @@ qed
 "LinearCompletion bids N G || a \<supseteq> (partialCompletionOf bids) ` a" 
 using assms restrict_def by fast *)
 corollary mm59f: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (linearCompletion bids N G) a = setsum snd ((partialCompletionOf bids) ` ((N \<times> (Pow G - {{}})) \<inter> a))"
+"setsum (linearCompletion' bids N G) a = setsum snd ((partialCompletionOf bids) ` ((N \<times> (Pow G - {{}})) \<inter> a))"
 (is "?X=?R")
 proof -
-let ?p=partialCompletionOf let ?L=LinearCompletion let ?l=linearCompletion
+let ?p=partialCompletionOf let ?L=LinearCompletion let ?l=linearCompletion'
 let ?A="N \<times> (Pow G - {{}})" let ?inner2="(?p bids)`(?A \<inter> a)" let ?inner1="(?L bids N G)||a"
 have "?R = setsum snd ?inner1" using assms mm66d by (metis (no_types))
 moreover have "setsum (?l bids N G) a = setsum snd ?inner1" using assms by (rule mm59e)
 ultimately show ?thesis by presburger
 qed
 corollary mm59g: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (linearCompletion bids N G) a = setsum snd ((partialCompletionOf bids) ` a)" (is "?L=?R")
+"setsum (linearCompletion' bids N G) a = setsum snd ((partialCompletionOf bids) ` a)" (is "?L=?R")
 using assms mm59f mm63c 
 proof -
-let ?p=partialCompletionOf let ?l=linearCompletion
+let ?p=partialCompletionOf let ?l=linearCompletion'
 have "?L = setsum snd ((?p bids)`((N \<times> (Pow G - {{}}))\<inter> a))" using assms by (rule mm59f)
 moreover have "... = ?R" using assms mm63c Int_absorb1 by (metis (no_types))
 ultimately show ?thesis by presburger
@@ -375,16 +370,16 @@ qed
 corollary mm57c: "setsum snd ((partialCompletionOf bids) ` a) = setsum (snd \<circ> (partialCompletionOf bids)) a"
 using assms setsum_reindex mm57b by blast
 corollary mm59h: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (linearCompletion bids N G) a = setsum (snd \<circ> (partialCompletionOf bids)) a" (is "?L=?R")
+"setsum (linearCompletion' bids N G) a = setsum (snd \<circ> (partialCompletionOf bids)) a" (is "?L=?R")
 using assms mm59g mm57c 
 proof -
-let ?p=partialCompletionOf let ?l=linearCompletion
+let ?p=partialCompletionOf let ?l=linearCompletion'
 have "?L = setsum snd ((?p bids)` a)" using assms by (rule mm59g)
 moreover have "... = ?R" using assms mm57c by blast
 ultimately show ?thesis by presburger
 qed
 corollary mm25c: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (linearCompletion bids N G) a = setsum ((setsum bids) \<circ> omega) a" (is "?L=?R") 
+"setsum (linearCompletion' bids N G) a = setsum ((setsum bids) \<circ> omega) a" (is "?L=?R") 
 using assms mm59h mm25 
 proof -
 let ?inner1="snd \<circ> (partialCompletionOf bids)" let ?inner2="(setsum bids) \<circ> omega"
@@ -395,14 +390,14 @@ ultimately show "?L = ?R" using assms by metis
 qed
 
 corollary mm25d: assumes "a \<in> possibleAllocationsRel N G" shows
-"setsum (linearCompletion bids N G) a = setsum (setsum bids) (omega` a)"
+"setsum (linearCompletion' bids N G) a = setsum (setsum bids) (omega` a)"
 using assms mm25c setsum_reindex mm32 
 proof -
 have "{} \<notin> Range a" using assms by (metis mm45b)
 then have "inj_on omega a" using mm32 by blast
 then have "setsum (setsum bids) (omega ` a) = setsum ((setsum bids) \<circ> omega) a" 
 by (rule setsum_reindex)
-moreover have "setsum (linearCompletion bids N G) a = setsum ((setsum bids) \<circ> omega) a"
+moreover have "setsum (linearCompletion' bids N G) a = setsum ((setsum bids) \<circ> omega) a"
 using assms mm25c by (rule Extraction.exE_realizer)
 ultimately show ?thesis by presburger
 qed
@@ -425,7 +420,7 @@ lemma mm68: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows
 using assms setsum_Union_disjoint_2 mm30b mm67c by (metis (lifting, mono_tags))
 
 corollary mm69: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
-"setsum (linearCompletion bids N G) a = setsum bids (pseudoAllocation a)" (is "?L = ?R")
+"setsum (linearCompletion' bids N G) a = setsum bids (pseudoAllocation a)" (is "?L = ?R")
 using assms mm25d mm68 
 proof -
 have "?L = setsum (setsum bids) (omega `a)" using assms mm25d by blast
@@ -647,7 +642,7 @@ lemma nn13:
 by auto
 *)
 
-lemma mm93: "terminatingAuctionRel N G bids random = (((arg_max' \<circ> setsum) (resolvingBid N G bids random))
+lemma mm93: "terminatingAuctionRel N G bids random = (((arg_max' \<circ> setsum) (resolvingBid' N G bids random))
 \<circ> ((arg_max' \<circ> setsum) bids)) (possibleAllocationsRel N (set G))" by auto
 
 lemma mm94: "possibleAllocationsAlg2 N G = set (possibleAllocationsAlg3 N G)" by auto
@@ -679,7 +674,7 @@ corollary nn05b: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq>
 "perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg3 N G)) n \<noteq> []"
 using assms mm83 mm84h by metis
 corollary mm82: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"chosenAllocation N G bids random \<in> winningAllocationsRel N (set G) bids"
+"chosenAllocation' N G bids random \<in> winningAllocationsRel N (set G) bids"
 using assms nn05a nn05b hd_in_set in_mono Int_def Int_lower1 all_not_in_conv image_set nn04 nn06c set_empty subsetI subset_trans
 proof -
 let ?w=winningAllocationsRel let ?p=possibleAllocationsAlg3 let ?G="set G"
@@ -690,10 +685,10 @@ ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
 qed
 
 lemma mm49b: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "real(setsum(maxbid a N G)(pseudoAllocation a)) - setsum(maxbid a N G)(pseudoAllocation aa) 
+shows "real(setsum(maxbid' a N G)(pseudoAllocation a)) - setsum(maxbid' a N G)(pseudoAllocation aa) 
 = real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
 proof -
-let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid let ?B="?m a N G" have 
+let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid' let ?B="?m a N G" have 
 2: "?p aa \<subseteq> N \<times> ?f G" using assms mm73c by (metis (lifting, mono_tags)) then have 
 0: "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto moreover have 
 1: "finite (?p aa)" using assms mm48 mm54 by blast ultimately have 
@@ -706,10 +701,10 @@ qed
 
 (*
 lemma mm49d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "int (setsum (maxbid a N G) (pseudoAllocation a)) - int (setsum (maxbid a N G) (pseudoAllocation aa)) = 
+shows "int (setsum (maxbid' a N G) (pseudoAllocation a)) - int (setsum (maxbid' a N G) (pseudoAllocation aa)) = 
 int (card G) - int (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" 
 proof -
-let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid let ?B="?m a N G" 
+let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid' let ?B="?m a N G" 
 have "?p aa \<subseteq> N \<times> ?f G" using assms mm73c by blast
 then have "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto
 moreover have "finite (?p aa)" using assms mm48 mm54 by blast
@@ -721,10 +716,10 @@ qed
 
 corollary mm70: 
 assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "real (setsum (linearCompletion (maxbid a N G) N G) a) - setsum (linearCompletion (maxbid a N G) N G) aa = 
+shows "real (setsum (linearCompletion' (maxbid' a N G) N G) a) - setsum (linearCompletion' (maxbid' a N G) N G) aa = 
 real (card G) - real (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" (is "?L=?R") 
 proof -
-  let ?l=linearCompletion let ?m=maxbid let ?s=setsum let ?p=pseudoAllocation
+  let ?l=linearCompletion' let ?m=maxbid' let ?s=setsum let ?p=pseudoAllocation
   let ?b="real \<circ> (?m a N G)" 
   have "?s (?l ?b N G) a = ?s ?b (?p a) & ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms mm69 by blast
   moreover have "?R = ?s ?b (?p a) - (?s ?b (?p aa))" using assms mm49b 
@@ -736,31 +731,31 @@ qed
 
 corollary mm70b: 
 assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "
-(* int (setsum (tiebids a N G) a) - int (setsum (tiebids a N G) aa) *)
-setsum (tiebids a N G) a - setsum (tiebids a N G) aa
-= 
-real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" (is "?L=?R") 
+shows (* int (setsum (tiebids' a N G) a) - int (setsum (tiebids' a N G) aa) *)
+"setsum (tiebids' a N G) a - setsum (tiebids' a N G) aa = 
+real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" (is "?L=?R")
 proof -
-  let ?l=linearCompletion let ?m=maxbid let ?s=setsum let ?p=pseudoAllocation
-  let ?bb="?m a N G"
-  let ?b="real \<circ> (?m a N G)"
-  have "?s (?l ?b N G) a = ?s ?b (?p a) &
-  ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms mm69 by blast  
-  moreover have "real (?s ?bb (?p a)) - (?s ?bb (?p aa)) = ?R" using assms  mm49b 
-by blast
-  ultimately moreover have "... = ?L" 
-by simp
-  ultimately show ?thesis by presburger
+  let ?l=linearCompletion' let ?m=maxbid' let ?s=setsum let ?p=pseudoAllocation
+  let ?bb="?m a N G" let ?b="real \<circ> (?m a N G)"  
+  have "real (?s ?bb (?p a)) - (?s ?bb (?p aa)) = ?R" using assms mm49b by blast 
+  then have "?R = real (?s ?bb (?p a)) - (?s ?bb (?p aa))" by presburger
+  moreover have " ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms mm69 by blast moreover have 
+  "... = ?s ?bb (?p aa)" by fastforce ultimately have 
+  1: "?R = real (?s ?bb (?p a)) - (?s (?l ?bb N G) aa)" by simp
+  have "?s (?l ?b N G) a=(?s ?b (?p a))" using assms mm69 by blast
+  moreover have "... = ?s ?bb (?p a)" by force
+  moreover have "... = real (?s ?bb (?p a))" by fast
+  ultimately have "?s (?l ?bb N G) a = real (?s ?bb (?p a))" by fastforce
+  thus ?thesis using 1 by presburger
 qed
 
 corollary mm70c: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-"x=(setsum (tiebids a N G) a) - setsum (tiebids a N G) aa" shows
-"x <= card G & x \<ge> 0 & (x=0 \<longleftrightarrow> a = aa) & (aa \<noteq> a \<longrightarrow> setsum (tiebids a N G) aa < setsum (tiebids a N G) a)"
+"x=(setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa" shows
+"x <= card G & x \<ge> 0 & (x=0 \<longleftrightarrow> a = aa) & (aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a)"
 proof -
 let ?p=pseudoAllocation have "real (card G) >= real (card G) - card (?p aa \<inter> (?p a))" by force
 moreover have 
-"setsum (tiebids a N G) a - setsum (tiebids a N G) aa = 
+"setsum (tiebids' a N G) a - setsum (tiebids' a N G) aa = 
 real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
 using assms mm70b by blast ultimately have
 4: "x=real(card G)-card(pseudoAllocation aa\<inter>(pseudoAllocation a))" using assms by force then have
@@ -777,19 +772,19 @@ ultimately have "card (?p aa \<inter> (?p a)) = card G \<longleftrightarrow> (a=
 moreover have "x = real (card G) - card (?p aa \<inter> (?p a))" using assms mm70b by blast
 ultimately have 
 3: "x = 0 \<longleftrightarrow> (a=aa)" by linarith then have 
-"aa \<noteq> a \<longrightarrow> setsum (tiebids a N G) aa < setsum (tiebids a N G) a" using 1 2 assms by force
+"aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a" using 1 2 assms by force
 thus ?thesis using 1 2 3 by force
 qed 
 
 corollary mm70d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-"aa \<noteq> a" shows "setsum (tiebids a N G) aa < setsum (tiebids a N G) a" using assms mm70c by blast
+"aa \<noteq> a" shows "setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a" using assms mm70c by blast
 
 lemma mm81: assumes
 "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
-"aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation N G bids random}" shows 
-"setsum (resolvingBid N G bids random) aa < setsum (resolvingBid N G bids random) (chosenAllocation N G bids random)" 
+"aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation' N G bids random}" shows 
+"setsum (resolvingBid' N G bids random) aa < setsum (resolvingBid' N G bids random) (chosenAllocation' N G bids random)" 
 proof -
-let ?a="chosenAllocation N G bids random" let ?p=possibleAllocationsRel let ?G="set G"
+let ?a="chosenAllocation' N G bids random" let ?p=possibleAllocationsRel let ?G="set G"
 have "?a \<in> winningAllocationsRel N (set G) bids" using assms mm82 by blast
 moreover have "winningAllocationsRel N (set G) bids \<subseteq> ?p N ?G" using assms lm03 by metis
 ultimately have "?a \<in> ?p N ?G" using mm82 assms lm03 set_rev_mp by blast
@@ -799,12 +794,12 @@ qed
 (* MC: termination theorem *)
 corollary mm92: assumes 
 "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
-shows "terminatingAuctionRel N G (bids) random = {chosenAllocation N G bids random}"
+shows "terminatingAuctionRel N G (bids) random = {chosenAllocation' N G bids random}"
 using assms mm81 mm80 
 proof -
 let ?p=possibleAllocationsRel let ?G="set G" 
 let ?X="arg_max' (setsum bids) (?p N ?G)"
-let ?a="chosenAllocation N G bids random" let ?b="resolvingBid N G bids random"
+let ?a="chosenAllocation' N G bids random" let ?b="resolvingBid' N G bids random"
 let ?f="setsum ?b" let ?ff="setsum ?b" 
 let ?t=terminatingAuctionRel have "\<forall>aa\<in>(possibleAllocationsRel N ?G)-{?a}.  ?f aa < ?f ?a" 
 using assms mm81 by blast then have 
@@ -831,7 +826,7 @@ qed
 (*
 
 corollary mm92b: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N"  
-shows "vcga' N G bids random = chosenAllocation (N\<union>{auctioneer}) G (toFullBid (set G) bids) random" 
+shows "vcga' N G bids random = chosenAllocation' (N\<union>{auctioneer}) G (toFullBid (set G) bids) random" 
 using assms mm92 nn13 sorry
 
 corollary mm92c: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" shows 
@@ -903,8 +898,6 @@ thus ?thesis using 0 assms by blast
 qed
 
 lemma nn19: "condition1 (toFullBid (set G) b) auctioneer" sorry
-
-
 
 lemma "vcga'' N \<Omega> b random \<in> (singleoutside' (addedBidder N))`(maximalAllocations' N (set \<Omega>) b)"
 using assms sorry

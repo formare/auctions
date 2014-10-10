@@ -12,6 +12,8 @@ begin
 lemma nn56: "card X=1 = (X={the_elem X})" 
 by (smt card_eq_SucD card_gt_0_imp_non_empty card_insert_disjoint finite.emptyI insert_absorb insert_not_empty the_elem_eq)
 lemma nn57: assumes "card X=1" "X \<subseteq> Y" shows "Union X \<in> Y" using assms nn56 by (metis cSup_singleton insert_subset)
+lemma nn57b: assumes "card X=1" "X \<subseteq> Y" shows "the_elem X \<in> Y" using assms 
+by (metis (full_types) insert_subset nn56)
 
 corollary ll52b: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis ll52 sup_commute)
 lemma assumes "card X = 1" shows "X = {the_elem X}" using assms by (smt card_eq_SucD the_elem_eq)

@@ -44,8 +44,7 @@ next
   have "y \<in> N" using y by fast
   moreover have "y \<noteq> n" using y by fastforce
   moreover have "y \<in> Range R" using y by fast
-  ultimately show "y \<in> Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n }"
-    by (metis (lifting, mono_tags) Range.simps mem_Collect_eq prod_caseI)
+  ultimately show "y \<in> Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n }" by blast
 qed
 
 text{* If @{term z} is not in the range of a binary relation, removing all tuples with @{term z}

@@ -171,7 +171,7 @@ where "payments_alg G N t = \<alpha>_alg G N - remaining_value_alg G N t"
 *)
 
 definition "paymentsAlg N G t == alphaAlg N G - remainingValueAlg N G t" 
-term "winningAllocationsAlg N G b"
+
 (* abbreviation "paymentsAlg N G t (b::altbids) i == b (i, winningAllocationAlg N G t b,,i)" *) 
 
 
