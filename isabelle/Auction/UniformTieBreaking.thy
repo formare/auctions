@@ -44,7 +44,7 @@ proof - have "c=a-(a-c)" using assms(2) by blast thus ?thesis using assms(1) lm3
 lemma lm35c: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse"
 using assms lm35 Outside_def by (metis (no_types))
 
-corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 nn43 by metis
+corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 nn43 sorry
 corollary lm38b: "{(x,{y})} \<in> allocationsUniverse" using lm38 
 by (smt Pair_inject insert_Diff_if insert_not_empty lm44)
 corollary lm38c: "allocationsUniverse\<noteq> {}" using lm38b by fast
