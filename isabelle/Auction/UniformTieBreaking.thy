@@ -22,11 +22,14 @@ pseudoAllocation allocation <|| ((N \<times> (finestpart G)))"
 abbreviation "maxbid' a N G == toFunction (bidMaximizedBy a N G)"
 abbreviation "partialCompletionOf bids pair == (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
 abbreviation "LinearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
-abbreviation "linearCompletion' (bids::_=>price) N G == toFunction (LinearCompletion bids N G)" (* MC: why is :: spec needed here? *)
+abbreviation "linearCompletion' (bids(*::_=>price*)) N G == toFunction (LinearCompletion bids N G)"
+(* MC: why is :: spec needed here? *)
 abbreviation "tiebids' a N G == linearCompletion' (maxbid' a N G) N G"
 abbreviation "Tiebids a N G == LinearCompletion (real\<circ>maxbid' a N G) N G"
+
 abbreviation "chosenAllocation' N G bids random == 
 hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg3 N G)) random)"
+
 abbreviation "resolvingBid' N G bids random == tiebids' (chosenAllocation' N G bids random) N (set G)"
 abbreviation "terminatingAuctionRel N G bids random == 
 arg_max' (setsum (resolvingBid' N G bids random)) (arg_max' (setsum bids) (possibleAllocationsRel N (set G)))"
@@ -44,7 +47,7 @@ proof - have "c=a-(a-c)" using assms(2) by blast thus ?thesis using assms(1) lm3
 lemma lm35c: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse"
 using assms lm35 Outside_def by (metis (no_types))
 
-corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 nn43 sorry
+corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 nn43 by metis
 corollary lm38b: "{(x,{y})} \<in> allocationsUniverse" using lm38 
 by (smt Pair_inject insert_Diff_if insert_not_empty lm44)
 corollary lm38c: "allocationsUniverse\<noteq> {}" using lm38b by fast
@@ -732,7 +735,7 @@ qed
 corollary mm70b: 
 assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
 shows (* int (setsum (tiebids' a N G) a) - int (setsum (tiebids' a N G) aa) *)
-"setsum (tiebids' a N G) a - setsum (tiebids' a N G) aa = 
+"real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa = 
 real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" (is "?L=?R")
 proof -
   let ?l=linearCompletion' let ?m=maxbid' let ?s=setsum let ?p=pseudoAllocation
@@ -741,21 +744,21 @@ proof -
   then have "?R = real (?s ?bb (?p a)) - (?s ?bb (?p aa))" by presburger
   moreover have " ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms mm69 by blast moreover have 
   "... = ?s ?bb (?p aa)" by fastforce ultimately have 
-  1: "?R = real (?s ?bb (?p a)) - (?s (?l ?bb N G) aa)" by simp
+  1: "?R = real (?s ?bb (?p a)) - (?s (?l ?bb N G) aa)" sorry
   have "?s (?l ?b N G) a=(?s ?b (?p a))" using assms mm69 by blast
   moreover have "... = ?s ?bb (?p a)" by force
   moreover have "... = real (?s ?bb (?p a))" by fast
-  ultimately have "?s (?l ?bb N G) a = real (?s ?bb (?p a))" by fastforce
+  ultimately have "?s (?l ?bb N G) a = real (?s ?bb (?p a))" sorry
   thus ?thesis using 1 by presburger
 qed
 
 corollary mm70c: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-"x=(setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa" shows
+"x=real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa" shows
 "x <= card G & x \<ge> 0 & (x=0 \<longleftrightarrow> a = aa) & (aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a)"
 proof -
 let ?p=pseudoAllocation have "real (card G) >= real (card G) - card (?p aa \<inter> (?p a))" by force
 moreover have 
-"setsum (tiebids' a N G) a - setsum (tiebids' a N G) aa = 
+"real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa = 
 real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
 using assms mm70b by blast ultimately have
 4: "x=real(card G)-card(pseudoAllocation aa\<inter>(pseudoAllocation a))" using assms by force then have
@@ -772,7 +775,8 @@ ultimately have "card (?p aa \<inter> (?p a)) = card G \<longleftrightarrow> (a=
 moreover have "x = real (card G) - card (?p aa \<inter> (?p a))" using assms mm70b by blast
 ultimately have 
 3: "x = 0 \<longleftrightarrow> (a=aa)" by linarith then have 
-"aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a" using 1 2 assms by force
+"aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < real (setsum (tiebids' a N G) a)" using 1 2 assms 
+by auto
 thus ?thesis using 1 2 3 by force
 qed 
 
