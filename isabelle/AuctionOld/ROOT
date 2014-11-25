@@ -1,0 +1,18 @@
+(*
+session "Auction" = "HOL" +
+  options [document = pdf, document_output = "output", document_graph, thy_output_source]
+  theories
+    Vickrey
+(* CL: When the following line is in place, I'm not getting any output.
+  files "document/root.tex"
+*)
+
+session Vickrey = "HOL" +
+  options [document = pdf, document_output = "output"]
+  theories Vickrey
+*)
+
+session CombinatorialVickreyAuction = HOL +
+  theories
+    CombinatorialVickreyAuctionSoundness
+    CombinatorialVickreyAuctionCode

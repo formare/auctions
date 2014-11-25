@@ -36,54 +36,6 @@ lemma trivial_empty: "trivial {}" unfolding trivial_def by (rule empty_subsetI)
 text {* A singleton set is trivial. *}
 lemma trivial_singleton: "trivial {x}" unfolding trivial_def by simp
 
-text {* Infrastructure for proving some property of a trivial set by distinguishing the 
-  two cases @{text empty} and @{text "singleton x"}. *}
-(* CL: thanks to Christian Sternagel and Joachim Breitner
-http://stackoverflow.com/questions/18686865/how-can-i-bind-the-schematic-variable-case-in-a-rule-for-proof-by-cases
-By "cases pred: trivial" one could enable this rule by default; this would also allow to omit "consumes 1". *)
-lemma trivial_cases [case_names empty singleton, consumes 1]:
-  assumes "trivial X"
-  assumes empty: "X = {} \<Longrightarrow> P"
-      and singleton: "\<And> x . X = {x} \<Longrightarrow> P"
-  shows "P"
-using assms by (auto simp: trivial_def)
-
-(* How to use trivial_cases:
-notepad
-begin
-  fix Q
-  fix X::"'a set"
-  have "trivial X" sorry (* prove *)
-  then have "Q X"
-  proof (cases rule: trivial_cases)
-    case empty
-    then show ?thesis sorry (* prove *)
-  next
-    case (singleton x)
-    then show ?thesis sorry (* prove *)
-  qed
-end
-*)
-
-text {* There are no two different elements in a trivial set. *}
-lemma trivial_imp_no_distinct:
-  assumes triv: "trivial X"
-      and x: "x \<in> X"
-      and y: "y \<in> X"
-  shows "x = y"
-(* CL: The following takes 17 ms in Isabelle2013-1-RC1:
-   by (metis equals0D insertE triv trivial_cases x y) *)
-proof -
-  from triv show "x = y"
-  proof (cases rule: trivial_cases)
-    case empty
-    with x show ?thesis by simp
-  next
-    case singleton
-    with x y show ?thesis by fast
-  qed
-qed
-
 text {* If there are no two different elements in a set, it is trivial. *}
 lemma no_distinct_imp_trivial:
   assumes "\<forall> x y . x \<in> X \<and> y \<in> X \<longrightarrow> x = y"
@@ -135,6 +87,61 @@ shows "trivial X"
    by (metis assms(1) assms(2) equals0D no_distinct_imp_trivial subsetI subset_antisym subset_singletonD trivial_cases) *)
 using assms unfolding trivial_def by (metis (full_types) subset_empty subset_insertI2 subset_singletonD)
 
+(*
+text {* Infrastructure for proving some property of a trivial set by distinguishing the 
+  two cases @{text empty} and @{text "singleton x"}. *}
+(* CL: thanks to Christian Sternagel and Joachim Breitner
+http://stackoverflow.com/questions/18686865/how-can-i-bind-the-schematic-variable-case-in-a-rule-for-proof-by-cases
+By "cases pred: trivial" one could enable this rule by default; this would also allow to omit "consumes 1". *)
+lemma trivial_cases [case_names empty singleton, consumes 1]:
+  assumes "trivial X"
+  assumes empty: "X = {} \<Longrightarrow> P"
+      and singleton: "\<And> x . X = {x} \<Longrightarrow> P"
+  shows "P"
+using assms by (auto simp: trivial_def)
+
+(* How to use trivial_cases:
+notepad
+begin
+  fix Q
+  fix X::"'a set"
+  have "trivial X" sorry (* prove *)
+  then have "Q X"
+  proof (cases rule: trivial_cases)
+    case empty
+    then show ?thesis sorry (* prove *)
+  next
+    case (singleton x)
+    then show ?thesis sorry (* prove *)
+  qed
+end
+*)
+*)
+
+text {* There are no two different elements in a trivial set. *}
+lemma trivial_imp_no_distinct:
+  assumes triv: "trivial X"
+      and x: "x \<in> X"
+      and y: "y \<in> X"
+  shows "x = y"
+(* CL: The following takes 17 ms in Isabelle2013-1-RC1: *)
+using assms 
+by (metis empty_subsetI insert_subset singleton_sub_trivial_uniq) 
+(*   by (metis equals0D insertE triv trivial_cases x y) *)
+(*
+proof -
+  from triv show "x = y"
+  proof (cases rule: trivial_cases)
+    case empty
+    with x show ?thesis by simp
+  next
+    case singleton
+    with x y show ?thesis by fast
+  qed
+qed
+*)
+
+
 section {* The image of a set under a function *}
 
 (* TODO CL: review whether we are always using the simplest possible set comprehension notation (compare List.set_concat) *)
@@ -148,13 +155,13 @@ A = {1,2}
 B = {1,3}
 A = B - {3} \<union> {2}
 *)
-
+(*
 (* TODO CL: document *)
 lemma Diff_replace:
   assumes A_repl_B: "A = B - {x} \<union> {y}"
       and card_eq: "card B = card A"
       and old_elem: "x \<in> B"
-  shows "A - B = {y} - {x}"
+  shows "A - B = {y} - {x}" using assms try0
 (* TODO CL: In Isabelle2013-1-RC3, this is hard for Sledgehammer to find.
    Maybe optimise manually. *)
 proof cases
@@ -165,7 +172,7 @@ next
   assume "x \<noteq> y"
   with A_repl_B have "A - A \<inter> B = {y}" sorry
 oops
-(*
+
 This was the proof when when we had assumed B \<subseteq> A, which we are actually not interested in:
 using assms
 by (metis Diff_cancel Diff_insert_absorb Un_empty_right Un_insert_right insert_iff Set.set_insert set_rev_mp)
@@ -181,15 +188,24 @@ lemma Diff_psubset_is_psubset:
 using assms
 by blast
 
+lemma card_diff_gt_0:
+  assumes "finite B"
+      and "card A > card B"
+  shows "card (A - B) > 0"
+using assms
+by (metis diff_card_le_card_Diff le_0_eq neq0_conv zero_less_diff)
+
 section {* Big Union *}
 
 text {* An element is in the union of a family of sets if it is in one of the family's member sets. *}
 lemma Union_member: "(\<exists> S \<in> F . x \<in> S) \<longleftrightarrow> x \<in> \<Union> F" by blast
 
+(*
 lemma Union_map_member:
   assumes "x \<in> \<Union> { f y | y . y \<in> Z }"
   shows "\<exists> y \<in> Z . x \<in> f y"
 using assms by fast
+*)
 
 text {* When a set of elements @{term A} is non-empty, and a function @{term f} returns a non-empty
   set for at least one member of @{term A}, the union of the image of @{term A} under @{term f}
@@ -234,6 +250,8 @@ proof -
   finally show ?thesis .
 qed
 
+(*
+
 text {* Growing, in terms of set union a member @{term x} of a family of sets by a set @{term x'} grows
   the union of all of these sets by @{term x'}. *}
 lemma Union_family_grown_member:
@@ -248,10 +266,8 @@ lemma Union_family_grown_member:
       and old_member_in_family: "x \<in> P"
   shows "\<Union> Q = A"
 (* CL: This proof was found by Sledgehammer and cleaned up manually, but it may need further cleanups. *)
-(*
-Sledgehammer once found this alternative (something like 104 ms in Isabelle2013-1-RC3) but now can't find it any more:
-by (smt Sup_insert Un_Diff_cancel Un_assoc Un_commute insert_absorb insert_def singleton_conv subset_Un_eq)
-*)
+(* Sledgehammer once found this alternative (something like 104 ms in Isabelle2013-1-RC3) but now can't find it any more:
+by (smt Sup_insert Un_Diff_cancel Un_assoc Un_commute insert_absorb insert_def singleton_conv subset_Un_eq) *)
 using assms
 proof -
   obtain remove :: "'a set \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
@@ -309,25 +325,22 @@ lemma Collect_uniq_prop_singleton:
 using assms
 (* TODO CL: optimise by some manual steps *)
 by (metis (full_types) Collect_cong singleton_conv2 theI')
+*)
 
-lemma ll69: assumes "trivial t" "t \<inter> X \<noteq> {}" shows "t \<subseteq> X" using trivial_def assms 
-by (smt disjoint_iff_not_equal in_mono singleton_iff subsetI)
+lemma ll69: assumes "trivial t" "t \<inter> X \<noteq> {}" shows "t \<subseteq> X" using trivial_def assms in_mono by fast
 
-lemma ll97: assumes "finite X" shows "trivial X=(card X \<le> 1)" (is "?LH=?RH") using trivial_def assms 
-proof -
-  {
-    assume "card X=1" 
-    hence "X = {the_elem X}" 
-    using assms the_elem_def card_def by (smt card_eq_SucD the_elem_eq)
-    hence "?LH" using trivial_def by auto
-  }
-  also have "card X=0 \<longrightarrow> X={} \<longrightarrow> ?LH" using trivial_def by fast
-  hence "card X=0 \<longrightarrow> ?LH" by (metis assms card_eq_0_iff)
-  ultimately have "?RH \<longrightarrow> ?LH" by linarith
-  also have "?LH \<longrightarrow> ?RH" using trivial_def assms 
-  by (smt bot_set_def card.insert card_empty card_gt_0_iff card_mono empty_def equals0D finite.emptyI finite.insertI finite.simps insert_absorb insert_not_empty)
-  ultimately show ?thesis by fast
-qed
+lemma lm54: assumes "trivial X" shows "finite X" 
+using assms by (metis finite.simps subset_singletonD trivial_def)
+(* finite.simps trivial_cases by metis *)
+
+lemma lm001a: assumes "trivial (A \<times> B)" shows "(finite (A\<times>B) & card A * (card B) \<le> 1)" 
+using trivial_def assms One_nat_def card_cartesian_product card_empty card_insert_disjoint
+empty_iff finite.emptyI le0 lm54 order_refl subset_singletonD by (metis(no_types))
+
+lemma ll97: assumes "finite X" shows "trivial X=(card X \<le> 1)" (is "?LH=?RH") 
+using assms One_nat_def card_empty card_insert_if card_mono card_seteq empty_iff empty_subsetI 
+finite.cases finite.emptyI finite_insert insert_mono trivial_def trivial_singleton
+by (metis(no_types))
 
 lemma ll10: shows "trivial {x}" by (metis order_refl the_elem_eq trivial_def)
 
@@ -337,12 +350,39 @@ using singleton_sub_trivial_uniq assms by (metis subset_antisym trivial_def)
 lemma ll26: assumes "\<not> trivial X" "trivial T" shows "X-T \<noteq> {}"
 using assms by (metis Diff_iff empty_iff subsetI trivial_subset)
 
+lemma lm001b: assumes "(finite (A\<times>B) & card A * (card B) \<le> 1)" shows "trivial (A \<times> B)" 
+unfolding trivial_def using trivial_def assms by (metis card_cartesian_product ll97)
+
+lemma lm001: "trivial (A \<times> B)=(finite (A\<times>B) & card A * (card B) \<le> 1)" using lm001a lm001b by blast
+
+lemma lm01: "trivial X = (\<forall>x1 \<in> X. \<forall>x2 \<in> X. x1=x2)" unfolding trivial_def using trivial_def 
+by (metis no_distinct_imp_trivial trivial_imp_no_distinct)
+
+lemma lm009a: assumes "(Pow X \<subseteq> {{},X})" shows "trivial X" unfolding lm01 using assms by auto
+
+lemma lm009b: assumes "trivial X" shows "(Pow X \<subseteq> {{},X})" using assms lm01 by fast
+
+lemma lm009: "trivial X = (Pow X \<subseteq> {{},X})" using lm009a lm009b by metis
+
+lemma lm007: "trivial X = (X={} \<or> X={the_elem X})" 
+by (metis subset_singletonD trivial_def trivial_empty trivial_singleton)
+
 lemma ll40: assumes "trivial X" "trivial Y" shows "trivial (X \<times> Y)"
-proof -
-let ?e=the_elem let ?x="?e X" let ?y="?e Y" let ?Z="X \<times> Y"
-have "X \<subseteq> {?x} & Y \<subseteq> {?y}" using assms trivial_def by metis
-hence "?Z \<subseteq> {(?x,?y)}" by blast
-thus ?thesis using trivial_subset trivial_singleton by metis
-qed
+using assms lm001 One_nat_def Sigma_empty1 Sigma_empty2 card_empty card_insert_if finite_SigmaI 
+lm54 nat_1_eq_mult_iff order_refl subset_singletonD trivial_def trivial_empty
+by (metis (full_types))
+
+lemma lm002: "({x} \<times> UNIV) \<inter> P = {x} \<times> (P `` {x})" by fast
+
+lemma lm00: "(x,y) \<in> P = (y \<in> P``{x})" by simp
+
+lemma lm010: assumes "inj_on f A" "inj_on f B" shows "inj_on f (A \<union> B) = (f`(A-B) \<inter> (f`(B-A))={})"
+using assms inj_on_Un by (metis)
+
+lemma lm010b: assumes "inj_on f A" "inj_on f B" "f`A \<inter> (f`B)={}" shows "inj_on f (A \<union> B)" 
+using assms lm010 by fast
+
+lemma lm008: "(Pow X = {X}) = (X={})" by auto
 
 end
+

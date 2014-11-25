@@ -144,9 +144,9 @@ proof -
   moreover have "\<And> tup . tup \<in> R\<inverse> \<Longrightarrow> f (snd tup) (fst tup) = f (fst (flip tup)) (snd (flip tup))"
     by (metis flip_def fst_conv snd_conv)
   ultimately have "(\<Sum> tup \<in> R . f (fst tup) (snd tup)) = (\<Sum> tup \<in> R\<inverse> . f (snd tup) (fst tup))"
-    by (rule setsum_reindex_cong)
+    using setsum.reindex_cong by (metis (erased, lifting))
   then show ?thesis
-    by (metis (mono_tags) setsum_cong2 split_beta)
+    by (metis (mono_tags) setsum.cong split_beta)
 qed
 
 section {* evaluation as a function *}
@@ -188,12 +188,10 @@ proof -
 qed
 
 text {* The domain of two pasted relations equals the union of their domains. *}
-lemma paste_Domain: "Domain (P +* Q) = Domain P \<union> Domain Q"
-unfolding paste_def Outside_def by blast
+lemma paste_Domain: "Domain(P +* Q)=Domain P\<union>Domain Q" unfolding paste_def Outside_def by blast
 
 text {* Pasting two relations yields a subrelation of their union. *}
-lemma paste_sub_Un: "P +* Q \<subseteq> P \<union> Q"
-unfolding paste_def Outside_def by fast
+lemma paste_sub_Un: "P +* Q \<subseteq> P \<union> Q" unfolding paste_def Outside_def by fast
 
 text {* The range of two pasted relations is a subset of the union of their ranges. *}
 lemma paste_Range: "Range (P +* Q) \<subseteq> Range P \<union> Range Q"
@@ -207,97 +205,9 @@ text {* If an input has a unique image element under a given relation, return th
 fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
 where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
 
-
-notation paste (infix "+<" 75)
-abbreviation singlepaste where "singlepaste F f == F +* {(fst f, snd f)}"
-notation singlepaste (infix "+<" 75) (* Type of g in f +< g should avoid ambiguities *)
-abbreviation singleoutside (infix "--" 75) where "f -- x \<equiv> f outside {x}"
-abbreviation ler_ni where "ler_ni r == (\<Union>x. ({x} \<times> (r x -` {True})))"
-(* inverts in_rel *)
-value "({(1::nat,3::nat),(2,5)} +* {(1,2),(1,4)} ),,2"
-
-
-definition Graph (* compare with Function_Order.thy; 
-what about Russell's antinomy, here? *)
-:: "('a => 'b) => ('a \<times> 'b) set"
-where "Graph f = {(x, f x) | x . True}"
-
-definition toFunction (* inverts Graph *)
-where "toFunction R = (\<lambda> x . (R ,, x))"
-
-definition projector where "projector R =
-{ (x,R``{x}) | x . 
-x \<in> Domain R 
-(* True *)
-}
-(* Graph (% x . (R `` {x}))*)
-"
-(* compare quotient in Equiv_Relations: here we don't require Range R and Domain R 
-to have the same type.
-Note that now X//R = Range (projector (R || X)), in the special case of 
-R being an equivalence relation *)
-
-definition finestpart where "finestpart X = (%x. insert x {}) ` X"
-(*MC: alternative, non-computable, set-theoretical version:
-Range (projector (Graph id || X)) *)
-
-lemma ll64: shows "finestpart X = {{x}|x . x\<in>X}" using finestpart_def by auto
-
-definition kernel where
-"kernel R = (op `` (R^-1)) ` (finestpart (Range R))"
-
-definition part2rel (*from a partition to its equivalence relation*)
-:: "'a set set => ('a \<times> 'a) set"
-where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
-
-definition quotient where "quotient R P Q =
-{(p,q)| p q. q \<in> (Range (projector Q)) & p \<in> Range (projector P) & p \<times> q \<inter> R \<noteq> {}}
-(* {x \<in> Range (projector P) \<times> (Range (projector Q)) . (fst x) \<times> (snd x) \<inter> R \<noteq> {}} *)"
-
-(*MC: to be moved to Properties *)
-lemma lll40: shows "(P \<union> Q) || X = (P || X) \<union> (Q||X)" using assms restrict_def 
-proof -
-let ?R="P \<union> Q" have "P \<inter> (X \<times> Range ?R) = P \<inter> (X \<times> Range P)" by blast moreover have 
-"Q \<inter> (X \<times> Range ?R) = Q \<inter> (X \<times> Range Q)"by fast
-ultimately show ?thesis using restrict_def by (metis inf_sup_aci(1) inf_sup_distrib2)
-(* MC: very slow *)
-qed
-
-definition compatible where 
--- {* Whether R takes each single P-eqclass into a subset of one single Q-eqclass.
-This is usually asked when R is a function and P Q are equivalence relations 
-over its domain and range, respectively.
-However, such requirements are not formally needed, here. *} 
-"compatible R P Q = (\<forall> x . (R``(P``{x}) \<subseteq> Q``(R``{x})))"
-
-definition update where "update P Q = P +* (Q || (Domain P))"
-(*MC: no longer used, but possibly interesting: behaves like +* (paste), but
-without enlarging P's Domain. Compare with fun_upd *)
-notation update (infix "+^" 75)
-
-definition runiqer 
-::"('a \<times> 'b) set => ('a \<times> 'b) set"
-(* MC: A choice map to solve a multi-valued relation 
-into a function of maximal domain *)
-where "runiqer R={ (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
-(* MC: alternatively: "...| x. True }" *)
-
-definition graph where "graph X f = {(x, f x) | x. x \<in> X}" 
-(* duplicates Function_Order, which is otherwise unneeded,
-and I don't have enough hardware to import *)
-
-definition ler_in where "ler_in r= (\<Union>x. ({x} \<times> (r x -` {True})))"
-(* inverts in_rel *)
-
-abbreviation "eval_rel2 (R::('a \<times> ('b set)) set) (x::'a) == \<Union> (R``{x})"
-notation eval_rel2 (infix ",,," 75)
-(* MC: realized that eval_rel2 could be preferable to eval_rel, because it generalizes the latter 
-while evaluating to {} outside of the domain, and to something defined in general when eval_rel is not. 
-This is generally a better behaviour from the formal point of view (cmp. lll74)
-   CL: very nice indeed! *)
-(* MC: Realized that ,,, seems to work only with set-yielding relations! 
-This has to do with the fact that in HOL not everything is a set, as it happens in ZF *)
-
-abbreviation "Kernel == part2rel \<circ> kernel"
+text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e.\ an empty or
+  singleton set) under the relation is trivial again. *}
+definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
+"runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
 end

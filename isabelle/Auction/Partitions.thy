@@ -18,7 +18,7 @@ theory Partitions
 imports
   Main
   SetUtils
-  HOLUtils
+(*  HOLUtils *)
 
 begin
 
@@ -81,8 +81,9 @@ lemma remove_from_eq_class_preserves_disjoint:
       and eq_class: "X \<in> P"
       and elem: "elem \<in> X"
   shows "X - {elem} \<notin> P"
-using assms using is_partition_def
-by (smt Diff_iff Int_Diff Int_absorb Int_commute insertCI)
+ using assms
+ Int_Diff is_partition_def 
+by (metis Diff_disjoint Diff_eq_empty_iff Int_absorb2 insert_Diff_if insert_not_empty)
 
 text {* Inserting into a partition @{term P} a set @{term X}, which is disjoint with the set 
   partitioned by @{term P}, yields another partition. *}
@@ -578,13 +579,12 @@ proof -
     by blast
   also have "\<dots> = ?remove_elem ` (?elem_neq_classes \<union> {Y}) - {{}}" using P_wrt_elem by presburger
   also have "\<dots> = ?elem_neq_classes \<union> {?elem_eq} - {{}}"
-    using elem_eq_class' partition_without_def Y_elem_eq elem_neq_classes_id
-    by (smt image_Un)
+    using Y_elem_eq elem_neq_classes_id image_Un by metis
   finally have Q_wrt_elem: "?Q = ?elem_neq_classes \<union> {?elem_eq} - {{}}" .
 
   have "?elem_eq = {} \<or> ?elem_eq \<notin> P"
-    using elem_eq_class elem_eq_class' partition unfolding is_partition_def
-    by (smt Diff_Int_distrib2 Diff_iff Int_absorb empty_Diff insert_iff)
+    using elem_eq_class elem_eq_class' partition Diff_Int_distrib2 Diff_iff empty_Diff insert_iff
+unfolding is_partition_def by metis
   then have "?elem_eq \<notin> P"
     using partition no_empty_eq_class
     by metis
@@ -713,7 +713,7 @@ lemma all_partitions_paper_equiv_alg':
 proof (induct xs)
   case Nil
   have "set (map set (all_partitions_list [])) = all_partitions (set [])"
-    unfolding List.set.simps(1) emptyset_part_emptyset3 by simp
+    unfolding List.set_simps(1) emptyset_part_emptyset3 by simp
     (* Sledgehammer no longer seems to find this, maybe after we have added the "distinct" part to the theorem statement. *)
   moreover have "\<forall> ps \<in> set (all_partitions_list []) . distinct ps" by fastforce
   ultimately show ?case ..
@@ -741,12 +741,12 @@ next
     have "is_partition_of ?P_without_x (set xs)"
       unfolding is_partition_of_def
       using is_partition partition_without_is_partition partition_without_covers P_covers x_notin_xs
-      by (metis Diff_insert_absorb List.set.simps(2))
+      by (metis Diff_insert_absorb List.set_simps(2))
     with hyp_equiv have p_list: "?P_without_x \<in> set (map set (all_partitions_list xs))"
       unfolding all_partitions_def by fast
     have "P \<in> coarser_partitions_with x ?P_without_x"
       using coarser_partitions_inv_without is_partition P_covers
-      by (metis List.set.simps(2) insertI1)
+      by (metis List.set_simps(2) insertI1)
     then have "P \<in> \<Union> (coarser_partitions_with x ` set (map set (all_partitions_list xs)))"
       using p_list by blast
     then have "P \<in> all_coarser_partitions_with x (set (map set (all_partitions_list xs)))"
@@ -786,7 +786,7 @@ next
       using Q_covers P_in_Y Y_coarser' coarser_partitions_covers by fast
     then have "\<Union> P = set (x # xs)"
       using x_notin_xs P_wrt_Q Q_covers
-      by (metis List.set.simps(2) insert_is_Un sup_commute)
+      by (metis List.set_simps(2) insert_is_Un sup_commute)
     then have "is_partition_of P (set (x # xs))"
       using P_partition unfolding is_partition_of_def by blast
     then show "P \<in> all_partitions (set (x # xs))" unfolding all_partitions_def ..
@@ -808,7 +808,7 @@ next
     with ps_part obtain qs
       where qs: "qs \<in> set (all_partitions_list xs)"
         and ps_coarser: "ps \<in> set (coarser_partitions_with_list x qs)"
-      by (smt UnionE comp_def imageE)
+      using UnionE comp_def imageE by auto
 
     from qs have "set qs \<in> set (map set (all_partitions_list (xs)))" by simp
     with distinct_xs hyp_equiv have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
@@ -885,14 +885,16 @@ proof
     show "\<forall> X \<in> P \<union> {B} . \<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)"
     proof
       fix X assume X_class: "X \<in> P \<union> {B}"
-      show "\<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)"
+      show "\<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" 
+by (metis Un_insert_right X_class assms(1) assms(2) assms(3) is_partition_def is_partition_of_def partition_extension1 sup_bot.right_neutral)
+(*
       proof
         fix Y assume Y_class: "Y \<in> P \<union> {B}"
         show "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y"
-        proof (rule case_split_2_times_2)
+        proof (*rule case_split_2_times_2*)
           assume "X \<in> P \<and> Y \<in> P"
           then have "X \<in> P" and "Y \<in> P" by simp_all
-          with part show ?thesis unfolding is_partition_of_def is_partition_def by simp
+          with part show ?thesis unfolding is_partition_of_def is_partition_def sorry
         next
           assume "X \<in> P \<and> Y \<notin> P"
           then have "X \<in> P" and "Y \<notin> P" by simp_all
@@ -914,6 +916,7 @@ proof
           with non_empty show ?thesis by simp
         qed
       qed
+*)
     qed
   qed
   show "\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y"
@@ -944,9 +947,9 @@ next
   then show ?thesis by blast
 qed
 
-(* TODO CL: document if we need this *)
+(* TODO CL: document if we need this 
 lemma
-  assumes part: "is_partition_of P A"
+  assumes part: "P partitions A"
       and eq_class_old: "Xold \<in> P" (* Xold is an equivalence class of the old partition *)
       and eq_class_sub: "Xold \<subseteq> Xnew" (* The new equivalence class contains more elements. *)
       and eq_class_ext_new: "(Xnew - Xold) \<inter> A = {}" (* The additional elements are not in the original set. *)
@@ -972,7 +975,7 @@ proof -
       proof (cases "x \<in> Xold'")
         case True
         with eq_class_old' part' show ?thesis using is_partition_of_def is_partition_def 
-          by (smt disjoint_iff_not_equal insertI1 Diff_iff)
+        Diff_iff IntI Int_absorb all_not_in_conv insert_iff by (metis(no_types))
       next
         case False
         then have "x \<in> Xnew' - Xold'" using `x \<in> Xnew'` by simp
@@ -1012,5 +1015,6 @@ proof -
   }   
   then show ?thesis unfolding is_partition_def by force
 qed
+*)
 
 end

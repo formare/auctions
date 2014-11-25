@@ -23,7 +23,7 @@ begin
 
 section {* Range *}
 
-(* TODO CL: document *)
+(* TODO CL: document 
 lemma Range_except:
   fixes R::"('a \<times> 'b) set"
     and N::"'b set"
@@ -36,7 +36,7 @@ proof (rule equalitySubsetI)
   have y_in_Range: "y \<in> Range R"
     using y by (metis (lifting, no_types) Range.simps mem_Collect_eq split_conv)
   moreover have "y \<in> N" using y_in_Range by (metis Range in_mono)
-  moreover have "y \<noteq> n" using y by (smt Range_Collect_split mem_Collect_eq)
+  moreover have "y \<noteq> n" using y Range_Collect_split mem_Collect_eq by fast
   ultimately show "y \<in> (N - {n}) \<inter> Range R" by blast
 next
   fix y
@@ -46,6 +46,7 @@ next
   moreover have "y \<in> Range R" using y by fast
   ultimately show "y \<in> Range { (x, y) . (x, y) \<in> R \<and> y \<noteq> n }" by blast
 qed
+*)
 
 text{* If @{term z} is not in the range of a binary relation, removing all tuples with @{term z}
   as their second component from the relation doesn't change the relation
@@ -66,7 +67,7 @@ proof -
 qed
 
 section {* Domain *}
-
+(*
 text{* If a relation is left-total on a set @{term A}, its superrelations are left-total on @{term A} too. *}
 lemma suprel_left_total_on:
   fixes R :: "('a \<times> 'b) set"
@@ -76,8 +77,9 @@ lemma suprel_left_total_on:
       and "R \<subseteq> Q"
   shows "A \<subseteq> Domain Q"
 using assms by fast
+*)
 
-(* TODO CL: document *)
+(* TODO CL: document 
 lemma Domain_except:
   fixes R::"('a \<times> 'b) set"
     and N::"'a set"
@@ -93,6 +95,7 @@ proof -
   also have "\<dots> = (N - {n}) \<inter> Domain R" by simp
   finally show ?thesis .
 qed
+*)
 
 section {* Image *}
 
@@ -101,8 +104,6 @@ lemma Image_within_domain: "R `` X = R `` (X \<inter> Domain R)"
 by fast
 
 text {* An alternative phrasing of @{thm Image_within_domain} *}
-lemma Image_within_domain': fixes x R shows "x \<in> Domain R \<longleftrightarrow> R `` {x} \<noteq> {}"
-using Image_within_domain by blast
 
 text {* The image of a set outside a relation's domain under that domain is empty. *}
 lemma Image_outside_domain:
@@ -124,21 +125,5 @@ text {* alternative characterisation of the intersection of a relation's domain 
   terms of the converse relation *}
 lemma Domain_Int_wrt_converse: "Domain R \<inter> X \<subseteq> R\<inverse> `` (R `` X)"
 by fast
-
-lemma ll59: shows "P O Q={(x,z) | x z. (EX y. (x,y) \<in> P & (y,z)\<in>Q)}"
-using assms relcomp_def by blast
-
-lemma ll60: shows "P O Q O R = 
-{(v,z)| v z. EX x y. (v,x) \<in> P & (x,y) \<in> Q & (y,z)\<in>R}" by blast
-
-lemma ll61: assumes "refl_on X P" "x\<in>X" shows "x \<in> P``{x}" using refl_on_def assms
-by (metis Image_singleton_iff)
-
-lemma ll88: assumes "P xx" shows "{(x, f x)|x. P x}``{xx} = {f xx}"
-using Image_def assms by blast
-
-lemma lll07: shows "(P \<inter> Q)``{x} = (P``{x} \<inter> (Q``{x}))" by fastforce
-
-lemma assumes "P \<inter> Q={}" shows "P^-1 \<inter> Q^-1={}" using assms by fast
 
 end

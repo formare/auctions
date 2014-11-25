@@ -21,7 +21,7 @@ theory Maximum
 imports Main 
 (* "~~/src/HOL/Library/AList" *)
 begin
-
+(*
 text{*
 The maximum component value of a vector y of non-negative values is equal to the value of one of the components, and it is greater or equal than the values of all [other] components.
 
@@ -46,9 +46,9 @@ lemma maximum_except_defined:
   fixes N i
   assumes "i \<in> N" "card N > 1"
   shows "maximum_defined (N - {i})"
-  using assms
   unfolding maximum_defined_def
-  by (smt card.remove card_infinite)
+  using assms card.remove card_infinite    
+  by (metis One_nat_def less_nat_zero_code neq_iff)
 
 definition maximum :: "'a set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
   where "maximum N y = Max (y ` N)"
@@ -104,26 +104,26 @@ proof -
     then show "a \<le> m" using greater_or_equal by blast
   qed
 qed
-
+*)
 (* TODO CL: rename once widely used *)
 text {* the subset of elements of a set where a function reaches its maximum *}
-fun arg_max' :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
-where "arg_max' f A = { x \<in> A . f x = Max (f ` A) }"
+fun argmax :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
+where "argmax f A = { x \<in> A . f x = Max (f ` A) }"
 
 text {* The arg max of a function over a non-empty set is non-empty. *}
 
-lemma mm79: "arg_max' f A = A \<inter> f -` {Max (f ` A)}" by force
+lemma mm79: "argmax f A = A \<inter> f -` {Max (f ` A)}" by force
 lemma mm86b: assumes "y \<in> f`A" shows "A \<inter> f -` {y} \<noteq> {}" using assms by blast
-corollary arg_max'_non_empty_iff: assumes "finite X" "X \<noteq> {}" shows "arg_max' f X \<noteq>{}" 
-using assms Max_in finite_imageI image_is_empty mm79 mm86b by metis
-
+corollary argmax_non_empty_iff: assumes "finite X" "X \<noteq> {}" shows "argmax f X \<noteq>{}"
+using assms Max_in finite_imageI image_is_empty mm79 mm86b by (metis(no_types))
 (*
-lemma arg_max'_non_empty_iff:
+(*
+lemma argmax_non_empty_iff:
   fixes f::"'a \<Rightarrow> 'b::linorder"
     and A::"'a set"
   assumes "A \<noteq> {}"
       and "finite A"
-  shows "arg_max' f A \<noteq> {}"
+  shows "argmax f A \<noteq> {}"
 proof -
   from assms have "Max (f ` A) \<in> f ` A" by simp
   then obtain x where "x \<in> A" and "f x = Max (f ` A)" by (auto simp: image_iff)
@@ -224,11 +224,11 @@ proof -
   have "y ` ?M = (y(i := a)) ` ?M" by auto
   then show ?thesis unfolding maximum_def by simp
 qed
-
+*)
 (* TODO CL: revise as per https://github.com/formare/auctions/issues/17 *)
 
 (* MC: Yet another approach below, focusing on reusing stuff (Max, zip, map, filter) 
-rather than doing our own recursion to calculate argmax *)
+rather than doing our own recursion to calculate argmaxList *)
 
 definition filterpositions 
 (* MC: Non(directly)recursive generalization for max_positions, have no idea about efficiency.
@@ -244,27 +244,31 @@ definition filterpositions2
 where "filterpositions2 P l = 
 [n. n \<leftarrow> [0..<size l], P (l!n)]"
 
-(* TODO CL: re-enable this (but it's not used anyway) once we have a more efficient proof.
-   With Isabelle2013-1-RC1 this one takes ages.
-lemma ll2: fixes l shows "zip l (upt 0 (size l))= [(l!n,n). n \<leftarrow> [0..<size l]]" 
-using assms zip_def upt_def 
-by (smt length_map length_zip list_eq_iff_nth_eq map_nth nth_map nth_zip)
-*)
-
 definition maxpositions :: "'a::linorder list => nat list" where
 "maxpositions l = filterpositions2 (%x . x \<ge> Max (set l)) l"
 
 lemma ll5: fixes l shows 
-"maxpositions l = [ n . n \<leftarrow> [0..<size l], l!n \<ge> Max (set l)]" 
+"maxpositions l = [n. n\<leftarrow>[0..<size l], l!n \<ge> Max(set l)]" 
 using assms unfolding maxpositions_def filterpositions2_def by fastforce
 
-definition argmax
+definition argmaxList
 :: "('a => ('b::linorder)) => 'a list => 'a list"
-where "argmax f l = map (nth l) (maxpositions (map f l))"
+where "argmaxList f l = map (nth l) (maxpositions (map f l))"
 
-lemma ll7: fixes m P shows 
-"[n . n <- [0..<m], P n] = [n . n <- [0..<m], n \<in> set [0..<m], P n]"
-by (smt concat_map_singleton map_ext map_ident)
+lemma "[n . n <- [0..<m], (n \<in> set [0..<m] & P n)] 
+= [n . n <- [0..<m], n \<in> set [0..<m], P n]" by meson
+
+lemma ll7b: "[n . n <- l, P n] = [n . n <- l, n \<in> set l, P n]" 
+proof - (*MC: sledgehammer-generated proof. I commented out the first three lines (they look quite useless), making it almost readable proof. *)
+(*  assume "\<forall>v0. SMT2.fun_app uu__ v0 = (if P v0 then [v0] else [])"
+  assume "\<forall>v0. SMT2.fun_app uua__ v0 = (if v0 \<in> set l then if P v0 then [v0] else [] else [])" 
+  obtain v3_0 :: "('a \<Rightarrow> 'a list) \<Rightarrow> 'a list \<Rightarrow> ('a \<Rightarrow> 'a list) \<Rightarrow> 'a" where *) have
+"map (\<lambda>uu. if P uu then [uu] else []) l = map (\<lambda>uu. if uu \<in> set l then if P uu then [uu] else [] else []) l" by simp
+  thus "concat (map (\<lambda>n. if P n then [n] else []) l) = concat (map (\<lambda>n. if n \<in> set l then if P n then [n] else [] else []) l)" by presburger
+qed
+
+lemma ll7: "[n . n <- [0..<m], P n] = [n . n <- [0..<m], n \<in> set [0..<m], P n]" using ll7b by fast
+(* concat_map_singleton map_ident  map_ext by smt*)
 
 lemma ll9: fixes f l shows "maxpositions (map f l) =
 [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]"
@@ -274,7 +278,7 @@ proof -
   [n. n <- [0..<size (map f l)], n\<in> set[0..<size (map f l)], (map f l)!n \<ge> Max (set (map f l))]
   (*[n. n <- [0..<size (map f l)], (n<size l), (n<size l \<longrightarrow> (map f l)!n \<ge> Max (set (map f l)))]*)
   "
-  using ll7 unfolding filterpositions2_def maxpositions_def .
+  using ll7b unfolding filterpositions2_def maxpositions_def .
   also have 
   "... = 
   [n . n <- [0..<size l], (n<size l), ((map f l)!n  \<ge> Max (set (map f l)))]
@@ -309,14 +313,14 @@ lemma ll10: fixes f m P shows
 by (induct m) auto
 
 lemma ll11: fixes f l shows 
-"argmax f l = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]"
+"argmaxList f l = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]"
 proof -
   have "maxpositions (map f l) =
   [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" using ll9 by fast
   hence "map (nth l) (maxpositions (map f l)) = 
   map (nth l) [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" by presburger
   also have "... = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" 
-  using ll10 by fast finally show ?thesis unfolding argmax_def .
+  using ll10 by fast finally show ?thesis unfolding argmaxList_def .
 qed
 
 (* MC: map_commutes, filterpositions are fairly general and should be moved
@@ -369,13 +373,13 @@ fix xs show "[ f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]" using 3 by blas
 qed
 
 theorem argmaxadequacy: 
-(* MC: RHS of thesis should formally reassure about what argmax does.
+(* MC: RHS of thesis should formally reassure about what argmaxList does.
 I didn't use it directly as a definition of the latter (both appear 
 to be computable) because I find filterpositions of independent interest*)
 fixes f::"'a => ('b::linorder)" fixes l::"'a list" shows 
-"argmax f l = [ x <- l. f x \<ge> Max (f`(set l))]"
+"argmaxList f l = [ x <- l. f x \<ge> Max (f`(set l))]"
 proof -
-  let ?lh="argmax f l" let ?P="% y::('b::linorder) . y \<ge> Max (f`(set l))"
+  let ?lh="argmaxList f l" let ?P="% y::('b::linorder) . y \<ge> Max (f`(set l))"
   let ?mh="[nth l n . n <- [0..<size l], ?P (f (nth l n))]"
   let ?rh="[ x <- (map (nth l) [0..<size l]). ?P (f x)]"
   have "?lh = ?mh" using ll11 by fast
@@ -384,14 +388,20 @@ proof -
   finally show ?thesis by force
 qed
 
+(* TODO CL: re-enable this (but it's not used anyway) once we have a more efficient proof.
+   With Isabelle2013-1-RC1 this one takes ages.
+lemma ll2: fixes l shows "zip l (upt 0 (size l))= [(l!n,n). n \<leftarrow> [0..<size l]]" 
+using assms zip_def upt_def 
+by (smt length_map length_zip list_eq_iff_nth_eq map_nth nth_map nth_zip)*)
 
-lemma mk01: "[ x <- l. f x \<ge> Max (f`(set l))] = [ x <- l. f x = Max (f`(set l))]" using  
+
+(*lemma mk01: "[ x <- l. f x \<ge> Max (f`(set l))] = [ x <- l. f x = Max (f`(set l))]" using  
 List.finite_set Max.coboundedI eq_iff finite_imageI image_eqI filter_cong
-by smt
+(* by smt2 *)
 
-corollary "set (argmax f l) = arg_max' f (set l)" 
-using assms argmaxadequacy mk01 sledgehammer
-by (metis (full_types) arg_max'.elims set_filter)  
+corollary "set (argmaxList f l) = argmax f (set l)" 
+using assms argmaxadequacy mk01 by (metis (full_types) argmax.elims set_filter)  
+*)
 
 end
 
