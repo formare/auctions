@@ -1,9 +1,0 @@
-% our own, CATS-like format with bidder IDs
-goods 2
-bidders 3
-% <bidder ID> <price> <good> ... <good> #
-0	2.0	0	1	#
-1	2	0	#
-1	2	1	#
-2	2	0	#
-2	2	1	#
