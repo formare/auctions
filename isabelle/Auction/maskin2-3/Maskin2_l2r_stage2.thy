@@ -2,7 +2,7 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Marco B. Caminati <marco.caminati@gmail.com>
+* Marco B. Caminati http://caminati.co.nr
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -427,8 +427,9 @@ proof -
     fix j 
     let ?b1="b+*(?I \<times> {v1 j})" let ?b2="b+*(?I \<times> {v2 j})" have 
     20: "?u (A ?b1) & ?u (A ?b2)" using assms 1 by blast have
-    "?b1 \<in> ?B & ?b2 \<in> ?B" by blast then have 
-    22: "?GG,,?b1=?af ?b1 & ?GG,,?b2=?af ?b2" using ll33 by smt  
+    "?b1 \<in> ?B & ?b2 \<in> ?B" by blast then moreover have 
+    "?GG,,?b1=?af ?b1" using ll33 by (metis (no_types, lifting)) ultimately have 
+    22: "?GG,,?b1=?af ?b1 & ?GG,,?b2=?af ?b2" using ll33 by (metis(no_types, lifting))
     have "?d ?b1=?d b \<union> (?d (?I \<times> {v1 j}))" using paste_Domain by metis
     also have "... = ?d b" using assms by blast
     also have "... = ?d b \<union> (?d (?I \<times> {v2 j}))" using assms by blast
@@ -454,7 +455,7 @@ proof -
     ultimately have "?b2``?I={Sup (?r ?b2)}" using 3 by presburger
     then moreover have "?b2^-1``{Sup (?r ?b2)} \<supseteq> ?I" by blast
     moreover have 
-    5: "{Sup(?r ?b2)} = ?b2``((A ?b2)^-1``{a2})" using assms effic_def 3 by smt
+    5: "{Sup(?r ?b2)} = ?b2``((A ?b2)^-1``{a2})" using assms effic_def 3 by (metis(no_types,lifting))
     moreover have 
     12: "v2 j \<notin> ?r ?bb" using 8 2 by 
     (metis Un_commute Un_empty_right `Range (b +* {i} \<times> {v2 j}) = 
@@ -634,7 +635,7 @@ definition weakefficientOld where "weakefficientOld a i =
 )" 
 
 lemma assumes "dom2 i a p" shows "weakdom i a p" 
-using dom2_def weakdom_def assms by smt
+using dom2_def weakdom_def assms by SMT
 
 lemma assumes "dom4 i (a || runiqs) p" 
 shows "dom2 i (a || runiqs) p" 

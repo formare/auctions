@@ -2,10 +2,11 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
+* Marco B. Caminati http://caminati.co.nr
 * Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
-* Marco B. Caminati <marco.caminati@gmail.com>
+
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -20,7 +21,6 @@ theory StrictCombinatorialAuction
 imports Complex_Main
   Partitions
   MiscTools
-  Maximum
 
 begin
 
@@ -123,10 +123,13 @@ where "value_fun b Yp  = (let Y = fst Yp; x = snd Yp in
             | Some n \<Rightarrow> b n y))"
 *)
 *)
+
+(*
 text {* all possible allocations of a set of goods to a set of participants: 
   injective functions that map sets of goods to their potential buyers, i.e.\ participants.
   Here, we assume that everything gets allocated, i.e. that there is no free disposal.
   This assumption facilitates the paper\<leftrightarrow>algorithm equivalence proof for injective functions. *}
+*)
 fun possible_allocations_rel (*:: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel set"*)
 where "possible_allocations_rel G N = Union { injections Y N | Y . Y \<in> all_partitions G }" 
 
@@ -233,7 +236,6 @@ by force
 
 section {* VCG mechanism *}
 
-
 abbreviation "winningAllocationsRel N G b == 
 argmax (setsum b) (possibleAllocationsRel N G)"
 
@@ -264,7 +266,9 @@ text{* To each allocation we associate the bid in which each participant bids fo
 the cardinality of the intersection of that set with the set she gets in the given allocation.
 By construction, the revenue of an auction run using this bid is maximal on the given allocation,
 and this maximal is unique.
-We can then use the bid constructed this way @{term tiebids'} to break ties. *}
+We can then use the bid constructed this way @{term tiebids'} to break ties by running an auction 
+having the same form as a normal auction (that is why we use the adjective ``uniform''), 
+only with this special bid vector. *}
 abbreviation "omega pair == {fst pair} \<times> (finestpart (snd pair))"
 abbreviation "pseudoAllocation allocation == \<Union> (omega ` allocation)"
 (*abbreviation "allocation2Goods allocation == \<Union> (snd ` allocation)"*)

@@ -1,6 +1,6 @@
 theory RelationQuotient
 
-imports "../MiscTools" "../RelationProperties"
+imports "../MiscTools" "../RelationProperties" "../Partitions"
 
 begin
 
@@ -8,6 +8,72 @@ lemma l14b: "runiq (Graph f)"
 proof -
   have "runiq {(x, f x)|x. True}" using l14 by fast thus ?thesis using Graph_def by metis
 qed
+
+section {* Definitions *}
+
+definition projector where "projector R =
+{ (x,R``{x}) | x . 
+x \<in> Domain R 
+(* True *)
+}
+(* Graph (% x . (R `` {x}))*)
+"
+(* compare quotient in Equiv_Relations: here we don't require Range R and Domain R 
+to have the same type.
+Note that now X//R = Range (projector (R || X)), in the special case of 
+R being an equivalence relation *)
+
+text {* Any function (or relation) partitions its domain into the elements having the same image.
+@{term kernel} returns this partition *}
+definition kernel where "kernel R = (op `` (R^-1)) ` (finestpart (Range R))"
+
+text {* Any partition of a set naturally yields an equivalence relation over that set. 
+@{term part2rel} does that. *}
+definition part2rel (*from a partition to its equivalence relation*)
+:: "'a set set => ('a \<times> 'a) set"
+where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
+
+lemma ll65: fixes R shows "kernel R = {R^-1 `` {y}|y. y\<in> Range R}"
+(is "?LH=?RH")
+proof -
+have "?LH = {R^-1 `` Y| Y. Y \<in> finestpart (Range R)}"
+using kernel_def by (metis image_Collect_mem)
+also have "...={R^-1 `` Y| Y. Y \<in> {{y}|y. y\<in> Range R}}" using ll64 by metis
+also have "...= ?RH" by blast ultimately show ?thesis by presburger
+qed
+
+lemma ll73: "(x,y) \<in> part2rel XX = (EX X. X\<in>XX & x\<in>X & y\<in>X)"
+using assms part2rel_def by blast
+lemma ll75: "sym (part2rel XX)" using assms ll73 sym_def 
+proof -
+let ?R="part2rel XX" {fix x y assume "(x,y)\<in>?R" hence "(y,x)\<in>?R" using ll73 by metis}
+thus ?thesis using sym_def by blast
+qed
+lemma l47: "Domain (part2rel XX)=\<Union> XX & \<Union> XX = Range (part2rel XX)" 
+using part2rel_def by blast
+
+lemma ll74: "refl_on (Union XX) (part2rel XX)" 
+proof -
+let ?R="part2rel XX" let ?X="\<Union> XX" have 
+0: "?R \<subseteq> ?X \<times> ?X" using l47 by fastforce
+{fix x assume "x \<in> ?X" then have "(x,x)\<in>?R" using ll73 by fast} 
+thus ?thesis using refl_on_def 0 by metis
+qed
+
+abbreviation "Kernel == part2rel \<circ> kernel"
+
+definition quotient where "quotient R P Q =
+{(p,q)| p q. q \<in> (Range (projector Q)) & p \<in> Range (projector P) & p \<times> q \<inter> R \<noteq> {}}
+(* {x \<in> Range (projector P) \<times> (Range (projector Q)) . (fst x) \<times> (snd x) \<inter> R \<noteq> {}} *)"
+
+definition compatible where 
+-- {* Whether R takes each single P-eqclass into a subset of one single Q-eqclass.
+This is usually asked when R is a function and P Q are equivalence relations 
+over its domain and range, respectively.
+However, such requirements are not formally needed, here. *} 
+"compatible R P Q = (\<forall> x . (R``(P``{x}) \<subseteq> Q``(R``{x})))"
+
+section {* *}
 
 corollary l15: fixes R::"('a \<times> 'b) set" shows "runiq (projector R)"
 proof -
@@ -533,11 +599,6 @@ by (metis Diff_subset_conv Un_upper2 le_supI1 outside_reduces_domain)
 
 lemma ll18: "P outside (X \<union> Domain P)={}" using ll17 by fast
 
-lemma ll19: "(P +* Q) outside (X \<union> Domain Q) = 
-P outside (X \<union> Domain Q)" using assms paste_def ll51 ll52 ll18 
-(* by (metis outside_union_restrict restrict_empty sup.right_idem)*)
-by (metis (hide_lams, no_types) empty_subsetI le_sup_iff subset_refl sup_absorb1 sup_absorb2)
-
 lemma ll12: assumes "runiq f" shows 
 "Range (projector (f^-1)) = Range (projector (part2rel (kernel f)))"
 (is "?A=?B")
@@ -654,7 +715,23 @@ runiq_singleton_rel by metis
 lemma lll43: "(X2 \<times> {y}) outside X1 = (X2 - X1) \<times> {y}" using assms Outside_def 
 by auto
 
+
+
+lemma ll19: "(P +* Q) outside (X \<union> Domain Q) = P outside (X \<union> Domain Q)" 
+unfolding paste_def Outside_def by auto
+(*
+using assms paste_def ll51 ll52 ll18 
+(* by (metis outside_union_restrict restrict_empty sup.right_idem)*)
+by (metis (hide_lams, no_types) empty_subsetI le_sup_iff subset_refl sup_absorb1 sup_absorb2)
+*)
+corollary lll91: assumes "Domain Q \<subseteq> X" shows "(P +* Q) outside X = P outside X" 
+using assms ll19 by (metis sup.orderE)
 corollary lll91b: "(P +* Q) outside (Domain Q)=P outside (Domain Q)" using ll19 by (metis Un_absorb)
+(*
+lemma lll91b: "(r+<(x,y)) -- x = r -- x" 
+using ll19 by (metis Domain_empty Domain_insert fst_conv lll91b)
+unfolding Outside_def paste_def by auto
+*)
 
 corollary lll91c: "(P +< (x,y)) -- x = P -- x" using lll91b by (metis Domain_empty Domain_insert fst_conv)
 
@@ -683,5 +760,60 @@ proof -
   ultimately show ?thesis using lll94 by auto
 qed
 lemma lll07: "(P \<inter> Q)``{x} = (P``{x} \<inter> (Q``{x}))" by fastforce
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lemma ll76: assumes "is_partition XX" shows "trans (part2rel XX)" 
+proof -
+let ?f=part2rel let ?R="?f XX"
+{
+  fix x y z assume "(x,y) \<in> ?R" then obtain X1 where 
+  1: "X1\<in>XX & x\<in>X1 & y\<in>X1" using ll73 by metis 
+  assume "(y,z)\<in>?R" then obtain X2 where 
+  2: "X2\<in>XX & y\<in>X2 & z\<in>X2" using ll73 by metis
+  have "{y} \<subseteq> X1 \<inter> X2" using 1 2 by fast
+  hence "X1=X2" using assms 1 2 by (metis empty_iff is_partition_def singleton_iff subset_empty)
+  hence "(x,z)\<in>?R" using ll73 1 2 by fast
+}
+thus ?thesis using trans_def by blast
+qed
+
+lemma ll72: assumes "runiq f" shows "is_partition {f^-1 `` {y}| y. y\<in> Range f}" 
+proof -
+let ?i=is_partition let ?R=Range let ?r=runiq let ?g="f^-1"
+let ?P="{?g `` {y}| y. y\<in> ?R f}" have "?thesis = (\<forall> X\<in> ?P . \<forall> Y \<in> ?P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))" 
+using is_partition_def by (rule exE_realizer)
+thus ?thesis using ll68 assms by fast 
+qed
+
+lemma ll79: assumes "runiq f" shows "kernel f partitions (Domain f)"
+proof -
+have 0: "Domain f = \<Union> kernel f" using ll65 by blast
+have "is_partition (kernel f)" using assms ll72 ll65 by metis
+thus ?thesis using 0 is_partition_of_def by metis
+qed
+
+lemma ll77: assumes "is_partition XX" shows "equiv (Union XX) (part2rel XX)" 
+using assms ll74 ll75 ll76 equiv_def by fast
+
+corollary ll78: assumes "runiq f" shows "equiv (Domain f) (part2rel (kernel f))"
+using assms ll77 ll79 is_partition_of_def by metis
+
+
 end
 

@@ -1,30 +1,30 @@
+(*
+Auction Theory Toolbox (http://formare.github.io/auctions/)
+
+Author: Marco B. Caminati http://caminati.co.nr
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
+
+header {* Termination theorem for uniform tie-breaking *}
+
 theory UniformTieBreaking
 
 imports 
-(*
-Random 
-Random_Sequence
-*)
 StrictCombinatorialAuction
-(*"../Misc"*)
 Universes
-(* Scraps2 *)
 "~~/src/HOL/Library/Code_Target_Nat"
 
 begin
 
+section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid'} *}
+
 corollary lm03: "winningAllocationsRel N G b \<subseteq> possibleAllocationsRel N G" 
 using lm02 mem_Collect_eq subsetI by auto
-
-(*
-abbreviation "uniformTieBreaking random N G bids == 
-Union \<circ> (argmax (setsum (resolvingBid' N G bids (nat random))))"
-(* Union here acts as the_elem: picking the element of a singleton (i.e., stripping away the braces from {x}) *)
-abbreviation "uniformTieBreaking2 random N G bids == 
-% X. \<Union> (argmax (setsum (resolvingBid' N G bids (nat random))) X)"
-abbreviation "Fun_upd X g == (%f x. if x \<in> X then (g x) else f x)"
-notation Fun_upd (infix ":==" 80)
-*)
 
 lemma lm35b: assumes "a \<in> allocationsUniverse" "c \<subseteq> a" shows "c \<in> allocationsUniverse"  
 proof - have "c=a-(a-c)" using assms(2) by blast thus ?thesis using assms(1) lm35 by (metis (no_types)) qed
@@ -59,8 +59,6 @@ using assms mm90b lm59 argmax_non_empty_iff by (metis lm03 rev_finite_subset)
 
 lemma mm52: "possibleAllocationsRel N {} \<subseteq> {{}}" using emptyset_part_emptyset3 mm51 
 lm28b mem_Collect_eq subsetI vimage_def by metis
-(* lemma "possibleAllocationsRel N {} \<supseteq> {{}}" using lm31 lm28b emptyset_part_emptyset3 mm51 
-mem_Collect_eq subsetI vimage_def *)
 
 lemma mm42: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "finite (Range a)" 
 using assms lm55 by (metis lm28)
@@ -299,20 +297,6 @@ have "?L={(fst pair, {y})| y pair. y \<in> snd pair & pair \<in> a}" by (rule mm
 moreover have "... = ?R" by (rule mm55g) ultimately show ?thesis by presburger
 qed
 
-(*
-lemma assumes "{} \<notin> Range a2" "{} \<notin> Range a1" "xx \<in> Domain a2 - (Domain a1)" shows 
-"{(x, {y})| x y. y \<in> a1,,x & x \<in> Domain a1} \<noteq>
-{(x, {y})| x y. y \<in> a2,,x & x \<in> Domain a2}" using assms 
-                       
-lemma assumes "a1 \<noteq> a2" "runiq a1" "runiq a2" shows "pseudoAllocation a1 \<noteq> pseudoAllocation a2" 
-using assms mm55f inj_on_def runiq_def mm55h 
-
-corollary assumes "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-"finite G" shows
-"setsum (maxbid' a N G) (pseudoAllocation a) - setsum (maxbid' a N G) (pseudoAllocation aa) = 0 
-= (a=aa)" 
-*)
-
 lemma mm62: "runiq (LinearCompletion bids N G)" using assms by (metis graph_def image_Collect_mem ll37)
 corollary mm62b: "runiq (LinearCompletion bids N G || a)"
 unfolding restrict_def using mm62 subrel_runiq Int_commute by blast
@@ -339,9 +323,6 @@ have "setsum (?l bids N G) a = setsum (?l bids N G) (a \<inter> Domain (?L bids 
 thus ?thesis using mm59d by auto
 qed
 
-(* lemma assumes "a \<subseteq> N \<times> (Pow G - {{}})" shows 
-"LinearCompletion bids N G || a \<supseteq> (partialCompletionOf bids) ` a" 
-using assms restrict_def by fast *)
 corollary mm59f: assumes "a \<in> possibleAllocationsRel N G" shows 
 "setsum (linearCompletion' bids N G) a = setsum snd ((partialCompletionOf bids) ` ((N \<times> (Pow G - {{}})) \<inter> a))"
 (is "?X=?R")
@@ -546,15 +527,6 @@ proof -
   have "possibleAllocationsRel N G \<subseteq> allocationsUniverse" by (metis (no_types) lm50)
   thus "inj_on pseudoAllocation (possibleAllocationsRel N G)" using mm75h subset_inj_on by blast
 qed
-(*
-lemma "(image omega) ` UNIV \<subseteq> finestpart ` UNIV" 
-lemma "inj_on pseudoAllocation UNIV" using assms mm32 mm75c 
-lemma assumes "pseudoAllocation a1 = pseudoAllocation a2" "{} \<notin> Range a1" "{} \<notin> Range a2" 
-shows "a1 \<subseteq> a2" using assms mm32 
-lemma  assumes "{} \<notin> Range f" "runiq f" shows "is_partition (omega ` f)" using assms
-rev_image_eqI snd_eq_Range assms runiq_def runiq_imp_uniq_right_comp surjective_pairing 
-Int_absorb Times_empty insert_not_empty is_partition_def  inf_commute inf_sup_aci(1) 
-*)
 
 
 
@@ -615,14 +587,6 @@ set (sublist l {n+1..<1+size l})" using insertRightOf_def
 by (metis append_assoc set_append)
 lemma "set l1 \<union> set l2 = set (l1 @ l2)" by simp
 
-
-(* 
-fun perm where 
-"perm [] = {}" | "perm (x#l) = 
-{(n::nat, insertRightOf x (perm l,,(n div size l)) (n mod (size l)))| n . fact (size l) < n & n <= fact (1 + (size l))}
-+* (perm l)"
-*)
-
 fun permOld::"'a list => (nat \<times> ('a list)) set" where 
 "permOld [] = {}" | "permOld (x#l) = 
 graph {fact (size l) ..< 1+fact (1 + (size l))}
@@ -639,12 +603,6 @@ then
 else
 (x # (permL l n))
 )"
-
-(*
-lemma nn13: 
-"vcga' N G bids random = the_elem (terminatingAuctionRel (N\<union>{auctioneer}) G (toFullBid (set G) bids) random)"
-by auto
-*)
 
 lemma mm94: "possibleAllocationsAlg2 N G = set (possibleAllocationsAlg3 N G)" by auto
 lemma mm95: assumes "card N > 0" "distinct G" shows 
@@ -699,38 +657,6 @@ moreover have "... = real (card G) - card (?p aa \<inter> (?p a))" using assms m
 by (metis (lifting, mono_tags))
 ultimately show ?thesis by presburger
 qed
-
-(*
-lemma mm49d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "int (setsum (maxbid' a N G) (pseudoAllocation a)) - int (setsum (maxbid' a N G) (pseudoAllocation aa)) = 
-int (card G) - int (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" 
-proof -
-let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid' let ?B="?m a N G" 
-have "?p aa \<subseteq> N \<times> ?f G" using assms mm73c by blast
-then have "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto
-moreover have "finite (?p aa)" using assms mm48 mm54 by blast
-ultimately have "int (setsum ?B (?p a)) - int (setsum ?B (?p aa)) = int (card (?p a)) - card (?p aa \<inter> (?p a))"
-using mm49c 
-moreover have "... = int (card G) - card (?p aa \<inter> (?p a))" using assms mm48 (* by smt *)
-ultimately show ?thesis by presburger
-qed
-
-corollary mm70: 
-assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "real (setsum (linearCompletion' (maxbid' a N G) N G) a) - setsum (linearCompletion' (maxbid' a N G) N G) aa = 
-real (card G) - real (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" (is "?L=?R") 
-proof -
-  let ?l=linearCompletion' let ?m=maxbid' let ?s=setsum let ?p=pseudoAllocation
-  let ?b="real \<circ> (?m a N G)" 
-  have "?s (?l ?b N G) a = ?s ?b (?p a) & ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms mm69 by blast
-  moreover have "?R = ?s ?b (?p a) - (?s ?b (?p aa))" using assms mm49b 
-  
-  ultimately moreover have "... = ?L" 
-  ultimately show ?thesis 
-qed
-*)
-
-
 
 lemma mm66e: "LinearCompletion bids N G = graph (N \<times> (Pow G-{{}})) (test bids)" 
 unfolding graph_def using mm66 by blast
@@ -842,11 +768,11 @@ qed
 
 abbreviation "terminatingAuctionRel N G bids random == 
 argmax (setsum (resolvingBid' N G bids random)) (argmax (setsum bids) (possibleAllocationsRel N (set G)))"
-(* MC: termination theorem *)
-corollary mm92: assumes 
+
+text{* Termination theorem: it assures that the number of winning allocations is exactly one *}
+theorem mm92: assumes 
 "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
 shows "terminatingAuctionRel N G (bids) random = {chosenAllocation' N G bids random}"
-using assms mm81 mm80 
 proof -
 let ?p=possibleAllocationsRel let ?G="set G" 
 let ?X="argmax (setsum bids) (?p N ?G)"
@@ -868,8 +794,11 @@ moreover have "... = ?t N G bids random" by simp
 ultimately show ?thesis by presburger
 qed
 
-abbreviation "puppa R fallback == (% x. if (x \<in> Domain R) then (R,,x) else fallback)"
-notation puppa (infix "Elsee" 75) (* MC: This is computable, `Else' is not *)
+text {* A more computable adaptor from set-theoretical to HOL function, with fallback value *}
+abbreviation "toFunctionWithFallback2 R fallback == (% x. if (x \<in> Domain R) then (R,,x) else fallback)"
+notation toFunctionWithFallback2 (infix "Elsee" 75) (* MC: This is computable, `Else' is not *)
+
+section {* Combinatorial auction input examples *}
 
 abbreviation "N00 == {1,2::nat}"
 abbreviation "G00 == [11::nat, 12, 13]"
@@ -883,123 +812,6 @@ abbreviation "b00 ==
 ((2,{12}),2),
 ((2,{11,12}),1)
 }"
-lemma "Domain (LinearCompletion b N G) = N \<times> ((Pow G) - {{}})" by blast
-lemma mm93: "terminatingAuctionRel N G bids random = (((argmax \<circ> setsum) (resolvingBid' N G bids random))
-\<circ> ((argmax \<circ> setsum) bids)) (possibleAllocationsRel N (set G))" by auto
-
-(*
-corollary mm92b: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N"  
-shows "vcga' N G bids random = chosenAllocation' (N\<union>{auctioneer}) G (toFullBid (set G) bids) random" 
-using assms mm92 nn13 
-
-corollary mm92c: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" shows 
-"vcga' N G bids random \<in> winningAllocationsRel (N \<union> {auctioneer}) (set G) (toFullBid (set G) bids)" 
-using assms mm92b mm82 
-
-corollary nn14: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"Range (vcga' N G b r) partitions (set G)"
-using assms mm92b mm82 lm47 lm03 
-proof -
-let ?p=possibleAllocationsRel let ?a="vcga' N G b r"
-let ?w=winningAllocationsRel let ?B="toFullBid (set G) b"
-have "?a \<in> ?w (N\<union>{auctioneer}) (set G) ?B" using assms mm92b mm82 lm47 lm03 by auto
-moreover have "?w (N\<union>{auctioneer}) (set G) ?B \<subseteq> ?p (N\<union>{auctioneer}) (set G)" 
-using assms mm92b mm82 lm47 lm03 by presburger
-ultimately have "?a \<in> ?p (N\<union>{auctioneer}) (set G)" by fast
-then show "Range ?a partitions (set G)" using lm47 by presburger
-qed
-
-lemma nn15: assumes "f,,,x \<noteq> {}" shows "x \<in> Domain f" using assms by fast
-lemma nn15b: assumes "runiq f" "f,,,x \<noteq> {}" shows "f,,,x \<in> Range f" 
-using assms nn15 lll82 by (metis eval_runiq_in_Range)
-
-corollary lll81b: assumes "a \<in> possibleAllocationsRel N G" shows 
-"runiq a & runiq (a\<inverse>) & (Range a) partitions G & Domain a \<subseteq> N" 
-using assms  image_iff lll81 converse_converse by (metis lm47)
-
-corollary lll81c: assumes "a \<in> winningAllocationsRel N G b" shows 
-"runiq a & runiq (a\<inverse>) & (Range a) partitions G & Domain a \<subseteq> N" 
-using assms lll81b by (metis (hide_lams, no_types) in_mono lm03)
-
-lemma nn16: assumes "is_partition P"  
-shows "(p1 \<in> P & p2 \<in> P & p1 \<inter> p2 \<noteq> {}) \<longrightarrow> p1 = p2" using assms is_partition_def by metis 
-
-lemma nn17: assumes "runiq f" "runiq (f^-1)" "x1 \<in> Domain f" "x2 \<in> Domain f" "f,,x1 = f,,x2" shows "x1=x2"
-using assms by (metis DomainE converse_iff l31)
-
-abbreviation "evalRel3 R x == if (Range R\<in>Pow UNIV) then (\<Union> (R``{x})) else the_elem (R``{x})"
-(*MC: does not solve my problem because the if condition automatically makes R have values of set type*)
-
-theorem assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
-"g \<in> ((vcga' N G b r),,,n1)" "g \<in> ((vcga' N G b r),,,n2)" shows "n1 = n2" 
-using assms nn14 eval_rel_def 
-proof -
-let ?d=Domain let ?r=Range let ?a="vcga' N G b r" let ?P="Range ?a" 
-let ?p1="?a,,,n1" let ?p2="?a,,,n2" have 
-2: "n1 \<in> ?d ?a & n2\<in>?d ?a" using assms by fast moreover have 
-0: "runiq ?a & runiq (?a^-1)" using assms lll81c mm92c by blast ultimately have 
-3: "?p1=?a,,n1 & ?p2=?a,,n2" using lll82 by fast
-have "is_partition ?P" using assms nn14 is_partition_of_def by blast
-then have "(?p1 \<in> ?P & ?p2 \<in> ?P & ?p1 \<inter> ?p2 \<noteq> {}) \<longrightarrow> ?p1 = ?p2" using nn16 by blast
-moreover have 
-1: "?p1 \<in> ?r ?a & ?p2 \<in> ?r ?a" using nn15b assms 0 by fast
-moreover have "?p1 \<inter> ?p2 \<noteq> {}" using assms by fast
-ultimately have "?p1 = ?p2" by linarith
-then show "n1 = n2" using 0 2 nn17 3 by fast
-qed
-
-lemma nn18: assumes "P partitions A" shows "\<Union> P = A \<and> is_partition P" using assms is_partition_of_def by metis
-
-theorem nn20: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
-"g \<in> ((vcga' N G b r),,,m)" shows "g \<in> set G"
-proof -
-have "(Range (vcga' N G b r)) partitions (set G)" using assms nn14 by blast then have 
-0: "\<Union> (Range (vcga' N G b r)) = set G" using nn18 by blast
-have "runiq (vcga' N G b r) & runiq ((vcga' N G b r)^-1)" using assms lll81c mm92c by blast
-then have "(vcga' N G b r),,,m \<in> Range (vcga' N G b r)" using assms nn15b by fast
-thus ?thesis using 0 assms by blast 
-qed
-
-lemma nn19: "condition1 (toFullBid (set G) b) auctioneer" 
-
-lemma "vcga'' N \<Omega> b random \<in> (singleoutside' (addedBidder N))`(maximalAllocations' N (set \<Omega>) b)"
-using assms 
-
-lemma nn21b: "(singleoutside' (addedBidder N))`(maximalAllocations' N (set \<Omega>) b) \<subseteq>
-(singleoutside' (addedBidder N))`(allAllocations' N (set \<Omega>))" using assms
-by force
-lemma assumes "\<Union>
-(
-(argmax (setsum (randomBids N \<Omega> b r)) (maximalAllocations' N (set \<Omega>) b))) \<in>
-(maximalAllocations' N (set \<Omega>) b)" 
-shows "vcga'' N \<Omega> b r \<in> (singleoutside' (addedBidder N))`(allAllocations' (N) (set \<Omega>))"
-using assms nn21b by fast
-
-lemma assumes "n\<in>N" "n \<noteq> addedBidder N" shows 
-"Outside' ({n,addedBidder N})`(allAllocations' N G) \<subseteq> 
-(singleoutside' (addedBidder (N-{n})))`allAllocations' (N-{n}) G" 
-using assms lm19 lm51 
-lemma assumes "X \<noteq> {}" shows "the_elem X \<in> X" using assms 
-
-lemma assumes
-"vcga'' N \<Omega> b r \<in> (singleoutside' (addedBidder N))`(allAllocations' N (set \<Omega>))"
-"N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" shows
-"vcga'' N \<Omega> b r -- n \<in> (singleoutside' (addedBidder N))`(allAllocations' (N-{n}) (set \<Omega>))" 
-using assms Outside_def lm19 nn21b lm51 
-
-
-lemma lm61g: assumes "condition1 (toFullBid (set G) b) auctioneer" 
-"auctioneer \<noteq> n" "finite N" "a \<in> winningAllocationsRel (N\<union>{auctioneer}) (set G) c"
-shows "alpha' N (set G) b n >= setsum (toFullBid (set G) b) (a -- n)" using assms lm61b by blast
-lemma assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" "seller\<noteq>n" shows "vcgp' N G b r n >= 0" using assms lm61g nn19 mm92c 
-proof -
-let ?w=winningAllocationsRel let ?N="N\<union>{auctioneer}" let ?a="vcga' N G b r"
-let ?b="toFullBid (set G) b"
-have "?a \<in> ?w ?N (set G) ?b" using assms mm92c by blast
-then have "alpha' N (set G) b n >= setsum ?b (?a -- n)" using assms lm61g nn19 by blast
-thus ?thesis by linarith
-qed
-*)
 
 end
 

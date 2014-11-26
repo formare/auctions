@@ -1,3 +1,14 @@
+(*
+Auction Theory Toolbox (http://formare.github.io/auctions/)
+
+Author: Marco B. Caminati http://caminati.co.nr
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
 
 header {* Toolbox of various definitions and theorems about sets, relations and lists *}
 
@@ -8,98 +19,38 @@ RelationProperties
 "~~/src/HOL/Library/Discrete"
 Main
 RelationOperators
-(* RelationUtils *)
 "~~/src/HOL/Library/Code_Target_Nat"
 "~~/src/HOL/Library/Indicator_Function"
-(*Conditionally_Complete_Lattices*)
-Maximum
+Argmax
 
 begin
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+section {* Facts and notations about relations, sets and functions. *}
 
 notation paste (infix "+<" 75)
+text {* @{text +<} abbreviation permits to shorten the notation for altering a function in a single point. *}
 abbreviation singlepaste where "singlepaste F f == F +* {(fst f, snd f)}"
 notation singlepaste (infix "+<" 75) (* Type of g in f +< g should avoid ambiguities *)
+text {* @{text "--"} abbreviation permits to shorten the notation for considering a function outside a single point. *}
 abbreviation singleoutside (infix "--" 75) where "f -- x \<equiv> f outside {x}"
+text {* @{term ler_ni} inverts @{term in_rel} *}
 abbreviation ler_ni where "ler_ni r == (\<Union>x. ({x} \<times> (r x -` {True})))"
-(* inverts in_rel *)
 
+text {* Turns a HOL function into a set-theoretical function *}
 definition  (* compare with Function_Order.thy;  
 MC: the domain can be possibly restricted in a separate step, e.g. through || *)
 (*Graph :: "('a => 'b) => ('a \<times> 'b) set" where *) "Graph f = {(x, f x) | x . True}"
 
+text {* Inverts @{term Graph} (which is equivalently done by @{term eval_rel}). *}
 definition (* inverts Graph *) (* toFunction  where *) "toFunction R = (\<lambda> x . (R ,, x))"
 (* MC: note that toFunction = eval_rel *)
 
 lemma "toFunction = eval_rel" using toFunction_def eval_rel_def by blast
 
-definition projector where "projector R =
-{ (x,R``{x}) | x . 
-x \<in> Domain R 
-(* True *)
-}
-(* Graph (% x . (R `` {x}))*)
-"
-(* compare quotient in Equiv_Relations: here we don't require Range R and Domain R 
-to have the same type.
-Note that now X//R = Range (projector (R || X)), in the special case of 
-R being an equivalence relation *)
+lemma lll40: "(P \<union> Q) || X = (P || X) \<union> (Q||X)" unfolding restrict_def using assms by blast
 
-definition finestpart where "finestpart X = (%x. insert x {}) ` X"
-(*MC: alternative, non-computable, set-theoretical version:
-Range (projector (Graph id || X)) *)
-
-lemma ll64: shows "finestpart X = {{x}|x . x\<in>X}" using finestpart_def by auto
-
-definition kernel where
-"kernel R = (op `` (R^-1)) ` (finestpart (Range R))"
-
-definition part2rel (*from a partition to its equivalence relation*)
-:: "'a set set => ('a \<times> 'a) set"
-where "part2rel X = \<Union> ((% x . (x \<times> x)) ` X)"
-
-definition quotient where "quotient R P Q =
-{(p,q)| p q. q \<in> (Range (projector Q)) & p \<in> Range (projector P) & p \<times> q \<inter> R \<noteq> {}}
-(* {x \<in> Range (projector P) \<times> (Range (projector Q)) . (fst x) \<times> (snd x) \<inter> R \<noteq> {}} *)"
-
-(*MC: to be moved to Properties *)
-lemma lll40: shows "(P \<union> Q) || X = (P || X) \<union> (Q||X)" using assms restrict_def 
-proof -
-let ?R="P \<union> Q" have "P \<inter> (X \<times> Range ?R) = P \<inter> (X \<times> Range P)" by blast moreover have 
-"Q \<inter> (X \<times> Range ?R) = Q \<inter> (X \<times> Range Q)"by fast
-ultimately show ?thesis unfolding restrict_def using inf_sup_aci(1) inf_sup_distrib2 by blast
-qed
-
-definition compatible where 
--- {* Whether R takes each single P-eqclass into a subset of one single Q-eqclass.
-This is usually asked when R is a function and P Q are equivalence relations 
-over its domain and range, respectively.
-However, such requirements are not formally needed, here. *} 
-"compatible R P Q = (\<forall> x . (R``(P``{x}) \<subseteq> Q``(R``{x})))"
-
+text {* Behaves like P +* Q (paste), but without enlarging P's Domain. Compare with @{term fun_upd} *}
 definition update where "update P Q = P +* (Q || (Domain P))"
-(*MC: no longer used, but possibly interesting: behaves like +* (paste), but
-without enlarging P's Domain. Compare with fun_upd *)
 notation update (infix "+^" 75)
 
 definition runiqer 
@@ -109,9 +60,10 @@ into a function of maximal domain *)
 where "runiqer R={ (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
 (* MC: alternatively: "...| x. True }" *)
 
+text {* Like @{term Graph}, but with a built-in restriction to a given set @{term X}.
+This makes it more computable than the equivalent @{term "Graph f || X"}. 
+Duplicates the eponymous definition found in @{text Function_Order}, which is otherwise unneeded. *}
 definition graph where "graph X f = {(x, f x) | x. x \<in> X}" 
-(* duplicates Function_Order, which is otherwise unneeded,
-and I don't have enough hardware to import *)
 
 lemma lm024a: assumes "runiq R" shows "R \<supseteq> graph (Domain R) (toFunction R)" 
 unfolding graph_def toFunction_def
@@ -132,10 +84,8 @@ notation eval_rel2 (infix ",,," 75)
 while evaluating to {} outside of the domain, and to something defined in general when eval_rel is not. 
 This is generally a better behaviour from the formal point of view (cmp. lll74)
    CL: very nice indeed! *)
-(* MC: Realized that ,,, seems to work only with set-yielding relations! 
+(* MC: Realized that ,,, applies only to set-yielding relations. 
 This has to do with the fact that in HOL not everything is a set, as it happens in ZF *)
-
-abbreviation "Kernel == part2rel \<circ> kernel"
 
 
 
@@ -160,57 +110,6 @@ lemma lm04: "graph (X \<inter> Y) f \<subseteq> graph X f || Y" unfolding graph_
 using Int_iff mem_Collect_eq restrict_ext subrelI by auto
 
 
-lemma ll81: fixes R f assumes "R\<subseteq>f" "runiq f" "Domain f \<subseteq> Domain R" shows "f=R" 
-proof -
-let ?d=Domain let ?r=Range let ?u=runiq let ?t=trivial
-{
-  fix z::"'a \<times> 'b" let ?x="fst z" let ?y="snd z" assume 
-  1: "z\<in>f" hence "?x\<in>?d f" by (metis fst_eq_Domain imageI) hence 
-  0: "?x \<in> ?d R" using assms(3) by blast
-  hence "R``{?x} \<subseteq> f``{?x} & R``{?x} \<noteq> {}" using assms(1) by fast
-  also have "?t (f``{?x})" using assms(2) by (metis runiq_alt)                      
-  ultimately have "f``{?x} \<subseteq> R``{?x}" using 0 by (metis (full_types) inf_absorb2 ll69)
-  also have "?y \<in> f``{?x}" using Image_def 1 by auto
-  ultimately have "?y \<in> R``{?x}" by blast hence "z \<in> R" using 0 by fastforce
-}
-thus ?thesis using assms(1) by fast
-qed
-
-lemma lm06: "graph X f = Graph f || X" using inf_top.left_neutral ll36 ll37 ll41 
-ll81 lm04 restriction_is_subrel subrel_runiq subset_iff by (metis (erased, lifting))
-
-lemma mm10: assumes "runiq f" "X \<subseteq> Domain f" shows 
-"graph X (toFunction f) = (f||X)" 
-proof -
-  have "\<And>v w. (v\<Colon>'a set) \<subseteq> w \<longrightarrow> w \<inter> v = v" by (simp add: Int_commute inf.absorb1)
-  thus "graph X (toFunction f) = f || X" by (metis assms(1) assms(2) lll02 lm024 lm06)
-qed
-
-lemma l4: "(Graph f) `` X = f ` X" unfolding Graph_def image_def by auto
-
-lemma lm025: assumes "X \<subseteq> Domain f" "runiq f" shows "f``X = (eval_rel f)`X"
-using assms l4 by (metis lll85 lm06 mm10 toFunction_def)
-
-(*
-text {* The image of the domain of a right-unique relation @{term R} under @{term R}
-  is the image of the domain under the function that corresponds to the relation. *}
-corollary runiq_imp_eval_eq_Im:
-  assumes "runiq R"
-  shows "R `` Domain R = (eval_rel R) ` Domain R" using assms lm025 by fast
-
-text {* The cardinality of the range of a finite, right-unique relation is less or equal the 
-  cardinality of its domain. *}
-lemma card_Range_le_Domain:
-  assumes finite_Domain: "finite (Domain R)"
-      and runiq: "runiq R"
-  shows "card (Range R) \<le> card (Domain R)"
-proof -
-  have "Range R = R `` Domain R" by blast
-  also have "\<dots> = (eval_rel R) ` Domain R" using runiq by (rule runiq_imp_eval_eq_Im)
-  finally have "Range R = (eval_rel R) ` Domain R" .
-  then show ?thesis using finite_Domain by (metis card_image_le)
-qed
-*)
 
 
 
@@ -226,25 +125,11 @@ qed
 
 
 
-
-
-
-lemma lm006: "trivial X = (X \<in> insert {} (finestpart UNIV))" 
-unfolding trivial_def finestpart_def by auto
 
 lemma ll14: assumes "x\<in>Domain f" "runiq f" shows "f,,x \<in> Range f"
 using assms by (metis Range_iff eval_runiq_rel)
 
 definition runiqs where "runiqs={f. runiq f}"
-
-lemma ll65: fixes R shows "kernel R = {R^-1 `` {y}|y. y\<in> Range R}"
-(is "?LH=?RH")
-proof -
-have "?LH = {R^-1 `` Y| Y. Y \<in> finestpart (Range R)}"
-using kernel_def by (metis image_Collect_mem)
-also have "...={R^-1 `` Y| Y. Y \<in> {{y}|y. y\<in> Range R}}" using ll64 by metis
-also have "...= ?RH" by blast ultimately show ?thesis by presburger
-qed
 
 lemma l37a: "(P outside X) outside Y=P outside (X\<union>Y)" unfolding Outside_def by blast
 
@@ -296,16 +181,13 @@ lemma assumes "card X=1" shows "X={the_elem X}" using assms card_eq_SucD the_ele
 lemma assumes "card X\<ge>1" "\<forall>x\<in>X. y > x" shows "y > Max X" using assms
 by (metis (poly_guards_query) Max_in One_nat_def card_eq_0_iff lessI not_le)
 
+lemma mm80a: assumes "finite X" "mx \<in> X" "f x < f mx" shows"x \<notin> argmax f X" using assms not_less by fastforce
+
+lemma mm80d: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X \<subseteq> {mx}"
+using assms mk_disjoint_insert by force
+
 lemma mm80: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X = {mx}" 
-proof -
-let ?A="argmax" let ?XX="?A f X" let ?Y="f ` X" let ?M="Max ?Y" have "\<forall>x \<in> X. f x \<le> f mx" 
-using assms(3) by (metis (full_types) Diff_iff empty_iff insert_iff less_imp_le not_less) 
-then have "f mx = ?M" using assms(1,2) 
-by (metis (hide_lams, mono_tags) Max_eqI finite_imageI image_iff)
-then have "mx \<in> ?XX" using argmax.simps assms(2) mem_Collect_eq 
-by simp
-thus ?thesis using assms argmax_def by force
-qed
+using assms mm80d by (metis argmax_non_empty_iff equals0D subset_singletonD)
 
 corollary mm80c: "(finite X & mx \<in> X & (\<forall>aa \<in> X-{mx}. f aa < f mx)) \<longrightarrow> argmax f X = {mx}"
 using assms mm80 by metis
@@ -316,16 +198,25 @@ using assms mm80 by (metis Diff_iff insertI1)
 lemma mm75f: assumes "f \<circ> g=id" shows "inj_on g UNIV" using assms 
 by (metis inj_on_id inj_on_imageI2)
 
-lemma mm74: assumes "inj_on f Y" "X \<subseteq> Y" shows "inj_on (image f) (Pow X)"
-proof -
-  have f1: "\<forall>v0 v1 v2 v3. (\<not> inj_on v0 (v1\<Colon>'a set) \<or> \<not> v2 \<subseteq> v1 \<or> \<not> v3 \<subseteq> v1) \<or> ((v0 ` v2\<Colon>'b set) = v0 ` v3) = (v2 = v3)" by (simp add: inj_on_image_eq_iff)
-  have f2: "inj_on f X" using assms(1) assms(2) subset_inj_on by blast
-  have "\<forall>v0 v1. (\<exists>v2 v3. ((v2\<Colon>'a set) \<in> v0 \<and> v3 \<in> v0 \<and> (v1 v2\<Colon>'b set) = v1 v3) \<and> v2 \<noteq> v3) \<or> inj_on v1 v0" using inj_onI by fastforce
-  thus "inj_on (op ` f) (Pow X)" using f1 f2 by (metis PowD)
-qed
+lemma mm74a: assumes "inj_on f X" shows "inj_on (image f) (Pow X)"
+using assms inj_on_image_eq_iff inj_onI PowD by (metis (mono_tags, lifting))
 
-lemma mm55m: "{Y. EX y. ((Y \<in> finestpart y) & (y \<in> Range a))} = 
-\<Union> (finestpart ` (Range a))" by auto
+lemma mm74: assumes "inj_on f Y" "X \<subseteq> Y" shows "inj_on (image f) (Pow X)"
+using assms mm74a by (metis subset_inj_on)
+
+definition finestpart where "finestpart X = (%x. insert x {}) ` X"
+(*MC: alternative, non-computable, set-theoretical version:
+Range (projector (Graph id || X)) *)
+
+lemma ll64: "finestpart X = {{x}|x . x\<in>X}" unfolding finestpart_def by blast
+
+lemma mm75: "X=\<Union> (finestpart X)" using ll64 by auto
+lemma mm75b: "Union \<circ> finestpart = id" using finestpart_def mm75 by fastforce
+lemma mm75c: "inj_on Union (finestpart ` UNIV)" using assms mm75b by (metis inj_on_id inj_on_imageI)
+lemma mm31: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
+corollary mm31b: "inj_on finestpart UNIV" using mm31 ll64 by (metis (lifting, no_types) injI)
+
+lemma mm55m: "{Y. EX y.((Y \<in> finestpart y) & (y \<in> Range a))} = \<Union>(finestpart`(Range a))" by auto
 
 lemma mm55l: "Range {(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> a} = 
 {Y. EX y. ((Y \<in> finestpart y) & (y \<in> Range a))}" by auto
@@ -467,8 +358,6 @@ using assms by (metis runiq_alt) (* MC TODO: redundant duplicate of runiq_alt *)
 lemma lm014: assumes "runiq R" shows "card (R `` {a}) = 1 \<longleftrightarrow> a \<in> Domain R"
 using assms card_Suc_eq One_nat_def  by (metis Image_within_domain' Suc_neq_Zero assms lm013)
 
-lemma lm05: "graph (X \<inter> Y) f = graph X f || Y" using lll02 lm06 by metis
-
 lemma "inj_on  (%a. ((fst a, fst (snd a)), snd (snd a))) UNIV" 
 by (metis (lifting, mono_tags) Pair_fst_snd_eq Pair_inject injI)
 lemma nn27: assumes "finite X" "x > Max X" shows "x \<notin> X" using assms Max.coboundedI by (metis leD)
@@ -485,15 +374,8 @@ using argmax.simps image_Collect_mem mem_Collect_eq
 by (metis (mono_tags, lifting))
 
 corollary nn59: assumes "finite g" shows "setsum f g = setsum f (g outside X) + (setsum f (g||X))" 
-proof -
-let ?A="g outside X" let ?B="g||X"
-have "finite ?A" using assms(1) Outside_def by (metis finite_Diff)
-moreover have "finite ?B" using assms(1) finite_Un outside_union_restrict by (metis)
-moreover have "?A Int ?B = {}" unfolding Outside_def restrict_def by blast
-ultimately show ?thesis using outside_union_restrict setsum.union_disjoint by metis
-qed
+unfolding Outside_def restrict_def using assms add.commute inf_commute lll23 by (metis)
 
-lemma mm65:"{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" using graph_def lm05 by metis
 lemma mm51: "Range -` {{}} = {{}}" by auto
 
 lemma mm47: "(\<forall> pair \<in> a. finite (snd pair)) = (\<forall> y \<in> Range a. finite y)" by fastforce
@@ -513,10 +395,6 @@ using assms mm38c converse_converse lll31 setsum.reindex snd_eq_Range by metis
 lemma mm29: assumes "X \<noteq> {}" shows "finestpart X \<noteq> {}" using assms finestpart_def by blast
 
 lemma assumes "inj_on g X" shows "setsum f (g`X) = setsum (f \<circ> g) X" using assms by (metis setsum.reindex)
-
-lemma mm31: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
-
-corollary mm31b: "inj_on finestpart UNIV" using mm31 ll64 by (metis (lifting, no_types) injI)
 
 lemma mm60: assumes "runiq R" "z \<in> R" shows "R,,(fst z) = snd z" 
 using assms by (metis l31 surjective_pairing)
@@ -597,44 +475,13 @@ proof -
 let ?F="{(x,f x)| x. P x}" let ?X="?F``{xx}"
 have "?X={f xx}" using Image_def assms by blast thus ?thesis by fastforce 
 qed
-lemma ll73: "(x,y) \<in> part2rel XX = (EX X. X\<in>XX & x\<in>X & y\<in>X)"
-using assms part2rel_def by blast
-
-lemma ll75: "sym (part2rel XX)" using assms ll73 sym_def 
-proof -
-let ?R="part2rel XX" {fix x y assume "(x,y)\<in>?R" hence "(y,x)\<in>?R" using ll73 by metis}
-thus ?thesis using sym_def by blast
-qed
-
-
-lemma l47: "Domain (part2rel XX)=\<Union> XX & \<Union> XX = Range (part2rel XX)" 
-using part2rel_def by blast
-
-lemma ll74: "refl_on (Union XX) (part2rel XX)" 
-proof -
-let ?R="part2rel XX" let ?X="\<Union> XX" have 
-0: "?R \<subseteq> ?X \<times> ?X" using l47 by fastforce
-{fix x assume "x \<in> ?X" then have "(x,x)\<in>?R" using ll73 by fast} 
-thus ?thesis using refl_on_def 0 by metis
-qed
-
 
 lemma ll33: assumes "x \<in> X" shows "graph X f,,x=f x" 
-proof -
-let ?P="%xx. xx\<in>X" let ?g="{(x, f x)|x. ?P x}"
-have "?P x" using assms by fast then have "?g,,x=f x" by (rule l16)
-thus ?thesis using graph_def by metis
-qed
+unfolding graph_def using assms l16 by (metis (mono_tags) Gr_def)
 
-lemma ll28: "Graph f,,x=f x"
-proof -
-let ?P="%xx. True" let ?G="{(x, f x)|x. ?P x}"
-have "?P x" by fast then 
-have "?G,,x = f x" by (rule l16)
-thus ?thesis using Graph_def by metis
-qed
+lemma ll28: "Graph f,,x=f x" using UNIV_I ll33 ll36 by (metis(no_types))
 
-lemma "toFunction (Graph f)=f" (is "?L=_")
+lemma "toFunction (Graph f)=f" (is "?L=_") 
 proof-{fix x have "?L x=f x" unfolding toFunction_def ll28 by metis}thus ?thesis by blast qed
 
 lemma nn29: "R outside X \<subseteq> R" by (metis outside_union_restrict subset_Un_eq sup_left_idem)
@@ -701,7 +548,7 @@ by (metis Image_singleton_iff l31)
 
 
 
-
+section {* Indicator function in set-theoretical form. *}
 
 abbreviation "Outside' X f == f outside X"
 abbreviation "Chi X Y == (Y \<times> {0::nat}) +* (X \<times> {1})"
@@ -807,24 +654,14 @@ lemma mm84e: assumes "ll \<in> set (l::'a list)" shows "\<exists> n. ll=l!n & n 
 using assms in_set_conv_nth by (metis le0)
 lemma "(nth l) -` (set l) \<supseteq> {0..<size l}" using assms by fastforce
 lemma mm84f: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "\<exists> n \<in> {0..<size l}. P (l!n)" 
-proof -
-obtain ln where "P ln & ln \<in> set l" using assms by blast
-then moreover obtain n where "ln=l!n & l \<noteq> [] & n <size l" 
-using mm84e less_nat_zero_code list.size(3) by metis
-ultimately show ?thesis by auto
-qed
+using assms mm84e by fastforce
 
 lemma mm84g: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []" 
 using assms filterpositions2_def mm84f mm84c by metis
 
 lemma nn06: "(nth l) ` set ([n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)]) \<subseteq> X\<inter>set l" by force
-corollary nn06b: "(nth l)` set (filterpositions2 (%x.(x\<in>X)) l) \<subseteq> X \<inter>  set l" using filterpositions2_def nn06
-proof -
-have " filterpositions2 (%x.(x\<in>X)) l= [n. n \<leftarrow> [0..<size l], (%x. (x\<in>X)) (l!n)]" 
-using filterpositions2_def by blast
-moreover have "(nth l) ` set [n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)] \<subseteq> X\<inter>set l" by (rule nn06) 
-ultimately show ?thesis by presburger
-qed
+corollary nn06b: "(nth l)` set (filterpositions2 (%x.(x\<in>X)) l) \<subseteq> X \<inter>  set l" 
+unfolding filterpositions2_def using nn06 by fast
 
 lemma "(n\<in>{0..<N}) = ((n::nat) < N)" using atLeast0LessThan lessThan_iff by metis
 lemma nn01: assumes "X \<subseteq> {0..<size list}" shows "(nth list)`X \<subseteq> set list" 
@@ -845,10 +682,6 @@ corollary mm55r: "\<Union> (finestpart ` XX) = finestpart (\<Union> XX)" using m
 lemma mm55h: assumes "runiq a" shows "{(x, {y})| x y. y \<in> \<Union> (a``{x}) & x \<in> Domain a} = 
 {(x, {y})| x y. y \<in> a,,x & x \<in> Domain a}" using assms Image_runiq_eq_eval 
 by (metis (lifting, no_types) cSup_singleton)
-
-lemma mm75: "X=\<Union> (finestpart X)" using ll64 by auto
-lemma mm75b: "Union \<circ> finestpart = id" using finestpart_def mm75 by fastforce
-lemma mm75c: "inj_on Union (finestpart ` UNIV)" using assms mm75b by (metis inj_on_id inj_on_imageI)
 
 subsection {* Computing all the permutations of a list *}
 abbreviation "rotateLeft == rotate"
@@ -885,13 +718,7 @@ qed
 corollary nn05a: "set (perm2 (takeAll (%x.(x\<in>X)) l) n) \<subseteq> X \<inter> set l" using nn06c nn04 by metis
 
 
-
-
-
-
-
-
-
+section {* A more computable version of @{term toFunction}.*}
 
 abbreviation "toFunctionWithFallback R fallback == (% x. if (R``{x}={R,,x}) then (R,,x) else fallback)"
 notation toFunctionWithFallback (infix "Else" 75)
@@ -907,17 +734,10 @@ lemma nn48b: assumes "runiq f" shows "setsum (f Else 0) (X\<inter>(Domain f)) = 
 using assms setsum.cong nn47 by fastforce
 lemma nn51: assumes "Y \<subseteq> f-`{0}" shows "setsum f Y=0" using assms 
 by (metis set_rev_mp setsum.neutral vimage_singleton_eq)
-lemma nn49: assumes "Y \<subseteq> f-`{0}" "finite X" shows "setsum f X = setsum f (X-Y)" using assms 
-proof -
-let ?X0="Y" let ?X1="X\<inter>?X0" let ?X2="X-?X0"
-have "finite ?X1" using assms by simp moreover
-have "finite ?X2" using assms by simp moreover
-have "?X1 \<inter> ?X2={}" by fast
-ultimately moreover have "setsum f (?X1 \<union> ?X2) = setsum f ?X1 + (setsum f ?X2)" by (rule setsum.union_disjoint)
-ultimately moreover have "setsum f ?X1 = 0" using assms nn51 by (metis inf.coboundedI2)
-ultimately moreover have "setsum f (?X1 \<union> ?X2) = setsum f X" by (metis assms(2) lll23)
-ultimately show ?thesis by auto
-qed
+
+lemma nn49: assumes "Y \<subseteq> f-`{0}" "finite X" shows "setsum f X = setsum f (X-Y)" 
+using assms Int_lower2 comm_monoid_add_class.add.right_neutral inf.boundedE inf.orderE mm12 nn51
+by (metis(no_types))
 
 lemma nn50: "-(Domain f) \<subseteq> (f Else 0)-`{0}" by fastforce
 
@@ -927,8 +747,8 @@ corollary nn52b: assumes "finite X" shows "setsum (f Else 0) (X\<inter>Domain f)
 (is "?L=?R") proof - have "?R=?L" using assms by (rule nn52) thus ?thesis by simp qed
 
 corollary nn48c: assumes "finite X" "runiq f" shows 
-"setsum (f Else 0) X = setsum (toFunction f) (X\<inter>Domain f)" 
-(is "?L=?R") proof -
+"setsum (f Else 0) X = setsum (toFunction f) (X\<inter>Domain f)" (is "?L=?R") 
+proof -
 have "?R = setsum (f Else 0) (X\<inter>Domain f) " using assms(2) nn48b by fastforce
 moreover have "... = ?L" using assms(1) by (rule nn52b) ultimately show ?thesis by presburger
 qed
@@ -942,101 +762,11 @@ lemma "argmax (setsum' b) = (argmax \<circ> setsum') b" by simp
 lemma lm015: assumes "runiq R" "runiq (R^-1)" shows "R``A \<inter> (R``B) = R``(A\<inter>B)" 
 using assms lll33 converse_Image by force
 
-lemma disj_Domain_imp_disj_Image: assumes "Domain R \<inter> X \<inter> Y = {}" 
-  assumes "runiq R"
-      and "runiq (R\<inverse>)"
-  shows "R `` X \<inter> R `` Y = {}" 
-using assms by (metis disj_Domain_imp_disj_Image)
-
 lemma lm40: assumes "runiq (R^-1)" "runiq R" "X1 \<inter> X2 = {}" shows "R``X1 \<inter> (R``X2) = {}"
 using assms by (metis disj_Domain_imp_disj_Image inf_assoc inf_bot_right)
 
 lemma ll70: assumes "runiq f" "trivial Y" shows "trivial (f `` (f^-1 `` Y))"
 using assms by (metis ll71 trivial_subset)
-
-lemma lll92: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
-"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=g2 x)))" shows 
-"g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2)" 
-proof -
-  let ?fx="f,,xx" let ?h2="(?fx-f1)*(g2 xx)/(f2-f1)" let ?h1="(?fx-f2)*(g1 xx)/(f1-f2)" 
-  let ?gx="g,,xx" have
-  1: "?fx=f1 \<longrightarrow> ?gx=(g1 xx)" using assms by fast have
-  2: "?fx=f2 \<longrightarrow> ?gx=(g2 xx)" using assms by fast  
-  have "{xx} \<subseteq> (f^-1)``{f1,f2}" using assms by fast
-  then have "f``{xx} \<subseteq> {f1,f2}" using assms(3) ll71b by metis
-  then have 
-  4: "f,,xx=f1 \<or> f,,xx=f2" using assms(3) by (metis Image_iff Image_singleton_iff Int_absorb1 
-  Int_empty_left `{xx} \<subseteq> f\<inverse> \`\` {f1, f2}` converseD equals0D insert_subset l31 subset_insert)
-  {
-    assume "f,,xx=f1" then moreover have "?h2 = 0" by simp
-    ultimately moreover have "?h1=g1 xx" using 1 assms by auto
-    ultimately have "?gx=?h2 + ?h1" using 1 by simp 
-  }
-  then have
-  3: "f,,xx=f1 \<longrightarrow> (?gx=?h2+?h1)" by fast
-  {
-    assume "f,,xx=f2" then moreover have "?h1 = 0" by simp
-    ultimately moreover have "?h2=g2 xx" using 1 assms by auto
-    ultimately have "?gx=?h2 + ?h1" using 2 by simp 
-  }
-  then have "?gx=?h2+?h1" using 3 4 by fast then show ?thesis by fast
-qed
-
-corollary lll92b: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
-"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=(%x. ((g1 x)+(g2 x))) x)))" 
-shows "g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (g1 xx)"
-proof -
-  let ?fx="f,,xx" let ?g1="g1 xx" let ?g2="g2 xx" let ?g="%x. (g1 x)+(g2 x)"
-(*
-  have "\<forall> g2. ((xx \<in> X \<inter> (f^-1)``{f1,f2} &f1 \<noteq> f2 & runiq f &
-  (\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=g2 x))))) \<longrightarrow>
-  g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2))" using lll92 
-  sledgehammer[prover=spass]
-  then have 
-  "((xx \<in> X \<inter> (f^-1)``{f1,f2} &f1 \<noteq> f2 & runiq f &
-  (\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=?g x))))) \<longrightarrow>
-  g,,xx = (f,,xx - f1)*(?g xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2))"
-  by fast
-  then *)
-have "g,,xx = (?fx-f1)*(?g xx)/(f2-f1) + (?fx-f2)*?g1/(f1-f2)" using assms by (rule lll92)
-  moreover have "...=(?fx-f1)*((?g xx)/(f2-f1)) + (?fx-f2)*?g1/(f1-f2)" 
-  by auto
-  moreover have "... = ?fx*((?g1+?g2)/(f2-f1)) - f1*(?g1+?g2)/(f2-f1) + (?fx-f2)*(?g1/(f1-f2))" 
-  by (metis lll62 times_divide_eq_right) moreover have "... = 
-  (?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1)) + (?fx-f2)*(?g1/(f1-f2))" by (metis 
-  (hide_lams, mono_tags) add_divide_distrib comm_semiring_1_class.normalizing_semiring_rules(34) 
-  times_divide_eq_right)
-  moreover have "... = 
-  (?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1)) + (?fx*(?g1/(f1-f2)) - 
-  f2*(?g1/(f1-f2)))" using lll62 by presburger
-(* add.commute add.left_commute add_diff_eq add_divide_distrib diff_0 distrib_right divide_divide_eq_right mult.commute mult_minus_left times_divide_eq_right uminus_add_conv_diff *)
-  moreover have "... = ?fx*?g1/(f2-f1) + ?fx*?g1/(-(f2-f1)) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) - 
-  f2*(?g1/(f1-f2))" by force
-  moreover have "... = ?fx*?g1/(f2-f1) - ?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) - 
-  f2*(?g1/(f1-f2))"
-  by (metis (hide_lams, mono_tags) minus_divide_right minus_real_def)
-  moreover have "... = ?fx*?g2/(f2-f1) - f1*((?g1+?g2)/(f2-f1)) - 
-  f2*(?g1/(f1-f2))" by force
-  moreover have "... = ?fx*?g2/(f2-f1) - (f1*?g1/(f2-f1) + f1*?g2/(f2-f1)) -
-  f2*?g1/(f1-f2)"
-  by (metis (hide_lams, no_types) add_divide_distrib comm_semiring_1_class.normalizing_semiring_rules(34) times_divide_eq_right)
-  moreover have "... = ?fx*?g2/(f2-f1) - f1*?g1/(-(f1-f2)) - f1*?g2/(f2-f1) -
-  f2*?g1/(f1-f2)" by force
-  moreover have "... = ?fx*(?g2/(f2-f1)) + f1*(?g1/(f1-f2)) - f1*(?g2/(f2-f1)) - f2*(?g1/(f1-f2))" 
-by (metis (hide_lams, mono_tags) diff_minus_eq_add minus_divide_right times_divide_eq_right)
-  moreover have "... = ?fx*(?g2/(f2-f1)) + (f1*(?g1/(f1-f2)) - f2*(?g1/(f1-f2))) - f1*(?g2/(f2-f1))"
-by algebra
-  moreover have "... = ?fx*(?g2/(f2-f1)) + (f1-f2)*(?g1/(f1-f2)) - f1*(?g2/(f2-f1))" using lll62 
-by presburger
-  moreover have "... = (?fx*(?g2/(f2-f1)) - f1*(?g2/(f2-f1))) + (f1-f2)*(?g1/(f1-f2))" 
-by algebra
-  moreover have "... = (?fx-f1)*(?g2/(f2-f1)) + (f1-f2)*(?g1/(f1-f2))" using lll62 
-by presburger
-  moreover have "... = (?fx-f1)*?g2/(f2-f1) + ?g1*((f1-f2)/(f1-f2))" by simp
-  moreover have "... = (?fx-f1)*?g2/(f2-f1) + ?g1*1" using assms by force
-  ultimately show ?thesis by linarith
-qed
-lemma assumes "finite X" shows "card (Pow X)=2^card X" by (metis assms card_Pow)
 
 lemma lm020: assumes "trivial X" shows "card (Pow X)\<in>{1,2}" using lm007 card_Pow 
 Pow_empty assms lm54 nn56 power_one_right the_elem_eq by (metis insert_iff)
@@ -1059,63 +789,31 @@ using assms lm007 lm017 lm018 nn56 by metis
 
 lemma lm021: "trivial A = (card (Pow A) \<in> {1,2})" using lm019 lm020 by blast
 
+lemma assumes "R\<subseteq>f" "runiq f" "Domain f = Domain R" shows "runiq R"
+using assms by (metis subrel_runiq)
 
+lemma ll81a: assumes "f \<subseteq> g" "runiq g" "Domain f = Domain g" shows "g \<subseteq> f"
+using assms Domain_iff contra_subsetD runiq_wrt_ex1 subrelI
+by (metis (full_types,hide_lams))
 
+lemma ll81: assumes "R\<subseteq>f" "runiq f" "Domain f \<subseteq> Domain R" shows "f=R" 
+using assms ll81a by (metis Domain_mono dual_order.antisym)
 
+lemma lm06: "graph X f = Graph f || X" using inf_top.left_neutral ll36 ll37 ll41 
+ll81 lm04 restriction_is_subrel subrel_runiq subset_iff by (metis (erased, lifting))
+lemma lm05: "graph (X \<inter> Y) f = graph X f || Y" using lll02 lm06 by metis
+lemma mm65:"{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" using graph_def lm05 by metis
 
+lemma mm10: assumes "runiq f" "X \<subseteq> Domain f" shows "graph X (toFunction f) = (f||X)" 
+proof -
+  have "\<And>v w. (v\<Colon>'a set) \<subseteq> w \<longrightarrow> w \<inter> v = v" by (simp add: Int_commute inf.absorb1)
+  thus "graph X (toFunction f) = f || X" by (metis assms(1) assms(2) lll02 lm024 lm06)
+qed
 
+lemma l4: "(Graph f) `` X = f ` X" unfolding Graph_def image_def by auto
 
+lemma lm025: assumes "X \<subseteq> Domain f" "runiq f" shows "f``X = (eval_rel f)`X"
+using assms l4 by (metis lll85 lm06 mm10 toFunction_def)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(*
-lemma assumes "\<forall>x. trivial ({x}\<times>(P``{x}))"
-shows "runiq P" unfolding runiq_def finestpart_def
-using ll40 lm006 finestpart_def runiq_def lm007
-sorry
-
-lemma assumes "runiq P" shows "trivial (({x}\<times>UNIV)\<inter>P)" 
-unfolding runiq_def 
-using assms trivial_def runiq_def ll40 sorry
-
-lemma (* lm012: *) "(runiq P) = (\<forall>x. trivial ({x}\<times>(P``{x})))" unfolding runiq_def finestpart_def
-using ll40 lm006 finestpart_def sorry
-
-lemma (* lm005: *) "runiq P = (\<forall>x. trivial (({x}\<times>UNIV)\<inter>P))" 
-(* unfolding trivial_def runiq_def *) using (* lm012 *) lm002 sorry
-
-lemma "runiq R \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')" unfolding runiq_def 
-lm01 lm00 using runiq_def lm00 lm01 sorry
-(*by (metis ImageI Image_def Image_iff all_not_in_conv empty_iff insert_iff mem_Collect_eq singletonI subsetCE subsetI)*)
-
-lemma assumes "runiq P" "runiq Q" "\<forall>x\<in>Domain P \<inter> (Domain Q). P``{x} \<subseteq> Q``{x}" shows 
-"runiq (P \<union> Q)" unfolding lll33 fst_eq_Domain using assms lll33 fst_eq_Domain disj_Un_runiq lm010 sorry
-(* lll33 runiq_alt runiq_basic fst_eq_Domain lm011 lm010 inj_on_def
-IntI Un_iff empty_iff image_eqI lm010c *)
-
-lemma assumes "runiq P" "runiq Q" "Domain P \<inter> (Domain Q) \<subseteq> Domain (P \<inter> Q)" shows 
-"runiq (P \<union> Q)" unfolding lll33 using assms lll33 runiq_alt runiq_basic fst_eq_Domain 
-disj_Un_runiq lm010 inj_on_def IntI Un_iff empty_iff image_eqI sorry
-*)
 end
 

@@ -1,19 +1,28 @@
+(*
+Auction Theory Toolbox (http://formare.github.io/auctions/)
 
-header {* Sets of injections, partitions, allocations expressed as  suitable subsets of the corresponding universes *}
+Author: Marco B. Caminati http://caminati.co.nr
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
+
+header {* Sets of injections, partitions, allocations expressed as suitable subsets of the corresponding universes *}
 
 theory Universes
 
 imports 
-
 "~~/src/HOL/Library/Code_Target_Nat"
-(* "../CombinatorialVickreyAuctionSoundness" *)
 StrictCombinatorialAuction (* MC: why is the position of this dep relevant? *)
-(* RelationQuotient *)
 MiscTools
 "~~/src/HOL/Library/Indicator_Function"
-(* CombinatorialVickreyAuction *)
 
 begin
+
+section {* Preliminary lemmas *}
 
 lemma lm63: assumes "Y \<in> set (all_partitions_alg X)" shows "distinct Y"
 using assms distinct_sorted_list_of_set all_partitions_alg_def all_partitions_paper_equiv_alg'
@@ -83,7 +92,7 @@ qed
 
 
 
-section {*  *}
+section {* Definitions of various subsets of @{term UNIV}. *}
 
 abbreviation "isChoice R == \<forall>x. R``{x} \<subseteq> x"
 abbreviation "dualOutside R Y == R - (Domain R \<times> Y)"
@@ -106,6 +115,8 @@ abbreviation "partitionsUniverse'''' == {P-{{}}| P. \<forall> Q \<in> Pow P - {{
 abbreviation "partitionsUniverse''''' == {P-{{}}| P. \<forall> Q \<subseteq> P. card Q \<noteq> 1 \<longrightarrow> \<Inter>Q={}}"
 *)
 
+section {* Results about the sets defined in the previous section *}
+
 lemma lm01a: "partitionsUniverse \<subseteq>  {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}}}" unfolding is_partition_def by auto
 lemma lm04: assumes "!x1 : X. (x1 \<noteq> {} & (! x2 : X-{x1}. x1 \<inter> x2={}))" shows "is_partition X" 
 unfolding is_partition_def using assms by fast
@@ -118,26 +129,9 @@ lemma lm25: "injections' X Y \<subseteq> injectionsUniverse" by fast
 lemma lm25b: "injections X Y \<subseteq> injectionsUniverse" using injections_def by blast
 lemma lm26: "injections' X Y = totalRels X Y \<inter> injectionsUniverse" by fastforce
 
-(*
-lemma allocation_injective:
-  assumes "x \<in> possible_allocations_rel G N"
-  obtains Y where "Y \<in> all_partitions G" and "x \<in> injections Y N"
-using assms
-by auto
-*)
-
 lemma lm47: assumes "a \<in> possibleAllocationsRel N G" shows 
 "a^-1 \<in> injections (Range a) N & Range a partitions G & Domain a \<subseteq> N" 
-(* using assms all_partitions_def converse_converse injections_def mem_Collect_eq 
-Range_converse UnionE imageE possible_allocations_rel.simps by smt2*)
-proof -
-  have "\<forall>e_y e_x u. \<exists>uu. (e_x \<in> possible_allocations_rel (e_y\<Colon>'b set) (u\<Colon>'a set) \<longrightarrow> uu \<in> all_partitions e_y) \<and> (e_x \<in> possible_allocations_rel e_y u \<longrightarrow> e_x \<in> injections uu u)" by auto
-  then obtain skf\<^sub>3\<^sub>0 :: "'b set \<Rightarrow> ('b set \<times> 'a) set \<Rightarrow> 'a set \<Rightarrow> 'b set set" where f1: "\<And>e_x e_y u. (e_x \<in> possible_allocations_rel e_y u \<longrightarrow> skf\<^sub>3\<^sub>0 e_y e_x u \<in> all_partitions e_y) \<and> (e_x \<in> possible_allocations_rel e_y u \<longrightarrow> e_x \<in> injections (skf\<^sub>3\<^sub>0 e_y e_x u) u)" by metis
-  hence "\<And>e_x e_y u. e_x \<in> possible_allocations_rel e_y u \<longrightarrow> e_x \<in> injections' (skf\<^sub>3\<^sub>0 e_y e_x u) u" by (metis (no_types) injections_def)
-  hence f2: "\<And>e_x e_y u. e_x \<in> possible_allocations_rel e_y u \<longrightarrow> skf\<^sub>3\<^sub>0 e_y e_x u = Range (e_x\<inverse>)" by simp
-  have "\<forall>x\<^sub>6 w x\<^sub>1. \<exists>uu. ((w\<Colon>('a \<times> 'b set) set) \<in> x\<^sub>1 ` x\<^sub>6 \<longrightarrow> (uu\<Colon>('b set \<times> 'a) set) \<in> x\<^sub>6) \<and> (w \<in> x\<^sub>1 ` x\<^sub>6 \<longrightarrow> x\<^sub>1 uu = w)" by blast
-  thus "a\<inverse> \<in> injections (Range a) N \<and> Range a partitions G \<and> Domain a \<subseteq> N" using f1 f2 by (metis (lifting) Range_converse all_partitions_def assms converse_converse injections_def mem_Collect_eq)
-qed
+unfolding injections_def using assms all_partitions_def injections_def by fastforce
 
 lemma lll80: assumes "is_partition XX" "YY \<subseteq> XX" shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
 using is_partition_of_def is_partition_def assms
@@ -188,8 +182,6 @@ lemma lm12: "all_partitions X = all_partitions' X" using all_partitions_def is_p
 by auto
 
 lemma lm13: "possible_allocations_rel' A B = possible_allocations_rel A B" (is "?A=?B")
-using possible_allocations_rel_def 
-assms injections_def lm11 lm12 
 proof -
   have "?B=\<Union> { injections Y B | Y . Y \<in> all_partitions A }"
   using possible_allocations_rel_def by auto 
@@ -211,7 +203,6 @@ using lm14 lm15 by blast
 lemma lm18: "converse`(A \<inter> B)=converse`A \<inter> (converse`B)" by force
 
 lemma lm19: "possibleAllocationsRel N G = injectionsUniverse \<inter> {a. Domain a \<subseteq> N & Range a \<in> all_partitions G}"
-using assms lm13 lm16 lm17 lm18 
 proof -
   let ?A="possible_allocations_rel G N" let ?c=converse let ?I=injectionsUniverse 
   let ?P="all_partitions G" let ?d=Domain let ?r=Range
@@ -225,11 +216,8 @@ corollary lm19c: "a \<in> possibleAllocationsRel N G =
 (a \<in> injectionsUniverse & Domain a \<subseteq> N & Range a \<in> all_partitions G)" 
 using lm19 Int_Collect Int_iff by (metis (lifting))
 
-corollary lm19d: assumes 
-(*"a \<in> injectionsUniverse" "Domain a \<subseteq> N1" "Range a \<in> all_partitions G" *)
-"a \<in> possibleAllocationsRel N1 G"
-shows 
-"a \<in> possibleAllocationsRel (N1 \<union> N2) G" using assms lm19c 
+corollary lm19d: assumes "a \<in> possibleAllocationsRel N1 G" shows 
+"a \<in> possibleAllocationsRel (N1 \<union> N2) G"
 proof - 
 have "Domain a \<subseteq> N1 \<union> N2" using assms(1) lm19c by (metis le_supI1) 
 moreover have "a \<in> injectionsUniverse & Range a \<in> all_partitions G" 
@@ -249,10 +237,6 @@ lemma lm20e: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1"
 
 lemma lm20: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1" "is_partition P2"
 shows "is_partition (P1 \<union> P2)" unfolding is_partition_def using assms lm20d lm20e by metis
-
-(* lemma lm20: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1" "is_partition P2" shows
-"is_partition (P1 \<union> P2)" unfolding is_partition_def using assms  
- UnE UnionI disjoint_iff_not_equal is_partition_def (* by smt2 *)*)
 
 lemma lm21: "Range Q \<union> (Range (P outside (Domain Q))) = Range (P +* Q)"
 unfolding paste_def Range_Un_eq Un_commute by (metis(no_types))
@@ -349,12 +333,12 @@ lemma lm36: "{X} \<in> partitionsUniverse = (X \<noteq> {})" using is_partition_
 
 lemma lm36b: "{(x, X)} - {(x, {})} \<in> partitionValuedUniverse" using lm36 by auto
 
-lemma lm37: "{(x, X)} \<in> injectionsUniverse" using Domain_converse Domain_empty Un_empty_left 
-converse_empty empty_iff mem_Collect_eq runiq_conv_extend_singleton runiq_emptyrel runiq_singleton_rel
-by (metis(no_types))
+lemma "runiq {(x,X)}" 
+by (metis runiq_singleton_rel)
 
-lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" using lm36b lm37 lm27 Int_iff 
-by (metis (no_types))
+lemma lm37: "{(x, X)} \<in> injectionsUniverse" unfolding runiq_basic using runiq_singleton_rel by blast
+
+lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" using lm36b lm37 lm27 Int_iff by (metis (no_types))
 
 lemma assumes "is_partition Y" "X \<subseteq> Y" shows "is_partition X" using assms subset_is_partition
 by (metis(no_types))
@@ -628,45 +612,6 @@ ultimately have "setsum b ?aa \<le> Max ((setsum b)`(possibleAllocationsRel (N-X
 then show ?thesis using 0 by linarith
 qed
 
-
-(*MISC*)
-
-lemma ll76: assumes "is_partition XX" shows "trans (part2rel XX)" 
-proof -
-let ?f=part2rel let ?R="?f XX"
-{
-  fix x y z assume "(x,y) \<in> ?R" then obtain X1 where 
-  1: "X1\<in>XX & x\<in>X1 & y\<in>X1" using ll73 by metis 
-  assume "(y,z)\<in>?R" then obtain X2 where 
-  2: "X2\<in>XX & y\<in>X2 & z\<in>X2" using ll73 by metis
-  have "{y} \<subseteq> X1 \<inter> X2" using 1 2 by fast
-  hence "X1=X2" using assms 1 2 by (metis empty_iff is_partition_def singleton_iff subset_empty)
-  hence "(x,z)\<in>?R" using ll73 1 2 by fast
-}
-thus ?thesis using trans_def by blast
-qed
-
-lemma ll72: assumes "runiq f" shows "is_partition {f^-1 `` {y}| y. y\<in> Range f}" 
-proof -
-let ?i=is_partition let ?R=Range let ?r=runiq let ?g="f^-1"
-let ?P="{?g `` {y}| y. y\<in> ?R f}" have "?thesis = (\<forall> X\<in> ?P . \<forall> Y \<in> ?P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X=Y))" 
-using is_partition_def by (rule exE_realizer)
-thus ?thesis using ll68 assms by fast 
-qed
-
-lemma ll79: assumes "runiq f" shows "kernel f partitions (Domain f)"
-proof -
-have 0: "Domain f = \<Union> kernel f" using ll65 by blast
-have "is_partition (kernel f)" using assms ll72 ll65 by metis
-thus ?thesis using 0 is_partition_of_def by metis
-qed
-
-lemma ll77: assumes "is_partition XX" shows "equiv (Union XX) (part2rel XX)" 
-using assms ll74 ll75 ll76 equiv_def by fast
-
-corollary ll78: assumes "runiq f" shows "equiv (Domain f) (part2rel (kernel f))"
-using assms ll77 ll79 is_partition_of_def by metis
-
 lemma assumes "f \<in> partitionValuedUniverse" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_eq_class)
 
 lemma mm33: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
@@ -674,63 +619,6 @@ lemma mm33: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX
 
 corollary mm33b: assumes "XX partitions X" "finite X" "finite XX" shows 
 "card (\<Union> XX) = setsum card XX" using assms mm33 by (metis is_partition_of_def lll41)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 lemma setsum_Union_disjoint_4: assumes "\<forall>A\<in>C. finite A" "\<forall>A\<in>C. \<forall>B\<in>C. A \<noteq> B \<longrightarrow> A Int B = {}" 
 shows "setsum f (Union C) = setsum (setsum f) C" using assms setsum.Union_disjoint by fastforce
@@ -759,17 +647,10 @@ corollary nn24e: "
 possibleAllocationsRel N G \<subseteq>  allocationsUniverse &
 possibleAllocationsRel N G \<subseteq> {a. Domain a\<subseteq>N & \<Union>Range a=G}" using nn24f nn24g
 conj_subset_def lm50 by (metis (no_types))
-(*by (metis lm50)*)
 
 corollary nn24b: "possibleAllocationsRel N G \<subseteq> allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G}"
 (is "?L \<subseteq> ?R1 \<inter> ?R2")
 proof - have "?L \<subseteq> ?R1 & ?L \<subseteq> ?R2" by (rule nn24e) thus ?thesis by auto qed
-
-(* is_partition_of_def lm47
-mem_Collect_eq subsetI
-lm19 Int_iff mem_Collect_eq subsetI lm50 is_partition_of_def
-Range_converse image_iff set_rev_mp lll81 
-by (metis(mono_tags,hide_lams))*)
 
 corollary nn24: "possibleAllocationsRel N G = (allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})" 
 (is "?L = ?R") 
@@ -780,12 +661,6 @@ qed
 
 corollary nn24c: "b \<in> possibleAllocationsRel N G=(b\<in>allocationsUniverse& Domain b\<subseteq>N & \<Union>Range b = G)" 
 using nn24 Int_Collect by (metis (mono_tags, lifting))
-
-(*
-corollary nn24d: assumes
-"(b \<in> possibleAllocationsRel N G)" shows "(b\<in>allocationsUniverse& Domain b \<subseteq> N & \<Union> Range b = G)" 
-using assms Int_Collect nn24c 
-*)
 
 corollary lm35d: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse" using assms Outside_def
 by (metis (lifting, mono_tags) lm35)

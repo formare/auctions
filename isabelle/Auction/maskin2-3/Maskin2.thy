@@ -55,7 +55,7 @@ let ?d=Domain
 {
   fix b assume 
   0: "b \<in> ?d a \<inter> ?d p" then have "cartesian (?d a) b i" using assms(2) by blast
-  then have "pseudomax a (w (b--i)) b i" using lll96 assms 0 by (smt IntE fst_conv snd_conv)
+  then have "pseudomax a (w (b--i)) b i" using lll96 assms 0 IntE by (metis(no_types))
 }
 thus ?thesis using lll90 assms(3) by auto
 qed
@@ -118,6 +118,75 @@ ultimately have
 thus ?thesis by blast
 qed
 
+lemma lll92: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
+"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=g2 x)))" shows 
+"g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (f,,xx - f2)*(g1 xx)/(f1-f2)" 
+proof -
+  let ?fx="f,,xx" let ?h2="(?fx-f1)*(g2 xx)/(f2-f1)" let ?h1="(?fx-f2)*(g1 xx)/(f1-f2)" 
+  let ?gx="g,,xx" have
+  1: "?fx=f1 \<longrightarrow> ?gx=(g1 xx)" using assms by fast have
+  2: "?fx=f2 \<longrightarrow> ?gx=(g2 xx)" using assms by fast  
+  have "{xx} \<subseteq> (f^-1)``{f1,f2}" using assms by fast
+  then have "f``{xx} \<subseteq> {f1,f2}" using assms(3) ll71b by metis
+  then have 
+  4: "f,,xx=f1 \<or> f,,xx=f2" using assms(3) by (metis Image_iff Image_singleton_iff Int_absorb1 
+  Int_empty_left `{xx} \<subseteq> f\<inverse> \`\` {f1, f2}` converseD equals0D insert_subset l31 subset_insert)
+  {
+    assume "f,,xx=f1" then moreover have "?h2 = 0" by simp
+    ultimately moreover have "?h1=g1 xx" using 1 assms by auto
+    ultimately have "?gx=?h2 + ?h1" using 1 by simp 
+  }
+  then have
+  3: "f,,xx=f1 \<longrightarrow> (?gx=?h2+?h1)" by fast
+  {
+    assume "f,,xx=f2" then moreover have "?h1 = 0" by simp
+    ultimately moreover have "?h2=g2 xx" using 1 assms by auto
+    ultimately have "?gx=?h2 + ?h1" using 2 by simp 
+  }
+  then have "?gx=?h2+?h1" using 3 4 by fast then show ?thesis by fast
+qed
+
+corollary lll92b: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
+"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=(%x. ((g1 x)+(g2 x))) x)))" 
+shows "g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (g1 xx)"
+proof -
+  let ?fx="f,,xx" let ?g1="g1 xx" let ?g2="g2 xx" let ?g="%x. (g1 x)+(g2 x)"
+  have "g,,xx = (?fx-f1)*(?g xx)/(f2-f1) + (?fx-f2)*?g1/(f1-f2)" 
+  using assms by (rule lll92) moreover have "...=
+  (?fx-f1)*((?g xx)/(f2-f1)) + (?fx-f2)*?g1/(f1-f2)" by auto moreover have "... = 
+  ?fx*((?g1+?g2)/(f2-f1)) - f1*(?g1+?g2)/(f2-f1) + (?fx-f2)*(?g1/(f1-f2))" by algebra moreover have "... = 
+  (?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1)) + (?fx-f2)*(?g1/(f1-f2))" 
+  by algebra moreover have "... = 
+  (?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1)) + (?fx*(?g1/(f1-f2)) - f2*(?g1/(f1-f2)))" 
+  using lll62 by presburger moreover have "... = 
+  ?fx*?g1/(f2-f1) + ?fx*?g1/(-(f2-f1)) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) - f2*(?g1/(f1-f2))" 
+  by force moreover have "... = 
+  ?fx*?g1/(f2-f1) - ?fx*?g1/(f2-f1) + ?fx*?g2/(f2-f1) - f1*(?g1+?g2)/(f2-f1) - f2*(?g1/(f1-f2))" 
+  by linarith moreover have "... = 
+  ?fx*?g2/(f2-f1) - f1*((?g1+?g2)/(f2-f1)) - f2*(?g1/(f1-f2))" 
+  by force moreover have "... = 
+  ?fx*?g2/(f2-f1) - (f1*?g1/(f2-f1) + f1*?g2/(f2-f1)) - f2*?g1/(f1-f2)" by algebra moreover have "... = 
+  ?fx*?g2/(f2-f1) - f1*?g1/(-(f1-f2)) - f1*?g2/(f2-f1) - f2*?g1/(f1-f2)" by force moreover have "... = 
+  ?fx*?g2/(f2-f1) + f1*(?g1/(f1-f2)) - f1*(?g2/(f2-f1)) - f2*(?g1/(f1-f2))"  
+  by (metis (hide_lams, mono_tags) diff_minus_eq_add minus_divide_right times_divide_eq_right) moreover have "... =
+  ?fx*(?g2/(f2-f1)) + (f1*(?g1/(f1-f2)) - f2*(?g1/(f1-f2))) - f1*(?g2/(f2-f1))"
+  by algebra moreover have "... = 
+  ?fx*(?g2/(f2-f1)) + (f1-f2)*(?g1/(f1-f2)) - f1*(?g2/(f2-f1))" using lll62 by presburger moreover have "... = 
+  (?fx*(?g2/(f2-f1)) - f1*(?g2/(f2-f1))) + (f1-f2)*(?g1/(f1-f2))" by algebra moreover have "... = 
+  (?fx-f1)*(?g2/(f2-f1)) + (f1-f2)*(?g1/(f1-f2))" using lll62 by presburger moreover have "... = 
+  (?fx-f1)*?g2/(f2-f1) + ?g1*((f1-f2)/(f1-f2))" by simp moreover have "... = 
+  (?fx-f1)*?g2/(f2-f1) + ?g1*1" using assms by force ultimately show ?thesis by linarith
+qed
+
+corollary lll92c: assumes "xx \<in> X \<inter> (f^-1)``{f1,f2}" "f1 \<noteq> f2" "runiq f"
+"\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=(g1 x)+(g2 x))))" 
+shows "g,,xx = (f,,xx - f1)*(g2 xx)/(f2-f1) + (g1 xx)" using assms lll92b 
+proof -
+have 4: "\<forall>x \<in> X. (((f,,x=(f1::real)) \<longrightarrow> (g,,x=(g1 x))) & ((f,,x=f2) \<longrightarrow> (g,,x=(%x. ((g1 x)+(g2 x))) x)))"
+using assms(4) by blast
+show ?thesis using assms(1,2,3) 4 by (rule lll92b)
+qed
+
 corollary lll98: assumes "bb \<in> {b0+<(i,v)| (v::price) . True} \<inter> (a^-1)``{a1,a2}" "a1 \<noteq> a2" 
 "runiq a" "runiq p" "Domain a \<subseteq> Domain p" "functional (Domain a)"
 "cartesian (Domain a) b0 i"
@@ -127,7 +196,6 @@ corollary lll98: assumes "bb \<in> {b0+<(i,v)| (v::price) . True} \<inter> (a^-1
 "g2=(%b. (w (b--i))*(a2-a1))"
 shows
 "p,,bb = (a,,bb - a1)*(g2 bb)/(a2-a1) + (g1 bb)"
-using assms lll97b lll92b
 proof -
   let ?g1="%b. reducedprice p i a ,, ({i} \<union> Domain (b--i), b outside {i}, a1)" let ?g2="%b. (w (b--i))*(a2-a1)"
   let ?B="{b0+<(i,v)| (v::price) . True}"
@@ -139,8 +207,8 @@ proof -
   then have "\<forall>b \<in> ?B.(( ((a,,b=a1) \<longrightarrow> (p,,b=(?g1 b))) & 
   ((a,,b=a2) \<longrightarrow> (p,,b = ?g2 b + (?g1 b)))))" by fast
   moreover have "?g1=g1 & ?g2=g2" using assms by fast ultimately have 
-  4: "\<forall>b \<in> ?B.(( ((a,,b=a1) \<longrightarrow> (p,,b=(g1 b))) & ((a,,b=a2) \<longrightarrow> (p,,b = g2 b + (g1 b)))))" by blast
-  show ?thesis using assms(1,2,3) 4 lll92b by smt
+  4: "\<forall>b \<in> ?B.(( ((a,,b=a1) \<longrightarrow> (p,,b=(g1 b))) & ((a,,b=a2) \<longrightarrow> (p,,b = (g1 b) + (g2 b)))))" by fastforce
+  show ?thesis using assms(1,2,3) 4 by (rule lll92c)
 qed
 
 corollary lll98b: assumes "b \<in> {b0+<(i,v)| (v::price) . True} \<inter> (a^-1)``{a1,a2}" "a1 \<noteq> a2" 

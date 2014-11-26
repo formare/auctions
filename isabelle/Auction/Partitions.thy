@@ -3,7 +3,7 @@ Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Christoph Lange <math.semantic.web@gmail.com>
-* Marco B. Caminati <marco.caminati@gmail.com>
+* Marco B. Caminati http://caminati.co.nr
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -18,10 +18,9 @@ theory Partitions
 imports
   Main
   SetUtils
-(*  HOLUtils *)
 
 begin
-
+(*
 text {*
 We define the set of all partitions of a set (@{term all_partitions}) in textbook style, as well as
 a function @{term all_partitions_list} to algorithmically compute this set (then represented as a
@@ -45,7 +44,7 @@ in the following example:
 BTW, the number of partitions of a set (same as the number of equivalence relations on the set) is known as 
 \href{http://en.wikipedia.org/wiki/Bell_number}{Bell number}.
 *}
-
+*)
 text {* @{term P} is a partition of some set. *}
 definition is_partition where
 "is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
@@ -254,25 +253,6 @@ proof
   then show "finite {P . \<Union> P = A} \<or> finite {P. \<forall> X \<in> P . \<forall> Y \<in> P . (X \<inter> Y \<noteq> {}) \<longleftrightarrow> X = Y}" ..
 qed
 
-text {* Any non-empty set has at least one partition. *}
-lemma non_empty_set_has_partitions:
-  assumes "A \<noteq> {}"
-  shows "all_partitions A \<noteq> {}"
-(* CL: the following takes 1.32 s on my machine with Isabelle2013, and it does already use my lemma set_partitions_itself:
-unfolding all_partitions_def is_partition_of_def is_partition_def 
-by (smt Int_absorb Int_commute assms empty_def is_partition_of_def mem_Collect_eq set_partitions_itself singleton_conv2) *)
-(* CL: Isabelle2013-1-RC1 finds the following, which takes 16 ms:
-by (metis all_partitions_def assms equals0D mem_Collect_eq set_partitions_itself) *)
-(* CL: Without set_partitions_itself, it doesn't work within reasonable time
-   (tested with Isabelle2013 with unfolding; tested with Isabelle2013-1-RC1 without unfolding)
-   unfolding all_partitions_def is_partition_of_def is_partition_def sledgehammer (del: set_partitions_itself) *)
-proof
-  assume "all_partitions A = {}"
-  then have "\<forall> P . \<not>is_partition_of P A" using all_partitions_def by blast
-  moreover have "is_partition_of {A} A" using assms by (rule set_partitions_itself)
-  ultimately show False by simp
-qed
-
 text {* The set of all partitions of the empty set only contains the empty set.
   We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
 lemma emptyset_part_emptyset3:
@@ -280,19 +260,6 @@ lemma emptyset_part_emptyset3:
   unfolding all_partitions_def
   using emptyset_part_emptyset1 emptyset_part_emptyset2
   by fast
-
-(* MC: A further, proof-friendlier way of computing partitions is introduced: 
-   everything's a set, except the very initial input, which is a list 
-   (of elements) because I don't know how to do recursive definitions 
-   on finite sets.
-   CL@MC: There is a predicate Finite_Set.finite, which is defined inductively (search for 
-   "inductive finite" in Finite_Set.thy, but it is not defined as an algebraic _datatype_ and 
-   therefore doesn't work with recursive _functions_.
-   Then equivalence with all_partitions is inductively shown *)
-(* MC: update: now I probably would know how to utterly eliminate lists from this.
-   CL@MC: Is this comment still up to date? 
-   MC@CL: I no longer know! :)
-*)
 
 text {* inserts an element into a specified set inside the given set of sets *}
 definition insert_into_member :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
@@ -728,7 +695,7 @@ next
   have x_notin_xs: "x \<notin> set xs" using Cons.prems by simp
   
   have "set (map set (all_partitions_list (x # xs))) = all_partitions (set (x # xs))"
-  proof (rule equalitySubsetI) -- {* case set \<rightarrow> list *}
+  proof (rule equalitySubsetI) (* -- {* case set \<rightarrow> list *} *)
     fix P::"'a set set" (* a partition *)
     let ?P_without_x = "partition_without x P"
     have P_partitions_exc_x: "\<Union> ?P_without_x = \<Union> P - {x}" using partition_without_covers .
@@ -754,7 +721,7 @@ next
     then show "P \<in> set (map set (all_partitions_list (x # xs)))"
       using all_coarser_partitions_with_list_alt hyp_distinct
       by (metis all_partitions_list.simps(2))
-  next -- {* case list \<rightarrow> set *}
+  next (* -- {* case list \<rightarrow> set *} *)
     fix P::"'a set set" (* a partition *)
     assume P: "P \<in> set (map set (all_partitions_list (x # xs)))"
 
@@ -946,75 +913,5 @@ next
     by (rule exists_partition_of_strictly_larger_set)
   then show ?thesis by blast
 qed
-
-(* TODO CL: document if we need this 
-lemma
-  assumes part: "P partitions A"
-      and eq_class_old: "Xold \<in> P" (* Xold is an equivalence class of the old partition *)
-      and eq_class_sub: "Xold \<subseteq> Xnew" (* The new equivalence class contains more elements. *)
-      and eq_class_ext_new: "(Xnew - Xold) \<inter> A = {}" (* The additional elements are not in the original set. *)
-  shows "is_partition (P - {Xold} \<union> {Xnew})"
-proof -
-  {
-    fix X' P' Y' Xold' Xnew' A'
-    assume 
-        X': "X' \<in> P' - {Xold'} \<union> {Xnew'}"
-       and Y': "Y' \<in> P' - {Xold'} \<union> {Xnew'}"
-       and eq_class_old': "Xold' \<in> P'"
-       and "\<Union> P' = A'"
-       and part': "is_partition_of P' A'"
-       and eq_class_old': "Xold' \<in> P'"
-       and eq_class_ext_new': "(Xnew' - Xold') \<inter> A' = {}"
-       and FalseTrue': "X' \<notin> P' \<and> Y' \<in> P'"
-    then have "X' \<notin> P'" and "Y' \<in> P'" by simp_all
-    from `X' \<notin> P'` have "X' = Xnew'" using X' eq_class_old' by fast
-    then have "Y' \<in> P' - {Xold'}" using Y' by (metis FalseTrue' Un_commute Un_empty_left Un_insert_left insert_iff)
-    {
-      fix x assume "x \<in> Xnew'"
-      then have "\<not>(\<exists> Z . Z \<in> P' - {Xold'} \<and> x \<in> Z)"
-      proof (cases "x \<in> Xold'")
-        case True
-        with eq_class_old' part' show ?thesis using is_partition_of_def is_partition_def 
-        Diff_iff IntI Int_absorb all_not_in_conv insert_iff by (metis(no_types))
-      next
-        case False
-        then have "x \<in> Xnew' - Xold'" using `x \<in> Xnew'` by simp
-        then have "x \<notin> A'" using eq_class_ext_new' by blast
-        with `\<Union> P' = A'` show ?thesis by blast
-      qed
-    }
-    then have "X' \<inter> Y' = {}" using `X' = Xnew'` `Y' \<in> P' - {Xold'}` by blast
-    then have "X' \<inter> Y' \<noteq> {} \<longleftrightarrow> X' = Y'" using FalseTrue' by blast
-  }
-  note foo = this
-  have "\<Union> P = A" using part unfolding is_partition_of_def ..
-  {
-    fix X Y
-    assume X: "X \<in> P - {Xold} \<union> {Xnew}"
-       and Y: "Y \<in> P - {Xold} \<union> {Xnew}"
-    have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y"
-    proof (cases rule: case_split_2_times_2)
-      assume "X \<in> P \<and> Y \<in> P"
-      with part show ?thesis unfolding is_partition_of_def is_partition_def by force
-    next
-      assume FalseTrue: "X \<notin> P \<and> Y \<in> P"
-      with X Y eq_class_old `\<Union> P = A` part eq_class_old eq_class_ext_new show ?thesis by (rule foo)
-    next
-      assume TrueFalse: "X \<in> P \<and> Y \<notin> P"
-      then have "Y \<notin> P \<and> X \<in> P" by blast
-      with Y X eq_class_old `\<Union> P = A` part eq_class_old eq_class_ext_new have "Y \<inter> X \<noteq> {} \<longleftrightarrow> Y = X" by (rule foo)
-      then show ?thesis by blast
-    next
-      assume FalseFalse: "X \<notin> P \<and> Y \<notin> P"
-      with X Y have "X = Xnew \<and> Y = Xnew" by fast
-      then have "X = Y" by simp
-      moreover have "X \<inter> Y \<noteq> {}" using eq_class_old eq_class_sub
-        by (metis FalseFalse `X = Xnew \<and> Y = Xnew` inf_idem subset_empty)
-      ultimately show ?thesis by simp
-    qed
-  }   
-  then show ?thesis unfolding is_partition_def by force
-qed
-*)
 
 end

@@ -2,7 +2,7 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Marco B. Caminati <marco.caminati@gmail.com>
+* Marco B. Caminati http://caminati.co.nr
 * Christoph Lange <math.semantic.web@gmail.com>
 
 Dually licenced under
@@ -23,6 +23,19 @@ imports
 
 begin
 
+section {* evaluating a relation as a function *}
+
+text {* If an input has a unique image element under a given relation, return that element; 
+  otherwise return a fallback value. *}
+fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
+where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
+
+text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e.\ an empty or
+  singleton set) under the relation is trivial again. 
+This is the set-theoretical way of characterizing functions, as opposed to @{text \<lambda>} functions. *}
+definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
+"runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
+
 section {* restriction *}
 
 text {* restriction of a relation to a set (usually resulting in a relation with a smaller domain) *}
@@ -35,8 +48,7 @@ where "R || X = X \<times> Range R \<inter> R"
 
 text {* extensional characterisation of the pairs within a restricted relation *}
 lemma restrict_ext: "R || X = {(x, y) | x y . x \<in> X \<and> (x, y) \<in> R}"
-unfolding restrict_def
-using Range_iff by blast
+unfolding restrict_def using Range_iff by blast
 (* CL: This proof seems impossible for sledgehammer.  Range_iff is not a simp rule.  I managed
    to arrive at this point after painfully rewriting the set comprehension in very small steps,
    only to see that most of these steps could be proved by blast. *)
@@ -50,20 +62,16 @@ proof -
 qed
 
 text {* Restricting a relation to the empty set yields the empty set. *}
-lemma restrict_empty: "P || {} = {}"
-unfolding restrict_def by simp
+lemma restrict_empty: "P || {} = {}" unfolding restrict_def by simp
 
 text {* A restriction is a subrelation of the original relation. *}
-lemma restriction_is_subrel: "P || X \<subseteq> P"
-using restrict_def by blast
+lemma restriction_is_subrel: "P || X \<subseteq> P" using restrict_def by blast
 
 text {* Restricting a relation only has an effect within its domain. *}
-lemma restriction_within_domain: "P || X = P || (X \<inter> (Domain P))"
-unfolding restrict_def by fast
+lemma restriction_within_domain: "P || X = P || (X \<inter> (Domain P))" unfolding restrict_def by fast
 
 text {* alternative characterisation of the restriction of a relation to a singleton set *}
-lemma restrict_to_singleton: "P || {x} = {x} \<times> P `` {x}"
-unfolding restrict_def by fast
+lemma restrict_to_singleton: "P || {x} = {x} \<times> P `` {x}" unfolding restrict_def by fast
 
 section {* relation outside some set *}
 
@@ -159,12 +167,10 @@ where "R ,, a = the_elem (R `` {a})"
 section {* paste *}
 
 text {* the union of two binary relations @{term P} and @{term Q}, where pairs from @{term Q}
-  override pairs from @{term P} when their first components coincide *}
+  override pairs from @{term P} when their first components coincide.
+This is particularly useful when P, Q are @{term runiq}, and one wants to preserve that property.*}
 definition paste (infix "+*" 75)
 where "P +* Q = (P outside Domain Q) \<union> Q"
-(* Avoids possible conflicts btw P & Q using `outside', 
-thus giving precedence to Q. This is particularly useful when 
-P, Q are functions, and one wants to preserve that property. *)
 
 text {* If a relation @{term P} is a subrelation of another relation @{term Q} on @{term Q}'s
   domain, pasting @{term Q} on @{term P} is the same as forming their union. *}
@@ -197,17 +203,5 @@ text {* The range of two pasted relations is a subset of the union of their rang
 lemma paste_Range: "Range (P +* Q) \<subseteq> Range P \<union> Range Q"
 (* TODO CL: report bug that structured proof found by auto sledgehammer doesn't work *)
 using paste_sub_Un by blast
-
-section {* evaluating a relation as a function *}
-
-text {* If an input has a unique image element under a given relation, return that element; 
-  otherwise return a fallback value. *}
-fun eval_rel_or :: "('a \<times> 'b) set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'b"
-where "eval_rel_or R a z = (let im = R `` {a} in if card im = 1 then the_elem im else z)"
-
-text {* right-uniqueness of a relation: the image of a @{const trivial} set (i.e.\ an empty or
-  singleton set) under the relation is trivial again. *}
-definition runiq :: "('a \<times> 'b) set \<Rightarrow> bool" where
-"runiq R = (\<forall> X . trivial X \<longrightarrow> trivial (R `` X))"
 
 end

@@ -139,7 +139,7 @@ moreover have "inj_on ?f (?r P)" using Range_def inj_on_def by blast
 then moreover have "setsum card ?B = setsum (card o ?f) (?r P)" using setsum.reindex_cong
 by fastforce
 ultimately moreover have "setsum (card o ?f) (?r P) = setsum (card o ?g) (?r P)" 
-by (smt setsum.cong)
+using setsum.cong by fast
 ultimately have "setsum card ?B = setsum (card o ?g) (?r P)" by presburger
 moreover have "finite {yy. (%y. card (P^-1``{y})) yy > 0}" using 1
 by (metis (full_types) finite_Range lll26 rev_finite_subset)
@@ -155,7 +155,7 @@ by presburger
 ultimately have "size (RRange P)=setsum card ?B" by presburger
 moreover have "P = \<Union> ?B" by auto
 moreover have "finite P" using 1 by fast
-ultimately moreover have "finite ?B" using 1 by (smt finite_UnionD)
+ultimately moreover have "finite ?B" using 1 finite_UnionD by (metis(no_types,lifting))
 ultimately moreover have "\<forall>A\<in>?B. finite A" by blast
 ultimately moreover have "(ALL A:?B. ALL B:?B. A \<noteq> B --> A Int B = {})"
 by blast
@@ -641,7 +641,7 @@ proof -
     then have 
     11: "finite (Domain (b||J))" by (metis finite_Int ll41)
     have "?bb=?B0 outside (?d (b || J)) \<union> (b || J)" by (metis paste_def)
-    moreover have "... = ?B0 outside J \<union> (b || J)" using 1 by (smt Int_absorb1 ll41)
+    moreover have "... = ?B0 outside J \<union> (b || J)" using 1 Int_absorb1 ll41 by (metis(lifting))
     ultimately have 
     9: "?bb = (?B0 outside J) \<union> (b || J)" by presburger
     let ?h="%i. P(m+onemember2 b0 (?n-(k+1)))"
@@ -661,7 +661,8 @@ proof -
         using outside_reduces_domain by metis
         then moreover have "((?B0 outside (J \<union> {i}))^-1``{y}) \<subseteq> ?II - (J \<union> {i})" by blast
         moreover have "finite (?II - (J \<union> {i}))" using 16 by fast
-        ultimately moreover have "finite ((?B0 outside (J \<union> {i}))^-1``{y})" by (smt rev_finite_subset)
+        ultimately moreover have "finite ((?B0 outside (J \<union> {i}))^-1``{y})" 
+        using rev_finite_subset by (metis(no_types))
         ultimately have "(?B0 outside (J \<union> {i}))^-1``{y} \<inter> ((b || (J \<inter> J))^-1``{y})={}
         & finite ((b||J)^-1``{y}) &
         finite ((?B0 outside (J \<union> {i}))^-1``{y})" by fast
@@ -734,14 +735,14 @@ proof -
         moreover have "... = (?B0 outside (J \<union> {i})) \<union> (b || (J-{i}))" 
         using lll04 by blast
         ultimately have "?bb -- i = (?B0 outside J) \<union> (b||(J-{i}))" 
-        using 13 inf_sup_aci(5) insert_absorb insert_is_Un by smt
+        using 13 inf_sup_aci(5) insert_absorb insert_is_Un by force
         moreover have "?d (?B0 outside J) \<inter> J={}" 
         using outside_reduces_domain by fast
         moreover have "?d (b||(J-{i})) \<subseteq> J-{i}" using ll41 Int_lower2 by (metis)
         ultimately moreover have 
         "\<forall>y. (?B0 outside J)^-1``{y} \<inter> ((b || (J-{i}))^-1``{y})={}" by blast
         moreover have "\<forall>y. finite ((?B0 outside J)^-1``{y})" 
-        using lll39 finite_Domain 25 by smt
+        using lll39 finite_Domain 25 by fast
         moreover have "\<forall>y. finite ((b || (J-{i}))^-1``{y})" 
         using finite_subset lll39 11 Domain_mono by (metis 8)
         ultimately moreover have "?R ((?B0 outside J) \<union> (b||(J-{i}))) = 
@@ -784,8 +785,8 @@ proof -
     qed (* 5 *)
 
     have "?d ?B0 = ?II" by auto then
-    have "?d ?bb = ?II" using paste_def 1 by (smt 
-    Int_absorb1 Un_insert_right insert_is_Un ll41 ll54 paste_Domain sup.commute)
+    have "?d ?bb = ?II" using 1 
+    Int_absorb1 Un_insert_right insert_is_Un ll41 ll54 paste_Domain sup.commute by (metis(lifting,no_types))
     then have "f ?bb = setsum (?g ?bb) ?II" using 1 2 by fastforce
     moreover have "... = setsum (?g ?bb) (?II - J) + setsum (?g ?bb) J" 
     using setsum.subset_diff 1 17 16 by auto
@@ -954,7 +955,7 @@ f((Domain(b outside {i,j}) \<union> {i1,i2})\<times>{b0})=(h i) b
   2: "finite (b--i) & finite ?b" using assms(2) Outside_def by (metis finite_Diff)
   have "b--i = ?bb \<union> (b--i)||{j} " using outside_union_restrict 
   by metis
-  moreover have "?b=?bb" by (smt Un_insert_left ll52 sup_bot_left)
+  moreover have "?b=?bb" using Un_insert_left ll52 sup_bot_left by metis
   moreover have "(b--i)||{j} \<inter> ?bb={}" by (metis Int_commute lll06b)
   moreover have "finite ?b" using 2 by fast
   ultimately moreover have "finite ((b--i)||{j})" by (metis finite_Un 2)

@@ -2,7 +2,7 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Marco B. Caminati <marco.caminati@gmail.com>
+* Marco B. Caminati http://caminati.co.nr
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -76,11 +76,15 @@ proof -
   let ?k="w (b--i)" let ?d=Domain obtain a1 t where 
   0: "(\<forall> b \<in> ?d a \<inter> ?d p. p,,b=w (b--i)*(a,,b - a1) + (t (b--i)))" using assms(1) by blast
   have "v*?a - ?k*?a <= v*?av - ?k*?av" using lll87 assms(2) by fast
-  then have "v*?a - ?k*(?a - a1) <= v*?av - ?k*(?av - a1)" by (smt ll57)
-  then have "v*?a - ?k*(?a - a1) - t (b--i) <= v*?av - ?k*(?av - a1) - t (b--i)" by smt
+ then have "v*?a - ?k*?a + ?k*a1 <= v*?av - ?k*?av + ?k*a1" by fastforce
+then have "v*?a + (-?k)*?a + (-?k)*(-a1) <= v*?av +(-?k)*?av + (-?k)*(-a1)"
+by force
+  then have "v*?a + (-?k)*(?a - a1) <= v*?av + (-?k)*(?av -a1)" 
+by (metis (erased, hide_lams) ab_semigroup_add_class.add_ac(1) diff_conv_add_uminus ring_class.ring_distribs(1))
+  then have "v*?a -?k*(?a - a1) <= v*?av -?k*(?av -a1)" by simp
+  then have "v*?a - ?k*(?a - a1) - t (b--i) <= v*?av - ?k*(?av - a1) - t (b--i)" by simp
   then have "v*?a - (?k*(?a - a1) + t (b--i)) <= v*?av - (?k*(?av - a1) + t (b--i))" by force
-  moreover have "b -- i = ?bv -- i" (* MC: worth to be singled out as general lemma, see lll91 *) by (smt 
-  Domain_empty Domain_insert Un_insert_left Un_insert_right fst_conv insert_def ll19 singleton_conv)
+  moreover have "b -- i = ?bv -- i" unfolding lll91c by simp
   moreover have "?bv \<in> ?d a \<inter> ?d p" using assms by simp
   ultimately show ?thesis using assms 0 by metis
 qed

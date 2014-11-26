@@ -5,7 +5,7 @@ Authors:
 * Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
 * Colin Rowat <c.rowat@bham.ac.uk>
-* Marco B. Caminati <marco.caminati@gmail.com>
+* Marco B. Caminati http://caminati.co.nr
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0

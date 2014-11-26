@@ -2,7 +2,7 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Marco B. Caminati <marco.caminati@gmail.com>
+* Marco B. Caminati http://caminati.co.nr
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -172,7 +172,8 @@ assms(3) "15" DomainE Image_singleton_iff by (metis (no_types,hide_lams))
         5: "- (p,,b) \<le> - (p,,bb)" using 2 by auto
         have "bb +* ({i} \<times> (b``{i})) = b +* (({i} \<times> (bb``{i})) +* ({i} \<times> (b``{i})))" using 20 ll53 by metis
         also have "{i} \<times> (bb `` {i}) +* ({i} \<times> (b ``{i})) = {i} \<times> (b``{i})" 
-        using paste_def 14 by (smt Diff_cancel Domain_empty_iff Un_commute Un_empty_right outside_reduces_domain)
+        using paste_def 14 
+Diff_cancel Domain_empty_iff Un_commute Un_empty_right outside_reduces_domain by metis
         (* ll56 not needed?! *)
         ultimately have "bb +* ({i} \<times> (b``{i})) = b +* ({i} \<times> (b``{i}))" by auto
         also have "...= b" using ll84 by fast

@@ -1074,4 +1074,774 @@ moreover have "is_partition (Range a)" sorry
 ultimately show ?thesis using assms is_partition_def by metis
 qed
 
+
+(*
+text {* The image of the domain of a right-unique relation @{term R} under @{term R}
+  is the image of the domain under the function that corresponds to the relation. *}
+corollary runiq_imp_eval_eq_Im:
+  assumes "runiq R"
+  shows "R `` Domain R = (eval_rel R) ` Domain R" using assms lm025 by fast
+
+text {* The cardinality of the range of a finite, right-unique relation is less or equal the 
+  cardinality of its domain. *}
+lemma card_Range_le_Domain:
+  assumes finite_Domain: "finite (Domain R)"
+      and runiq: "runiq R"
+  shows "card (Range R) \<le> card (Domain R)"
+proof -
+  have "Range R = R `` Domain R" by blast
+  also have "\<dots> = (eval_rel R) ` Domain R" using runiq by (rule runiq_imp_eval_eq_Im)
+  finally have "Range R = (eval_rel R) ` Domain R" .
+  then show ?thesis using finite_Domain by (metis card_image_le)
+qed
+*)
+
+(*
+proof -
+  have "Collect (op < (f x)) \<inter> f ` X \<noteq> {}" using assms(2) assms(3) by blast
+  thus "x \<notin> argmax f X" using assms(1) not_less by fastforce
+qed
+ argmax.simps mem_Collect_eq
+Max_eqI finite_imageI image_iff
+Diff_iff empty_iff insert_iff less_imp_le not_less*)
+(*
+lemma mm80b: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X. f x <= f mx" shows "f mx = Max (f ` X)"
+proof -
+  have "X \<noteq> {}" using assms(2) by blast
+  hence "Max (f ` X) \<le> max (f mx) (f mx)" using assms(1) assms(3) by auto
+  thus "f mx = Max (f ` X)" using antisym assms(1) assms(2) by fastforce
+qed
+
+lemma mm80bb: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X. f x <= f mx" shows "mx \<in> argmax f X"
+using assms mm79 mm80b IntI by (metis (erased, hide_lams) vimage_singleton_eq)
+
+lemma mm80bbb: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "mx \<in> argmax f X"
+using assms mm80bb 
+by (metis (mono_tags, hide_lams) Diff_iff eq_iff less_imp_le singleton_iff)
+*)
+
+
+(*
+lemma assumes "\<forall>x. trivial ({x}\<times>(P``{x}))"
+shows "runiq P" unfolding runiq_def finestpart_def
+using ll40 lm006 finestpart_def runiq_def lm007
+sorry
+
+lemma assumes "runiq P" shows "trivial (({x}\<times>UNIV)\<inter>P)" 
+unfolding runiq_def 
+using assms trivial_def runiq_def ll40 sorry
+
+lemma (* lm012: *) "(runiq P) = (\<forall>x. trivial ({x}\<times>(P``{x})))" unfolding runiq_def finestpart_def
+using ll40 lm006 finestpart_def sorry
+
+lemma (* lm005: *) "runiq P = (\<forall>x. trivial (({x}\<times>UNIV)\<inter>P))" 
+(* unfolding trivial_def runiq_def *) using (* lm012 *) lm002 sorry
+
+lemma "runiq R \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')" unfolding runiq_def 
+lm01 lm00 using runiq_def lm00 lm01 sorry
+(*by (metis ImageI Image_def Image_iff all_not_in_conv empty_iff insert_iff mem_Collect_eq singletonI subsetCE subsetI)*)
+
+lemma assumes "runiq P" "runiq Q" "\<forall>x\<in>Domain P \<inter> (Domain Q). P``{x} \<subseteq> Q``{x}" shows 
+"runiq (P \<union> Q)" unfolding lll33 fst_eq_Domain using assms lll33 fst_eq_Domain disj_Un_runiq lm010 sorry
+(* lll33 runiq_alt runiq_basic fst_eq_Domain lm011 lm010 inj_on_def
+IntI Un_iff empty_iff image_eqI lm010c *)
+
+lemma assumes "runiq P" "runiq Q" "Domain P \<inter> (Domain Q) \<subseteq> Domain (P \<inter> Q)" shows 
+"runiq (P \<union> Q)" unfolding lll33 using assms lll33 runiq_alt runiq_basic fst_eq_Domain 
+disj_Un_runiq lm010 inj_on_def IntI Un_iff empty_iff image_eqI sorry
+*)
+
+(*
+lemma runiq_imp_triv_singleton_Im:
+  fixes x
+  assumes runiq: "runiq R"
+  shows "trivial (R `` {x})"
+proof -
+  fix x::'a
+  have "trivial {x}" unfolding trivial_def by simp
+  with runiq show "trivial (R `` {x})" unfolding runiq_def by fast
+qed
+*)
+(*
+lemma triv_singleton_Im_imp_runiq:
+  assumes triv: "\<forall> x . trivial (R `` {x})"
+  shows "runiq R" using assms by (metis runiq_alt)
+*)
+
+
+(*
+lemma runiq_alt: "runiq R \<longleftrightarrow> (\<forall> x . trivial (R `` {x}))"
+(* CL: The following proof, found by Sledgehammer without taking into account the two lemmas above,
+   takes 26 ms on my machine. *)
+(* unfolding runiq_def by (metis Image_empty trivial_cases trivial_empty trivial_singleton) *)
+proof
+  assume "runiq R"
+  then show "\<forall> x . trivial (R `` {x})" by (metis runiq_imp_triv_singleton_Im)
+next
+  assume triv: "\<forall> x . trivial (R `` {x})"
+  then show "runiq R" by (rule triv_singleton_Im_imp_runiq)
+qed
+*)
+
+
+(*
+lemma runiq_wrt_eval_rel:
+  fixes R :: "('a \<times> 'b) set"
+  shows "runiq R \<longleftrightarrow> (\<forall>x . R `` {x} \<subseteq> {R ,, x})"
+unfolding runiq_alt trivial_def by simp
+*)
+
+(* Image_within_domain' *)
+
+(*
+(* TODO CL: document *)
+lemma runiq_imp_ex1_right_comp:
+  fixes a
+  assumes "runiq R"
+      and "a \<in> Domain R"
+  shows "\<exists>! b . (a, b) \<in> R"
+using assms by (metis Domain.cases l31)
+
+(* TODO CL: document *)
+lemma ex1_right_comp_imp_runiq:
+  assumes "\<forall> a \<in> Domain R . \<exists>! b . (a, b) \<in> R"
+  shows "runiq R"
+using assms
+  (* TODO CL: This step takes 136 ms in Isabelle2013-1-RC3; optimise manually. *)
+by (metis Domain.simps runiq_basic)
+*)
+
+(* TODO CL: document *)
+
+
+lemma runiq_relation_except_singleton:
+  assumes runiq: "runiq R"
+      and runiq_conv: "runiq (R\<inverse>)"
+      and Range: "z \<in> Range R"
+  shows "{ (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }
+    = { (x, y) . (x, y) \<in> R \<and> y \<noteq> z }"
+proof (rule equalitySubsetI)
+  fix tup
+  assume "tup \<in> { (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }"
+  then obtain x y where tup_def: "tup = (x, y)" and tup_R: "(x, y) \<in> R" and x_not_R_z: "x \<noteq> (THE x . (x, z) \<in> R)" by blast
+  from runiq_conv x_not_R_z have "y \<noteq> z"
+    (* TODO CL: optimise: takes 612 ms in Isabelle2013-1-RC3 *)
+    by (metis (lifting) converse_iff runiq_basic the_equality tup_R)
+  with tup_def tup_R show "tup \<in> { (x, y) . (x, y) \<in> R \<and> y \<noteq> z }" by fastforce
+next
+  fix tup
+  assume "tup \<in> { (x, y) . (x, y) \<in> R \<and> y \<noteq> z }"
+  then obtain x y where tup_def: "tup = (x, y)" and tup_R: "(x, y) \<in> R" and y_ne_z: "y \<noteq> z" by blast
+  from tup_R y_ne_z have "x \<noteq> (THE x . (x, z) \<in> R)" 
+    (* TODO CL: optimise: takes 111 ms in Isabelle2013-1-RC3 *)
+    by (metis (lifting, no_types) Range RangeE runiq runiq_basic runiq_conv runiq_conv_wrt_THE the_equality)
+  with tup_def tup_R show "tup \<in> { (x, y) . (x, y) \<in> R \<and> x \<noteq> (THE x . (x, z) \<in> R) }" by fastforce
+qed
+
+
+lemma Domain_runiq_Diff_singleton:
+  assumes runiq: "runiq R"
+      and in_rel: "(x, y) \<in> R"
+  shows "Domain (R - {(x, y)}) = Domain R - {x}"
+(* TODO CL: One should think this is easy, but Sledgehammer in Isabelle2013-1-RC3 can't prove it at all. *)
+proof
+  show "Domain (R - {(x, y)}) \<subseteq> Domain R - {x}"
+  proof
+    fix z
+    assume assm: "z \<in> Domain (R - {(x, y)})"
+    show "z \<in> Domain R - {x}"
+    proof
+      show "z \<in> Domain R" using assm by blast
+      show "z \<notin> {x}"
+      proof
+        assume "z \<in> {x}"
+        with assm obtain y' where "(x, y') \<in> R - {(x, y)}" by blast
+        then have "(x, y') \<in> R" and "y' \<noteq> y" by simp_all
+        from runiq in_rel `(x, y') \<in> R` have "y = y'" by (metis l31)
+        with `y' \<noteq> y` show False by simp
+      qed
+    qed
+  qed
+next
+  have "Domain R - {x} = Domain R - Domain {(x, y)}" by blast
+  also have "\<dots> \<subseteq> Domain (R - {(x, y)})" by (rule Domain_Diff_subset)
+  finally show "Domain R - {x} \<subseteq> Domain (R - {(x, y)})" .
+qed
+
+
+(*
+text {* Any non-empty set has at least one partition. *}
+lemma non_empty_set_has_partitions:
+  assumes "A \<noteq> {}"
+  shows "all_partitions A \<noteq> {}"
+(* CL: the following takes 1.32 s on my machine with Isabelle2013, and it does already use my lemma set_partitions_itself:
+unfolding all_partitions_def is_partition_of_def is_partition_def 
+by (smt Int_absorb Int_commute assms empty_def is_partition_of_def mem_Collect_eq set_partitions_itself singleton_conv2) *)
+(* CL: Isabelle2013-1-RC1 finds the following, which takes 16 ms:
+by (metis all_partitions_def assms equals0D mem_Collect_eq set_partitions_itself) *)
+(* CL: Without set_partitions_itself, it doesn't work within reasonable time
+   (tested with Isabelle2013 with unfolding; tested with Isabelle2013-1-RC1 without unfolding)
+   unfolding all_partitions_def is_partition_of_def is_partition_def sledgehammer (del: set_partitions_itself) *)
+proof
+  assume "all_partitions A = {}"
+  then have "\<forall> P . \<not>is_partition_of P A" using all_partitions_def by blast
+  moreover have "is_partition_of {A} A" using assms by (rule set_partitions_itself)
+  ultimately show False by simp
+qed
+*)
+
+
+(*
+text {* The image of the domain of a right-unique relation @{term R} under @{term R}
+  is the image of the domain under the function that corresponds to the relation. *}
+corollary runiq_imp_eval_eq_Im:
+  assumes "runiq R"
+  shows "R `` Domain R = (eval_rel R) ` Domain R" using assms lm025 by fast
+
+text {* The cardinality of the range of a finite, right-unique relation is less or equal the 
+  cardinality of its domain. *}
+lemma card_Range_le_Domain:
+  assumes finite_Domain: "finite (Domain R)"
+      and runiq: "runiq R"
+  shows "card (Range R) \<le> card (Domain R)"
+proof -
+  have "Range R = R `` Domain R" by blast
+  also have "\<dots> = (eval_rel R) ` Domain R" using runiq by (rule runiq_imp_eval_eq_Im)
+  finally have "Range R = (eval_rel R) ` Domain R" .
+  then show ?thesis using finite_Domain by (metis card_image_le)
+qed
+
+text {* There is an injective function from a finite set to any set of a greater cardinality. *}
+lemma injections_exist:
+  fixes X::"'a set"
+    and Y::"'b set"
+  assumes finiteX: "finite X"
+      and finiteY: "finite Y"
+  shows "card X \<le> card Y \<Longrightarrow> injections X Y \<noteq> {}"
+using finiteX
+proof induct
+  case empty
+  have "{} \<in> injections {} Y"
+  proof (rule injectionsI)
+    show "Domain {} = {}" by simp
+    show "Range {} \<subseteq> Y" by simp
+    show "runiq {}" by (rule runiq_emptyrel)
+    show "runiq ({}\<inverse>)" by (simp add: runiq_emptyrel)
+  qed
+  then show ?case using assms by fast
+next
+  case (insert a X)
+  then obtain R where R: "R \<in> injections X Y" by auto
+  from R have "runiq R" unfolding injections_def by fast
+  from R have Domain: "Domain R = X" unfolding injections_def by fast
+  from R have Range: "Range R \<subseteq> Y" unfolding injections_def by fast
+
+  from Domain have "card X = card (Domain R)" by fast
+  also have "\<dots> \<ge> card (Range R)"
+    using insert.hyps(1) Domain `runiq R` card_Range_le_Domain by blast
+  finally have "card X \<ge> card (Range R)" .
+  moreover have "card Y > card X" using insert.hyps insert.prems by force
+  ultimately have *: "card Y > card (Range R)" by (rule order_le_less_trans)
+
+  from finiteY Range have "finite (Range R)" by (rule rev_finite_subset)
+  then have "card (Y - Range R) > 0" using * by (rule card_diff_gt_0)
+  then have "Y - Range R \<noteq> {}" by force
+  then have sup_rels_non_empty: "sup_rels_from R a Y \<noteq> {}"
+    unfolding sup_rels_from_def by (auto simp: image_Collect_mem)
+  then have **: "\<Union> { sup_rels_from P a Y | P . P \<in> injections X Y } \<noteq> {}"
+    using R by (auto simp: Union_map_non_empty)
+
+  from insert have "a \<notin> X" by simp
+  then have "injections (insert a X) Y = \<Union> { sup_rels_from P a Y | P . P \<in> injections X Y }"
+    by (rule injections_paste)
+  with ** show "injections (insert a X) Y \<noteq> {}" by presburger
+qed
+*)
+
+
+(*
+text {* Extending a right-unique relation by one pair leaves it right-unique
+  if the first component of the pair has not been in the domain of the relation already. *}
+lemma runiq_extend_singleton:
+  assumes runiq: "runiq R"
+      and not_in_Domain: "x \<notin> Domain R"
+  shows "runiq (R \<union> {(x, y)})"
+(* Sledgehammer in Isabelle2013-1-RC3 finds a proof that takes 112 ms. *)
+using runiq
+proof (rule disj_Un_runiq)
+  show "runiq {(x, y)}" by (rule runiq_singleton_rel)
+  have "Domain {(x, y)} = {x}" by simp
+  with not_in_Domain show "Domain R \<inter> Domain {(x, y)} = {}" by simp
+qed
+
+text {* Replacing the second component of one pair in a right-unique relation
+  leaves it right-unique. *}
+lemma runiq_replace_snd:
+  assumes runiq: "runiq R"
+      and not_in_Domain: "x \<notin> Domain (R - {(x, y)})"
+  shows "runiq (R - {(x, y)} \<union> {(x, z)})"
+proof -
+  from runiq have "runiq (R - {(x, y)})" by (rule runiq_except)
+  then show ?thesis using not_in_Domain by (rule runiq_extend_singleton)
+qed
+
+text {* Replacing the first component of a pair in a right-unique relation leaves the relation
+  right-unique if the replacement has not been in the domain of the relation before. *}
+lemma runiq_replace_fst:
+  assumes runiq: "runiq R"
+      and not_in_Domain: "z \<notin> Domain R"
+  shows "runiq (R - {(x, y)} \<union> {(z, y)})"
+proof (rule runiq_extend_singleton)
+  from runiq show "runiq (R - {(x, y)})" by (rule runiq_except)
+  from not_in_Domain show "z \<notin> Domain (R - {(x, y)})" by blast
+qed
+*)
+
+(*
+text {* Replacing the second component of one pair in a right-unique relation
+  leaves it right-unique. *}
+lemma runiq_replace_snd':
+  assumes runiq: "runiq R"
+      and in_rel: "(x, y) \<in> R"
+  shows "runiq (R - {(x, y)} \<union> {(x, z)})"
+using runiq
+proof (rule runiq_replace_snd)
+  from runiq in_rel show "x \<notin> Domain (R - {(x, y)})" by (rule runiq_Diff_singleton_Domain)
+qed
+*)
+
+(*
+text {* Extending a relation, whose converse is right-unique, by one pair leaves its converse
+  right-unique if the second component of the pair has not been in the range of the relation already. *}
+lemma runiq_conv_extend_singleton:
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and not_in_Domain: "y \<notin> Range R"
+  shows "runiq ((R \<union> {(x, y)})\<inverse>)"
+proof -
+  from not_in_Domain have "y \<notin> Domain (R\<inverse>)" by simp
+  with runiq_conv have "runiq (R\<inverse> \<union> {(y, x)})" by (rule runiq_extend_singleton)
+  moreover have "R\<inverse> \<union> {(y, x)} = (R \<union> {(x, y)})\<inverse>" by fast
+  ultimately show ?thesis by simp
+qed
+
+
+text {* Replacing the first component of one pair in a relation, whose converse is right-unique,
+  leaves its converse right-unique. *}
+lemma runiq_conv_replace_fst:
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and not_in_Range: "y \<notin> Range (R - {(x, y)})"
+  shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
+proof -
+  from not_in_Range have "y \<notin> Domain (R\<inverse> - {(y, x)})" by blast
+  with runiq_conv have "runiq (R\<inverse> - {(y, x)} \<union> {(y, z)})" by (rule runiq_replace_snd)
+  moreover have "R\<inverse> - {(y, x)} \<union> {(y, z)} = (R - {(x, y)} \<union> {(z, y)})\<inverse>" by fast
+  ultimately show ?thesis by simp
+qed
+
+(* TODO CL: document, and choose better name *)
+lemma runiq_conv_Diff_singleton_Range:
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and in_rel: "(x, y) \<in> R"
+  shows "y \<notin> Range (R - {(x, y)})"
+proof -
+  from in_rel have "(y, x) \<in> R\<inverse>" by simp
+  with runiq_conv have "y \<notin> Domain (R\<inverse> - {(y, x)})" by (rule runiq_Diff_singleton_Domain)
+  then show ?thesis by fast
+qed
+
+text {* Replacing the first component of one pair in a relation, whose converse is right-unique,
+  leaves its converse right-unique. *}
+lemma runiq_conv_replace_fst':
+  assumes runiq_conv: "runiq (R\<inverse>)"
+      and in_rel: "(x, y) \<in> R"
+  shows "runiq ((R - {(x, y)} \<union> {(z, y)})\<inverse>)"
+using runiq_conv                    
+proof (rule runiq_conv_replace_fst)
+  from runiq_conv in_rel show "y \<notin> Range (R - {(x, y)})" by (rule runiq_conv_Diff_singleton_Range)
+qed
+*)
+(*
+lemma converse_Image: 
+  assumes runiq: "runiq R"
+      and runiq_conv: "runiq (R\<inverse>)"
+shows "R\<inverse> `` R `` X \<subseteq> X"
+proof -
+  have "(R O R\<inverse>) `` X = (\<Union>x \<in> X . (R O R\<inverse>) `` {x})" by (rule Image_eq_UN)
+  also have "\<dots> = (\<Union>x\<in>X. R\<inverse> `` R `` {x})" by blast
+  also have "\<dots> \<subseteq> (\<Union>x \<in> X. {x})" using converse_Image_singleton assms by fast
+  also have "\<dots> = X" by simp
+  finally show ?thesis by fast
+qed
+*)
+
+
+(* TODO CL: check how much of the following we still need 
+section {* Christoph's old stuff *}
+
+text {* A relation is a function on a set @{term A}, if it is left-total on @{term A} and right-unique. *}
+definition function_on :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> bool"
+where "function_on R A \<longleftrightarrow> (A \<subseteq> Domain R) \<and> runiq R"
+
+fun as_part_fun :: "('a \<times> 'b) set \<Rightarrow> 'a \<rightharpoonup> 'b"
+where "as_part_fun R a = (let im = R `` {a} in 
+        if card im = 1 then Some (the_elem im)
+        else None)"
+*)
+
+
+(* TODO CL: document if we need this 
+lemma
+  assumes part: "P partitions A"
+      and eq_class_old: "Xold \<in> P" (* Xold is an equivalence class of the old partition *)
+      and eq_class_sub: "Xold \<subseteq> Xnew" (* The new equivalence class contains more elements. *)
+      and eq_class_ext_new: "(Xnew - Xold) \<inter> A = {}" (* The additional elements are not in the original set. *)
+  shows "is_partition (P - {Xold} \<union> {Xnew})"
+proof -
+  {
+    fix X' P' Y' Xold' Xnew' A'
+    assume 
+        X': "X' \<in> P' - {Xold'} \<union> {Xnew'}"
+       and Y': "Y' \<in> P' - {Xold'} \<union> {Xnew'}"
+       and eq_class_old': "Xold' \<in> P'"
+       and "\<Union> P' = A'"
+       and part': "is_partition_of P' A'"
+       and eq_class_old': "Xold' \<in> P'"
+       and eq_class_ext_new': "(Xnew' - Xold') \<inter> A' = {}"
+       and FalseTrue': "X' \<notin> P' \<and> Y' \<in> P'"
+    then have "X' \<notin> P'" and "Y' \<in> P'" by simp_all
+    from `X' \<notin> P'` have "X' = Xnew'" using X' eq_class_old' by fast
+    then have "Y' \<in> P' - {Xold'}" using Y' by (metis FalseTrue' Un_commute Un_empty_left Un_insert_left insert_iff)
+    {
+      fix x assume "x \<in> Xnew'"
+      then have "\<not>(\<exists> Z . Z \<in> P' - {Xold'} \<and> x \<in> Z)"
+      proof (cases "x \<in> Xold'")
+        case True
+        with eq_class_old' part' show ?thesis using is_partition_of_def is_partition_def 
+        Diff_iff IntI Int_absorb all_not_in_conv insert_iff by (metis(no_types))
+      next
+        case False
+        then have "x \<in> Xnew' - Xold'" using `x \<in> Xnew'` by simp
+        then have "x \<notin> A'" using eq_class_ext_new' by blast
+        with `\<Union> P' = A'` show ?thesis by blast
+      qed
+    }
+    then have "X' \<inter> Y' = {}" using `X' = Xnew'` `Y' \<in> P' - {Xold'}` by blast
+    then have "X' \<inter> Y' \<noteq> {} \<longleftrightarrow> X' = Y'" using FalseTrue' by blast
+  }
+  note foo = this
+  have "\<Union> P = A" using part unfolding is_partition_of_def ..
+  {
+    fix X Y
+    assume X: "X \<in> P - {Xold} \<union> {Xnew}"
+       and Y: "Y \<in> P - {Xold} \<union> {Xnew}"
+    have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y"
+    proof (cases rule: case_split_2_times_2)
+      assume "X \<in> P \<and> Y \<in> P"
+      with part show ?thesis unfolding is_partition_of_def is_partition_def by force
+    next
+      assume FalseTrue: "X \<notin> P \<and> Y \<in> P"
+      with X Y eq_class_old `\<Union> P = A` part eq_class_old eq_class_ext_new show ?thesis by (rule foo)
+    next
+      assume TrueFalse: "X \<in> P \<and> Y \<notin> P"
+      then have "Y \<notin> P \<and> X \<in> P" by blast
+      with Y X eq_class_old `\<Union> P = A` part eq_class_old eq_class_ext_new have "Y \<inter> X \<noteq> {} \<longleftrightarrow> Y = X" by (rule foo)
+      then show ?thesis by blast
+    next
+      assume FalseFalse: "X \<notin> P \<and> Y \<notin> P"
+      with X Y have "X = Xnew \<and> Y = Xnew" by fast
+      then have "X = Y" by simp
+      moreover have "X \<inter> Y \<noteq> {}" using eq_class_old eq_class_sub
+        by (metis FalseFalse `X = Xnew \<and> Y = Xnew` inf_idem subset_empty)
+      ultimately show ?thesis by simp
+    qed
+  }   
+  then show ?thesis unfolding is_partition_def by force
+qed
+*)
+
+
+(*
+abbreviation "uniformTieBreaking random N G bids == 
+Union \<circ> (argmax (setsum (resolvingBid' N G bids (nat random))))"
+(* Union here acts as the_elem: picking the element of a singleton (i.e., stripping away the braces from {x}) *)
+abbreviation "uniformTieBreaking2 random N G bids == 
+% X. \<Union> (argmax (setsum (resolvingBid' N G bids (nat random))) X)"
+abbreviation "Fun_upd X g == (%f x. if x \<in> X then (g x) else f x)"
+notation Fun_upd (infix ":==" 80)
+*)
+(* lemma "possibleAllocationsRel N {} \<supseteq> {{}}" using lm31 lm28b emptyset_part_emptyset3 mm51 
+mem_Collect_eq subsetI vimage_def *)
+
+
+(*
+lemma assumes "{} \<notin> Range a2" "{} \<notin> Range a1" "xx \<in> Domain a2 - (Domain a1)" shows 
+"{(x, {y})| x y. y \<in> a1,,x & x \<in> Domain a1} \<noteq>
+{(x, {y})| x y. y \<in> a2,,x & x \<in> Domain a2}" using assms 
+                       
+lemma assumes "a1 \<noteq> a2" "runiq a1" "runiq a2" shows "pseudoAllocation a1 \<noteq> pseudoAllocation a2" 
+using assms mm55f inj_on_def runiq_def mm55h 
+
+corollary assumes "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
+"finite G" shows
+"setsum (maxbid' a N G) (pseudoAllocation a) - setsum (maxbid' a N G) (pseudoAllocation aa) = 0 
+= (a=aa)" 
+*)
+
+(* lemma assumes "a \<subseteq> N \<times> (Pow G - {{}})" shows 
+"LinearCompletion bids N G || a \<supseteq> (partialCompletionOf bids) ` a" 
+using assms restrict_def by fast *)
+
+(*
+lemma "(image omega) ` UNIV \<subseteq> finestpart ` UNIV" 
+lemma "inj_on pseudoAllocation UNIV" using assms mm32 mm75c 
+lemma assumes "pseudoAllocation a1 = pseudoAllocation a2" "{} \<notin> Range a1" "{} \<notin> Range a2" 
+shows "a1 \<subseteq> a2" using assms mm32 
+lemma  assumes "{} \<notin> Range f" "runiq f" shows "is_partition (omega ` f)" using assms
+rev_image_eqI snd_eq_Range assms runiq_def runiq_imp_uniq_right_comp surjective_pairing 
+Int_absorb Times_empty insert_not_empty is_partition_def  inf_commute inf_sup_aci(1) 
+*)
+
+
+(* 
+fun perm where 
+"perm [] = {}" | "perm (x#l) = 
+{(n::nat, insertRightOf x (perm l,,(n div size l)) (n mod (size l)))| n . fact (size l) < n & n <= fact (1 + (size l))}
++* (perm l)"
+*)
+
+
+(*
+lemma nn13: 
+"vcga' N G bids random = the_elem (terminatingAuctionRel (N\<union>{auctioneer}) G (toFullBid (set G) bids) random)"
+by auto
+*)
+
+
+(*
+lemma mm49d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
+shows "int (setsum (maxbid' a N G) (pseudoAllocation a)) - int (setsum (maxbid' a N G) (pseudoAllocation aa)) = 
+int (card G) - int (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" 
+proof -
+let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid' let ?B="?m a N G" 
+have "?p aa \<subseteq> N \<times> ?f G" using assms mm73c by blast
+then have "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto
+moreover have "finite (?p aa)" using assms mm48 mm54 by blast
+ultimately have "int (setsum ?B (?p a)) - int (setsum ?B (?p aa)) = int (card (?p a)) - card (?p aa \<inter> (?p a))"
+using mm49c 
+moreover have "... = int (card G) - card (?p aa \<inter> (?p a))" using assms mm48 (* by smt *)
+ultimately show ?thesis by presburger
+qed
+
+corollary mm70: 
+assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
+shows "real (setsum (linearCompletion' (maxbid' a N G) N G) a) - setsum (linearCompletion' (maxbid' a N G) N G) aa = 
+real (card G) - real (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" (is "?L=?R") 
+proof -
+  let ?l=linearCompletion' let ?m=maxbid' let ?s=setsum let ?p=pseudoAllocation
+  let ?b="real \<circ> (?m a N G)" 
+  have "?s (?l ?b N G) a = ?s ?b (?p a) & ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms mm69 by blast
+  moreover have "?R = ?s ?b (?p a) - (?s ?b (?p aa))" using assms mm49b 
+  
+  ultimately moreover have "... = ?L" 
+  ultimately show ?thesis 
+qed
+*)
+
+
+
+(*
+corollary mm92b: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N"  
+shows "vcga' N G bids random = chosenAllocation' (N\<union>{auctioneer}) G (toFullBid (set G) bids) random" 
+using assms mm92 nn13 
+
+corollary mm92c: assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" shows 
+"vcga' N G bids random \<in> winningAllocationsRel (N \<union> {auctioneer}) (set G) (toFullBid (set G) bids)" 
+using assms mm92b mm82 
+
+corollary nn14: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
+"Range (vcga' N G b r) partitions (set G)"
+using assms mm92b mm82 lm47 lm03 
+proof -
+let ?p=possibleAllocationsRel let ?a="vcga' N G b r"
+let ?w=winningAllocationsRel let ?B="toFullBid (set G) b"
+have "?a \<in> ?w (N\<union>{auctioneer}) (set G) ?B" using assms mm92b mm82 lm47 lm03 by auto
+moreover have "?w (N\<union>{auctioneer}) (set G) ?B \<subseteq> ?p (N\<union>{auctioneer}) (set G)" 
+using assms mm92b mm82 lm47 lm03 by presburger
+ultimately have "?a \<in> ?p (N\<union>{auctioneer}) (set G)" by fast
+then show "Range ?a partitions (set G)" using lm47 by presburger
+qed
+
+lemma nn15: assumes "f,,,x \<noteq> {}" shows "x \<in> Domain f" using assms by fast
+lemma nn15b: assumes "runiq f" "f,,,x \<noteq> {}" shows "f,,,x \<in> Range f" 
+using assms nn15 lll82 by (metis eval_runiq_in_Range)
+
+corollary lll81b: assumes "a \<in> possibleAllocationsRel N G" shows 
+"runiq a & runiq (a\<inverse>) & (Range a) partitions G & Domain a \<subseteq> N" 
+using assms  image_iff lll81 converse_converse by (metis lm47)
+
+corollary lll81c: assumes "a \<in> winningAllocationsRel N G b" shows 
+"runiq a & runiq (a\<inverse>) & (Range a) partitions G & Domain a \<subseteq> N" 
+using assms lll81b by (metis (hide_lams, no_types) in_mono lm03)
+
+lemma nn16: assumes "is_partition P"  
+shows "(p1 \<in> P & p2 \<in> P & p1 \<inter> p2 \<noteq> {}) \<longrightarrow> p1 = p2" using assms is_partition_def by metis 
+
+lemma nn17: assumes "runiq f" "runiq (f^-1)" "x1 \<in> Domain f" "x2 \<in> Domain f" "f,,x1 = f,,x2" shows "x1=x2"
+using assms by (metis DomainE converse_iff l31)
+
+abbreviation "evalRel3 R x == if (Range R\<in>Pow UNIV) then (\<Union> (R``{x})) else the_elem (R``{x})"
+(*MC: does not solve my problem because the if condition automatically makes R have values of set type*)
+
+theorem assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
+"g \<in> ((vcga' N G b r),,,n1)" "g \<in> ((vcga' N G b r),,,n2)" shows "n1 = n2" 
+using assms nn14 eval_rel_def 
+proof -
+let ?d=Domain let ?r=Range let ?a="vcga' N G b r" let ?P="Range ?a" 
+let ?p1="?a,,,n1" let ?p2="?a,,,n2" have 
+2: "n1 \<in> ?d ?a & n2\<in>?d ?a" using assms by fast moreover have 
+0: "runiq ?a & runiq (?a^-1)" using assms lll81c mm92c by blast ultimately have 
+3: "?p1=?a,,n1 & ?p2=?a,,n2" using lll82 by fast
+have "is_partition ?P" using assms nn14 is_partition_of_def by blast
+then have "(?p1 \<in> ?P & ?p2 \<in> ?P & ?p1 \<inter> ?p2 \<noteq> {}) \<longrightarrow> ?p1 = ?p2" using nn16 by blast
+moreover have 
+1: "?p1 \<in> ?r ?a & ?p2 \<in> ?r ?a" using nn15b assms 0 by fast
+moreover have "?p1 \<inter> ?p2 \<noteq> {}" using assms by fast
+ultimately have "?p1 = ?p2" by linarith
+then show "n1 = n2" using 0 2 nn17 3 by fast
+qed
+
+lemma nn18: assumes "P partitions A" shows "\<Union> P = A \<and> is_partition P" using assms is_partition_of_def by metis
+
+theorem nn20: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
+"g \<in> ((vcga' N G b r),,,m)" shows "g \<in> set G"
+proof -
+have "(Range (vcga' N G b r)) partitions (set G)" using assms nn14 by blast then have 
+0: "\<Union> (Range (vcga' N G b r)) = set G" using nn18 by blast
+have "runiq (vcga' N G b r) & runiq ((vcga' N G b r)^-1)" using assms lll81c mm92c by blast
+then have "(vcga' N G b r),,,m \<in> Range (vcga' N G b r)" using assms nn15b by fast
+thus ?thesis using 0 assms by blast 
+qed
+
+lemma nn19: "condition1 (toFullBid (set G) b) auctioneer" 
+
+lemma "vcga'' N \<Omega> b random \<in> (singleoutside' (addedBidder N))`(maximalAllocations' N (set \<Omega>) b)"
+using assms 
+
+lemma nn21b: "(singleoutside' (addedBidder N))`(maximalAllocations' N (set \<Omega>) b) \<subseteq>
+(singleoutside' (addedBidder N))`(allAllocations' N (set \<Omega>))" using assms
+by force
+lemma assumes "\<Union>
+(
+(argmax (setsum (randomBids N \<Omega> b r)) (maximalAllocations' N (set \<Omega>) b))) \<in>
+(maximalAllocations' N (set \<Omega>) b)" 
+shows "vcga'' N \<Omega> b r \<in> (singleoutside' (addedBidder N))`(allAllocations' (N) (set \<Omega>))"
+using assms nn21b by fast
+
+lemma assumes "n\<in>N" "n \<noteq> addedBidder N" shows 
+"Outside' ({n,addedBidder N})`(allAllocations' N G) \<subseteq> 
+(singleoutside' (addedBidder (N-{n})))`allAllocations' (N-{n}) G" 
+using assms lm19 lm51 
+lemma assumes "X \<noteq> {}" shows "the_elem X \<in> X" using assms 
+
+lemma assumes
+"vcga'' N \<Omega> b r \<in> (singleoutside' (addedBidder N))`(allAllocations' N (set \<Omega>))"
+"N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" shows
+"vcga'' N \<Omega> b r -- n \<in> (singleoutside' (addedBidder N))`(allAllocations' (N-{n}) (set \<Omega>))" 
+using assms Outside_def lm19 nn21b lm51 
+
+
+lemma lm61g: assumes "condition1 (toFullBid (set G) b) auctioneer" 
+"auctioneer \<noteq> n" "finite N" "a \<in> winningAllocationsRel (N\<union>{auctioneer}) (set G) c"
+shows "alpha' N (set G) b n >= setsum (toFullBid (set G) b) (a -- n)" using assms lm61b by blast
+lemma assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" "seller\<noteq>n" shows "vcgp' N G b r n >= 0" using assms lm61g nn19 mm92c 
+proof -
+let ?w=winningAllocationsRel let ?N="N\<union>{auctioneer}" let ?a="vcga' N G b r"
+let ?b="toFullBid (set G) b"
+have "?a \<in> ?w ?N (set G) ?b" using assms mm92c by blast
+then have "alpha' N (set G) b n >= setsum ?b (?a -- n)" using assms lm61g nn19 by blast
+thus ?thesis by linarith
+qed
+*)
+
+lemma "Domain (LinearCompletion b N G) = N \<times> ((Pow G) - {{}})" by blast
+lemma mm93: "terminatingAuctionRel N G bids random = (((argmax \<circ> setsum) (resolvingBid' N G bids random))
+\<circ> ((argmax \<circ> setsum) bids)) (possibleAllocationsRel N (set G))" by auto
+
+(*
+
+theorem 
+(* assumes 
+"distinct G" "set G \<noteq> {}" "finite N"  
+"n1 \<in> Domain (vcga' N G b r)" 
+"n2 \<in> Domain (vcga' N G b r)" 
+"n1 = n2" *)
+shows "(vcga' N G b r),,n1 \<inter> (vcga' N G b r),,n2={}" using assms 
+sorry
+
+theorem counterexample_lm64c: assumes "a \<in> allocationsUniverse" 
+"n1\<in> Domain a" "n2 \<in> Domain a"
+shows "a,,,n1 \<inter> a,,,n2={}" sorry
+
+lemma "(\<Sum>i\<in>A. \<Sum>j\<in>B. f i j) = (\<Sum>j\<in>B. \<Sum>i\<in>A. f i j)" 
+sorry
+
+lemma lm240: "converse ` (injections X Y) =
+{R. Domain (converse R) = Y & Range (converse R) \<subseteq> X & runiq (converse R) & runiq (converse (converse R))}"
+using injections_def converse_def image_def sorry
+
+corollary "LinearCompletion (bidMaximizedBy a N G Elsee 0) N G =
+LinearCompletion (toFunction (bidMaximizedBy a N G)) N G" using lm07 image_cong lm08 
+sorry
+
+corollary lm02b: 
+assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
+"tiebids a N G x=linearCompletion' b N G x" sorry
+
+lemma "argmax (setsum (resolvingBid' N G bids random)) (argmax (setsum bids) (possibleAllocationsRel N (set G)))
+=
+argmax (setsum (resolvingBid N G bids random)) (argmax (setsum bids) (possibleAllocationsRel N (set G)))"
+using assms sorry
+
+theorem assumes "distinct G" "set G \<noteq> {}" "finite N"  
+"n1 \<in> Domain (vcga N G b r)" "n2 \<in> Domain (vcga N G b r)" 
+(*"n1 \<noteq> n2"*) 
+shows "(vcga N G b r),,n1 \<inter> (vcga N G b r),,n2={}"
+using assms sorry (* nitpick [timeout=10000, tac_timeout=45, dont_specialize, show_consts] *)
+
+(*
+abbreviation "a00 == hd(perm2 (takeAll (%x. x\<in> set (winningAllocationsAlg N00 (G00) (b00 Else 0))) (possibleAllocationsAlg3 N00 G00)) 1)"
+ abbreviation "a00 == hd(perm2 (takeAll (%x. x\<in> maximalStrictAllocations (int`N00) (G00) (b00 Else 0)) 
+(allStrictAllocations N00 G00)) 1)"*)
+(*value "tiebids' a00 N00 (set G00) (1,{12})"
+value "(maxbid a00 N00 (set G00)) (1,{12})"
+value "maximalStrictAllocations' (int`N00) (set G00) (b00 Else 0)"
+value "graph a00 (tiebids' a00 N00 (set G00))"*)
+
+lemma lm55: "tiebids' a N G = toFunction (Tiebids a N G)" by simp
+
+corollary mm70f: assumes "finite G" "(a::('a::linorder\<times>_)set) \<in> allStrictAllocations' N G" 
+"aa \<in> allStrictAllocations' N G" "aa \<noteq> a" shows 
+"setsum' (Tiebids a N G) aa < setsum' (Tiebids a N G) a" using assms mm70d
+proof -
+term a
+let ?f'=Tiebids let ?f=tiebids' let ?s'=setsum' let ?s=setsum let ?g'="?f' a N G" let ?g="?f a N G" 
+have "a \<subseteq> Domain ?g' & aa \<subseteq> Domain ?g'" using assms mm64 mm63c
+proof -
+  have "a \<subseteq> N \<times> (Pow G - {{}}) \<and> aa \<subseteq> N \<times> (Pow G - {{}})"
+    using assms(2) assms(3) mm63c by blast
+  thus "a \<subseteq> Domain (LinearCompletion (real \<circ> pseudoAllocation a <| (N \<times> finestpart G)) N G) \<and> aa \<subseteq> Domain (LinearCompletion (real \<circ> pseudoAllocation a <| (N \<times> finestpart G)) N G)"
+    by fastforce
+qed then have 
+0: "a \<inter> Domain ?g'=a & aa \<inter> Domain ?g'=aa" by blast moreover have 
+1: "finite a & finite aa" using assms by (metis mm44) moreover have 
+2: "runiq ?g'"  by (rule mm62)
+ultimately moreover have "?s (toFunction ?g') (a \<inter> (Domain ?g')) = ?s' ?g' a" using lm48d by fast
+moreover have "?s (toFunction ?g') (aa \<inter> (Domain ?g')) = ?s' ?g' aa" using lm48d 1 2 by blast
+ultimately have "?s ?g a = ?s' ?g' a & ?s ?g aa = ?s' ?g' aa" using lm55 by auto 
+moreover have "?s ?g aa < ?s ?g a" using assms by (rule mm70d)
+ultimately moreover have "?s ?g aa < ?s' ?g' a" by presburger
+ultimately show ?thesis by presburger  
+qed
+*)
+
 end

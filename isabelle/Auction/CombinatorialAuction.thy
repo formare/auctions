@@ -1,14 +1,28 @@
+(*
+Auction Theory Toolbox (http://formare.github.io/auctions/)
+
+Author: Marco B. Caminati http://caminati.co.nr
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
+
+header {* VCG auction: definitions and theorems *}
 
 theory CombinatorialAuction
 
 imports
 (* Complex *)
 UniformTieBreaking
-Maximum
 StrictCombinatorialAuction
 "~~/src/HOL/Library/Code_Target_Nat" 
 
 begin
+
+section {* Definition of a VCG auction scheme, through the pair @{term "(vcga', vcgp')"} *}
 
 type_synonym bidvector' = "((participant \<times> goods) \<times> price) set"
 abbreviation "Participants b' == Domain (Domain b')"
@@ -713,105 +727,11 @@ Union {converse`(injections Y N)| Y. Y \<in> all_partitions G}"
 by auto
 
 lemma "allStrictAllocations' N \<Omega> = Union{{a^-1|a. a\<in>injections Y N}|Y. Y\<in>all_partitions \<Omega>}" by auto
-
+(*
 value "injections_alg [0::nat,1] {11::nat, 12}"
-
 export_code vcgp in Scala module_name Prova file "/dev/shm/bubba"
-
 thy_deps
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(*
-
-theorem 
-(* assumes 
-"distinct G" "set G \<noteq> {}" "finite N"  
-"n1 \<in> Domain (vcga' N G b r)" 
-"n2 \<in> Domain (vcga' N G b r)" 
-"n1 = n2" *)
-shows "(vcga' N G b r),,n1 \<inter> (vcga' N G b r),,n2={}" using assms 
-sorry
-
-theorem counterexample_lm64c: assumes "a \<in> allocationsUniverse" 
-"n1\<in> Domain a" "n2 \<in> Domain a"
-shows "a,,,n1 \<inter> a,,,n2={}" sorry
-
-lemma "(\<Sum>i\<in>A. \<Sum>j\<in>B. f i j) = (\<Sum>j\<in>B. \<Sum>i\<in>A. f i j)" 
-sorry
-
-lemma lm240: "converse ` (injections X Y) =
-{R. Domain (converse R) = Y & Range (converse R) \<subseteq> X & runiq (converse R) & runiq (converse (converse R))}"
-using injections_def converse_def image_def sorry
-
-corollary "LinearCompletion (bidMaximizedBy a N G Elsee 0) N G =
-LinearCompletion (toFunction (bidMaximizedBy a N G)) N G" using lm07 image_cong lm08 
-sorry
-
-corollary lm02b: 
-assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
-"tiebids a N G x=linearCompletion' b N G x" sorry
-
-lemma "argmax (setsum (resolvingBid' N G bids random)) (argmax (setsum bids) (possibleAllocationsRel N (set G)))
-=
-argmax (setsum (resolvingBid N G bids random)) (argmax (setsum bids) (possibleAllocationsRel N (set G)))"
-using assms sorry
-
-theorem assumes "distinct G" "set G \<noteq> {}" "finite N"  
-"n1 \<in> Domain (vcga N G b r)" "n2 \<in> Domain (vcga N G b r)" 
-(*"n1 \<noteq> n2"*) 
-shows "(vcga N G b r),,n1 \<inter> (vcga N G b r),,n2={}"
-using assms sorry (* nitpick [timeout=10000, tac_timeout=45, dont_specialize, show_consts] *)
-
-(*
-abbreviation "a00 == hd(perm2 (takeAll (%x. x\<in> set (winningAllocationsAlg N00 (G00) (b00 Else 0))) (possibleAllocationsAlg3 N00 G00)) 1)"
- abbreviation "a00 == hd(perm2 (takeAll (%x. x\<in> maximalStrictAllocations (int`N00) (G00) (b00 Else 0)) 
-(allStrictAllocations N00 G00)) 1)"*)
-(*value "tiebids' a00 N00 (set G00) (1,{12})"
-value "(maxbid a00 N00 (set G00)) (1,{12})"
-value "maximalStrictAllocations' (int`N00) (set G00) (b00 Else 0)"
-value "graph a00 (tiebids' a00 N00 (set G00))"*)
-
-lemma lm55: "tiebids' a N G = toFunction (Tiebids a N G)" by simp
-
-corollary mm70f: assumes "finite G" "(a::('a::linorder\<times>_)set) \<in> allStrictAllocations' N G" 
-"aa \<in> allStrictAllocations' N G" "aa \<noteq> a" shows 
-"setsum' (Tiebids a N G) aa < setsum' (Tiebids a N G) a" using assms mm70d
-proof -
-term a
-let ?f'=Tiebids let ?f=tiebids' let ?s'=setsum' let ?s=setsum let ?g'="?f' a N G" let ?g="?f a N G" 
-have "a \<subseteq> Domain ?g' & aa \<subseteq> Domain ?g'" using assms mm64 mm63c
-proof -
-  have "a \<subseteq> N \<times> (Pow G - {{}}) \<and> aa \<subseteq> N \<times> (Pow G - {{}})"
-    using assms(2) assms(3) mm63c by blast
-  thus "a \<subseteq> Domain (LinearCompletion (real \<circ> pseudoAllocation a <| (N \<times> finestpart G)) N G) \<and> aa \<subseteq> Domain (LinearCompletion (real \<circ> pseudoAllocation a <| (N \<times> finestpart G)) N G)"
-    by fastforce
-qed then have 
-0: "a \<inter> Domain ?g'=a & aa \<inter> Domain ?g'=aa" by blast moreover have 
-1: "finite a & finite aa" using assms by (metis mm44) moreover have 
-2: "runiq ?g'"  by (rule mm62)
-ultimately moreover have "?s (toFunction ?g') (a \<inter> (Domain ?g')) = ?s' ?g' a" using lm48d by fast
-moreover have "?s (toFunction ?g') (aa \<inter> (Domain ?g')) = ?s' ?g' aa" using lm48d 1 2 by blast
-ultimately have "?s ?g a = ?s' ?g' a & ?s ?g aa = ?s' ?g' aa" using lm55 by auto 
-moreover have "?s ?g aa < ?s ?g a" using assms by (rule mm70d)
-ultimately moreover have "?s ?g aa < ?s' ?g' a" by presburger
-ultimately show ?thesis by presburger  
-qed
-
 *)
+
 end
 
