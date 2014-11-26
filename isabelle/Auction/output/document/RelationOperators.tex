@@ -1,0 +1,686 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{RelationOperators}%
+%
+\isamarkupheader{Additional operators on relations, going beyond Relations.thy,
+  and properties of these operators%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ RelationOperators\isanewline
+\isakeyword{imports}\isanewline
+\ \ Main\isanewline
+\ \ SetUtils\isanewline
+\ \ {\isachardoublequoteopen}{\isachartilde}{\isachartilde}{\isacharslash}src{\isacharslash}HOL{\isacharslash}Library{\isacharslash}Code{\isacharunderscore}Target{\isacharunderscore}Nat{\isachardoublequoteclose}\isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isamarkupsection{evaluating a relation as a function%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+If an input has a unique image element under a given relation, return that element; 
+  otherwise return a fallback value.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ eval{\isacharunderscore}rel{\isacharunderscore}or\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ {\isasymRightarrow}\ {\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}b\ {\isasymRightarrow}\ {\isacharprime}b{\isachardoublequoteclose}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}eval{\isacharunderscore}rel{\isacharunderscore}or\ R\ a\ z\ {\isacharequal}\ {\isacharparenleft}let\ im\ {\isacharequal}\ R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}a{\isacharbraceright}\ in\ if\ card\ im\ {\isacharequal}\ {\isadigit{1}}\ then\ the{\isacharunderscore}elem\ im\ else\ z{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+right-uniqueness of a relation: the image of a \isa{trivial} set (i.e.\ an empty or
+  singleton set) under the relation is trivial again. 
+This is the set-theoretical way of characterizing functions, as opposed to \isa{{\isasymlambda}} functions.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ runiq\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ {\isasymRightarrow}\ bool{\isachardoublequoteclose}\ \isakeyword{where}\isanewline
+{\isachardoublequoteopen}runiq\ R\ {\isacharequal}\ {\isacharparenleft}{\isasymforall}\ X\ {\isachardot}\ trivial\ X\ {\isasymlongrightarrow}\ trivial\ {\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ X{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}%
+\isamarkupsection{restriction%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+restriction of a relation to a set (usually resulting in a relation with a smaller domain)%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ restrict\isanewline
+\isanewline
+{\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ {\isasymRightarrow}\ {\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{infix}\ {\isachardoublequoteopen}{\isacharbar}{\isacharbar}{\isachardoublequoteclose}\ {\isadigit{7}}{\isadigit{5}}{\isacharparenright}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}R\ {\isacharbar}{\isacharbar}\ X\ {\isacharequal}\ X\ {\isasymtimes}\ Range\ R\ {\isasyminter}\ R{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+extensional characterisation of the pairs within a restricted relation%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ restrict{\isacharunderscore}ext{\isacharcolon}\ {\isachardoublequoteopen}R\ {\isacharbar}{\isacharbar}\ X\ {\isacharequal}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isacharbar}\ x\ y\ {\isachardot}\ x\ {\isasymin}\ X\ {\isasymand}\ {\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isasymin}\ R{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ Range{\isacharunderscore}iff\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+alternative statement of \isa{{\isacharquery}R\ {\isacharbar}{\isacharbar}\ {\isacharquery}X\ {\isacharequal}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isacharbar}x\ y{\isachardot}\ x\ {\isasymin}\ {\isacharquery}X\ {\isasymand}\ {\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isasymin}\ {\isacharquery}R{\isacharbraceright}} without explicitly naming the pair's components%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ restrict{\isacharunderscore}ext{\isacharprime}{\isacharcolon}\ {\isachardoublequoteopen}R\ {\isacharbar}{\isacharbar}\ X\ {\isacharequal}\ {\isacharbraceleft}p\ {\isachardot}\ fst\ p\ {\isasymin}\ X\ {\isasymand}\ p\ {\isasymin}\ R{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}R\ {\isacharbar}{\isacharbar}\ X\ {\isacharequal}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isacharbar}\ x\ y\ {\isachardot}\ x\ {\isasymin}\ X\ {\isasymand}\ {\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isasymin}\ R{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ restrict{\isacharunderscore}ext{\isacharparenright}\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharbraceleft}\ p\ {\isachardot}\ fst\ p\ {\isasymin}\ X\ {\isasymand}\ p\ {\isasymin}\ R\ {\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Restricting a relation to the empty set yields the empty set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ restrict{\isacharunderscore}empty{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharbar}{\isacharbar}\ {\isacharbraceleft}{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A restriction is a subrelation of the original relation.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ restriction{\isacharunderscore}is{\isacharunderscore}subrel{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharbar}{\isacharbar}\ X\ {\isasymsubseteq}\ P{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Restricting a relation only has an effect within its domain.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ restriction{\isacharunderscore}within{\isacharunderscore}domain{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharbar}{\isacharbar}\ X\ {\isacharequal}\ P\ {\isacharbar}{\isacharbar}\ {\isacharparenleft}X\ {\isasyminter}\ {\isacharparenleft}Domain\ P{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+alternative characterisation of the restriction of a relation to a singleton set%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ restrict{\isacharunderscore}to{\isacharunderscore}singleton{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharbar}{\isacharbar}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isasymtimes}\ P\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{relation outside some set%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+For a set-theoretical relation \isa{R} and an ``exclusion'' set \isa{X}, return those
+  tuples of \isa{R} whose first component is not in \isa{X}.  In other words, exclude \isa{X}
+  from the domain of \isa{R}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ Outside\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ {\isasymRightarrow}\ {\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{infix}\ {\isachardoublequoteopen}outside{\isachardoublequoteclose}\ {\isadigit{7}}{\isadigit{5}}{\isacharparenright}\ \isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}R\ outside\ X\ {\isacharequal}\ R\ {\isacharminus}\ {\isacharparenleft}X\ {\isasymtimes}\ Range\ R{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+Considering a relation outside some set \isa{X} reduces its domain by \isa{X}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ outside{\isacharunderscore}reduces{\isacharunderscore}domain{\isacharcolon}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}P\ outside\ X{\isacharparenright}\ {\isacharequal}\ Domain\ P\ {\isacharminus}\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Considering a relation outside a singleton set \isa{{\isacharbraceleft}x{\isacharbraceright}} reduces its domain by 
+  \isa{x}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{corollary}\isamarkupfalse%
+\ Domain{\isacharunderscore}outside{\isacharunderscore}singleton{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}Domain\ R\ {\isacharequal}\ insert\ x\ A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ {\isachardoublequoteopen}x\ {\isasymnotin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}R\ outside\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ A{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\isanewline
+\isacommand{using}\isamarkupfalse%
+\ outside{\isacharunderscore}reduces{\isacharunderscore}domain\isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Diff{\isacharunderscore}insert{\isacharunderscore}absorb{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+For any set, a relation equals the union of its restriction to that set and its
+  pairs outside that set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ outside{\isacharunderscore}union{\isacharunderscore}restrict{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharequal}\ P\ outside\ X\ {\isasymunion}\ P\ {\isacharbar}{\isacharbar}\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The range of a relation \isa{R} outside some exclusion set \isa{X} is a 
+  subset of the image of the domain of \isa{R}, minus \isa{X}, under \isa{R}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ Range{\isacharunderscore}outside{\isacharunderscore}sub{\isacharunderscore}Image{\isacharunderscore}Domain{\isacharcolon}\ {\isachardoublequoteopen}Range\ {\isacharparenleft}R\ outside\ X{\isacharparenright}\ {\isasymsubseteq}\ R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharparenleft}Domain\ R\ {\isacharminus}\ X{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ Image{\isacharunderscore}def\ Domain{\isacharunderscore}def\ Range{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Considering a relation outside some set doesn't enlarge its range.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ Range{\isacharunderscore}outside{\isacharunderscore}sub{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}Range\ R\ {\isasymsubseteq}\ Y{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}Range\ {\isacharparenleft}R\ outside\ X{\isacharparenright}\ {\isasymsubseteq}\ Y{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\isanewline
+\isacommand{using}\isamarkupfalse%
+\ outside{\isacharunderscore}union{\isacharunderscore}restrict\isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Range{\isacharunderscore}mono\ inf{\isacharunderscore}sup{\isacharunderscore}ord{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ subset{\isacharunderscore}trans{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{flipping pairs of relations%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+flipping a pair: exchanging first and second component%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ flip\ \isakeyword{where}\ {\isachardoublequoteopen}flip\ tup\ {\isacharequal}\ {\isacharparenleft}snd\ tup{\isacharcomma}\ fst\ tup{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+Flipped pairs can be found in the converse relation.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ flip{\isacharunderscore}in{\isacharunderscore}conv{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}tup\ {\isasymin}\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}flip\ tup\ {\isasymin}\ R{\isasyminverse}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ flip{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Flipping a pair twice doesn't change it.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ flip{\isacharunderscore}flip{\isacharcolon}\ {\isachardoublequoteopen}flip\ {\isacharparenleft}flip\ tup{\isacharparenright}\ {\isacharequal}\ tup{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ flip{\isacharunderscore}def\ fst{\isacharunderscore}conv\ snd{\isacharunderscore}conv\ surjective{\isacharunderscore}pairing{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Flipping all pairs in a relation yields the converse relation.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ flip{\isacharunderscore}conv{\isacharcolon}\ {\isachardoublequoteopen}flip\ {\isacharbackquote}\ R\ {\isacharequal}\ R{\isasyminverse}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}flip\ {\isacharbackquote}\ R\ {\isacharequal}\ {\isacharbraceleft}\ flip\ tup\ {\isacharbar}\ tup\ {\isachardot}\ tup\ {\isasymin}\ R\ {\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ image{\isacharunderscore}Collect{\isacharunderscore}mem{\isacharparenright}\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharbraceleft}\ tup\ {\isachardot}\ tup\ {\isasymin}\ R{\isasyminverse}\ {\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ flip{\isacharunderscore}in{\isacharunderscore}conv\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ converse{\isacharunderscore}converse\ flip{\isacharunderscore}flip{\isacharparenright}\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ R{\isasyminverse}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Summing over all pairs of a relation is the same as summing over all pairs of the
+  converse relation after flipping them.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ setsum{\isacharunderscore}rel{\isacharunderscore}comm{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ R{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ f{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}b\ {\isasymRightarrow}\ {\isacharprime}c{\isasymColon}comm{\isacharunderscore}monoid{\isacharunderscore}add{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}{\isasymSum}\ {\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isasymin}\ R\ {\isachardot}\ f\ x\ y{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\isasymSum}\ {\isacharparenleft}y{\isacharprime}{\isacharcomma}\ x{\isacharprime}{\isacharparenright}\ {\isasymin}\ R{\isasyminverse}\ {\isachardot}\ f\ x{\isacharprime}\ y{\isacharprime}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ flip\ {\isacharparenleft}R{\isasyminverse}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ flip{\isacharunderscore}flip\ inj{\isacharunderscore}on{\isacharunderscore}def{\isacharparenright}\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}R\ {\isacharequal}\ flip\ {\isacharbackquote}\ {\isacharparenleft}R{\isasyminverse}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ converse{\isacharunderscore}converse\ flip{\isacharunderscore}conv{\isacharparenright}\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymAnd}\ tup\ {\isachardot}\ tup\ {\isasymin}\ R{\isasyminverse}\ {\isasymLongrightarrow}\ f\ {\isacharparenleft}snd\ tup{\isacharparenright}\ {\isacharparenleft}fst\ tup{\isacharparenright}\ {\isacharequal}\ f\ {\isacharparenleft}fst\ {\isacharparenleft}flip\ tup{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}snd\ {\isacharparenleft}flip\ tup{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ flip{\isacharunderscore}def\ fst{\isacharunderscore}conv\ snd{\isacharunderscore}conv{\isacharparenright}\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}{\isasymSum}\ tup\ {\isasymin}\ R\ {\isachardot}\ f\ {\isacharparenleft}fst\ tup{\isacharparenright}\ {\isacharparenleft}snd\ tup{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}{\isasymSum}\ tup\ {\isasymin}\ R{\isasyminverse}\ {\isachardot}\ f\ {\isacharparenleft}snd\ tup{\isacharparenright}\ {\isacharparenleft}fst\ tup{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ setsum{\isachardot}reindex{\isacharunderscore}cong\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}erased{\isacharcomma}\ lifting{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}mono{\isacharunderscore}tags{\isacharparenright}\ setsum{\isachardot}cong\ split{\isacharunderscore}beta{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{evaluation as a function%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Evaluates a relation \isa{R} for a single argument, as if it were a function.
+  This will only work if \isa{R} is a total function, i.e. if the image is always a singleton set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ eval{\isacharunderscore}rel\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ {\isasymRightarrow}\ {\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}b{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{infix}\ {\isachardoublequoteopen}{\isacharcomma}{\isacharcomma}{\isachardoublequoteclose}\ {\isadigit{7}}{\isadigit{5}}{\isacharparenright}\ \isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}R\ {\isacharcomma}{\isacharcomma}\ a\ {\isacharequal}\ the{\isacharunderscore}elem\ {\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}a{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}%
+\isamarkupsection{paste%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+the union of two binary relations \isa{P} and \isa{Q}, where pairs from \isa{Q}
+  override pairs from \isa{P} when their first components coincide.
+This is particularly useful when P, Q are \isa{runiq}, and one wants to preserve that property.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ paste\ {\isacharparenleft}\isakeyword{infix}\ {\isachardoublequoteopen}{\isacharplus}{\isacharasterisk}{\isachardoublequoteclose}\ {\isadigit{7}}{\isadigit{5}}{\isacharparenright}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}P\ {\isacharplus}{\isacharasterisk}\ Q\ {\isacharequal}\ {\isacharparenleft}P\ outside\ Domain\ Q{\isacharparenright}\ {\isasymunion}\ Q{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+If a relation \isa{P} is a subrelation of another relation \isa{Q} on \isa{Q}'s
+  domain, pasting \isa{Q} on \isa{P} is the same as forming their union.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ paste{\isacharunderscore}subrel{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}P\ {\isacharbar}{\isacharbar}\ Domain\ Q\ {\isasymsubseteq}\ Q{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}P\ {\isacharplus}{\isacharasterisk}\ Q\ {\isacharequal}\ P\ {\isasymunion}\ Q{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ paste{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ assms\ outside{\isacharunderscore}union{\isacharunderscore}restrict\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Pasting two relations with disjoint domains is the same as forming their union.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ paste{\isacharunderscore}disj{\isacharunderscore}domains{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}Domain\ P\ {\isasyminter}\ Domain\ Q\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}P\ {\isacharplus}{\isacharasterisk}\ Q\ {\isacharequal}\ P\ {\isasymunion}\ Q{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ paste{\isacharunderscore}def\ Outside{\isacharunderscore}def\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\isanewline
+\isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A relation \isa{P} is equivalent to pasting its restriction to some set \isa{X} on 
+  \isa{P\ outside\ X}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ paste{\isacharunderscore}outside{\isacharunderscore}restrict{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharequal}\ {\isacharparenleft}P\ outside\ X{\isacharparenright}\ {\isacharplus}{\isacharasterisk}\ {\isacharparenleft}P\ {\isacharbar}{\isacharbar}\ X{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}P\ outside\ X{\isacharparenright}\ {\isasyminter}\ Domain\ {\isacharparenleft}P\ {\isacharbar}{\isacharbar}\ X{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isacharequal}\ P\ outside\ X\ {\isasymunion}\ P\ {\isacharbar}{\isacharbar}\ X{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ outside{\isacharunderscore}union{\isacharunderscore}restrict{\isacharparenright}\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ paste{\isacharunderscore}disj{\isacharunderscore}domains\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The domain of two pasted relations equals the union of their domains.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ paste{\isacharunderscore}Domain{\isacharcolon}\ {\isachardoublequoteopen}Domain{\isacharparenleft}P\ {\isacharplus}{\isacharasterisk}\ Q{\isacharparenright}{\isacharequal}Domain\ P{\isasymunion}Domain\ Q{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ paste{\isacharunderscore}def\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Pasting two relations yields a subrelation of their union.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ paste{\isacharunderscore}sub{\isacharunderscore}Un{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharplus}{\isacharasterisk}\ Q\ {\isasymsubseteq}\ P\ {\isasymunion}\ Q{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ paste{\isacharunderscore}def\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The range of two pasted relations is a subset of the union of their ranges.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ paste{\isacharunderscore}Range{\isacharcolon}\ {\isachardoublequoteopen}Range\ {\isacharparenleft}P\ {\isacharplus}{\isacharasterisk}\ Q{\isacharparenright}\ {\isasymsubseteq}\ Range\ P\ {\isasymunion}\ Range\ Q{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ paste{\isacharunderscore}sub{\isacharunderscore}Un\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

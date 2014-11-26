@@ -1,0 +1,437 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{Argmax}%
+%
+\isamarkupheader{Locus where a function or a list (of linord type) attains its maximum value%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Argmax\isanewline
+\isakeyword{imports}\ Main\isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\begin{isamarkuptext}%
+the subset of elements of a set where a function reaches its maximum%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ argmax\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}b{\isasymColon}linorder{\isacharparenright}\ {\isasymRightarrow}\ {\isacharprime}a\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}argmax\ f\ A\ {\isacharequal}\ {\isacharbraceleft}\ x\ {\isasymin}\ A\ {\isachardot}\ f\ x\ {\isacharequal}\ Max\ {\isacharparenleft}f\ {\isacharbackquote}\ A{\isacharparenright}\ {\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mm{\isadigit{7}}{\isadigit{9}}{\isacharcolon}\ {\isachardoublequoteopen}argmax\ f\ A\ {\isacharequal}\ A\ {\isasyminter}\ f\ {\isacharminus}{\isacharbackquote}\ {\isacharbraceleft}Max\ {\isacharparenleft}f\ {\isacharbackquote}\ A{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ force%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ mm{\isadigit{8}}{\isadigit{6}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}y\ {\isasymin}\ f{\isacharbackquote}A{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}A\ {\isasyminter}\ f\ {\isacharminus}{\isacharbackquote}\ {\isacharbraceleft}y{\isacharbraceright}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The arg max of a function over a non-empty set is non-empty.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{corollary}\isamarkupfalse%
+\ argmax{\isacharunderscore}non{\isacharunderscore}empty{\isacharunderscore}iff{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}finite\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}X\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}argmax\ f\ X\ {\isasymnoteq}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ Max{\isacharunderscore}in\ finite{\isacharunderscore}imageI\ image{\isacharunderscore}is{\isacharunderscore}empty\ mm{\isadigit{7}}{\isadigit{9}}\ mm{\isadigit{8}}{\isadigit{6}}b\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+We want the elements of a list satisfying a given predicate;
+but, rather than returning them directly, we return the (sorted) list of their indices. 
+This is done, in different ways, by \isa{filterpositions} and \isa{filterpositions{\isadigit{2}}}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ filterpositions\ \isanewline
+\isanewline
+{\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isacharequal}{\isachargreater}\ bool{\isacharparenright}\ {\isacharequal}{\isachargreater}\ {\isacharprime}a\ list\ {\isacharequal}{\isachargreater}\ nat\ list{\isachardoublequoteclose}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}filterpositions\ P\ l\ {\isacharequal}\ map\ snd\ {\isacharparenleft}filter\ {\isacharparenleft}P\ o\ fst{\isacharparenright}\ {\isacharparenleft}zip\ l\ {\isacharparenleft}upt\ {\isadigit{0}}\ {\isacharparenleft}size\ l{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ filterpositions{\isadigit{2}}\ \isanewline
+{\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isacharequal}{\isachargreater}\ bool{\isacharparenright}\ {\isacharequal}{\isachargreater}\ {\isacharprime}a\ list\ {\isacharequal}{\isachargreater}\ nat\ list{\isachardoublequoteclose}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}filterpositions{\isadigit{2}}\ P\ l\ {\isacharequal}\ {\isacharbrackleft}n{\isachardot}\ n\ {\isasymleftarrow}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ P\ {\isacharparenleft}l{\isacharbang}n{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ maxpositions\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a{\isacharcolon}{\isacharcolon}linorder\ list\ {\isacharequal}{\isachargreater}\ nat\ list{\isachardoublequoteclose}\ \isakeyword{where}\isanewline
+{\isachardoublequoteopen}maxpositions\ l\ {\isacharequal}\ filterpositions{\isadigit{2}}\ {\isacharparenleft}{\isacharpercent}x\ {\isachardot}\ x\ {\isasymge}\ Max\ {\isacharparenleft}set\ l{\isacharparenright}{\isacharparenright}\ l{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ll{\isadigit{5}}{\isacharcolon}\ {\isachardoublequoteopen}maxpositions\ l\ {\isacharequal}\ {\isacharbrackleft}n{\isachardot}\ n{\isasymleftarrow}{\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ l{\isacharbang}n\ {\isasymge}\ Max{\isacharparenleft}set\ l{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ maxpositions{\isacharunderscore}def\ filterpositions{\isadigit{2}}{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ argmaxList\isanewline
+{\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharprime}a\ {\isacharequal}{\isachargreater}\ {\isacharparenleft}{\isacharprime}b{\isacharcolon}{\isacharcolon}linorder{\isacharparenright}{\isacharparenright}\ {\isacharequal}{\isachargreater}\ {\isacharprime}a\ list\ {\isacharequal}{\isachargreater}\ {\isacharprime}a\ list{\isachardoublequoteclose}\isanewline
+\isakeyword{where}\ {\isachardoublequoteopen}argmaxList\ f\ l\ {\isacharequal}\ map\ {\isacharparenleft}nth\ l{\isacharparenright}\ {\isacharparenleft}maxpositions\ {\isacharparenleft}map\ f\ l{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ {\isacharparenleft}n\ {\isasymin}\ set\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}\ {\isacharampersand}\ P\ n{\isacharparenright}{\isacharbrackright}\ \isanewline
+{\isacharequal}\ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ n\ {\isasymin}\ set\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ P\ n{\isacharbrackright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ meson%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ll{\isadigit{7}}b{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ l{\isacharcomma}\ P\ n{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ l{\isacharcomma}\ n\ {\isasymin}\ set\ l{\isacharcomma}\ P\ n{\isacharbrackright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}map\ {\isacharparenleft}{\isasymlambda}uu{\isachardot}\ if\ P\ uu\ then\ {\isacharbrackleft}uu{\isacharbrackright}\ else\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}\ l\ {\isacharequal}\ \isanewline
+\ \ \ \ map\ {\isacharparenleft}{\isasymlambda}uu{\isachardot}\ if\ uu\ {\isasymin}\ set\ l\ then\ if\ P\ uu\ then\ {\isacharbrackleft}uu{\isacharbrackright}\ else\ {\isacharbrackleft}{\isacharbrackright}\ else\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}\ l{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{thus}\isamarkupfalse%
+\ {\isachardoublequoteopen}concat\ {\isacharparenleft}map\ {\isacharparenleft}{\isasymlambda}n{\isachardot}\ if\ P\ n\ then\ {\isacharbrackleft}n{\isacharbrackright}\ else\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}\ l{\isacharparenright}\ {\isacharequal}\ \isanewline
+\ \ \ \ concat\ {\isacharparenleft}map\ {\isacharparenleft}{\isasymlambda}n{\isachardot}\ if\ n\ {\isasymin}\ set\ l\ then\ if\ P\ n\ then\ {\isacharbrackleft}n{\isacharbrackright}\ else\ {\isacharbrackleft}{\isacharbrackright}\ else\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}\ l{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ll{\isadigit{7}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ P\ n{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ n\ {\isasymin}\ set\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ P\ n{\isacharbrackright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ ll{\isadigit{7}}b\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ll{\isadigit{1}}{\isadigit{0}}{\isacharcolon}\ \isakeyword{fixes}\ f\ m\ P\ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}map\ f\ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ P\ n{\isacharbrackright}{\isacharparenright}\ {\isacharequal}\ {\isacharbrackleft}\ f\ n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}m{\isacharbrackright}{\isacharcomma}\ P\ n{\isacharbrackright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}induct\ m{\isacharparenright}\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ map{\isacharunderscore}commutes{\isacharunderscore}a{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbrackleft}f\ n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isacharbrackright}{\isacharcomma}\ Q\ {\isacharparenleft}f\ n{\isacharparenright}{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}x\ {\isacharless}{\isacharminus}\ {\isacharparenleft}map\ f\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}{\isachardot}\ Q\ x{\isacharbrackright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ map{\isacharunderscore}commutes{\isacharunderscore}b{\isacharcolon}\ {\isachardoublequoteopen}{\isasymforall}\ x\ xs{\isachardot}\ {\isacharparenleft}{\isacharbrackleft}f\ n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ xs{\isacharcomma}\ Q\ {\isacharparenleft}f\ n{\isacharparenright}{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}x\ {\isacharless}{\isacharminus}\ {\isacharparenleft}map\ f\ xs{\isacharparenright}{\isachardot}\ Q\ x{\isacharbrackright}\isanewline
+{\isasymlongrightarrow}\ {\isacharbrackleft}f\ n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharparenleft}x{\isacharhash}xs{\isacharparenright}{\isacharcomma}\ Q\ {\isacharparenleft}f\ n{\isacharparenright}{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}x\ {\isacharless}{\isacharminus}\ {\isacharparenleft}map\ f\ {\isacharparenleft}x{\isacharhash}xs{\isacharparenright}{\isacharparenright}{\isachardot}\ Q\ x{\isacharbrackright}{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ myStructInduct{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}P\ {\isacharbrackleft}{\isacharbrackright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymforall}x\ xs{\isachardot}\ P\ {\isacharparenleft}xs{\isacharparenright}\ {\isasymlongrightarrow}\ P\ {\isacharparenleft}x{\isacharhash}xs{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}P\ l{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ list{\isacharunderscore}nonempty{\isacharunderscore}induct\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ map{\isacharunderscore}commutes{\isacharcolon}\ \isakeyword{fixes}\ f{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ {\isacharequal}{\isachargreater}\ {\isacharprime}b{\isachardoublequoteclose}\ \isakeyword{fixes}\ Q{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}b\ {\isacharequal}{\isachargreater}\ bool{\isachardoublequoteclose}\ \isakeyword{fixes}\ xs{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ list{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}{\isacharbrackleft}f\ n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ xs{\isacharcomma}\ Q\ {\isacharparenleft}f\ n{\isacharparenright}{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}x\ {\isacharless}{\isacharminus}\ {\isacharparenleft}map\ f\ xs{\isacharparenright}{\isachardot}\ Q\ x{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ map{\isacharunderscore}commutes{\isacharunderscore}a\ map{\isacharunderscore}commutes{\isacharunderscore}b\ myStructInduct\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ll{\isadigit{9}}{\isacharcolon}\ \isakeyword{fixes}\ f\ l\ \isakeyword{shows}\ {\isachardoublequoteopen}maxpositions\ {\isacharparenleft}map\ f\ l{\isacharparenright}\ {\isacharequal}\isanewline
+{\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ f\ {\isacharparenleft}l{\isacharbang}n{\isacharparenright}\ {\isasymge}\ Max\ {\isacharparenleft}f{\isacharbackquote}{\isacharparenleft}set\ l{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}maxpositions\ {\isacharparenleft}{\isacharquery}fl{\isacharparenright}\ {\isacharequal}\ {\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}maxpositions\ {\isacharquery}fl\ {\isacharequal}\ \isanewline
+\ \ {\isacharbrackleft}n{\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ {\isacharquery}fl{\isacharbrackright}{\isacharcomma}\ n{\isasymin}\ set{\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ {\isacharquery}fl{\isacharbrackright}{\isacharcomma}\ {\isacharquery}fl{\isacharbang}n\ {\isasymge}\ Max\ {\isacharparenleft}set\ {\isacharquery}fl{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ ll{\isadigit{7}}b\ \isacommand{unfolding}\isamarkupfalse%
+\ filterpositions{\isadigit{2}}{\isacharunderscore}def\ maxpositions{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ \isanewline
+\ \ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ {\isacharparenleft}n{\isacharless}size\ l{\isacharparenright}{\isacharcomma}\ {\isacharparenleft}{\isacharquery}fl{\isacharbang}n\ \ {\isasymge}\ Max\ {\isacharparenleft}set\ {\isacharquery}fl{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ \isanewline
+\ \ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ {\isacharparenleft}n{\isacharless}size\ l{\isacharparenright}\ {\isasymand}\ {\isacharparenleft}f\ {\isacharparenleft}l{\isacharbang}n{\isacharparenright}\ \ {\isasymge}\ Max\ {\isacharparenleft}set\ {\isacharquery}fl{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ nth{\isacharunderscore}map\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}poly{\isacharunderscore}guards{\isacharunderscore}query{\isacharcomma}\ hide{\isacharunderscore}lams{\isacharparenright}{\isacharparenright}\ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ \isanewline
+\ \ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ {\isacharparenleft}n{\isasymin}\ set\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharparenright}{\isacharcomma}{\isacharparenleft}f\ {\isacharparenleft}l{\isacharbang}n{\isacharparenright}\ \ {\isasymge}\ Max\ {\isacharparenleft}set\ {\isacharquery}fl{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ atLeastLessThan{\isacharunderscore}iff\ le{\isadigit{0}}\ set{\isacharunderscore}upt\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ \ \isanewline
+\ \ {\isacharbrackleft}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ f\ {\isacharparenleft}l{\isacharbang}n{\isacharparenright}\ {\isasymge}\ Max\ {\isacharparenleft}set\ {\isacharquery}fl{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ ll{\isadigit{7}}\ \isacommand{by}\isamarkupfalse%
+\ presburger\ \isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ ll{\isadigit{1}}{\isadigit{1}}{\isacharcolon}\ \isakeyword{fixes}\ f\ l\ \isakeyword{shows}\ {\isachardoublequoteopen}argmaxList\ f\ l\ {\isacharequal}\ {\isacharbrackleft}\ l{\isacharbang}n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ f\ {\isacharparenleft}l{\isacharbang}n{\isacharparenright}\ {\isasymge}\ Max\ {\isacharparenleft}f{\isacharbackquote}{\isacharparenleft}set\ l{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ ll{\isadigit{9}}\ argmaxList{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ ll{\isadigit{1}}{\isadigit{0}}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{theorem}\isamarkupfalse%
+\ argmaxadequacy{\isacharcolon}\ \isanewline
+\isanewline
+\isakeyword{fixes}\ f{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ {\isacharequal}{\isachargreater}\ {\isacharparenleft}{\isacharprime}b{\isacharcolon}{\isacharcolon}linorder{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{fixes}\ l{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ list{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}argmaxList\ f\ l\ {\isacharequal}\ {\isacharbrackleft}\ x\ {\isacharless}{\isacharminus}\ l{\isachardot}\ f\ x\ {\isasymge}\ Max\ {\isacharparenleft}f{\isacharbackquote}{\isacharparenleft}set\ l{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}lh{\isacharequal}{\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}P{\isacharequal}{\isachardoublequoteopen}{\isacharpercent}\ y{\isacharcolon}{\isacharcolon}{\isacharparenleft}{\isacharprime}b{\isacharcolon}{\isacharcolon}linorder{\isacharparenright}\ {\isachardot}\ y\ {\isasymge}\ Max\ {\isacharparenleft}f{\isacharbackquote}{\isacharparenleft}set\ l{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}mh{\isacharequal}{\isachardoublequoteopen}{\isacharbrackleft}nth\ l\ n\ {\isachardot}\ n\ {\isacharless}{\isacharminus}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharcomma}\ {\isacharquery}P\ {\isacharparenleft}f\ {\isacharparenleft}nth\ l\ n{\isacharparenright}{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}rh{\isacharequal}{\isachardoublequoteopen}{\isacharbrackleft}\ x\ {\isacharless}{\isacharminus}\ {\isacharparenleft}map\ {\isacharparenleft}nth\ l{\isacharparenright}\ {\isacharbrackleft}{\isadigit{0}}{\isachardot}{\isachardot}{\isacharless}size\ l{\isacharbrackright}{\isacharparenright}{\isachardot}\ {\isacharquery}P\ {\isacharparenleft}f\ x{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}lh\ {\isacharequal}\ {\isacharquery}mh{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ ll{\isadigit{1}}{\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharquery}rh{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ map{\isacharunderscore}commutes\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}{\isacharequal}\ {\isacharbrackleft}x\ {\isacharless}{\isacharminus}\ l{\isachardot}\ {\isacharquery}P\ {\isacharparenleft}f\ x{\isacharparenright}{\isacharbrackright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ map{\isacharunderscore}nth\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

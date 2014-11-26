@@ -1,0 +1,49 @@
+\BOOKMARK [1][-]{section.1}{Additional material that we would have expected in Set.thy}{}
+\BOOKMARK [1][-]{section.2}{Equality}{}
+\BOOKMARK [1][-]{section.3}{Trivial sets}{}
+\BOOKMARK [1][-]{section.4}{The image of a set under a function}{}
+\BOOKMARK [1][-]{section.5}{Set difference}{}
+\BOOKMARK [1][-]{section.6}{Big Union}{}
+\BOOKMARK [1][-]{section.7}{Partitions of sets}{}
+\BOOKMARK [1][-]{section.8}{Avoidance of pattern matching on natural numbers}{}
+\BOOKMARK [2][-]{subsection.8.1}{Case analysis}{section.8}
+\BOOKMARK [2][-]{subsection.8.2}{Preprocessors}{section.8}
+\BOOKMARK [1][-]{section.9}{Implementation of natural numbers by target-language integers}{}
+\BOOKMARK [2][-]{subsection.9.1}{Implementation for 42 1000 63 1000 33 1000 58 1000 59 1000 44 1000 nat}{section.9}
+\BOOKMARK [1][-]{section.10}{Additional operators on relations, going beyond Relations.thy, and properties of these operators}{}
+\BOOKMARK [1][-]{section.11}{evaluating a relation as a function}{}
+\BOOKMARK [1][-]{section.12}{restriction}{}
+\BOOKMARK [1][-]{section.13}{relation outside some set}{}
+\BOOKMARK [1][-]{section.14}{flipping pairs of relations}{}
+\BOOKMARK [1][-]{section.15}{evaluation as a function}{}
+\BOOKMARK [1][-]{section.16}{paste}{}
+\BOOKMARK [1][-]{section.17}{Additional properties of relations, and operators on relations, as they have been defined by Relations.thy}{}
+\BOOKMARK [1][-]{section.18}{right-uniqueness}{}
+\BOOKMARK [2][-]{subsection.18.1}{paste}{section.18}
+\BOOKMARK [2][-]{subsection.18.2}{difference}{section.18}
+\BOOKMARK [2][-]{subsection.18.3}{converse}{section.18}
+\BOOKMARK [1][-]{section.19}{injectivity}{}
+\BOOKMARK [1][-]{section.20}{Common discrete functions}{}
+\BOOKMARK [2][-]{subsection.20.1}{Discrete logarithm}{section.20}
+\BOOKMARK [2][-]{subsection.20.2}{Discrete square root}{section.20}
+\BOOKMARK [1][-]{section.21}{Indicator Function}{}
+\BOOKMARK [1][-]{section.22}{Locus where a function or a list \(of linord type\) attains its maximum value}{}
+\BOOKMARK [1][-]{section.23}{Toolbox of various definitions and theorems about sets, relations and lists}{}
+\BOOKMARK [1][-]{section.24}{Facts and notations about relations, sets and functions.}{}
+\BOOKMARK [1][-]{section.25}{Indicator function in set-theoretical form.}{}
+\BOOKMARK [2][-]{subsection.25.1}{Computing all the permutations of a list}{section.25}
+\BOOKMARK [1][-]{section.26}{A more computable version of 42 1000 63 1000 33 1000 58 1000 59 1000 44 1000 toFunction.}{}
+\BOOKMARK [1][-]{section.27}{Definitions about those Combinatorial Auctions which are strict \(i.e., which assign all the available goods\)}{}
+\BOOKMARK [1][-]{section.28}{Types}{}
+\BOOKMARK [1][-]{section.29}{Allocations}{}
+\BOOKMARK [1][-]{section.30}{VCG mechanism}{}
+\BOOKMARK [1][-]{section.31}{Uniform tie breaking: definitions}{}
+\BOOKMARK [1][-]{section.32}{Sets of injections, partitions, allocations expressed as suitable subsets of the corresponding universes}{}
+\BOOKMARK [1][-]{section.33}{Preliminary lemmas}{}
+\BOOKMARK [1][-]{section.34}{Definitions of various subsets of 42 1000 63 1000 33 1000 58 1000 59 1000 44 1000 UNIV.}{}
+\BOOKMARK [1][-]{section.35}{Results about the sets defined in the previous section}{}
+\BOOKMARK [1][-]{section.36}{Termination theorem for uniform tie-breaking}{}
+\BOOKMARK [1][-]{section.37}{Termination theorem for the uniform tie-breaking scheme 42 1000 63 1000 33 1000 58 1000 59 1000 44 1000 N G bids random. linearCompletion2mu'-2mu \(pseudoAllocation \(hd \(perm2 \(takeAll \(x. winningAllocationRel N \(set G\) \(op \040x\) bids\) \(possibleAllocationsAlg3 N G\)\) random\)\) < \(N \040finestpart \(set G\)\)\) N \(set G\)}{}
+\BOOKMARK [1][-]{section.38}{Combinatorial auction input examples}{}
+\BOOKMARK [1][-]{section.39}{VCG auction: definitions and theorems}{}
+\BOOKMARK [1][-]{section.40}{Definition of a VCG auction scheme, through the pair 42 1000 63 1000 33 1000 58 1000 59 1000 44 1000 \(vcga2mu'-2mu, vcgp2mu'-2mu\)}{}
