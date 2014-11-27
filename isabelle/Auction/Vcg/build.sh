@@ -13,7 +13,7 @@
 rm -f ./ROOT
 rm -rf ./document ./output
 
-/home/staff/caminamb/apps/Isabelle2014/bin/isabelle mkroot -d -n VCG
+/home/staff/caminamb/apps/Isabelle2014/bin/isabelle mkroot -d -n Vcg
 sed -i -e "/theories *$/ a CombinatorialAuction" ROOT
 sed -i -r -e 's/^ *\\author *\{.*\} *$/\\author\{M. B. Caminati, C. Lange, M. Kerber, C. Rowat\}/' document/root.tex
 /home/staff/caminamb/apps/Isabelle2014/bin/isabelle build -c -v -j 5 -D . 
