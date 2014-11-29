@@ -10,11 +10,13 @@
 # (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 # Isabelle build script
 
+i=/home/staff/caminamb/apps/Isabelle2014
+
 rm -f ./ROOT
 rm -rf ./document ./output
 
-/home/staff/caminamb/apps/Isabelle2014/bin/isabelle mkroot -d -n Vcg
+$i/bin/isabelle mkroot -d -n Vcg
 sed -i -e "/theories *$/ a CombinatorialAuction" ROOT
 sed -i -r -e 's/^ *\\author *\{.*\} *$/\\author\{M. B. Caminati, C. Lange, M. Kerber, C. Rowat\}/' document/root.tex
-/home/staff/caminamb/apps/Isabelle2014/bin/isabelle build -c -v -j 5 -D . 
+$i/bin/isabelle build -c -v -j 5 -D . 
 

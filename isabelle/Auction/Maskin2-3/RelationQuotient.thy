@@ -1,6 +1,6 @@
 theory RelationQuotient
 
-imports "../MiscTools" "../RelationProperties" "../Partitions"
+imports "../Vcg/MiscTools" "../Vcg/RelationProperties" "../Vcg/Partitions"
 
 begin
 

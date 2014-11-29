@@ -20,7 +20,7 @@ imports
   SetUtils
 
 begin
-(*
+
 text {*
 We define the set of all partitions of a set (@{term all_partitions}) in textbook style, as well as
 a function @{term all_partitions_list} to algorithmically compute this set (then represented as a
@@ -29,22 +29,8 @@ the generated code correctly implements the original textbook-style definition. 
 background on the overall approach, see Caminati, Kerber, Lange, Rowat:
 \href{http://arxiv.org/abs/1308.1779}{Proving soundness of combinatorial Vickrey auctions and
 generating verified executable code}, 2013.
-
-The algorithmic computation of all partitions of a set works as
-in the following example:
-\begin{itemize}
-\item Set: $\{\a}$\\
-  Partitions: $\{\{a\}\}$
-\item Set: $\{a,b\}$
-  Partitions: $\{\{a\}, \{b\}\}, \{\{a, b\}\}$
-\item Set: $\{a,b,c\}$
-  Partitions: $\{\{a\}, \{b\}, \{c\}\}, \{\{a,b\}, \{c\}\}, \{\{a,c\}, \{b\}\}, \{\{a\}, \{c,b\}\}, \{\{a,b,c\}\}$
-\end{itemize}
-
-BTW, the number of partitions of a set (same as the number of equivalence relations on the set) is known as 
-\href{http://en.wikipedia.org/wiki/Bell_number}{Bell number}.
 *}
-*)
+
 text {* @{term P} is a partition of some set. *}
 definition is_partition where
 "is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
@@ -232,26 +218,6 @@ lemma emptyset_part_emptyset2:
 text {* classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
 definition all_partitions where 
 "all_partitions A = {P . is_partition_of P A}"
-
-text {* A finite set has finitely many partitions. *}
-lemma finite_all_partitions:
-  assumes "finite A"
-  shows "finite (all_partitions A)"
-unfolding all_partitions_def is_partition_of_def is_partition_def
-(* CL: The following takes 74 ms in Isabelle2013-1-RC1:
-   by (smt PowD PowI Union_Pow_eq assms finite_Pow_iff in_mono mem_Collect_eq rev_finite_subset subsetI subset_Pow_Union) *)
-(* TODO CL: make the following more readable.  It was found by Sledgehammer but even after some cleanup I still fail to understand it. *)
-proof
-  have "finite (Pow (Pow A))" using assms by simp
-  moreover have "{ P . \<Union> P = A } \<subseteq> Pow (Pow A)"
-  proof
-    fix P assume "P \<in> { P . \<Union> P = A }"
-    then show "P \<in> Pow (Pow A)" by blast
-  qed
-  ultimately have "finite { P . \<Union> P = A }" by (rule rev_finite_subset)
-    (* CL: If we start with this, Isabelle2013-1-RC1 finds a fast but exceedingly complex Isar proof. *)
-  then show "finite {P . \<Union> P = A} \<or> finite {P. \<forall> X \<in> P . \<forall> Y \<in> P . (X \<inter> Y \<noteq> {}) \<longleftrightarrow> X = Y}" ..
-qed
 
 text {* The set of all partitions of the empty set only contains the empty set.
   We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
@@ -852,38 +818,8 @@ proof
     show "\<forall> X \<in> P \<union> {B} . \<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)"
     proof
       fix X assume X_class: "X \<in> P \<union> {B}"
-      show "\<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" 
-by (metis Un_insert_right X_class assms(1) assms(2) assms(3) is_partition_def is_partition_of_def partition_extension1 sup_bot.right_neutral)
-(*
-      proof
-        fix Y assume Y_class: "Y \<in> P \<union> {B}"
-        show "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y"
-        proof (*rule case_split_2_times_2*)
-          assume "X \<in> P \<and> Y \<in> P"
-          then have "X \<in> P" and "Y \<in> P" by simp_all
-          with part show ?thesis unfolding is_partition_of_def is_partition_def sorry
-        next
-          assume "X \<in> P \<and> Y \<notin> P"
-          then have "X \<in> P" and "Y \<notin> P" by simp_all
-          with Y_class have "Y = B" by fast
-          with `X \<in> P` `\<Union> P = A` new have "X \<inter> Y = {}" unfolding is_partition_of_def by blast
-          moreover have "X \<noteq> Y" using `X \<in> P` `Y \<notin> P` by fast
-          ultimately show ?thesis by auto
-        next (* TODO CL: refactor the part that's symmetric to the previous case *)
-          assume "X \<notin> P \<and> Y \<in> P"
-          then have "X \<notin> P" and "Y \<in> P" by simp_all
-          with X_class have "X = B" by fast
-          with `Y \<in> P` `\<Union> P = A` new have "X \<inter> Y = {}" unfolding is_partition_of_def by blast
-          moreover have "X \<noteq> Y" using `Y \<in> P` `X \<notin> P` by fast
-          ultimately show ?thesis by auto
-        next
-          assume "X \<notin> P \<and> Y \<notin> P"
-          then have "X \<notin> P" and "Y \<notin> P" by simp_all
-          with X_class Y_class have "X = B" and "Y = B" by simp_all
-          with non_empty show ?thesis by simp
-        qed
-      qed
-*)
+      show "\<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" using assms Un_insert_right X_class 
+      is_partition_def is_partition_of_def partition_extension1 sup_bot.right_neutral by (metis(no_types))
     qed
   qed
   show "\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y"

@@ -95,135 +95,30 @@ using assms runiq_paste1 subrel_runiq Diff_subset Outside_def by (metis)
 
 lemma l14: "runiq {(x,f x)| x. P x}" unfolding runiq_basic by fast
 
-lemma runiq_alt2: "runiq R = (\<forall> x \<in> Domain R. trivial (R `` {x}))" 
-by (metis Domain.DomainI Image_singleton_iff lm01 runiq_alt)
-
 lemma lm013: assumes "x \<in> Domain R" "runiq R" shows "card (R``{x})=1"
-using assms runiq_alt2 lm007b by (metis DomainE Image_singleton_iff empty_iff)
+using assms  lm007b 
+DomainE Image_singleton_iff empty_iff
+by (metis runiq_alt)
 (* lm007 nn56 runiq_def trivial_singleton 
 by (metis DomainE Image_singleton_iff empty_iff)
  Image_within_domain' *)
-
 
 text {* The image of a singleton set under a right-unique relation is a singleton set. *}
 lemma Image_runiq_eq_eval: assumes "x \<in> Domain R" "runiq R" shows "R `` {x} = {R ,, x}" 
 using assms lm013 by (metis eval_rel.simps nn56)
 
-text {* the image of a singleton set under a right-unique relation is
-   @{const trivial}, i.e.\ an empty or singleton set. *}
+lemma lm022: assumes "trivial f" shows "runiq f" 
+using assms lm01 runiq_basic snd_conv by fastforce
 
-text {* If all images of singleton sets under a relation are
-   @{const trivial}, i.e.\ an empty or singleton set, the relation is right-unique. *}
+text {* A singleton relation is right-unique. *}
+corollary runiq_singleton_rel: "runiq {(x, y)}" using trivial_singleton lm022 by fast
 
-lemma Image_within_runiq_domain:
-  fixes x R
-  assumes "runiq R"
-  shows "x \<in> Domain R \<longleftrightarrow> (\<exists> y . R `` {x} = {y})" using assms Image_runiq_eq_eval by fast
-
-lemma runiq_imp_singleton_image':
-  assumes runiq: "runiq R"
-      and dom: "x \<in> Domain R"
-  shows "the_elem (R `` {x}) = (THE y . (x, y) \<in> R)" (is "the_elem (R `` {x}) = ?y")
-unfolding the_elem_def
-using assms Image_singleton_iff Image_within_runiq_domain singletonD singletonI by (metis)
-
-lemma runiq_conv_imp_singleton_preimage':
-  assumes runiq_conv: "runiq (R\<inverse>)"
-      and ran: "y \<in> Range R"
-  shows "the_elem ((R\<inverse>) `` {y}) = (THE x . (x, y) \<in> R)" 
-(* CL: using assms runiq_imp_singleton_image' sledgehammer doesn't find a proof within reasonable time
-   using Isabelle2013-1-RC3. *)
-proof -
-  from ran have dom: "y \<in> Domain (R\<inverse>)" by simp
-  with runiq_conv have "the_elem ((R\<inverse>) `` {y}) = (THE x . (y, x) \<in> (R\<inverse>))" by (rule runiq_imp_singleton_image')
-  also have "\<dots> = (THE x . (x, y) \<in> R)" by simp
-  finally show ?thesis .
-qed
-
-text {* another alternative definition of right-uniqueness in terms of @{const eval_rel} *}
-lemma runiq_wrt_eval_rel':
-  fixes R :: "('a \<times> 'b) set"
-  shows "runiq R \<longleftrightarrow> (\<forall>x \<in> Domain R . R `` {x} = {R ,, x})" unfolding runiq_wrt_eval_rel by fast
+text {* The empty relation is right-unique *}
+lemma runiq_emptyrel: "runiq {}" using trivial_empty lm022 by blast
 
 lemma runiq_wrt_ex1:
   "runiq R \<longleftrightarrow> (\<forall> a \<in> Domain R . \<exists>! b . (a, b) \<in> R)"
 using runiq_basic by (metis Domain.DomainI Domain.cases)
-
-lemma runiq_imp_THE_right_comp:
-  fixes a and b
-  assumes runiq: "runiq R"
-      and aRb: "(a, b) \<in> R"
-  shows "b = (THE b . (a, b) \<in> R)" using assms by (metis runiq_basic the_equality)
-
-lemma runiq_imp_THE_right_comp':
-  assumes runiq: "runiq R"
-      and in_Domain: "a \<in> Domain R"
-  shows "(a, THE b. (a, b) \<in> R) \<in> R"
-proof -
-  from in_Domain obtain b where *: "(a, b) \<in> R" by force
-  with runiq have "b = (THE b . (a, b) \<in> R)" by (rule runiq_imp_THE_right_comp)
-  with * show ?thesis by simp
-qed
-
-lemma THE_right_comp_imp_runiq:
-  assumes "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)"
-  shows "runiq R"
-using assms DomainE runiq_wrt_ex1 by metis
-
-text {* another alternative definition of right-uniqueness in terms of @{const The} *}
-lemma runiq_wrt_THE:
-  "runiq R \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R))"
-proof
-  assume "runiq R"
-  then show "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)" by (metis runiq_imp_THE_right_comp)
-next
-  assume "\<forall> a b . (a, b) \<in> R \<longrightarrow> b = (THE b . (a, b) \<in> R)"
-  then show "runiq R" by (rule THE_right_comp_imp_runiq)
-qed
-
-lemma runiq_conv_imp_THE_left_comp:
-  assumes runiq_conv: "runiq (R\<inverse>)" and aRb: "(a, b) \<in> R"
-  shows "a = (THE a . (a, b) \<in> R)"
-proof -
-  from aRb have "(b, a) \<in> R\<inverse>" by simp
-  with runiq_conv have "a = (THE a . (b, a) \<in> R\<inverse>)" by (rule runiq_imp_THE_right_comp)
-  then show ?thesis by fastforce
-qed
-
-lemma runiq_conv_imp_THE_left_comp':
-  assumes runiq_conv: "runiq (R\<inverse>)"
-      and in_Range: "b \<in> Range R"
-  shows "(THE a. (a, b) \<in> R, b) \<in> R"
-proof -
-  from in_Range obtain a where *: "(a, b) \<in> R" by force
-  with runiq_conv have "a = (THE a . (a, b) \<in> R)" by (rule runiq_conv_imp_THE_left_comp)
-  with * show ?thesis by simp
-qed
-
-lemma THE_left_comp_imp_runiq_conv:
-  assumes "\<forall> a b . (a, b) \<in> R \<longrightarrow> a = (THE a . (a, b) \<in> R)"
-  shows "runiq (R\<inverse>)"
-proof -
-  from assms have "\<forall> b a . (b, a) \<in> R\<inverse> \<longrightarrow> a = (THE a . (b, a) \<in> R\<inverse>)" by auto
-  then show ?thesis by (rule THE_right_comp_imp_runiq)
-qed
-
-lemma runiq_conv_wrt_THE:
-  "runiq (R\<inverse>) \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R \<longrightarrow> a = (THE a . (a, b) \<in> R))"
-proof -
-  have "runiq (R\<inverse>) \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R\<inverse> \<longrightarrow> b = (THE b . (a, b) \<in> R\<inverse>))" by (rule runiq_wrt_THE)
-  also have "\<dots> \<longleftrightarrow> (\<forall> a b . (a, b) \<in> R \<longrightarrow> a = (THE a . (a, b) \<in> R))" by auto
-  finally show ?thesis .
-qed
-
-lemma lm022:  assumes "trivial f" shows "runiq f" using assms by (metis (erased, hide_lams) lm01 runiq_basic snd_conv)
-
-text {* A singleton relation is right-unique. *}
-corollary runiq_singleton_rel: "runiq {(x, y)}" (is "runiq ?R")
-using trivial_singleton lm022 by fast
-
-text {* The empty relation is right-unique *}
-lemma runiq_emptyrel: "runiq {}" using trivial_empty lm022 by blast
 
 text {* alternative characterisation of the fact that, if a relation @{term R} is right-unique,
   its evaluation @{term "R,,x"} on some argument @{term x} in its domain, occurs in @{term R}'s
@@ -241,45 +136,6 @@ lemma eval_runiq_in_Range:
       and "a \<in> Domain R"
   shows "R ,, a \<in> Range R"
 using assms by (metis Range_iff eval_runiq_rel)
-
-text {* right-uniqueness of a restricted relation expressed using basic set theory *}
-lemma runiq_restrict: "runiq (R || X) \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')"
-proof -
-  have "runiq (R || X) \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> R || X \<and> (x, y') \<in> R || X \<longrightarrow> y = y')"
-    by (rule runiq_basic)
-  also have "\<dots> \<longleftrightarrow> (\<forall> x y y' . (x, y) \<in> { p . fst p \<in> X \<and> p \<in> R } \<and> (x, y') \<in> { p . fst p \<in> X \<and> p \<in> R } \<longrightarrow> y = y')"
-    using restrict_ext' by blast
-  also have "\<dots> \<longleftrightarrow> (\<forall> x \<in> X . \<forall> y y' . (x, y) \<in> R \<and> (x, y') \<in> R \<longrightarrow> y = y')" by auto
-  finally show ?thesis .
-qed
-
-subsection {* paste *}
-
-text {* Pasting a singleton relation on some other right-unique relation @{term R} yields a
-  right-unique relation if the single element of the singleton's domain is not yet in the 
-  domain of @{term R}. *}
-lemma runiq_paste3:
-  assumes "runiq R"
-      and "x \<notin> Domain R" 
-  shows "runiq (R +* {(x, y)})"
-using assms runiq_paste2 runiq_singleton_rel by metis
-
-subsection {* difference *}
-
-text {* Removing one pair from a right-unique relation still leaves it right-unique. *}
-lemma runiq_except:
-  assumes "runiq R"
-  shows "runiq (R - {tup})"
-using assms
-by (rule subrel_runiq) fast
-
-lemma runiq_Diff_singleton_Domain:
-  assumes runiq: "runiq R"
-      and in_rel: "(x, y) \<in> R"
-  shows "x \<notin> Domain (R - {(x, y)})"
-(* TODO CL: optimise manually.  Takes 103 ms in Isabelle2013-1-RC3 *)
-using assms DomainE Domain_Un_eq UnI1 Un_Diff_Int member_remove remove_def runiq_wrt_ex1
-by metis
 
 subsection {* converse *}
 
@@ -300,14 +156,6 @@ proof -
     using sup by (metis singleton_sub_trivial_uniq subset_antisym trivial_def)
 qed
 
-text {* The inverse image of the image of a singleton set under some relation is the same
-  singleton set or empty, if both the relation and its converse are right-unique. *}
-corollary converse_Image_singleton:
-  assumes "runiq R"
-      and "runiq (R\<inverse>)"
-  shows "R\<inverse> `` R `` {x} \<subseteq> {x}"
-using assms converse_Image_singleton_Domain by fast
-
 text {* The inverse image of the image of a set under some relation is a subset of that set,
   if both the relation and its converse are right-unique. *}
 
@@ -317,66 +165,21 @@ lemma disj_Domain_imp_disj_Image: assumes "Domain R \<inter> X \<inter> Y = {}"
   shows "R `` X \<inter> R `` Y = {}" 
 using assms unfolding runiq_basic by blast
 
-lemma runiq_imp_Dom_rel_Range:
-  assumes "x \<in> Domain R"
-      and "runiq R"
-  shows "(THE y . (x, y) \<in> R) \<in> Range R"
-using assms
-by (metis Range.intros runiq_imp_THE_right_comp runiq_wrt_ex1)
-
-lemma runiq_conv_imp_Range_rel_Dom:
-  assumes y_Range: "y \<in> Range R"
-      and runiq_conv: "runiq (R\<inverse>)"
-  shows "(THE x . (x, y) \<in> R) \<in> Domain R"
+lemma runiq_converse_paste_singleton: assumes "runiq (P^-1)" "y\<notin>(Range P)" 
+shows "runiq ((P +* {(x,y)})\<inverse>)" (is "?u (?P^-1)")
+(*using assms
+Range.RangeI Un_insert_right converse_converse converse_iff converse_subset_swap 
+insertE paste_sub_Un prod.inject runiq_basic subrel_runiq sup_bot.right_neutral
+by smt2*)
 proof -
-  from y_Range have "y \<in> Domain (R\<inverse>)" by simp
-  then have "(THE x . (y, x) \<in> R\<inverse>) \<in> Range (R\<inverse>)" using runiq_conv by (rule runiq_imp_Dom_rel_Range)
-  then show ?thesis by simp
+have "(?P) \<subseteq> P \<union> {(x,y)}" using assms by (metis paste_sub_Un)
+then have "?P^-1 \<subseteq> P^-1 \<union> ({(x,y)}^-1)" by blast
+moreover have "... = P^-1 \<union> {(y,x)}" by fast
+moreover have "Domain (P^-1) \<inter> Domain {(y,x)} = {}" using assms(2) by auto
+ultimately moreover have "?u (P^-1 \<union> {(y,x)})" using assms(1) by (metis disj_Un_runiq runiq_singleton_rel)
+ultimately show ?thesis by (metis subrel_runiq)
 qed
-
-text {* The converse relation of two pasted relations is right-unique, if 
-  the relations have disjoint domains and ranges, and if their converses are both
-  right-unique. *}
-lemma runiq_converse_paste: (* MC: Too strong hypotheses; superseded by ll777b *)
-  assumes runiq_P_conv: "runiq (P\<inverse>)"
-      and runiq_Q_conv: "runiq (Q\<inverse>)"
-      and disj_D: "Domain P \<inter> Domain Q = {}"
-      and disj_R: "Range P \<inter> Range Q = {}"
-  shows "runiq ((P +* Q)\<inverse>)"
-proof -
-  have "P +* Q = P \<union> Q" using disj_D by (rule paste_disj_domains)
-  then have "(P +* Q)\<inverse> = P\<inverse> \<union> Q\<inverse>" by auto
-  also have "\<dots> = P\<inverse> +* Q\<inverse>" using disj_R paste_disj_domains Domain_converse by metis
-  finally show ?thesis using runiq_P_conv runiq_Q_conv runiq_paste2 by auto
-qed
-
-text {* The converse relation of a singleton relation pasted on some other relation @{term R} is right-unique,
-  if the singleton pair is not in @{term "Domain R \<times> Range R"}, and if @{term "R\<inverse>"} is right-unique. *}
-lemma runiq_converse_paste_singleton:
-  assumes runiq: "runiq (R\<inverse>)" 
-      and y_notin_R: "y \<notin> Range R"
-      and x_notin_D: "x \<notin> Domain R"
-  shows "runiq ((R +* {(x,y)})\<inverse>)"
-proof -
-  have "{(x,y)}\<inverse> = {(y,x)}" by fastforce
-  then have "runiq ({(x,y)}\<inverse>)" using runiq_singleton_rel by metis
-  moreover have "Domain R \<inter> Domain {(x,y)} = {}" and "Range R \<inter> (Range {(x,y)})={}"
-    using y_notin_R x_notin_D by simp_all
-  ultimately show ?thesis using runiq runiq_converse_paste by blast
-qed
-
-text {* If a relation is known to be right-unique, it is easier to know when we can evaluate it
-  like a function, using @{const eval_rel_or}. *}
-lemma eval_runiq_rel_or:
-  assumes "runiq R"
-  shows "eval_rel_or R a z = (if a \<in> Domain R then the_elem (R `` {a}) else z)"
-proof -
-  from assms have "card (R `` {a}) = 1 \<longleftrightarrow> a \<in> Domain R"
-    (* TODO CL: optimise, put into RelationProperties.thy; so far takes 98 ms with Isabelle2013-1-RC2 *)
-    using Image_within_runiq_domain card_Suc_eq card_empty ex_in_conv One_nat_def by metis
-  then show ?thesis by force
-qed
-
+(*by (smt2 Domain_converse Range.RangeI Un_insert_right converse_converse converse_iff converse_subset_swap insertE insert_iff paste_sub_Un prod.inject runiq_basic subrel_runiq sup_bot.right_neutral)*)
 
 
 

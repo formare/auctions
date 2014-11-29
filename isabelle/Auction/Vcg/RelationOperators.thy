@@ -78,7 +78,7 @@ section {* relation outside some set *}
 text {* For a set-theoretical relation @{term R} and an ``exclusion'' set @{term X}, return those
   tuples of @{term R} whose first component is not in @{term X}.  In other words, exclude @{term X}
   from the domain of @{term R}. *}
-definition Outside :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "outside" 75) (* MC: 75 or whatever, for what I know *)
+definition Outside :: "('a \<times> 'b) set \<Rightarrow> 'a set \<Rightarrow> ('a \<times> 'b) set" (infix "outside" 75)
 where "R outside X = R - (X \<times> Range R)"
 
 text {* Considering a relation outside some set @{term X} reduces its domain by @{term X}. *}
@@ -137,26 +137,6 @@ proof -
   finally show ?thesis .
 qed
 
-text {* Summing over all pairs of a relation is the same as summing over all pairs of the
-  converse relation after flipping them. *}
-lemma setsum_rel_comm:
-  fixes R::"('a \<times> 'b) set"
-    and f::"'a \<Rightarrow> 'b \<Rightarrow> 'c\<Colon>comm_monoid_add"
-  shows "(\<Sum> (x, y) \<in> R . f x y) = (\<Sum> (y', x') \<in> R\<inverse> . f x' y')"
-proof -
-  (* TODO CL: manually optimise some metis invocations *)
-  have "inj_on flip (R\<inverse>)"
-    by (metis flip_flip inj_on_def)
-  moreover have "R = flip ` (R\<inverse>)"
-    by (metis converse_converse flip_conv)
-  moreover have "\<And> tup . tup \<in> R\<inverse> \<Longrightarrow> f (snd tup) (fst tup) = f (fst (flip tup)) (snd (flip tup))"
-    by (metis flip_def fst_conv snd_conv)
-  ultimately have "(\<Sum> tup \<in> R . f (fst tup) (snd tup)) = (\<Sum> tup \<in> R\<inverse> . f (snd tup) (fst tup))"
-    using setsum.reindex_cong by (metis (erased, lifting))
-  then show ?thesis
-    by (metis (mono_tags) setsum.cong split_beta)
-qed
-
 section {* evaluation as a function *}
 
 text {* Evaluates a relation @{term R} for a single argument, as if it were a function.
@@ -205,3 +185,4 @@ lemma paste_Range: "Range (P +* Q) \<subseteq> Range P \<union> Range Q"
 using paste_sub_Un by blast
 
 end
+

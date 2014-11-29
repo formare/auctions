@@ -5,7 +5,7 @@ imports
 RelationQuotient
 (* "~~/src/HOL/Cardinals/Cardinal_Order_Relation_Base" *) 
 (* SupInf *)
-"../RelationProperties"
+"../Vcg/RelationProperties"
 Real_Vector_Spaces
 (*
 Set_Interval

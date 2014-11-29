@@ -18,8 +18,8 @@ imports
   SetUtils
   Partitions
 *)
-  "../MiscTools"
-  "../Universes"
+  "../Vcg/MiscTools"
+  "../Vcg/Universes"
   "RelationQuotient"
   
 
