@@ -499,7 +499,7 @@ def example02: set[(nat, List[(Boolean, nat)])] =
   addSingleBid(bidMatrix, zero_nata, nat_of_integer(BigInt(4)))
 
   
-p
+
     def localToInt(s: String):Int = {
         // from http://alvinalexander.com/scala/how-cast-string-to-int-in-scala-string-int-conversion
         try {
