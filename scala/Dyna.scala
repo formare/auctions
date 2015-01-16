@@ -499,7 +499,7 @@ def example02: set[(nat, List[(Boolean, nat)])] =
   addSingleBid(bidMatrix, zero_nata, nat_of_integer(BigInt(4)))
 
   
-
+p
     def localToInt(s: String):Int = {
         // from http://alvinalexander.com/scala/how-cast-string-to-int-in-scala-string-int-conversion
         try {
@@ -516,13 +516,13 @@ def example02: set[(nat, List[(Boolean, nat)])] =
           while (i < integer_of_nat(n)) { // Can't use for loop with BigInt
             print("Input the bid for bidder " + i + " in round " + j +".\n")
             val x = readLine; val newBid = localToInt(x);
-            print("debug0 " + i);
+            println("debug0 " + i);
             M = addSingleBid (M, Nat (i), Nat(newBid)); 
             i=i+1
             print("debug1 " + livelinessList(M));
           }
-          println ("debug2");
-          print ("debug3");
+//          println ("debug2");
+//          println ("debug3");
         }
         println("Outcome:");
         println (wdp(M));
