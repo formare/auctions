@@ -673,7 +673,7 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-lemma lm67: "{ f \<union> {(x, y)} | y . y \<in> A } \<subseteq> totalRels ({x} \<union> Domain f) (A \<union> Range f)" by force
+lemma lm01: "{ f \<union> {(x, y)} | y . y \<in> A } \<subseteq> totalRels ({x} \<union> Domain f) (A \<union> Range f)" by force
 
 lemma lm69: "injectionsUniverse=runiqs\<inter>converse`runiqs" unfolding runiqs_def by auto
 
@@ -735,14 +735,14 @@ qed
 corollary lm77b: assumes "x \<notin> X" shows "injections ({x}\<union>X) Y \<subseteq> (\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})"
 using assms lm77 by fast
 
-lemma lm73b: assumes "x \<notin> X" shows "(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) \<subseteq> injections' ({x}\<union>X) Y" using assms lm73 injections_def lm26b lm67 
+lemma lm73b: assumes "x \<notin> X" shows "(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) \<subseteq> injections' ({x}\<union>X) Y" using assms lm73 injections_def lm26b lm01 
 proof -
 { fix f assume "f \<in> injections' X Y" then have 
 0: "f \<in> injectionsUniverse & x \<notin> Domain f & Domain f = X & Range f \<subseteq> Y" using assms by fast 
 then have "f \<in> injectionsUniverse" by fast moreover have "x \<notin> Domain f" using 0 by fast
 moreover have 1: "(Y-Range f) \<inter> Range f = {}" by blast
 ultimately have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> injectionsUniverse" by (rule lm73)
-moreover have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> totalRels ({x} \<union> X) Y" using lm67 0 by force
+moreover have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> totalRels ({x} \<union> X) Y" using lm01 0 by force
 ultimately have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> injectionsUniverse \<inter> totalRels ({x}\<union>X) Y" by auto}
 thus ?thesis using lm26 by blast
 qed
@@ -841,16 +841,16 @@ using assms lm86 by (metis distinct.simps(2))
 
 lemma listInduct: assumes "P []" "\<forall> xs x. P xs \<longrightarrow> P (x#xs)" shows "\<forall>x. P x"
 using assms by (metis structInduct)
-lemma lm01: "set (injections_alg [] Z)={{}}" by simp
+lemma lm02: "set (injections_alg [] Z)={{}}" by simp
 
-theorem injections_equiv: assumes "finite Y" "distinct X" shows 
+theorem injections_equiv: assumes "finite Y" and "distinct X" shows 
 "set (injections_alg X Y)=injections (set X) Y"
 proof -
 let ?P="\<lambda> L. (distinct L \<longrightarrow> (set (injections_alg L Y)=injections (set L) Y))"
-have "?P []" using assms by (metis Universes.lm01 list.set(1) lm39b) 
-moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms lm86b by (metis distinct.simps(2) list.simps(15))
+have "?P []" by (metis Universes.lm02 list.set(1) lm39b)
+moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms(1) lm86b by (metis distinct.simps(2) list.simps(15))
 ultimately have "?P X" by (rule structInduct)
-then show ?thesis using assms by presburger
+then show ?thesis using assms(2) by presburger
 qed
 
 theorem assumes "distinct X" shows "set (injectionsAlg X Y)=injections (set X) (set Y)"
@@ -885,17 +885,17 @@ using assms injections_equiv lm63 by metis
 
 lemma lm67: assumes "l \<in> set (all_partitions_list G)" "distinct G" shows "distinct l" 
 using assms all_partitions_list_def by (metis all_partitions_paper_equiv_alg')
-lemma lm68: assumes "card N > 0" "distinct G" shows 
+lemma lm03: assumes "card N > 0" "distinct G" shows 
 "\<forall>l \<in> set (all_partitions_list G). set (injections_alg l N) = injections (set l) N"
-using lm67 injections_equiv assms by blast
+using lm67 injections_equiv assms by (metis card_ge_0_finite)
 
-lemma lm69: assumes "card N > 0" "distinct G"
+lemma lm05: assumes "card N > 0" "distinct G"
 shows "{injections P N| P. P \<in> all_partitions (set G)} =
 set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G]" using assms lm66 lm68 lm66b 
 proof -
   let ?g1=all_partitions_list let ?f2=injections let ?g2=injections_alg
-  have "\<forall>l \<in> set (?g1 G). set (?g2 l N) = ?f2 (set l) N" using assms lm68 by blast
-  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule lm66) done
+  have "\<forall>l \<in> set (?g1 G). set (?g2 l N) = ?f2 (set l) N" using assms lm03 by blast
+  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule MiscTools.lm66) done
   moreover have "... = {?f2 P N| P. P \<in> all_partitions (set G)}" using all_partitions_paper_equiv_alg
   assms by blast
   ultimately show ?thesis by presburger
@@ -904,7 +904,7 @@ qed
 lemma lm70: assumes "card N > 0" "distinct G" shows 
 "Union {injections P N| P. P \<in> all_partitions (set G)} =
 Union (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" (is "Union ?L = Union ?R")
-proof - have "?L = ?R" using assms by (rule lm69) thus ?thesis by presburger qed
+proof - have "?L = ?R" using assms by (rule lm05) thus ?thesis by presburger qed
 
 corollary lm70b: assumes "card N > 0" "distinct G" shows 
 "possibleAllocationsRel N (set G) = possibleAllocationsAlg2 N G" (is "?L = ?R") using assms lm70 
@@ -916,9 +916,6 @@ proof -
   then have "converse ` ?LL = converse ` ?RR" by presburger
   thus ?thesis using possible_allocations_rel_def by force
 qed
-
-
-
 
 end
 
