@@ -17,12 +17,14 @@ theory CombinatorialAuction
 imports
 (* Complex *)
 UniformTieBreaking
-StrictCombinatorialAuction
 "~~/src/HOL/Library/Code_Target_Nat" 
+"~~/src/HOL/Library/Code_Target_Int" 
+(* "~~/src/HOL/Library/Code_Binary_Nat" *)
+"~~/src/HOL/Library/Code_Numeral"
 
 begin
 
-section {* Definition of a VCG auction scheme, through the pair @{term "(vcga', vcgp')"} *}
+section {* Definition of a VCG auction scheme, through the pair @{term "(vcga', vcgp)"} *}
 
 type_synonym bidvector' = "((participant \<times> goods) \<times> price) set"
 abbreviation "Participants b' == Domain (Domain b')"
@@ -33,8 +35,8 @@ abbreviation "allAllocations' N \<Omega> == injectionsUniverse \<inter>
 abbreviation "allAllocations'' N G == allocationsUniverse\<inter>{a. Domain a \<subseteq> N & \<Union> Range a = G}"
 lemma lm28: "allAllocations N G=allAllocations' N G & 
 allAllocations N G=allAllocations'' N G" using lm19 nn24 by metis
-lemma lm28b: "(a \<in> allAllocations'' N G) = (a \<in> allocationsUniverse& Domain a \<subseteq> N & \<Union> Range a = G)"
-by force
+lemma lm28b: 
+"(a \<in> allAllocations'' N G) = (a \<in> allocationsUniverse& Domain a \<subseteq> N & \<Union> Range a = G)" by force
 abbreviation "soldAllocations N \<Omega> == 
 (Outside' {seller}) ` (allAllocations (N \<union> {seller}) \<Omega>)"
 abbreviation "soldAllocations' N \<Omega> == 
@@ -174,7 +176,7 @@ soldAllocations''=soldAllocations'''" using lm37h lm28d by metis
 
 corollary lm44b: assumes "a \<in> soldAllocations N G" shows "a -- n \<in> soldAllocations (N-{n}) G"
 (* MC: being an allocation is invariant to subtracting any single bidder 
-This is the fundamental step to prove non-negativity of vcgp' *)
+This is the fundamental step to prove non-negativity of vcgp *)
 proof - 
 let ?A'=soldAllocations''' have "a \<in> ?A' N G" using assms lm28e by metis then
 have "a -- n \<in> ?A' (N-{n}) G" by (rule lm44) thus ?thesis using lm28e by metis 
@@ -210,20 +212,69 @@ by fastforce
 (* lemma lm27c: "seller \<notin> int `N" by fastforce *)
 
 abbreviation "randomBids' N \<Omega> b random==resolvingBid' (N\<union>{seller}) \<Omega> b random"
-text {* Here we are showing that our way of randomizing using randomBids' actually breaks the tie:
-we are left with a singleton after the tiebreaking step. *}
 
-(* abbreviation "vcgas N G b r  == 
-   (argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b))"
-*)
+(* abbreviation "vcgas N G b r  ==    (argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b))"*)
 
 abbreviation "vcgas N G b r  == Outside' {seller} ` 
    ((argmax\<circ>setsum) (randomBids' N G b r)
-    ((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set G))))"
+    ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))"
+abbreviation "vcga N G b r == the_elem (vcgas N G b r)"
+abbreviation "vcga' N G b r == (the_elem
+(argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b))) -- seller"
 
-theorem mm92b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
-"card (vcgas N G b r) = 1"
-(is "card ?L=_") proof -
+lemma lm001: assumes 
+"card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1" 
+shows "vcga N G b r = 
+(the_elem
+((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set G))))) -- seller"
+using assms lm012 by auto
+
+corollary lm001b: assumes 
+"card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1"
+shows "vcga N G b r = vcga' N G b r" (is "?l=?r") using assms lm001
+proof -
+have "?l=(the_elem ((argmax\<circ>setsum) (randomBids' N G b r) 
+((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set G))))) -- seller"
+using assms by (rule lm001) moreover have "... = ?r" by force ultimately show ?thesis by blast
+qed
+
+lemma mm92c: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+"card (
+(argmax\<circ>setsum) (randomBids' N G bids random)
+    ((argmax\<circ>setsum) bids (allAllocations (N\<union>{seller}) (set G))))=1" (is "card ?l=_")
+proof - 
+  let ?N="N\<union>{seller}" let ?b'="randomBids' N G bids random" let ?s=setsum let ?a=argmax let ?f="?a \<circ> ?s"
+  have 1: "?N\<noteq>{}" by auto have 4: "finite ?N" using assms(3) by simp
+  have "?a (?s ?b') (?a (?s bids) (allAllocations ?N (set G)))=
+  {chosenAllocation' ?N G bids random}" (is "?L=?R")
+  using 1 assms(1) assms(2) 4 by (rule mm92)
+  moreover have "?L= ?f ?b' (?f bids (allAllocations ?N (set G)))" by auto
+  ultimately have "?l={chosenAllocation' ?N G bids random}" by presburger
+  moreover have "card ...=1" by simp ultimately show ?thesis by presburger 
+qed
+
+lemma lm002: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+"vcga N G b r = vcga' N G b r" (is "?l=?r") using assms lm001b mm92c by blast
+
+theorem vcgaDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+"card (vcgas N G b r)=1"
+using assms mm92c lm011 (* by blast *)
+proof -
+have "card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1" 
+(is "card ?X=_") using assms mm92c by blast
+moreover have "(Outside'{seller}) ` ?X = vcgas N G b r" by blast
+ultimately show ?thesis using lm011 by blast
+qed
+
+
+text {* Here we are showing that our way of randomizing using randomBids' actually breaks the tie:
+we are left with a singleton after the tie-breaking step. *}
+
+lemma mm92b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
+"card (argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b))=1"
+(is "card ?L=_")
+(*"card (vcgas N G b r) = 1"*)
+proof -
 let ?n="{seller}" have 
 1: "(?n \<union> N)\<noteq>{}" by simp have 
 4: "finite (?n\<union>N)" using assms(3) by fast have 
@@ -234,9 +285,6 @@ qed
 
 lemma "argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b) \<subseteq> 
 maximalStrictAllocations' N (set G) b" by auto
-
-abbreviation "vcga' N G b r == (the_elem
-(argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b))) -- seller"
 
 corollary lm58: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 "the_elem
@@ -388,7 +436,7 @@ qed
 lemma "vcga' N G b r = the_elem ((argmax \<circ> setsum) (randomBids' N G b r) 
 ((argmax \<circ> setsum) b (allAllocations ({seller}\<union>N) (set G)))) -- seller" by simp
 
-abbreviation "vcgp' N G b r n ==
+abbreviation "vcgp N G b r n ==
 Max (setsum b ` (soldAllocations (N-{n}) (set G))) - (setsum b (vcga' N G b r -- n))"
 
 lemma lm63: assumes "x \<in> X" "finite X" shows "Max (f`X) >= f x" (is "?L >= ?R") using assms 
@@ -396,7 +444,7 @@ by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
 text{* The price paid by any participant is non-negative. *}
 theorem NonnegPrices: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
-"vcgp' N G (b) r n >= (0::price)" 
+"vcgp N G b r n >= (0::price)" 
 proof - 
 let ?a="vcga' N G b r" let ?A=soldAllocations let ?A'=soldAllocations''' let ?f="setsum b" 
 have "?a \<in> ?A N (set G)" using assms by (rule lm58d)
@@ -405,7 +453,7 @@ then have "?a -- n \<in> ?A (N-{n}) (set G)" using lm28e by metis
 moreover have "finite (?A (N-{n}) (set G))" 
 by (metis List.finite_set assms(3) finite.emptyI finite_Diff finite_Un finite_imageI finite_insert lm59) 
 ultimately have "Max (?f`(?A (N-{n}) (set G))) >= ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
-then have "?L - ?R >=0" by linarith thus ?thesis by fast
+then show "?L - ?R >=0" by linarith
 qed
 
 lemma lm19b: "allAllocations N G = possibleAllocationsRel N G" using assms by (metis lm19)
@@ -502,13 +550,13 @@ abbreviation "linearCompletion (bids) N G ==
 abbreviation "tiebids a N G == linearCompletion (maxbid a N G) N G"
 abbreviation "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
 abbreviation "randomBids N \<Omega> b random==resolvingBid (N\<union>{seller}) \<Omega> b random"
-definition "vcga N G b r == (the_elem
+definition "vcgaAlg N G b r == (the_elem
 (argmax (setsum (randomBids N G b r)) (maximalStrictAllocations N G b))) -- seller"
 
 abbreviation "allAllocationsComp N \<Omega> == 
 (Outside' {seller}) ` set (allStrictAllocations (N \<union> {seller}) \<Omega>)"
-definition "vcgpComp N G b r n =
-Max (setsum b ` (allAllocationsComp (N-{n}) G)) - (setsum b (vcga N G b r -- n))"
+definition "vcgpAlg N G b r n =
+Max (setsum b ` (allAllocationsComp (N-{n}) G)) - (setsum b (vcgaAlg N G b r -- n))"
 
 lemma lm01: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x" 
 by (metis assms toFunction_def)
@@ -608,8 +656,6 @@ LinearCompletion ((bidMaximizedBy a N G) Elsee 0) N G" using lm10 by metis
 corollary lm12: "LinearCompletion (maxbid' a N G) N G = LinearCompletion (maxbid a N G) N G"
 using lm11 by metis
 
-(*value "vcga (int`N00) G00 (b00 Elsee 0) 1"*)
-
 lemma lm13: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
 "linearCompletion' (maxbid' a N G) N G x = linearCompletion (maxbid a N G) N G x"
 (is "?f1 ?g1 N G x = ?f2 ?g2 N G x")
@@ -699,7 +745,7 @@ by (metis(no_types,lifting))
 
 (*MC: without passing theorem lm02 with "using", e and z3 (through sledgehammer) say this theorem is unprovable *)
 
-corollary mm92c: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
+corollary mm92e: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "1=card (argmax (setsum (randomBids N G b r)) (maximalStrictAllocations' N (set G) b))"
 using assms mm92b lm14c 
 proof -
@@ -721,7 +767,7 @@ corollary assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 "1=card (argmax (setsum (randomBids N G b r)) (maximalStrictAllocations N G b))"
 proof - 
 have "1=card (argmax (setsum (randomBids N G b r)) (maximalStrictAllocations' N (set G) b))"
-using assms by (rule mm92c)
+using assms by (rule mm92e)
 moreover have "maximalStrictAllocations' N (set G) b = maximalStrictAllocations N G b" 
 using assms(3,1) by (rule lm70e) ultimately show ?thesis by metis
 qed
@@ -736,19 +782,44 @@ Union {converse`(injections Y N)| Y. Y \<in> all_partitions G}"
 by auto
 
 lemma "allAllocations N \<Omega> = Union{{a^-1|a. a\<in>injections Y N}|Y. Y\<in>all_partitions \<Omega>}" by auto
-(*
-value "injections_alg [0::nat,1] {11::nat, 12}"
-thy_deps
-*)
-export_code vcgpComp in Scala module_name VCG file "/dev/shm/VCG.scala"
+term "(\<Sum>i\<in>X. f i)"
+term "(\<Union>i\<in>X. x i)"
+abbreviation "endowment a n == a,,,n"
+abbreviation "vcgEndowment N G b r n==endowment (vcga N G b r) n"
 
-abbreviation "f x y == ((x::real)+1)*(y+2)"
+(*abbreviation "f x y == ((x::real)+1)*(y+2)"*)
 
 abbreviation "firstPriceP N \<Omega> t (b :: altbids) i ==
 b (i, winningAllocationAlg N \<Omega> t b,, i)"
 
 lemma assumes "\<forall> X. b (n, X) \<ge> 0" shows
 "firstPriceP N Omega t b n \<ge> 0" using assms by simp
+
+(*
+value "injections_alg [0::nat,1] {11::nat, 12}"
+thy_deps
+
+theorem counterexample_lm64c: assumes "a \<in> allocationsUniverse" 
+"n1\<in> Domain a" "n2 \<in> Domain a"
+shows "a,,,n1 \<inter> a,,,n2={}" nitpick
+value "vcgaAlg (int`N00) G00 (b00 Elsee 0) 1" 
+*)
+
+definition "N00 = {1,6::nat}"
+definition "G00 = [11::nat, 12, 13]"
+definition "b00 = 
+{
+((1::nat,{11::nat}),3::nat),
+((1,{12}),0),
+((1,{11,12}),4),
+((2,{11}),2),
+((2,{12}),2),
+((2,{11,12}),1)
+}"
+term b00
+(* definition "example = vcgaAlg (int`N00) G00 (b00 Elsee 0) 1" *)
+definition ao where "ao=(%x. (if x=0 then (24::nat) else 11))"
+export_code ao b00 in Scala module_name VCG file "/dev/shm/VCG.scala"
 
 end
 

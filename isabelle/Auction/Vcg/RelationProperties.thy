@@ -426,7 +426,7 @@ proof (rule rev_finite_subset)
     then show "R \<in> Pow (X \<times> Y)" by simp
   qed
 qed
-
+(*
 text {* The paper-like definition @{const injections} and the algorithmic definition 
   @{const injections_alg} are equivalent. *}
 theorem injections_equiv:
@@ -496,7 +496,7 @@ next
   *)
   finally show ?case .
 qed
-
+*)
 lemma Image_within_domain': fixes x R shows "x \<in> Domain R = (R `` {x} \<noteq> {})" by blast
 
 end

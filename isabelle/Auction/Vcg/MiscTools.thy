@@ -143,6 +143,8 @@ corollary l38: "P +* Q = (P outside (Domain Q)) +* Q" using l38a by fast
 corollary l39: "R = (R outside {x}) \<union> ({x} \<times> (R `` {x}))" 
 using restrict_to_singleton outside_union_restrict by metis
 
+lemma lm72: "P = P \<union> {x}\<times>P``{x}" using assms by (metis l39 sup.right_idem)
+
 corollary l40: "R = (R outside {x}) +* ({x} \<times> (R `` {x}))" 
 by (metis paste_outside_restrict restrict_to_singleton)
 
@@ -814,6 +816,18 @@ lemma l4: "(Graph f) `` X = f ` X" unfolding Graph_def image_def by auto
 
 lemma lm025: assumes "X \<subseteq> Domain f" "runiq f" shows "f``X = (eval_rel f)`X"
 using assms l4 by (metis lll85 lm06 mm10 toFunction_def)
+
+lemma lm011: assumes "card A=1" shows "card (f`A)=1" using assms card_image card_image_le 
+proof -
+have "finite (f`A)" using assms 
+by (metis One_nat_def Suc_not_Zero card_infinite finite_imageI) moreover
+have "f`A \<noteq> {}" using assms by fastforce
+moreover have "card (f`A) \<le> 1" using assms card_image_le One_nat_def Suc_not_Zero card_infinite by (metis)
+ultimately show ?thesis by (metis assms image_empty image_insert nn56 the_elem_eq)
+qed
+
+lemma lm012: assumes "card A=1" shows "the_elem (f`A) = f (the_elem A)"using assms 
+image_empty image_insert the_elem_eq by (metis nn56)
 
 end
 

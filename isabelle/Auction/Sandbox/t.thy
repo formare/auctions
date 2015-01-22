@@ -1,7 +1,7 @@
 theory t
-imports Main "../Maximum"
+imports Main 
 "~~/src/HOL/Library/Code_Target_Nat"
-"../RelationProperties"
+"../Vcg/MiscTools"
 Fun
 
 begin
@@ -10,6 +10,8 @@ begin
 fun update where "update l1 l2 [] = l1"| "update l1 l2 (x#xs) = list_update (update l1 l2 xs) x (l2!x)"
 abbreviation "tolist f n == map f [0..<n]"  
 abbreviation "update2 l X f == tolist (override_on (nth l) f X) (size l)"
+text{*{@term update2} alters the entries of {@term l} having indices in {@term X} 
+by applying {@term f} to each such index. }*}
 
 type_synonym instant=nat (*CR: defining instant in case later want to change instant type*)
 type_synonym participant=nat
@@ -40,10 +42,6 @@ definition sametomyright where
 "sametomyright l = [fst x = snd x. x <- zip l (drop 1 l)]"
 (* definition "sametomyleft l = take (size l) (False # (sametomyright l))" *)
 
-definition stopauctionat where "stopauctionat l = 
-filterpositions2 (%x. (x=True)) (sametomyleft l)"
-(* MC: I reuse what introduced to calculate argmax *)
-
 definition stopauctionat2 where "stopauctionat2 f=Min (Domain ((graph UNIV (%t. f (t+1::nat))) \<inter> 
 (graph UNIV f)))"
 
@@ -52,6 +50,9 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 
 term "%x. (if (x=1) then True else False)"
 
+definition stopauctionat where "stopauctionat l = 
+filterpositions2 (%x. (x=True)) (sametomyleft l)"
+(* MC: I reuse what introduced to calculate argmax *)
 definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i::nat. i \<in> Domain B})" 
 definition "stops B = \<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B}" 
 abbreviation "duration B == Max (size ` (Range B))"
@@ -121,7 +122,7 @@ abbreviation "amendedbids (B::dynbids) == B O (graph (Range B) amendedbidlist2)"
 
 (*abbreviation "bidsattime B t == (snd o (%x. x!t))`(Range B)"*)
 abbreviation "bidsattime B (t::nat) == B O (graph (Range B) (%x::((bool\<times>nat) list). snd (x!t)))"
-definition "winner B = arg_max' (toFunction (bidsattime (amendedbids B) (stopat (amendedbids B))))
+definition "winner B = argmax (toFunction (bidsattime (amendedbids B) (stopat (amendedbids B))))
 (Domain (bidsattime (amendedbids B) (stopat (amendedbids B))))"
 
 value "amendedbids example03"

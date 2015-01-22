@@ -800,18 +800,5 @@ notation toFunctionWithFallback2 (infix "Elsee" 75) (* MC: This is computable, `
 
 section {* Combinatorial auction input examples *}
 
-abbreviation "N00 == {1,2::nat}"
-abbreviation "G00 == [11::nat, 12, 13]"
-abbreviation "A00 == {(0,{10,11::nat}), (1,{12,13})}"
-abbreviation "b00 == 
-{
-((1::int,{11}),3),
-((1,{12}),0),
-((1,{11,12::nat}),4::price),
-((2,{11}),2),
-((2,{12}),2),
-((2,{11,12}),1)
-}"
-
 end
 

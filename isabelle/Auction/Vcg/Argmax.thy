@@ -88,13 +88,13 @@ lemma map_commutes_a: "[f n . n <- [], Q (f n)] = [x <- (map f []). Q x]" by sim
 lemma map_commutes_b: "\<forall> x xs. ([f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]
 \<longrightarrow> [f n . n <- (x#xs), Q (f n)] = [x <- (map f (x#xs)). Q x])" using assms by simp
 
-lemma myStructInduct: assumes "P []" "\<forall>x xs. P (xs) \<longrightarrow> P (x#xs)" shows "P l" 
+lemma structInduct: assumes "P []" and "\<forall>x xs. P (xs) \<longrightarrow> P (x#xs)" shows "P l" 
 using assms list_nonempty_induct by (metis)
 
 (* MC: map_commutes, filterpositions are fairly general and should be moved elsewhere *)
 lemma map_commutes: fixes f::"'a => 'b" fixes Q::"'b => bool" fixes xs::"'a list" 
 shows "[f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]"
-using map_commutes_a map_commutes_b myStructInduct by fast
+using map_commutes_a map_commutes_b structInduct by fast
 
 lemma ll9: fixes f l shows "maxpositions (map f l) =
 [n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]" (is "maxpositions (?fl) = _")
