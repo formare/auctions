@@ -282,11 +282,15 @@ public class List {
                 || l.getHead() != l.getTail().getHead());
     }
 
-    public static List addToList(List l) {
+    public static int giveValue(int i) {
         Scanner s = new Scanner(System.in);
+        return s.nextInt();
+    }
+
+    public static List addToList(List l) {
         int value;
         if (alive(l)) {
-            value = s.nextInt();
+            value = giveValue(length(l));
             l = cons(value, l);
             System.out.println("l: " + l);
             return addToList(l);
