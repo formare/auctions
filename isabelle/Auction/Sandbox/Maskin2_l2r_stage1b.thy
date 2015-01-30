@@ -17,9 +17,8 @@ imports
 (* Equiv_Relations 
   SetUtils
   Partitions
-*)
-  "../RelationProperties" 
-  "../RelationMisc"
+*)   
+  "../Maskin2-3/RelationQuotient"
   
 
  (* SupInf SEQ *) Real
@@ -123,7 +122,9 @@ proof - (* see LaTeX *)
     15: "b \<in> Domain a & b \<in> Domain p" 
     using 1 assms(1) by blast
   have 
-    17: "?RH=p``{b}" by (metis (hide_lams, no_types) Image_outside_domain `runiq p` all_not_in_conv disjoint_iff_not_equal l5 runiq_def subsetI subset_singletonD the_elem_eq trivial_def)
+    17: "?RH=p``{b}" 
+    using  assms(3) l5 runiq_def subsetI subset_singletonD the_elem_eq trivial_def    
+by (metis (no_types, hide_lams) Image_empty)
     {
       fix pp assume "pp \<in> ?LH" then obtain bb where
       10: "(bb, pp) \<in> p & bb \<in> ?E``{b}" using Image_def by blast
@@ -266,7 +267,7 @@ proof -
   also have "... \<subseteq> p `` (?IE `` {?E ,, b})" using 0 by (metis (hide_lams, no_types) Image_runiq_eq_eval subset_refl)
   also have "... = (?IE O p) `` {?E,,b}" by fast
   ultimately have "p``{b} \<subseteq> (?IE O p)``{?E,,b} & ?t ((?IE O p)``{?E,,b})"
-  using 2 runiq_def by (metis (hide_lams, no_types) l32)
+  using 2 by (metis (hide_lams, no_types) l32)
   then also have "p``{b} \<supseteq> (?IE O p)``{?E,,b}" using 0 trivial_def by (metis (hide_lams, no_types) equals0D subsetI subset_singletonD)
   ultimately have "p``{b} = (?IE O p)``{?E,,b}" by fastforce
   moreover have "...= (?P O ((?p Id)^-1)) ``{?E,,b}" using 1 by force
@@ -344,10 +345,6 @@ off the braces from a singleton: {x} \<longmapsto> x *)
 (* Old def: "reducedprice p i a = ((reducedbid i a)^-1) O (Quotientbid i a) O 
 (quotient p (quotientbid i a) (Graph id)) O (Graph the_elem)" *)
 
-
-term "p,,b = (reducedprice p i a) ,, (reducedbid i a,,b)"
-
-
 lemma shows "reducedprice p i a = 
 (projector ((reducedbid i a)^-1)) O (quotient p (Kernel (reducedbid i a)) Id) O ((projector Id)^-1)" 
 using assms reducedprice_def quotientbid_def by simp
@@ -370,68 +367,6 @@ definition dom1
 (* ::"_ => _ => _ => valuation => _" *)
 where "dom1 i a p v = 
 (\<forall> b. v (a,,b) - p,,b \<le> v (a,,(b+*({i}\<times>{v}))) - p,,(b+*({i}\<times>{v})))"
-
-
-
-(*
-definition dom0
-(* ::"participant => (bid \<times> allocation) set => (bid \<times> price) set => bool" *)
-where "dom0 i a p = 
-( \<forall> b::bid .\<forall> y. 
-({b, b+*({i}\<times>{y})} \<subseteq> (Domain a \<inter> (Domain p)) & i \<in> Domain b) \<longrightarrow> 
-(EX v.(v (a,, b))-(p,, b) \<le> v (a,, (b+* ({i}\<times>{y}))) - (p,, (b+* ({i}\<times>{y})))
-))"
-
-lemma assumes "dom0 i a p" "functional (Domain a \<inter> (Domain p))" 
-shows "weakdom i a p"
-proof -
-  let ?d=Domain let ?w=weakdom let ?I="{i}" let ?t=trivial let ?u=runiq
-  {
-    fix b fix Y::"valuation set" let ?y="the_elem Y" let ?s="?I \<times> Y" let ?bi="b +* ?s"
-    assume 
-    0: "Y \<noteq> {} & {b, ?bi} \<subseteq> (?d a \<inter> (?d p)) & i \<in> ?d b"
-    then have "?u ?bi" using assms functional_def by blast
-    moreover have "Y = ?s``?I & ?d ?s=?I" using 0 by fast
-    then moreover have "?s``?I = ?bi `` ?I" using assms ll50 by (metis Int_absorb)
-    ultimately have "?t Y" by (metis runiq_alt)
-    hence 
-    2: "Y={?y}" using 0 by (metis subset_singletonD trivial_def)
-    then obtain y where 
-    1: "(y (a,, b))-(p,, b) \<le> y (a,, (b+* ({i}\<times>{?y}))) - (p,, (b+* ({i}\<times>{?y})))"
-    using assms 0 dom0_def by metis
-    have "EX y.(y (a,, b))-(p,, b) \<le> y (a,, (b+* ({i}\<times>Y))) - (p,, (b+* ({i}\<times>Y)))"
-    using 1 2 by fastforce
-  }
-  then have "?w i a p" using weakdom_def by metis
-  thus ?thesis by fast
-qed
-
-lemma assumes "! v.(dom1 i a p v)" shows "dom0 i a p"
-proof -
-  let ?d=Domain let ?r=Range
-  {
-    fix b fix y::valuation let ?s="{i}\<times>{y}" let ?bi="b +* ?s" 
-    assume "{b,?bi} \<subseteq> (?d a \<inter> (?d p)) & i \<in> ?d b"
-    have "(y (a,, b))-(p,, b) \<le> y (a,, (b+* ({i}\<times>{y}))) - (p,, (b+* ({i}\<times>{y})))"
-    using assms dom1_def by fast
-    then have "EX v. (v (a,, b))-(p,, b) \<le> v (a,, (b+* ({i}\<times>{y}))) - (p,, (b+* ({i}\<times>{y})))"
-    by blast
-  }
-  thus ?thesis using dom0_def by blast
-qed 
- 
-definition dom2 where "dom2 i a p = 
-(EX f::(price set => allocation => price). \<forall> b::bid. \<forall> Y. ({b, b+*({i}\<times>Y)} \<subseteq> (Domain a \<inter> (Domain p)) & i \<in> Domain b
-\<longrightarrow>
-(f Y (a,, b))-(p,, b) \<le> (f Y (a,, (b+* ({i}\<times>Y)))) - (p,, (b+* ({i}\<times>Y)))))"
-(* Stronger than above: we require that the function to obtain y 
-is independent of b and Y *)
-
-definition dom3 where "dom3 i a p = (
-\<forall> b::bid. \<forall> Y. {b, b +* ({i} \<times> Y)} \<subseteq> (Domain a \<inter> (Domain p)) & i \<in> Domain b \<longrightarrow>(
-the_elem Y*(a,, b) - (p,, b)) \<le> 
-the_elem Y*(a,, (b+* ({i} \<times> Y))) - (p,, (b+* ({i}\<times>Y))))"
-*)
 
 end
 

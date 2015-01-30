@@ -26,10 +26,10 @@ begin
 
 section {* Types *}
 
-type_synonym index = "nat"
+type_synonym index = "integer"
 type_synonym participant = index
 type_synonym good = nat
-type_synonym goods = "nat set" (* CL: actually we'd prefer "'a set", as we really don't care about the type *)
+type_synonym goods = "good set" (* CL: actually we'd prefer "'a set", as we really don't care about the type *)
 type_synonym price = real
 
 (*
@@ -179,7 +179,7 @@ abbreviation "linearCompletion' bids N G == toFunction (LinearCompletion bids N 
 abbreviation "tiebids' a N G == linearCompletion' (maxbid' a N G) N G"
 abbreviation "Tiebids a N G == LinearCompletion (real\<circ>maxbid' a N G) N G"
 abbreviation "chosenAllocation' N G bids random == 
-hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg3 N G)) random)"
+hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg3 N G)) (nat_of_integer random))"
 abbreviation "resolvingBid' N G bids random == tiebids' (chosenAllocation' N G bids random) N (set G)"
 
 end

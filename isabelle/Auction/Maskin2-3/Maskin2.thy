@@ -7,7 +7,7 @@ Maskin2_l2r_stage2
 
 begin
 
-abbreviation intersectioncondition where "intersectioncondition a w (a1::allocation) a2 i == 
+abbreviation intersectioncondition where "intersectioncondition a w (a1::('a::linorder)) a2 i == 
 (a1<=a2 & Range a \<subseteq> {a1, a2} & (\<forall> b\<in>Domain a. (b,,i>w(b--i) \<longrightarrow> a,,b=a2) & (b,,i<w(b--i) \<longrightarrow> a,,b=a1)))"
 
 lemma lll96: assumes "intersectioncondition a w a1 a2 i" 

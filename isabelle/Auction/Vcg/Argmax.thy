@@ -26,11 +26,11 @@ text {* the subset of elements of a set where a function reaches its maximum *}
 fun argmax :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
 where "argmax f A = { x \<in> A . f x = Max (f ` A) }"
 
-lemma mm79: "argmax f A = A \<inter> f -` {Max (f ` A)}" by force
-lemma mm86b: assumes "y \<in> f`A" shows "A \<inter> f -` {y} \<noteq> {}" using assms by blast
+lemma lm79: "argmax f A = A \<inter> f -` {Max (f ` A)}" by force
+lemma lm86b: assumes "y \<in> f`A" shows "A \<inter> f -` {y} \<noteq> {}" using assms by blast
 text {* The arg max of a function over a non-empty set is non-empty. *}
 corollary argmax_non_empty_iff: assumes "finite X" "X \<noteq> {}" shows "argmax f X \<noteq>{}"
-using assms Max_in finite_imageI image_is_empty mm79 mm86b by (metis(no_types))
+using assms Max_in finite_imageI image_is_empty lm79 lm86b by (metis(no_types))
 
 (* MC: Yet another approach below, focusing on reusing stuff (Max, zip, map, filter) 
 rather than doing our own recursion to calculate argmaxList *)
@@ -51,14 +51,14 @@ definition filterpositions2
 :: "('a => bool) => 'a list => nat list"
 where "filterpositions2 P l = [n. n \<leftarrow> [0..<size l], P (l!n)]"
 
-definition maxpositions :: "'a::linorder list => nat list" where
+definition maxpositions (*:: "'a::linorder list => nat list"*) where
 "maxpositions l = filterpositions2 (%x . x \<ge> Max (set l)) l"
 
 lemma ll5: "maxpositions l = [n. n\<leftarrow>[0..<size l], l!n \<ge> Max(set l)]" 
 using assms unfolding maxpositions_def filterpositions2_def by fastforce
 
 definition argmaxList
-:: "('a => ('b::linorder)) => 'a list => 'a list"
+(*:: "('a => ('b::linorder)) => 'a list => 'a list"*)
 where "argmaxList f l = map (nth l) (maxpositions (map f l))"
 
 lemma "[n . n <- [0..<m], (n \<in> set [0..<m] & P n)] 
@@ -117,10 +117,10 @@ qed
 lemma ll11: fixes f l shows "argmaxList f l = [ l!n . n <- [0..<size l], f (l!n) \<ge> Max (f`(set l))]"
 unfolding ll9 argmaxList_def by (metis ll10)
 
+text{* RHS of thesis should formally reassure about what @{term argmaxList} does.
+It was not directly used as a definition of the latter (both appear 
+to be computable) because @{term filterpositions2} has independent, more general interest. *}
 theorem argmaxadequacy: 
-(* MC: RHS of thesis should formally reassure about what argmaxList does.
-I didn't use it directly as a definition of the latter (both appear 
-to be computable) because I find filterpositions of independent interest*)
 fixes f::"'a => ('b::linorder)" fixes l::"'a list" shows 
 "argmaxList f l = [ x <- l. f x \<ge> Max (f`(set l))]" (is "?lh=_")
 proof -

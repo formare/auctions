@@ -222,7 +222,7 @@ qed
 
 
 section {* injectivity *}
-
+(*
 text {* A relation @{term R} is injective on its domain iff any two domain elements having the same image
   are equal.  This definition on its own is of limited utility, as it does not assume that @{term R}
   is a function, i.e.\ right-unique. *}
@@ -253,11 +253,11 @@ proof -
   }
   then show ?thesis unfolding injective_def by blast
 qed
-
+*)
 text {* the set of all injective functions from @{term X} to @{term Y}. *}
 definition injections :: "'a set \<Rightarrow> 'b set \<Rightarrow> ('a \<times> 'b) set set"
 where "injections X Y = {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
-
+(*
 text {* introduction rule that establishes the injectivity of a relation *}
 lemma injectionsI:
   fixes R::"('a \<times> 'b) set"
@@ -295,7 +295,7 @@ proof -
   moreover have "set (sorted_list_of_set (Y - Range R)) = Y - Range R" using assms by simp
   ultimately show ?thesis unfolding sup_rels_from_def by simp
 qed
-
+*)
 text {* the list of all injective functions (represented as relations) from one set 
   (represented as a list) to another set *}
 fun injections_alg :: "'a list \<Rightarrow> 'b\<Colon>linorder set \<Rightarrow> ('a \<times> 'b) set list"
@@ -304,7 +304,7 @@ where "injections_alg [] Y = [{}]" |
       . R \<leftarrow> injections_alg xs Y ]"
 (* We need this as a list in order to be able to iterate over it.  It would be easy to provide 
    an alternative of type ('a \<times> 'b) set set, by using \<Union> and set comprehension. *)
-
+(*
 text {* the set-theoretic variant of the recursive rule of @{const injections_alg} *}
 lemma injections_paste:
   assumes new: "x \<notin> A"
@@ -426,7 +426,7 @@ proof (rule rev_finite_subset)
     then show "R \<in> Pow (X \<times> Y)" by simp
   qed
 qed
-(*
+
 text {* The paper-like definition @{const injections} and the algorithmic definition 
   @{const injections_alg} are equivalent. *}
 theorem injections_equiv:

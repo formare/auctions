@@ -13,7 +13,7 @@ See LICENSE file for details
 
 theory d1
 
-imports "../Maskin2" (* SupInf SEQ*) Limits 
+imports "../Vcg/MiscTools" (* SupInf SEQ*) Limits 
 
 begin
 

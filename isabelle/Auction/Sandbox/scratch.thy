@@ -1,8 +1,9 @@
 theory scratch
 
-imports Main
+imports "../Maskin2-3/Maskin2"
 
 begin
-help
+term weakdom
+term dom4
 end
 

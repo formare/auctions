@@ -29,7 +29,7 @@ begin
 
 type_synonym price = real
 type_synonym participant = nat
-type_synonym good = nat
+(* type_synonym good = nat *)
 
 type_synonym allocation = real
 type_synonym bid = "(participant \<times> price) set"
@@ -57,7 +57,7 @@ to tackle that, so for the moment let's stick to \<rat>, \<real>. *)
 definition weakdom
 (* ::"participant => (bid \<times> allocation) set => (bid \<times> price) set => bool" *)
 where "weakdom i a p = 
-( \<forall> b::bid .\<forall> Y. 
+( \<forall> b .\<forall> Y. 
 (Y \<noteq> {} & {b, b+*({i}\<times>Y)} \<subseteq> (Domain a \<inter> (Domain p)) & i \<in> Domain b) \<longrightarrow> 
 (EX y.(y (a,, b))-(p,, b) \<le> y (a,, (b+* ({i}\<times>Y))) - (p,, (b+* ({i}\<times>Y)))
 ))"

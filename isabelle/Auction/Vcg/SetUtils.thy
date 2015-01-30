@@ -36,30 +36,6 @@ lemma trivial_empty: "trivial {}" unfolding trivial_def by (rule empty_subsetI)
 text {* A singleton set is trivial. *}
 lemma trivial_singleton: "trivial {x}" unfolding trivial_def by simp
 
-text {* If there are no two different elements in a set, it is trivial. *}
-lemma no_distinct_imp_trivial:
-  assumes "\<forall> x y . x \<in> X \<and> y \<in> X \<longrightarrow> x = y"
-  shows "trivial X"
-(* CL: The following takes 81 ms in Isabelle2013-1-RC1:
-   by (metis assms ex_in_conv insertI1 subsetI subset_singletonD trivial_def trivial_singleton) *)
-unfolding trivial_def
-proof 
-  fix x::'a
-  assume x_in_X: "x \<in> X"
-  with assms have uniq: "\<forall> y \<in> X . x = y" by force
-  have "X = {x}"
-  proof (rule equalitySubsetI)
-    fix x'::'a
-    assume "x' \<in> X"
-    with uniq show "x' \<in> {x}" by simp
-  next
-    fix x'::'a
-    assume "x' \<in> {x}"
-    with x_in_X show "x' \<in> X" by simp
-  qed
-  then show "x \<in> {the_elem X}" by simp
-qed
-
 text {* If a trivial set has a singleton subset, the latter is unique. *}
 lemma singleton_sub_trivial_uniq:
   fixes x X
@@ -127,15 +103,6 @@ unfolding trivial_def using trivial_def assms by (metis card_cartesian_product l
 
 lemma lm001: "trivial (A \<times> B)=(finite (A\<times>B) & card A * (card B) \<le> 1)" using lm001a lm001b by blast
 
-lemma lm01: "trivial X = (\<forall>x1 \<in> X. \<forall>x2 \<in> X. x1=x2)" unfolding trivial_def using trivial_def 
-by (metis no_distinct_imp_trivial trivial_imp_no_distinct)
-
-lemma lm009a: assumes "(Pow X \<subseteq> {{},X})" shows "trivial X" unfolding lm01 using assms by auto
-
-lemma lm009b: assumes "trivial X" shows "(Pow X \<subseteq> {{},X})" using assms lm01 by fast
-
-lemma lm009: "trivial X = (Pow X \<subseteq> {{},X})" using lm009a lm009b by metis
-
 lemma lm007: "trivial X = (X={} \<or> X={the_elem X})" 
 by (metis subset_singletonD trivial_def trivial_empty trivial_singleton)
 
@@ -143,6 +110,53 @@ lemma ll40: assumes "trivial X" "trivial Y" shows "trivial (X \<times> Y)"
 using assms lm001 One_nat_def Sigma_empty1 Sigma_empty2 card_empty card_insert_if finite_SigmaI 
 lm54 nat_1_eq_mult_iff order_refl subset_singletonD trivial_def trivial_empty
 by (metis (full_types))
+
+
+
+
+
+
+(*
+text {* If there are no two different elements in a set, it is trivial. *}
+lemma no_distinct_imp_trivial:
+  assumes "\<forall> x y . x \<in> X \<and> y \<in> X \<longrightarrow> x = y"
+  shows "trivial X"
+(* CL: The following takes 81 ms in Isabelle2013-1-RC1:
+   by (metis assms ex_in_conv insertI1 subsetI subset_singletonD trivial_def trivial_singleton) *)
+unfolding trivial_def
+proof 
+  fix x::'a
+  assume x_in_X: "x \<in> X"
+  with assms have uniq: "\<forall> y \<in> X . x = y" by force
+  have "X = {x}"
+  proof (rule equalitySubsetI)
+    fix x'::'a
+    assume "x' \<in> X"
+    with uniq show "x' \<in> {x}" by simp
+  next
+    fix x'::'a
+    assume "x' \<in> {x}"
+    with x_in_X show "x' \<in> X" by simp
+  qed
+  then show "x \<in> {the_elem X}" by simp
+qed
+*)
+
+lemma lm01: "trivial X = (\<forall>x1 \<in> X. \<forall>x2 \<in> X. x1=x2)" using trivial_def trivial_imp_no_distinct 
+ex_in_conv insertCI subsetI subset_singletonD trivial_singleton by (metis (no_types, hide_lams))
+
+(*Set.set_insert ex_in_conv subset_eq subset_insertI the_elem_eq
+by (smt2 insertCI lm007 order_refl singletonD subsetCE subsetI subset_empty subset_insertI2 subset_singletonD trivial_singleton)
+sledgehammer min [spass] (DiffE all_not_in_conv empty_subsetI insert_subset lm007 order_refl singletonD subset_insert_iff trivial_singleton trivial_subset ex_in_conv trivial_def trivial_imp_no_distinct)
+by (metis DiffE insert_subset order_refl subset_insert_iff trivial_singleton trivial_subset)
+(* no_distinct_imp_trivial *)
+*)
+
+lemma lm009a: assumes "(Pow X \<subseteq> {{},X})" shows "trivial X" unfolding lm01 using assms by auto
+
+lemma lm009b: assumes "trivial X" shows "(Pow X \<subseteq> {{},X})" using assms lm01 by fast
+
+lemma lm009: "trivial X = (Pow X \<subseteq> {{},X})" using lm009a lm009b by metis
 
 lemma lm002: "({x} \<times> UNIV) \<inter> P = {x} \<times> (P `` {x})" by fast
 
