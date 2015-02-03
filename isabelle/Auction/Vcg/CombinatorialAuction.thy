@@ -261,7 +261,7 @@ theorem vcgaDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" sh
 using assms lm92c lm011 (* by blast: MC made explicit to paper-comment it *)
 proof -
 have "card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1" 
-(is "card ?X=_") using assms lm92c by blast
+(is "card ?X=_") using assms by (rule lm92c)
 moreover have "(Outside'{seller}) ` ?X = vcgas N G b r" by blast
 ultimately show ?thesis using lm011 by blast
 qed
