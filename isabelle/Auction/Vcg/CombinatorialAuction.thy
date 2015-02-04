@@ -261,7 +261,7 @@ theorem vcgaDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" sh
 using assms lm92c lm011 (* by blast: MC made explicit to paper-comment it *)
 proof -
 have "card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1" 
-(is "card ?X=_") using assms by (rule lm92c)
+(is "card ?X=_") using assms lm92c by blast
 moreover have "(Outside'{seller}) ` ?X = vcgas N G b r" by blast
 ultimately show ?thesis using lm011 by blast
 qed
@@ -528,16 +528,15 @@ lemma assumes "runiq f" and "x \<in> Domain f" shows "(f ,, x) \<in> Range f" us
 by (rule eval_runiq_in_Range)
 
 text {* Nothing outside the set of goods is allocated. *}
-theorem OnlyGoodsAllocated: assumes "distinct G" "set G \<noteq> {}" "finite N" "g \<in> (vcga' N G b r),,,n" 
-shows "g \<in> set G" 
+theorem OnlyGoodsAllocated: assumes "distinct G" "set G \<noteq> {}" "finite N" "g \<in> (vcga N G b r),,,n" 
+shows "g \<in> set G"
 proof - 
-let ?a="vcga' N G b r" 
-have "?a \<in> allocationsUniverse" using assms(1,2,3) lm58e by blast
+let ?a="vcga' N G b r" have "?a \<in> allocationsUniverse" using assms(1,2,3) lm58e by blast
 then have "runiq ?a" using assms(1,2,3) by blast
-moreover have "n \<in> Domain ?a" using assms(4) eval_rel_def by fast
+moreover have "n \<in> Domain ?a" using assms eval_rel_def lm002 by fast
 ultimately moreover have "?a,,n \<in> Range ?a" using eval_runiq_in_Range by fast 
 ultimately have "?a,,,n \<in> Range ?a" using lll82 by fastforce
-then have "g \<in> \<Union> Range ?a" using assms by blast 
+then have "g \<in> \<Union> Range ?a" using assms lm002 by blast 
 moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) lm58e by fast
 ultimately show ?thesis by blast
 qed

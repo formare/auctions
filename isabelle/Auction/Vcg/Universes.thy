@@ -353,7 +353,7 @@ proof -
     have "?r ?a1 \<noteq> {} & ?r ?a2 \<noteq> {}" using 0 by auto
     moreover have "?r ?a1 \<subseteq> a``(?d ?a1)" using assms by blast
     moreover have "?Yi \<inter> (a``(?d a - ?Xi)) = {}" using assms 0 1 
-    Diff_disjoint MiscTools.lm41 by metis    
+    Diff_disjoint MiscTools.lm41 by metis
     ultimately moreover have "?r ?a1 \<inter> ?Yi = {} & ?Yi \<noteq> {}" by blast
     ultimately moreover have "?p {?r ?a1, ?Yi}" unfolding is_partition_def using  
 IntI Int_commute empty_iff insert_iff subsetI subset_empty by metis
@@ -858,8 +858,7 @@ theorem injections_equiv: assumes "finite Y" and "distinct X" shows
 "set (injections_alg X Y)=injections (set X) Y"
 proof -
 let ?P="\<lambda> l. (distinct l \<longrightarrow> (set (injections_alg l Y)=injections (set l) Y))"
-have "?P []" 
-using Universes.lm02 list.set(1) by (metis lm44b)
+have "?P []" using Universes.lm02 list.set(1) lm44b by (metis)
 moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms(1) lm86b by (metis distinct.simps(2) list.simps(15))
 ultimately have "?P X" by (rule structInduct)
 then show ?thesis using assms(2) by blast
