@@ -858,7 +858,7 @@ theorem injections_equiv: assumes "finite Y" and "distinct X" shows
 "set (injections_alg X Y)=injections (set X) Y"
 proof -
 let ?P="\<lambda> l. (distinct l \<longrightarrow> (set (injections_alg l Y)=injections (set l) Y))"
-have "?P []" using Universes.lm02 list.set(1) lm44b by (metis)
+have "?P []" using lm02 list.set(1) lm44b by (metis)
 moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms(1) lm86b by (metis distinct.simps(2) list.simps(15))
 ultimately have "?P X" by (rule structInduct)
 then show ?thesis using assms(2) by blast
