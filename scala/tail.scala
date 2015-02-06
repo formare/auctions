@@ -126,7 +126,7 @@ def main(args: Array[String]) {
 
 
 def untrustedInput(n:List[BigInt]) : List[BigInt] = {
-	val x=readInt; //NB: We trust the user inputs an integer, here! This is a naive but simple approach
+	val x=readInt; //NB: We rely on the user typing an integer, here! This is a naive but simple approach.
 	return (x::n);
 }
 

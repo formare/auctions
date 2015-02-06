@@ -1,9 +1,9 @@
 theory scratch
 
-imports "../Maskin2-3/Maskin2"
+imports export
 
 begin
-term weakdom
-term dom4
+lemma "\<exists>! x. x=vcga N G b r" 
+
 end
 

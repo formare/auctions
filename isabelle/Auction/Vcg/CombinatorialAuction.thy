@@ -266,6 +266,8 @@ moreover have "(Outside'{seller}) ` ?X = vcgas N G b r" by blast
 ultimately show ?thesis using lm011 by blast
 qed
 
+theorem vcgpDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+"\<exists>! y. vcgap N G b r n=y" using assms vcgaDefiniteness by simp
 
 text {* Here we are showing that our way of randomizing using randomBids' actually breaks the tie:
 we are left with a singleton after the tie-breaking step. *}
