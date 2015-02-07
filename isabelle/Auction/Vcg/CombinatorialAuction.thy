@@ -447,6 +447,9 @@ Max (setsum b ` (soldAllocations (N-{n}) (set G))) - (setsum b (vcga N G b r -- 
 lemma lm63: assumes "x \<in> X" "finite X" shows "Max (f`X) >= f x" (is "?L >= ?R") using assms 
 by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
+lemma lm59: assumes "finite N" "finite G" shows "finite (soldAllocations N G)" using assms lm59
+finite.emptyI finite.insertI finite_UnI finite_imageI by metis
+
 text{* The price paid by any participant is non-negative. *}
 theorem NonnegPrices: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "vcgp N G b r n >= (0::price)" 
@@ -454,9 +457,8 @@ proof -
 let ?a="vcga N G b r" let ?A=soldAllocations let ?f="setsum b" 
 have "?a \<in> ?A N (set G)" using assms by (rule lm58f)
 then have "?a -- n \<in> ?A (N-{n}) (set G)" by (rule lm44b)
-moreover have "finite (?A (N-{n}) (set G))" 
-by (metis List.finite_set assms(3) finite.emptyI finite_Diff finite_Un finite_imageI finite_insert lm59) 
-ultimately have "Max (?f`(?A (N-{n}) (set G))) >= ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
+moreover have "finite (?A (N-{n}) (set G))" using assms(3) lm59 finite_set finite_Diff by blast
+ultimately have "Max (?f`(?A (N-{n}) (set G))) \<ge> ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
 then show "?L - ?R >=0" by linarith
 qed
 
@@ -799,7 +801,7 @@ abbreviation "firstPriceP N \<Omega> b r n ==
 b (n, winningAllocationAlg N \<Omega> r b,, n)"
 
 lemma assumes "\<forall> X. b (n, X) \<ge> 0" shows
-"firstPriceP N \<Omega> b r n \<ge> 0" using assms by simp
+"firstPriceP N \<Omega> b r n \<ge> 0" using assms by blast
 
 (*
 value "injections_alg [0::nat,1] {11::nat, 12}"

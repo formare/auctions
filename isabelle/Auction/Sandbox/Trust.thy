@@ -8,8 +8,8 @@ t
  "~~/src/HOL/ex/Iff_Oracle"
 "~~/src/HOL/Library/Float"
  *)
- "~/afp/Coinductive/Coinductive_List"
- "~/afp/Show/Show_Instances"
+"~/afp/Coinductive/Coinductive_List"
+"~/afp/Show/Show_Instances"
 Predicate
 
 "~~/src/HOL/Library/Code_Target_Nat" 
@@ -20,20 +20,16 @@ Predicate
 "~~/src/HOL/Library/Code_Char"
 
 begin
-term stopat
-term alive
 
-abbreviation "currentRound l == (size l - (2::nat)) div (l!0)" (* the first round has label 0 *)
-abbreviation "nextRound l == (size l - (1::nat)) div (l!0)"
 abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)" (* the first bidder has label 0 *)
 abbreviation "nextBidder l == (size l - (1::nat)) mod (l!0)"
-
+abbreviation "currentRound l == (size l - (2::nat)) div (l!0)" (* the first round has label 0 *)
+abbreviation "roundForNextBidder l == (size l - (1::nat)) div (l!0)"
 abbreviation "E01 == [3::nat, 1, 2, 3, 4, 5, 6, 7, 8, 9, 7, 8, 9, 10 ,10, 10, 10, 10, 10, 11, 10]"
 
 abbreviation "pickParticipantBids l i == sublist l
 (((op +) (Suc i))`(((op *) (l!0))`{0..(currentRound l)}))"
 abbreviation "pickRoundBids l i == sublist l {Suc(i*(l!0))..(Suc i)*(l!0)}"
-value "pickRoundBids E01 (currentRound E01)"
 abbreviation "listToGraph l == graph {0..<size l} (nth l)"
 abbreviation "listToBidMatrix (l::nat list)==
 listToGraph 
@@ -44,13 +40,13 @@ map (\<lambda>i. zip (replicate ((currentRound l)+1) True) (pickParticipantBids 
 
 lemma assumes "Suc n<size l" shows "(l!n = l!(Suc n)) = (sametomyleft l)!(Suc n)" 
 using assms unfolding sametomyleft_def by fastforce
-value "stopat (listToBidMatrix E01)"
-value "wdp (listToBidMatrix [3,1,3,5,1,21,2222,44,100,0])"
-value "livelinessList (listToBidMatrix E01)"
+
+value "listToBidMatrix E01"
+
 definition "message l = ''Current winner: '' @ 
 (Show.show (maxpositions (pickRoundBids l (currentRound l)))) @ 
 ''Liveliness: '' @ Show.show(livelinessList (listToBidMatrix l)) @ ''\<newline>'' @ 
-''Next, input bid for round ''@Show.show(nextRound l)@'', participant ''@(Show.show(nextBidder l))"
+''Next, input bid for round ''@Show.show(roundForNextBidder l)@'', participant ''@(Show.show(nextBidder l))"
 (*
 value "int_of_string ''123''"
 definition trusted where "trusted (output::(String.literal => _)) (input::(integer  => _)) = 
@@ -77,14 +73,13 @@ definition "evaluateMe (input::(String.literal list => String.literal list))
 iterates (output o (%x. (x,String.implode (concat (map String.explode x)))) o input) [])"
 *)
 
-find_consts "'a list => 'a list"
-
 definition "evaluateMe (input::(integer list => integer list)) 
 (output::(integer list \<times> String.literal => integer list))
 = (output ([], String.implode ''Starting\<newline>Input the number of bidders:''), 
 iterates (output o 
-(%x. (x,String.implode(message (map nat_of_integer x)))) 
-o (%l. (tl l) @ [hd l]) o input) [])"
+(%x. (x,String.implode(message (map nat_of_integer x)))) o (%l. (tl l) @ [hd l]) 
+o input) [])"
+
 (*
 definition "evaluateMe (input::(integer list => integer list)) 
 (output::(integer list \<times> String.literal => integer list))
@@ -132,8 +127,7 @@ We could momentarily choose to directly use Scala integers as input/output,
 which is less robust/flexible/elegant but simpler.
 *)
 
-export_code fst snd evaluateMe in Scala module_name a file "/dev/shm/runme.scala"
-value "Show.show (143::rat)"
-
+export_code fst snd evaluateMe in Scala module_name a file "/dev/shm/a.scala"
+term liveliness
 end
 

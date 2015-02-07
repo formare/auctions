@@ -2,7 +2,6 @@ theory t
 imports Main 
 "~~/src/HOL/Library/Code_Target_Nat"
 "../Vcg/MiscTools"
-Fun
 
 begin
 
@@ -89,10 +88,6 @@ abbreviation "MM == addSingleBid M 1 0"
 abbreviation "MMM == addSingleBid MM 0 0"
 abbreviation "MMMM == addSingleBid MMM 1 0"
 value "livelinessList MM"
-value "rotate 1 [1,2,3::nat]"
-value "sublist [1,2,3::nat] {0,2}"
-value "List.find (%x::nat. x=1) [1,2,1::nat]"
-value "sorted [1, 1::nat, 3, 3, 678]"
 
 definition "(n::nat) = (card bidMatrix)"
 definition "example=alive bidMatrix n"
@@ -131,7 +126,6 @@ value "stopat (amendedbids example03)"
 value "snd (nth (amendedbids example03,,20) 6)"
 value "(% x. x!6)` ( Range (amendedbids example03))"
 value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
-term "bidsattime"
 value "stopat (amendedbids MMMM)"
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
@@ -175,7 +169,6 @@ definition "b1 matrix=
 (Max ((bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat)))^-1 `` 
 {Max (Range (bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))))}))"
 
-value MMMM
 value "a1 MMMM"
 value "(a1 MMMM),,(b1 MMMM)"
 value "{(0, 0), (0, 0), (1, 0), (1, 0)},, (b1 MMMM)"
