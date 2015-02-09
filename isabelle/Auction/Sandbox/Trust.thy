@@ -166,6 +166,13 @@ assms lm02 length_tl nth_tl atLeastLessThan_iff diff_zero monoid_add_class.add.l
 nth_map_upt by (metis (erased, lifting))
 abbreviation "firstInvalidBidIndex step l == 
 1 + hd (filterpositions2 (%x. x<step) (deltaBids (*step*) l)@[size l])"
+value "deltaBids [1::int, 5, 11]"
+
+lemma assumes "size l \<ge>2" "0\<le>size l - (2::int) + 1" shows "listsum (deltaBids l) = (\<Sum>i = 0..(size l - 2). (nth l)(Suc i) - (nth l) i)" 
+using assms sledgehammer
+
+lemma assumes "size l \<ge>2" shows "listsum (deltaBids l) = (l!(size l - (1::nat))) - (l!0)" 
+using assms setsum_natinterval_difff setsum_Suc_diff sorry
 
 lemma fixes f::"nat => real" shows "setsum (%x. f (x+1) - f x) {0..<Suc n}=f (Suc n) - f 0"
 using assms setsum_natinterval_difff setsum_Suc_diff sorry
