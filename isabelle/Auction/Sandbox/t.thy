@@ -89,8 +89,8 @@ abbreviation "MMM == addSingleBid MM 0 0"
 abbreviation "MMMM == addSingleBid MMM 1 0"
 value "livelinessList MM"
 
-definition "(n::nat) = (card bidMatrix)"
-definition "example=alive bidMatrix n"
+definition "(numberOfBidders::nat) = (card bidMatrix)"
+definition "example=alive bidMatrix numberOfBidders"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
 definition liveliness where "liveliness prev cur = (if 
