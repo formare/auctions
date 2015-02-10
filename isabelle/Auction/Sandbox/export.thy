@@ -66,9 +66,9 @@ argmaxList (setsum b) (allStrictAllocations ({seller}\<union>N) G)"
 abbreviation "winningAllo == hd (maximalStrictAllocationsList 
 (set (participantsList b1)) (goodsList b1) (listBid2funcBid b1)
 )"
-value winningAllo
+
 definition "example = {allocationPrettyPrint2 winningAllo}"
-value example
+
 definition "paymentFunc n = 
 Max (setsum 
 (listBid2funcBid b1)
