@@ -10,7 +10,7 @@ t
  *)
 "~/afp/Coinductive/Coinductive_List"
 "~/afp/Show/Show_Instances"
-Predicate
+(*Predicate *)
 
 "~~/src/HOL/Library/Code_Target_Nat" 
 "~~/src/HOL/Library/Code_Target_Int"
@@ -18,8 +18,8 @@ Predicate
 (* "~~/src/HOL/Library/Code_Binary_Nat" *)
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
-"~~/src/HOL/UNITY/ListOrder"
-(*"~~/src/HOL/Library/Formal_Power_Series"*)
+(* "~~/src/HOL/UNITY/ListOrder"
+"~~/src/HOL/Library/Formal_Power_Series"*)
 begin
 
 abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)" (* the first bidder has label 0 *)
@@ -74,12 +74,39 @@ definition "evaluateMe (input::(String.literal list => String.literal list))
 iterates (output o (%x. (x,String.implode (concat (map String.explode x)))) o input) [])"
 *)
 
-definition "evaluateMe (input::(integer list => integer list)) 
-(output::(integer list \<times> String.literal => integer list))
-= (output ([], String.implode ''Starting\<newline>Input the number of bidders:''), 
-iterates (output o 
-(%x. (x,String.implode(message (map nat_of_integer x)))) o (%l. (tl l) @ [hd l]) 
-o input) [])"
+abbreviation "staticAuction == 
+(%l. (String.implode(message (map nat_of_integer l)), 
+l
+(* ,(livelinessList (listToBidMatrix (map nat_of_integer l)))!(currentRound (map nat_of_integer l)) *)
+)) o (%l. (tl l)@[hd l])"
+
+abbreviation "dynamicAuction input output == 
+iterates (output o staticAuction o input) []"
+
+primcorec iterates2 
+(* :: "(('a list) \<Rightarrow> ('a list)) \<Rightarrow> ('a list)\<Rightarrow> ('a list) llist" *) 
+where 
+"iterates2 f x = (if (\<not> (fst x))
+then (LCons (f x) LNil) else (LCons x (iterates2 f (f x))))"
+
+abbreviation "aux2 z == ((snd o snd) z) @ [(nat_of_integer o fst) z]"
+
+abbreviation "staticAuction2 z == (String.implode (message (aux2 z)), 
+(livelinessList (listToBidMatrix (aux2 z)))!(currentRound (aux2 z))
+, aux2 z)"
+
+abbreviation "dynamicAuction2 input output == 
+iterates2 (output o staticAuction2 o input) (False,[])"
+term dynamicAuction2
+definition "evaluateMe2 input output = snd (output (
+String.implode ''Starting\<newline>Input the number of bidders:'', True, []),
+dynamicAuction2 input output)"
+
+definition "evaluateMe (input(*::(integer list => integer list)*)) 
+(output(*::(_ => integer list)*))
+= snd (
+output (String.implode ''Starting\<newline>Input the number of bidders:'', [])
+, dynamicAuction input output)"
 
 (*
 definition "evaluateMe (input::(integer list => integer list)) 
@@ -128,7 +155,7 @@ We could momentarily choose to directly use Scala integers as input/output,
 which is less robust/flexible/elegant but simpler.
 *)
 
-export_code fst snd evaluateMe in Scala module_name a file "/dev/shm/a.scala"
+export_code fst snd evaluateMe evaluateMe2 in Scala module_name a file "/dev/shm/a.scala"
 
 abbreviation "pairWise Op l m == [Op (l!i) (m!i). i <- [0..<min (size l) (size m)]]"
 lemma lm01: assumes "n\<in>{0..<min (size l) (size m)}" shows "(pairWise Op l m)!n = Op (l!n) (m!n)"
@@ -145,8 +172,8 @@ lemma lm03b: fixes l::"int list" (* remove *) assumes "n\<in>{0..<(size l)-(1)}"
 "(deltaBids l)!n = (l!(Suc n)) - (l!n)" using assms lm02 length_tl nth_tl atLeastLessThan_iff 
 diff_zero monoid_add_class.add.left_neutral nth_map_upt by (metis (erased, lifting))
 
-lemma fixes l::"'a::ab_group_add list" shows 
-"(\<Sum>i = 0..<size l-(1::nat). nth l i) = listsum l" using assms sorry
+(* lemma fixes l::"'a::ab_group_add list" shows 
+"(\<Sum>i = 0..<size l-(1::nat). nth l i) = listsum l" using assms sorry *)
 
 lemma "listsum (map (nth l) [0..<size l]) = listsum l" by (metis map_nth)
 value "deltaBids [0::int, 2, 78]"
@@ -245,7 +272,7 @@ find_consts "(nat => 'a) => 'a list"
 lemma "map f l = tolist (f o (nth l)) (size l)" by (metis List.map.compositionality map_nth)
 lemma assumes "\<forall>n \<in> {0..<N}. f n = g n" shows "tolist f N = tolist g N" using assms by force
 
-lemma "[x<-l. P x] = map (nth l) [n<-[0..<size l]. P (nth l n)]" using nth_map map_nth structInduct sorry 
+(* lemma "[x<-l. P x] = map (nth l) [n<-[0..<size l]. P (nth l n)]" using nth_map map_nth structInduct sorry *) 
 
 lemma lm15a: "(nth l)`(set ([n<-[0..<size l]. P (l!n)])) \<supseteq> {y\<in>set l. P y}"
 using imageE image_eqI  map_nth mem_Collect_eq  set_filter set_map subsetI by smt2
