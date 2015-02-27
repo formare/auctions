@@ -26,8 +26,8 @@ text{*
 In second price (or Vickrey) auctions, bidders submit sealed bids;
 the highest bidder wins, and pays the highest bid of the \emph{remaining} bids; the losers pay nothing.
 (See \url{http://en.wikipedia.org/wiki/Vickrey_auction} for more information, including a discussion of variants used by eBay, Google and Yahoo!.)
-Vickrey proved that `truth-telling' (i.e. submitting a bid equal to one's actual valuation of the good) was a weakly dominant strategy.
-This means that no bidder could do strictly better by bidding above or below its valuation \emph{whatever} the other bidders did.
+Vickrey proved that `truth-telling' (i.e. submitting a bid equal to one's actual valuation of the good) is a weakly dominant strategy.
+This means that no bidder can do strictly better by bidding above or below their valuation \emph{whatever} the other bidders do.
 Thus, the auction is also efficient, awarding the item to the bidder with the highest valuation.
 
 Vickrey was awarded Economics' Nobel prize in 1996 for his work.
@@ -47,7 +47,7 @@ theorem vickreyA:
     and v::valuations
     and A::single_good_auction
   assumes val: "valuations N v" 
-  defines "b \<equiv> v"
+  defines "b \<equiv> v"   (* that is, the bid vector corresponds to the vector of valuations *)
   assumes spa: "second_price_auction A"
       and card_N: "card N > 1"
   shows "equilibrium_weakly_dominant_strategy N v b A"
@@ -55,7 +55,7 @@ proof -
   have defined: "maximum_defined N" using card_N
     unfolding maximum_defined_def by (auto simp: card_ge_0_finite)
   then have finite: "finite N" by (metis card_N card_infinite less_nat_zero_code)
-
+           (* Note that card N > 1 implies that N is finite in Isabelle. *)
   from val have bids: "bids N b"
     unfolding b_def by (rule valuation_is_bid)
   {
@@ -67,18 +67,17 @@ proof -
       using card_N i_range unfolding maximum_defined_def
       by (simp add: card_ge_0_finite card_Diff_singleton)
 
-    fix whatever_bid :: bids
+    fix whatever_bid :: bids  (* this is an alternative to the bid vector b *)
     assume alternative_is_bid: "bids N whatever_bid"
-    (* TOOD CL: also assume "whatever_bid i \<noteq> b i"? *)
-
-    let ?b = "whatever_bid(i := b i)"
+ 
+    let ?b = "whatever_bid(i := b i)" (* ?b is a bid built from whatever_bid by setting the ith component to b i which is equal to v i *)
     
     have is_bid: "bids N ?b"
       using bids alternative_is_bid
       unfolding bids_def non_negative_def le_def zero_def by simp
 
     let ?b_max = "maximum N ?b"
-    let ?b_max' = "maximum ?M ?b"
+    let ?b_max' = "maximum ?M ?b" (* ?M = "N -{i}" *)
 
     fix x :: allocation and x' :: allocation and p :: payments and p' :: payments
     assume outcome: "((N, whatever_bid), (x, p)) \<in> A"
@@ -103,7 +102,7 @@ proof -
 
     have weak_dominance:
       "payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)"
-    proof cases -- {* case 1 of the short proof *}
+    proof cases -- {* case 1 of the short proof: Assume that by bidding the valuation agent i wins the auction *}
       assume alloc: "x' i = 1"
       with spa_pred' i_range
       have winner: "second_price_auction_winner N ?b x' p' i"
@@ -129,14 +128,15 @@ proof -
       qed
 
       show ?thesis
-      proof cases -- {* case 1a of the short proof *}
+      proof cases -- {* case 1a of the short proof: Assume that with the changed bid agent i still wins the auction *}
         assume "x i = 1"
         with defined spa_pred alternative_is_bid i_range
         have "payoff (v i) (x i) (p i) = v i - ?b_max'"
           using winners_payoff_on_deviation_from_valuation unfolding b_def by simp
         also have "\<dots> = payoff (v i) (x' i) (p' i)" using winner_payoff ..
         finally show ?thesis by (rule eq_refl)
-      next -- {* case 1b of the short proof *}
+
+      next -- {* case 1b of the short proof: Assume that with the changed bid agent i loses the auction *}
         assume "x i \<noteq> 1"
         then have "x i = 0" by (rule spa_allocates_binary')
         with spa_pred i_range
@@ -146,7 +146,7 @@ proof -
         finally show ?thesis .
       qed
 
-    next -- {* case 2 of the short proof *}
+    next -- {* case 2 of the short proof: Assume that by bidding the valuation agent i loses the auction *}
       assume non_alloc: "x' i \<noteq> 1"
       with spa_pred' i_range have "x' i = 0"
         using spa_allocates_binary by blast
@@ -165,7 +165,7 @@ proof -
       qed
 
       show ?thesis
-      proof cases -- {* case 2a of the short proof *}
+      proof cases -- {* case 2a of the short proof: Assume that with the changed bid agent i wins the auction *}
         assume "x i = 1"
         with defined spa_pred i_range
         have "payoff (v i) (x i) (p i) = ?b i - ?b_max'"
@@ -173,7 +173,8 @@ proof -
         also have "\<dots> \<le> 0" using i_bid_at_most_second by simp
         also have "\<dots> = payoff (v i) (x' i) (p' i)" using loser_payoff ..
         finally show ?thesis .
-      next -- {* case 2b of the short proof *}
+
+      next -- {* case 2b of the short proof:  Assume that with the changed bid agent i loses the auction *}
         assume "x i \<noteq> 1"
         then have "x i = 0" by (rule spa_allocates_binary')
         with spa_pred i_range
@@ -202,7 +203,6 @@ proof -
   from val have bids: "bids N v" by (rule valuation_is_bid)
   {
     fix k :: participant and x :: allocation and p :: payments
-    (* TODO CL: We actually don't need p; is there a way to do without naming it? *)
     assume range: "k \<in> N" and outcome: "((N, v), (x, p)) \<in> A" and wins: "x k = 1"
     from outcome spa have "spa_pred N v x p"
       unfolding second_price_auction_def rel_sat_sga_pred_def

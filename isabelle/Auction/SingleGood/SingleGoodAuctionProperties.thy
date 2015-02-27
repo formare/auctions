@@ -36,8 +36,6 @@ definition sga_outcome_allocates :: "participant set \<Rightarrow> bids \<Righta
 
 type_synonym outcome_well_definedness = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
-(* TODO CL: maybe add the premise that the input should be admissible; in the combinatorial case
-   we needed this. *)
 definition sga_well_defined_outcome :: "single_good_auction \<Rightarrow> outcome_well_definedness \<Rightarrow> bool"
   where
     "sga_well_defined_outcome A well_defined_outcome_pred \<longleftrightarrow>
@@ -61,17 +59,11 @@ using assms unfolding sga_left_total_def by fast
 
 subsection {* Right-uniqueness *}
 
-(* CL: the way we define "right-uniqueness up to some equivalence relation", and equality of vectors,
-   we can't reuse RelationProperties.runiq as our right-uniqueness notion.  At least not now, but:
-   TODO CL: maybe introduce "right-uniqueness up to some equivalence relation" as a concept of its own,
-   not defined in terms of "trivial (= empty or singleton) image", but as "image is at most one 
-   equivalence class". *)
-
 type_synonym outcome_equivalence = "participant set \<Rightarrow> bids \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> allocation \<Rightarrow> payments \<Rightarrow> bool"
 
 text{* Right-uniqueness of a single good auction defined as a relation: for each admissible bid vector,
-  if there is an outcome, it is unique.  We define this once for underspecified auctions, i.e.
-  where tie-breaking is not specified, \<dots> *}
+  if there is an outcome, it is unique (as the set of all possible outcomes).  We define this here first for underspecified auctions, i.e.
+  where tie-breaking is not specified, and below for auctions with tie-breaking. *}
 definition sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> outcome_equivalence \<Rightarrow> bool"
   where "sga_right_unique A admissible equivalent \<longleftrightarrow>
     (\<forall> (N :: participant set) (b :: bids) . admissible N b \<longrightarrow>
@@ -84,7 +76,7 @@ lemma sga_right_uniqueI:
   shows "sga_right_unique A admissible equivalent"
 using assms unfolding sga_right_unique_def by force
 
-text{* \<dots> and once for fully specified (“fs”) single good auctions with tie-breaking, where outcome equivalence
+text{* Here we define right uniqueness for fully specified (“fs”) single good auctions with tie-breaking, where outcome equivalence
   is defined by equality: *}
 definition fs_sga_right_unique :: "single_good_auction \<Rightarrow> input_admissibility \<Rightarrow> bool"
   where "fs_sga_right_unique A admissible \<longleftrightarrow>
@@ -115,14 +107,13 @@ definition efficient :: "participant set \<Rightarrow> valuations \<Rightarrow> 
     "efficient N v b A \<longleftrightarrow>
       valuations N v \<and> bids N b \<and> single_good_auction A \<and>
       (\<forall> x p . ((N, b), (x, p)) \<in> A
-        (* TODO CL: Is there a way of not naming p, as we don't need it? *)
         \<longrightarrow>
         (\<forall>i \<in> N. x i = 1 \<longrightarrow> i \<in> arg_max N v))"
 
 subsection {* Equilibrium in weakly dominant strategies *}
 
 text{* Given some single good auction, a strategy profile supports an equilibrium in weakly dominant strategies
-  if each participant maximises its payoff by playing its component in that profile,
+  if each participant maximises their payoff by bidding their valuation,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::
   "participant set \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool" where
@@ -135,7 +126,5 @@ definition equilibrium_weakly_dominant_strategy ::
          (\<forall> x p x' p' . ((N, whatever_bid), (x, p)) \<in> A \<and> ((N, b'), (x', p')) \<in> A
           \<longrightarrow>
           payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)))))"
-
-(* TODO CL: consider defining dominance as per https://github.com/formare/auctions/issues/23 *)
 
 end

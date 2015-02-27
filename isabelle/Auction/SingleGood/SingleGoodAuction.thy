@@ -17,7 +17,8 @@ See LICENSE file for details
 header {* Single good auctions *}
 
 theory SingleGoodAuction
-(* TODO CL: consider renaming as per https://github.com/formare/auctions/issues/16 *)
+(* Note that single good initially means that the good is indivisible, however, we will also formalize the situation of a divisible good. *)
+
 imports Complex_Main Vectors
 begin
 
@@ -68,27 +69,23 @@ type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightar
 text {* Admissible input (i.e.\ admissible bids, given the participants).  As we represent
   @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
   their domain is @{term N} for the given participants @{term N}.  Therefore
-  we test whether the function returns a value within some set. *}
-(* CL: Once we realise general/special auctions using locales, we need an admissible_input axiom. *)
+  we test whether the function returns a value within some set, which a partial function would not do *}
+
 definition admissible_input :: "participant set \<Rightarrow> bids \<Rightarrow> bool"
 where "admissible_input N b \<longleftrightarrow> bids N b"
 
 subsection {* Allocation *}
 
-(* CL: changed for case checker: From now on, we merely assume that an allocation is a vector 
+(* From now on, we merely assume that an allocation is a vector 
        of reals that sum up to 1, i.e. this allows for a divisible good,
-       and we no longer assume that it is a function of the bids.
-       This will make it easier for us to ``overlook'' cases in the definitions of concrete auctions ;-)
-   CL@CR: I see that in your paper formalisation you had already defined the allocation as 
-          a vector of {0,1} with exactly one 1.  *)
+       and we no longer assume that it is a function of the bids. *)
+
 text{* We employ the general definition of an allocation for a divisible single good.
-  This is to allow for more possibilities of an auction to be not well-defined.
   Also, it is no longer the allocation that we model as a function of the bid, but instead we model
   the \emph{auction} as a relation of bids to a @{typ "allocation \<times> payments"} outcome. *}
-(* text_raw{*\snip{allocation_def}{1}{2}{%*} *)
+
 definition allocation :: "participant set \<Rightarrow> allocation \<Rightarrow> bool"
   where "allocation N x \<longleftrightarrow> non_negative N x \<and> (\<Sum> i \<in> N . x i) = 1"
-(* text_raw{*}%endsnip*} *)
 
 subsection {* Payoff *}
 

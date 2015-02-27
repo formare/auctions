@@ -31,15 +31,12 @@ subsubsection {* Some component-wise operations for vectors *}
 definition zero :: "'a::zero vector"
   where "zero = (\<lambda> x. 0)"
 
-(* TODO CL: introduce infix notation as per https://github.com/formare/auctions/issues/24 *)
 definition le :: "index set \<Rightarrow> ('a::ord) vector \<Rightarrow> ('a::ord) vector \<Rightarrow> bool"
   where "le N v w \<longleftrightarrow> (\<forall>i \<in> N . v i \<le> w i)"
 
-(* TODO CL: introduce infix notation as per https://github.com/formare/auctions/issues/24 *)
 definition eq :: "index set \<Rightarrow> 'a vector \<Rightarrow> 'a vector \<Rightarrow> bool"
   where "eq N v w \<longleftrightarrow> (\<forall>i \<in> N . v i = w i)"
 
-text{* we could also, in a higher-order style, generally define a vector whose components satisfy a predicate, and then parameterise this predicate with $\geq 0$ and $> 0$ *}
 definition non_negative :: "index set \<Rightarrow> 'a::{zero,ord} vector \<Rightarrow> bool"
   where "non_negative N v \<longleftrightarrow> le N zero v"
 

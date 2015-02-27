@@ -26,7 +26,7 @@ text{* Same as with the @{text allocation} we now model this as a plain vector. 
 definition vickrey_payment :: "participant set \<Rightarrow> payments \<Rightarrow> bool"
   where "vickrey_payment N p \<longleftrightarrow> (\<forall>i \<in> N . p i \<ge> 0)"
 
-section {* TODO pick a good section title *}
+section {* Second price single good auction *}
 
 text{* Agent @{text i} being the winner of a second-price auction (see below for complete definition) means
 \begin{itemize}
@@ -128,9 +128,7 @@ lemma spa_payments :
   using assms
   unfolding spa_pred_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
   by blast
-(* TODO CL: In the general auction case it may make sense to check that the payments (including the seller's payment)
-   sum up to 0.
-*)
+
 text{* Our second price auction (@{text spa_pred}) is well-defined in that its outcome specifies non-negative payments for everyone. *}
 lemma spa_vickrey_payment :
   fixes N :: "participant set" and b :: bids
@@ -144,10 +142,7 @@ proof -
     and i_pay: "p i = maximum (N - {i}) b"
     and losers_pay: "\<forall> j \<in> N . j \<noteq> i \<longrightarrow> p j = 0"
     using spa_payments by blast
-  (* Note that if "card N = 1" were allowed, there would be no such k.  This seems fine for now,
-     but in the next step it becomes apparent what we need "card N = 1" and thus this k_def for:
-     for obtaining the fact `greater`, which talks about the second-highest bid and assumes 
-     that it is defined. *)
+  (* Note that if "card N = 1" were allowed, there would be no k left for determining the second-highest bid. *)
   from card_N and i_range obtain k where k_def: "k \<in> N \<and> k \<noteq> i"
     using  maximum_except_defined maximum_is_component
     by (metis Diff_iff insertCI)
@@ -158,6 +153,7 @@ proof -
   with vickrey_payment_def show ?thesis ..
 qed
 
+(* second price auction (spa) implies single good auction (sga) *)
 lemma spa_is_sga_pred :
   fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
@@ -192,23 +188,6 @@ lemma spa_allocates_binary :
   unfolding spa_pred_def second_price_auction_def second_price_auction_winner_outcome_def second_price_auction_loser_outcome_def
   by fast
 
-(*
-text{* We chose not to \emph{define} that a second-price auction has only one winner, as it is not necessary.  Therefore we have to prove it. *}
-(* TODO CL: discuss whether it makes sense to keep this lemma -- it's not used for "theorem vickreyA" but might still be useful for the toolbox *)
-lemma second_price_auction_has_only_one_winner:
-  fixes n::participants and x::allocation and p::payments and b::"real vector"
-    and winner::participant and j::participant
-  assumes "second_price_auction n x p"
-    and "bids n b"
-    and "second_price_auction_winner n b x p winner"
-    and "second_price_auction_winner n b x p j"
-  shows "j = winner"
-  using assms
-  unfolding second_price_auction_def second_price_auction_winner_def
-  using allocation_unique
-  by blast
-*)
-
 text{* The participant who gets the good also satisfies the further properties of a second-price auction winner. *}
 lemma allocated_implies_spa_winner:
   fixes N :: "participant set" and b :: bids
@@ -222,10 +201,10 @@ lemma allocated_implies_spa_winner:
   unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_outcome_def
     allocation_def
   by (metis zero_neq_one)
-    (* CL: With the generalised allocation_def, this proof needed a bit more complexity,
-         as "x winner = 1" implies "x i = 0" for all other participants is rather implicit now. *)
+   (* CL: With the generalised allocation_def, this proof needed a bit more complexity,
+          as "x winner = 1" implies "x i = 0" for all other participants is rather implicit now. *)
 
-text{* A participant who doesn't gets the good satisfies the further properties of a second-price auction loser. *}
+text{* A participant who doesn't get the good satisfies the further properties of a second-price auction loser. *}
 lemma not_allocated_implies_spa_loser:
   fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
@@ -309,7 +288,7 @@ lemma second_price_auction_loser_payoff:
   unfolding second_price_auction_loser_def second_price_auction_loser_outcome_def payoff_def
   by simp
 
-text{* If a participant wins a second-price auction by not bidding his/her valuation,
+text{* If a participant wins a second-price auction
   the payoff equals the valuation minus the remaining maximum bid. *}
 lemma winners_payoff_on_deviation_from_valuation:
   fixes N :: "participant set" and v :: valuations and x :: allocation
@@ -323,3 +302,4 @@ lemma winners_payoff_on_deviation_from_valuation:
   by metis
 
 end
+
