@@ -628,5 +628,82 @@ def untrustedOutput(x: (List[BigInt], String)) : List[BigInt] = {
 def main(args: Array[String]) {
 	val x=evaluateMe(untrustedInput, untrustedOutput);
 }
-                            
+
+def printWithSpace(args: BigInt): Unit = {
+  print(args + " ");
+}
+
+def printListOfGoods(args: List[BigInt]): Unit = {
+  args match {
+       case Nil => print("");
+       case head::Nil => print(head);
+       case head::tail => print(head + ", "); printListOfGoods(tail);
+     }
+}
+
+def printBidder(args: List[List[BigInt]]): Unit = {
+    println(" Bidder: " + args.head.head);
+}
+
+def printGoods(args: List[List[BigInt]]): Unit = {
+    print(" Goods:  {");
+    printListOfGoods(args.tail.head);
+    println("}");
+}
+
+def printBid(args: List[List[BigInt]]): Unit = {
+    println(" Bid:    " + args.tail.tail.head.head);
+}
+
+def printSingleBid(args: List[List[BigInt]]): Unit = {
+    printBidder(args);
+    printGoods(args);
+    printBid(args);
+    println();
+}
+
+def printAllBids(args: List[List[List[BigInt]]]): Unit = {
+    args.foreach(printSingleBid)
+  }
+
+/*def the_elem[A](x0: set[A]): A = x0 match {
+  case seta(List(x)) => x
+}
+*/
+
+def choice[A](x0: set[A]): A = x0 match {
+  case seta(List(x)) => x
+  case seta(x :: _) => x
+}
+
+def printAllocatedGoods(args: List[BigInt]): Unit = {
+    printListOfGoods(args);
+}
+
+def printPrice(args: BigInt) {
+}
+
+def printAllocationAndPayment(args: (BigInt, List[BigInt])): Unit = args match {
+    case (hd, tl) => print(" X_" + hd + " = {" ); 
+                     printAllocatedGoods(tl);
+                     print("}    payment:");
+  //                   printPrice(hd);
+//    println(args);
+  }
+
+
+def printAllocationsAndPayments(args: set[List[(BigInt, List[BigInt])]]):
+   Unit = { choice(args).foreach(printAllocationAndPayment);
+  }
+
+          
+def main(args: Array[String]) {
+println("input bid vector:"); printAllBids(b1);
+println;
+
+println("Winning allocation and payments:"); 
+printAllocationsAndPayments(example);
+};
+
+
 } /* object a */

@@ -1,4 +1,4 @@
-object Dyna3 {
+object Dyna {
 
 abstract sealed class nat
 final case class Nat(a: BigInt) extends nat
@@ -506,36 +506,4 @@ List[(Boolean,
 def example02: set[(nat, List[(Boolean, nat)])] =
   addSingleBid(bidMatrix, zero_nata, nat_of_integer(BigInt(4)))
 
-
-    def localToInt(s: String):Int = {
-        // from http://alvinalexander.com/scala/how-cast-string-to-int-in-scala-string-int-conversion
-        try {
-            s.toInt
-        } catch {
-        case e:Exception => 0
-        }
-    }
-
-
-
-    def main(args: Array[String]) {
-        var M=bidMatrix; var j: BigInt = 0;
-        while ( alive(M).apply(Nat(j)) ) {
-          j = j+1; var i: BigInt=0;
-          while (i < integer_of_nat(n)) { // Can't use for loop with BigInt
-            print("Input the bid for bidder " + i + " in round " + j +".\n")
-            val x = readLine; val newBid = localToInt(x);
-            println("debug0 " + i);
-            M = addSingleBid (M, Nat (i), Nat(newBid)); 
-            i=i+1
-            print("LivelinessList " + livelinessList(M));
-            print("Bids " + M);
-          }
-        }
-        println("Outcome:");
-        println ("Winner is: " + wdp(M));
-        println ("Price to pay: " + price(M));
-    }  
-  
-  
 } /* object Dyna */
