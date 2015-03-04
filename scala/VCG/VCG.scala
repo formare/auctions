@@ -1142,25 +1142,26 @@ def choice[A](x0: set[A]): A = x0 match {
 }
 
 // print the payment that a particular participant has to pay
-def printPrice(b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt, participant: BigInt) {
-    println((payments(b, r).apply(participant)));
+def printPrice(pays: BigInt => BigInt, participant: BigInt) {
+    println(pays.apply(participant));
 }
 
 // The Isabelle generated code will compute an allocation in form of list of pairs (participant, listOfWonItems).
 // printAllocationAndPayment prints the allocation and the price to be paid for a single pair of this kind.
-def printAllocationAndPayment(args: (BigInt, List[BigInt]), b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
-    Unit = args match {
+def printAllocationAndPayment(args: (BigInt, List[BigInt]), pays: BigInt => BigInt):
+    Unit = {
+          args match {
                case (hd, tl) => print(" X_" + hd + " = {" ); 
                                 printListOfGoods(tl);
                                 print("}    payment:");
-                                printPrice(b, r, hd);
-  }
+                                printPrice(pays, hd);
+  }}
 
 
 // The Isabelle generated code will compute an allocation in form of list of pairs (participant, listOfWonItems).
 // printAllocationAndPayments prints the allocation and the price to be paid for each such pair one by one.
-def printAllocationsAndPayments(args: set[List[(BigInt, List[BigInt])]], b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
-   Unit = { choice(args).foreach(arg => printAllocationAndPayment(arg, b, r));
+def printAllocationsAndPayments(args: set[List[(BigInt, List[BigInt])]], pays: BigInt => BigInt):
+   Unit = {  choice(args).foreach(arg => printAllocationAndPayment(arg, pays));
   }
 
 /* In order to run an example the bids and the random number can be arguments to runExample in the form
@@ -1184,7 +1185,7 @@ def runExample(b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
       println;
 
       println("Winning allocation and payments:"); 
-      printAllocationsAndPayments(allocation(b, r), b, r);
+      printAllocationsAndPayments(allocation(b, r), payments(b, r));
       println("************************************************************************************************");
 }
 
@@ -1214,6 +1215,24 @@ val b2: List[(BigInt, (List[BigInt], BigInt))] =
          (3, (List(12), 4)))
 // END OF EXAMPLE e2
 
+// START OF EXAMPLE e3 with bids b3 and random number r3
+// select random number in range 0, 1, ..., 2^card(goods) * factorial(numberOfParticipants) - 1
+val r3: BigInt = 0 // 0, 1, 2, ... 47
+
+val b3: List[(BigInt, (List[BigInt], BigInt))] =
+    List((1, (List(11, 12, 13), 20)),
+         (1, (List(11, 12), 18)),
+         (2, (List(11), 10)),
+         (2, (List(12), 15)),
+         (2, (List(13), 15)),
+         (2, (List(12,13), 18)),
+         (3, (List(11), 2)),
+         (3, (List(11,12), 12)),
+         (3, (List(11,13), 17)),
+         (3, (List(12,13), 18)),
+         (3, (List(11,12,13), 19)))
+// END OF EXAMPLE e3
+
 // START OF main
 
 def main(args: Array[String]) {
@@ -1223,7 +1242,8 @@ def main(args: Array[String]) {
 //}
 
 runExample(b1, r1);
-runExample(b2, r2);
+//runExample(b2, r2);
+//runExample(b3, r3);
 
 // END OF main
 }
