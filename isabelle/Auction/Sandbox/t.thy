@@ -6,7 +6,6 @@ Fun
 
 begin
 
-
 fun update where "update l1 l2 [] = l1"| "update l1 l2 (x#xs) = list_update (update l1 l2 xs) x (l2!x)"
 abbreviation "tolist f n == map f [0..<n]"  
 abbreviation "update2 l X f == tolist (override_on (nth l) f X) (size l)"
@@ -75,7 +74,7 @@ abbreviation "Example03 == {
 (20, zip (replicate (10::nat) True) 
 [5::nat,4,7,7,9,9,9,9,9,9])
 (*0,   ,1,2,3,4,5,6,7,8,9*)
-}" (*MC: This means that bidder 10 always submit a True ("I'm game"), and the temporal sequence of bids 
+}" (*MC: This means that bidder 10 always submits a True ("I'm game"), and the temporal sequence of bids 
 1,4,4,5,6,6,6,6,6,6.
 *)
 
