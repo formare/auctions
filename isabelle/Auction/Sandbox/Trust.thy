@@ -1,25 +1,58 @@
 theory Trust
 
 imports
- "../Vcg/MiscTools"
+t
+(* "../Vcg/MiscTools" 
  "~/afp/Lazy-Lists-II/LList2" 
- "~/afp/XML/Xmlt"
+ "~/afp/XML/Xmlt" 
+ "~~/src/HOL/ex/Iff_Oracle"
+"~~/src/HOL/Library/Float"
+ *)
  "~/afp/Coinductive/Coinductive_List"
  "~/afp/Show/Show_Instances"
 Predicate
-"~~/src/HOL/ex/Iff_Oracle"
-"~~/src/HOL/Library/Float"
+
 "~~/src/HOL/Library/Code_Target_Nat" 
 "~~/src/HOL/Library/Code_Target_Int"
 "~~/src/HOL/Library/Code_Target_Numeral"
 (* "~~/src/HOL/Library/Code_Binary_Nat" *)
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
-String
 
 begin
+term stopat
+term alive
 
+abbreviation "currentRound l == (size l - (2::nat)) div (l!0)" (* the first round has label 0 *)
+abbreviation "nextRound l == (size l - (1::nat)) div (l!0)"
+abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)" (* the first bidder has label 0 *)
+abbreviation "nextBidder l == (size l - (1::nat)) mod (l!0)"
+
+abbreviation "E01 == [3::nat, 1, 2, 3, 4, 5, 6, 7, 8, 9, 7, 8, 9, 10 ,10, 10, 10, 10, 10, 11, 10]"
+
+abbreviation "pickParticipantBids l i == sublist l
+(((op +) (Suc i))`(((op *) (l!0))`{0..(currentRound l)}))"
+abbreviation "pickRoundBids l i == sublist l {Suc(i*(l!0))..(Suc i)*(l!0)}"
+value "pickRoundBids E01 (currentRound E01)"
+abbreviation "listToGraph l == graph {0..<size l} (nth l)"
+abbreviation "listToBidMatrix (l::nat list)==
+listToGraph 
+(
+map (\<lambda>i. zip (replicate ((currentRound l)+1) True) (pickParticipantBids l i))
+[(0::nat)..<(l!0)]
+)"
+
+lemma assumes "Suc n<size l" shows "(l!n = l!(Suc n)) = (sametomyleft l)!(Suc n)" 
+using assms unfolding sametomyleft_def by fastforce
+value "stopat (listToBidMatrix E01)"
+value "wdp (listToBidMatrix [3,1,3,5,1,21,2222,44,100,0])"
+value "livelinessList (listToBidMatrix E01)"
+definition "message l = ''Current winner: '' @ 
+(Show.show (maxpositions (pickRoundBids l (currentRound l)))) @ 
+''Liveliness: '' @ Show.show(livelinessList (listToBidMatrix l)) @ ''\<newline>'' @ 
+''Next, input bid for round ''@Show.show(nextRound l)@'', participant ''@(Show.show(nextBidder l))"
 (*
+value "int_of_string ''123''"
 definition trusted where "trusted (output::(String.literal => _)) (input::(integer  => _)) = 
 (output (String.implode ''zio''), input 0)"
 *)
@@ -36,8 +69,7 @@ definition "prova (input::(integer => String.literal)) (output::(String.literal 
 = inf_llist (output o id o input \<circ> integer_of_nat)"
 (* MC: This approach ignores the argument given to input, giving a thinner wrapper.
 I couldn't find a way to preserve the previous history of inputs, in this way, however.
-Hence we use evaluateMe below.
-*)
+Hence we use evaluateMe below.*)
 (*
 definition "evaluateMe (input::(String.literal list => String.literal list)) 
 (output::(String.literal list \<times> String.literal => String.literal list))
@@ -45,14 +77,22 @@ definition "evaluateMe (input::(String.literal list => String.literal list))
 iterates (output o (%x. (x,String.implode (concat (map String.explode x)))) o input) [])"
 *)
 
+find_consts "'a list => 'a list"
+
 definition "evaluateMe (input::(integer list => integer list)) 
 (output::(integer list \<times> String.literal => integer list))
 = (output ([], String.implode ''Starting\<newline>Input the number of bidders:''), 
-iterates (output o (%x. (x,
-String.implode (concat (map (Show.show \<circ> int_of_integer) x))
-)) o input) [])"
-
-
+iterates (output o 
+(%x. (x,String.implode(message (map nat_of_integer x)))) 
+o (%l. (tl l) @ [hd l]) o input) [])"
+(*
+definition "evaluateMe (input::(integer list => integer list)) 
+(output::(integer list \<times> String.literal => integer list))
+= (output ([], String.implode ''Starting\<newline>Input the number of bidders:''), 
+iterates (output o 
+(%x. (x,String.implode (concat (map (Show.show \<circ> int_of_integer) x)))) 
+o (%l. (tl l) @ [hd l]) o input) [])"
+*)
 (* 
 input and output will be the only manually written Scala functions 
 (and will be passed as arguments to evaluateMe as the only action of the main method of our Scala wrapper ) 
@@ -92,16 +132,8 @@ We could momentarily choose to directly use Scala integers as input/output,
 which is less robust/flexible/elegant but simpler.
 *)
 
-value "nat_of_char (hd ''0'')"
-definition  "three=String.implode [char_of_nat 3]"
 export_code fst snd evaluateMe in Scala module_name a file "/dev/shm/a.scala"
 value "Show.show (143::rat)"
-value "string_of_int"
-term real_of_float
-value "projr (Inr (3::int))"
-find_consts "('e +\<^sub>\<bottom> 'a) \<Rightarrow> 'e "
-value "int_of_string ''123''"
-find_consts "'a +\<^sub>\<bottom> 'b => 'a"
-abbreviation "mbc S == term S"
+
 end
 
