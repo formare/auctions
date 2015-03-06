@@ -1215,24 +1215,6 @@ val b2: List[(BigInt, (List[BigInt], BigInt))] =
          (3, (List(12), 4)))
 // END OF EXAMPLE e2
 
-// START OF EXAMPLE e3 with bids b3 and random number r3
-// select random number in range 0, 1, ..., 2^card(goods) * factorial(numberOfParticipants) - 1
-val r3: BigInt = 0 // 0, 1, 2, ... 47
-
-val b3: List[(BigInt, (List[BigInt], BigInt))] =
-    List((1, (List(11, 12, 13), 20)),
-         (1, (List(11, 12), 18)),
-         (2, (List(11), 10)),
-         (2, (List(12), 15)),
-         (2, (List(13), 15)),
-         (2, (List(12,13), 18)),
-         (3, (List(11), 2)),
-         (3, (List(11,12), 12)),
-         (3, (List(11,13), 17)),
-         (3, (List(12,13), 18)),
-         (3, (List(11,12,13), 19)))
-// END OF EXAMPLE e3
-
 // START OF main
 
 def main(args: Array[String]) {
@@ -1242,8 +1224,7 @@ def main(args: Array[String]) {
 //}
 
 runExample(b1, r1);
-//runExample(b2, r2);
-//runExample(b3, r3);
+runExample(b2, r2);
 
 // END OF main
 }
