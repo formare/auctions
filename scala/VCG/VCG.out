@@ -1,0 +1,58 @@
+************************************************************************************************
+input bid vector:
+ Bidder: 1
+ Goods:  {11, 12}
+ Bid:    2
+
+ Bidder: 2
+ Goods:  {11}
+ Bid:    2
+
+ Bidder: 2
+ Goods:  {12}
+ Bid:    2
+
+ Bidder: 3
+ Goods:  {11}
+ Bid:    2
+
+ Bidder: 3
+ Goods:  {12}
+ Bid:    2
+
+Random number for tie breaking: 0
+
+Winning allocation and payments:
+ X_1 = {}    payment:0
+ X_2 = {12}    payment:0
+ X_3 = {11}    payment:0
+************************************************************************************************
+************************************************************************************************
+input bid vector:
+ Bidder: 1
+ Goods:  {11, 12}
+ Bid:    5
+
+ Bidder: 2
+ Goods:  {11}
+ Bid:    3
+
+ Bidder: 2
+ Goods:  {12}
+ Bid:    3
+
+ Bidder: 3
+ Goods:  {11}
+ Bid:    2
+
+ Bidder: 3
+ Goods:  {12}
+ Bid:    4
+
+Random number for tie breaking: 1
+
+Winning allocation and payments:
+ X_1 = {}    payment:0
+ X_2 = {11}    payment:1
+ X_3 = {12}    payment:2
+************************************************************************************************

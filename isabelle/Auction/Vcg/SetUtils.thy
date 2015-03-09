@@ -3,7 +3,9 @@ Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
 * Marco B. Caminati http://caminati.co.nr
+* Manfred Kerber <mnfrd.krbr@gmail.com>
 * Christoph Lange <math.semantic.web@gmail.com>
+* Colin Rowat <c.rowat@bham.ac.uk>
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -22,7 +24,7 @@ begin
 
 section {* Equality *}
 
-text {* An inference rule that combines @{thm equalityI} and @{thm subsetI} to a single step *}
+text {* An inference (introduction) rule that combines @{thm equalityI} and @{thm subsetI} to a single step *}
 lemma equalitySubsetI: "(\<And>x . x \<in> A \<Longrightarrow> x \<in> B) \<Longrightarrow> (\<And>x . x \<in> B \<Longrightarrow> x \<in> A) \<Longrightarrow> A = B" by blast
 
 section {* Trivial sets *}
@@ -64,7 +66,6 @@ using assms by (metis empty_subsetI insert_subset singleton_sub_trivial_uniq)
 
 section {* The image of a set under a function *}
 
-(* TODO CL: review whether we are always using the simplest possible set comprehension notation (compare List.set_concat) *)
 text {* an equivalent notation for the image of a set, using set comprehension *}
 lemma image_Collect_mem: "{ f x | x . x \<in> S } = f ` S" by auto
 
@@ -85,7 +86,7 @@ lemma lm001a: assumes "trivial (A \<times> B)" shows "(finite (A\<times>B) & car
 using trivial_def assms One_nat_def card_cartesian_product card_empty card_insert_disjoint
 empty_iff finite.emptyI le0 lm54 order_refl subset_singletonD by (metis(no_types))
 
-lemma ll97: assumes "finite X" shows "trivial X=(card X \<le> 1)" (is "?LH=?RH") 
+lemma ll97: assumes "finite X" shows "trivial X=(card X \<le> 1)" 
 using assms One_nat_def card_empty card_insert_if card_mono card_seteq empty_iff empty_subsetI 
 finite.cases finite.emptyI finite_insert insert_mono trivial_def trivial_singleton
 by (metis(no_types))
@@ -111,46 +112,8 @@ using assms lm001 One_nat_def Sigma_empty1 Sigma_empty2 card_empty card_insert_i
 lm54 nat_1_eq_mult_iff order_refl subset_singletonD trivial_def trivial_empty
 by (metis (full_types))
 
-
-
-
-
-
-(*
-text {* If there are no two different elements in a set, it is trivial. *}
-lemma no_distinct_imp_trivial:
-  assumes "\<forall> x y . x \<in> X \<and> y \<in> X \<longrightarrow> x = y"
-  shows "trivial X"
-(* CL: The following takes 81 ms in Isabelle2013-1-RC1:
-   by (metis assms ex_in_conv insertI1 subsetI subset_singletonD trivial_def trivial_singleton) *)
-unfolding trivial_def
-proof 
-  fix x::'a
-  assume x_in_X: "x \<in> X"
-  with assms have uniq: "\<forall> y \<in> X . x = y" by force
-  have "X = {x}"
-  proof (rule equalitySubsetI)
-    fix x'::'a
-    assume "x' \<in> X"
-    with uniq show "x' \<in> {x}" by simp
-  next
-    fix x'::'a
-    assume "x' \<in> {x}"
-    with x_in_X show "x' \<in> X" by simp
-  qed
-  then show "x \<in> {the_elem X}" by simp
-qed
-*)
-
 lemma lm01: "trivial X = (\<forall>x1 \<in> X. \<forall>x2 \<in> X. x1=x2)" using trivial_def trivial_imp_no_distinct 
 ex_in_conv insertCI subsetI subset_singletonD trivial_singleton by (metis (no_types, hide_lams))
-
-(*Set.set_insert ex_in_conv subset_eq subset_insertI the_elem_eq
-by (smt2 insertCI lm007 order_refl singletonD subsetCE subsetI subset_empty subset_insertI2 subset_singletonD trivial_singleton)
-sledgehammer min [spass] (DiffE all_not_in_conv empty_subsetI insert_subset lm007 order_refl singletonD subset_insert_iff trivial_singleton trivial_subset ex_in_conv trivial_def trivial_imp_no_distinct)
-by (metis DiffE insert_subset order_refl subset_insert_iff trivial_singleton trivial_subset)
-(* no_distinct_imp_trivial *)
-*)
 
 lemma lm009a: assumes "(Pow X \<subseteq> {{},X})" shows "trivial X" unfolding lm01 using assms by auto
 

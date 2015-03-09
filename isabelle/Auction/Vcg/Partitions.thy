@@ -2,8 +2,10 @@
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
 Authors:
-* Christoph Lange <math.semantic.web@gmail.com>
 * Marco B. Caminati http://caminati.co.nr
+* Manfred Kerber <mnfrd.krbr@gmail.com>
+* Christoph Lange <math.semantic.web@gmail.com>
+* Colin Rowat <c.rowat@bham.ac.uk>
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0

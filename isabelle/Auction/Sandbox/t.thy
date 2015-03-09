@@ -89,6 +89,7 @@ definition "bidMatrix = {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])
 (*definition "bidMatrix = {(0::nat, ([(True,1)]::(bool \<times> price) list)),(1::nat, [(True,1)])}"*)
 definition "example02=addSingleBid bidMatrix (0::nat) (4::nat)"
 (* lemma "alive B 0 = True" using assms alive_def sorry *)
+
 abbreviation "M00 == addSingleBid bidMatrix 0 0"
 abbreviation "MM == addSingleBid M00 1 0"
 abbreviation "MMM == addSingleBid MM 0 0"

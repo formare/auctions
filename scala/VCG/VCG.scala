@@ -330,10 +330,6 @@ def remove[A : equal](x: A, xa1: set[A]): set[A] = (x, xa1) match {
   case (x, seta(xs)) => seta[A](removeAll[A](x, xs))
 }
 
-def concat[A](xss: List[List[A]]): List[A] =
-  (foldr[List[A],
-          List[A]]((a: List[A]) => (b: List[A]) => a ++ b, xss)).apply(Nil)
-
 def rotate1[A](x0: List[A]): List[A] = x0 match {
   case Nil => Nil
   case x :: xs => xs ++ List(x)
@@ -498,15 +494,6 @@ def filterpositions2[A](p: A => Boolean, l: List[A]): List[nat] =
   maps[nat, nat]((n: nat) => (if (p(nth[A](l, n))) List(n) else Nil),
                   upt(zero_nata, size_list[A].apply(l)))
 
-def b1: List[List[List[BigInt]]] =
-  List(List(List(BigInt(1)), List(BigInt(11), BigInt(12)), List(BigInt(2))),
-        List(List(BigInt(2)), List(BigInt(11)), List(BigInt(2))),
-        List(List(BigInt(2)), List(BigInt(12)), List(BigInt(2))),
-        List(List(BigInt(3)), List(BigInt(11)), List(BigInt(2))),
-        List(List(BigInt(3)), List(BigInt(12)), List(BigInt(2))))
-
-def r1: BigInt = BigInt(1)
-
 def minus_set[A : equal](a: set[A], x1: set[A]): set[A] = (a, x1) match {
   case (a, coset(xs)) => seta[A](filtera[A]((x: A) => member[A](x, a), xs))
   case (a, seta(xs)) =>
@@ -523,13 +510,6 @@ def eval_rel[A : equal, B](r: set[(A, B)], a: A): B =
   the_elem[B](Image[A, B](r, insert[A](a, bot_set[A])))
 
 def nat_of_integer(k: BigInt): nat = Nat(max[BigInt](BigInt(0), k))
-
-def helper[A](list: List[List[A]]): ((A, set[A]), A) =
-  (((comp[List[A], A,
-           List[List[A]]]((a: List[A]) => hd[A](a),
-                           (a: List[List[A]]) => hd[List[A]](a))).apply(list),
-     seta[A](nth[List[A]](list, one_nat))),
-    hd[A](nth[List[A]](list, nat_of_integer(BigInt(2)))))
 
 def listsum[A : monoid_add](xs: List[A]): A =
   (foldr[A, A]((a: A) => (b: A) => plus[A](a, b), xs)).apply(zero[A])
@@ -985,49 +965,6 @@ injections_alg[set[A],
                          B](na, g, b, r),
     insert[BigInt](n, bot_set[BigInt]))))
 
-def listBid2funcBid(listBid: List[List[List[BigInt]]]):
-      ((BigInt, set[BigInt])) => BigInt
-  =
-  (x: (BigInt, set[BigInt])) =>
-    (if (member[(BigInt,
-                  set[BigInt])](x, Domain[(BigInt, set[BigInt]),
-   BigInt](image[List[List[BigInt]],
-                  ((BigInt, set[BigInt]),
-                    BigInt)]((a: List[List[BigInt]]) => helper[BigInt](a),
-                              seta[List[List[BigInt]]](listBid)))))
-      eval_rel[(BigInt, set[BigInt]),
-                BigInt](image[List[List[BigInt]],
-                               ((BigInt, set[BigInt]),
-                                 BigInt)]((a: List[List[BigInt]]) =>
-    helper[BigInt](a),
-   seta[List[List[BigInt]]](listBid)),
-                         x)
-      else BigInt(0))
-
-def payments(b: List[List[List[BigInt]]], r: BigInt): BigInt => BigInt =
-  (a: BigInt) =>
-    vcgpAlg[BigInt,
-             BigInt](seta[BigInt]((comp[List[BigInt], List[BigInt],
- List[List[List[BigInt]]]]((aa: List[BigInt]) => remdups[BigInt](aa),
-                            (aa: List[List[List[BigInt]]]) =>
-                              map[List[List[BigInt]],
-                                   BigInt](comp[List[BigInt], BigInt,
-         List[List[BigInt]]]((ab: List[BigInt]) => hd[BigInt](ab),
-                              (ab: List[List[BigInt]]) => hd[List[BigInt]](ab)),
-    aa))).apply(b)),
-                      (comp[List[List[BigInt]], List[BigInt],
-                             List[List[List[BigInt]]]](comp[List[BigInt],
-                     List[BigInt],
-                     List[List[BigInt]]]((aa: List[BigInt]) =>
-   remdups[BigInt](aa),
-  (aa: List[List[BigInt]]) => concat[BigInt](aa)),
-                (aa: List[List[List[BigInt]]]) =>
-                  map[List[List[BigInt]],
-                       List[BigInt]]((l: List[List[BigInt]]) =>
-                                       nth[List[BigInt]](l, one_nat),
-                                      aa))).apply(b),
-                      listBid2funcBid(b), r, a)
-
 def Bid2funcBid[A : equal, B : equal](b: List[(A, (List[B], BigInt))]):
       ((A, set[B])) => BigInt
   =
@@ -1070,6 +1007,30 @@ BigInt](seta[((A, set[B]),
                  b)),
                          x)
       else BigInt(0))
+
+def payments[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
+                                    r: BigInt):
+      BigInt => BigInt
+  =
+  (a: BigInt) =>
+    vcgpAlg[A, BigInt](image[(BigInt, (List[A], BigInt)),
+                              BigInt]((aa: (BigInt, (List[A], BigInt))) =>
+fst[BigInt, (List[A], BigInt)](aa),
+                                       seta[(BigInt, (List[A], BigInt))](b)),
+                        sorted_list_of_set[A](Sup_set[A](image[(BigInt,
+                         (List[A], BigInt)),
+                        set[A]](comp[(List[A], BigInt), set[A],
+                                      (BigInt,
+(List[A],
+  BigInt))](comp[List[A], set[A],
+                  (List[A],
+                    BigInt)]((aa: List[A]) => seta[A](aa),
+                              (aa: (List[A], BigInt)) =>
+                                fst[List[A], BigInt](aa)),
+             (aa: (BigInt, (List[A], BigInt))) =>
+               snd[BigInt, (List[A], BigInt)](aa)),
+                                 seta[(BigInt, (List[A], BigInt))](b)))),
+                        Bid2funcBid[BigInt, A](b), r, a)
 
 def allocation[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                                       r: BigInt):
@@ -1122,5 +1083,150 @@ def allocation[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
      seta[(BigInt, (List[A], BigInt))](b)))),
                                     Bid2funcBid[BigInt, A](b), r))),
                             bot_set[List[(BigInt, List[A])]])
+
+// HANDWRITTEN NON-VERIFIED CODE FROM HERE
+
+// print a number plus a trailing whitespace
+def printWithSpace(args: BigInt): Unit = {
+  print(args + " ");
+}
+
+// a single bid is represented as a pair (bidder, (listOfGoods, bid)).
+// printBidder prints the first component, i.e., bidder
+def printBidder(args: (BigInt, (List[BigInt], BigInt))): Unit = {
+    println(" Bidder: " + args._1);
+}
+
+// recursively print a list separated by commas
+def printListOfGoods(args: List[BigInt]): Unit = {
+  args match {
+       case Nil => print("");
+       case head::Nil => print(head);
+       case head::tail => print(head + ", "); printListOfGoods(tail);
+     }
+}
+
+// a single bid is represented as a pair (bidder, (listOfGoods, bid)).
+// printGoods prints the first component of the second, i.e., listOfGoods
+def printGoods(args: (BigInt, (List[BigInt], BigInt))): Unit = {
+    print(" Goods:  {");
+    printListOfGoods(args._2._1);
+    println("}");
+}
+
+// a single bid is represented as a pair (bidder, (listOfGoods, bid)).
+// printBid prints the second component of the second, i.e., bid
+def printBid(args: (BigInt, (List[BigInt], BigInt))): Unit = {
+    println(" Bid:    " + args._2._2);
+}
+
+// prints a single bid as bidder + goods + bid
+def printSingleBid(args: (BigInt, (List[BigInt], BigInt))): Unit = {
+    printBidder(args);
+    printGoods(args);
+    printBid(args);
+    println();
+}
+
+// prints each of the bids in a list one by one
+def printAllBids(args: List[(BigInt, (List[BigInt], BigInt))]): Unit = {
+    args.foreach(printSingleBid)
+  }
+
+// selects the first element from a set represented as a list
+// (i.e., the only element in case of a singleton, else the first element of the list.)
+// fails for empty set.
+def choice[A](x0: set[A]): A = x0 match {
+  case seta(List(x)) => x
+  case seta(x :: _) => x
+}
+
+// print the payment that a particular participant has to pay
+def printPrice(pays: BigInt => BigInt, participant: BigInt) {
+    println(pays.apply(participant));
+}
+
+// The Isabelle generated code will compute an allocation in form of list of pairs (participant, listOfWonItems).
+// printAllocationAndPayment prints the allocation and the price to be paid for a single pair of this kind.
+def printAllocationAndPayment(args: (BigInt, List[BigInt]), pays: BigInt => BigInt):
+    Unit = {
+          args match {
+               case (hd, tl) => print(" X_" + hd + " = {" ); 
+                                printListOfGoods(tl);
+                                print("}    payment:");
+                                printPrice(pays, hd);
+  }}
+
+
+// The Isabelle generated code will compute an allocation in form of list of pairs (participant, listOfWonItems).
+// printAllocationAndPayments prints the allocation and the price to be paid for each such pair one by one.
+def printAllocationsAndPayments(args: set[List[(BigInt, List[BigInt])]], pays: BigInt => BigInt):
+   Unit = {  choice(args).foreach(arg => printAllocationAndPayment(arg, pays));
+  }
+
+/* In order to run an example the bids and the random number can be arguments to runExample in the form
+ *
+ * val r1: BigInt = 0 // 0, 1, 2, ... 23
+ *
+ * val b1: List[(BigInt, (List[BigInt], BigInt))] =
+ *   List((1, (List(11, 12), 2)),
+ *        (2, (List(11), 2)),
+ *        (2, (List(12), 2)),
+ *        (3, (List(11), 2)),
+ *        (3, (List(12), 2)))
+ *         
+ * runExample(b1, r1);         
+ */
+def runExample(b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
+   Unit = {
+      println("************************************************************************************************");
+      println("input bid vector:"); printAllBids(b);
+      print("Random number for tie breaking: "); println(r);
+      println;
+
+      println("Winning allocation and payments:"); 
+      printAllocationsAndPayments(allocation(b, r), payments(b, r));
+      println("************************************************************************************************");
+}
+
+// END OF HANDWRITTEN NON-VERIFIED CODE
+
+// START OF EXAMPLE e1 with bids b1 and random number r1
+// select random number in range 0, 1, ..., 2^card(goods) * factorial(numberOfParticipants) - 1
+val r1: BigInt = 0 // 0, 1, 2, ... 23
+
+val b1: List[(BigInt, (List[BigInt], BigInt))] =
+    List((1, (List(11, 12), 2)),
+         (2, (List(11), 2)),
+         (2, (List(12), 2)),
+         (3, (List(11), 2)),
+         (3, (List(12), 2)))
+// END OF EXAMPLE e1
+
+// START OF EXAMPLE e2 with bids b2 and random number r2
+// select random number in range 0, 1, ..., 2^card(goods) * factorial(numberOfParticipants) - 1
+val r2: BigInt = 1 // 0, 1, 2, ... 23
+
+val b2: List[(BigInt, (List[BigInt], BigInt))] =
+    List((1, (List(11, 12), 5)),
+         (2, (List(11), 3)),
+         (2, (List(12), 3)),
+         (3, (List(11), 2)),
+         (3, (List(12), 4)))
+// END OF EXAMPLE e2
+
+// START OF main
+
+def main(args: Array[String]) {
+
+//for (i <- 0 to 23) {
+//runExample(b1, i);
+//}
+
+runExample(b1, r1);
+runExample(b2, r2);
+
+// END OF main
+}
 
 } /* object VCG */
