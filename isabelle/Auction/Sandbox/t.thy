@@ -2,14 +2,13 @@ theory t
 imports Main 
 "~~/src/HOL/Library/Code_Target_Nat"
 "../Vcg/MiscTools"
-Fun
 
 begin
 
 fun update where "update l1 l2 [] = l1"| "update l1 l2 (x#xs) = list_update (update l1 l2 xs) x (l2!x)"
 abbreviation "tolist f n == map f [0..<n]"  
 abbreviation "update2 l X f == tolist (override_on (nth l) f X) (size l)"
-text{*{@term update2} alters the entries of {@term l} having indices in {@term X} 
+text{*{@term update2} alters the entries of the list {@term l} having indices in {@term X} 
 by applying {@term f} to each such index. }*}
 
 type_synonym instant=nat (*CR: defining instant in case later want to change instant type*)
@@ -35,6 +34,8 @@ definition sametomyleft where (*MC: try to use rotate instead *)
 (* "sametomyleft l = [fst x = snd x. x <- zip l (((hd l) + 1)# l)]" *)
 "sametomyleft l = take (size l) (False # [fst x = snd x. x <- drop 1 (zip l ((0) # l))])" 
 
+abbreviation "sametomyleft' l == [ (i \<noteq> 0 & (l!i = l!(i-(1)))). i <- [0..<size l]]"
+definition "sametomyleft'' = sametomyleft'"
 value "drop 1 (zip [0,1] ((SOME x. True) # [0::nat,1]))"
 
 definition sametomyright where 
@@ -50,12 +51,16 @@ the_elem ((%t. (if (f t=f (t+(1::nat))) then True else False))-`{True})"
 term "%x. (if (x=1) then True else False)"
 
 definition stopauctionat where "stopauctionat l = 
-filterpositions2 (%x. (x=True)) (sametomyleft l)"
+filterpositions2 (%x. (x=True)) (sametomyleft' l)"
 (* MC: I reuse what introduced to calculate argmax *)
+abbreviation "stopauctionat' l == 
+filterpositions2 (%x. (x=True)) (sametomyleft'' l)"
 definition "stopat B = Min (\<Inter> {set (stopauctionat (unzip2 (B,,i)))| i::nat. i \<in> Domain B})" 
-definition "stops B = \<Inter> {set (stopauctionat (unzip2 (B,,i)))| i. i \<in> Domain B}" 
+definition "stops B = \<Inter> {set (stopauctionat' (unzip2 (B,,i)))| i. i \<in> Domain B}"
+abbreviation "stops' B == \<Inter> {(set o stopauctionat' o unzip2) (B,,i)| i. i \<in> Domain B}"
 abbreviation "duration B == Max (size ` (Range B))"
 (* abbreviation "livelinessList B == True # list_update (replicate (duration B) True) (stopat B) False" *)
+abbreviation "mbc0 B == update2 (replicate (duration B) True) (stops B) (%x. False)"
 definition "livelinessList B = True # update2 (replicate (duration B) True) (stops B) (%x. False)"
 definition "alive (B::(participant \<times> (bool \<times> price) list) set) = nth (livelinessList B)"
 abbreviation "AddSingleBid B part b == B +< (part, (B,,part)@[(True,b)])"
@@ -83,37 +88,33 @@ abbreviation "BidMatrix == {(0::nat, ([]::(bool \<times> price) list)),(1::nat, 
 definition "bidMatrix = {(0::nat, ([]::(bool \<times> price) list)),(1::nat, [])}"
 (*definition "bidMatrix = {(0::nat, ([(True,1)]::(bool \<times> price) list)),(1::nat, [(True,1)])}"*)
 definition "example02=addSingleBid bidMatrix (0::nat) (4::nat)"
-lemma "alive B 0 = True" using assms alive_def sorry
-abbreviation "M == addSingleBid bidMatrix 0 0"
-abbreviation "MM == addSingleBid M 1 0"
+(* lemma "alive B 0 = True" using assms alive_def sorry *)
+abbreviation "M00 == addSingleBid bidMatrix 0 0"
+abbreviation "MM == addSingleBid M00 1 0"
 abbreviation "MMM == addSingleBid MM 0 0"
 abbreviation "MMMM == addSingleBid MMM 1 0"
 value "livelinessList MM"
-value "rotate 1 [1,2,3::nat]"
-value "sublist [1,2,3::nat] {0,2}"
-value "List.find (%x::nat. x=1) [1,2,1::nat]"
-value "sorted [1, 1::nat, 3, 3, 678]"
 
-definition "(n::nat) = (card bidMatrix)"
-definition "example=alive bidMatrix n"
+definition "(numberOfBidders::nat) = (card bidMatrix)"
+definition "example=alive bidMatrix numberOfBidders"
 
 (* CR: cur, prev implicitly defined; thus, they apply to any fixed number of bidders *)
-definition liveliness where "liveliness prev cur = (if 
+definition liveliness' where "liveliness' prev cur = (if 
 ((snd cur) < (snd prev) \<or> \<not> (fst cur)) 
 then False else True)"
 
 definition lastvalidbid where 
-"lastvalidbid prev cur = (if liveliness prev cur then (snd cur) else (snd prev))"
+"lastvalidbid prev cur = (if liveliness' prev cur then (snd cur) else (snd prev))"
 
 fun amendedbid where
 "amendedbid (b::dynbid) 0 = (b!0)" |
 "amendedbid b (Suc t) = 
-(liveliness (amendedbid b t) (b!(Suc t)), lastvalidbid (amendedbid b t) (b!(Suc t)))"
+(liveliness' (amendedbid b t) (b!(Suc t)), lastvalidbid (amendedbid b t) (b!(Suc t)))"
 
 fun amendedbidlist where (*MC: this assumes that the list of bids grows on the left through time *)
 "amendedbidlist [] = [(True, 0::nat)]" |
 "amendedbidlist (x # b) = 
-(liveliness ((amendedbidlist b)!0) x, lastvalidbid ((amendedbidlist b)!0) x) # (amendedbidlist b)"
+(liveliness' ((amendedbidlist b)!0) x, lastvalidbid ((amendedbidlist b)!0) x) # (amendedbidlist b)"
 
 abbreviation "amendedbidlist2 b == rev (amendedbidlist (rev b))"
 
@@ -131,7 +132,6 @@ value "stopat (amendedbids example03)"
 value "snd (nth (amendedbids example03,,20) 6)"
 value "(% x. x!6)` ( Range (amendedbids example03))"
 value "bidsattime (amendedbids example03) (stopat (amendedbids example03))"
-term "bidsattime"
 value "stopat (amendedbids MMMM)"
 
 (* MC: Not employed at the moment, could be used to model feedback to bidders 
@@ -175,7 +175,6 @@ definition "b1 matrix=
 (Max ((bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat)))^-1 `` 
 {Max (Range (bidsattime matrix ((Max (size ` snd ` matrix)) - (1::nat))))}))"
 
-value MMMM
 value "a1 MMMM"
 value "(a1 MMMM),,(b1 MMMM)"
 value "{(0, 0), (0, 0), (1, 0), (1, 0)},, (b1 MMMM)"

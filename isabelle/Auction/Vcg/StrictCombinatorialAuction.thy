@@ -75,8 +75,8 @@ abbreviation "altbids (b::bids) == split b"
 (* CL: I don't understand the choice of the name "proceeds". *)
 abbreviation "proceeds (b::altbids) (allo::allocation) == setsum b allo"
 
-abbreviation participants where "participants (a::allocation) == Domain a"
-abbreviation goods::"allocation => goods" where "goods (allo::allocation) == \<Union> (Range allo)"
+abbreviation "winnersOfAllo (a::allocation) == Domain a"
+abbreviation "allocatedGoods (allo::allocation) == \<Union> (Range allo)"
 
 (*
 text {* all possible allocations of a set of goods to a set of participants: 
@@ -166,14 +166,14 @@ We can then use the bid constructed this way @{term tiebids'} to break ties by r
 having the same form as a normal auction (that is why we use the adjective ``uniform''), 
 only with this special bid vector. *}
 abbreviation "omega pair == {fst pair} \<times> (finestpart (snd pair))"
-abbreviation "pseudoAllocation allocation == \<Union> (omega ` allocation)"
+definition "pseudoAllocation allocation == \<Union> (omega ` allocation)"
 (*abbreviation "allocation2Goods allocation == \<Union> (snd ` allocation)"*)
 abbreviation "bidMaximizedBy allocation N G == 
 (* (N \<times> finestpart G) \<times> {0::price} +* ((pseudoAllocation allocation) \<times> {1}) *)
 pseudoAllocation allocation <|| ((N \<times> (finestpart G)))"
 abbreviation "maxbid' a N G == toFunction (bidMaximizedBy a N G)"
 abbreviation "partialCompletionOf bids pair == (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
-abbreviation "test bids pair == setsum (%g. bids (fst pair, g)) (finestpart (snd pair))"
+abbreviation "aux bids pair == setsum (%g. bids (fst pair, g)) (finestpart (snd pair))"
 abbreviation "LinearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
 abbreviation "linearCompletion' bids N G == toFunction (LinearCompletion bids N G)"
 abbreviation "tiebids' a N G == linearCompletion' (maxbid' a N G) N G"

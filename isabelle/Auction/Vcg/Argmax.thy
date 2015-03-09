@@ -48,7 +48,7 @@ where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))
 writing also appears to be computable:*)
 
 definition filterpositions2 
-:: "('a => bool) => 'a list => nat list"
+(* :: "('a => bool) => 'a list => nat list" *)
 where "filterpositions2 P l = [n. n \<leftarrow> [0..<size l], P (l!n)]"
 
 definition maxpositions (*:: "'a::linorder list => nat list"*) where

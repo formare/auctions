@@ -38,7 +38,14 @@ definition "b01 =
 definition "B01 = (%x. if x=(2,{12}) then 2 else (0::nat))"
 (* definition "example = vcgaAlg (int`N00) G00 (b00 Elsee 0) 1" *)
 definition ao where "ao=(%x. (if x=0 then (24::nat) else 11))"
-definition "b1 = [[[1::integer], [11,12,13], [3]], [[2],[11,13],[22]]]"
+(* definition "b1 = [[[1::integer], [11,12,13], [3]], [[2],[11,13],[22]]]" *)
+definition "b1 = [
+[[1::integer], [11,12], [2]], 
+[[2], [11], [2]],
+[[2], [12], [2]],
+[[3], [11], [2]],
+[[3], [12], [2]]
+]"
 term Nat
 (* [[1::integer], [10,20,30,40], [3]] \<longrightarrow> (1, {10,20,30,40), 3*)
 definition "helper (list) == (((hd\<circ>hd) list, set (list!1)), hd(list!2))"
@@ -46,20 +53,41 @@ definition "listBid2funcBid listBid = (helper`(set listBid)) Elsee (0::integer)"
 term "a::natural"
 (* definition "converter z = (integer_of_int (fst z), snd z)" *)
 abbreviation "converter==id"
-abbreviation "participantsList == map (hd\<circ>hd)"
+abbreviation "participantsList == remdups o (map (hd\<circ>hd))"
 abbreviation "goodsList == remdups \<circ> concat \<circ> (map (% l. l!1))"
 abbreviation "allocationPrettyPrint a == (%z. (fst z, sorted_list_of_set (snd z)))`a"
 abbreviation "allocationPrettyPrint2 a == map (%x. (x, sorted_list_of_set(a,,x))) ((sorted_list_of_set \<circ> Domain) a)"
 term "folding.F insort []"
 definition mbca :: "'a set => 'a list" where "mbca=folding.F (insort_key (\<lambda>x. 1::nat)) []"
 definition mbcb where "mbcb=folding.F (insort_key fst) []"
+definition "randomNumber=1"
+abbreviation "maximalStrictAllocationsList N G b==
+argmaxList (setsum b) (allStrictAllocations ({seller}\<union>N) G)"
+abbreviation "winningAllo == hd (maximalStrictAllocationsList 
+(set (participantsList b1)) (goodsList b1) (listBid2funcBid b1)
+)"
 
-definition "example = allocationPrettyPrint2`(maximalStrictAllocations (set (participantsList b1)) (goodsList b1) (listBid2funcBid b1))"
-export_code example in Scala module_name a file "/dev/shm/a.scala"
+definition "example = {allocationPrettyPrint2 winningAllo}"
+
+definition "paymentFunc n = 
+Max (setsum 
+(listBid2funcBid b1)
+ ` (allAllocationsComp (
+(set (participantsList b1))
+-{n}) 
+(goodsList b1)
+)) - (setsum 
+(listBid2funcBid b1)
+(winningAllo -- n))"
+
+definition "paymentList=[paymentFunc n. n<-participantsList b1]"
+
+export_code example paymentList in Scala module_name a file "/dev/shm/a.scala"
+
 (* definition "example = converter`(vcgaAlg ((set N01)) G01 ((listBid2funcBid b1)\<circ>converter) 1)" 
 definition "example2=eval_rel example" *)
 (*
-value example
+
 
 value "
 allocationPrettyPrint2`

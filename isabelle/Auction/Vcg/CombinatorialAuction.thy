@@ -27,7 +27,7 @@ begin
 section {* Definition of a VCG auction scheme, through the pair @{term "(vcga', vcgp)"} *}
 
 type_synonym bidvector' = "((participant \<times> goods) \<times> price) set"
-abbreviation "Participants b' == Domain (Domain b')"
+abbreviation "participants b' == Domain (Domain b')"
 abbreviation "seller == (0::integer)"
 abbreviation "allAllocations N G == possibleAllocationsRel N G"
 abbreviation "allAllocations' N \<Omega> == injectionsUniverse \<inter> 
@@ -266,6 +266,8 @@ moreover have "(Outside'{seller}) ` ?X = vcgas N G b r" by blast
 ultimately show ?thesis using lm011 by blast
 qed
 
+theorem vcgpDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
+"\<exists>! y. vcgap N G b r n=y" using assms vcgaDefiniteness by simp
 
 text {* Here we are showing that our way of randomizing using randomBids' actually breaks the tie:
 we are left with a singleton after the tie-breaking step. *}
@@ -445,6 +447,9 @@ Max (setsum b ` (soldAllocations (N-{n}) (set G))) - (setsum b (vcga N G b r -- 
 lemma lm63: assumes "x \<in> X" "finite X" shows "Max (f`X) >= f x" (is "?L >= ?R") using assms 
 by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
+lemma lm59: assumes "finite N" "finite G" shows "finite (soldAllocations N G)" using assms lm59
+finite.emptyI finite.insertI finite_UnI finite_imageI by metis
+
 text{* The price paid by any participant is non-negative. *}
 theorem NonnegPrices: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "vcgp N G b r n >= (0::price)" 
@@ -452,9 +457,8 @@ proof -
 let ?a="vcga N G b r" let ?A=soldAllocations let ?f="setsum b" 
 have "?a \<in> ?A N (set G)" using assms by (rule lm58f)
 then have "?a -- n \<in> ?A (N-{n}) (set G)" by (rule lm44b)
-moreover have "finite (?A (N-{n}) (set G))" 
-by (metis List.finite_set assms(3) finite.emptyI finite_Diff finite_Un finite_imageI finite_insert lm59) 
-ultimately have "Max (?f`(?A (N-{n}) (set G))) >= ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
+moreover have "finite (?A (N-{n}) (set G))" using assms(3) lm59 finite_set finite_Diff by blast
+ultimately have "Max (?f`(?A (N-{n}) (set G))) \<ge> ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
 then show "?L - ?R >=0" by linarith
 qed
 
@@ -541,18 +545,20 @@ moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) lm58e by 
 ultimately show ?thesis by blast
 qed
 
-abbreviation "allStrictAllocations N G == possibleAllocationsAlg3 N G"
+definition "allStrictAllocations N G == possibleAllocationsAlg3 N G"
 abbreviation "maximalStrictAllocations N G b==
 argmax (setsum b) (set (allStrictAllocations ({seller}\<union>N) G))"
 
-abbreviation "chosenAllocation N G b (r::integer) == 
+definition "maximalStrictAllocations2 N G b=
+argmax (setsum b) (set (allStrictAllocations ({seller}\<union>N) G))"
+
+definition "chosenAllocation N G b (r::integer) == 
 hd(perm2 (takeAll (%x. x\<in> (argmax \<circ> setsum) b (set (allStrictAllocations N G))) (allStrictAllocations N G)) (nat_of_integer r))"
-abbreviation "maxbid a N G == (bidMaximizedBy a N G) Elsee 0"
-abbreviation "linearCompletion (bids) N G == 
- (LinearCompletion bids N G) Elsee 0"
-abbreviation "tiebids a N G == linearCompletion (maxbid a N G) N G"
-abbreviation "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
-abbreviation "randomBids N \<Omega> b random==resolvingBid (N\<union>{seller}) \<Omega> b random"
+definition "maxbid a N G == (bidMaximizedBy a N G) Elsee 0"
+definition "linearCompletion bids N G == (LinearCompletion bids N G) Elsee 0"
+definition "tiebids a N G == linearCompletion (maxbid a N G) N G"
+definition "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
+definition "randomBids N \<Omega> b random==resolvingBid (N\<union>{seller}) \<Omega> b random"
 definition "vcgaAlg N G b r == (the_elem
 (argmax (setsum (randomBids N G b r)) (maximalStrictAllocations N G b))) -- seller"
 term maximalStrictAllocations
@@ -561,7 +567,8 @@ abbreviation "allAllocationsComp N \<Omega> ==
 definition "vcgpAlg N G b r n =
 Max (setsum b ` (allAllocationsComp (N-{n}) G)) - (setsum b (vcgaAlg N G b r -- n))"
 
-lemma lm01: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x" 
+lemma lm01: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x"
+unfolding toFunctionWithFallback2_def
 by (metis assms toFunction_def)
 lemma lm03: "Domain (Y \<times> {0::nat}) = Y & Domain (X \<times> {1})=X" by blast
 lemma lm04: "Domain (X <|| Y) = X \<union> Y" using lm03 paste_Domain sup_commute by metis
@@ -570,8 +577,8 @@ by metis
 lemma lm19: "(pseudoAllocation a) \<subseteq> Domain (bidMaximizedBy a N G)" by (metis lm04 Un_upper1)
 
 lemma lm02: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
-"linearCompletion' b N G x=linearCompletion b N G x"
-using assms lm01  Domain.simps imageI by (metis(no_types,lifting))
+"linearCompletion' b N G x=linearCompletion b N G x" unfolding linearCompletion_def 
+using assms lm01 Domain.simps imageI by (metis(no_types,lifting))
 (*lm64*)
 
 (*
@@ -623,8 +630,10 @@ let ?f2="%g.((bidMaximizedBy a N G) Elsee 0)(fst pair, g)"
   have "?f1 g = ?f2 g" 
   proof -
     have "\<And>x\<^sub>1 x\<^sub>2. (x\<^sub>1, g) \<in> x\<^sub>2 \<times> finestpart G \<or> x\<^sub>1 \<notin> x\<^sub>2" by (metis 0 mem_Sigma_iff) 
-    thus "(pseudoAllocation a <| (N \<times> finestpart G)) (fst pair, g) = maxbid a N G (fst pair, g)" 
+    then have "(pseudoAllocation a <| (N \<times> finestpart G)) (fst pair, g) = maxbid a N G (fst pair, g)"
+    unfolding toFunctionWithFallback2_def maxbid_def
     by (metis (no_types) lm04 UnCI assms(1) toFunction_def)
+    thus ?thesis unfolding maxbid_def by blast
   qed
 }
 thus ?thesis using setsum.cong by simp
@@ -657,7 +666,7 @@ corollary lm11: "LinearCompletion (toFunction (bidMaximizedBy a N G)) N G =
 LinearCompletion ((bidMaximizedBy a N G) Elsee 0) N G" using lm10 by metis
 
 corollary lm12: "LinearCompletion (maxbid' a N G) N G = LinearCompletion (maxbid a N G) N G"
-using lm11 by metis
+unfolding maxbid_def using lm11 by metis
 
 lemma lm13: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
 "linearCompletion' (maxbid' a N G) N G x = linearCompletion (maxbid a N G) N G x"
@@ -666,7 +675,8 @@ using assms lm02 lm12
 proof -
 let ?h1="maxbid' a N G" let ?h2="maxbid a N G" let ?hh1="real \<circ> ?h1" let ?hh2="real \<circ> ?h2"
 have "LinearCompletion ?h1 N G = LinearCompletion ?h2 N G" using lm12 by metis 
-moreover have "linearCompletion ?h2 N G=(LinearCompletion ?h2 N G) Elsee 0" by fast
+moreover have "linearCompletion ?h2 N G=(LinearCompletion ?h2 N G) Elsee 0"
+unfolding linearCompletion_def by fast
 ultimately have " linearCompletion ?h2 N G=LinearCompletion ?h1 N G Elsee 0" by presburger
 moreover have "... x = (toFunction (LinearCompletion ?h1 N G)) x" using assms 
 lm01 UniformTieBreaking.lm64 by (metis (mono_tags))
@@ -685,7 +695,8 @@ corollary lm24b: assumes "card A > 0" shows "card ({a} \<union> A) > 0" using as
 by (metis card_empty card_insert_disjoint empty_iff finite.emptyI lessI)
 
 corollary assumes "card N > 0" "distinct G" shows
-"maximalStrictAllocations' N (set G) b = maximalStrictAllocations N G b" 
+"maximalStrictAllocations' N (set G) b = maximalStrictAllocations N G b"
+unfolding allStrictAllocations_def
 using assms lm70c lm24b by (metis(no_types))
 
 (*
@@ -700,18 +711,24 @@ qed
 *)
 
 corollary lm70d: assumes "card N > 0" "distinct G" shows 
-"allAllocations N (set G) = set (allStrictAllocations N G)" using assms lm70c by blast 
+"allAllocations N (set G) = set (allStrictAllocations N G)" 
+unfolding allStrictAllocations_def
+using assms lm70c by blast 
 
 corollary lm70f: assumes "card N > 0" "distinct G" shows 
 "winningAllocationsRel N (set G) b = 
-(argmax \<circ> setsum) b (set (allStrictAllocations N G))" using assms lm70c by (metis comp_apply)
+(argmax \<circ> setsum) b (set (allStrictAllocations N G))"
+unfolding allStrictAllocations_def
+using assms lm70c by (metis comp_apply)
 
 corollary lm70g: assumes "card N > 0" "distinct G" shows
-"chosenAllocation' N G b r = chosenAllocation N G b r" using assms lm70f by metis 
+"chosenAllocation' N G b r = chosenAllocation N G b r" 
+unfolding chosenAllocation_def using assms lm70f allStrictAllocations_def by (metis(no_types)) 
 corollary lm13b: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows "tiebids' a N G x = tiebids a N G x" (is "?L=_") 
 proof - 
 have "?L = linearCompletion' (maxbid' a N G) N G x" by fast moreover have "...= 
-linearCompletion (maxbid a N G) N G x" using assms by (rule lm13) ultimately show ?thesis by fast
+linearCompletion (maxbid a N G) N G x" using assms by (rule lm13) ultimately show ?thesis 
+unfolding tiebids_def by fast
 qed 
 
 lemma lm14: assumes "card N > 0" "distinct G" "a \<subseteq> (N \<times> (Pow (set G) - {{}}))" shows
@@ -722,7 +739,7 @@ let ?c'="chosenAllocation' N G b r" let ?c="chosenAllocation N G b r" let ?r'="r
 have "?c' = ?c" using assms(1,2) by (rule lm70g) then
 have "?r' = tiebids' ?c N (set G)" by presburger
 moreover have "\<forall>x \<in> a. tiebids' ?c N (set G) x = tiebids ?c N (set G) x" using assms(3) lm13b by blast
-ultimately have "\<forall>x \<in> a. ?r' x = resolvingBid N G b r x" by presburger
+ultimately have "\<forall>x \<in> a. ?r' x = resolvingBid N G b r x" unfolding resolvingBid_def by presburger
 thus ?thesis using setsum.cong by simp
 qed
 lemma lm15: "allAllocations N G \<subseteq> Pow (N \<times> (Pow G - {{}}))" by (metis PowI lm40c subsetI)
@@ -740,7 +757,7 @@ have "card (N\<union>{seller})>0" using assms(1) sup_eq_bot_iff insert_not_empty
 by (metis card_gt_0_iff finite.emptyI finite.insertI finite_UnI)
 moreover have "distinct G" using assms(2) by simp
 moreover have "a \<in> allAllocations (N\<union>{seller}) (set G)" using assms(3) by fastforce
-ultimately show ?thesis by (rule lm14b)
+ultimately show ?thesis unfolding randomBids_def by (rule lm14b)
 qed
 
 lemma lm16: assumes "\<forall>x\<in>X. f x = g x" shows "argmax f X=argmax g X" 
@@ -797,7 +814,7 @@ abbreviation "firstPriceP N \<Omega> b r n ==
 b (n, winningAllocationAlg N \<Omega> r b,, n)"
 
 lemma assumes "\<forall> X. b (n, X) \<ge> 0" shows
-"firstPriceP N \<Omega> b r n \<ge> 0" using assms by simp
+"firstPriceP N \<Omega> b r n \<ge> 0" using assms by blast
 
 (*
 value "injections_alg [0::nat,1] {11::nat, 12}"
@@ -823,7 +840,68 @@ definition "b00 =
 term b00
 (* definition "example = vcgaAlg (int`N00) G00 (b00 Elsee 0) 1" *)
 definition ao where "ao=(%x. (if x=0 then (24::nat) else 11))"
-export_code ao b00 in Scala module_name VCG file "/dev/shm/VCG.scala"
 
+abbreviation "b01 == 
+{
+((1::integer,{11::integer, 12, 13}),20::integer),
+((1,{11,12}),18),
+((2,{11}),10),
+((2,{12}),15),
+((2,{12,13}),18),
+((3,{11}),2),
+((3,{11,12}),12),
+((3,{11,13}),17),
+((3,{12,13}),18),
+((3,{11,12,13}),19)
+}"
+(*value "randomBids {1,2,3} [11,12,13] (b01 Elsee 0) 1 (2,{12})" *)
+definition "N01={1::integer,2,3}"
+definition "G01=[11::integer,12,13]"
+definition "f01=b01 Elsee 0"
+definition "evaluateMe01 = vcgaAlg N01 G01 f01 1"
+definition "evaluateMe02 = maximalStrictAllocations N01 G01 f01"
+definition "evaluateMe03 = randomBids N01 G01 f01 1 (2,{12})"
+(* value "chosenAllocation (N01\<union>{seller}) G01 f01 1" *)
+definition "chosenAllocation01={(2, {12}), (3, {13, 11})}"
+(* value "graph ((N01\<union>{seller}) \<times> (Pow (set G01)-{{}})) (randomBids N01 G01 f01 1)" *) 
+abbreviation "graphRandomBids01::((integer \<times> integer set) \<times> nat) set ==
+{((3, {12, 13}), 1), ((3, {12}), 0), ((3, {}), 0), ((3, {13}), 1), ((3, {11, 13}), 2), ((3, {11}), 1),
+  ((3, {11, 12}), 1), ((3, {11, 12, 13}), 2), ((2, {12, 13}), 1), ((2, {12}), 1), ((2, {}), 0), ((2, {13}), 0),
+  ((2, {11, 13}), 0), ((2, {11}), 0), ((2, {11, 12}), 1), ((2, {11, 12, 13}), 1), ((1, {12, 13}), 0),
+  ((1, {12}), 0), ((1, {}), 0), ((1, {13}), 0), ((1, {11, 13}), 0), ((1, {11}), 0), ((1, {11, 12}), 0),
+  ((1, {11, 12, 13}), 0), ((seller, {12, 13}), 0), ((seller, {12}), 0), ((seller, {}), 0), ((seller, {13}), 0),
+  ((seller, {11, 13}), 0), ((seller, {11}), 0), ((seller, {11, 12}), 0), ((seller, {11, 12, 13}), 0)}"
+value "graph ((N01\<union>{seller}) \<times> (Pow (set G01)-{{}})) (tiebids 
+chosenAllocation01 
+N01 (set G01))"
+(* 
+MC: A key hint is in the much longer evaluation time of the following, compared to the one above
+MC: fixed by changing "abbreviation tiebids ..." into "definition tiebids ..."
+*)
+value "graph ((N01\<union>{seller}) \<times> (Pow (set G01)-{{}})) (tiebids 
+(chosenAllocation (N01\<union>{seller}) G01 f01 1) N01 (set G01))"
+
+value "vcgaAlg N01 G01 f01 1"
+value "b01 \<union> {}"
+
+abbreviation "goods == sorted_list_of_set o Union o Range o Domain"
+abbreviation "b02==b01 \<union> ({1,2,3}\<times>{{14},{15}})\<times>{20}"
+abbreviation "N02==participants b02"
+abbreviation "G02==goods b02"
+abbreviation "f02==b02 Elsee 0"
+
+(*value "chosenAllocation (N02\<union>{seller}) G02 f02 1"
+value "maximalStrictAllocations (N02\<union>{seller}) G02 f02"*)
+abbreviation "chosenAllocation02==
+{(2, {14}), (3, {15}), (1, {12, 13, 11})}" 
+value "graph ((N02\<union>{seller}) \<times> (Pow (set G02)-{{}}))
+(tiebids chosenAllocation02 (participants b02) (set (goods b02)))"
+(*value "graph ((N02\<union>{seller}) \<times> (Pow (set G02)-{{}}))
+(tiebids (chosenAllocation (N02\<union>{seller}) G02 f02 1) (participants b02) (set (goods b02)))"*)
+(*value "graph ((N02\<union>{seller}) \<times> (Pow (set G02)-{{}}))
+(resolvingBid (N02\<union>{seller}) G02 f02 1)"*) 
+(* value "randomBids ((fst o fst)`b02) (sorted_list_of_set (Union ((snd o fst)`b02))) (b02 Elsee 0) 1 (1,{11})" *)
+
+export_code evaluateMe01 in Scala module_name a file "/dev/shm/a.scala"
 end
 

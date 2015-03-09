@@ -1,2 +1,7 @@
-* Dyna.scala is automatically generated from Isabelle code.
-* Auction.scala and AuctionMatrix.scala are handwritten skeletons for wrappers
+The file vcg.scala can be directly compiled (by typing `scalac vcg.scala' at your prompt) and then executed (by typing `scala vcg').
+
+If you don't have Scala installed on your machine, you can get it at http://www.scala-lang.org/.
+
+The input is contained in the definition of b1 at line xxx, and can be changed directly inside the source by the user.
+
+

@@ -1,9 +1,9 @@
 theory scratch
 
-imports export
+imports Main
 
 begin
-lemma "\<exists>! x. x=vcga N G b r" 
-
+print_statement list.set
+print_statement list.simps
 end
 

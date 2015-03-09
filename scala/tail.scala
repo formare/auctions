@@ -126,7 +126,7 @@ def main(args: Array[String]) {
 
 
 def untrustedInput(n:List[BigInt]) : List[BigInt] = {
-	val x=readInt; //NB: We trust the user inputs an integer, here! This is a naive but simple approach
+	val x=readInt; //NB: We rely on the user typing an integer, here! This is a naive but simple approach.
 	return (x::n);
 }
 
@@ -138,4 +138,130 @@ def untrustedOutput(x: (List[BigInt], String)) : List[BigInt] = {
 def main(args: Array[String]) {
 	val x=evaluateMe(untrustedInput, untrustedOutput);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def unverifiedInput(n:List[BigInt]) : List[BigInt] = {
+	val x=readInt; //NB: We rely on the user typing an integer, here! This is a naive but simple approach.
+	return (x::n);
+}
+
+def unverifiedOutput(x: (String, List[BigInt])) : List[BigInt] = {
+	println(fst (x));
+	return (snd (x));
+}
+
+def main(args: Array[String]) {
+	val x=evaluateMe(unverifiedInput, unverifiedOutput);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def unverifiedInput[A](n:A) : (BigInt, A) = {
+	val x=readInt; 
+	return (x,n);
+}
+
+def unverifiedOutput[A](x: (String, A)) : A = {
+	println(fst (x));
+	return (snd (x));
+}
+
+def main(args: Array[String]) {
+	val x=evaluateMe2(unverifiedInput, unverifiedOutput);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def input(n:List[BigInt]) : List[BigInt] = {
+	val x=readInt;
+	return (x::n);
+}
+
+def output(x: (String, List[BigInt])) : List[BigInt] = {
+	println(fst (x));
+	return (snd (x));
+}
+
+def main(args: Array[String]) {
+	val x=evaluateMe(input, output);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def input[A](n:(Boolean, List[a.nat])) : (BigInt, (Boolean, List[a.nat])) = {
+	val x=readInt; 
+	return (x,n);
+}
+
+def output[A](x: (String, A)) : A = {
+	println(fst (x));
+	return (snd (x));
+}
+
+def main(args: Array[String]) {
+	val x=evaluateMe2(input, output);
+}
+
+
 
