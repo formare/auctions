@@ -559,13 +559,14 @@ definition "linearCompletion bids N G == (LinearCompletion bids N G) Elsee 0"
 definition "tiebids a N G == linearCompletion (maxbid a N G) N G"
 definition "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
 definition "randomBids N \<Omega> b random==resolvingBid (N\<union>{seller}) \<Omega> b random"
-definition "vcgaAlg N G b r == (the_elem
+definition "vcgaAlgWithoutLosers N G b r == (the_elem
 (argmax (setsum (randomBids N G b r)) (maximalStrictAllocations N G b))) -- seller"
-term maximalStrictAllocations
+abbreviation "addLosers participantset allo==(participantset \<times> {{}}) +* allo"
+definition "vcgaAlg N G b r = addLosers N (vcgaAlgWithoutLosers N G b r)"
 abbreviation "allAllocationsComp N \<Omega> == 
 (Outside' {seller}) ` set (allStrictAllocations (N \<union> {seller}) \<Omega>)"
 definition "vcgpAlg N G b r n =
-Max (setsum b ` (allAllocationsComp (N-{n}) G)) - (setsum b (vcgaAlg N G b r -- n))"
+Max (setsum b ` (allAllocationsComp (N-{n}) G)) - (setsum b (vcgaAlgWithoutLosers N G b r -- n))"
 
 lemma lm01: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x"
 unfolding toFunctionWithFallback2_def
@@ -931,5 +932,5 @@ end
 
 
 (* 
-tac ../VCG.scala | sed -n -e '1,/\}/ !p'  | tac | cat - addedWrapper.scala| sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g" > ./VCG.scala
+{ tac ../VCG.scala | sed -n -e '1,/\}/ !p'  | tac | cat - addedWrapper.scala; echo \}; }| sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g" > ./VCG.scala
 *)

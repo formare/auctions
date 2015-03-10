@@ -1,10 +1,10 @@
 object VCG {
 
 abstract sealed class nat
-final case class Nat(a: BigInt) extends nat
+final case class NNat(a: BigInt) extends nat
 
 def integer_of_nat(x0: nat): BigInt = x0 match {
-  case Nat(x) => x
+  case NNat(x) => x
 }
 
 def equal_nata(m: nat, n: nat): Boolean = integer_of_nat(m) == integer_of_nat(n)
@@ -18,7 +18,7 @@ implicit def equal_nat: equal[nat] = new equal[nat] {
   val `VCG.equal` = (a: nat, b: nat) => equal_nata(a, b)
 }
 
-def plus_nata(m: nat, n: nat): nat = Nat(integer_of_nat(m) + integer_of_nat(n))
+def plus_nata(m: nat, n: nat): nat = NNat(integer_of_nat(m) + integer_of_nat(n))
 
 trait plus[A] {
   val `VCG.plus`: (A, A) => A
@@ -29,7 +29,7 @@ implicit def plus_nat: plus[nat] = new plus[nat] {
   val `VCG.plus` = (a: nat, b: nat) => plus_nata(a, b)
 }
 
-def zero_nata: nat = Nat(BigInt(0))
+def zero_nata: nat = NNat(BigInt(0))
 
 trait zero[A] {
   val `VCG.zero`: A
@@ -237,7 +237,7 @@ final case class Bit1(a: num) extends num
 
 def id[A]: A => A = (x: A) => x
 
-def one_nat: nat = Nat(BigInt(1))
+def one_nat: nat = NNat(BigInt(1))
 
 def Suc(n: nat): nat = plus_nata(n, one_nat)
 
@@ -297,7 +297,7 @@ def comp[A, B, C](f: A => B, g: C => A): C => B = (x: C) => f(g(x))
 def max[A : ord](a: A, b: A): A = (if (less_eq[A](a, b)) b else a)
 
 def minus_nat(m: nat, n: nat): nat =
-  Nat(max[BigInt](BigInt(0), integer_of_nat(m) - integer_of_nat(n)))
+  NNat(max[BigInt](BigInt(0), integer_of_nat(m) - integer_of_nat(n)))
 
 def nth[A](x0: List[A], n: nat): A = (x0, n) match {
   case (x :: xs, n) =>
@@ -439,7 +439,7 @@ def mod_integer(k: BigInt, l: BigInt): BigInt =
   snd[BigInt, BigInt](divmod_integer(k, l))
 
 def mod_nat(m: nat, n: nat): nat =
-  Nat(mod_integer(integer_of_nat(m), integer_of_nat(n)))
+  NNat(mod_integer(integer_of_nat(m), integer_of_nat(n)))
 
 def fst[A, B](x0: (A, B)): A = x0 match {
   case (x1, x2) => x1
@@ -449,7 +449,7 @@ def div_integer(k: BigInt, l: BigInt): BigInt =
   fst[BigInt, BigInt](divmod_integer(k, l))
 
 def div_nat(m: nat, n: nat): nat =
-  Nat(div_integer(integer_of_nat(m), integer_of_nat(n)))
+  NNat(div_integer(integer_of_nat(m), integer_of_nat(n)))
 
 def perm2[A](x0: List[A]): nat => List[A] = x0 match {
   case Nil => (_: nat) => Nil
@@ -509,9 +509,9 @@ def paste[A : equal, B : equal](p: set[(A, B)], q: set[(A, B)]): set[(A, B)] =
 def eval_rel[A : equal, B](r: set[(A, B)], a: A): B =
   the_elem[B](Image[A, B](r, insert[A](a, bot_set[A])))
 
-def nat_of_integer(k: BigInt): nat = Nat(max[BigInt](BigInt(0), k))
+def nat_of_integer(k: BigInt): nat = NNat(max[BigInt](BigInt(0), k))
 
-def Sup_set[A : equal](x0: set[set[A]]): set[A] = x0 match {
+def SSup_set[A : equal](x0: set[set[A]]): set[A] = x0 match {
   case seta(xs) =>
     fold[set[A],
           set[A]]((a: set[A]) => (b: set[A]) => sup_set[A](a, b), xs,
@@ -521,7 +521,7 @@ def Sup_set[A : equal](x0: set[set[A]]): set[A] = x0 match {
 def pseudoAllocation[A : equal, B : equal](allocation: set[(A, set[B])]):
       set[(A, set[B])]
   =
-  Sup_set[(A, set[B])](image[(A, set[B]),
+  SSup_set[(A, set[B])](image[(A, set[B]),
                               set[(A, set[B])]]((pair: (A, set[B])) =>
           product[A, set[B]](insert[A](fst[A, set[B]](pair), bot_set[A]),
                               finestpart[B](snd[A, set[B]](pair))),
@@ -688,9 +688,10 @@ def randomBids[A : equal,
               bot_set[BigInt])),
                     omega, b, random)
 
-def vcgaAlg[A : equal,
-             B : comm_monoid_add : equal : linorder](n: set[BigInt], g: List[A],
-              b: ((BigInt, set[A])) => B, r: BigInt):
+def vcgaAlgWithoutLosers[A : equal,
+                          B : comm_monoid_add : equal : linorder](n:
+                            set[BigInt],
+                           g: List[A], b: ((BigInt, set[A])) => B, r: BigInt):
       set[(BigInt, set[A])]
   =
   Outside[BigInt,
@@ -709,6 +710,17 @@ def vcgaAlg[A : equal,
              n),
                                      g))))),
                     insert[BigInt](BigInt(0), bot_set[BigInt]))
+
+def vcgaAlg[A : equal,
+             B : comm_monoid_add : equal : linorder](n: set[BigInt], g: List[A],
+              b: ((BigInt, set[A])) => B, r: BigInt):
+      set[(BigInt, set[A])]
+  =
+  paste[BigInt,
+         set[A]](product[BigInt,
+                          set[A]](n, insert[set[A]](bot_set[A],
+             bot_set[set[A]])),
+                  vcgaAlgWithoutLosers[A, B](n, g, b, r))
 
 def vcgpAlg[A : equal,
              B : comm_monoid_add : minus : equal : linorder](na: set[BigInt],
@@ -731,7 +743,8 @@ def vcgpAlg[A : equal,
                     g))))),
             setsum[(BigInt, set[A]),
                     B](b, Outside[BigInt,
-                                   set[A]](vcgaAlg[A, B](na, g, b, r),
+                                   set[A]](vcgaAlgWithoutLosers[A,
+                         B](na, g, b, r),
     insert[BigInt](n, bot_set[BigInt]))))
 
 def Bid2funcBid[A : equal, B : equal](b: List[(A, (List[B], BigInt))]):
@@ -766,7 +779,7 @@ def payments[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                               BigInt]((aa: (BigInt, (List[A], BigInt))) =>
 fst[BigInt, (List[A], BigInt)](aa),
                                        seta[(BigInt, (List[A], BigInt))](b)),
-                        sorted_list_of_set[A](Sup_set[A](image[(BigInt,
+                        sorted_list_of_set[A](SSup_set[A](image[(BigInt,
                          (List[A], BigInt)),
                         set[A]](comp[(List[A], BigInt), set[A],
                                       (BigInt,
@@ -794,7 +807,7 @@ def allocation[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                                     BigInt]((a: (BigInt, (List[A], BigInt))) =>
       fst[BigInt, (List[A], BigInt)](a),
      seta[(BigInt, (List[A], BigInt))](b)),
-                              sorted_list_of_set[A](Sup_set[A](image[(BigInt,
+                              sorted_list_of_set[A](SSup_set[A](image[(BigInt,
                                (List[A], BigInt)),
                               set[A]](comp[(List[A], BigInt), set[A],
     (BigInt,
@@ -818,7 +831,7 @@ def allocation[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                            BigInt](image[(BigInt, (List[A], BigInt)),
   BigInt]((a: (BigInt, (List[A], BigInt))) => fst[BigInt, (List[A], BigInt)](a),
            seta[(BigInt, (List[A], BigInt))](b)),
-                                    sorted_list_of_set[A](Sup_set[A](image[(BigInt,
+                                    sorted_list_of_set[A](SSup_set[A](image[(BigInt,
                                      (List[A], BigInt)),
                                     set[A]](comp[(List[A], BigInt), set[A],
           (BigInt,
@@ -833,7 +846,10 @@ def allocation[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                                     Bid2funcBid[BigInt, A](b), r))),
                             bot_set[List[(BigInt, List[A])]])
 
-
+                            
+                            
+                            
+                            
 // HANDWRITTEN NON-VERIFIED CODE FROM HERE
 
 // print a number plus a trailing whitespace
@@ -995,5 +1011,11 @@ runExample(b2, r2);
 runExample(b3, r3);
 
 // END OF main
-}
-}
+}                            
+                            
+                            
+                            
+                            
+                           
+                            
+} /* object VCG */
