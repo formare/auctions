@@ -511,6 +511,39 @@ def eval_rel[A : equal, B](r: set[(A, B)], a: A): B =
 
 def nat_of_integer(k: BigInt): nat = Nat(max[BigInt](BigInt(0), k))
 
+def Sup_set[A : equal](x0: set[set[A]]): set[A] = x0 match {
+  case seta(xs) =>
+    fold[set[A],
+          set[A]]((a: set[A]) => (b: set[A]) => sup_set[A](a, b), xs,
+                   bot_set[A])
+}
+
+def pseudoAllocation[A : equal, B : equal](allocation: set[(A, set[B])]):
+      set[(A, set[B])]
+  =
+  Sup_set[(A, set[B])](image[(A, set[B]),
+                              set[(A, set[B])]]((pair: (A, set[B])) =>
+          product[A, set[B]](insert[A](fst[A, set[B]](pair), bot_set[A]),
+                              finestpart[B](snd[A, set[B]](pair))),
+         allocation))
+
+def toFunctionWithFallback2[A : equal, B](r: set[(A, B)], fallback: B): A => B =
+  (x: A) =>
+    (if (member[A](x, Domain[A, B](r))) eval_rel[A, B](r, x) else fallback)
+
+def maxbid[A : equal, B : equal](a: set[(A, set[B])], n: set[A], g: set[B]):
+      ((A, set[B])) => nat
+  =
+  toFunctionWithFallback2[(A, set[B]),
+                           nat](paste[(A, set[B]),
+                                       nat](product[(A, set[B]),
+             nat](product[A, set[B]](n, finestpart[B](g)),
+                   insert[nat](zero_nata, bot_set[nat])),
+     product[(A, set[B]),
+              nat](pseudoAllocation[A, B](a),
+                    insert[nat](one_nat, bot_set[nat]))),
+                                 zero_nata)
+
 def listsum[A : monoid_add](xs: List[A]): A =
   (foldr[A, A]((a: A) => (b: A) => plus[A](a, b), xs)).apply(zero[A])
 
@@ -519,12 +552,26 @@ def setsum[A : equal, B : comm_monoid_add](f: A => B, x1: set[A]): B = (f, x1)
   case (f, seta(xs)) => listsum[B](map[A, B](f, remdups[A](xs)))
 }
 
-def Sup_set[A : equal](x0: set[set[A]]): set[A] = x0 match {
-  case seta(xs) =>
-    fold[set[A],
-          set[A]]((a: set[A]) => (b: set[A]) => sup_set[A](a, b), xs,
-                   bot_set[A])
-}
+def linearCompletion[A : equal, B : equal,
+                      C : comm_monoid_add](bids: ((A, set[B])) => C, n: set[A],
+    g: set[B]):
+      ((A, set[B])) => C
+  =
+  toFunctionWithFallback2[(A, set[B]),
+                           C](image[(A, set[B]),
+                                     ((A, set[B]),
+                                       C)]((pair: (A, set[B])) =>
+     (pair,
+       setsum[set[B],
+               C]((ga: set[B]) => bids((fst[A, set[B]](pair), ga)),
+                   finestpart[B](snd[A, set[B]](pair)))),
+    product[A, set[B]](n, remove[set[B]](bot_set[B], Pow[B](g)))),
+                               zero[C])
+
+def tiebids[A : equal, B : equal](a: set[(A, set[B])], n: set[A], g: set[B]):
+      ((A, set[B])) => nat
+  =
+  linearCompletion[A, B, nat](maxbid[A, B](a, n, g), n, g)
 
 def insort_key[A, B : linorder](f: A => B, x: A, xa2: List[A]): List[A] =
   (f, x, xa2) match {
@@ -585,10 +632,65 @@ def all_partitions_list[A : equal](x0: List[A]): List[List[set[A]]] = x0 match {
     all_coarser_partitions_with_list[A](e, all_partitions_list[A](x))
 }
 
-def vcgaAlgWithoutLosers[A : equal,
-                          B : comm_monoid_add : equal : linorder](n:
-                            set[BigInt],
-                           g: List[A], b: ((BigInt, set[A])) => B, r: BigInt):
+def allStrictAllocations[A : equal : linorder,
+                          B : equal](n: set[A], g: List[B]):
+      List[set[(A, set[B])]]
+  =
+  map[set[(set[B], A)],
+       set[(A, set[B])]]((a: set[(set[B], A)]) => converse[set[B], A](a),
+                          maps[List[set[B]],
+                                set[(set[B],
+                                      A)]]((l: List[set[B]]) =>
+     injections_alg[set[B], A](l, n),
+    all_partitions_list[B](g)))
+
+def chosenAllocation[A : equal : linorder, B : equal,
+                      C : comm_monoid_add : equal : linorder](n: set[A],
+                       g: List[B], b: ((A, set[B])) => C, r: BigInt):
+      set[(A, set[B])]
+  =
+  hd[set[(A, set[B])]]((perm2[set[(A, set[B])]](map[nat,
+             set[(A, set[B])]]((a: nat) =>
+                                 nth[set[(A,
+   set[B])]](allStrictAllocations[A, B](n, g), a),
+                                filterpositions2[set[(A,
+               set[B])]]((x: set[(A, set[B])]) =>
+                           member[set[(A,
+set[B])]](x, (comp[(set[(A, set[B])]) => C,
+                    (set[set[(A, set[B])]]) => set[set[(A, set[B])]],
+                    ((A, set[B])) =>
+                      C]((a: (set[(A, set[B])]) => C) =>
+                           (ba: set[set[(A, set[B])]]) =>
+                             argmax[set[(A, set[B])], C](a, ba),
+                          (a: ((A, set[B])) => C) =>
+                            (ba: set[(A, set[B])]) =>
+                              setsum[(A, set[B]),
+                                      C](a,
+  ba))).apply(b).apply(seta[set[(A, set[B])]](allStrictAllocations[A,
+                            B](n, g)))),
+                          allStrictAllocations[A,
+        B](n, g))))).apply(nat_of_integer(r)))
+
+def resolvingBid[A : equal : linorder, B : equal,
+                  C : comm_monoid_add : equal : linorder](n: set[A], g: List[B],
+                   bids: ((A, set[B])) => C, random: BigInt):
+      ((A, set[B])) => nat
+  =
+  tiebids[A, B](chosenAllocation[A, B, C](n, g, bids, random), n, seta[B](g))
+
+def randomBids[A : equal,
+                B : comm_monoid_add : equal : linorder](n: set[BigInt],
+                 omega: List[A], b: ((BigInt, set[A])) => B, random: BigInt):
+      ((BigInt, set[A])) => nat
+  =
+  resolvingBid[BigInt, A,
+                B](sup_set[BigInt](n, insert[BigInt](BigInt(0),
+              bot_set[BigInt])),
+                    omega, b, random)
+
+def vcgaAlg[A : equal,
+             B : comm_monoid_add : equal : linorder](n: set[BigInt], g: List[A],
+              b: ((BigInt, set[A])) => B, r: BigInt):
       set[(BigInt, set[A])]
   =
   Outside[BigInt,
@@ -596,343 +698,17 @@ def vcgaAlgWithoutLosers[A : equal,
                                   set[A])]](argmax[set[(BigInt, set[A])],
             nat]((a: set[(BigInt, set[A])]) =>
                    setsum[(BigInt, set[A]),
-                           nat]((x: (BigInt, set[A])) =>
-                                  (if (member[(BigInt,
-        set[A])](x, Domain[(BigInt, set[A]),
-                            nat](image[(BigInt, set[A]),
-((BigInt, set[A]),
-  nat)]((pair: (BigInt, set[A])) =>
-          (pair,
-            setsum[set[A],
-                    nat]((ga: set[A]) =>
-                           (if (member[(BigInt,
- set[A])]((fst[BigInt, set[A]](pair), ga),
-           Domain[(BigInt, set[A]),
-                   nat](paste[(BigInt, set[A]),
-                               nat](product[(BigInt, set[A]),
-     nat](product[BigInt,
-                   set[A]](sup_set[BigInt](n,
-    insert[BigInt](BigInt(0), bot_set[BigInt])),
-                            finestpart[A](seta[A](g))),
-           insert[nat](zero_nata, bot_set[nat])),
-                                     product[(BigInt, set[A]),
-      nat](Sup_set[(BigInt,
-                     set[A])](image[(BigInt, set[A]),
-                                     set[(BigInt,
-   set[A])]]((paira: (BigInt, set[A])) =>
-               product[BigInt,
-                        set[A]](insert[BigInt](fst[BigInt, set[A]](paira),
-        bot_set[BigInt]),
-                                 finestpart[A](snd[BigInt, set[A]](paira))),
-              hd[set[(BigInt,
-                       set[A])]]((perm2[set[(BigInt,
-      set[A])]](map[nat, set[(BigInt,
-                               set[A])]]((aa: nat) =>
-   nth[set[(BigInt,
-             set[A])]](map[set[(set[A], BigInt)],
-                            set[(BigInt,
-                                  set[A])]]((ab: set[(set[A], BigInt)]) =>
-      converse[set[A], BigInt](ab),
-     maps[List[set[A]],
-           set[(set[A],
-                 BigInt)]]((l: List[set[A]]) =>
-                             injections_alg[set[A],
-     BigInt](l, sup_set[BigInt](n, insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                            all_partitions_list[A](g))),
-                        aa),
-  filterpositions2[set[(BigInt,
-                         set[A])]]((xa: set[(BigInt, set[A])]) =>
-                                     member[set[(BigInt,
-          set[A])]](xa, (comp[(set[(BigInt, set[A])]) => B,
-                               (set[set[(BigInt, set[A])]]) =>
-                                 set[set[(BigInt, set[A])]],
-                               ((BigInt, set[A])) =>
-                                 B]((aa: (set[(BigInt, set[A])]) => B) =>
-                                      (ba: set[set[(BigInt, set[A])]]) =>
-argmax[set[(BigInt, set[A])], B](aa, ba),
-                                     (aa: ((BigInt, set[A])) => B) =>
-                                       (ba: set[(BigInt, set[A])]) =>
- setsum[(BigInt, set[A]),
-         B](aa, ba))).apply(b).apply(seta[set[(BigInt,
-        set[A])]](map[set[(set[A], BigInt)],
-                       set[(BigInt,
-                             set[A])]]((aa: set[(set[A], BigInt)]) =>
- converse[set[A], BigInt](aa),
-maps[List[set[A]],
-      set[(set[A],
-            BigInt)]]((l: List[set[A]]) =>
-                        injections_alg[set[A],
-BigInt](l, sup_set[BigInt](n, insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                       all_partitions_list[A](g)))))),
-                                    map[set[(set[A], BigInt)],
- set[(BigInt,
-       set[A])]]((aa: set[(set[A], BigInt)]) => converse[set[A], BigInt](aa),
-                  maps[List[set[A]],
-                        set[(set[A],
-                              BigInt)]]((l: List[set[A]]) =>
-  injections_alg[set[A],
-                  BigInt](l, sup_set[BigInt](n,
-      insert[BigInt](BigInt(0), bot_set[BigInt]))),
- all_partitions_list[A](g))))))).apply(nat_of_integer(r))))),
-            insert[nat](one_nat, bot_set[nat]))))))
-                             eval_rel[(BigInt, set[A]),
-                                       nat](paste[(BigInt, set[A]),
-           nat](product[(BigInt, set[A]),
-                         nat](product[BigInt,
-                                       set[A]](sup_set[BigInt](n,
-                        insert[BigInt](BigInt(0), bot_set[BigInt])),
-        finestpart[A](seta[A](g))),
-                               insert[nat](zero_nata, bot_set[nat])),
-                 product[(BigInt, set[A]),
-                          nat](Sup_set[(BigInt,
- set[A])](image[(BigInt, set[A]),
-                 set[(BigInt,
-                       set[A])]]((paira: (BigInt, set[A])) =>
-                                   product[BigInt,
-    set[A]](insert[BigInt](fst[BigInt, set[A]](paira), bot_set[BigInt]),
-             finestpart[A](snd[BigInt, set[A]](paira))),
-                                  hd[set[(BigInt,
-   set[A])]]((perm2[set[(BigInt,
-                          set[A])]](map[nat,
- set[(BigInt,
-       set[A])]]((aa: nat) =>
-                   nth[set[(BigInt,
-                             set[A])]](map[set[(set[A], BigInt)],
-    set[(BigInt,
-          set[A])]]((ab: set[(set[A], BigInt)]) => converse[set[A], BigInt](ab),
-                     maps[List[set[A]],
-                           set[(set[A],
-                                 BigInt)]]((l: List[set[A]]) =>
-     injections_alg[set[A],
-                     BigInt](l, sup_set[BigInt](n,
-         insert[BigInt](BigInt(0), bot_set[BigInt]))),
-    all_partitions_list[A](g))),
-aa),
-                  filterpositions2[set[(BigInt,
- set[A])]]((xa: set[(BigInt, set[A])]) =>
-             member[set[(BigInt,
-                          set[A])]](xa, (comp[(set[(BigInt, set[A])]) => B,
-       (set[set[(BigInt, set[A])]]) => set[set[(BigInt, set[A])]],
-       ((BigInt, set[A])) =>
-         B]((aa: (set[(BigInt, set[A])]) => B) =>
-              (ba: set[set[(BigInt, set[A])]]) =>
-                argmax[set[(BigInt, set[A])], B](aa, ba),
-             (aa: ((BigInt, set[A])) => B) =>
-               (ba: set[(BigInt, set[A])]) =>
-                 setsum[(BigInt, set[A]),
-                         B](aa, ba))).apply(b).apply(seta[set[(BigInt,
-                        set[A])]](map[set[(set[A], BigInt)],
-                                       set[(BigInt,
-     set[A])]]((aa: set[(set[A], BigInt)]) => converse[set[A], BigInt](aa),
-                maps[List[set[A]],
-                      set[(set[A],
-                            BigInt)]]((l: List[set[A]]) =>
-injections_alg[set[A],
-                BigInt](l, sup_set[BigInt](n,
-    insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                                       all_partitions_list[A](g)))))),
-            map[set[(set[A], BigInt)],
-                 set[(BigInt,
-                       set[A])]]((aa: set[(set[A], BigInt)]) =>
-                                   converse[set[A], BigInt](aa),
-                                  maps[List[set[A]],
-set[(set[A],
-      BigInt)]]((l: List[set[A]]) =>
-                  injections_alg[set[A],
-                                  BigInt](l,
-   sup_set[BigInt](n, insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                 all_partitions_list[A](g))))))).apply(nat_of_integer(r))))),
-                                insert[nat](one_nat, bot_set[nat]))),
-     (fst[BigInt, set[A]](pair), ga))
-                             else zero_nata),
-                          finestpart[A](snd[BigInt, set[A]](pair)))),
-         product[BigInt,
-                  set[A]](sup_set[BigInt](n,
-   insert[BigInt](BigInt(0), bot_set[BigInt])),
-                           remove[set[A]](bot_set[A], Pow[A](seta[A](g))))))))
-                                    eval_rel[(BigInt, set[A]),
-      nat](image[(BigInt, set[A]),
-                  ((BigInt, set[A]),
-                    nat)]((pair: (BigInt, set[A])) =>
-                            (pair,
-                              setsum[set[A],
-                                      nat]((ga: set[A]) =>
-     (if (member[(BigInt,
-                   set[A])]((fst[BigInt, set[A]](pair), ga),
-                             Domain[(BigInt, set[A]),
-                                     nat](paste[(BigInt, set[A]),
-         nat](product[(BigInt, set[A]),
-                       nat](product[BigInt,
-                                     set[A]](sup_set[BigInt](n,
-                      insert[BigInt](BigInt(0), bot_set[BigInt])),
-      finestpart[A](seta[A](g))),
-                             insert[nat](zero_nata, bot_set[nat])),
-               product[(BigInt, set[A]),
-                        nat](Sup_set[(BigInt,
-                                       set[A])](image[(BigInt, set[A]),
-               set[(BigInt,
-                     set[A])]]((paira: (BigInt, set[A])) =>
-                                 product[BigInt,
-  set[A]](insert[BigInt](fst[BigInt, set[A]](paira), bot_set[BigInt]),
-           finestpart[A](snd[BigInt, set[A]](paira))),
-                                hd[set[(BigInt,
- set[A])]]((perm2[set[(BigInt,
-                        set[A])]](map[nat, set[(BigInt,
-         set[A])]]((aa: nat) =>
-                     nth[set[(BigInt,
-                               set[A])]](map[set[(set[A], BigInt)],
-      set[(BigInt,
-            set[A])]]((ab: set[(set[A], BigInt)]) =>
-                        converse[set[A], BigInt](ab),
-                       maps[List[set[A]],
-                             set[(set[A],
-                                   BigInt)]]((l: List[set[A]]) =>
-       injections_alg[set[A],
-                       BigInt](l, sup_set[BigInt](n,
-           insert[BigInt](BigInt(0), bot_set[BigInt]))),
-      all_partitions_list[A](g))),
-  aa),
-                    filterpositions2[set[(BigInt,
-   set[A])]]((xa: set[(BigInt, set[A])]) =>
-               member[set[(BigInt,
-                            set[A])]](xa, (comp[(set[(BigInt, set[A])]) => B,
-         (set[set[(BigInt, set[A])]]) => set[set[(BigInt, set[A])]],
-         ((BigInt, set[A])) =>
-           B]((aa: (set[(BigInt, set[A])]) => B) =>
-                (ba: set[set[(BigInt, set[A])]]) =>
-                  argmax[set[(BigInt, set[A])], B](aa, ba),
-               (aa: ((BigInt, set[A])) => B) =>
-                 (ba: set[(BigInt, set[A])]) =>
-                   setsum[(BigInt, set[A]),
-                           B](aa, ba))).apply(b).apply(seta[set[(BigInt,
-                          set[A])]](map[set[(set[A], BigInt)],
- set[(BigInt,
-       set[A])]]((aa: set[(set[A], BigInt)]) => converse[set[A], BigInt](aa),
-                  maps[List[set[A]],
-                        set[(set[A],
-                              BigInt)]]((l: List[set[A]]) =>
-  injections_alg[set[A],
-                  BigInt](l, sup_set[BigInt](n,
-      insert[BigInt](BigInt(0), bot_set[BigInt]))),
- all_partitions_list[A](g)))))),
-              map[set[(set[A], BigInt)],
-                   set[(BigInt,
-                         set[A])]]((aa: set[(set[A], BigInt)]) =>
-                                     converse[set[A], BigInt](aa),
-                                    maps[List[set[A]],
-  set[(set[A],
-        BigInt)]]((l: List[set[A]]) =>
-                    injections_alg[set[A],
-                                    BigInt](l,
-     sup_set[BigInt](n, insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                   all_partitions_list[A](g))))))).apply(nat_of_integer(r))))),
-                              insert[nat](one_nat, bot_set[nat]))))))
-       eval_rel[(BigInt, set[A]),
-                 nat](paste[(BigInt, set[A]),
-                             nat](product[(BigInt, set[A]),
-   nat](product[BigInt,
-                 set[A]](sup_set[BigInt](n,
-  insert[BigInt](BigInt(0), bot_set[BigInt])),
-                          finestpart[A](seta[A](g))),
-         insert[nat](zero_nata, bot_set[nat])),
-                                   product[(BigInt, set[A]),
-    nat](Sup_set[(BigInt,
-                   set[A])](image[(BigInt, set[A]),
-                                   set[(BigInt,
- set[A])]]((paira: (BigInt, set[A])) =>
-             product[BigInt,
-                      set[A]](insert[BigInt](fst[BigInt, set[A]](paira),
-      bot_set[BigInt]),
-                               finestpart[A](snd[BigInt, set[A]](paira))),
-            hd[set[(BigInt,
-                     set[A])]]((perm2[set[(BigInt,
-    set[A])]](map[nat, set[(BigInt,
-                             set[A])]]((aa: nat) =>
- nth[set[(BigInt,
-           set[A])]](map[set[(set[A], BigInt)],
-                          set[(BigInt,
-                                set[A])]]((ab: set[(set[A], BigInt)]) =>
-    converse[set[A], BigInt](ab),
-   maps[List[set[A]],
-         set[(set[A],
-               BigInt)]]((l: List[set[A]]) =>
-                           injections_alg[set[A],
-   BigInt](l, sup_set[BigInt](n, insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                          all_partitions_list[A](g))),
-                      aa),
-filterpositions2[set[(BigInt,
-                       set[A])]]((xa: set[(BigInt, set[A])]) =>
-                                   member[set[(BigInt,
-        set[A])]](xa, (comp[(set[(BigInt, set[A])]) => B,
-                             (set[set[(BigInt, set[A])]]) =>
-                               set[set[(BigInt, set[A])]],
-                             ((BigInt, set[A])) =>
-                               B]((aa: (set[(BigInt, set[A])]) => B) =>
-                                    (ba: set[set[(BigInt, set[A])]]) =>
-                                      argmax[set[(BigInt, set[A])], B](aa, ba),
-                                   (aa: ((BigInt, set[A])) => B) =>
-                                     (ba: set[(BigInt, set[A])]) =>
-                                       setsum[(BigInt, set[A]),
-       B](aa, ba))).apply(b).apply(seta[set[(BigInt,
-      set[A])]](map[set[(set[A], BigInt)],
-                     set[(BigInt,
-                           set[A])]]((aa: set[(set[A], BigInt)]) =>
-                                       converse[set[A], BigInt](aa),
-                                      maps[List[set[A]],
-    set[(set[A],
-          BigInt)]]((l: List[set[A]]) =>
-                      injections_alg[set[A],
-                                      BigInt](l,
-       sup_set[BigInt](n, insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                     all_partitions_list[A](g)))))),
-                                  map[set[(set[A], BigInt)],
-                                       set[(BigInt,
-     set[A])]]((aa: set[(set[A], BigInt)]) => converse[set[A], BigInt](aa),
-                maps[List[set[A]],
-                      set[(set[A],
-                            BigInt)]]((l: List[set[A]]) =>
-injections_alg[set[A],
-                BigInt](l, sup_set[BigInt](n,
-    insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                                       all_partitions_list[A](g))))))).apply(nat_of_integer(r))))),
-          insert[nat](one_nat, bot_set[nat]))),
-                       (fst[BigInt, set[A]](pair), ga))
-       else zero_nata),
-    finestpart[A](snd[BigInt, set[A]](pair)))),
-                           product[BigInt,
-                                    set[A]](sup_set[BigInt](n,
-                     insert[BigInt](BigInt(0), bot_set[BigInt])),
-     remove[set[A]](bot_set[A], Pow[A](seta[A](g))))),
-            x)
-                                    else zero_nata),
-                                 a),
+                           nat](randomBids[A, B](n, g, b, r), a),
                   argmax[set[(BigInt, set[A])],
                           B]((a: set[(BigInt, set[A])]) =>
                                setsum[(BigInt, set[A]), B](b, a),
                               seta[set[(BigInt,
- set[A])]](map[set[(set[A], BigInt)],
-                set[(BigInt,
-                      set[A])]]((a: set[(set[A], BigInt)]) =>
-                                  converse[set[A], BigInt](a),
-                                 maps[List[set[A]],
-                                       set[(set[A],
-     BigInt)]]((l: List[set[A]]) =>
-                 injections_alg[set[A],
-                                 BigInt](l,
-  sup_set[BigInt](insert[BigInt](BigInt(0), bot_set[BigInt]), n)),
-                all_partitions_list[A](g))))))),
+ set[A])]](allStrictAllocations[BigInt,
+                                 A](sup_set[BigInt](insert[BigInt](BigInt(0),
+                            bot_set[BigInt]),
+             n),
+                                     g))))),
                     insert[BigInt](BigInt(0), bot_set[BigInt]))
-
-def vcgaAlg[A : equal,
-             B : comm_monoid_add : equal : linorder](n: set[BigInt], g: List[A],
-              b: ((BigInt, set[A])) => B, r: BigInt):
-      set[(BigInt, set[A])]
-  =
-  paste[BigInt,
-         set[A]](product[BigInt,
-                          set[A]](n, insert[set[A]](bot_set[A],
-             bot_set[set[A]])),
-                  vcgaAlgWithoutLosers[A, B](n, g, b, r))
 
 def vcgpAlg[A : equal,
              B : comm_monoid_add : minus : equal : linorder](na: set[BigInt],
@@ -949,64 +725,37 @@ def vcgpAlg[A : equal,
               Outside[BigInt,
                        set[A]](f, insert[BigInt](BigInt(0), bot_set[BigInt])),
              seta[set[(BigInt,
-                        set[A])]](map[set[(set[A], BigInt)],
-                                       set[(BigInt,
-     set[A])]]((a: set[(set[A], BigInt)]) => converse[set[A], BigInt](a),
-                maps[List[set[A]],
-                      set[(set[A],
-                            BigInt)]]((l: List[set[A]]) =>
-injections_alg[set[A],
-                BigInt](l, sup_set[BigInt](remove[BigInt](n, na),
-    insert[BigInt](BigInt(0), bot_set[BigInt]))),
-                                       all_partitions_list[A](g))))))),
+                        set[A])]](allStrictAllocations[BigInt,
+                A](sup_set[BigInt](remove[BigInt](n, na),
+                                    insert[BigInt](BigInt(0), bot_set[BigInt])),
+                    g))))),
             setsum[(BigInt, set[A]),
                     B](b, Outside[BigInt,
-                                   set[A]](vcgaAlgWithoutLosers[A,
-                         B](na, g, b, r),
+                                   set[A]](vcgaAlg[A, B](na, g, b, r),
     insert[BigInt](n, bot_set[BigInt]))))
 
 def Bid2funcBid[A : equal, B : equal](b: List[(A, (List[B], BigInt))]):
       ((A, set[B])) => BigInt
   =
-  (x: (A, set[B])) =>
-    (if (member[(A, set[B])](x, Domain[(A, set[B]),
-BigInt](seta[((A, set[B]),
-               BigInt)](map[(A, (List[B], BigInt)),
-                             ((A, set[B]),
-                               BigInt)]((xa: (A, (List[B], BigInt))) =>
-  ((fst[A, (List[B], BigInt)](xa),
-     seta[B]((comp[(List[B], BigInt), List[B],
-                    (A, (List[B],
-                          BigInt))]((a: (List[B], BigInt)) =>
-                                      fst[List[B], BigInt](a),
-                                     (a: (A, (List[B], BigInt))) =>
-                                       snd[A,
-    (List[B], BigInt)](a))).apply(xa))),
-    (comp[(List[B], BigInt), BigInt,
-           (A, (List[B],
-                 BigInt))]((a: (List[B], BigInt)) => snd[List[B], BigInt](a),
-                            (a: (A, (List[B], BigInt))) =>
-                              snd[A, (List[B], BigInt)](a))).apply(xa)),
- b)))))
-      eval_rel[(A, set[B]),
-                BigInt](seta[((A, set[B]),
-                               BigInt)](map[(A, (List[B], BigInt)),
-     ((A, set[B]),
-       BigInt)]((xa: (A, (List[B], BigInt))) =>
-                  ((fst[A, (List[B], BigInt)](xa),
-                     seta[B]((comp[(List[B], BigInt), List[B],
-                                    (A, (List[B],
-  BigInt))]((a: (List[B], BigInt)) => fst[List[B], BigInt](a),
+  toFunctionWithFallback2[(A, set[B]),
+                           BigInt](seta[((A, set[B]),
+  BigInt)](map[(A, (List[B], BigInt)),
+                ((A, set[B]),
+                  BigInt)]((x: (A, (List[B], BigInt))) =>
+                             ((fst[A, (List[B], BigInt)](x),
+                                seta[B]((comp[(List[B], BigInt), List[B],
+       (A, (List[B],
+             BigInt))]((a: (List[B], BigInt)) => fst[List[B], BigInt](a),
+                        (a: (A, (List[B], BigInt))) =>
+                          snd[A, (List[B], BigInt)](a))).apply(x))),
+                               (comp[(List[B], BigInt), BigInt,
+                                      (A,
+(List[B],
+  BigInt))]((a: (List[B], BigInt)) => snd[List[B], BigInt](a),
              (a: (A, (List[B], BigInt))) =>
-               snd[A, (List[B], BigInt)](a))).apply(xa))),
-                    (comp[(List[B], BigInt), BigInt,
-                           (A, (List[B],
-                                 BigInt))]((a: (List[B], BigInt)) =>
-     snd[List[B], BigInt](a),
-    (a: (A, (List[B], BigInt))) => snd[A, (List[B], BigInt)](a))).apply(xa)),
-                 b)),
-                         x)
-      else BigInt(0))
+               snd[A, (List[B], BigInt)](a))).apply(x)),
+                            b)),
+                                    BigInt(0))
 
 def payments[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                                     r: BigInt):
@@ -1084,6 +833,7 @@ def allocation[A : equal : linorder](b: List[(BigInt, (List[A], BigInt))],
                                     Bid2funcBid[BigInt, A](b), r))),
                             bot_set[List[(BigInt, List[A])]])
 
+
 // HANDWRITTEN NON-VERIFIED CODE FROM HERE
 
 // print a number plus a trailing whitespace
@@ -1142,26 +892,25 @@ def choice[A](x0: set[A]): A = x0 match {
 }
 
 // print the payment that a particular participant has to pay
-def printPrice(pays: BigInt => BigInt, participant: BigInt) {
-    println(pays.apply(participant));
+def printPrice(b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt, participant: BigInt) {
+    println((payments(b, r).apply(participant)));
 }
 
 // The Isabelle generated code will compute an allocation in form of list of pairs (participant, listOfWonItems).
 // printAllocationAndPayment prints the allocation and the price to be paid for a single pair of this kind.
-def printAllocationAndPayment(args: (BigInt, List[BigInt]), pays: BigInt => BigInt):
-    Unit = {
-          args match {
+def printAllocationAndPayment(args: (BigInt, List[BigInt]), b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
+    Unit = args match {
                case (hd, tl) => print(" X_" + hd + " = {" ); 
                                 printListOfGoods(tl);
                                 print("}    payment:");
-                                printPrice(pays, hd);
-  }}
+                                printPrice(b, r, hd);
+  }
 
 
 // The Isabelle generated code will compute an allocation in form of list of pairs (participant, listOfWonItems).
 // printAllocationAndPayments prints the allocation and the price to be paid for each such pair one by one.
-def printAllocationsAndPayments(args: set[List[(BigInt, List[BigInt])]], pays: BigInt => BigInt):
-   Unit = {  choice(args).foreach(arg => printAllocationAndPayment(arg, pays));
+def printAllocationsAndPayments(args: set[List[(BigInt, List[BigInt])]], b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
+   Unit = { choice(args).foreach(arg => printAllocationAndPayment(arg, b, r));
   }
 
 /* In order to run an example the bids and the random number can be arguments to runExample in the form
@@ -1185,7 +934,7 @@ def runExample(b: List[(BigInt, (List[BigInt], BigInt))], r: BigInt):
       println;
 
       println("Winning allocation and payments:"); 
-      printAllocationsAndPayments(allocation(b, r), payments(b, r));
+      printAllocationsAndPayments(allocation(b, r), b, r);
       println("************************************************************************************************");
 }
 
@@ -1215,6 +964,24 @@ val b2: List[(BigInt, (List[BigInt], BigInt))] =
          (3, (List(12), 4)))
 // END OF EXAMPLE e2
 
+// START OF EXAMPLE e3 with bids b3 and random number r3
+// select random number in range 0, 1, ..., 2^card(goods) * factorial(numberOfParticipants) - 1
+val r3: BigInt = 0 // 0, 1, 2, ... 47
+
+val b3: List[(BigInt, (List[BigInt], BigInt))] =
+    List((1, (List(11, 12, 13), 20)),
+         (1, (List(11, 12), 18)),
+         (2, (List(11), 10)),
+         (2, (List(12), 15)),
+         (2, (List(13), 15)),
+         (2, (List(12,13), 18)),
+         (3, (List(11), 2)),
+         (3, (List(11,12), 12)),
+         (3, (List(11,13), 17)),
+         (3, (List(12,13), 18)),
+         (3, (List(11,12,13), 19)))
+// END OF EXAMPLE e3
+
 // START OF main
 
 def main(args: Array[String]) {
@@ -1225,8 +992,8 @@ def main(args: Array[String]) {
 
 runExample(b1, r1);
 runExample(b2, r2);
+runExample(b3, r3);
 
 // END OF main
 }
-
-} /* object VCG */
+}

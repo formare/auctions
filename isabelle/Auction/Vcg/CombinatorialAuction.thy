@@ -826,6 +826,8 @@ shows "a,,,n1 \<inter> a,,,n2={}" nitpick
 value "vcgaAlg (int`N00) G00 (b00 Elsee 0) 1" 
 *)
 
+
+(* MC: test examples, commented out 
 definition "N00 = {1,6::nat}"
 definition "G00 = [11::nat, 12, 13]"
 definition "b00 = 
@@ -854,14 +856,15 @@ abbreviation "b01 ==
 ((3,{12,13}),18),
 ((3,{11,12,13}),19)
 }"
-(*value "randomBids {1,2,3} [11,12,13] (b01 Elsee 0) 1 (2,{12})" *)
+
+value "randomBids {1,2,3} [11,12,13] (b01 Elsee 0) 1 (2,{12})" 
 definition "N01={1::integer,2,3}"
 definition "G01=[11::integer,12,13]"
 definition "f01=b01 Elsee 0"
 definition "evaluateMe01 = vcgaAlg N01 G01 f01 1"
 definition "evaluateMe02 = maximalStrictAllocations N01 G01 f01"
 definition "evaluateMe03 = randomBids N01 G01 f01 1 (2,{12})"
-(* value "chosenAllocation (N01\<union>{seller}) G01 f01 1" *)
+value "chosenAllocation (N01\<union>{seller}) G01 f01 1" 
 definition "chosenAllocation01={(2, {12}), (3, {13, 11})}"
 (* value "graph ((N01\<union>{seller}) \<times> (Pow (set G01)-{{}})) (randomBids N01 G01 f01 1)" *) 
 abbreviation "graphRandomBids01::((integer \<times> integer set) \<times> nat) set ==
@@ -884,7 +887,10 @@ value "graph ((N01\<union>{seller}) \<times> (Pow (set G01)-{{}})) (tiebids
 value "vcgaAlg N01 G01 f01 1"
 value "b01 \<union> {}"
 
+*)
+
 abbreviation "goods == sorted_list_of_set o Union o Range o Domain"
+(*
 abbreviation "b02==b01 \<union> ({1,2,3}\<times>{{14},{15}})\<times>{20}"
 abbreviation "N02==participants b02"
 abbreviation "G02==goods b02"
@@ -901,7 +907,29 @@ value "graph ((N02\<union>{seller}) \<times> (Pow (set G02)-{{}}))
 (*value "graph ((N02\<union>{seller}) \<times> (Pow (set G02)-{{}}))
 (resolvingBid (N02\<union>{seller}) G02 f02 1)"*) 
 (* value "randomBids ((fst o fst)`b02) (sorted_list_of_set (Union ((snd o fst)`b02))) (b02 Elsee 0) 1 (1,{11})" *)
+*)
 
-export_code evaluateMe01 in Scala module_name a file "/dev/shm/a.scala"
+(* part to make input/output easier *)
+abbreviation "allocationPrettyPrint2 a == map (%x. (x, sorted_list_of_set(a,,x))) ((sorted_list_of_set \<circ> Domain) a)"
+definition "helper (list) == (((hd\<circ>hd) list, set (list!1)), hd(list!2))"
+definition "listBid2funcBid listBid = (helper`(set listBid)) Elsee (0::integer)"
+
+abbreviation "singleBidConverter x == ((fst x, set ((fst o snd) x)), (snd o snd) x)"
+definition "Bid2funcBid b = set (map singleBidConverter b) Elsee (0::integer)"
+
+abbreviation "participantsSet b == fst ` (set b)"
+abbreviation "goodsList2 b == sorted_list_of_set (Union ((set o fst o snd) `(set b)))"
+
+definition "allocation b r = {allocationPrettyPrint2 
+(vcgaAlg ((participantsSet b)) (goodsList2 b) (Bid2funcBid b) r)
+}"
+
+definition "payments b r = vcgpAlg ((participantsSet b)) (goodsList2 b) (Bid2funcBid b) r"
+export_code allocation payments in Scala module_name VCG file "/dev/shm/VCG.scala"
+
 end
 
+
+(* 
+tac ../VCG.scala | sed -n -e '1,/\}/ !p'  | tac | cat - addedWrapper.scala| sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g" > ./VCG.scala
+*)
