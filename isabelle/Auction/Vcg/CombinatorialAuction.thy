@@ -844,20 +844,6 @@ term b00
 (* definition "example = vcgaAlg (int`N00) G00 (b00 Elsee 0) 1" *)
 definition ao where "ao=(%x. (if x=0 then (24::nat) else 11))"
 
-abbreviation "b01 == 
-{
-((1::integer,{11::integer, 12, 13}),20::integer),
-((1,{11,12}),18),
-((2,{11}),10),
-((2,{12}),15),
-((2,{12,13}),18),
-((3,{11}),2),
-((3,{11,12}),12),
-((3,{11,13}),17),
-((3,{12,13}),18),
-((3,{11,12,13}),19)
-}"
-
 value "randomBids {1,2,3} [11,12,13] (b01 Elsee 0) 1 (2,{12})" 
 definition "N01={1::integer,2,3}"
 definition "G01=[11::integer,12,13]"
@@ -928,9 +914,37 @@ definition "allocation b r = {allocationPrettyPrint2
 definition "payments b r = vcgpAlg ((participantsSet b)) (goodsList2 b) (Bid2funcBid b) r"
 export_code allocation payments in Scala module_name VCG file "/dev/shm/VCG.scala"
 
+
+
+
+
+abbreviation "b01 == 
+{
+((1::integer,{11::integer, 12, 13}),20::integer),
+((1,{11,12}),18),
+((2,{11}),10),
+((2,{12}),15),
+((2,{12,13}),18),
+((3,{11}),2),
+((3,{11,12}),12),
+((3,{11,13}),17),
+((3,{12,13}),18),
+((3,{11,12,13}),19),
+((4,{11,12,13,14,15,16}),19)
+}"
+value "participants b01"
+(*
+MC: Why does this 
+value "maximalStrictAllocations {1,2,3} [11, 12, 13]
+ (%x. (0::integer))"
+take longer than this?
+value "maximalStrictAllocations {1,2,3} [11, 12, 13]
+ (b01 Elsee 0)"
+*)
+value "possibleAllocationsAlg3 {1,2,3,4,5,6,7,8} [11, 12, 13, 14, 15, 16, 17, 18, 19]"
+
 end
 
-
 (* 
-{ tac ../VCG.scala | sed -n -e '1,/\}/ !p'  | tac | cat - addedWrapper.scala; echo \}; }| sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g" > ./VCG.scala
+{ { echo asdff; tac ../VCG.scala ; } | sed -n -e '1,/\}/ !p'  | tac | cat - ../addedWrapper.scala; echo \}; }| sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g"
 *)

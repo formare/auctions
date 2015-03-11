@@ -46,7 +46,7 @@ lemma subset_is_partition:
       and partition: "is_partition Q"
   shows "is_partition P"
 (* CL: The following takes 387 ms with Isabelle2013-1-RC1:
-   by (metis is_partition_def partition set_rev_mp subset) *)
+   by (metis is_partition_def partition set_rev_mp subset). MC: possibly useful for TPTP *)
 proof -
   {
     fix X Y assume "X \<in> P \<and> Y \<in> P"
@@ -57,7 +57,7 @@ proof -
 qed
 
 (* This is not used at the moment, but it is interesting, as the proof
-   was very hard to find for Sledgehammer. *)
+   was very hard to find for Sledgehammer. MC: possibly useful for TPTP *)
 text {* The set that results from removing one element from an equivalence class of a partition
   is not otherwise a member of the partition. *}
 lemma remove_from_eq_class_preserves_disjoint:
@@ -68,9 +68,8 @@ lemma remove_from_eq_class_preserves_disjoint:
       and eq_class: "X \<in> P"
       and elem: "elem \<in> X"
   shows "X - {elem} \<notin> P"
- using assms
- Int_Diff is_partition_def 
-by (metis Diff_disjoint Diff_eq_empty_iff Int_absorb2 insert_Diff_if insert_not_empty)
+ using assms Int_Diff is_partition_def Diff_disjoint Diff_eq_empty_iff 
+ Int_absorb2 insert_Diff_if insert_not_empty by (metis)
 
 text {* Inserting into a partition @{term P} a set @{term X}, which is disjoint with the set 
   partitioned by @{term P}, yields another partition. *}
@@ -129,17 +128,17 @@ lemma no_empty_eq_class:
   assumes "is_partition p"
   shows "{} \<notin> p"
 (* CL: The following takes 36 ms with Isabelle2013-1-RC1:
-   by (metis Int_iff all_not_in_conv assms is_partition_def) *)
+   by (metis Int_iff all_not_in_conv assms is_partition_def). MC: possibly useful for TPTP *)
   using assms is_partition_def by fast
 
-text {* @{term P} is a partition of the set @{term A}. *}
+text {* @{term P} is a partition of the set @{term A}. The infix notation takes the form ``noun-verb-object''*}
 definition is_partition_of (infix "partitions" 75)
 where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
 
 text {* No partition of a non-empty set is empty. *}
 lemma non_empty_imp_non_empty_partition:
   assumes "A \<noteq> {}"
-      and "is_partition_of P A"
+      and "P partitions A"
   shows "P \<noteq> {}"
 using assms
 unfolding is_partition_of_def
@@ -148,7 +147,7 @@ by fast
 text {* Every element of a partitioned set ends up in an equivalence class. *}
 lemma elem_in_eq_class:
   assumes in_set: "x \<in> A"
-      and part: "is_partition_of P A"
+      and part: "P partitions A"
   obtains X where "x \<in> X" and "X \<in> P"
 using part in_set
 unfolding is_partition_of_def is_partition_def 
@@ -159,9 +158,10 @@ text {* Every element of the difference of a set @{term A} and another set @{ter
   @{term "{B}"}. *}
 lemma diff_elem_in_eq_class:
   assumes x: "x \<in> A - B"
-      and part: "is_partition_of P A"
+      and part: "P partitions A"
   shows "\<exists> S \<in> P - { B } . x \<in> S"
-(* Sledgehammer in Isabelle2013-1-RC1 can't do this within the default time limit. *)
+(* Sledgehammer in Isabelle2013-1-RC1 can't do this within the default time limit. 
+MC: possibly useful for TPTP *)
 proof -
   from part x obtain X where "x \<in> X" and "X \<in> P"
     by (metis Diff_iff elem_in_eq_class)
@@ -172,7 +172,7 @@ qed
 text {* Every element of a partitioned set ends up in exactly one equivalence class. *}
 lemma elem_in_uniq_eq_class:
   assumes in_set: "x \<in> A"
-      and part: "is_partition_of P A"
+      and part: "P partitions A"
   shows "\<exists>! X \<in> P . x \<in> X"
 proof -
   from assms obtain X where *: "X \<in> P \<and> x \<in> X"
@@ -187,12 +187,12 @@ proof -
   ultimately show ?thesis by (rule ex1I)
 qed
 
-text {* A non-empty set is a partition of itself. *}
+text {* A non-empty set ``is'' a partition of itself. *}
 lemma set_partitions_itself:
   assumes "A \<noteq> {}"
-  shows "is_partition_of {A} A" unfolding is_partition_of_def is_partition_def
+  shows "{A} partitions A" unfolding is_partition_of_def is_partition_def
 (* CL: the following takes 48 ms on my machine with Isabelle2013:
-   by (metis Sup_empty Sup_insert assms inf_idem singletonE sup_bot_right) *)
+   by (metis Sup_empty Sup_insert assms inf_idem singletonE sup_bot_right). MC: possibly useful for TPTP *)
 proof
   show "\<Union> {A} = A" by simp
   {
@@ -208,18 +208,18 @@ qed
 
 text {* The empty set is a partition of the empty set. *}
 lemma emptyset_part_emptyset1:
-  shows "is_partition_of {} {}" 
+  shows "{} partitions {}" 
   unfolding is_partition_of_def is_partition_def by fast
 
 text {* Any partition of the empty set is empty. *}
 lemma emptyset_part_emptyset2:
-  assumes "is_partition_of P {}"
+  assumes "P partitions {}"
   shows "P = {}"
   using assms is_partition_def is_partition_of_def by fast
 
 text {* classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
 definition all_partitions where 
-"all_partitions A = {P . is_partition_of P A}"
+"all_partitions A = {P . P partitions A}"
 
 text {* The set of all partitions of the empty set only contains the empty set.
   We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
@@ -294,7 +294,7 @@ lemma insert_into_member_partition1:
   (* no need to assume "eq_class \<in> P" *)
   shows "\<Union> insert_into_member elem P eq_class = \<Union> insert (eq_class \<union> {elem}) (P - {eq_class})"
 (* CL: The following takes 12 ms in Isabelle2013-1-RC1:
-   by (metis insert_into_member_def) *)
+   by (metis insert_into_member_def). MC: possibly useful for TPTP *)
     unfolding insert_into_member_def
     by fast
 
@@ -669,11 +669,11 @@ next
     have P_partitions_exc_x: "\<Union> ?P_without_x = \<Union> P - {x}" using partition_without_covers .
 
     assume "P \<in> all_partitions (set (x # xs))"
-    then have is_partition_of: "is_partition_of P (set (x # xs))" unfolding all_partitions_def ..
+    then have is_partition_of: "P partitions (set (x # xs))" unfolding all_partitions_def ..
     then have is_partition: "is_partition P" unfolding is_partition_of_def by simp
     from is_partition_of have P_covers: "\<Union> P = set (x # xs)" unfolding is_partition_of_def by simp
 
-    have "is_partition_of ?P_without_x (set xs)"
+    have "?P_without_x partitions (set xs)"
       unfolding is_partition_of_def
       using is_partition partition_without_is_partition partition_without_covers P_covers x_notin_xs
       by (metis Diff_insert_absorb List.set_simps(2))
@@ -712,7 +712,7 @@ next
         and Y_coarser': "Y = coarser_partitions_with x Q" ..
     from P_in_Y Y_coarser' have P_wrt_Q: "P \<in> coarser_partitions_with x Q" by fast
     then have "Q \<in> all_partitions (set xs)" using Q_part_xs by simp
-    then have "is_partition_of Q (set xs)" unfolding all_partitions_def ..
+    then have "Q partitions (set xs)" unfolding all_partitions_def ..
     then have "is_partition Q" and Q_covers: "\<Union> Q = set xs"
       unfolding is_partition_of_def by simp_all
     then have P_partition: "is_partition P"
@@ -722,7 +722,7 @@ next
     then have "\<Union> P = set (x # xs)"
       using x_notin_xs P_wrt_Q Q_covers
       by (metis List.set_simps(2) insert_is_Un sup_commute)
-    then have "is_partition_of P (set (x # xs))"
+    then have "P partitions (set (x # xs))"
       using P_partition unfolding is_partition_of_def by blast
     then show "P \<in> all_partitions (set (x # xs))" unfolding all_partitions_def ..
   qed
@@ -778,79 +778,6 @@ text {* The function that we will be using in practice to compute all partitions
   a set-oriented frontend to @{const all_partitions_list} *}
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
 where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
-
-(* TODO CL: maybe delete as per https://github.com/formare/auctions/issues/21 *)
-corollary lm90[code_unfold]: 
-  fixes X
-  assumes "finite X"
-  shows "all_partitions X = set (map set (all_partitions_alg X))"
-    unfolding all_partitions_alg_def
-  using assms by (metis all_partitions_paper_equiv_alg' sorted_list_of_set)
-(* all_partitions internally works with a list representing a set
-   (this allows us to use the recursive function all_partitions_list).
-   For a general list we can only guarantee compliance once we establish distinctness. *)
-
-(* TODO CL: choose a better name, and document *)
-lemma remove_singleton_eq_class_from_part:
-  assumes singleton_eq_class: "{X} \<subseteq> P"
-      and part: "is_partition P"
-  shows "(P - {X}) \<inter> {Y \<union> X} = {}"
-    using assms unfolding is_partition_def
-    by (metis Diff_disjoint Diff_iff Int_absorb2 Int_insert_right_if0 Un_upper2 empty_Diff insert_subset subset_refl)
-
-text {* If new elements are added to a set, for any partition @{term P} of the original set,
-  we can obtain a partition @{term Q} of the enlarged set by adding the new elements as a new equivalence class,
-  and each equivalence class in @{term P} is a subset of one equivalence class in @{term Q}. *}
-lemma exists_partition_of_strictly_larger_set:
-  assumes part: "P partitions A"
-      and new: "B \<inter> A = {}"
-      and non_empty: "B \<noteq> {}"
-  shows "(P \<union> {B}) partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y)"
-proof
-  show "(P \<union> {B}) partitions (A \<union> B)"
-    unfolding is_partition_of_def is_partition_def
-  proof
-    from part have "\<Union> P = A" unfolding is_partition_of_def ..
-
-    show "\<Union> (P \<union> {B}) = A \<union> B"
-    proof -
-      from part have "\<Union> P = A" unfolding is_partition_of_def ..
-      then show ?thesis by auto
-    qed
-    show "\<forall> X \<in> P \<union> {B} . \<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)"
-    proof
-      fix X assume X_class: "X \<in> P \<union> {B}"
-      show "\<forall> Y \<in> P \<union> {B} . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y)" using assms Un_insert_right X_class 
-      is_partition_def is_partition_of_def partition_extension1 sup_bot.right_neutral by (metis(no_types))
-    qed
-  qed
-  show "\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y"
-  proof
-    fix X assume "X \<in> P"
-    then have "X \<in> P \<union> {B}" by (rule UnI1)
-    then show "\<exists> Y \<in> P \<union> {B} . X \<subseteq> Y" by blast
-  qed
-qed
-
-text {* If zero or more new elements are added to a set,
-  one can obtain for any partition @{term P} of the original set
-  a partition @{term Q} of the enlarged set such that each equivalence class in @{term P} is a 
-  subset of one equivalence class in @{term Q}. *}
-(* TODO CL: choose a more appropriate name *)
-lemma exists_partition_of_larger_set:
-  assumes part: "P partitions A"
-      and new: "B \<inter> A = {}"
-  shows "\<exists> Q . Q partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> Q . X \<subseteq> Y)"
-proof cases
-  assume "B = {}"
-  with part have "P partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P . X \<subseteq> Y)" unfolding is_partition_of_def by auto
-  then show ?thesis by fast
-next
-  assume non_empty: "B \<noteq> {}"
-  with part new have "(P \<union> {B}) partitions (A \<union> B) \<and> (\<forall> X \<in> P . \<exists> Y \<in> P \<union> {B} . X \<subseteq> Y)"
-    by (rule exists_partition_of_strictly_larger_set)
-  then show ?thesis by blast
-qed
 
 end
 
