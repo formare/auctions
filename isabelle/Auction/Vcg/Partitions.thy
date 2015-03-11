@@ -24,62 +24,57 @@ imports
 begin
 
 text {*
-We define the set of all partitions of a set (@{term all_partitions}) in textbook style, as well as
-a function @{term all_partitions_list} to algorithmically compute this set (then represented as a
-list).  This function is suitable for code generation.  We prove their equivalence to ensure that
-the generated code correctly implements the original textbook-style definition.  For further 
-background on the overall approach, see Caminati, Kerber, Lange, Rowat:
-\href{http://arxiv.org/abs/1308.1779}{Proving soundness of combinatorial Vickrey auctions and
-generating verified executable code}, 2013.
+We define the set of all partitions of a set (@{term all_partitions}) in textbook style, as well as a computable function @{term all_partitions_list} to algorithmically compute this set (then represented as a list).  This function is suitable for code generation.  We prove the equivalence of the two definition in order to ensure that the generated code correctly implements the original textbook-style definition.  For further background on the overall approach, see Caminati, Kerber, Lange, Rowat: \href{http://arxiv.org/abs/1308.1779}{Proving soundness of combinatorial Vickrey auctions and generating verified executable code}, 2013.
 *}
 
-text {* @{term P} is a partition of some set. *}
-definition is_partition where
-"is_partition P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
+text {* @{term P} is a family of non-overlapping  sets. *}
+definition is_non_overlapping where
+"is_non_overlapping P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
 (* alternative, less concise formalisation:
-"is_partition P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
+"is_non_overlapping P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
 
-text {* A subset of a partition is also a partition (but, note: only of a subset of the original set) *}
-lemma subset_is_partition:
+text {* A subfamily of a non-overlapping family is also a non-overlapping family *}
+
+lemma subset_is_non_overlapping:
   assumes subset: "P \<subseteq> Q"
-      and partition: "is_partition Q"
-  shows "is_partition P"
+      and non_overlapping: "is_non_overlapping Q"
+  shows "is_non_overlapping P"
 (* CL: The following takes 387 ms with Isabelle2013-1-RC1:
-   by (metis is_partition_def partition set_rev_mp subset). MC: possibly useful for TPTP *)
+   by (metis is_non_overlapping_def non_overlapping set_rev_mp subset). MC: possibly useful for TPTP *)
 proof -
   {
     fix X Y assume "X \<in> P \<and> Y \<in> P"
     then have "X \<in> Q \<and> Y \<in> Q" using subset by fast
-    then have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" using partition unfolding is_partition_def by force
+    then have "X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y" using non_overlapping unfolding is_non_overlapping_def by force
   }
-  then show ?thesis unfolding is_partition_def by force
+  then show ?thesis unfolding is_non_overlapping_def by force
 qed
 
 (* This is not used at the moment, but it is interesting, as the proof
    was very hard to find for Sledgehammer. MC: possibly useful for TPTP *)
-text {* The set that results from removing one element from an equivalence class of a partition
-  is not otherwise a member of the partition. *}
+
+text {* The family that results from removing one element from an equivalence class of a non-overlapping family is not otherwise a member of the family. *}
 lemma remove_from_eq_class_preserves_disjoint:
   fixes elem::'a
     and X::"'a set"
     and P::"'a set set"
-  assumes partition: "is_partition P"
+  assumes non_overlapping: "is_non_overlapping P"
       and eq_class: "X \<in> P"
       and elem: "elem \<in> X"
   shows "X - {elem} \<notin> P"
- using assms Int_Diff is_partition_def Diff_disjoint Diff_eq_empty_iff 
+ using assms Int_Diff is_non_overlapping_def Diff_disjoint Diff_eq_empty_iff 
  Int_absorb2 insert_Diff_if insert_not_empty by (metis)
 
-text {* Inserting into a partition @{term P} a set @{term X}, which is disjoint with the set 
-  partitioned by @{term P}, yields another partition. *}
-lemma partition_extension1:
+text {* Inserting into a non-overlapping family @{term P} a set @{term X}, which is disjoint with the set 
+  partitioned by @{term P}, yields another non-overlapping family. *}
+lemma non_overlapping_extension1:
   fixes P::"'a set set"
     and X::"'a set"
-  assumes partition: "is_partition P"
+  assumes partition: "is_non_overlapping P"
       and disjoint: "X \<inter> \<Union> P = {}" 
       and non_empty: "X \<noteq> {}"
-  shows "is_partition (insert X P)"
+  shows "is_non_overlapping (insert X P)"
 proof -
   {
     fix Y::"'a set" and Z::"'a set"
@@ -89,25 +84,24 @@ proof -
       assume "Y \<inter> Z \<noteq> {}"
       then show "Y = Z"
         using Y_Z_in_ext_P partition disjoint
-        unfolding is_partition_def
+        unfolding is_non_overlapping_def
         by fast
     next
       assume "Y = Z"
       then show "Y \<inter> Z \<noteq> {}"
         using Y_Z_in_ext_P partition non_empty
-        unfolding is_partition_def
+        unfolding is_non_overlapping_def
         by auto
     qed
   }
-  then show ?thesis unfolding is_partition_def by force
+  then show ?thesis unfolding is_non_overlapping_def by force
 qed
 
-text {* An equivalence class of a partition has no intersection with any of the other 
-  equivalence classes. *}
+text {* An element of a non-overlapping family has no intersection with any other of its elements. *}
 lemma disj_eq_classes:
   fixes P::"'a set set"
     and X::"'a set"
-  assumes "is_partition P"
+  assumes "is_non_overlapping P"
       and "X \<in> P"
   shows "X \<inter> \<Union> (P - {X}) = {}" 
 proof -
@@ -117,23 +111,23 @@ proof -
     then obtain Y where other_eq_class: "Y \<in> P - {X} \<and> x \<in> Y" by blast
     have "x \<in> X \<inter> Y \<and> Y \<in> P"
       using x_in_two_eq_classes other_eq_class by force
-    then have "X = Y" using assms is_partition_def by fast
+    then have "X = Y" using assms is_non_overlapping_def by fast
     then have "x \<in> {}" using other_eq_class by fast
   }
   then show ?thesis by blast
 qed
 
-text {* In a partition there is no empty equivalence class. *}
-lemma no_empty_eq_class:
-  assumes "is_partition p"
+text {* The empty set is not element of a non-overlapping family. *}
+lemma no_empty_in_non_overlapping:
+  assumes "is_non_overlapping p"
   shows "{} \<notin> p"
 (* CL: The following takes 36 ms with Isabelle2013-1-RC1:
-   by (metis Int_iff all_not_in_conv assms is_partition_def). MC: possibly useful for TPTP *)
-  using assms is_partition_def by fast
+   by (metis Int_iff all_not_in_conv assms is_non_overlapping_def). MC: possibly useful for TPTP *)
+  using assms is_non_overlapping_def by fast
 
 text {* @{term P} is a partition of the set @{term A}. The infix notation takes the form ``noun-verb-object''*}
 definition is_partition_of (infix "partitions" 75)
-where "is_partition_of P A = (\<Union> P = A \<and> is_partition P)"
+where "is_partition_of P A = (\<Union> P = A \<and> is_non_overlapping P)"
 
 text {* No partition of a non-empty set is empty. *}
 lemma non_empty_imp_non_empty_partition:
@@ -144,19 +138,18 @@ using assms
 unfolding is_partition_of_def
 by fast
 
-text {* Every element of a partitioned set ends up in an equivalence class. *}
-lemma elem_in_eq_class:
+text {* Every element of a partitioned set ends up in one element in the partition. *}
+lemma elem_in_partition:
   assumes in_set: "x \<in> A"
       and part: "P partitions A"
   obtains X where "x \<in> X" and "X \<in> P"
 using part in_set
-unfolding is_partition_of_def is_partition_def 
+unfolding is_partition_of_def is_non_overlapping_def 
 by (auto simp add: UnionE)
 
 text {* Every element of the difference of a set @{term A} and another set @{term B} ends up in 
-  an equivalence class of a partition of @{term A}, but this equivalence class will never be
-  @{term "{B}"}. *}
-lemma diff_elem_in_eq_class:
+  an element of a partition of @{term A}, but not in an element of the partition of @{term "{B}"}. *}
+lemma diff_elem_in_partition:
   assumes x: "x \<in> A - B"
       and part: "P partitions A"
   shows "\<exists> S \<in> P - { B } . x \<in> S"
@@ -164,24 +157,24 @@ lemma diff_elem_in_eq_class:
 MC: possibly useful for TPTP *)
 proof -
   from part x obtain X where "x \<in> X" and "X \<in> P"
-    by (metis Diff_iff elem_in_eq_class)
+    by (metis Diff_iff elem_in_partition)
   with x have "X \<noteq> B" by fast
   with `x \<in> X` `X \<in> P` show ?thesis by blast
 qed
 
-text {* Every element of a partitioned set ends up in exactly one equivalence class. *}
-lemma elem_in_uniq_eq_class:
+text {* Every element of a partitioned set ends up in exactly one set. *}
+lemma elem_in_uniq_set:
   assumes in_set: "x \<in> A"
       and part: "P partitions A"
   shows "\<exists>! X \<in> P . x \<in> X"
 proof -
   from assms obtain X where *: "X \<in> P \<and> x \<in> X"
-    by (rule elem_in_eq_class) blast
+    by (rule elem_in_partition) blast
   moreover {
     fix Y assume "Y \<in> P \<and> x \<in> Y"
     then have "Y = X"
       using part in_set *
-      unfolding is_partition_of_def is_partition_def
+      unfolding is_partition_of_def is_non_overlapping_def
       by (metis disjoint_iff_not_equal)
   }
   ultimately show ?thesis by (rule ex1I)
@@ -190,7 +183,7 @@ qed
 text {* A non-empty set ``is'' a partition of itself. *}
 lemma set_partitions_itself:
   assumes "A \<noteq> {}"
-  shows "{A} partitions A" unfolding is_partition_of_def is_partition_def
+  shows "{A} partitions A" unfolding is_partition_of_def is_non_overlapping_def
 (* CL: the following takes 48 ms on my machine with Isabelle2013:
    by (metis Sup_empty Sup_insert assms inf_idem singletonE sup_bot_right). MC: possibly useful for TPTP *)
 proof
@@ -209,15 +202,15 @@ qed
 text {* The empty set is a partition of the empty set. *}
 lemma emptyset_part_emptyset1:
   shows "{} partitions {}" 
-  unfolding is_partition_of_def is_partition_def by fast
+  unfolding is_partition_of_def is_non_overlapping_def by fast
 
 text {* Any partition of the empty set is empty. *}
 lemma emptyset_part_emptyset2:
   assumes "P partitions {}"
   shows "P = {}"
-  using assms is_partition_def is_partition_of_def by fast
+  using assms is_non_overlapping_def is_partition_of_def by fast
 
-text {* classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
+text {* Classical set-theoretical definition of ``all partitions of a set @{term A}'' *}
 definition all_partitions where 
 "all_partitions A = {P . P partitions A}"
 
@@ -229,31 +222,31 @@ lemma emptyset_part_emptyset3:
   using emptyset_part_emptyset1 emptyset_part_emptyset2
   by fast
 
-text {* inserts an element into a specified set inside the given set of sets *}
+text {* inserts an element new_el into a specified set S inside a given family of sets *}
 definition insert_into_member :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
 where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
 text {* Using @{const insert_into_member} to insert a fresh element, which is not a member of the
-  set @{term S} being partitioned, into an equivalence class of a partition yields another
-  partition (of -- we don't prove this here -- the set @{term "S \<union> {new_el}"}). *}
-lemma partition_extension2:
+  set @{term S} being partitioned, into a non-overlapping family of sets yields another
+  non-overlapping family. *}
+lemma non_overlapping_extension2:
   fixes new_el::'a
     and P::"'a set set"
     and X::"'a set"
-  assumes partition: "is_partition P"
-      and eq_class: "X \<in> P"
+  assumes non_overlapping: "is_non_overlapping P"
+      and class_element: "X \<in> P"
       and new: "new_el \<notin> \<Union> P"
-shows "is_partition (insert_into_member new_el P X)"
+shows "is_non_overlapping (insert_into_member new_el P X)"
 proof -
   let ?Y = "insert new_el X"
-  have rest_is_partition: "is_partition (P - {X})"
-    using partition subset_is_partition by blast
+  have rest_is_non_overlapping: "is_non_overlapping (P - {X})"
+    using non_overlapping subset_is_non_overlapping by blast
   have *: "X \<inter> \<Union> (P - {X}) = {}"
-   using partition eq_class by (rule disj_eq_classes)
+   using non_overlapping class_element by (rule disj_eq_classes)
   from * have non_empty: "?Y \<noteq> {}" by blast
   from * have disjoint: "?Y \<inter> \<Union> (P - {X}) = {}" using new by force
-  have "is_partition (insert ?Y (P - {X}))"
-    using rest_is_partition disjoint non_empty by (rule partition_extension1)
+  have "is_non_overlapping (insert ?Y (P - {X}))"
+    using rest_is_non_overlapping disjoint non_empty by (rule non_overlapping_extension1)
   then show ?thesis unfolding insert_into_member_def by simp
 qed
 
@@ -274,7 +267,7 @@ where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 
 
 text {* @{const insert_into_member_list} and @{const insert_into_member} are equivalent
   (as in returning the same set). *}
-lemma insert_into_member_list_alt:
+lemma insert_into_member_list_equivalence:
   fixes new_el::'a
     and Sets::"'a set list"
     and S::"'a set"
@@ -284,60 +277,58 @@ unfolding insert_into_member_list_def insert_into_member_def
 using assms
 by simp
 
-text {* an alternative characterisation of the set partitioned by a partition obtained by 
+text {* an alternative characterization of the set partitioned by a partition obtained by 
   inserting an element into an equivalence class of a given partition (if @{term P}
   \emph{is} a partition) *}
 lemma insert_into_member_partition1:
   fixes elem::'a
     and P::"'a set set"
-    and eq_class::"'a set"
-  (* no need to assume "eq_class \<in> P" *)
-  shows "\<Union> insert_into_member elem P eq_class = \<Union> insert (eq_class \<union> {elem}) (P - {eq_class})"
+    and set::"'a set"
+  shows "\<Union> insert_into_member elem P set = \<Union> insert (set \<union> {elem}) (P - {set})"
 (* CL: The following takes 12 ms in Isabelle2013-1-RC1:
    by (metis insert_into_member_def). MC: possibly useful for TPTP *)
     unfolding insert_into_member_def
     by fast
 
-(* TODO CL: document for the general case of a non-partition argument as per https://github.com/formare/auctions/issues/20 *)
-text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "new_el \<notin> S"}, this function yields
+text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "new_el \<notin> S"}, the function defined below yields
   all possible partitions of @{term "S \<union> {new_el}"} that are coarser than @{term P}
-  (i.e.\ not splitting equivalence classes that already exist in @{term P}).  These comprise one partition 
-  with an equivalence class @{term "{new_el}"} and all other equivalence classes unchanged,
-  as well as all partitions obtained by inserting @{term new_el} into one equivalence class of @{term P} at a time. *}
+  (i.e.\ not splitting classes that already exist in @{term P}).  These comprise one partition 
+  with a class @{term "{new_el}"} and all other classes unchanged,
+  as well as all partitions obtained by inserting @{term new_el} into one class of @{term P} at a time. *}
 definition coarser_partitions_with ::"'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set set"
 where "coarser_partitions_with new_el P = 
   insert
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set, i.e. {new_el} \<notin> P,
      then the following constructs a partition of 'Set \<union> {new_el}' obtained by
-     inserting a new equivalence class {new_el} and leaving all previous equivalence classes unchanged. *)
+     inserting a new class {new_el} and leaving all previous classes unchanged. *)
   (insert {new_el} P)
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set,
      then the following constructs
      the set of those partitions of 'Set \<union> {new_el}' obtained by
-     inserting new_el into one equivalence class of P at a time. *)
+     inserting new_el into one class of P at a time. *)
   ((insert_into_member new_el P) ` P)"
 
-(* TODO CL: document for the general case of a non-partition argument as per https://github.com/formare/auctions/issues/20 *)
+
 text {* the list variant of @{const coarser_partitions_with} *}
 definition coarser_partitions_with_list ::"'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list list"
 where "coarser_partitions_with_list new_el P = 
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set, i.e. {new_el} \<notin> set P,
      then the following constructs a partition of 'Set \<union> {new_el}' obtained by
-     inserting a new equivalence class {new_el} and leaving all previous equivalence classes unchanged. *)
+     inserting a new class {new_el} and leaving all previous classes unchanged. *)
   ({new_el} # P)
   #
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set,
      then the following constructs
      the set of those partitions of 'Set \<union> {new_el}' obtained by
-     inserting new_el into one equivalence class of P at a time. *)
+     inserting new_el into one class of P at a time. *)
   (map ((insert_into_member_list new_el P)) P)"
 
 text {* @{const coarser_partitions_with_list} and @{const coarser_partitions_with} are equivalent. *}
-lemma coarser_partitions_with_list_alt:
+lemma coarser_partitions_with_list_equivalence:
   assumes "distinct P"
   shows "set (map set (coarser_partitions_with_list new_el P)) = coarser_partitions_with new_el (set P)"
 proof -
@@ -346,20 +337,20 @@ proof -
   also have "\<dots> = insert (insert {new_el} (set P)) ((set \<circ> (insert_into_member_list new_el P)) ` set P)"
     by simp
   also have "\<dots> = insert (insert {new_el} (set P)) ((insert_into_member new_el (set P)) ` set P)"
-    using assms insert_into_member_list_alt by (metis comp_apply)
+    using assms insert_into_member_list_equivalence by (metis comp_apply)
   finally show ?thesis unfolding coarser_partitions_with_def .
 qed
 
 text {* Any member of the set of coarser partitions of a given partition, obtained by inserting 
-  a given fresh element into each of its equivalence classes, actually is a partition. *}
-lemma partition_extension3:
+  a given fresh element into each of its classes, is non_overlapping. *}
+lemma non_overlapping_extension3:
   fixes elem::'a
     and P::"'a set set"
     and Q::"'a set set"
-  assumes P_partition: "is_partition P"
+  assumes P_non_overlapping: "is_non_overlapping P"
       and new_elem: "elem \<notin> \<Union> P"
       and Q_coarser: "Q \<in> coarser_partitions_with elem P"
-  shows "is_partition Q"
+  shows "is_non_overlapping Q"
 proof -
   let ?q = "insert {elem} P"
   have Q_coarser_unfolded: "Q \<in> insert ?q (insert_into_member elem P ` P)" 
@@ -370,12 +361,12 @@ proof -
   proof (cases "Q = ?q")
     case True
     then show ?thesis
-      using P_partition new_elem partition_extension1
+      using P_non_overlapping new_elem non_overlapping_extension1
       by fastforce
   next
     case False
     then have "Q \<in> (insert_into_member elem P) ` P" using Q_coarser_unfolded by fastforce
-    then show ?thesis using partition_extension2 P_partition new_elem by fast
+    then show ?thesis using non_overlapping_extension2 P_non_overlapping new_elem by fast
   qed
 qed
 
@@ -445,11 +436,11 @@ qed
 
 text {* The set of sets obtained by removing an element from a partition actually is another
   partition. *}
-lemma partition_without_is_partition:
+lemma partition_without_is_non_overlapping:
   fixes elem::'a
     and P::"'a set set"
-  assumes "is_partition P"
-  shows "is_partition (partition_without elem P)" (is "is_partition ?Q")
+  assumes "is_non_overlapping P"
+  shows "is_non_overlapping (partition_without elem P)" (is "is_non_overlapping ?Q")
 proof -   
   have "\<forall> X1 \<in> ?Q. \<forall> X2 \<in> ?Q. X1 \<inter> X2 \<noteq> {} \<longleftrightarrow> X1 = X2"
   proof 
@@ -466,14 +457,14 @@ proof -
       proof
         assume "X1 \<inter> X2 \<noteq> {}"
         then have "Z1 \<inter> Z2 \<noteq> {}" using Z1_sup Z2_sup by fast
-        then have "Z1 = Z2" using Z1_in_P Z2_in_P assms unfolding is_partition_def by fast
+        then have "Z1 = Z2" using Z1_in_P Z2_in_P assms unfolding is_non_overlapping_def by fast
         then show "X1 = X2" using Z1_sup Z2_sup by fast
       qed
       moreover have "X1 = X2 \<longrightarrow> X1 \<inter> X2 \<noteq> {}" using X1_non_empty by auto
       ultimately show "(X1 \<inter> X2 \<noteq> {}) \<longleftrightarrow> X1 = X2" by blast
     qed
   qed
-  then show ?thesis unfolding is_partition_def .
+  then show ?thesis unfolding is_non_overlapping_def .
 qed
 
 text {* @{term "coarser_partitions_with elem"} is the ``inverse'' of 
@@ -481,7 +472,7 @@ text {* @{term "coarser_partitions_with elem"} is the ``inverse'' of
 lemma coarser_partitions_inv_without:
   fixes elem::'a
     and P::"'a set set"
-  assumes partition: "is_partition P"
+  assumes partition: "is_non_overlapping P"
       and elem: "elem \<in> \<Union> P" 
   shows "P \<in> coarser_partitions_with elem (partition_without elem P)"
     (is "P \<in> coarser_partitions_with elem ?Q")
@@ -494,7 +485,7 @@ proof -
   let ?elem_eq = "Y - {elem}" (* other elements equivalent to elem *)
   have Y_elem_eq: "?remove_elem ` {Y} = {?elem_eq}" by fast
   (* those equivalence classes, in which elem is not, form a partition *)
-  have elem_neq_classes_part: "is_partition ?elem_neq_classes"
+  have elem_neq_classes_part: "is_non_overlapping ?elem_neq_classes"
     using subset_is_partition partition
     by blast
   have elem_eq_wrt_P: "?elem_eq \<in> ?remove_elem ` P" using elem_eq_class' by blast
@@ -502,7 +493,7 @@ proof -
   { (* consider an equivalence class W, in which elem is not *)
     fix W assume W_eq_class: "W \<in> ?elem_neq_classes"
     then have "elem \<notin> W"
-      using elem_eq_class elem_eq_class' partition is_partition_def
+      using elem_eq_class elem_eq_class' partition is_non_overlapping_def
       by fast
     then have "?remove_elem W = W" by simp
   }
@@ -519,7 +510,7 @@ proof -
 
   have "?elem_eq = {} \<or> ?elem_eq \<notin> P"
     using elem_eq_class elem_eq_class' partition Diff_Int_distrib2 Diff_iff empty_Diff insert_iff
-unfolding is_partition_def by metis
+unfolding is_non_overlapping_def by metis
   then have "?elem_eq \<notin> P"
     using partition no_empty_eq_class
     by metis
@@ -545,7 +536,7 @@ unfolding is_partition_def by metis
   next
     assume True: "\<not> ?elem_eq \<notin> ?Q"
     hence Y': "?elem_neq_classes \<union> {?elem_eq} - {{}} = ?elem_neq_classes \<union> {?elem_eq}"
-      using no_empty_eq_class partition partition_without_is_partition
+      using no_empty_eq_class partition partition_without_is_non_overlapping
       by force
     have "insert_into_member elem ({?elem_eq} \<union> ?elem_neq_classes) ?elem_eq = insert (?elem_eq \<union> {elem}) (({?elem_eq} \<union> ?elem_neq_classes) - {?elem_eq})"
       unfolding insert_into_member_def ..
@@ -612,7 +603,7 @@ lemma coarser_partitions_with_list_distinct:
   fixes ps
   assumes ps_coarser: "ps \<in> set (coarser_partitions_with_list x Q)"
       and distinct: "distinct Q"
-      and partition: "is_partition (set Q)"
+      and partition: "is_non_overlapping (set Q)"
       and new: "{x} \<notin> set Q"
   shows "distinct ps"
 proof -
@@ -632,7 +623,7 @@ proof -
     
     have distinct_tl: "X \<union> {x} \<notin> set (removeAll X Q)"
     proof
-      from partition have partition': "\<forall>x\<in>set Q. \<forall>y\<in>set Q. (x \<inter> y \<noteq> {}) = (x = y)" unfolding is_partition_def .
+      from partition have partition': "\<forall>x\<in>set Q. \<forall>y\<in>set Q. (x \<inter> y \<noteq> {}) = (x = y)" unfolding is_non_overlapping_def .
       assume "X \<union> {x} \<in> set (removeAll X Q)"
       with X_in_Q partition show False by (metis partition' inf_sup_absorb member_remove no_empty_eq_class remove_code(1))
     qed
@@ -670,17 +661,17 @@ next
 
     assume "P \<in> all_partitions (set (x # xs))"
     then have is_partition_of: "P partitions (set (x # xs))" unfolding all_partitions_def ..
-    then have is_partition: "is_partition P" unfolding is_partition_of_def by simp
+    then have is_non_overlapping: "is_non_overlapping P" unfolding is_partition_of_def by simp
     from is_partition_of have P_covers: "\<Union> P = set (x # xs)" unfolding is_partition_of_def by simp
 
     have "?P_without_x partitions (set xs)"
       unfolding is_partition_of_def
-      using is_partition partition_without_is_partition partition_without_covers P_covers x_notin_xs
+      using is_non_overlapping partition_without_is_non_overlapping partition_without_covers P_covers x_notin_xs
       by (metis Diff_insert_absorb List.set_simps(2))
     with hyp_equiv have p_list: "?P_without_x \<in> set (map set (all_partitions_list xs))"
       unfolding all_partitions_def by fast
     have "P \<in> coarser_partitions_with x ?P_without_x"
-      using coarser_partitions_inv_without is_partition P_covers
+      using coarser_partitions_inv_without is_non_overlapping P_covers
       by (metis List.set_simps(2) insertI1)
     then have "P \<in> \<Union> (coarser_partitions_with x ` set (map set (all_partitions_list xs)))"
       using p_list by blast
@@ -713,9 +704,9 @@ next
     from P_in_Y Y_coarser' have P_wrt_Q: "P \<in> coarser_partitions_with x Q" by fast
     then have "Q \<in> all_partitions (set xs)" using Q_part_xs by simp
     then have "Q partitions (set xs)" unfolding all_partitions_def ..
-    then have "is_partition Q" and Q_covers: "\<Union> Q = set xs"
+    then have "is_non_overlapping Q" and Q_covers: "\<Union> Q = set xs"
       unfolding is_partition_of_def by simp_all
-    then have P_partition: "is_partition P"
+    then have P_partition: "is_non_overlapping P"
       using partition_extension3 P_wrt_Q x_notin_xs by fast
     have "\<Union> P = set xs \<union> {x}"
       using Q_covers P_in_Y Y_coarser' coarser_partitions_covers by fast
@@ -747,7 +738,7 @@ next
 
     from qs have "set qs \<in> set (map set (all_partitions_list (xs)))" by simp
     with distinct_xs hyp_equiv have qs_hyp: "set qs \<in> all_partitions (set xs)" by fast
-    then have qs_part: "is_partition (set qs)"
+    then have qs_part: "is_non_overlapping (set qs)"
       using all_partitions_def is_partition_of_def
       by (metis mem_Collect_eq)
     then have distinct_qs: "distinct qs"
