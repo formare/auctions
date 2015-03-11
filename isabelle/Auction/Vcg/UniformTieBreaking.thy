@@ -41,11 +41,11 @@ qed
 corollary lm38c: "allocationsUniverse \<noteq> {}" using lm38b by fast
 corollary nn39: "{} \<in> allocationsUniverse" using lm35b lm38b by (metis (lifting, mono_tags) empty_subsetI)
 lemma lm87: assumes "G \<noteq> {}" shows "{G} \<in> all_partitions G" using all_partitions_def is_partition_of_def 
-is_partition_def assms by force
+is_non_overlapping_def assms by force
 lemma lm88: assumes "n \<in> N" shows "{(G,n)} \<in> totalRels {G} N" using assms by force
 lemma lm89: assumes "n\<in>N" shows "{(G,n)} \<in> injections {G} N" 
 using assms possible_allocations_rel_def injections_def lm87 all_partitions_def 
-is_partition_def is_partition_of_def lm26 lm88 lm37 lm24 by fastforce
+is_non_overlapping_def is_partition_of_def lm26 lm88 lm37 lm24 by fastforce
 corollary lm90: assumes " G\<noteq>{}" "n\<in>N" shows "{(G,n)} \<in> possible_allocations_rel G N"
 proof -
   have "{(G,n)} \<in> injections {G} N" using assms lm89 by fast
@@ -147,7 +147,7 @@ lemma lm27: assumes "finite  (finestpart (snd pair))" shows
 corollary assumes "finite (snd pair)" shows "card (omega pair) = card (snd pair)" 
 using assms MiscTools.lm26 card_cartesian_product_singleton by metis
 
-lemma lm30: assumes "{} \<notin> Range f" "runiq f" shows "is_partition (omega ` f)"
+lemma lm30: assumes "{} \<notin> Range f" "runiq f" shows "is_non_overlapping (omega ` f)"
 (* MC: generalize and clean *)
 proof -
 let ?X="omega ` f" let ?p=finestpart
@@ -161,7 +161,7 @@ by (metis rev_image_eqI snd_eq_Range)
     ultimately moreover have "y1 \<inter> y2 \<noteq> {} \<longrightarrow> y1 = y2" using assms 0 by fast
     ultimately have "y1 = y2 \<longleftrightarrow> y1 \<inter> y2 \<noteq> {}" using assms MiscTools.lm29 by (metis Int_absorb Times_empty insert_not_empty)
     }
-  thus ?thesis using is_partition_def by (metis (lifting, no_types) inf_commute inf_sup_aci(1))
+  thus ?thesis using is_non_overlapping_def by (metis (lifting, no_types) inf_commute inf_sup_aci(1))
 qed
 
 lemma lm32: assumes "{} \<notin> Range X" shows "inj_on omega X"
@@ -179,7 +179,7 @@ thus ?thesis by (metis (lifting, no_types) inj_onI)
 qed
 
 lemma lm36: assumes "{} \<notin> Range a" 
-"finite (omega ` a)" "\<forall>X \<in> omega ` a. finite X" "is_partition (omega ` a)"
+"finite (omega ` a)" "\<forall>X \<in> omega ` a. finite X" "is_non_overlapping (omega ` a)"
 shows "card (pseudoAllocation a) = setsum (card \<circ> omega) a" (is "?L = ?R")
 using assms lm33 UniformTieBreaking.lm32 setsum.reindex 
 proof -
@@ -199,7 +199,7 @@ shows "card (pseudoAllocation a) = setsum (card \<circ> snd) a"
 proof -
 let ?P=pseudoAllocation let ?c=card
 have "\<forall> pair \<in> a. finite (omega pair)" using MiscTools.lm40 assms by blast moreover
-have "is_partition (omega ` a)" using assms lm30 by force ultimately
+have "is_non_overlapping (omega ` a)" using assms lm30 by force ultimately
 have "?c (?P a) = setsum (?c \<circ> omega) a" using assms lm36 by force
 moreover have "... = setsum (?c \<circ> snd) a" using lm39b by metis
 ultimately show ?thesis by presburger
@@ -392,7 +392,7 @@ using assms by (metis lm41)
 corollary lm67c: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "\<forall>x\<in>(omega ` a). finite x" 
 using assms lm67b lm41 by (metis(no_types))
 
-corollary lm30b: assumes "a \<in> possibleAllocationsRel N G" shows "is_partition (omega ` a)"
+corollary lm30b: assumes "a \<in> possibleAllocationsRel N G" shows "is_non_overlapping (omega ` a)"
 using assms lm30 lm45b image_iff lll81a 
 proof -
   have "runiq a" by (metis (no_types) assms image_iff lll81a)
@@ -528,7 +528,7 @@ qed
 corollary lm75g: "inj_on pseudoAllocation (runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}})))" 
 using lm75e inj_on_imageI2 by blast
 lemma lm76: "injectionsUniverse \<subseteq> runiqs" using runiqs_def Collect_conj_eq Int_lower1 by metis
-lemma lm77: "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (UNIV - {{}}))" using assms is_partition_def by force
+lemma lm77: "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (UNIV - {{}}))" using assms is_non_overlapping_def by force
 corollary lm75i: "allocationsUniverse \<subseteq> runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}}))" using lm76 lm77 by auto
 corollary lm75h: "inj_on pseudoAllocation allocationsUniverse" using assms lm75g lm75i subset_inj_on by blast
 corollary lm75j: "inj_on pseudoAllocation (possibleAllocationsRel N G)" 

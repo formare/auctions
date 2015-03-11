@@ -25,7 +25,7 @@ begin
 section {* Preliminary lemmas *}
 
 lemma lm63: assumes "Y \<in> set (all_partitions_alg X)" shows "distinct Y"
-using assms distinct_sorted_list_of_set all_partitions_alg_def all_partitions_paper_equiv_alg'
+using assms distinct_sorted_list_of_set all_partitions_alg_def all_partitions_equivalence'
 by metis
 
 lemma lm65: assumes "finite G" shows "all_partitions G = set ` (set (all_partitions_alg G))"
@@ -61,7 +61,7 @@ abbreviation "dualOutside R Y == R - (Domain R \<times> Y)"
 notation dualOutside (infix "|-" 75)
 notation Outside (infix "-|" 75)
 
-abbreviation "partitionsUniverse == {X. is_partition X}"
+abbreviation "partitionsUniverse == {X. is_non_overlapping X}"
 lemma "partitionsUniverse \<subseteq> Pow UNIV" by simp       
 abbreviation "partitionValuedUniverse == \<Union> P \<in> partitionsUniverse. Pow (UNIV \<times> P)"
 lemma "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (Pow UNIV))" by simp
@@ -79,9 +79,9 @@ abbreviation "partitionsUniverse''''' == {P-{{}}| P. \<forall> Q \<subseteq> P. 
 
 section {* Results about the sets defined in the previous section *}
 
-lemma lm01a: "partitionsUniverse \<subseteq>  {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}}}" unfolding is_partition_def by auto
-lemma lm04: assumes "!x1 : X. (x1 \<noteq> {} & (! x2 : X-{x1}. x1 \<inter> x2={}))" shows "is_partition X" 
-unfolding is_partition_def using assms by fast
+lemma lm01a: "partitionsUniverse \<subseteq>  {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}}}" unfolding is_non_overlapping_def by auto
+lemma lm04: assumes "!x1 : X. (x1 \<noteq> {} & (! x2 : X-{x1}. x1 \<inter> x2={}))" shows "is_non_overlapping X" 
+unfolding is_non_overlapping_def using assms by fast
 lemma lm72: assumes "\<forall>x \<in> X. t x \<in> x" shows "isChoice (graph X t)" using assms
 by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 runiq_wrt_eval_rel subset_trans)
 
@@ -95,15 +95,15 @@ lemma lm47: assumes "a \<in> possibleAllocationsRel N G" shows
 "a^-1 \<in> injections (Range a) N & Range a partitions G & Domain a \<subseteq> N" 
 unfolding injections_def using assms all_partitions_def injections_def by fastforce
 
-lemma lll80: assumes "is_partition XX" "YY \<subseteq> XX" shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
-using is_partition_of_def is_partition_def assms
+lemma lll80: assumes "is_non_overlapping XX" "YY \<subseteq> XX" shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
+using is_partition_of_def is_non_overlapping_def assms
 proof -
   let ?xx="XX - YY" let ?X="\<Union> XX" let ?Y="\<Union> YY"
   let ?x="?X - ?Y"
-  have "\<forall> y \<in> YY. \<forall> x\<in>?xx. y \<inter> x={}" using assms is_partition_def by (metis Diff_iff set_rev_mp)
+  have "\<forall> y \<in> YY. \<forall> x\<in>?xx. y \<inter> x={}" using assms is_non_overlapping_def by (metis Diff_iff set_rev_mp)
   then have "\<Union> ?xx \<subseteq> ?x" using assms by blast
   then have "\<Union> ?xx = ?x" by blast
-  moreover have "is_partition ?xx" using subset_is_partition by (metis Diff_subset assms(1))
+  moreover have "is_non_overlapping ?xx" using subset_is_non_overlapping by (metis Diff_subset assms(1))
   ultimately
   show ?thesis using is_partition_of_def by blast
 qed
@@ -189,16 +189,16 @@ qed
 corollary lm19b: "possibleAllocationsRel N1 G \<subseteq> possibleAllocationsRel (N1 \<union> N2) G"
 using lm19d by (metis subsetI)
 
-lemma assumes "x\<noteq>{}" shows "is_partition {x}" unfolding is_partition_def using assms is_partition_def by force
+lemma assumes "x\<noteq>{}" shows "is_non_overlapping {x}" unfolding is_non_overlapping_def using assms is_non_overlapping_def by force
 
-lemma lm20d: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1" "is_partition P2" "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2"
-"X \<inter> Y \<noteq> {}" shows "(X = Y)" unfolding is_partition_def using assms is_partition_def by fast
+lemma lm20d: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2" "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2"
+"X \<inter> Y \<noteq> {}" shows "(X = Y)" unfolding is_non_overlapping_def using assms is_non_overlapping_def by fast
 
-lemma lm20e: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1" "is_partition P2" "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2"
-"(X = Y)" shows "X \<inter> Y \<noteq> {}" unfolding is_partition_def using assms is_partition_def by fast
+lemma lm20e: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2" "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2"
+"(X = Y)" shows "X \<inter> Y \<noteq> {}" unfolding is_non_overlapping_def using assms is_non_overlapping_def by fast
 
-lemma lm20: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_partition P1" "is_partition P2"
-shows "is_partition (P1 \<union> P2)" unfolding is_partition_def using assms lm20d lm20e by metis
+lemma lm20: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2"
+shows "is_non_overlapping (P1 \<union> P2)" unfolding is_non_overlapping_def using assms lm20d lm20e by metis
 
 lemma lm21: "Range Q \<union> (Range (P outside (Domain Q))) = Range (P +* Q)"
 unfolding paste_def Range_Un_eq Un_commute by (metis(no_types))
@@ -207,13 +207,13 @@ lemma lll77c: assumes "a1 \<in> injectionsUniverse" "a2 \<in> injectionsUniverse
 "Domain a1 \<inter> (Domain a2) = {}" shows "a1 \<union> a2 \<in> injectionsUniverse" 
 using assms disj_Un_runiq by (metis (no_types) Domain_converse converse_Un mem_Collect_eq)
 
-lemma lm22: assumes "R \<in> partitionValuedUniverse" shows "is_partition (Range R)"
+lemma lm22: assumes "R \<in> partitionValuedUniverse" shows "is_non_overlapping (Range R)"
 using assms 
 proof -
   obtain P where
   0: "P \<in> partitionsUniverse & R \<subseteq> UNIV \<times> P" using assms by blast
   have "Range R \<subseteq> P" using 0 by fast
-  then show ?thesis using 0 mem_Collect_eq subset_is_partition by (metis)
+  then show ?thesis using 0 mem_Collect_eq subset_is_non_overlapping by (metis)
 qed
 
 lemma lm23: assumes "a1 \<in> allocationsUniverse" "a2 \<in> allocationsUniverse" "\<Union> (Range a1) \<inter> (\<Union> (Range a2))={}"
@@ -221,7 +221,7 @@ lemma lm23: assumes "a1 \<in> allocationsUniverse" "a2 \<in> allocationsUniverse
 proof -
   let ?a="a1 \<union> a2" let ?b1="a1^-1" let ?b2="a2^-1" let ?r=Range let ?d=Domain
   let ?I=injectionsUniverse let ?P=partitionsUniverse let ?PV=partitionValuedUniverse let ?u=runiq
-  let ?b="?a^-1" let ?p=is_partition
+  let ?b="?a^-1" let ?p=is_non_overlapping
   have "?p (?r a1) & ?p (?r a2)" using assms lm22 by blast then
   moreover have "?p (?r a1 \<union> ?r a2)" using assms by (metis lm20)
   then moreover have "(?r a1 \<union> ?r a2) \<in> ?P" by simp
@@ -229,8 +229,8 @@ proof -
   ultimately moreover have "?p (?r ?a)" using lm20 assms by fastforce
   then moreover have "?a \<in> ?PV" using assms by fast
   moreover have "?r a1 \<inter> (?r a2) \<subseteq> Pow (\<Union> (?r a1) \<inter> (\<Union> (?r a2)))" by auto
-  ultimately moreover have "{} \<notin> (?r a1) & {} \<notin> (?r a2)" using is_partition_def by (metis Int_empty_left)
-  ultimately moreover have "?r a1 \<inter> (?r a2) = {}" using assms lm22 is_partition_def by auto
+  ultimately moreover have "{} \<notin> (?r a1) & {} \<notin> (?r a2)" using is_non_overlapping_def by (metis Int_empty_left)
+  ultimately moreover have "?r a1 \<inter> (?r a2) = {}" using assms lm22 is_non_overlapping_def by auto
   ultimately moreover have "?a \<in> ?I" using lll77c assms by fastforce
   ultimately show ?thesis by blast
 qed
@@ -278,7 +278,7 @@ corollary lm31: "possibleAllocationsRel N G = injectionsUniverse \<inter> (Range
 \<inter> (Domain -`(Pow N))" using lm30 Int_assoc by (metis)
 
 lemma lm32: assumes "a \<in> partitionValuedUniverse" shows "a - b \<in> partitionValuedUniverse" 
-using assms subset_is_partition by fast
+using assms subset_is_non_overlapping by fast
 
 lemma lm35: assumes "a \<in> allocationsUniverse" shows "a - b \<in> allocationsUniverse" using assms 
 lm27 lm32 by auto
@@ -289,13 +289,13 @@ using assms injections_def mem_Collect_eq order_refl by blast
 
 lemma lm34: assumes "a \<in> allocationsUniverse" shows "a \<in> possibleAllocationsRel (Domain a) (\<Union> (Range a))"
 proof -
-let ?r=Range let ?p=is_partition let ?P=all_partitions have "?p (?r a)" using 
+let ?r=Range let ?p=is_non_overlapping let ?P=all_partitions have "?p (?r a)" using 
 assms lm22 Int_iff by blast then have "?r a \<in> ?P (\<Union> (?r a))" unfolding all_partitions_def 
 using is_partition_of_def  mem_Collect_eq by (metis) then show ?thesis using 
 assms IntI Int_lower1 equalityE lm19 mem_Collect_eq set_rev_mp by (metis (lifting, no_types))
 qed
 
-lemma lm36: "{X} \<in> partitionsUniverse = (X \<noteq> {})" using is_partition_def by fastforce
+lemma lm36: "{X} \<in> partitionsUniverse = (X \<noteq> {})" using is_non_overlapping_def by fastforce
 
 lemma lm36b: "{(x, X)} - {(x, {})} \<in> partitionValuedUniverse" using lm36 by auto
 
@@ -306,13 +306,13 @@ lemma lm37: "{(x, X)} \<in> injectionsUniverse" unfolding runiq_basic using runi
 
 lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" using lm36b lm37 lm27 Int_iff by (metis (no_types))
 
-lemma assumes "is_partition Y" "X \<subseteq> Y" shows "is_partition X" using assms subset_is_partition
+lemma assumes "is_non_overlapping Y" "X \<subseteq> Y" shows "is_non_overlapping X" using assms subset_is_non_overlapping
 by (metis(no_types))
 
-lemma lm41: assumes "is_partition PP" "is_partition (Union PP)" shows "is_partition (Union ` PP)"
+lemma lm41: assumes "is_non_overlapping PP" "is_non_overlapping (Union PP)" shows "is_non_overlapping (Union ` PP)"
 proof -
-let ?p=is_partition let ?U=Union let ?P2="?U PP" let ?P1="?U ` PP" have 
-0: "\<forall> X\<in>?P1. \<forall> Y \<in> ?P1. (X \<inter> Y = {} \<longrightarrow> X \<noteq> Y)" using assms is_partition_def Int_absorb 
+let ?p=is_non_overlapping let ?U=Union let ?P2="?U PP" let ?P1="?U ` PP" have 
+0: "\<forall> X\<in>?P1. \<forall> Y \<in> ?P1. (X \<inter> Y = {} \<longrightarrow> X \<noteq> Y)" using assms is_non_overlapping_def Int_absorb 
 Int_empty_left UnionI Union_disjoint ex_in_conv imageE by (metis (hide_lams, no_types))
 {
   fix X Y assume 
@@ -320,19 +320,19 @@ Int_empty_left UnionI Union_disjoint ex_in_conv imageE by (metis (hide_lams, no_
   then obtain XX YY where 
   1: "X = ?U XX & Y=?U YY & XX\<in>PP & YY\<in>PP" by blast
   then have "XX \<subseteq> Union PP & YY \<subseteq> Union PP & XX \<inter> YY = {}" 
-  using 2 1 is_partition_def assms(1) Sup_upper by metis
-  then moreover have "\<forall> x\<in>XX. \<forall> y\<in>YY. x \<inter> y = {}" using 1 assms(2) is_partition_def 
+  using 2 1 is_non_overlapping_def assms(1) Sup_upper by metis
+  then moreover have "\<forall> x\<in>XX. \<forall> y\<in>YY. x \<inter> y = {}" using 1 assms(2) is_non_overlapping_def 
 by (metis IntI empty_iff subsetCE)
-  ultimately have "X \<inter> Y={}" using assms 0 1 2 is_partition_def by auto
+  ultimately have "X \<inter> Y={}" using assms 0 1 2 is_non_overlapping_def by auto
 }
-then show ?thesis using 0 is_partition_def by metis
+then show ?thesis using 0 is_non_overlapping_def by metis
 qed
 
 lemma lm43: assumes "a \<in> allocationsUniverse" shows 
 "(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse & 
 \<Union> (Range ((a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}))) = \<Union>(Range a)"
 proof -
-  let ?d=Domain let ?r=Range let ?U=Union let ?p=is_partition let ?P=partitionsUniverse let ?u=runiq 
+  let ?d=Domain let ?r=Range let ?U=Union let ?p=is_non_overlapping let ?P=partitionsUniverse let ?u=runiq 
   let ?Xi="X \<union> {i}" let ?b="?Xi \<times> (?r a)" let ?a1="a - ?b" let ?Yi="a``?Xi" let ?Y="?U ?Yi" 
   let ?A2="{(i, ?Y)}" let ?a3="{(i,{})}" let ?a2="?A2 - ?a3" let ?aa1="a outside ?Xi" 
   let ?c="?a1 \<union> ?a2" let ?t1="?c \<in> allocationsUniverse" have 
@@ -340,7 +340,7 @@ proof -
   5: "?U(?r a) \<subseteq> ?U(?r ?a1) \<union> ?U(a``?Xi) & ?U(?r ?a1) \<union> ?U(?r ?a2) \<subseteq> ?U(?r a)" by blast have
   1: "?u a & ?u (a^-1) & ?p (?r a) & ?r ?a1 \<subseteq> ?r a & ?Yi \<subseteq> ?r a" 
   using assms Int_iff lm22 mem_Collect_eq by auto then have 
-  2: "?p (?r ?a1) & ?p ?Yi" using subset_is_partition by metis have 
+  2: "?p (?r ?a1) & ?p ?Yi" using subset_is_non_overlapping by metis have 
   "?a1 \<in> allocationsUniverse & ?a2 \<in> allocationsUniverse" using lm38 assms(1) lm35 by fastforce then have 
   "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?t1" using Un_empty_left by (metis (lifting, no_types) Un_absorb2 empty_subsetI) moreover have 
   "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?U (?r a) = ?U (?r ?a1) \<union> ?U (?r ?a2)" by fast ultimately have 
@@ -355,15 +355,15 @@ proof -
     moreover have "?Yi \<inter> (a``(?d a - ?Xi)) = {}" using assms 0 1 
     Diff_disjoint MiscTools.lm41 by metis
     ultimately moreover have "?r ?a1 \<inter> ?Yi = {} & ?Yi \<noteq> {}" by blast
-    ultimately moreover have "?p {?r ?a1, ?Yi}" unfolding is_partition_def using  
+    ultimately moreover have "?p {?r ?a1, ?Yi}" unfolding is_non_overlapping_def using  
 IntI Int_commute empty_iff insert_iff subsetI subset_empty by metis
     moreover have "?U {?r ?a1, ?Yi} \<subseteq> ?r a" by auto
-    then moreover have "?p (?U {?r ?a1, ?Yi})" by (metis "1" Outside_def subset_is_partition)
+    then moreover have "?p (?U {?r ?a1, ?Yi})" by (metis "1" Outside_def subset_is_non_overlapping)
     ultimately moreover have "?p (?U`{(?r ?a1), ?Yi})" using lm41 by fast
     moreover have "... = {?U (?r ?a1), ?Y}" by force
     ultimately moreover have "\<forall> x \<in> ?r ?a1. \<forall> y\<in>?Yi. x \<noteq> y" 
     using IntI empty_iff by metis
-    ultimately moreover have "\<forall> x \<in> ?r ?a1. \<forall> y\<in>?Yi. x \<inter> y = {}" using 0 1 2 is_partition_def
+    ultimately moreover have "\<forall> x \<in> ?r ?a1. \<forall> y\<in>?Yi. x \<inter> y = {}" using 0 1 2 is_non_overlapping_def
     by (metis set_rev_mp)
     ultimately have "?U (?r ?a1) \<inter> ?Y = {}" using lm42 
 proof -
@@ -388,12 +388,12 @@ qed
 lemma lm45: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" shows
 "\<Union>(a``X) \<noteq> {}" (*MC: Should be stated more in general*)
 proof -
-  let ?p=is_partition let ?r=Range
+  let ?p=is_non_overlapping let ?r=Range
   have "?p (?r a)" using assms Int_iff lm22 by auto
   moreover have "a``X \<subseteq> ?r a" by fast
-  ultimately have "?p (a``X)" using assms subset_is_partition by blast
+  ultimately have "?p (a``X)" using assms subset_is_non_overlapping by blast
   moreover have "a``X \<noteq> {}" using assms by fast
-  ultimately show ?thesis by (metis Union_member all_not_in_conv no_empty_eq_class)
+  ultimately show ?thesis by (metis Union_member all_not_in_conv no_empty_in_non_overlapping)
 qed
 
 corollary lm45b: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" shows 
@@ -468,13 +468,13 @@ qed
 lemma lm48: "possibleAllocationsRel N G \<subseteq> injectionsUniverse" using  lm19 by fast
 
 lemma lm49: "possibleAllocationsRel N G \<subseteq> partitionValuedUniverse"
-using assms lm47 is_partition_of_def is_partition_def by blast
+using assms lm47 is_partition_of_def is_non_overlapping_def by blast
 
 corollary lm50: "possibleAllocationsRel N G \<subseteq> allocationsUniverse" using lm48 lm49 
 by (metis (lifting, mono_tags) inf.bounded_iff)
 
 lemma lm39: assumes "XX \<in> partitionValuedUniverse" shows "{} \<notin> Range XX" using assms 
-mem_Collect_eq no_empty_eq_class by auto
+mem_Collect_eq no_empty_in_non_overlapping by auto
 corollary lm39b: assumes "a \<in> possibleAllocationsRel N G" shows "{} \<notin> Range a" using assms lm39 
 lm50 by blast
 lemma lm40: assumes "a \<in> possibleAllocationsRel N G" shows "Range a \<subseteq> Pow G"
@@ -578,10 +578,10 @@ ultimately have "setsum b ?aa \<le> Max ((setsum b)`(possibleAllocationsRel (N-X
 then show ?thesis using 0 by linarith
 qed
 
-lemma assumes "f \<in> partitionValuedUniverse" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_eq_class)
+lemma assumes "f \<in> partitionValuedUniverse" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_in_non_overlapping)
 
-lemma lm42: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_partition XX" shows 
-"card (\<Union> XX) = setsum card XX" using assms is_partition_def card_Union_disjoint by fast
+lemma lm42: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_non_overlapping XX" shows 
+"card (\<Union> XX) = setsum card XX" using assms is_non_overlapping_def card_Union_disjoint by fast
 
 corollary lm33b: assumes "XX partitions X" "finite X" "finite XX" shows 
 "card (\<Union> XX) = setsum card XX" using assms lm42 by (metis is_partition_of_def lll41)
@@ -590,8 +590,8 @@ lemma setsum_Union_disjoint_4: assumes "\<forall>A\<in>C. finite A" "\<forall>A\
 shows "setsum f (Union C) = setsum (setsum f) C" using assms setsum.Union_disjoint by fastforce
 (*MC: resumed this from Isabelle2013-2/HOL library after upgrading to 2014*)
 
-corollary setsum_Union_disjoint_2: assumes "\<forall>x\<in>X. finite x" "is_partition X" shows 
-"setsum f (\<Union> X) = setsum (setsum f) X" using assms setsum_Union_disjoint_4 is_partition_def by fast
+corollary setsum_Union_disjoint_2: assumes "\<forall>x\<in>X. finite x" "is_non_overlapping X" shows 
+"setsum f (\<Union> X) = setsum (setsum f) X" using assms setsum_Union_disjoint_4 is_non_overlapping_def by fast
 
 corollary setsum_Union_disjoint_3: assumes "\<forall>x\<in>X. finite x" "X partitions XX" shows
 "setsum f XX = setsum (setsum f) X" using assms by (metis is_partition_of_def setsum_Union_disjoint_2)
@@ -897,7 +897,7 @@ shows "injections (set Y) N = set (injections_alg Y N)"
 using assms injections_equiv lm63 by metis
 
 lemma lm67: assumes "l \<in> set (all_partitions_list G)" "distinct G" shows "distinct l" 
-using assms all_partitions_list_def by (metis all_partitions_paper_equiv_alg')
+using assms all_partitions_list_def by (metis all_partitions_equivalence')
 lemma lm03: assumes "card N > 0" "distinct G" shows 
 "\<forall>l \<in> set (all_partitions_list G). set (injections_alg l N) = injections (set l) N"
 using lm67 injections_equiv assms by (metis card_ge_0_finite)

@@ -87,7 +87,7 @@ text {* all possible allocations of a set of goods to a set of participants:
 fun possible_allocations_rel 
 where "possible_allocations_rel G N = Union { injections Y N | Y . Y \<in> all_partitions G }" 
 
-abbreviation "is_partition_of' P A == (\<Union> P = A \<and> is_partition P)"
+abbreviation "is_partition_of' P A == (\<Union> P = A \<and> is_non_overlapping P)"
 
 abbreviation "all_partitions' A == {P . is_partition_of' P A}"
 

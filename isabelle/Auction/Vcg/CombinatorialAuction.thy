@@ -497,14 +497,14 @@ lemma "maximalStrictAllocations' N G b=winningAllocationsRel ({seller} \<union> 
 lemma lm64: assumes "a \<in> allocationsUniverse" 
 "n1 \<in> Domain a" "n2 \<in> Domain a"
 "n1 \<noteq> n2" 
-shows "a,,n1 \<inter> a,,n2={}" using assms is_partition_def lm22 mem_Collect_eq 
+shows "a,,n1 \<inter> a,,n2={}" using assms is_non_overlapping_def lm22 mem_Collect_eq 
 proof - have "Range a \<in> partitionsUniverse" using assms lm22 by blast
 moreover have "a \<in> injectionsUniverse & a \<in> partitionValuedUniverse" using assms by (metis (lifting, no_types) IntD1 IntD2)
 ultimately moreover have "a,,n1 \<in> Range a" using assms 
 by (metis (mono_tags) eval_runiq_in_Range mem_Collect_eq)
 ultimately moreover have "a,,n1 \<noteq> a,,n2" using 
 assms converse.intros eval_runiq_rel mem_Collect_eq runiq_basic by (metis (lifting, no_types))
-ultimately show ?thesis using is_partition_def by (metis (lifting, no_types) assms(3) eval_runiq_in_Range mem_Collect_eq)
+ultimately show ?thesis using is_non_overlapping_def by (metis (lifting, no_types) assms(3) eval_runiq_in_Range mem_Collect_eq)
 qed
 
 lemma lm64c: assumes "a \<in> allocationsUniverse" 
@@ -941,7 +941,7 @@ take longer than this?
 value "maximalStrictAllocations {1,2,3} [11, 12, 13]
  (b01 Elsee 0)"
 *)
-value "possibleAllocationsAlg3 {1,2,3,4,5,6,7,8} [11, 12, 13, 14, 15, 16, 17, 18, 19]"
+(* value "possibleAllocationsAlg3 {1,2,3,4,5,6,7,8} [11, 12, 13, 14, 15, 16, 17, 18, 19]"*)
 
 end
 
