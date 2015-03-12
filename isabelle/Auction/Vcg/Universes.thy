@@ -908,7 +908,7 @@ set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G]" using ass
 proof -
   let ?g1=all_partitions_list let ?f2=injections let ?g2=injections_alg
   have "\<forall>l \<in> set (?g1 G). set (?g2 l N) = ?f2 (set l) N" using assms lm03 by blast
-  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule MiscTools.lm66) done
+  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule MiscTools.lm66a) done
   moreover have "... = {?f2 P N| P. P \<in> all_partitions (set G)}" using all_partitions_paper_equiv_alg
   assms by blast
   ultimately show ?thesis by presburger

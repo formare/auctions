@@ -481,3 +481,33 @@ qed
 lemma Image_within_domain': fixes x R shows "(x \<in> Domain R) = (R `` {x} \<noteq> {})" by blast
 
 end
+
+
+
+
+(* abbreviation "mylog n == (if (n \<noteq> 0) then (Discrete.log n) else (-1))"
+abbreviation "Card X == mylog (card (Pow X))"
+
+lemma assumes "finite X" shows "Card X = card X" (is "?L=?R") using assms 
+proof -
+have "Card X=Discrete.log (card (Pow X))" using assms by auto
+moreover have "... = Discrete.log (2^card X)" using assms by (metis (poly_guards_query) card_Pow)
+ultimately show ?thesis by fastforce
+qed
+
+lemma assumes "\<not> (finite X)" shows "Card X=-1" using assms by simp
+*)
+
+(* lemma "Domain ((a outside (X \<union> {i})) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) ) 
+\<subseteq> Domain a - X \<union> {i}" using assms Outside_def by auto
+
+lemma "(R - ((X\<union>{i})\<times>(Range R))) = (R outside X) outside {i}" using Outside_def 
+by (metis l37a)
+
+lemma "{(i, x)} - {(i,y)} = {i} \<times> ({x}-{y})" by fast
+*)
+
+
+(* lemma "swap = curry \<circ> (((swap (op \<circ>)) flip) \<circ> split)" using lm29 sledgehammer[provers=z3] *)
+
+(* lemma "finite=(swap (op \<in>))(range set)" unfolding lm46 using lm45b by blast *)
