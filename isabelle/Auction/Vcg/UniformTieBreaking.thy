@@ -478,7 +478,7 @@ lemma lm75d: assumes "runiq a" "{} \<notin> Range a" shows
 proof -
 let ?p="{(x, Y)| Y x. Y \<in> finestpart (a,,x) & x \<in> Domain a}"
 let ?a="{(x, \<Union> (?p `` {x}))| x. x \<in> Domain ?p}" 
-have "\<forall>x \<in> Domain a. a,,x \<noteq> {}" by (metis assms ll14)
+have "\<forall>x \<in> Domain a. a,,x \<noteq> {}" by (metis assms eval_runiq_in_Range)
 then have "\<forall>x \<in> Domain a. finestpart (a,,x) \<noteq> {}" by (metis MiscTools.lm29) 
 then have "Domain a \<subseteq> Domain ?p" by force
 moreover have "Domain a \<supseteq> Domain ?p" by fast

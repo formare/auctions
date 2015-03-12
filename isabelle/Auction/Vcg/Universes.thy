@@ -542,7 +542,7 @@ proof -
   ultimately have "setsum b ?R \<le> setsum b (?R -- i) + setsum b ({i}\<times>{?U(a``(X\<union>{i}))})" by linarith
   moreover have "... = setsum b (?R -- i \<union> ({i} \<times> {?U(a``(X\<union>{i}))}))" 
   using 1 setsum.union_disjoint by auto
-  moreover have "... = setsum b ?aa" by (metis ll52)
+  moreover have "... = setsum b ?aa" by (metis l37a)
   ultimately show ?thesis by linarith
 qed
 

@@ -1,7 +1,11 @@
 (*
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
-Author: Marco B. Caminati http://caminati.co.nr
+Authors:
+* Marco B. Caminati http://caminati.co.nr
+* Manfred Kerber <mnfrd.krbr@gmail.com>
+* Christoph Lange <math.semantic.web@gmail.com>
+* Colin Rowat <c.rowat@bham.ac.uk>
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -9,6 +13,7 @@ Dually licenced under
 See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
+
 
 header {* Toolbox of various definitions and theorems about sets, relations and lists *}
 
@@ -27,42 +32,40 @@ begin
 
 section {* Facts and notations about relations, sets and functions. *}
 
+(* We use as alternative notation for paste instead of +* also +< and overload this with the next definition *)
 notation paste (infix "+<" 75)
-text {* @{text +<} abbreviation permits to shorten the notation for altering a function in a single point. *}
-abbreviation singlepaste where "singlepaste F f == F +* {(fst f, snd f)}"
+
+text {* @{text +<} abbreviation permits to shorten the notation for altering a function f in a single point by giving a pair (a, b) so that the new function has value b with argument a. *}
+abbreviation singlepaste where "singlepaste f pair == f +* {(fst pair, snd pair)}"
 notation singlepaste (infix "+<" 75) (* Type of g in f +< g should avoid ambiguities *)
+
 text {* @{text "--"} abbreviation permits to shorten the notation for considering a function outside a single point. *}
 abbreviation singleoutside (infix "--" 75) where "f -- x \<equiv> f outside {x}"
-text {* @{term ler_ni} inverts @{term in_rel} *}
-abbreviation ler_ni where "ler_ni r == (\<Union>x. ({x} \<times> (r x -` {True})))"
 
 text {* Turns a HOL function into a set-theoretical function *}
-definition  (* compare with Function_Order.thy;  
-MC: the domain can be possibly restricted in a separate step, e.g. through || *)
-(*Graph :: "('a => 'b) => ('a \<times> 'b) set" where *) "Graph f = {(x, f x) | x . True}"
+definition (*Graph :: "('a => 'b) => ('a \<times> 'b) set" where *) 
+"Graph f = {(x, f x) | x . True}"
 
 text {* Inverts @{term Graph} (which is equivalently done by @{term eval_rel}). *}
-definition (* inverts Graph *) (* toFunction  where *) "toFunction R = (\<lambda> x . (R ,, x))"
-(* MC: note that toFunction = eval_rel *)
+(* Assume (x, y) is in R. Apply R to x, i.e., R ,, x,  will result in y assumed y is unique. *)  
+definition  "toFunction R = (\<lambda> x . (R ,, x))"
 
+(* toFunction = eval_rel *)
 lemma "toFunction = eval_rel" using toFunction_def eval_rel_def by blast
 
-lemma lll40: "(P \<union> Q) || X = (P || X) \<union> (Q||X)" unfolding restrict_def using assms by blast
+lemma lll40: "((P \<union> Q) || X) = ((P || X) \<union> (Q||X))" unfolding restrict_def using assms by blast
 
-text {* Behaves like P +* Q (paste), but without enlarging P's Domain. Compare with @{term fun_upd} *}
+text {* update behaves like P +* Q (paste), but without enlarging P's Domain. update is the set theoretic equivalent of the lambda function update @{term fun_upd} *}
 definition update where "update P Q = P +* (Q || (Domain P))"
 notation update (infix "+^" 75)
 
-definition runiqer 
-::"('a \<times> 'b) set => ('a \<times> 'b) set"
-(* MC: A choice map to solve a multi-valued relation 
-into a function of maximal domain *)
-where "runiqer R={ (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
-(* MC: alternatively: "...| x. True }" *)
+(* The operator runiqer will make out of an arbitrary relation a function by making a choice to all those elements in the domain for which the value is not unique by applying the axiom of choice. *)
+definition runiqer  :: "('a \<times> 'b) set => ('a \<times> 'b) set"
+where "runiqer R = { (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
 
-text {* Like @{term Graph}, but with a built-in restriction to a given set @{term X}.
-This makes it more computable than the equivalent @{term "Graph f || X"}. 
-Duplicates the eponymous definition found in @{text Function_Order}, which is otherwise unneeded. *}
+text {* @{term graph} is like @{term Graph}, but with a built-in restriction to a given set @{term X}.
+This makes it computable for finite X, whereas @{term "Graph f || X"} is not computable. 
+Duplicates the eponymous definition found in @{text Function_Order}, which is otherwise not needed. *}
 definition graph where "graph X f = {(x, f x) | x. x \<in> X}" 
 
 lemma lm024a: assumes "runiq R" shows "R \<supseteq> graph (Domain R) (toFunction R)" 
@@ -78,64 +81,26 @@ using assms lm024a lm024b by fast
 
 lemma ll37: "runiq(graph X f) & Domain(graph X f)=X" unfolding graph_def using l14 by fast
 
+(* The following definition gives the image of a relation R for a fixed element x. It is equivalent to eval_rel for right unique R, but more general since it determines values even when R is not right unique. *)
 abbreviation "eval_rel2 (R::('a \<times> ('b set)) set) (x::'a) == \<Union> (R``{x})"
 notation eval_rel2 (infix ",,," 75)
-(* MC: realized that eval_rel2 could be preferable to eval_rel, because it generalizes the latter 
-while evaluating to {} outside of the domain, and to something defined in general when eval_rel is not. 
-This is generally a better behaviour from the formal point of view (cmp. lll74)
-   CL: very nice indeed! *)
-(* MC: Realized that ,,, applies only to set-yielding relations. 
-This has to do with the fact that in HOL not everything is a set, as it happens in ZF *)
-
-
-
-
-
-
-
-
-
-
-
 
 lemma lll82: assumes "runiq (f::(('a \<times> ('b set)) set))" "x \<in> Domain f" shows "f,,x = f,,,x"
 using assms Image_runiq_eq_eval cSup_singleton by metis
-(* CL: Interesting: metis says that eval_rel_def is unused in the proof, but when I use it,
-   the proof takes much longer (too long for me to wait) 
-MC: I think this no longer applies? *) 
 
+(* UNIV is the universal set containing everything of the given type. It is defined in Set.thy.*)
 lemma ll36: "Graph f=graph UNIV f" unfolding Graph_def graph_def by simp
 
-lemma lm04: "graph (X \<inter> Y) f \<subseteq> graph X f || Y" unfolding graph_def 
+lemma lm04: "graph (X \<inter> Y) f \<subseteq> ((graph X f) || Y)" unfolding graph_def 
 using Int_iff mem_Collect_eq restrict_ext subrelI by auto
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-lemma ll14: assumes "x\<in>Domain f" "runiq f" shows "f,,x \<in> Range f"
-using assms by (metis Range_iff eval_runiq_rel)
 
 definition runiqs where "runiqs={f. runiq f}"
 
-lemma l37a: "(P outside X) outside Y=P outside (X\<union>Y)" unfolding Outside_def by blast
+lemma l37a: "((P outside X) outside Y) = P outside (X\<union>Y)" unfolding Outside_def by blast
 
-corollary l37: "(P outside X) outside X=P outside X" using l37a by force 
+corollary l37: "((P outside X) outside X) = P outside X" using l37a by force 
 
-lemma l38a: assumes "X \<inter> Domain P \<subseteq> Domain Q" shows 
+lemma l38a: assumes "(X \<inter> Domain P) \<subseteq> Domain Q" shows 
 "P +* Q = (P outside X) +* Q" unfolding paste_def Outside_def using assms by blast
 
 corollary l38: "P +* Q = (P outside (Domain Q)) +* Q" using l38a by fast
@@ -148,41 +113,51 @@ lemma lm72: "P = P \<union> {x}\<times>P``{x}" using assms by (metis l39 sup.rig
 corollary l40: "R = (R outside {x}) +* ({x} \<times> (R `` {x}))" 
 by (metis paste_outside_restrict restrict_to_singleton)
 
-lemma ll83: "R \<subseteq> R +* ({x} \<times> (R``{x}))" using 
+lemma ll84a: "R \<subseteq> R +* ({x} \<times> (R``{x}))" using 
 l40 l38 paste_def Outside_def by fast
 
-lemma ll82: "R \<supseteq> R+*({x} \<times> (R``{x}))" by (metis 
+lemma ll84b: "R \<supseteq> R+*({x} \<times> (R``{x}))" by (metis 
 Un_least Un_upper1 outside_union_restrict paste_def restrict_to_singleton restriction_is_subrel)
 
-corollary ll84: "R = R +* ({x} \<times> (R``{x}))" using ll82 ll83 by force
+lemma ll84: "R = R +* ({x} \<times> (R``{x}))" using ll84a ll84b by force
 
 lemma lll59: assumes "trivial Y" shows "runiq (X \<times> Y)" using assms 
-runiq_def Image_subset ll84 trivial_subset ll83 by (metis(no_types))
+runiq_def Image_subset ll84 trivial_subset ll84a by (metis(no_types))
 
+(* Two constant functions can be combined to a function *)
 lemma lm14b: "runiq ((X \<times> {x}) +* (Y \<times> {y}))" using assms lll59 trivial_singleton runiq_paste2 by metis
 
-lemma lll11b: "P || (X \<inter> Y) \<subseteq> P||X & P outside (X \<union> Y) \<subseteq> P outside X" using 
+lemma lll11b: "(P || (X \<inter> Y)) \<subseteq> (P||X)    &    P outside (X \<union> Y) \<subseteq> P outside X" using 
 Outside_def restrict_def Sigma_Un_distrib1 Un_upper1 inf_mono Diff_mono 
 subset_refl by (metis (lifting) Sigma_mono inf_le1)
 
-lemma lll11: "P || X \<subseteq> P||(X \<union> Y) & P outside X \<subseteq> P outside (X \<inter> Y)" 
+lemma lll11: "P || X \<subseteq> (P||(X \<union> Y))       &    P outside X \<subseteq> P outside (X \<inter> Y)" 
 using lll11b distrib_sup_le sup_idem 
 le_inf_iff subset_antisym sup_commute
 by (metis sup_ge1)
 
-lemma lll84: "P``(X \<inter> Domain P)=P``X" by blast
+lemma lll84: "P``(X \<inter> Domain P) = P``X" by blast
 
-lemma nn57: assumes "card X=1" "X \<subseteq> Y" shows "Union X \<in> Y" using assms nn56 by (metis cSup_singleton insert_subset)
+lemma nn57: assumes "card X=1" and "X \<subseteq> Y" shows "Union X \<in> Y" using assms nn56 by (metis cSup_singleton insert_subset)
+
 lemma nn57b: assumes "card X=1" "X \<subseteq> Y" shows "the_elem X \<in> Y" using assms 
 by (metis (full_types) insert_subset nn56)
 
-lemma ll52: "P outside (X \<union> Y) = (P outside X) outside Y" unfolding Outside_def by blast
+lemma ll52: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis l37a sup_commute)
 
-corollary ll52b: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis ll52 sup_commute)
-lemma assumes "card X=1" shows "X={the_elem X}" using assms card_eq_SucD the_elem_eq by fastforce
-lemma assumes "card X\<ge>1" "\<forall>x\<in>X. y > x" shows "y > Max X" using assms
+
+
+
+
+
+
+section {* ordered relations *}
+
+(* note that card \<^bold>X\<ge>1 means in Isabelle that X is finite and not empty *)
+lemma lm79: assumes "card X\<ge>1" "\<forall>x\<in>X. y > x" shows "y > Max X" using assms
 by (metis (poly_guards_query) Max_in One_nat_def card_eq_0_iff lessI not_le)
 
+(* assume the function f has a maximum in mx *)
 lemma lm80a: assumes "finite X" "mx \<in> X" "f x < f mx" shows"x \<notin> argmax f X" using assms not_less by fastforce
 
 lemma lm80d: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X \<subseteq> {mx}"
@@ -191,104 +166,119 @@ using assms mk_disjoint_insert by force
 lemma lm80: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X = {mx}" 
 using assms lm80d by (metis argmax_non_empty_iff equals0D subset_singletonD)
 
+(* The following corollary is essentially the same as lm80, however, is simplifies a proof in UniformTieBreaking.thy *)
 corollary lm80c: "(finite X & mx \<in> X & (\<forall>aa \<in> X-{mx}. f aa < f mx)) \<longrightarrow> argmax f X = {mx}"
 using assms lm80 by metis
 
 corollary lm80b: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X. x \<noteq> mx \<longrightarrow> f x < f mx" shows "argmax f X = {mx}"
 using assms lm80 by (metis Diff_iff insertI1)
 
-lemma lm75f: assumes "f \<circ> g=id" shows "inj_on g UNIV" using assms 
+lemma lm75f: assumes "f \<circ> g = id" shows "inj_on g UNIV" using assms 
 by (metis inj_on_id inj_on_imageI2)
 
+(* Note that Pow X is the powerset of X *)
 lemma lm74a: assumes "inj_on f X" shows "inj_on (image f) (Pow X)"
 using assms inj_on_image_eq_iff inj_onI PowD by (metis (mono_tags, lifting))
 
 lemma lm74: assumes "inj_on f Y" "X \<subseteq> Y" shows "inj_on (image f) (Pow X)"
 using assms lm74a by (metis subset_inj_on)
 
-definition finestpart where "finestpart X = (%x. insert x {}) ` X"
-(*MC: alternative, non-computable, set-theoretical version:
-Range (projector (Graph id || X)) *)
+(* the finest possible partition of X, e.g., X = {1, 2, 3} goes to {{1}, {2}, {3}}. *)
+definition finestpart where "finestpart X = (%x. {x}) ` X"
 
 lemma ll64: "finestpart X = {{x}|x . x\<in>X}" unfolding finestpart_def by blast
 
 lemma lm75: "X=\<Union> (finestpart X)" using ll64 by auto
+
 lemma lm75b: "Union \<circ> finestpart = id" using finestpart_def lm75 by fastforce
+
 lemma lm75c: "inj_on Union (finestpart ` UNIV)" using assms lm75b by (metis inj_on_id inj_on_imageI)
+
 lemma lm31: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
+
 corollary lm31b: "inj_on finestpart UNIV" using lm31 ll64 by (metis (lifting, no_types) injI)
 
-lemma lm55m: "{Y. EX y.((Y \<in> finestpart y) & (y \<in> Range a))} = \<Union>(finestpart`(Range a))" by auto
+(* E.g. in the following example, with X = {{1}, {1,2}}, x can be {1} and {1,2} and Y is {{1}} and {{1},{2}}, that is, the lefthand and righthand sides evaluate to {{1},{2}} *)
+lemma lm55m: "{Y | Y. EX x.((Y \<in> finestpart x) & (x \<in> X))} = \<Union>(finestpart`X)" by auto
 
-lemma lm55l: "Range {(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> a} = 
-{Y. EX y. ((Y \<in> finestpart y) & (y \<in> Range a))}" by auto
+(* Now we specialize the previous lemma to the situation where X consists of a relation (that is is a set of pairs) *)
+lemma lm55l: "Range {(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> X} = 
+{Y. EX x. ((Y \<in> finestpart x) & (x \<in> Range X))}" by auto
 
-lemma lm55j: "{(fst pair, {y})| y pair. y \<in> snd pair & pair \<in> a} = 
-{(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> a}"
+(* Further specialization to a singleton for Y *)
+lemma lm55j: "{(fst pair, {y})| y pair. y \<in> snd pair & pair \<in> X} = 
+{(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> X}"
 using finestpart_def by fastforce
 
 lemma lm55b: "{(fst pair, {y})| y. y \<in>  snd pair} = {fst pair} \<times> {{y}| y. y \<in> snd pair}" by fastforce
 
 lemma lm71: "x \<in> X = ({x} \<in> finestpart X)" using finestpart_def by force
 
-lemma nn43: "{(x,X)}-{(x,{})} = {x}\<times>({X}-{{}})" by blast
+lemma nn43: "{(x,X)}-{(x,Y)} = {x}\<times>({X}-{Y})" by blast
 
 lemma nn11: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
 
 lemma lm85: "argmax f {x} = {x}" using argmax_def by auto
 
-lemma lm64: assumes "finite X" shows "set (sorted_list_of_set X)=X" using assms by simp
+lemma lm64: assumes "finite X" shows "set (sorted_list_of_set X) = X" using assms by simp
 
+(* We assume for the next lemma that f has value in numbers, and setsum f A is
+   sum f(x) for x in A. *)
 lemma lll23: assumes "finite A" shows "setsum f A = setsum f (A \<inter> B) + setsum f (A - B)" using 
 assms by (metis DiffD2 Int_iff Un_Diff_Int Un_commute finite_Un setsum.union_inter_neutral)
 
-lemma ll54: assumes "(Domain P \<subseteq> Domain Q)" shows "(P +* Q=Q)"
+lemma ll56a: assumes "(Domain P \<subseteq> Domain Q)" shows "(P +* Q) = Q"
 unfolding paste_def Outside_def using assms by fast
 
-lemma ll55: assumes "(P +* Q=Q)" shows "(Domain P \<subseteq> Domain Q)"
+lemma ll56b: assumes "(P +* Q=Q)" shows "(Domain P \<subseteq> Domain Q)"
 using assms paste_def Outside_def by blast
 
-lemma ll56: "(Domain P \<subseteq> Domain Q) = (P +* Q=Q)" using ll54 ll55 by metis
+lemma ll56: "(Domain P \<subseteq> Domain Q) = (P +* Q=Q)" using ll56a ll56b by metis
 
 lemma "(P||(Domain Q)) +* Q = Q" by (metis Int_lower2 ll41 ll56)
 
-lemma lll00: "P||X = P outside (Domain P - X)" 
+lemma lll00: "P||X   =   P outside (Domain P - X)" 
 using Outside_def restrict_def by fastforce
-lemma lll01b: "P outside X \<subseteq> P || ((Domain P)-X)" 
+
+lemma lll01b: "(P outside X) \<subseteq>    P || ((Domain P)-X)" 
 using lll00 lll11 by (metis Int_commute ll41 outside_reduces_domain)
 
-lemma lll06a: shows "Domain (P outside X) \<inter> Domain (Q || X) \<subseteq> {}" using lll00 by 
-(metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute ll41 outside_reduces_domain restrict_empty subset_empty)
+lemma lll06a: shows "Domain (P outside X) \<inter> Domain (Q || X) = {}" using lll00 by 
+(metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute ll41 outside_reduces_domain restrict_empty)
 
 lemma lll06b: shows "(P outside X) \<inter> (Q || X) = {}" using lll06a by fast
 
-lemma lll06c: shows "(P outside (X \<union> Y)) \<inter> (Q || (X)) = {} & 
-(P outside (X)) \<inter> (Q || (X \<inter> Z)) = {}
+lemma lll06c: shows "(P outside (X \<union> Y)) \<inter> (Q || X) = {} & 
+(P outside X) \<inter> (Q || (X \<inter> Z)) = {}
 " using assms Outside_def restrict_def lll06b lll11b by fast
 
-lemma lll01: shows "P outside X = P || (Domain P -X)" 
+lemma lll01: shows "P outside X    =    P || ((Domain P) - X)" 
 using Outside_def restrict_def  lll01b by fast
 
 lemma lll99: "R``(X-Y) = (R||X)``(X-Y)" using restrict_def by blast
 
+(* x is a (non-empty) element of the family XX whose union is a subset of X *)
 lemma lll79: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" shows "x \<inter> X \<noteq> {}" using assms by blast
 
-lemma lm66: assumes "\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N" shows 
-"set [set (g2 l N). l <- g1 G] = {f2 P N| P. P \<in> set (map set (g1 G))}" using assms by auto
+(* Note that set converts lists such as L1 into sets. L1 is here a list of lists and l an element, that is, a list. We assume furthermore that f2 is constant function with the fixed 2nd argument N. Then we can convert lists to sets in a canonical way. *)
+lemma lm66: assumes "\<forall>l \<in> set L1. set L2 = f2 (set l) N" shows 
+"set [set L2. l <- L1]  =  {f2 P N| P. P \<in> set (map set L1)}" using assms by auto
+
+(* Variant of the previous lemma *)
 lemma lm66b: "(\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N) --> 
 {f2 P N| P. P \<in> set (map set (g1 G))} = set [set (g2 l N). l <- g1 G]" by auto
 
-lemma lll86: assumes "X \<inter> Y={}" shows "R``X = (R outside Y)``X"
+lemma lll86: assumes "X \<inter> Y  =  {}" shows "R``X = (R outside Y)``X"
 using assms Outside_def Image_def by blast
 
-lemma lm02: "argmax f A = { x \<in> A . f x = Max (f ` A) }" using assms by simp
+(* lemma lm02: "argmax f A = { x \<in> A . f x = Max (f ` A) }" using assms by simp
+*)
 
 
 
 
 
-
-
+(* *** *)
 
 
 
@@ -507,7 +497,7 @@ lemma "Domain ((a outside (X \<union> {i})) \<union> ({(i, \<Union> (a``(X \<uni
 \<subseteq> Domain a - X \<union> {i}" using assms Outside_def by auto
 
 lemma "(R - ((X\<union>{i})\<times>(Range R))) = (R outside X) outside {i}" using Outside_def 
-by (metis ll52)
+by (metis l37a)
 
 lemma "{(i, x)} - {(i,y)} = {i} \<times> ({x}-{y})" by fast
 
