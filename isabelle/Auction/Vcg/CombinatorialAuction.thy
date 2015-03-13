@@ -545,7 +545,7 @@ moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) lm58e by 
 ultimately show ?thesis by blast
 qed
 
-definition "allStrictAllocations N G == possibleAllocationsAlg3 N G"
+definition "allStrictAllocations N G == possibleAllocationsAlg N G"
 abbreviation "maximalStrictAllocations N G b==
 argmax (setsum b) (set (allStrictAllocations ({seller}\<union>N) G))"
 
@@ -687,7 +687,7 @@ thus ?thesis by simp
 qed
 
 corollary lm70c: assumes "card N > 0" "distinct G" shows 
-"possibleAllocationsRel N (set G) = set (possibleAllocationsAlg3 N G)"  
+"possibleAllocationsRel N (set G) = set (possibleAllocationsAlg N G)"  
 using assms Universes.lm70b by metis
 
 lemma lm24: assumes "card A > 0" "card B > 0" shows "card (A \<union> B) > 0" 

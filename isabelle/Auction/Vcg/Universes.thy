@@ -33,9 +33,10 @@ using assms distinct_sorted_list_of_set all_partitions_alg_def all_partitions_eq
 by metis
 
 (* This is a variant of the bridging theorem that the classical and constructive definitions of all_partitions characterize the same set *)
-lemma lm65: assumes "finite G" shows "all_partitions G  =  set ` (set (all_partitions_alg G))"
-using assms lm64 all_partitions_alg_def all_partitions_paper_equiv_alg
-distinct_sorted_list_of_set image_set by metis
+lemma lm65: assumes "finite G" 
+            shows "all_partitions G  =  set ` (set (all_partitions_alg G))"
+            using assms lm64 all_partitions_alg_def all_partitions_paper_equiv_alg
+                  distinct_sorted_list_of_set image_set by metis
 
 
 
@@ -45,10 +46,12 @@ section {* Definitions of various subsets of @{term UNIV}. *}
 (* For with R = {({1,2},2), ({2,3},3)} is a choice relation, choosing one element of the set. *)
 abbreviation "isChoice R == \<forall>x. R``{x} \<subseteq> x"
 abbreviation "partitionsUniverse == {X. is_non_overlapping X}"
-lemma "partitionsUniverse \<subseteq> Pow UNIV" by simp       
+lemma "partitionsUniverse \<subseteq> Pow UNIV" 
+      by simp       
 
 abbreviation "partitionValuedUniverse == \<Union> P \<in> partitionsUniverse. Pow (UNIV \<times> P)"
-lemma "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (Pow UNIV))" by simp
+lemma "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (Pow UNIV))" 
+      by simp
 
 abbreviation "injectionsUniverse == {R. (runiq R) & (runiq (R^-1))}"
 
@@ -58,27 +61,31 @@ abbreviation "totalRels X Y == {R. Domain R = X & Range R \<subseteq> Y}"
 
 
 
-(***)
+
 section {* Results about the sets defined in the previous section *}
 
-lemma lm01a: "partitionsUniverse \<subseteq>  {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}}}" unfolding is_non_overlapping_def by auto
-lemma lm04: assumes "!x1 : X. (x1 \<noteq> {} & (! x2 : X-{x1}. x1 \<inter> x2={}))" shows "is_non_overlapping X" 
-unfolding is_non_overlapping_def using assms by fast
-lemma lm72: assumes "\<forall>x \<in> X. t x \<in> x" shows "isChoice (graph X t)" using assms
-by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 runiq_wrt_eval_rel subset_trans)
+lemma lm04: assumes "\<forall> x1 \<in> X. (x1 \<noteq> {} & (\<forall> x2 \<in> X-{x1}. x1 \<inter> x2  =  {}))" 
+            shows "is_non_overlapping X" 
+            unfolding is_non_overlapping_def using assms by fast
 
-(* lemma "R |- Y = (R^-1 -| Y)^-1" using Outside_def by auto
-*) lemma lm24: "injections = injections'" using injections_def by (metis(no_types))
+lemma lm72: assumes "\<forall>x \<in> X. f x \<in> x" 
+            shows "isChoice (graph X f)" using assms
+            by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 
+                      runiq_wrt_eval_rel subset_trans)
+
+lemma lm24: "injections = injections'" using injections_def by (metis(no_types))
 lemma lm25: "injections' X Y \<subseteq> injectionsUniverse" by fast
 lemma lm25b: "injections X Y \<subseteq> injectionsUniverse" using injections_def by blast
 lemma lm26: "injections' X Y = totalRels X Y \<inter> injectionsUniverse" by fastforce
 
-lemma lm47: assumes "a \<in> possibleAllocationsRel N G" shows 
-"a^-1 \<in> injections (Range a) N & Range a partitions G & Domain a \<subseteq> N" 
-unfolding injections_def using assms all_partitions_def injections_def by fastforce
+lemma lm47: assumes "a \<in> possibleAllocationsRel N G" 
+            shows  "a^-1 \<in> injections (Range a) N & 
+                    (Range a) partitions G & 
+                    Domain a \<subseteq> N" 
+            unfolding injections_def using assms all_partitions_def injections_def by fastforce
 
-lemma lll80: assumes "is_non_overlapping XX" "YY \<subseteq> XX" shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
-using is_partition_of_def is_non_overlapping_def assms
+lemma lll80: assumes "is_non_overlapping XX" "YY \<subseteq> XX" 
+             shows "(XX - YY) partitions (\<Union> XX - \<Union> YY)"
 proof -
   let ?xx="XX - YY" let ?X="\<Union> XX" let ?Y="\<Union> YY"
   let ?x="?X - ?Y"
@@ -90,42 +97,44 @@ proof -
   show ?thesis using is_partition_of_def by blast
 qed
 
-lemma lll81a: assumes "a \<in> possible_allocations_rel G N" shows
-"runiq a & runiq (a\<inverse>) & (Domain a) partitions G & Range a \<subseteq> N" 
+lemma lll81a: assumes "a \<in> possible_allocations_rel G N" 
+              shows "runiq a & 
+                     runiq (a\<inverse>) & 
+                     (Domain a) partitions G & 
+                     Range a \<subseteq> N" 
 proof -
   obtain Y where
   0: "a \<in> injections Y N & Y \<in> all_partitions G" using assms possible_allocations_rel_def by auto
   show ?thesis using 0 injections_def all_partitions_def mem_Collect_eq by fastforce
 qed
 
+(* converse of the previous lemma *)
 lemma lll81b: assumes "runiq a" "runiq (a\<inverse>)" "(Domain a) partitions G" "Range a \<subseteq> N"
-shows "a \<in> possible_allocations_rel G N"
+              shows "a \<in> possible_allocations_rel G N"
 proof -
   have "a \<in> injections (Domain a) N" unfolding injections_def using assms(1) assms(2)  assms(4) by blast
   moreover have "Domain a \<in> all_partitions G" using assms(3) all_partitions_def by fast
   ultimately show ?thesis using assms(1) possible_allocations_rel_def by auto
 qed
 
+(* lemma lll81a and lll81b combined *)
 lemma lll81: "a \<in> possible_allocations_rel G N \<longleftrightarrow>
-runiq a & runiq (a\<inverse>) & (Domain a) partitions G & Range a \<subseteq> N"
-using lll81a lll81b by blast
-
-corollary assumes "runiq (P^-1)" shows "Range (P outside X) \<inter> Range (P || X)={}"
-using assms lll78 by (metis lll01 lll85)
+                runiq a & runiq (a\<inverse>) & (Domain a) partitions G & Range a \<subseteq> N"
+             using lll81a lll81b by blast
 
 lemma lm10: "possible_allocations_rel' G N \<subseteq> injectionsUniverse"
-using assms by force
+            using assms by force
 
-lemma lm09: "possible_allocations_rel G N \<subseteq> {a. Range a \<subseteq> N & Domain a \<in> all_partitions G}"
-using assms possible_allocations_rel_def injections_def by fastforce
+lemma lm09: "possible_allocations_rel G N \<subseteq> {a. (Range a) \<subseteq> N & (Domain a) \<in> all_partitions G}"
+            using assms possible_allocations_rel_def injections_def by fastforce
 
-lemma lm11: "injections X Y = injections' X Y" using injections_def
-by metis
+lemma lm11: "injections X Y = injections' X Y" 
+            using injections_def by metis
 
-lemma lm12: "all_partitions X = all_partitions' X" using all_partitions_def is_partition_of_def 
-by auto
+lemma lm12: "all_partitions X = all_partitions' X" 
+            using all_partitions_def is_partition_of_def by auto
 
-lemma lm13: "possible_allocations_rel' A B = possible_allocations_rel A B" (is "?A=?B")
+lemma lm13: "possible_allocations_rel' A B  =  possible_allocations_rel A B" (is "?A=?B")
 proof -
   have "?B=\<Union> { injections Y B | Y . Y \<in> all_partitions A }"
   using possible_allocations_rel_def by auto 
@@ -133,20 +142,28 @@ proof -
   ultimately show ?thesis by presburger
 qed
 
-lemma lm14: "possible_allocations_rel G N \<subseteq> injectionsUniverse \<inter> {a. Range a \<subseteq> N & Domain a \<in> all_partitions G}"
-using assms lm09 lm10 possible_allocations_rel_def injections_def by fastforce
+lemma lm17a: "possible_allocations_rel G N \<subseteq> 
+             injectionsUniverse \<inter> {a. Range a \<subseteq> N & Domain a \<in> all_partitions G}"
+             using assms lm09 lm10 possible_allocations_rel_def injections_def by fastforce
 
-lemma lm15: "possible_allocations_rel G N \<supseteq> injectionsUniverse \<inter> {a. Domain a \<in> all_partitions G & Range a \<subseteq> N}"
-using possible_allocations_rel_def injections_def by auto
+lemma lm17b: "possible_allocations_rel G N \<supseteq> 
+             injectionsUniverse \<inter> {a. Domain a \<in> all_partitions G & Range a \<subseteq> N}"
+            using possible_allocations_rel_def injections_def by auto
 
-lemma lm16: "converse ` injectionsUniverse = injectionsUniverse" by auto
+(* combination of the previous two lemmas *)
+lemma lm17: "possible_allocations_rel G N   = 
+             injectionsUniverse \<inter> {a. Domain a \<in> all_partitions G & Range a \<subseteq> N}"
+             using lm17a lm17b by blast
 
-lemma lm17: "possible_allocations_rel G N = injectionsUniverse \<inter> {a. Domain a \<in> all_partitions G & Range a \<subseteq> N}"
-using lm14 lm15 by blast
+(* all possible injections can be flipped and gives the same *)
+lemma lm16: "converse ` injectionsUniverse = injectionsUniverse" 
+            by auto
 
-lemma lm18: "converse`(A \<inter> B)=converse`A \<inter> (converse`B)" by force
+lemma lm18: "converse`(A \<inter> B)  =  (converse`A) \<inter> (converse`B)" 
+            by force
 
-lemma lm19: "possibleAllocationsRel N G = injectionsUniverse \<inter> {a. Domain a \<subseteq> N & Range a \<in> all_partitions G}"
+lemma lm19: "possibleAllocationsRel N G = 
+             injectionsUniverse \<inter> {a. Domain a \<subseteq> N & Range a \<in> all_partitions G}"
 proof -
   let ?A="possible_allocations_rel G N" let ?c=converse let ?I=injectionsUniverse 
   let ?P="all_partitions G" let ?d=Domain let ?r=Range
@@ -156,12 +173,21 @@ proof -
   ultimately show ?thesis by presburger
 qed
 
-corollary lm19c: "a \<in> possibleAllocationsRel N G = 
-(a \<in> injectionsUniverse & Domain a \<subseteq> N & Range a \<in> all_partitions G)" 
-using lm19 Int_Collect Int_iff by (metis (lifting))
+lemma lm48: "possibleAllocationsRel N G \<subseteq> injectionsUniverse" 
+            using lm19 by fast
 
-corollary lm19d: assumes "a \<in> possibleAllocationsRel N1 G" shows 
-"a \<in> possibleAllocationsRel (N1 \<union> N2) G"
+lemma lm49: "possibleAllocationsRel N G \<subseteq> partitionValuedUniverse"
+            using assms lm47 is_partition_of_def is_non_overlapping_def by blast
+
+corollary lm50: "possibleAllocationsRel N G \<subseteq> allocationsUniverse" 
+                using lm48 lm49 by (metis (lifting, mono_tags) inf.bounded_iff)
+
+corollary lm19c: "a \<in> possibleAllocationsRel N G = 
+                  (a \<in> injectionsUniverse & Domain a \<subseteq> N & Range a \<in> all_partitions G)" 
+                 using lm19 Int_Collect Int_iff by (metis (lifting))
+
+corollary lm19d: assumes "a \<in> possibleAllocationsRel N1 G" 
+                 shows   "a \<in> possibleAllocationsRel (N1 \<union> N2) G"
 proof - 
 have "Domain a \<subseteq> N1 \<union> N2" using assms(1) lm19c by (metis le_supI1) 
 moreover have "a \<in> injectionsUniverse & Range a \<in> all_partitions G" 
@@ -169,28 +195,35 @@ using assms lm19c by blast ultimately show ?thesis using lm19c by blast
 qed
 
 corollary lm19b: "possibleAllocationsRel N1 G \<subseteq> possibleAllocationsRel (N1 \<union> N2) G"
-using lm19d by (metis subsetI)
+                 using lm19d by (metis subsetI)
 
-lemma assumes "x\<noteq>{}" shows "is_non_overlapping {x}" unfolding is_non_overlapping_def using assms is_non_overlapping_def by force
+lemma lm20d: assumes "(\<Union> P1) \<inter> (\<Union> P2) = {}" 
+                     "is_non_overlapping P1" "is_non_overlapping P2" 
+                     "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2" "X \<inter> Y \<noteq> {}" 
+             shows "(X = Y)" 
+             unfolding is_non_overlapping_def using assms is_non_overlapping_def by fast
 
-lemma lm20d: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2" "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2"
-"X \<inter> Y \<noteq> {}" shows "(X = Y)" unfolding is_non_overlapping_def using assms is_non_overlapping_def by fast
+lemma lm20e: assumes "(\<Union> P1) \<inter> (\<Union> P2) = {}" 
+                     "is_non_overlapping P1" "is_non_overlapping P2" 
+                     "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2" "(X = Y)" 
+             shows "X \<inter> Y \<noteq> {}" 
+             unfolding is_non_overlapping_def using assms is_non_overlapping_def by fast
 
-lemma lm20e: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2" "X \<in> P1 \<union> P2" "Y \<in> P1 \<union> P2"
-"(X = Y)" shows "X \<inter> Y \<noteq> {}" unfolding is_non_overlapping_def using assms is_non_overlapping_def by fast
-
-lemma lm20: assumes "\<Union> P1 \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2"
-shows "is_non_overlapping (P1 \<union> P2)" unfolding is_non_overlapping_def using assms lm20d lm20e by metis
+lemma lm20:  assumes "(\<Union> P1) \<inter> (\<Union> P2) = {}" "is_non_overlapping P1" "is_non_overlapping P2"
+             shows "is_non_overlapping (P1 \<union> P2)" 
+             unfolding is_non_overlapping_def using assms lm20d lm20e by metis
 
 lemma lm21: "Range Q \<union> (Range (P outside (Domain Q))) = Range (P +* Q)"
-unfolding paste_def Range_Un_eq Un_commute by (metis(no_types))
+            unfolding paste_def Range_Un_eq Un_commute by (metis(no_types))
 
-lemma lll77c: assumes "a1 \<in> injectionsUniverse" "a2 \<in> injectionsUniverse" "Range a1 \<inter> (Range a2)={}"
-"Domain a1 \<inter> (Domain a2) = {}" shows "a1 \<union> a2 \<in> injectionsUniverse" 
-using assms disj_Un_runiq by (metis (no_types) Domain_converse converse_Un mem_Collect_eq)
+lemma lll77c: assumes "a1 \<in> injectionsUniverse" "a2 \<in> injectionsUniverse" 
+                      "(Range a1) \<inter> (Range a2)={}" "(Domain a1) \<inter> (Domain a2) = {}" 
+              shows "a1 \<union> a2 \<in> injectionsUniverse" 
+              using assms disj_Un_runiq 
+              by (metis (no_types) Domain_converse converse_Un mem_Collect_eq)
 
-lemma lm22: assumes "R \<in> partitionValuedUniverse" shows "is_non_overlapping (Range R)"
-using assms 
+lemma lm22:  assumes "R \<in> partitionValuedUniverse" 
+             shows "is_non_overlapping (Range R)"
 proof -
   obtain P where
   0: "P \<in> partitionsUniverse & R \<subseteq> UNIV \<times> P" using assms by blast
@@ -198,8 +231,10 @@ proof -
   then show ?thesis using 0 mem_Collect_eq subset_is_non_overlapping by (metis)
 qed
 
-lemma lm23: assumes "a1 \<in> allocationsUniverse" "a2 \<in> allocationsUniverse" "\<Union> (Range a1) \<inter> (\<Union> (Range a2))={}"
-"Domain a1 \<inter> (Domain a2) = {}" shows "a1 \<union> a2 \<in> allocationsUniverse"
+lemma lm23: assumes "a1 \<in> allocationsUniverse" "a2 \<in> allocationsUniverse" 
+                    "(\<Union> (Range a1)) \<inter> (\<Union> (Range a2)) = {}"
+                    "(Domain a1) \<inter> (Domain a2) = {}" 
+            shows "a1 \<union> a2 \<in> allocationsUniverse"
 proof -
   let ?a="a1 \<union> a2" let ?b1="a1^-1" let ?b2="a2^-1" let ?r=Range let ?d=Domain
   let ?I=injectionsUniverse let ?P=partitionsUniverse let ?PV=partitionValuedUniverse let ?u=runiq
@@ -217,59 +252,79 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-lemma lm27: assumes "a \<in> injectionsUniverse" shows "a - b \<in> injectionsUniverse" using assms 
-by (metis (lifting) Diff_subset converse_mono mem_Collect_eq subrel_runiq)
+(* - stands here for set difference *)
+lemma lm27: assumes "a \<in> injectionsUniverse" 
+            shows "a - b \<in> injectionsUniverse" 
+            using assms 
+            by (metis (lifting) Diff_subset converse_mono mem_Collect_eq subrel_runiq)
 
-lemma lm30b: "{a. Domain a \<subseteq> N & Range a \<in> all_partitions G} =
-(Range -` (all_partitions G)) \<inter> (Domain -`(Pow N))" 
-by fastforce
+(* Note that -` is the inverse image of a lambda function. *)
+lemma lm30b: "{a. Domain a \<subseteq> N    &   Range a \<in> all_partitions G} =
+              (Domain -`(Pow N))  \<inter>  (Range -` (all_partitions G)) " 
+             by fastforce
 
-lemma lm30: "possibleAllocationsRel N G = injectionsUniverse \<inter> ((Range -` (all_partitions G))
-\<inter> (Domain -`(Pow N)))"
-using lm19 lm30b by metis 
+lemma lm30: "possibleAllocationsRel N G = 
+             injectionsUniverse \<inter> ((Range -` (all_partitions G)) \<inter> (Domain -`(Pow N)))"
+             using lm19 lm30b by (metis (no_types) Int_commute)
 
-lemma lm28a: assumes "a \<in> possibleAllocationsRel N G" shows "(a^-1 \<in> injections (Range a) N & Range a \<in> all_partitions G)"
-using assms 
-by (metis (mono_tags, hide_lams) lm19c lm47)
+(* -` is the reverse image of a function. This is a variant of lm30 with different bracketing *)
+corollary lm31: "possibleAllocationsRel N G = 
+                 injectionsUniverse \<inter> (Range -` (all_partitions G)) \<inter> (Domain -`(Pow N))" 
+                using lm30 Int_assoc 
+                by (metis)
+
+lemma lm28a: assumes "a \<in> possibleAllocationsRel N G" 
+             shows "(a^-1 \<in> injections (Range a) N & 
+                    Range a \<in> all_partitions G)"
+             using assms 
+             by (metis (mono_tags, hide_lams) lm19c lm47)
 
 lemma lm28c: assumes "a^-1 \<in> injections (Range a) N" "Range a \<in> all_partitions G" 
-shows "a \<in> possibleAllocationsRel N G" using assms image_iff by fastforce
+             shows "a \<in> possibleAllocationsRel N G" 
+             using assms image_iff by fastforce
 
-lemma lm28: "a \<in> possibleAllocationsRel N G = (a^-1 \<in> injections (Range a) N & Range a \<in> all_partitions G)"
-using lm28a lm28c by metis
+lemma lm28: "a \<in> possibleAllocationsRel N G = 
+            (a^-1 \<in> injections (Range a) N  &  Range a \<in> all_partitions G)"
+            using lm28a lm28c 
+            by metis
 
-lemma lm28d: assumes "a \<in> possibleAllocationsRel N G" shows "(a \<in> injections (Domain a) (Range a) 
-& Range a \<in> all_partitions G & Domain a \<subseteq> N)"
-using assms mem_Collect_eq injections_def
-lm19c order_refl by (metis (mono_tags, lifting))
-(* also: by (metis (full_types, lifting)) *)
-(* equalityD2 imageE lll81a lm19c lm47 converse_converse order_refl Domain_converse lm28a *) 
+lemma lm28d: assumes "a \<in> possibleAllocationsRel N G" 
+             shows "a \<in> injections (Domain a) (Range a) & 
+                    Range a \<in> all_partitions G &
+                    Domain a \<subseteq> N"
+             using assms mem_Collect_eq injections_def lm19c order_refl 
+             by (metis (mono_tags, lifting))
 
 lemma lm28e: assumes "a \<in> injections (Domain a) (Range a)" 
-"Range a \<in> all_partitions G" "Domain a \<subseteq> N" shows "a \<in> possibleAllocationsRel N G" 
-using assms mem_Collect_eq lm19c injections_def by (metis (erased, lifting))
+                     "Range a \<in> all_partitions G" "Domain a \<subseteq> N" 
+             shows "a \<in> possibleAllocationsRel N G" 
+             using assms mem_Collect_eq lm19c injections_def 
+             by (metis (erased, lifting))
 
-lemma lm28b: "a \<in> possibleAllocationsRel N G = (a \<in> injections (Domain a) (Range a) 
-& Range a \<in> all_partitions G & Domain a \<subseteq> N)" using lm28d lm28e by metis
+lemma lm28b: "a \<in> possibleAllocationsRel N G = 
+             (a \<in> injections (Domain a) (Range a)  & 
+              Range a \<in> all_partitions G & 
+              Domain a \<subseteq> N)" 
+            using lm28d lm28e 
+            by metis
 
-lemma lm29: "possibleAllocationsRel N G \<supseteq> injectionsUniverse \<inter> (Range -` (all_partitions G))
-\<inter> (Domain -`(Pow N))" using subsetI Int_assoc lm30
-by metis (*MC: not used?*)
+lemma lm32: assumes "a \<in> partitionValuedUniverse" 
+            shows "a - b \<in> partitionValuedUniverse" 
+            using assms subset_is_non_overlapping 
+            by fast
 
-corollary lm31: "possibleAllocationsRel N G = injectionsUniverse \<inter> (Range -` (all_partitions G))
-\<inter> (Domain -`(Pow N))" using lm30 Int_assoc by (metis)
+lemma lm35: assumes "a \<in> allocationsUniverse" 
+            shows "a - b \<in> allocationsUniverse" 
+            using assms lm27 lm32 
+            by auto
 
-lemma lm32: assumes "a \<in> partitionValuedUniverse" shows "a - b \<in> partitionValuedUniverse" 
-using assms subset_is_non_overlapping by fast
+lemma lm33: assumes "a \<in> injectionsUniverse" 
+            shows "a \<in> injections (Domain a) (Range a)"
+            using assms injections_def mem_Collect_eq order_refl 
+            by blast
 
-lemma lm35: assumes "a \<in> allocationsUniverse" shows "a - b \<in> allocationsUniverse" using assms 
-lm27 lm32 by auto
-
-lemma lm33: assumes "a \<in> injectionsUniverse" shows "a \<in> injections (Domain a) (Range a)"
-using assms injections_def mem_Collect_eq order_refl by blast
-(* injectionsI *)
-
-lemma lm34: assumes "a \<in> allocationsUniverse" shows "a \<in> possibleAllocationsRel (Domain a) (\<Union> (Range a))"
+lemma lm34: assumes "a \<in> allocationsUniverse" 
+            shows "a \<in> possibleAllocationsRel (Domain a) (\<Union> (Range a))"
 proof -
 let ?r=Range let ?p=is_non_overlapping let ?P=all_partitions have "?p (?r a)" using 
 assms lm22 Int_iff by blast then have "?r a \<in> ?P (\<Union> (?r a))" unfolding all_partitions_def 
@@ -277,21 +332,25 @@ using is_partition_of_def  mem_Collect_eq by (metis) then show ?thesis using
 assms IntI Int_lower1 equalityE lm19 mem_Collect_eq set_rev_mp by (metis (lifting, no_types))
 qed
 
-lemma lm36: "{X} \<in> partitionsUniverse = (X \<noteq> {})" using is_non_overlapping_def by fastforce
+lemma lm36: "({X} \<in> partitionsUniverse) = (X \<noteq> {})" 
+            using is_non_overlapping_def 
+            by fastforce
 
-lemma lm36b: "{(x, X)} - {(x, {})} \<in> partitionValuedUniverse" using lm36 by auto
+lemma lm36b: "{(x, X)} - {(x, {})} \<in> partitionValuedUniverse" 
+             using lm36 
+             by auto
 
-lemma "runiq {(x,X)}" 
-by (metis runiq_singleton_rel)
+lemma lm37: "{(x, X)} \<in> injectionsUniverse" 
+            unfolding runiq_basic using runiq_singleton_rel 
+            by blast
 
-lemma lm37: "{(x, X)} \<in> injectionsUniverse" unfolding runiq_basic using runiq_singleton_rel by blast
+lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" 
+             using lm36b lm37 lm27 Int_iff 
+             by (metis (no_types))
 
-lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" using lm36b lm37 lm27 Int_iff by (metis (no_types))
-
-lemma assumes "is_non_overlapping Y" "X \<subseteq> Y" shows "is_non_overlapping X" using assms subset_is_non_overlapping
-by (metis(no_types))
-
-lemma lm41: assumes "is_non_overlapping PP" "is_non_overlapping (Union PP)" shows "is_non_overlapping (Union ` PP)"
+(* PP is a family of partitions *)
+lemma lm41: assumes "is_non_overlapping PP" "is_non_overlapping (Union PP)" 
+            shows "is_non_overlapping (Union ` PP)"
 proof -
 let ?p=is_non_overlapping let ?U=Union let ?P2="?U PP" let ?P1="?U ` PP" have 
 0: "\<forall> X\<in>?P1. \<forall> Y \<in> ?P1. (X \<inter> Y = {} \<longrightarrow> X \<noteq> Y)" using assms is_non_overlapping_def Int_absorb 
@@ -310,9 +369,12 @@ by (metis IntI empty_iff subsetCE)
 then show ?thesis using 0 is_non_overlapping_def by metis
 qed
 
-lemma lm43: assumes "a \<in> allocationsUniverse" shows 
-"(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse & 
-\<Union> (Range ((a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}))) = \<Union>(Range a)"
+(* A preservation of reallocating goods of the participants in X to a single participant i. *)
+lemma lm43: assumes "a \<in> allocationsUniverse" 
+            shows "(a - ((X\<union>{i})\<times>(Range a))) \<union> 
+                   ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse & 
+                   \<Union> (Range ((a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}))) =
+                   \<Union>(Range a)"
 proof -
   let ?d=Domain let ?r=Range let ?U=Union let ?p=is_non_overlapping let ?P=partitionsUniverse let ?u=runiq 
   let ?Xi="X \<union> {i}" let ?b="?Xi \<times> (?r a)" let ?a1="a - ?b" let ?Yi="a``?Xi" let ?Y="?U ?Yi" 
@@ -350,7 +412,7 @@ IntI Int_commute empty_iff insert_iff subsetI subset_empty by metis
     ultimately have "?U (?r ?a1) \<inter> ?Y = {}" using lm42 
 proof -
   have "\<forall>v0. v0 \<in> Range (a - (X \<union> {i}) \<times> Range a) \<longrightarrow> (\<forall>v1. v1 \<in> a `` (X \<union> {i}) \<longrightarrow> v0 \<inter> v1 = {})" 
-by (metis (no_types) `\<forall>x\<in>Range (a - (X \<union> {i}) \<times> Range a). \<forall>y\<in>a \`\` (X \<union> {i}). x \<inter> y = {}`) (* failed *)
+by (metis (no_types) `\<forall>x\<in>Range (a - (X \<union> {i}) \<times> Range a). \<forall>y\<in>a \`\` (X \<union> {i}). x \<inter> y = {}`) 
   thus "\<Union>Range (a - (X \<union> {i}) \<times> Range a) \<inter> \<Union>(a `` (X \<union> {i})) = {}" by blast
 qed then have 
     "?U (?r ?a1) \<inter> (?U (?r ?a2)) = {}" by blast
@@ -367,23 +429,11 @@ by blast then have
   then show ?thesis using 3 by linarith
 qed
 
-lemma lm45: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" shows
-"\<Union>(a``X) \<noteq> {}" (*MC: Should be stated more in general*)
-proof -
-  let ?p=is_non_overlapping let ?r=Range
-  have "?p (?r a)" using assms Int_iff lm22 by auto
-  moreover have "a``X \<subseteq> ?r a" by fast
-  ultimately have "?p (a``X)" using assms subset_is_non_overlapping by blast
-  moreover have "a``X \<noteq> {}" using assms by fast
-  ultimately show ?thesis by (metis Union_member all_not_in_conv no_empty_in_non_overlapping)
-qed
-
-corollary lm45b: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" shows 
-"{\<Union>(a``(X\<union>{i}))}-{{}} = {\<Union>(a``(X\<union>{i}))}" using assms lm45 by fast
-
-corollary lm43b: assumes "a \<in> allocationsUniverse" shows 
-"(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse & 
-\<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})))) = \<Union>(Range a)"
+corollary lm43b: assumes "a \<in> allocationsUniverse" 
+                 shows   "(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) 
+                                \<in> allocationsUniverse & 
+                          \<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})))) = 
+                          \<Union>(Range a)"
 proof -
 have "a - ((X\<union>{i})\<times>(Range a)) = a outside (X \<union> {i})" using Outside_def by metis
 moreover have "(a - ((X\<union>{i})\<times>(Range a))) \<union> ({(i, \<Union> (a``(X \<union> {i})))} - {(i,{})}) \<in> allocationsUniverse"
@@ -399,10 +449,27 @@ by fast
 ultimately show ?thesis by auto
 qed
 
-corollary lm43c: assumes "a \<in> allocationsUniverse" "Domain a \<inter> X \<noteq> {}" shows 
-"(a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}) \<in> allocationsUniverse & 
-\<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}))) = \<Union>(Range a)"
-using assms lm43b lm45b
+(* If there is an allocation with a participant in its domain, then the goods allocated are non-empty *)
+lemma lm45: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" 
+            shows   "\<Union>(a``X) \<noteq> {}"
+proof -
+  let ?p=is_non_overlapping let ?r=Range
+  have "?p (?r a)" using assms Int_iff lm22 by auto
+  moreover have "a``X \<subseteq> ?r a" by fast
+  ultimately have "?p (a``X)" using assms subset_is_non_overlapping by blast
+  moreover have "a``X \<noteq> {}" using assms by fast
+  ultimately show ?thesis by (metis Union_member all_not_in_conv no_empty_in_non_overlapping)
+qed
+
+(* i is an additional bidder added to X *)
+corollary lm45b: assumes "Domain a \<inter> X \<noteq> {}" "a \<in> allocationsUniverse" 
+                 shows   "{\<Union>(a``(X\<union>{i}))}-{{}}  =  {\<Union>(a``(X\<union>{i}))}" 
+                 using assms lm45 by fast
+
+(* variant of 43b *)
+corollary lm43c: assumes "a \<in> allocationsUniverse" "(Domain a) \<inter> X \<noteq> {}" 
+                 shows   "(a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}) \<in> allocationsUniverse & 
+                         \<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>{\<Union>(a``(X\<union>{i}))}))) = \<Union>(Range a)"
 proof -
 let ?t1="(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse"
 let ?t2="\<Union>(Range((a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})))) = \<Union>(Range a)"
@@ -410,7 +477,6 @@ have
 0: "a \<in> allocationsUniverse" using assms(1) by fast 
 then have "?t1 & ?t2" using lm43b 
 proof - 
-(*MC: Isabelle cannot do elementary logic steps, only could make it work via this ugly proof found by sledgehammer *)
   have "a \<in> allocationsUniverse \<longrightarrow> a outside (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
     using lm43b by fastforce
   hence "a outside (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
@@ -423,14 +489,13 @@ moreover have
 ultimately show ?thesis by auto
 qed
 
-abbreviation "condition1 b i == (\<forall> t t'. (trivial t & trivial t' & Union t \<subseteq> Union t') \<longrightarrow>
+(* The bid vector does not decrease when you bid for extra goods *)
+abbreviation "bidMonotonicity b i == (\<forall> t t'. (trivial t & trivial t' & Union t \<subseteq> Union t') \<longrightarrow>
 setsum b ({i}\<times>t) \<le> setsum b ({i}\<times>t'))" 
-(*MC: try to restate this in terms of monotone (Complete_Partial_Order.thy) or other similar functions*)
 
-abbreviation "condition1b b i == \<forall> X Y. setsum b ({i}\<times>{X}) \<le> setsum b ({i}\<times>{X \<union> Y})"
-
-lemma lm46: assumes "condition1 b i" "runiq a" shows 
-"setsum b ({i}\<times>((a outside X)``{i})) \<le> setsum b ({i}\<times>{\<Union>(a``(X\<union>{i}))})"
+(* adding the goods in X weakly increases the revenue *)
+lemma lm46: assumes "bidMonotonicity b i" "runiq a" 
+            shows  "setsum b ({i}\<times>((a outside X)``{i})) \<le> setsum b ({i}\<times>{\<Union>(a``(X\<union>{i}))})"
 proof -
   let ?u=runiq let ?I="{i}" let ?R="a outside X" let ?U=Union let ?Xi="X \<union>?I"
   let ?t1="?R``?I" let ?t2="{?U (a``?Xi)}"
@@ -446,33 +511,35 @@ proof -
   moreover have "trivial ?t2" by (metis trivial_singleton)
   ultimately show ?thesis using assms 0 by blast
 qed
+lemma lm39:  assumes "XX \<in> partitionValuedUniverse" 
+             shows "{} \<notin> Range XX" 
+             using assms mem_Collect_eq no_empty_in_non_overlapping by auto
 
-lemma lm48: "possibleAllocationsRel N G \<subseteq> injectionsUniverse" using  lm19 by fast
+corollary lm39b: assumes "a \<in> possibleAllocationsRel N G" 
+                 shows "{} \<notin> Range a" 
+                 using assms lm39 lm50 by blast
 
-lemma lm49: "possibleAllocationsRel N G \<subseteq> partitionValuedUniverse"
-using assms lm47 is_partition_of_def is_non_overlapping_def by blast
+lemma lm40: assumes "a \<in> possibleAllocationsRel N G" 
+            shows "Range a \<subseteq> Pow G"
+            using assms lm47 is_partition_of_def by (metis subset_Pow_Union)
 
-corollary lm50: "possibleAllocationsRel N G \<subseteq> allocationsUniverse" using lm48 lm49 
-by (metis (lifting, mono_tags) inf.bounded_iff)
+corollary lm40b: assumes "a \<in> possibleAllocationsRel N G" 
+                 shows "Domain a \<subseteq> N & Range a \<subseteq> Pow G - {{}}" 
+                 using assms lm40 insert_Diff_single lm39b subset_insert lm47 by metis
 
-lemma lm39: assumes "XX \<in> partitionValuedUniverse" shows "{} \<notin> Range XX" using assms 
-mem_Collect_eq no_empty_in_non_overlapping by auto
-corollary lm39b: assumes "a \<in> possibleAllocationsRel N G" shows "{} \<notin> Range a" using assms lm39 
-lm50 by blast
-lemma lm40: assumes "a \<in> possibleAllocationsRel N G" shows "Range a \<subseteq> Pow G"
-using assms lm47 is_partition_of_def by (metis subset_Pow_Union)
-corollary lm40b: assumes "a \<in> possibleAllocationsRel N G" shows "Domain a \<subseteq> N & Range a \<subseteq> Pow G - {{}}" using
-assms lm40 insert_Diff_single lm39b subset_insert lm47 by metis
-corollary lm40c: assumes "a \<in> possibleAllocationsRel N G" shows "a \<subseteq> N \<times> (Pow G - {{}})" 
-using assms lm40b by blast
-corollary lm40e: "possibleAllocationsRel N G \<subseteq> Pow (N\<times>(Pow G-{{}}))" using lm40c by blast
+corollary lm40c: assumes "a \<in> possibleAllocationsRel N G" 
+                 shows "a \<subseteq> N \<times> (Pow G - {{}})" 
+                 using assms lm40b by blast
 
-lemma lm51: assumes  
-"a \<in> possibleAllocationsRel N G" 
-"i\<in>N-X" 
-"Domain a \<inter> X \<noteq> {}" 
-shows 
-"a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}) \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))"
+corollary lm40e: "possibleAllocationsRel N G \<subseteq> Pow (N\<times>(Pow G-{{}}))" 
+                 using lm40c by blast
+
+(* reformulation of 43c with given set of goods and set of participants *)
+lemma lm51: assumes  "a \<in> possibleAllocationsRel N G" 
+                     "i \<in> N-X" 
+                     "Domain a \<inter> X \<noteq> {}" 
+            shows   "a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}) \<in> 
+                     possibleAllocationsRel (N-X) (\<Union> (Range a))"
 proof -
   let ?R="a outside X" let ?I="{i}" let ?U=Union let ?u=runiq let ?r=Range let ?d=Domain
   let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {?U(a``(X\<union>{i}))})" have 
@@ -495,12 +562,12 @@ by (metis lm19d)
   then show ?thesis by fast
 qed
 
-lemma lm52: assumes 
-"condition1 (b::_ => real) i" 
-"a \<in> allocationsUniverse" 
-"Domain a \<inter> X \<noteq> {}" 
-"finite a" shows 
-"setsum b (a outside X) \<le> setsum b (a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}))"
+lemma lm52: assumes "bidMonotonicity (b::_ => real) i" 
+                    "a \<in> allocationsUniverse" 
+                    "Domain a \<inter> X \<noteq> {}" 
+                    "finite a"
+            shows   "setsum b (a outside X) \<le> 
+                     setsum b (a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}))"
 proof -
   let ?R="a outside X" let ?I="{i}" let ?U=Union let ?u=runiq let ?r=Range let ?d=Domain
   let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {?U(a``(X\<union>{i}))})"
@@ -528,136 +595,146 @@ proof -
   ultimately show ?thesis by linarith
 qed
 
-lemma lm55: assumes "finite X" "XX \<in> all_partitions X" shows "finite XX" using 
-all_partitions_def is_partition_of_def 
-by (metis assms(1) assms(2) finite_UnionD mem_Collect_eq)
+lemma lm55: assumes "finite X" "XX \<in> all_partitions X" 
+            shows "finite XX" 
+            using all_partitions_def is_partition_of_def 
+            by (metis assms(1) assms(2) finite_UnionD mem_Collect_eq)
 
 lemma lm58: assumes "finite N" "finite G" "a \<in> possibleAllocationsRel N G"
-shows "finite a" using assms lm57 rev_finite_subset by (metis lm28b lm55)
+            shows "finite a" 
+            using assms lm57 rev_finite_subset by (metis lm28b lm55)
 
-lemma lm59: assumes "finite N" "finite G" shows "finite (possibleAllocationsRel N G)"
+lemma lm59: assumes "finite N" "finite G" 
+            shows "finite (possibleAllocationsRel N G)"
 proof -
-have "finite (Pow(N\<times>(Pow G-{{}})))" using assms finite_Pow_iff by blast
-then show ?thesis using lm40e rev_finite_subset by (metis(no_types))
+  have "finite (Pow(N\<times>(Pow G-{{}})))" using assms finite_Pow_iff by blast
+  then show ?thesis using lm40e rev_finite_subset by (metis(no_types))
 qed
 
-corollary lm53: assumes "condition1 (b::_ => real) i" "a \<in> possibleAllocationsRel N G" "i\<in>N-X" 
-"Domain a \<inter> X \<noteq> {}" "finite N" "finite G" shows
-"Max ((setsum b)`(possibleAllocationsRel (N-X) G)) \<ge> setsum b (a outside X)"
+corollary lm53: assumes "bidMonotonicity (b::_ => real) i" 
+                        "a \<in> possibleAllocationsRel N G" 
+                        "i \<in> N-X" 
+                        "Domain a \<inter> X \<noteq> {}" 
+                        "finite N" 
+                        "finite G" 
+                shows   "Max ((setsum b)`(possibleAllocationsRel (N-X) G)) \<ge> 
+                         setsum b (a outside X)"
 proof -
-let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))})"
-have "condition1 (b::_ => real) i" using assms(1) by fast
-moreover have "a \<in> allocationsUniverse" using assms(2) lm50 by blast
-moreover have "Domain a \<inter> X \<noteq> {}" using assms(4) by auto
-moreover have "finite a" using assms lm58 by metis ultimately have 
-0: "setsum b (a outside X) \<le> setsum b ?aa" by (rule lm52)
-have "?aa \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))" using assms lm51 by metis
-moreover have "\<Union> (Range a) = G" using assms lm47 is_partition_of_def by metis
-ultimately have "setsum b ?aa \<in> (setsum b)`(possibleAllocationsRel (N-X) G)" by (metis imageI)
-moreover have "finite ((setsum b)`(possibleAllocationsRel (N-X) G))" using assms lm59 assms(5,6)
-by (metis finite_Diff finite_imageI)
-ultimately have "setsum b ?aa \<le> Max ((setsum b)`(possibleAllocationsRel (N-X) G))" by auto
-then show ?thesis using 0 by linarith
+  let ?aa="a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))})"
+  have "bidMonotonicity (b::_ => real) i" using assms(1) by fast
+  moreover have "a \<in> allocationsUniverse" using assms(2) lm50 by blast
+  moreover have "Domain a \<inter> X \<noteq> {}" using assms(4) by auto
+  moreover have "finite a" using assms lm58 by metis ultimately have 
+  0: "setsum b (a outside X) \<le> setsum b ?aa" by (rule lm52)
+  have "?aa \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))" using assms lm51 by metis
+  moreover have "\<Union> (Range a) = G" using assms lm47 is_partition_of_def by metis
+  ultimately have "setsum b ?aa \<in> (setsum b)`(possibleAllocationsRel (N-X) G)" by (metis imageI)
+  moreover have "finite ((setsum b)`(possibleAllocationsRel (N-X) G))" using assms lm59 assms(5,6)
+  by (metis finite_Diff finite_imageI)
+  ultimately have "setsum b ?aa \<le> Max ((setsum b)`(possibleAllocationsRel (N-X) G))" by auto
+  then show ?thesis using 0 by linarith
 qed
 
-lemma assumes "f \<in> partitionValuedUniverse" shows "{} \<notin> Range f" using assms by (metis lm22 no_empty_in_non_overlapping)
+lemma lm42: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_non_overlapping XX" 
+            shows   "card (\<Union> XX) = setsum card XX" 
+            using assms is_non_overlapping_def card_Union_disjoint by fast
 
-lemma lm42: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_non_overlapping XX" shows 
-"card (\<Union> XX) = setsum card XX" using assms is_non_overlapping_def card_Union_disjoint by fast
+corollary lm33b: assumes "XX partitions X" "finite X" "finite XX" 
+                 shows   "card (\<Union> XX) = setsum card XX" 
+                 using assms lm42 by (metis is_partition_of_def lll41)
 
-corollary lm33b: assumes "XX partitions X" "finite X" "finite XX" shows 
-"card (\<Union> XX) = setsum card XX" using assms lm42 by (metis is_partition_of_def lll41)
+(* \<Sigma>_x\<in> (Union C) (f x)   is the same as \<Sigma>_x\<in> C (\<Sigma>_set\<in> C (\<Sigma>_x\<in>set (f x))) *)
+lemma setsumUnionDisjoint1: assumes "\<forall>A\<in>C. finite A" "\<forall>A\<in>C. \<forall>B\<in>C. A \<noteq> B \<longrightarrow> A Int B = {}" 
+                            shows "setsum f (Union C) = setsum (setsum f) C" 
+                            using assms setsum.Union_disjoint by fastforce
 
-lemma setsum_Union_disjoint_4: assumes "\<forall>A\<in>C. finite A" "\<forall>A\<in>C. \<forall>B\<in>C. A \<noteq> B \<longrightarrow> A Int B = {}" 
-shows "setsum f (Union C) = setsum (setsum f) C" using assms setsum.Union_disjoint by fastforce
-(*MC: resumed this from Isabelle2013-2/HOL library after upgrading to 2014*)
+corollary setsumUnionDisjoint2: assumes "\<forall>x\<in>X. finite x" "is_non_overlapping X" 
+                                shows "setsum f (\<Union> X) = setsum (setsum f) X" 
+                                using assms setsumUnionDisjoint1 is_non_overlapping_def 
+                                by fast
 
-corollary setsum_Union_disjoint_2: assumes "\<forall>x\<in>X. finite x" "is_non_overlapping X" shows 
-"setsum f (\<Union> X) = setsum (setsum f) X" using assms setsum_Union_disjoint_4 is_non_overlapping_def by fast
+corollary setsumUnionDisjoint3: assumes "\<forall>x\<in>X. finite x" "X partitions XX" 
+                                shows "setsum f XX = setsum (setsum f) X" 
+                                using assms 
+                                by (metis is_partition_of_def setsumUnionDisjoint2)
 
-corollary setsum_Union_disjoint_3: assumes "\<forall>x\<in>X. finite x" "X partitions XX" shows
-"setsum f XX = setsum (setsum f) X" using assms by (metis is_partition_of_def setsum_Union_disjoint_2)
+corollary setsum_associativity: assumes "finite x" "X partitions x" 
+                                shows  "setsum f x = setsum (setsum f) X" 
+                                using assms setsumUnionDisjoint3 
+                                by (metis is_partition_of_def lll41)
 
-corollary setsum_associativity: assumes "finite x" "X partitions x" shows
-"setsum f x = setsum (setsum f) X" using assms setsum_Union_disjoint_3 by (metis is_partition_of_def lll41)
+lemma lm19e: assumes "a \<in> allocationsUniverse" "Domain a \<subseteq> N" "(\<Union>Range a) = G" 
+             shows   "a \<in> possibleAllocationsRel N G" 
+             using assms lm19c lm34 by (metis (mono_tags, lifting))
 
-lemma lm19e: assumes "a\<in>allocationsUniverse" "Domain a\<subseteq>N" "\<Union>Range a=G" shows 
-"a \<in>possibleAllocationsRel N G" using assms lm19c lm34 by (metis (mono_tags, lifting))
+corollary nn24a: "(allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}) \<subseteq>
+                  possibleAllocationsRel N G"
+          using lm19e by fastforce
 
-corollary nn24a: "(allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})\<subseteq>possibleAllocationsRel N G"
-using lm19e by fastforce
-corollary nn24f: "possibleAllocationsRel N G \<subseteq> {a. Domain a\<subseteq>N}" using lm47 by blast
-corollary nn24g: "possibleAllocationsRel N G \<subseteq> {a. \<Union>Range a=G}" using is_partition_of_def lm47 mem_Collect_eq subsetI
-by (metis(mono_tags))
-corollary assumes "a \<in> possibleAllocationsRel N G" shows "\<Union> Range a = G" using assms 
-by (metis is_partition_of_def lm47)
-corollary nn24e: "
-possibleAllocationsRel N G \<subseteq>  allocationsUniverse &
-possibleAllocationsRel N G \<subseteq> {a. Domain a\<subseteq>N & \<Union>Range a=G}" using nn24f nn24g
-conj_subset_def lm50 by (metis (no_types))
+corollary nn24f: "possibleAllocationsRel N G \<subseteq> {a. (Domain a) \<subseteq> N}" 
+          using lm47 by blast
 
-corollary nn24b: "possibleAllocationsRel N G \<subseteq> allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G}"
-(is "?L \<subseteq> ?R1 \<inter> ?R2")
-proof - have "?L \<subseteq> ?R1 & ?L \<subseteq> ?R2" by (rule nn24e) thus ?thesis by auto qed
+corollary nn24g: "possibleAllocationsRel N G \<subseteq> {a. (\<Union>Range a) = G}" 
+          using is_partition_of_def lm47 mem_Collect_eq subsetI
+          by (metis(mono_tags))
 
-corollary nn24: "possibleAllocationsRel N G = (allocationsUniverse\<inter>{a. Domain a\<subseteq>N & \<Union>Range a=G})" 
-(is "?L = ?R") 
+corollary nn24e: "possibleAllocationsRel N G  \<subseteq>  allocationsUniverse &
+                  possibleAllocationsRel N G \<subseteq> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}" 
+                  using nn24f nn24g conj_subset_def lm50 by (metis (no_types))
+
+corollary nn24b: "possibleAllocationsRel N G \<subseteq> 
+                  allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}"
+                 (is "?L \<subseteq> ?R1 \<inter> ?R2")
+proof - 
+  have "?L \<subseteq> ?R1 & ?L \<subseteq> ?R2" by (rule nn24e) thus ?thesis by auto 
+qed
+
+corollary nn24: "possibleAllocationsRel N G = 
+                (allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G})" 
+                (is "?L = ?R") 
 proof -
   have "?L \<subseteq> ?R" using nn24b by metis moreover have "?R \<subseteq> ?L" using nn24a by fast
   ultimately show ?thesis by force
 qed
 
-corollary nn24c: "b \<in> possibleAllocationsRel N G=(b\<in>allocationsUniverse& Domain b\<subseteq>N & \<Union>Range b = G)" 
-using nn24 Int_Collect by (metis (mono_tags, lifting))
+corollary nn24c: "a \<in> possibleAllocationsRel N G  = 
+                  (a \<in> allocationsUniverse  & (Domain a) \<subseteq> N & (\<Union>Range a) = G)" 
+                 using nn24 Int_Collect by (metis (mono_tags, lifting))
 
-corollary lm35d: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse" using assms Outside_def
-by (metis (lifting, mono_tags) lm35)
-
-
-
-
+corollary lm35d: assumes "a \<in> allocationsUniverse" 
+                 shows "a outside X \<in> allocationsUniverse" 
+                 using assms Outside_def by (metis (lifting, mono_tags) lm35)
 
 
+section{* Bridging theorem for injections *}
 
+lemma lm84: "totalRels {} Y = {{}}" 
+            by fast
 
-
-
-
-
-
-
-
-(* MC: some bridging results (maybe to be moved to a separate file) *)
-
-
-(*
-lemma "{{}::('a \<times> 'b) set} \<subseteq> injections (set []) Y" unfolding injections_def runiq_alt runiq_basic 
-using 
-Domain_empty Range_empty converse_empty empty_set empty_subsetI insert_subset runiq_emptyrel
-sledgehammer
-by (metis (full_types) Collect_mono Range_converse bot_set_def list.set(1) list.set_empty singleton_conv singleton_conv2)
-injectionsI 
-*)
-
-lemma lm84: "totalRels {} Y = {{}}" by fast
 lemma lm85: "{} \<in> injectionsUniverse" 
-by (metis CollectI converse_empty runiq_emptyrel)
-lemma "injectionsUniverse \<inter> (totalRels {} Y)={{}}" using lm84 lm85 by fast
+            by (metis CollectI converse_empty runiq_emptyrel)
 
-lemma lm60: assumes "runiq f" "x\<notin>Domain f" shows "{ f \<union> {(x, y)} | y . y \<in> A }\<subseteq>runiqs" 
-unfolding paste_def runiqs_def
-using assms runiq_basic by blast
+lemma lm87: "injectionsUniverse \<inter> (totalRels {} Y)  =  {{}}" 
+            using lm84 lm85 by fast
 
-lemma "converse \<circ> converse=id" 
-by (metis (erased, hide_lams) DEADID.map_id comp_apply comp_id converse_converse fun.map_cong0)
+lemma lm60: assumes "runiq f" "x\<notin>Domain f" 
+            shows "{ f \<union> {(x, y)} | y . y \<in> A } \<subseteq> runiqs" 
+            unfolding paste_def runiqs_def
+            using assms runiq_basic by blast
 
-lemma lm95: "converse ` (converse ` X)=X" by auto
-lemma lm66: "runiq (f^-1) = (f \<in> converse`runiqs)" unfolding runiqs_def by auto
-lemma lm68: assumes "runiq (f^-1)" "A\<inter>Range f={}" shows "converse ` { f \<union> {(x, y)} | y . y \<in> A }\<subseteq>runiqs" 
-using assms lm60 by fast
+lemma lm95: "converse ` (converse ` X)  =  X" 
+            by auto
 
-lemma lm68b: assumes "f\<in>converse`runiqs" "A\<inter>Range f={}" shows 
-"{f\<union>{(x, y)}| y. y \<in> A} \<subseteq> converse`runiqs" (is "?l \<subseteq> ?r")
+lemma lm66: "runiq (f^-1) = (f \<in> converse`runiqs)" 
+            unfolding runiqs_def by auto
+
+lemma lm68: assumes "runiq (f^-1)" "A \<inter> Range f  =  {}" 
+            shows   "converse ` { f \<union> {(x, y)} | y . y \<in> A } \<subseteq> runiqs" 
+            using assms lm60 by fast
+
+lemma lm68b: assumes "f\<in>converse`runiqs" "A \<inter> Range f  =  {}" 
+             shows   "{f \<union> {(x, y)}| y. y \<in> A} \<subseteq> converse`runiqs" 
+             (is "?l \<subseteq> ?r")
 proof -
   have "runiq (f^-1)" using assms(1) lm66 by blast then
   have "converse ` ?l \<subseteq> runiqs" using assms(2) by (rule lm68) 
@@ -666,57 +743,73 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-lemma lm01: "{ f \<union> {(x, y)} | y . y \<in> A } \<subseteq> totalRels ({x} \<union> Domain f) (A \<union> Range f)" by force
+lemma lm01: "{ R \<union> {(x, y)} | y . y \<in> A } \<subseteq> totalRels ({x} \<union> Domain R) (A \<union> Range R)" 
+            by force
 
-lemma lm69: "injectionsUniverse=runiqs\<inter>converse`runiqs" unfolding runiqs_def by auto
+lemma lm69: "injectionsUniverse  =  runiqs \<inter> converse`runiqs" 
+            unfolding runiqs_def by auto
 
-lemma lm73: assumes "f\<in>injectionsUniverse" "x\<notin>Domain f" "A\<inter>Range f={}" shows 
-"{f \<union> {(x, y)}| y. y \<in> A} \<subseteq> injectionsUniverse" (is "?l \<subseteq> ?r") 
+lemma lm73: assumes "f \<in> injectionsUniverse" "x \<notin> Domain f" "A \<inter> (Range f) = {}" 
+            shows   "{f \<union> {(x, y)}| y. y \<in> A} \<subseteq> injectionsUniverse" 
+            (is "?l \<subseteq> ?r") 
 proof -  
-have "f \<in> converse`runiqs" using assms(1) lm69 by blast
-then have "?l \<subseteq> converse`runiqs" using assms(3) by (rule lm68b)
-moreover have "?l \<subseteq> runiqs" using assms(1,2) lm60 by force 
-ultimately show ?thesis using lm69 by blast
+  have "f \<in> converse`runiqs" using assms(1) lm69 by blast
+  then have "?l \<subseteq> converse`runiqs" using assms(3) by (rule lm68b)
+  moreover have "?l \<subseteq> runiqs" using assms(1,2) lm60 by force 
+  ultimately show ?thesis using lm69 by blast
 qed
 
-lemma lm26b: "injections X Y = totalRels X Y \<inter> injectionsUniverse" using injections_def lm26 
-by metis
+lemma lm26b: "injections X Y = totalRels X Y \<inter> injectionsUniverse" 
+             using injections_def lm26 by metis
 
-lemma lm27b: assumes "f \<in> injectionsUniverse" shows "f outside A \<in> injectionsUniverse" using assms 
-by (metis (no_types) Outside_def lm27)
+lemma lm27b: assumes "f \<in> injectionsUniverse" 
+             shows   "f outside A \<in> injectionsUniverse" 
+             using assms by (metis (no_types) Outside_def lm27)
 
-lemma lm91: assumes "R \<in> totalRels A B" shows "R outside C \<in> totalRels (A-C) B" 
-unfolding Outside_def
-using assms by blast
+lemma lm91: assumes "R \<in> totalRels A B" 
+            shows   "R outside C \<in> totalRels (A-C) B" 
+            unfolding Outside_def using assms by blast
 
-lemma lm71: assumes "g \<in> injections' A B" shows "g outside C \<in> injections' (A-C) B" 
-using assms Outside_def Range_outside_sub lm27 mem_Collect_eq outside_reduces_domain
-by fastforce
+lemma lm71: assumes "g \<in> injections' A B" 
+            shows   "g outside C \<in> injections' (A - C) B" 
+            using assms Outside_def Range_outside_sub lm27 mem_Collect_eq outside_reduces_domain
+            by fastforce
 
-lemma lm71b: assumes "g \<in> injections A B" shows "g outside C \<in> injections (A-C) B"
-using assms lm71 by (metis injections_def)
+lemma lm71b: assumes "g \<in> injections A B" 
+             shows   "g outside C \<in> injections (A - C) B"
+             using assms lm71 by (metis injections_def)
 
-lemma lm74: "{x}\<times>{y}={(x,y)}" by simp
+lemma lm74: "{x}\<times>{y}={(x,y)}" 
+            by simp
 
-lemma lm75: assumes "x\<in>Domain f" "runiq f" shows "{x}\<times>f``{x} = {(x,f,,x)}" 
-using assms lm74 Image_runiq_eq_eval by metis
+lemma lm75: assumes "x \<in> Domain f" "runiq f" 
+            shows "{x}\<times>f``{x} = {(x,f,,x)}" 
+            using assms lm74 Image_runiq_eq_eval by metis
 
-corollary lm92: assumes "x\<in>Domain f" "runiq f" shows "f=f -- x \<union> {(x,f,,x)}" using assms lm75 l39 by metis
+corollary lm92: assumes "x \<in> Domain f" "runiq f" 
+                shows   "f = (f -- x) \<union> {(x,f,,x)}" 
+                using assms lm75 l39 by metis
 
-lemma nn30b: assumes "f\<in>injectionsUniverse" shows "Range(f outside A) = Range f - f``A" 
-using assms mem_Collect_eq nn30 by (metis)
+lemma nn30b: assumes "f \<in> injectionsUniverse" 
+             shows   "Range(f outside A) = Range f - f``A" 
+             using assms mem_Collect_eq nn30 by (metis)
 
-lemma lm76: assumes "g\<in>injections' X Y" "x \<in> Domain g" shows "g\<in>{g--x \<union> {(x,y)}|y. y\<in>Y-Range (g--x)}" 
-(* using assms lm72 Image_runiq_eq_eval  mem_Collect_eq DiffI Diff_disjoint eval_runiq_in_Range insert_disjoint(2) nn30 subsetD by smt2 *)
-proof - let ?f="g--x" have "g\<in>injectionsUniverse" using assms(1) lm26 by fast then moreover have 
-"g,,x \<in> g``{x}" using assms(2) by (metis Image_runiq_eq_eval insertI1 mem_Collect_eq)
-ultimately have "g,,x \<in> Y-Range ?f" using nn30b assms(1) by fast moreover have "g=?f\<union>{(x, g,,x)}" 
-using assms lm92 mem_Collect_eq by (metis (lifting)) ultimately show ?thesis by blast qed
+lemma lm76: assumes "g \<in> injections' X Y" "x \<in> Domain g" 
+            shows   "g \<in> {g--x \<union> {(x,y)}|y. y \<in> Y - (Range(g--x))}" 
+proof - 
+  let ?f="g--x" have "g\<in>injectionsUniverse" using assms(1) lm26 by fast then moreover have 
+  "g,,x \<in> g``{x}" using assms(2) by (metis Image_runiq_eq_eval insertI1 mem_Collect_eq)
+  ultimately have "g,,x \<in> Y-Range ?f" using nn30b assms(1) by fast moreover have "g=?f\<union>{(x, g,,x)}" 
+  using assms lm92 mem_Collect_eq by (metis (lifting)) ultimately show ?thesis by blast 
+qed
 
-corollary lm71c: assumes "x \<notin> X" "g \<in> injections ({x}\<union>X) Y" shows "g--x \<in> injections X Y" using assms lm71b by (metis Diff_insert_absorb insert_is_Un)
+corollary lm71c: assumes "x \<notin> X" "g \<in> injections ({x} \<union> X) Y" 
+                 shows "g--x \<in> injections X Y" 
+                 using assms lm71b by (metis Diff_insert_absorb insert_is_Un)
 
-corollary lm77: assumes "x \<notin> X" "g \<in> injections ({x}\<union>X) Y" (is "g \<in> injections (?X) Y") shows 
-"\<exists> f \<in> injections X Y. g \<in> {f\<union>{(x,y)}|y. y \<in> Y-Range f}" using assms lm71c lm76 
+corollary lm77: assumes "x \<notin> X" "g \<in> injections ({x} \<union> X) Y" 
+                        (is "g \<in> injections (?X) Y") 
+                shows   "\<exists> f \<in> injections X Y. g \<in> {f \<union> {(x,y)}|y. y \<in> Y - (Range f)}" 
 proof - 
   let ?f="g--x" have 1: "g\<in>injections' ?X Y" using assms Universes.lm24 by metis 
   have "Domain g=?X" using assms(2) Universes.lm24 mem_Collect_eq by (metis (mono_tags, lifting))
@@ -725,168 +818,181 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-corollary lm77b: assumes "x \<notin> X" shows "injections ({x}\<union>X) Y \<subseteq> (\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})"
-using assms lm77 by fast
+corollary lm77b: assumes "x \<notin> X" 
+                 shows  "injections ({x} \<union> X) Y \<subseteq> 
+                         (\<Union> f \<in> injections X Y. {f \<union> {(x, y)} | y . y \<in> Y - (Range f)})"
+                 using assms lm77 by fast
 
-lemma lm73b: assumes "x \<notin> X" shows "(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) \<subseteq> injections' ({x}\<union>X) Y" using assms lm73 injections_def lm26b lm01 
+lemma lm73b: assumes "x \<notin> X" 
+             shows  "(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) \<subseteq> 
+                     injections' ({x} \<union> X) Y" 
+             using assms lm73 injections_def lm26b lm01 
 proof -
-{ fix f assume "f \<in> injections' X Y" then have 
-0: "f \<in> injectionsUniverse & x \<notin> Domain f & Domain f = X & Range f \<subseteq> Y" using assms by fast 
-then have "f \<in> injectionsUniverse" by fast moreover have "x \<notin> Domain f" using 0 by fast
-moreover have 1: "(Y-Range f) \<inter> Range f = {}" by blast
-ultimately have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> injectionsUniverse" by (rule lm73)
-moreover have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> totalRels ({x} \<union> X) Y" using lm01 0 by force
-ultimately have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> injectionsUniverse \<inter> totalRels ({x}\<union>X) Y" by auto}
-thus ?thesis using lm26 by blast
+  { fix f assume "f \<in> injections' X Y" then have 
+  0: "f \<in> injectionsUniverse & x \<notin> Domain f & Domain f = X & Range f \<subseteq> Y" using assms by fast 
+  then have "f \<in> injectionsUniverse" by fast moreover have "x \<notin> Domain f" using 0 by fast
+  moreover have 1: "(Y-Range f) \<inter> Range f = {}" by blast
+  ultimately have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> injectionsUniverse" by (rule lm73)
+  moreover have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> totalRels ({x} \<union> X) Y" using lm01 0 by force
+  ultimately have "{f \<union> {(x, y)} | y . y \<in> (Y-Range f)} \<subseteq> injectionsUniverse \<inter> totalRels ({x}\<union>X) Y" by auto}
+  thus ?thesis using lm26 by blast
 qed
 
-corollary lm78: assumes "x \<notin> X" shows 
-"(\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) = injections ({x}\<union>X) Y" (is "?r=injections ?X _") 
-proof - have 
-0: "?r=(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" (is "_=?r'") unfolding Universes.lm24 by blast 
-have "?r' \<subseteq> injections' ?X Y" using assms by (rule lm73b) moreover have "... = injections ?X Y" unfolding Universes.lm24 
-by simp ultimately have "?r \<subseteq> injections ?X Y" using 0 by simp
-moreover have "injections ?X Y \<subseteq> ?r" using assms by (rule lm77b) ultimately show ?thesis by blast
-qed
-lemma lm89: assumes "\<forall> x. (P x \<longrightarrow> (f x = g x))" shows "Union {f x|x. P x} = Union {g x | x. P x}" using assms try0
-by blast
-lemma lm88: assumes "x \<notin> Domain R" shows "R +* {(x,y)}=R\<union>{(x,y)}" using assms 
-using paste_def by (metis (erased, lifting) Domain_empty Domain_insert Int_insert_right_if0 disjoint_iff_not_equal ex_in_conv paste_disj_domains)
-lemma lm79: assumes "x \<notin> X" shows 
-"(\<Union> f\<in>injections X Y. {f +* {(x, y)} | y . y \<in> Y-Range f}) = 
-(\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" (is "?l = ?r") 
-proof - have 
-0: "\<forall>f \<in> injections X Y. x \<notin> Domain f" unfolding injections_def using assms by fast then have 
-1: "?l=Union {{f +* {(x, y)} | y . y \<in> Y-Range f}|f .f \<in> injections X Y & x \<notin> Domain f}" 
-(is "_=?l'") using assms by auto moreover have 
-2: "?r=Union {{f \<union> {(x, y)} | y . y \<in> Y-Range f}|f .f \<in> injections X Y & x \<notin> Domain f}" 
-(is "_=?r'") using assms 0 by auto have "\<forall> f. f\<in>injections X Y & x \<notin> Domain f \<longrightarrow> 
-{f +* {(x, y)} | y . y \<in> Y-Range f}={f \<union> {(x, y)} | y . y \<in> Y-Range f}" using lm88 by force 
-then have "?l'=?r'" by (rule lm89) then show "?l = ?r" using 1 2 by presburger
+corollary lm78: assumes "x \<notin> X" 
+                shows   "(\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y - (Range f)}) = 
+                         injections ({x} \<union> X) Y" 
+                (is "?r=injections ?X _") 
+proof - 
+  have 
+  0: "?r=(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" (is "_=?r'") unfolding Universes.lm24 by blast 
+  have "?r' \<subseteq> injections' ?X Y" using assms by (rule lm73b) moreover have "... = injections ?X Y" unfolding Universes.lm24 
+  by simp ultimately have "?r \<subseteq> injections ?X Y" using 0 by simp
+  moreover have "injections ?X Y \<subseteq> ?r" using assms by (rule lm77b) ultimately show ?thesis by blast
 qed
 
-corollary lm78b: assumes "x \<notin> X" shows 
-"(\<Union> f\<in>injections X Y. {f +* {(x, y)} | y . y \<in> Y-Range f}) = injections ({x}\<union>X) Y" (is "?l=?r")
-using assms lm78 
-using lm79 
-proof - have "?l=(\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" using assms by (rule lm79)
-moreover have "... = ?r" using assms by (rule lm78) ultimately show ?thesis by presburger qed
+lemma lm89: assumes "\<forall> x. (P x \<longrightarrow> (f x = g x))" 
+            shows   "Union {f x|x. P x} = Union {g x | x. P x}" 
+            using assms try0 by blast
 
-lemma "set [G y. y <- l ] = {G y|y. y \<in> set l}" by auto
-lemma "set (filter (%y. y \<notin> Range f) Y) = set Y - Range f" by auto
-lemma lm81: "set [ f \<union> {(x,y)} . y \<leftarrow> (filter (%y. y \<notin> Range f) Y) ] = {f \<union> {(x,y)} | y . y \<in> (set Y)-Range f}" by auto
-lemma lm82: assumes "\<forall>x\<in>set L. set (F x) = G x" shows "set (concat [ F x . x <- L]) = (\<Union> x\<in>set L. G x)"
-using assms by force
+lemma lm88: assumes "x \<notin> Domain R" 
+            shows "R +* {(x,y)} = R \<union> {(x,y)}" 
+            using assms
+            by (metis (erased, lifting) Domain_empty Domain_insert Int_insert_right_if0
+                      disjoint_iff_not_equal ex_in_conv paste_disj_domains)
 
-lemma lm83: "set (concat [ [ f \<union> {(x,y)} . y \<leftarrow> (filter (%y. y \<notin> Range f) Y) ]. f \<leftarrow> F ])=
-(\<Union> f\<in>set F. {f \<union> {(x,y)} | y . y \<in> (set Y)-Range f})" by auto
-lemma lm81b: assumes "finite Y" shows "set [ f +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range f) ] =
-{f +* {(x,y)} | y . y \<in> Y-Range f}" 
-using assms by auto
-lemma lm83d: assumes "finite Y" shows "set (concat [ [ f +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - Range f) ]. f \<leftarrow> F ]) = 
-(\<Union> f\<in>set F. {f +* {(x,y)} | y . y \<in> Y-Range f})" using assms lm81b lm82 by auto
+(* Union of {f ...} where f ranges over injections X Y *)
+lemma lm79: assumes "x \<notin> X" 
+            shows "(\<Union> f \<in> injections X Y. {f +* {(x, y)} | y . y \<in> Y-Range f}) = 
+                   (\<Union> f \<in> injections X Y. {f \<union>  {(x, y)}  | y . y \<in> Y-Range f})" 
+            (is "?l = ?r") 
+proof - 
+  have 
+  0: "\<forall>f \<in> injections X Y. x \<notin> Domain f" unfolding injections_def using assms by fast then have 
+  1: "?l=Union {{f +* {(x, y)} | y . y \<in> Y-Range f}|f .f \<in> injections X Y & x \<notin> Domain f}" 
+  (is "_=?l'") using assms by auto moreover have 
+  2: "?r=Union {{f \<union> {(x, y)} | y . y \<in> Y-Range f}|f .f \<in> injections X Y & x \<notin> Domain f}" 
+  (is "_=?r'") using assms 0 by auto have "\<forall> f. f\<in>injections X Y & x \<notin> Domain f \<longrightarrow> 
+  {f +* {(x, y)} | y . y \<in> Y-Range f}={f \<union> {(x, y)} | y . y \<in> Y-Range f}" using lm88 by force 
+  then have "?l'=?r'" by (rule lm89) then show "?l = ?r" using 1 2 by presburger
+qed
 
-fun injectionsAlg where 
-"injectionsAlg [] (Y::'a list) = [{}]" |
-"injectionsAlg (x#xs) Y = concat [ 
-   [R\<union>{(x,y)}. y \<leftarrow> (filter (%y. y \<notin> Range R) Y)]
-   .R \<leftarrow> injectionsAlg xs Y ]"
-abbreviation "possibleAllocationsAlg4 N G == 
-map converse (concat [(injectionsAlg l N) . l \<leftarrow> all_partitions_list G])"
+corollary lm78b: assumes "x \<notin> X" 
+                 shows   "(\<Union> f \<in> injections X Y. {f +* {(x, y)} | y . y \<in> Y-Range f}) = 
+                          injections ({x} \<union> X) Y" 
+                 (is "?l=?r")
+proof - 
+  have "?l=(\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" using assms by (rule lm79)
+  moreover have "... = ?r" using assms by (rule lm78) ultimately show ?thesis by presburger 
+qed
+
+lemma lm81: "set [ f \<union> {(x,y)} . y \<leftarrow> (filter (%y. y \<notin> (Range f)) Y) ] = 
+                  {f \<union> {(x,y)} | y . y \<in> (set Y) -     (Range f)}" 
+             by auto
+
+(* relationship of list and set notation for function application *)
+lemma lm82: assumes "\<forall>x \<in> set L. set (F x) = G x" 
+            shows "set (concat [ F x . x <- L]) = (\<Union> x\<in>set L. G x)"
+            using assms by force
+
+(* relationship of list and set notation for function extension *)
+lemma lm83: "set (concat [ [ f \<union> {(x,y)} . y \<leftarrow> (filter (%y. y \<notin> Range f) Y) ]. f \<leftarrow> F ]) =
+             (\<Union> f \<in> set F. {f \<union> {(x,y)} | y . y \<in> (set Y) - (Range f)})" 
+            by auto
+
+(* relationship of list vs set comprehension versions of function update*)
+lemma lm81b: assumes "finite Y" 
+             shows   "set [ f +* {(x,y)} . y \<leftarrow> sorted_list_of_set (Y - (Range f)) ] =
+                     {      f +* {(x,y)} | y . y \<in>                 Y - (Range f)}" 
+             using assms by auto
+
+lemma lm83d: assumes "finite Y" 
+             shows "set (concat [[f +* {(x,y)}. y \<leftarrow> sorted_list_of_set(Y - (Range f))]. f \<leftarrow> F]) =
+                   (\<Union> f \<in> set F.{f +* {(x,y)} | y . y \<in> Y - (Range f)})" 
+             using assms lm81b lm82 by auto
+
+section{* computable injections *}
+
+fun injectionsAlg 
+    where 
+    "injectionsAlg [] (Y::'a list) = [{}]" |
+    "injectionsAlg (x#xs) Y = 
+       concat [ [R\<union>{(x,y)}. y \<leftarrow> (filter (%y. y \<notin> Range R) Y)]
+               .R \<leftarrow> injectionsAlg xs Y ]"
 
 corollary lm83b: "set (injectionsAlg (x # xs) Y) = 
-(\<Union> f\<in>set (injectionsAlg xs Y). {f \<union> {(x,y)} | y . y \<in> (set Y)-Range f})" using lm83 
-injectionsAlg_def by auto
+                 (\<Union> f \<in> set (injectionsAlg xs Y). {f \<union> {(x,y)} | y . y \<in> (set Y) - (Range f)})" 
+                 using lm83 injectionsAlg_def by auto
 
-corollary lm83c: assumes "set (injectionsAlg xs Y)=injections (set xs) (set Y)" shows
-"set (injectionsAlg (x # xs) Y) = 
-(\<Union> f\<in>injections (set xs) (set Y). {f \<union> {(x,y)} | y . y \<in> (set Y)-Range f})" 
-using assms lm83b by auto
+corollary lm83c: assumes "set (injectionsAlg xs Y) = injections (set xs) (set Y)" 
+                 shows   "set (injectionsAlg (x # xs) Y) = 
+                        (\<Union> f \<in> injections (set xs) (set Y). {f \<union> {(x,y)} | y . y \<in> (set Y) - (Range f)})" 
+                 using assms lm83b by auto
 
-text{* We sometimes use parallel @{term abbreviation} and @{term definition} for a same object to save typing `unfolding xxx' each time, as below: *}
-lemma lm44: "injections' {} Y={{}}" by (simp add: lm26 lm84 runiq_emptyrel)
-lemma lm44b: "injections {} Y={{}}" unfolding injections_def by (simp add: lm26 lm84 runiq_emptyrel) 
+text{* We sometimes use parallel @{term abbreviation} and @{term definition} for the same object to save typing `unfolding xxx' each time. There is also different behaviour in the code extraction. *}
 
-lemma lm80: "injectionsAlg [] Y=[{}]" using injectionsAlg_def by simp
+lemma lm44:  "injections' {} Y  =  {{}}" 
+             by (simp add: lm26 lm84 runiq_emptyrel)
 
-lemma lm86: assumes "x \<notin> set xs" "set (injectionsAlg xs Y)=injections (set xs) (set Y)" shows
-"set (injectionsAlg (x # xs) Y) = injections ({x}\<union>set xs) (set Y)" (is "?l=?r")
+lemma lm44b: "injections {} Y  =  {{}}" 
+             unfolding injections_def by (simp add: lm26 lm84 runiq_emptyrel) 
+
+lemma lm80: "injectionsAlg [] Y  =  [{}]" 
+            using injectionsAlg_def by simp
+
+(* Relation between classical and algorithm definition of injections for induction step *)
+lemma lm86: assumes "x \<notin> set xs" "set (injectionsAlg xs Y) = injections (set xs) (set Y)" 
+            shows   "set (injectionsAlg (x # xs) Y) = injections ({x} \<union> set xs) (set Y)" 
+            (is "?l=?r")
 proof - 
-have "?l = (\<Union> f\<in>injections (set xs) (set Y). {f \<union> {(x,y)} | y . y \<in> (set Y)-Range f})" 
-using assms(2) by (rule lm83c) moreover have "... = ?r" using assms(1) by (rule lm78) 
-ultimately show ?thesis by presburger
+  have "?l = (\<Union> f\<in>injections (set xs) (set Y). {f \<union> {(x,y)} | y . y \<in> (set Y)-Range f})" 
+  using assms(2) by (rule lm83c) moreover have "... = ?r" using assms(1) by (rule lm78) 
+  ultimately show ?thesis by presburger
 qed
 
-lemma lm86b: assumes "x \<notin> set xs" "set (injections_alg xs Y)=injections (set xs) Y" "finite Y" shows
-"set (injections_alg (x#xs) Y) = injections ({x}\<union>set xs) Y" (is "?l=?r")
+lemma lm86b: assumes "x \<notin> set xs" 
+                     "set (injections_alg xs Y) = injections (set xs) Y" 
+                     "finite Y" 
+            shows    "set (injections_alg (x#xs) Y) = injections ({x} \<union> set xs) Y" 
+            (is "?l=?r")
 proof - 
-have "?l = (\<Union> f\<in>injections (set xs) Y. {f +* {(x,y)} | y . y \<in> Y-Range f})" 
-using assms(2,3) lm83d by auto
-moreover have "... = ?r" using assms(1) by (rule lm78b) 
-ultimately show ?thesis by presburger
+  have "?l = (\<Union> f\<in>injections (set xs) Y. {f +* {(x,y)} | y . y \<in> Y-Range f})" 
+  using assms(2,3) lm83d by auto
+  moreover have "... = ?r" using assms(1) by (rule lm78b) 
+  ultimately show ?thesis by presburger
 qed
 
+lemma listInduct: assumes "P []" "\<forall> xs x. P xs \<longrightarrow> P (x#xs)" 
+                  shows   "\<forall>x. P x"
+                  using assms by (metis structInduct)
 
-corollary  assumes "distinct (x#xs)" 
-"set (injectionsAlg xs Y)=injections (set xs) (set Y)" shows
-"set (injectionsAlg (x # xs) Y) = injections ({x}\<union>set xs) (set Y)" 
-using assms lm86 by (metis distinct.simps(2))
+lemma lm02: "set (injections_alg [] Z) = {{}}" 
+            by simp
 
-lemma listInduct: assumes "P []" "\<forall> xs x. P xs \<longrightarrow> P (x#xs)" shows "\<forall>x. P x"
-using assms by (metis structInduct)
-lemma lm02: "set (injections_alg [] Z)={{}}" by simp
-
-theorem injections_equiv: assumes "finite Y" and "distinct X" shows 
-"set (injections_alg X Y)=injections (set X) Y"
+theorem injections_equiv: assumes "finite Y" and "distinct X" 
+                          shows  "set (injections_alg X Y) = injections (set X) Y"
 proof -
-let ?P="\<lambda> l. (distinct l \<longrightarrow> (set (injections_alg l Y)=injections (set l) Y))"
-have "?P []" using lm02 list.set(1) lm44b by (metis)
-moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms(1) lm86b by (metis distinct.simps(2) list.simps(15))
-ultimately have "?P X" by (rule structInduct)
-then show ?thesis using assms(2) by blast
-qed
-
-theorem assumes "distinct X" shows "set (injectionsAlg X Y)=injections (set X) (set Y)"
-proof -
-let ?P="\<lambda> L. (distinct L \<longrightarrow> (set (injectionsAlg L Y)=injections (set L) (set Y)))" 
-have "?P []" by (simp add: Universes.lm24 lm44) 
-moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" by (metis distinct.simps(2) list.simps(15) lm86)
-ultimately have "?P X" by (rule structInduct)
-thus ?thesis using assms by presburger
+  let ?P="\<lambda> l. (distinct l \<longrightarrow> (set (injections_alg l Y)=injections (set l) Y))"
+  have "?P []" using lm02 list.set(1) lm44b by (metis)
+  moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms(1) lm86b by (metis distinct.simps(2) list.simps(15))
+  ultimately have "?P X" by (rule structInduct)
+  then show ?thesis using assms(2) by blast
 qed
 
 
-lemma assumes "R \<in> runiqs" shows "{ R +* {(x, y)} | y . y \<in> A }\<subseteq>runiqs" using assms
-using
-Collect_mono inf_sup_ord(3) mem_Collect_eq outside_union_restrict paste_def runiq_paste1 runiq_singleton_rel runiqs_def subrel_runiq
-by (smt2)
+lemma lm67: assumes "l \<in> set (all_partitions_list G)" "distinct G" 
+            shows   "distinct l" 
+            using assms all_partitions_list_def by (metis all_partitions_equivalence')
 
+(* apply bridging theorem injections_equiv to the partitions of all goods *)
+lemma lm03: assumes "card N > 0" "distinct G" 
+            shows "\<forall>l \<in> set (all_partitions_list G). set (injections_alg l N) = 
+                   injections (set l) N"
+            using lm67 injections_equiv assms by (metis card_ge_0_finite)
 
-
-
-
-
-
-
-
-
-
-
-
-
-lemma assumes "Y \<in> set (all_partitions_alg G)" "card N > 0" "finite N" "finite G" 
-shows "injections (set Y) N = set (injections_alg Y N)"
-using assms injections_equiv lm63 by metis
-
-lemma lm67: assumes "l \<in> set (all_partitions_list G)" "distinct G" shows "distinct l" 
-using assms all_partitions_list_def by (metis all_partitions_equivalence')
-lemma lm03: assumes "card N > 0" "distinct G" shows 
-"\<forall>l \<in> set (all_partitions_list G). set (injections_alg l N) = injections (set l) N"
-using lm67 injections_equiv assms by (metis card_ge_0_finite)
-
+(* list vs set comprehension on partitions with bridging theorem *)
 lemma lm05: assumes "card N > 0" "distinct G"
-shows "{injections P N| P. P \<in> all_partitions (set G)} =
-set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G]" using assms lm66 lm68 lm66b 
+            shows "{injections P N| P. P \<in> all_partitions (set G)} =
+                   set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G]" 
 proof -
   let ?g1=all_partitions_list let ?f2=injections let ?g2=injections_alg
   have "\<forall>l \<in> set (?g1 G). set (?g2 l N) = ?f2 (set l) N" using assms lm03 by blast
@@ -896,14 +1002,19 @@ proof -
   ultimately show ?thesis by presburger
 qed
 
-lemma lm70: assumes "card N > 0" "distinct G" shows 
-"Union {injections P N| P. P \<in> all_partitions (set G)} =
-Union (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" (is "Union ?L = Union ?R")
-proof - have "?L = ?R" using assms by (rule lm05) thus ?thesis by presburger qed
+(* apply Union to both sides in lm05 *)
+lemma lm70: assumes "card N > 0" "distinct G" 
+            shows   "Union {injections P N| P. P \<in> all_partitions (set G)} =
+                     Union (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" 
+            (is "Union ?L = Union ?R")
+proof - 
+  have "?L = ?R" using assms by (rule lm05) thus ?thesis by presburger 
+qed
 
-corollary lm70b: assumes "card N > 0" "distinct G" shows 
-"possibleAllocationsRel N (set G) = set(possibleAllocationsAlg N G)" (is "?L = ?R") using assms lm70 
-possible_allocations_rel_def 
+(* bridging lemma for possibleAllocations *)
+corollary lm70b: assumes "card N > 0" "distinct G" 
+                 shows   "possibleAllocationsRel N (set G) = 
+                          set(possibleAllocationsAlg N G)" 
 proof -
   let ?LL="\<Union> {injections P N| P. P \<in> all_partitions (set G)}"
   let ?RR="\<Union> (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"

@@ -51,22 +51,28 @@ text {* Inverts @{term Graph} (which is equivalently done by @{term eval_rel}). 
 definition  "toFunction R = (\<lambda> x . (R ,, x))"
 
 (* toFunction = eval_rel *)
-lemma "toFunction = eval_rel" using toFunction_def eval_rel_def by blast
+lemma "toFunction = eval_rel" 
+      using toFunction_def eval_rel_def by blast
 
-lemma lll40: "((P \<union> Q) || X) = ((P || X) \<union> (Q||X))" unfolding restrict_def using assms by blast
+lemma lll40: "((P \<union> Q) || X) = ((P || X) \<union> (Q||X))" 
+      unfolding restrict_def using assms by blast
 
 text {* update behaves like P +* Q (paste), but without enlarging P's Domain. update is the set theoretic equivalent of the lambda function update @{term fun_upd} *}
-definition update where "update P Q = P +* (Q || (Domain P))"
+
+definition update 
+           where "update P Q = P +* (Q || (Domain P))"
 notation update (infix "+^" 75)
 
 (* The operator runiqer will make out of an arbitrary relation a function by making a choice to all those elements in the domain for which the value is not unique by applying the axiom of choice. *)
 definition runiqer  :: "('a \<times> 'b) set => ('a \<times> 'b) set"
-where "runiqer R = { (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
+           where "runiqer R = { (x, THE y. y \<in> R `` {x})| x. x \<in> Domain R }"
 
 text {* @{term graph} is like @{term Graph}, but with a built-in restriction to a given set @{term X}.
 This makes it computable for finite X, whereas @{term "Graph f || X"} is not computable. 
 Duplicates the eponymous definition found in @{text Function_Order}, which is otherwise not needed. *}
-definition graph where "graph X f = {(x, f x) | x. x \<in> X}" 
+
+definition graph 
+           where "graph X f = {(x, f x) | x. x \<in> X}" 
 
 lemma lm024a: assumes "runiq R" shows "R \<supseteq> graph (Domain R) (toFunction R)" 
 unfolding graph_def toFunction_def

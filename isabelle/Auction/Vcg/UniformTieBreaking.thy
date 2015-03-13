@@ -429,7 +429,7 @@ qed
 
 lemma lm68: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
 "setsum (setsum bids) (omega` a) = setsum bids (\<Union> (omega ` a)) " 
-using assms setsum_Union_disjoint_2 lm30b lm67c by (metis (lifting, mono_tags))
+using assms setsumUnionDisjoint2 lm30b lm67c by (metis (lifting, mono_tags))
 
 corollary lm69: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
 "setsum (linearCompletion' bids N G) a = setsum bids (pseudoAllocation a)" (is "?L = ?R")

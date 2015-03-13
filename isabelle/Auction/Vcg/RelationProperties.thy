@@ -562,4 +562,18 @@ abbreviation "partitionsUniverse''' == {P-{{}}| P. \<forall> Q \<subseteq> P. (Q
 abbreviation "partitionsUniverse'''' == {P-{{}}| P. \<forall> Q \<in> Pow P - {{}}. card Q \<noteq> 1 \<longrightarrow>  \<Inter>Q={} }"
 abbreviation "partitionsUniverse''''' == {P-{{}}| P. \<forall> Q \<subseteq> P. card Q \<noteq> 1 \<longrightarrow> \<Inter>Q={}}"
 *)
+(*lemma lm01a: "partitionsUniverse \<subseteq>  {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}}}" unfolding is_non_overlapping_def by auto
+*)
+
+
+(* theorem assumes "distinct X" shows "set (injectionsAlg X Y)=injections (set X) (set Y)"
+proof -
+let ?P="\<lambda> L. (distinct L \<longrightarrow> (set (injectionsAlg L Y)=injections (set L) (set Y)))" 
+have "?P []" by (simp add: Universes.lm24 lm44) 
+moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" by (metis distinct.simps(2) list.simps(15) lm86)
+ultimately have "?P X" by (rule structInduct)
+thus ?thesis using assms by presburger
+qed
+*)
+
 
