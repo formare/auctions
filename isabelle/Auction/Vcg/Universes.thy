@@ -577,12 +577,12 @@ proof -
   ultimately have "finite (?R -- i) & ?u (?R--i) & ?u ?R" using finite_subset subrel_runiq
   by (metis assms(4))
   then moreover have "trivial ({i}\<times>(?R``{i}))" using runiq_def 
-  by (metis ll40 trivial_singleton)
+  by (metis trivial_cartesian trivial_singleton)
   moreover have "\<forall>X. (?R -- i) \<inter> ({i}\<times>X)={}" using outside_reduces_domain by force
   ultimately have 
   1: "finite (?R--i) & finite ({i}\<times>(?R``{i})) & (?R -- i) \<inter> ({i}\<times>(?R``{i}))={} & 
   finite ({i} \<times> {?U(a``(X\<union>{i}))}) & (?R -- i) \<inter> ({i} \<times> {?U(a``(X\<union>{i}))})={}" 
-  using Outside_def lm54 by fast 
+  using Outside_def trivial_implies_finite by fast 
   have "?R = (?R -- i) \<union> ({i}\<times>?R``{i})" by (metis l39)
   then have "setsum b ?R = setsum b (?R -- i) + setsum b ({i}\<times>(?R``{i}))" 
   using 1 setsum.union_disjoint by (metis (lifting) setsum.union_disjoint)
