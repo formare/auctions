@@ -21,6 +21,33 @@ Universes
 
 begin
 
+
+section {* Uniform tie breaking: definitions *}
+text{* To each allocation we associate the bid in which each participant bids for a set of goods 
+the cardinality of the intersection of that set with the set she gets in the given allocation.
+By construction, the revenue of an auction run using this bid is maximal on the given allocation,
+and this maximal is unique.
+We can then use the bid constructed this way @{term tiebids'} to break ties by running an auction 
+having the same form as a normal auction (that is why we use the adjective ``uniform''), 
+only with this special bid vector. *}
+abbreviation "omega pair == {fst pair} \<times> (finestpart (snd pair))"
+definition "pseudoAllocation allocation == \<Union> (omega ` allocation)"
+(*abbreviation "allocation2Goods allocation == \<Union> (snd ` allocation)"*)
+abbreviation "bidMaximizedBy allocation N G == 
+(* (N \<times> finestpart G) \<times> {0::price} +* ((pseudoAllocation allocation) \<times> {1}) *)
+pseudoAllocation allocation <|| ((N \<times> (finestpart G)))"
+abbreviation "maxbid' a N G == toFunction (bidMaximizedBy a N G)"
+abbreviation "partialCompletionOf bids pair == (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
+abbreviation "aux bids pair == setsum (%g. bids (fst pair, g)) (finestpart (snd pair))"
+abbreviation "LinearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
+abbreviation "linearCompletion' bids N G == toFunction (LinearCompletion bids N G)"
+abbreviation "tiebids' a N G == linearCompletion' (maxbid' a N G) N G"
+abbreviation "Tiebids a N G == LinearCompletion (real\<circ>maxbid' a N G) N G"
+abbreviation "chosenAllocation' N G bids random == 
+hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg N G)) (nat_of_integer random))"
+abbreviation "resolvingBid' N G bids random == tiebids' (chosenAllocation' N G bids random) N (set G)"
+
+
 section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid'} *}
 
 corollary lm03: "winningAllocationsRel N G b \<subseteq> possibleAllocationsRel N G" 
@@ -613,16 +640,16 @@ else
 (x # (permL l n))
 )"
 
-lemma lm94: "possibleAllocationsAlg2 N G = set (possibleAllocationsAlg3 N G)" by auto
+(* lemma lm94: "possibleAllocationsAlg2 N G = set (possibleAllocationsAlg3 N G)" by auto*)
 lemma lm95: assumes "card N > 0" "distinct G" shows 
-"winningAllocationsRel N (set G) bids \<subseteq> set (possibleAllocationsAlg3 N G)"
-using assms lm94 lm03 lm70b by (metis(no_types))
+"winningAllocationsRel N (set G) bids \<subseteq> set (possibleAllocationsAlg N G)"
+using assms lm03 lm70b by (metis(no_types))
 corollary lm96: assumes 
 "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows
-"winningAllocationsRel N (set G) bids \<inter> set (possibleAllocationsAlg3 N G) \<noteq> {}"
+"winningAllocationsRel N (set G) bids \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
 using assms lm91 lm95 
 proof -
-let ?w=winningAllocationsRel let ?a=possibleAllocationsAlg3
+let ?w=winningAllocationsRel let ?a=possibleAllocationsAlg
 let ?G="set G" have "card N > 0" using assms by (metis card_gt_0_iff)
 then have "?w N ?G bids \<subseteq> set (?a N G)" using lm95 by (metis assms(3))
 then show ?thesis using assms lm91 by (metis List.finite_set le_iff_inf)
@@ -630,22 +657,22 @@ qed
 lemma lm97: "X = (%x. x \<in> X) -`{True}" by blast
 corollary lm96b: assumes 
 "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows
-"(%x. x\<in>winningAllocationsRel N (set G) bids)-`{True} \<inter> set (possibleAllocationsAlg3 N G) \<noteq> {}"
+"(%x. x\<in>winningAllocationsRel N (set G) bids)-`{True} \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
 using assms lm96 lm97 by metis
 lemma lm84b: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "takeAll P l \<noteq> []" using assms
 lm84g filterpositions2_def by (metis Nil_is_map_conv)
 corollary lm84h: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg3 N G) \<noteq> []"
+"takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G) \<noteq> []"
 using assms lm84b lm96b by metis
 
 corollary nn05b: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg3 N G)) n \<noteq> []"
+"perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G)) n \<noteq> []"
 using assms MiscTools.lm83 lm84h by metis
 corollary lm82: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
 "chosenAllocation' N G bids random \<in> winningAllocationsRel N (set G) bids"
 using assms nn05a nn05b hd_in_set in_mono Int_def Int_lower1 all_not_in_conv image_set nn04 nn06c set_empty subsetI subset_trans
 proof -
-let ?w=winningAllocationsRel let ?p=possibleAllocationsAlg3 let ?G="set G"
+let ?w=winningAllocationsRel let ?p=possibleAllocationsAlg let ?G="set G"
 let ?X="?w N ?G bids" let ?l="perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
 have "set ?l \<subseteq> ?X" using nn05a by fast
 moreover have "?l \<noteq> []" using assms nn05b by blast

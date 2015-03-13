@@ -688,7 +688,7 @@ qed
 
 corollary lm70c: assumes "card N > 0" "distinct G" shows 
 "possibleAllocationsRel N (set G) = set (possibleAllocationsAlg3 N G)"  
-using assms Universes.lm70b StrictCombinatorialAuction.lm01 by metis
+using assms Universes.lm70b by metis
 
 lemma lm24: assumes "card A > 0" "card B > 0" shows "card (A \<union> B) > 0" 
 using assms card_gt_0_iff finite_Un sup_eq_bot_iff by (metis(no_types))

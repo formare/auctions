@@ -1,7 +1,12 @@
 (*
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
-Author: Marco B. Caminati http://caminati.co.nr
+Authors:
+* Marco B. Caminati http://caminati.co.nr
+* Manfred Kerber <mnfrd.krbr@gmail.com>
+* Christoph Lange <math.semantic.web@gmail.com>
+* Colin Rowat <c.rowat@bham.ac.uk>
+
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -16,8 +21,7 @@ theory Universes
 
 imports 
 "~~/src/HOL/Library/Code_Target_Nat"
-StrictCombinatorialAuction (* MC: why is the position of this dep relevant? *)
-MiscTools
+StrictCombinatorialAuction 
 "~~/src/HOL/Library/Indicator_Function"
 
 begin
@@ -28,55 +32,33 @@ lemma lm63: assumes "Y \<in> set (all_partitions_alg X)" shows "distinct Y"
 using assms distinct_sorted_list_of_set all_partitions_alg_def all_partitions_equivalence'
 by metis
 
-lemma lm65: assumes "finite G" shows "all_partitions G = set ` (set (all_partitions_alg G))"
+(* This is a variant of the bridging theorem that the classical and constructive definitions of all_partitions characterize the same set *)
+lemma lm65: assumes "finite G" shows "all_partitions G  =  set ` (set (all_partitions_alg G))"
 using assms lm64 all_partitions_alg_def all_partitions_paper_equiv_alg
 distinct_sorted_list_of_set image_set by metis
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 section {* Definitions of various subsets of @{term UNIV}. *}
 
+(* For with R = {({1,2},2), ({2,3},3)} is a choice relation, choosing one element of the set. *)
 abbreviation "isChoice R == \<forall>x. R``{x} \<subseteq> x"
-abbreviation "dualOutside R Y == R - (Domain R \<times> Y)"
-notation dualOutside (infix "|-" 75)
-notation Outside (infix "-|" 75)
-
 abbreviation "partitionsUniverse == {X. is_non_overlapping X}"
 lemma "partitionsUniverse \<subseteq> Pow UNIV" by simp       
+
 abbreviation "partitionValuedUniverse == \<Union> P \<in> partitionsUniverse. Pow (UNIV \<times> P)"
 lemma "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (Pow UNIV))" by simp
+
 abbreviation "injectionsUniverse == {R. (runiq R) & (runiq (R^-1))}"
+
+(* allocations are injections so that goods are allocated at most once and the range from a partition of the goods. *)
 abbreviation "allocationsUniverse == injectionsUniverse \<inter> partitionValuedUniverse"
 abbreviation "totalRels X Y == {R. Domain R = X & Range R \<subseteq> Y}"
-abbreviation "strictCovers G == Union -` {G}"
-(*
-abbreviation "partitionsUniverse' == {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}} }"
-abbreviation "partitionsUniverse'' == {P-{{}}| P. \<forall> Q \<subseteq> P. \<Inter>Q \<in> {\<Union>Q,{}} }"
-abbreviation "partitionsUniverse''' == {P-{{}}| P. \<forall> Q \<subseteq> P. (Q \<noteq> {} & card Q \<noteq> 1) \<longrightarrow> \<Inter>Q={}}"
-abbreviation "partitionsUniverse'''' == {P-{{}}| P. \<forall> Q \<in> Pow P - {{}}. card Q \<noteq> 1 \<longrightarrow>  \<Inter>Q={} }"
-abbreviation "partitionsUniverse''''' == {P-{{}}| P. \<forall> Q \<subseteq> P. card Q \<noteq> 1 \<longrightarrow> \<Inter>Q={}}"
-*)
 
+
+
+(***)
 section {* Results about the sets defined in the previous section *}
 
 lemma lm01a: "partitionsUniverse \<subseteq>  {P-{{}}| P. \<Inter>P \<in> {\<Union>P,{}}}" unfolding is_non_overlapping_def by auto
@@ -85,8 +67,8 @@ unfolding is_non_overlapping_def using assms by fast
 lemma lm72: assumes "\<forall>x \<in> X. t x \<in> x" shows "isChoice (graph X t)" using assms
 by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 runiq_wrt_eval_rel subset_trans)
 
-lemma "R |- Y = (R^-1 -| Y)^-1" using Outside_def by auto
-lemma lm24: "injections = injections'" using injections_def by (metis(no_types))
+(* lemma "R |- Y = (R^-1 -| Y)^-1" using Outside_def by auto
+*) lemma lm24: "injections = injections'" using injections_def by (metis(no_types))
 lemma lm25: "injections' X Y \<subseteq> injectionsUniverse" by fast
 lemma lm25b: "injections X Y \<subseteq> injectionsUniverse" using injections_def by blast
 lemma lm26: "injections' X Y = totalRels X Y \<inter> injectionsUniverse" by fastforce
@@ -429,11 +411,11 @@ have
 then have "?t1 & ?t2" using lm43b 
 proof - 
 (*MC: Isabelle cannot do elementary logic steps, only could make it work via this ugly proof found by sledgehammer *)
-  have "a \<in> allocationsUniverse \<longrightarrow> a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
+  have "a \<in> allocationsUniverse \<longrightarrow> a outside (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
     using lm43b by fastforce
-  hence "a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
+  hence "a outside (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse"
     by (metis "0")
-  thus "a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse \<and> \<Union>Range (a -| (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}})) = \<Union>Range a"
+  thus "a outside (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}}) \<in> allocationsUniverse \<and> \<Union>Range (a outside (X \<union> {i}) \<union> {i} \<times> ({\<Union>(a `` (X \<union> {i}))} - {{}})) = \<Union>Range a"
     using "0" by (metis (no_types) lm43b)
 qed
 moreover have 
@@ -920,7 +902,7 @@ Union (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])" (
 proof - have "?L = ?R" using assms by (rule lm05) thus ?thesis by presburger qed
 
 corollary lm70b: assumes "card N > 0" "distinct G" shows 
-"possibleAllocationsRel N (set G) = possibleAllocationsAlg2 N G" (is "?L = ?R") using assms lm70 
+"possibleAllocationsRel N (set G) = set(possibleAllocationsAlg N G)" (is "?L = ?R") using assms lm70 
 possible_allocations_rel_def 
 proof -
   let ?LL="\<Union> {injections P N| P. P \<in> all_partitions (set G)}"
