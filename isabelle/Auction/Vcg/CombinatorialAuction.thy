@@ -762,7 +762,7 @@ ultimately show ?thesis unfolding randomBids_def by (rule lm14b)
 qed
 
 lemma lm16: assumes "\<forall>x\<in>X. f x = g x" shows "argmax f X=argmax g X" 
-using assms Argmax.lm02 Collect_cong image_cong 
+using assms argmaxLemma Collect_cong image_cong 
 by (metis(no_types,lifting))
 
 (*MC: without passing theorem lm02 with "using", e and z3 (through sledgehammer) say this theorem is unprovable *)
