@@ -28,8 +28,8 @@ We define the set of all partitions of a set (@{term all_partitions}) in textboo
 *}
 
 text {* @{term P} is a family of non-overlapping  sets. *}
-definition is_non_overlapping where
-"is_non_overlapping P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
+definition is_non_overlapping 
+           where "is_non_overlapping P = (\<forall> X\<in>P . \<forall> Y\<in> P . (X \<inter> Y \<noteq> {} \<longleftrightarrow> X = Y))"
 (* alternative, less concise formalisation:
 "is_non_overlapping P = (\<forall> ec1 \<in> P . ec1 \<noteq> {} \<and> (\<forall> ec2 \<in> P - {ec1}. ec1 \<inter> ec2 = {}))"
 *)
@@ -37,8 +37,8 @@ definition is_non_overlapping where
 text {* A subfamily of a non-overlapping family is also a non-overlapping family *}
 
 lemma subset_is_non_overlapping:
-  assumes subset: "P \<subseteq> Q"
-      and non_overlapping: "is_non_overlapping Q"
+  assumes subset: "P \<subseteq> Q" and 
+          non_overlapping: "is_non_overlapping Q"
   shows "is_non_overlapping P"
 (* CL: The following takes 387 ms with Isabelle2013-1-RC1:
    by (metis is_non_overlapping_def non_overlapping set_rev_mp subset). MC: possibly useful for TPTP *)
@@ -56,23 +56,24 @@ qed
 
 text {* The family that results from removing one element from an equivalence class of a non-overlapping family is not otherwise a member of the family. *}
 lemma remove_from_eq_class_preserves_disjoint:
-  fixes elem::'a
-    and X::"'a set"
-    and P::"'a set set"
-  assumes non_overlapping: "is_non_overlapping P"
-      and eq_class: "X \<in> P"
-      and elem: "elem \<in> X"
-  shows "X - {elem} \<notin> P"
- using assms Int_Diff is_non_overlapping_def Diff_disjoint Diff_eq_empty_iff 
- Int_absorb2 insert_Diff_if insert_not_empty by (metis)
+      fixes elem::'a
+        and X::"'a set"
+        and P::"'a set set"
+      assumes non_overlapping: "is_non_overlapping P"
+        and eq_class: "X \<in> P"
+        and elem: "elem \<in> X"
+      shows "X - {elem} \<notin> P"
+  using assms Int_Diff is_non_overlapping_def Diff_disjoint Diff_eq_empty_iff 
+        Int_absorb2 insert_Diff_if insert_not_empty by (metis)
 
 text {* Inserting into a non-overlapping family @{term P} a set @{term X}, which is disjoint with the set 
   partitioned by @{term P}, yields another non-overlapping family. *}
+
 lemma non_overlapping_extension1:
   fixes P::"'a set set"
     and X::"'a set"
   assumes partition: "is_non_overlapping P"
-      and disjoint: "X \<inter> \<Union> P = {}" 
+       and disjoint: "X \<inter> \<Union> P = {}" 
       and non_empty: "X \<noteq> {}"
   shows "is_non_overlapping (insert X P)"
 proof -
@@ -127,25 +128,21 @@ lemma no_empty_in_non_overlapping:
 
 text {* @{term P} is a partition of the set @{term A}. The infix notation takes the form ``noun-verb-object''*}
 definition is_partition_of (infix "partitions" 75)
-where "is_partition_of P A = (\<Union> P = A \<and> is_non_overlapping P)"
+           where "is_partition_of P A = (\<Union> P = A \<and> is_non_overlapping P)"
 
 text {* No partition of a non-empty set is empty. *}
 lemma non_empty_imp_non_empty_partition:
   assumes "A \<noteq> {}"
       and "P partitions A"
   shows "P \<noteq> {}"
-using assms
-unfolding is_partition_of_def
-by fast
+  using assms unfolding is_partition_of_def by fast
 
 text {* Every element of a partitioned set ends up in one element in the partition. *}
 lemma elem_in_partition:
   assumes in_set: "x \<in> A"
       and part: "P partitions A"
   obtains X where "x \<in> X" and "X \<in> P"
-using part in_set
-unfolding is_partition_of_def is_non_overlapping_def 
-by (auto simp add: UnionE)
+  using part in_set unfolding is_partition_of_def is_non_overlapping_def by (auto simp add: UnionE)
 
 text {* Every element of the difference of a set @{term A} and another set @{term B} ends up in 
   an element of a partition of @{term A}, but not in an element of the partition of @{term "{B}"}. *}
@@ -218,13 +215,11 @@ text {* The set of all partitions of the empty set only contains the empty set.
   We need this to prove the base case of @{term all_partitions_paper_equiv_alg}. *}
 lemma emptyset_part_emptyset3:
   shows "all_partitions {} = {{}}"
-  unfolding all_partitions_def
-  using emptyset_part_emptyset1 emptyset_part_emptyset2
-  by fast
+  unfolding all_partitions_def using emptyset_part_emptyset1 emptyset_part_emptyset2 by fast
 
 text {* inserts an element new_el into a specified set S inside a given family of sets *}
 definition insert_into_member :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
-where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
+   where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
 text {* Using @{const insert_into_member} to insert a fresh element, which is not a member of the
   set @{term S} being partitioned, into a non-overlapping family of sets yields another
@@ -236,7 +231,7 @@ lemma non_overlapping_extension2:
   assumes non_overlapping: "is_non_overlapping P"
       and class_element: "X \<in> P"
       and new: "new_el \<notin> \<Union> P"
-shows "is_non_overlapping (insert_into_member new_el P X)"
+  shows "is_non_overlapping (insert_into_member new_el P X)"
 proof -
   let ?Y = "insert new_el X"
   have rest_is_non_overlapping: "is_non_overlapping (P - {X})"
@@ -261,9 +256,8 @@ text {* inserts an element into a specified set inside the given list of sets --
    @{typ "'a set set list"}, but we need @{typ "'a set list list"}.  This is because it is hard 
    to impossible to convert a set to a list, whereas it is easy to convert a @{type list} to a @{type set}.
 *}
-definition insert_into_member_list
-:: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set \<Rightarrow> 'a set list"
-where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 S Sets)"
+definition insert_into_member_list :: "'a \<Rightarrow> 'a set list \<Rightarrow> 'a set \<Rightarrow> 'a set list"
+  where "insert_into_member_list new_el Sets S = (S \<union> {new_el}) # (remove1 S Sets)"
 
 text {* @{const insert_into_member_list} and @{const insert_into_member} are equivalent
   (as in returning the same set). *}
@@ -273,9 +267,7 @@ lemma insert_into_member_list_equivalence:
     and S::"'a set"
   assumes "distinct Sets"
   shows "set (insert_into_member_list new_el Sets S) = insert_into_member new_el (set Sets) S"
-unfolding insert_into_member_list_def insert_into_member_def
-using assms
-by simp
+  unfolding insert_into_member_list_def insert_into_member_def using assms by simp
 
 text {* an alternative characterization of the set partitioned by a partition obtained by 
   inserting an element into an equivalence class of a given partition (if @{term P}
@@ -296,41 +288,42 @@ text {* Assuming that @{term P} is a partition of a set @{term S}, and @{term "n
   with a class @{term "{new_el}"} and all other classes unchanged,
   as well as all partitions obtained by inserting @{term new_el} into one class of @{term P} at a time. While we use the definition to build coarser partitions of an existing partition P, the definition itself does not require P to be a partition.*}
 definition coarser_partitions_with ::"'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set set"
-where "coarser_partitions_with new_el P = 
-  insert
-  (* Let P be a partition of a set Set,
+  where "coarser_partitions_with new_el P = 
+    insert
+    (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set, i.e. {new_el} \<notin> P,
      then the following constructs a partition of 'Set \<union> {new_el}' obtained by
      inserting a new class {new_el} and leaving all previous classes unchanged. *)
-  (insert {new_el} P)
+    (insert {new_el} P)
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set,
      then the following constructs
      the set of those partitions of 'Set \<union> {new_el}' obtained by
      inserting new_el into one class of P at a time. *)
-  ((insert_into_member new_el P) ` P)"
+    ((insert_into_member new_el P) ` P)"
 
 
 text {* the list variant of @{const coarser_partitions_with} *}
 definition coarser_partitions_with_list ::"'a \<Rightarrow> 'a set list \<Rightarrow> 'a set list list"
-where "coarser_partitions_with_list new_el P = 
+  where "coarser_partitions_with_list new_el P = 
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set, i.e. {new_el} \<notin> set P,
      then the following constructs a partition of 'Set \<union> {new_el}' obtained by
      inserting a new class {new_el} and leaving all previous classes unchanged. *)
-  ({new_el} # P)
-  #
+    ({new_el} # P)
+    #
   (* Let P be a partition of a set Set,
      and suppose new_el \<notin> Set,
      then the following constructs
      the set of those partitions of 'Set \<union> {new_el}' obtained by
      inserting new_el into one class of P at a time. *)
-  (map ((insert_into_member_list new_el P)) P)"
+    (map ((insert_into_member_list new_el P)) P)"
 
 text {* @{const coarser_partitions_with_list} and @{const coarser_partitions_with} are equivalent. *}
 lemma coarser_partitions_with_list_equivalence:
   assumes "distinct P"
-  shows "set (map set (coarser_partitions_with_list new_el P)) = coarser_partitions_with new_el (set P)"
+  shows "set (map set (coarser_partitions_with_list new_el P)) = 
+         coarser_partitions_with new_el (set P)"
 proof -
   have "set (map set (coarser_partitions_with_list new_el P)) = set (map set (({new_el} # P) # (map ((insert_into_member_list new_el P)) P)))"
     unfolding coarser_partitions_with_list_def ..
@@ -403,7 +396,7 @@ text {* Removes the element @{term elem} from every set in @{term P}, and remove
 @{const coarser_partitions_with} is one-to-many, while this is one-to-one, so we can think of a tree relation,
 where coarser partitions of a set @{term "S \<union> {elem}"} are child nodes of one partition of @{term S}. *}
 definition partition_without :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set set"
-where "partition_without elem P = (\<lambda>X . X - {elem}) ` P - {{}}"
+  where "partition_without elem P = (\<lambda>X . X - {elem}) ` P - {{}}"
 (* Set comprehension notation { x - {elem} | x . x \<in> P } would look nicer but is harder to do proofs about *)
 
 (* We don't need to define partition_without_list. *)
@@ -555,11 +548,12 @@ qed
 text {* Given a set @{term Ps} of partitions, this is intended to compute the set of all coarser
   partitions (given an extension element) of all partitions in @{term Ps}. *}
 definition all_coarser_partitions_with :: " 'a \<Rightarrow> 'a set set set \<Rightarrow> 'a set set set"
-where "all_coarser_partitions_with elem Ps = \<Union> (coarser_partitions_with elem ` Ps)"
+   where "all_coarser_partitions_with elem Ps = \<Union> (coarser_partitions_with elem ` Ps)"
 
 text {* the list variant of @{const all_coarser_partitions_with} *}
 definition all_coarser_partitions_with_list :: " 'a \<Rightarrow> 'a set list list \<Rightarrow> 'a set list list"
-where "all_coarser_partitions_with_list elem Ps = concat (map (coarser_partitions_with_list elem) Ps)"
+  where "all_coarser_partitions_with_list elem Ps = 
+         concat (map (coarser_partitions_with_list elem) Ps)"
 
 text {* @{const all_coarser_partitions_with_list} and @{const all_coarser_partitions_with} are equivalent. *}
 lemma all_coarser_partitions_with_list_equivalence:
@@ -585,15 +579,15 @@ qed
 
 text {* all partitions of a set (given as list) in form of a set*}
 fun all_partitions_set :: "'a list \<Rightarrow> 'a set set set"
-where 
-"all_partitions_set [] = {{}}" |
-"all_partitions_set (e # X) = all_coarser_partitions_with e (all_partitions_set X)"
+  where 
+   "all_partitions_set [] = {{}}" |
+   "all_partitions_set (e # X) = all_coarser_partitions_with e (all_partitions_set X)"
 
 text {* all partitions of a set (given as list) in form of a list *}
 fun all_partitions_list :: "'a list \<Rightarrow> 'a set list list"
-where 
-"all_partitions_list [] = [[]]" |
-"all_partitions_list (e # X) = all_coarser_partitions_with_list e (all_partitions_list X)"
+  where 
+   "all_partitions_list [] = [[]]" |
+   "all_partitions_list (e # X) = all_coarser_partitions_with_list e (all_partitions_list X)"
 
 text {* A list of partitions coarser than a given partition in list representation (constructed
   with @{const coarser_partitions_with} is distinct under certain conditions. *}
@@ -632,7 +626,9 @@ qed
 text {* The classical definition @{const all_partitions} and the algorithmic (constructive) definition @{const all_partitions_list} are equivalent. *}
 lemma all_partitions_equivalence':
   fixes xs::"'a list"
-  shows "distinct xs \<Longrightarrow> ((set (map set (all_partitions_list xs)) = all_partitions (set xs)) \<and> (\<forall> ps \<in> set (all_partitions_list xs) . distinct ps))"
+  shows "distinct xs \<Longrightarrow> 
+         ((set (map set (all_partitions_list xs)) = 
+          all_partitions (set xs)) \<and> (\<forall> ps \<in> set (all_partitions_list xs) . distinct ps))"
 proof (induct xs)
   case Nil
   have "set (map set (all_partitions_list [])) = all_partitions (set [])"
@@ -764,7 +760,7 @@ theorem all_partitions_paper_equiv_alg:
 text {* The function that we will be using in practice to compute all partitions of a set,
   a set-oriented front-end to @{const all_partitions_list} *}
 definition all_partitions_alg :: "'a\<Colon>linorder set \<Rightarrow> 'a set list list"
-where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
+  where "all_partitions_alg X = all_partitions_list (sorted_list_of_set X)"
 
 end
 
