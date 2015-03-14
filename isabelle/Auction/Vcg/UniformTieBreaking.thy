@@ -58,7 +58,7 @@ proof - have "c=a-(a-c)" using assms(2) by blast thus ?thesis using assms(1) lm3
 lemma lm35c: assumes "a \<in> allocationsUniverse" shows "a outside X \<in> allocationsUniverse"
 using assms lm35 Outside_def by (metis (no_types))
 
-corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 nn43 by metis
+corollary lm38d: "{x}\<times>({X}-{{}}) \<in> allocationsUniverse" using lm38 pairDifference by metis
 corollary lm38b: "{(x,{y})} \<in> allocationsUniverse" using lm38 lm44 insert_not_empty 
 proof -
   have "(x, {y}) \<noteq> (x, {})" by blast
@@ -85,14 +85,14 @@ corollary lm91: assumes "N \<noteq> {}" "finite N" "G \<noteq> {}" "finite G" sh
 "winningAllocationsRel N G bids \<noteq> {} & finite (winningAllocationsRel N G bids)" 
 using assms lm90b lm59 argmax_non_empty_iff by (metis lm03 rev_finite_subset)
 
-lemma lm52: "possibleAllocationsRel N {} \<subseteq> {{}}" using emptyset_part_emptyset3 MiscTools.lm51 
+lemma lm52: "possibleAllocationsRel N {} \<subseteq> {{}}" using emptyset_part_emptyset3 rangeEmpty 
 lm28b mem_Collect_eq subsetI vimage_def by metis
 
 lemma lm42: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "finite (Range a)" 
 using assms lm55 by (metis lm28)
 
 corollary lm44: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "finite a"
-using assms finite_converse Range_converse imageE lll81 MiscTools.lm43 UniformTieBreaking.lm42
+using assms finite_converse Range_converse imageE lll81 finiteDomainImpliesFinite UniformTieBreaking.lm42
 by (metis (erased, lifting))
 
 lemma assumes "a \<in> possibleAllocationsRel N G" shows "\<Union> Range a = G" using assms 
@@ -162,7 +162,7 @@ fst_conv inj_on_inverseI by (metis (lifting))
 corollary lm57b: "inj_on (partialCompletionOf bids) X" using fst_conv inj_on_inverseI by (metis (lifting))
 lemma lm58: "setsum snd (LinearCompletion bids N G) = 
 setsum (snd \<circ> (partialCompletionOf bids)) (N \<times> (Pow G - {{}}))" using assms lm57b setsum.reindex by blast 
-corollary lm25: "snd (partialCompletionOf bids pair)=setsum bids (omega pair)" using MiscTools.lm24 by force
+corollary lm25: "snd (partialCompletionOf bids pair)=setsum bids (omega pair)" using sumCurry by force
 corollary lm25b: "snd \<circ> partialCompletionOf bids = (setsum bids) \<circ> omega" using lm25 by fastforce
 
 (* lemma assumes "x \<in> X \<inter> Domain f" "runiq f" shows "toFunction (f||X) x = toFunction f x" using assms eval_rel_def restrict_def
@@ -172,7 +172,7 @@ lemma lm27: assumes "finite  (finestpart (snd pair))" shows
 "card (omega pair) = card (finestpart (snd pair))" using assms by force
 
 corollary assumes "finite (snd pair)" shows "card (omega pair) = card (snd pair)" 
-using assms MiscTools.lm26 card_cartesian_product_singleton by metis
+using assms cardFinestpart card_cartesian_product_singleton by metis
 
 lemma lm30: assumes "{} \<notin> Range f" "runiq f" shows "is_non_overlapping (omega ` f)"
 (* MC: generalize and clean *)
@@ -186,7 +186,7 @@ by (metis rev_image_eqI snd_eq_Range)
     ultimately moreover have "fst pair1 = fst pair2 \<longleftrightarrow> pair1 = pair2" using assms
     runiq_basic surjective_pairing by metis
     ultimately moreover have "y1 \<inter> y2 \<noteq> {} \<longrightarrow> y1 = y2" using assms 0 by fast
-    ultimately have "y1 = y2 \<longleftrightarrow> y1 \<inter> y2 \<noteq> {}" using assms MiscTools.lm29 by (metis Int_absorb Times_empty insert_not_empty)
+    ultimately have "y1 = y2 \<longleftrightarrow> y1 \<inter> y2 \<noteq> {}" using assms notEmptyFinestpart by (metis Int_absorb Times_empty insert_not_empty)
     }
   thus ?thesis using is_non_overlapping_def by (metis (lifting, no_types) inf_commute inf_sup_aci(1))
 qed
@@ -198,8 +198,8 @@ let ?p=finestpart
   fix pair1 pair2 assume "pair1 \<in> X & pair2 \<in> X" then have 
   0: "snd pair1 \<noteq> {} & snd pair2 \<noteq> {}" using assms by (metis Range.intros surjective_pairing)
   assume "omega pair1 = omega pair2" then moreover have "?p (snd pair1) = ?p (snd pair2)" by blast
-  then moreover have "snd pair1 = snd pair2" by (metis ll64 MiscTools.lm31)
-  ultimately moreover have "{fst pair1} = {fst pair2}" using 0 MiscTools.lm29 by (metis fst_image_times)
+  then moreover have "snd pair1 = snd pair2" by (metis finestPart nonEqualitySetOfSets)
+  ultimately moreover have "{fst pair1} = {fst pair2}" using 0 notEmptyFinestpart by (metis fst_image_times)
   ultimately have "pair1 = pair2" by (metis prod_eqI singleton_inject)
 }
 thus ?thesis by (metis (lifting, no_types) inj_onI)
@@ -217,7 +217,7 @@ moreover have "... = ?R" using assms(1) lm32 setsum.reindex by blast
 ultimately show ?thesis by presburger
 qed
 
-lemma lm39: "card (omega pair)= card (snd pair)" using MiscTools.lm26 card_cartesian_product_singleton by metis
+lemma lm39: "card (omega pair)= card (snd pair)" using cardFinestpart card_cartesian_product_singleton by metis
 
 corollary lm39b: "card \<circ> omega = card \<circ> snd" using lm39 by fastforce
 
@@ -225,7 +225,7 @@ corollary lm37: assumes "{} \<notin> Range a" "\<forall> pair \<in> a. finite (s
 shows "card (pseudoAllocation a) = setsum (card \<circ> snd) a"
 proof -
 let ?P=pseudoAllocation let ?c=card
-have "\<forall> pair \<in> a. finite (omega pair)" using MiscTools.lm40 assms by blast moreover
+have "\<forall> pair \<in> a. finite (omega pair)" using finiteFinestpart assms by blast moreover
 have "is_non_overlapping (omega ` a)" using assms lm30 by force ultimately
 have "?c (?P a) = setsum (?c \<circ> omega) a" using assms lm36 by force
 moreover have "... = setsum (?c \<circ> snd) a" using lm39b by metis
@@ -234,13 +234,13 @@ qed
 
 corollary lm46: assumes 
 "runiq (a^-1)" "runiq a" "finite a" "{} \<notin> Range a" "\<forall> pair \<in> a. finite (snd pair)" shows 
-"card (pseudoAllocation a) = setsum card (Range a)" using assms MiscTools.lm39 lm37 by force
+"card (pseudoAllocation a) = setsum card (Range a)" using assms setsumPairsInverse lm37 by force
 
 corollary lm48: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
 "card (pseudoAllocation a) = card G"
 proof -
   have "{} \<notin> Range a" using assms by (metis Universes.lm39b)
-  moreover have "\<forall> pair \<in> a. finite (snd pair)" using assms lm41 MiscTools.lm47 by metis
+  moreover have "\<forall> pair \<in> a. finite (snd pair)" using assms lm41 finitePairSecondRange by metis
   moreover have "finite a" using assms lm44 by blast
   moreover have "runiq a" using assms by (metis (lifting) Int_lower1 in_mono lm19 mem_Collect_eq)
   moreover have "runiq (a^-1)" using assms by (metis (mono_tags) injections_def lm28b mem_Collect_eq)
@@ -281,17 +281,17 @@ corollary lm54: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows
 
 lemma lm56: assumes "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G" "finite G" shows 
 "(card (pseudoAllocation aa \<inter> (pseudoAllocation a)) = card (pseudoAllocation a)) = 
-(pseudoAllocation a = pseudoAllocation aa)" using assms lm48 lm23b 
+(pseudoAllocation a = pseudoAllocation aa)" using assms lm48 cardinalityIntersectionEquality
 proof -
 let ?P=pseudoAllocation let ?c=card let ?A="?P a" let ?AA="?P aa"
 have "?c ?A=?c G & ?c ?AA=?c G" using assms lm48 by (metis (lifting, mono_tags))
 moreover have "finite ?A & finite ?AA" using assms lm54 by blast
-ultimately show ?thesis using assms lm23b by (metis(no_types,lifting))
+ultimately show ?thesis using assms cardinalityIntersectionEquality by (metis(no_types,lifting))
 qed
 
-lemma lm55: "omega pair = {fst pair} \<times> {{y}| y. y \<in> snd pair}" using finestpart_def ll64 by auto
+lemma lm55: "omega pair = {fst pair} \<times> {{y}| y. y \<in> snd pair}" using finestpart_def finestPart by auto
 
-lemma lm55c: "omega pair = {(fst pair, {y})| y. y \<in>  snd pair}" using lm55 lm55b by metis
+lemma lm55c: "omega pair = {(fst pair, {y})| y. y \<in>  snd pair}" using lm55 setOfPairs by metis
 
 lemma lm55d: "pseudoAllocation a = \<Union> {{(fst pair, {y})| y. y \<in> snd pair}| pair. pair \<in> a}"
 unfolding pseudoAllocation_def
@@ -300,11 +300,11 @@ lemma lm55e: "\<Union> {{(fst pair, {y})| y. y \<in> snd pair}| pair. pair \<in>
 {(fst pair, {y})| y pair. y \<in> snd pair & pair \<in> a}" by blast
 
 corollary lm55k: "pseudoAllocation a = {(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> a}"
-unfolding pseudoAllocation_def using lm55j by fastforce
+unfolding pseudoAllocation_def using setOfPairsEquality by fastforce
 
 lemma lm55u: assumes "runiq a" shows 
 "{(fst pair, Y)| Y pair. Y \<in> finestpart (snd pair) & pair \<in> a} = {(x, Y)| Y x. Y \<in> finestpart (a,,x) & x \<in> Domain a}"
-(is "?L=?R") using assms Domain.DomainI fst_conv MiscTools.lm60 runiq_wrt_ex1 surjective_pairing
+(is "?L=?R") using assms Domain.DomainI fst_conv functionOnFirstEqualsSecond  runiq_wrt_ex1 surjective_pairing
 by (metis(hide_lams,no_types))
 
 corollary lm55v: assumes "runiq a" shows "pseudoAllocation a = {(x, Y)| Y x. Y \<in> finestpart (a,,x) & x \<in> Domain a}"
@@ -312,9 +312,9 @@ unfolding pseudoAllocation_def using assms lm55u lm55k by fastforce
 
 corollary lm55t: "Range (pseudoAllocation a) = \<Union> (finestpart ` (Range a))"
 unfolding pseudoAllocation_def
-using lm55k lm55l lm55m  by fastforce
+using lm55k rangeSetOfPairs unionFinestPart  by fastforce
 
-corollary lm55s: "Range (pseudoAllocation a) = finestpart (\<Union> Range a)" using lm55r lm55t by metis 
+corollary lm55s: "Range (pseudoAllocation a) = finestpart (\<Union> Range a)" using commuteUnionFinestpart lm55t by metis 
 
 
 lemma lm55f: "pseudoAllocation a = {(fst pair, {y})| y pair. y \<in> snd pair & pair \<in> a}" using lm55d 
@@ -329,7 +329,7 @@ moreover have "... = ?R" by (rule lm55g) ultimately show ?thesis by presburger
 qed
 
 lemma lm62: "runiq (LinearCompletion bids N G)" using assms
-graph_def image_Collect_mem ll37 by (metis(no_types))
+graph_def image_Collect_mem domainOfGraph by (metis(no_types))
 corollary lm62b: "runiq (LinearCompletion bids N G || a)"
 unfolding restrict_def using lm62 subrel_runiq Int_commute by blast
 lemma lm64: "N \<times> (Pow G - {{}}) = Domain (LinearCompletion bids N G)" by blast
@@ -343,7 +343,7 @@ ultimately show ?thesis by blast
 qed
 
 corollary lm59d: "setsum (linearCompletion' bids N G) (a \<inter> (Domain (LinearCompletion bids N G))) = 
-setsum snd ((LinearCompletion bids N G) || a)" using assms lm59c lm62b by fast
+setsum snd ((LinearCompletion bids N G) || a)" using assms setsumRestrictedToDomainInvariant lm62b by fast
 
 corollary lm59e: assumes "a \<in> possibleAllocationsRel N G" shows 
 "setsum (linearCompletion' bids N G) a = setsum snd ((LinearCompletion bids N G) || a)" 
@@ -410,9 +410,9 @@ ultimately show ?thesis by presburger
 qed
 
 lemma lm67: assumes "finite (snd pair)" shows "finite (omega pair)" using assms
-finite.emptyI finite.insertI finite_SigmaI MiscTools.lm40 by (metis(no_types))
+finite.emptyI finite.insertI finite_SigmaI finiteFinestpart  by (metis(no_types))
 corollary lm67b: assumes "\<forall>y\<in>(Range a). finite y" shows "\<forall>y\<in>(omega ` a). finite y"
-using assms lm67 imageE MiscTools.lm47 by fast
+using assms lm67 imageE finitePairSecondRange by fast
 lemma assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "\<forall>y \<in> (Range a). finite y"
 using assms by (metis lm41)
 
@@ -496,7 +496,7 @@ qed
 
 abbreviation "mbc pseudo == {(x, \<Union> (pseudo `` {x}))| x. x \<in> Domain pseudo}"
  
-corollary assumes "{} \<notin> Range X" shows "inj_on (image omega) (Pow X)" using assms MiscTools.lm74 lm32 by blast
+corollary assumes "{} \<notin> Range X" shows "inj_on (image omega) (Pow X)" using assms injectionPowerset lm32 by blast
 
 lemma "pseudoAllocation = Union \<circ> (image omega)"
 using pseudoAllocation_def sorry
@@ -506,7 +506,7 @@ proof -
 let ?p="{(x, Y)| Y x. Y \<in> finestpart (a,,x) & x \<in> Domain a}"
 let ?a="{(x, \<Union> (?p `` {x}))| x. x \<in> Domain ?p}" 
 have "\<forall>x \<in> Domain a. a,,x \<noteq> {}" by (metis assms eval_runiq_in_Range)
-then have "\<forall>x \<in> Domain a. finestpart (a,,x) \<noteq> {}" by (metis MiscTools.lm29) 
+then have "\<forall>x \<in> Domain a. finestpart (a,,x) \<noteq> {}" by (metis notEmptyFinestpart) 
 then have "Domain a \<subseteq> Domain ?p" by force
 moreover have "Domain a \<supseteq> Domain ?p" by fast
 ultimately have 
@@ -517,7 +517,7 @@ ultimately have
   "x \<in> Domain ?p & z=(x , \<Union> (?p `` {x}))" by blast
   then have "x \<in> Domain a & z=(x , \<Union> (?p `` {x}))" by fast
   then moreover have "?p``{x} = finestpart (a,,x)" using assms by fastforce
-  moreover have "\<Union> (finestpart (a,,x))= a,,x" by (metis MiscTools.lm75)
+  moreover have "\<Union> (finestpart (a,,x))= a,,x" by (metis finestPartUnion)
   ultimately have "z \<in> a" by (metis assms(1) eval_runiq_rel)
   }
 then have
@@ -528,8 +528,8 @@ then have
   have 
   2:"z \<in> a & ?x \<in> Domain ?p" using 1 by presburger  then
   have "?p `` {?x} = ?YY" by fastforce
-  then have "\<Union> (?p `` {?x}) = ?Y" by (metis MiscTools.lm75)
-  moreover have "z = (?x, ?Y)" using assms by (metis "0" MiscTools.lm60 surjective_pairing)
+  then have "\<Union> (?p `` {?x}) = ?Y" by (metis finestPartUnion)
+  moreover have "z = (?x, ?Y)" using assms by (metis "0" functionOnFirstEqualsSecond surjective_pairing)
   ultimately have "z \<in> ?a" using 2 by (metis (lifting, mono_tags) mem_Collect_eq)
   }
 then have "a = ?a" using 3 by blast
@@ -823,7 +823,7 @@ moreover have "?a \<in> ?X" using lm82 assms by blast
 ultimately have 
 "finite ?X & ?a \<in> ?X & (\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a)" using 0 by force
 moreover have "(finite ?X & ?a \<in> ?X & (\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a)) \<longrightarrow> argmax ?f ?X = {?a}"
-by (rule lm80c)
+by (rule argmaxProperty)
 ultimately have "{?a} = argmax ?f ?X" using lm80 by presburger
 moreover have "... = ?t N G bids random" by simp
 ultimately show ?thesis by presburger

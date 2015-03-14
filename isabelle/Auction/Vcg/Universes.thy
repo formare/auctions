@@ -35,7 +35,7 @@ by metis
 (* This is a variant of the bridging theorem that the classical and constructive definitions of all_partitions characterize the same set *)
 lemma lm65: assumes "finite G" 
             shows "all_partitions G  =  set ` (set (all_partitions_alg G))"
-            using assms lm64 all_partitions_alg_def all_partitions_paper_equiv_alg
+            using assms sortingSameSet all_partitions_alg_def all_partitions_paper_equiv_alg
                   distinct_sorted_list_of_set image_set by metis
 
 
@@ -70,7 +70,7 @@ lemma lm04: assumes "\<forall> x1 \<in> X. (x1 \<noteq> {} & (\<forall> x2 \<in>
 
 lemma lm72: assumes "\<forall>x \<in> X. f x \<in> x" 
             shows "isChoice (graph X f)" using assms
-            by (metis Image_within_domain' empty_subsetI insert_subset ll33 ll37 
+            by (metis Image_within_domain' empty_subsetI insert_subset ll33 domainOfGraph 
                       runiq_wrt_eval_rel subset_trans)
 
 lemma lm24: "injections = injections'" using injections_def by (metis(no_types))
@@ -583,7 +583,7 @@ proof -
   1: "finite (?R--i) & finite ({i}\<times>(?R``{i})) & (?R -- i) \<inter> ({i}\<times>(?R``{i}))={} & 
   finite ({i} \<times> {?U(a``(X\<union>{i}))}) & (?R -- i) \<inter> ({i} \<times> {?U(a``(X\<union>{i}))})={}" 
   using Outside_def trivial_implies_finite by fast 
-  have "?R = (?R -- i) \<union> ({i}\<times>?R``{i})" by (metis l39)
+  have "?R = (?R -- i) \<union> ({i}\<times>?R``{i})" by (metis outsideUnion)
   then have "setsum b ?R = setsum b (?R -- i) + setsum b ({i}\<times>(?R``{i}))" 
   using 1 setsum.union_disjoint by (metis (lifting) setsum.union_disjoint)
   moreover have "setsum b ({i}\<times>(?R``{i})) \<le> setsum b ({i}\<times>{?U(a``(X\<union>{i}))})" using lm46 
@@ -591,7 +591,7 @@ proof -
   ultimately have "setsum b ?R \<le> setsum b (?R -- i) + setsum b ({i}\<times>{?U(a``(X\<union>{i}))})" by linarith
   moreover have "... = setsum b (?R -- i \<union> ({i} \<times> {?U(a``(X\<union>{i}))}))" 
   using 1 setsum.union_disjoint by auto
-  moreover have "... = setsum b ?aa" by (metis l37a)
+  moreover have "... = setsum b ?aa" by (metis outsideOutside)
   ultimately show ?thesis by linarith
 qed
 
@@ -788,7 +788,7 @@ lemma lm75: assumes "x \<in> Domain f" "runiq f"
 
 corollary lm92: assumes "x \<in> Domain f" "runiq f" 
                 shows   "f = (f -- x) \<union> {(x,f,,x)}" 
-                using assms lm75 l39 by metis
+                using assms lm75 outsideUnion by metis
 
 lemma nn30b: assumes "f \<in> injectionsUniverse" 
              shows   "Range(f outside A) = Range f - f``A" 
@@ -996,7 +996,7 @@ lemma lm05: assumes "card N > 0" "distinct G"
 proof -
   let ?g1=all_partitions_list let ?f2=injections let ?g2=injections_alg
   have "\<forall>l \<in> set (?g1 G). set (?g2 l N) = ?f2 (set l) N" using assms lm03 by blast
-  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule MiscTools.lm66a) done
+  then have "set [set (?g2 l N). l <- ?g1 G] = {?f2 P N| P. P \<in> set (map set (?g1 G))}" apply (rule setVsList) done
   moreover have "... = {?f2 P N| P. P \<in> all_partitions (set G)}" using all_partitions_paper_equiv_alg
   assms by blast
   ultimately show ?thesis by presburger

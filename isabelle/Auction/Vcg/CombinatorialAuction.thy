@@ -74,7 +74,7 @@ lemma "{} \<in> allocationsUniverse"
 by (metis nn39)
  corollary lm39: "{} \<in> allocationsUniverse" using lm39a lm39b by blast
 *)
-lemma lll59b: "runiq (X\<times>{y})" using lll59 by (metis trivial_singleton)
+lemma lll59b: "runiq (X\<times>{y})" using rightUniqueTrivialCartes by (metis trivial_singleton)
 lemma lm37b: "{x}\<times>{y} \<in> injectionsUniverse" using Universes.lm37 by fastforce
 lemma lm40b: assumes "a \<in> soldAllocations'' N G" shows "\<Union> Range a \<subseteq> G" using assms Outside_def by blast
 lemma lm41: "a \<in> soldAllocations'' N G = 
@@ -294,7 +294,7 @@ corollary lm58: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 (maximalStrictAllocations' N (set G) b)" (is "the_elem ?X \<in> ?R") using assms lm92b lm57
 proof -
 have "card ?X=1" using assms by (rule lm92b) moreover have "?X \<subseteq> ?R" by auto
-ultimately show ?thesis using nn57b by blast
+ultimately show ?thesis using cardinalityOneTheElem by blast
 qed
 
 corollary lm58b: assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
@@ -318,7 +318,7 @@ proof -
 let ?n=seller have "finite (a||{?n})" using assms restrict_def by (metis finite_Int) 
 moreover have "\<forall>z \<in> a||{?n}. b z=0" using assms restrict_def by fastforce
 ultimately have "setsum b (a||{?n}) = 0" using assms by (metis setsum.neutral)
-thus ?thesis using nn59 assms(2) by (metis comm_monoid_add_class.add.right_neutral)
+thus ?thesis using setsumOutside assms(2) by (metis comm_monoid_add_class.add.right_neutral)
 qed
 
 corollary lm59c: assumes "\<forall>a\<in>A. finite a & (\<forall> X. X\<in>Range a \<longrightarrow> b (seller, X)=0)"
@@ -510,7 +510,7 @@ qed
 lemma lm64c: assumes "a \<in> allocationsUniverse" 
 "n1 \<in> Domain a" "n2 \<in> Domain a"
 "n1 \<noteq> n2" 
-shows "a,,,n1 \<inter> a,,,n2={}" using assms lm64 lll82 by fastforce 
+shows "a,,,n1 \<inter> a,,,n2={}" using assms lm64 imageEquivalence by fastforce 
 
 text{* No good is assigned twice. *}
 theorem PairwiseDisjointAllocations:
@@ -539,7 +539,7 @@ let ?a="vcga' N G b r" have "?a \<in> allocationsUniverse" using assms(1,2,3) lm
 then have "runiq ?a" using assms(1,2,3) by blast
 moreover have "n \<in> Domain ?a" using assms eval_rel_def lm002 by fast
 ultimately moreover have "?a,,n \<in> Range ?a" using eval_runiq_in_Range by fast 
-ultimately have "?a,,,n \<in> Range ?a" using lll82 by fastforce
+ultimately have "?a,,,n \<in> Range ?a" using imageEquivalence by fastforce
 then have "g \<in> \<Union> Range ?a" using assms lm002 by blast 
 moreover have "\<Union> Range ?a \<subseteq> set G" using assms(1,2,3) lm58e by fast
 ultimately show ?thesis by blast
@@ -621,13 +621,13 @@ lemma lm06: assumes "fst pair \<in> N" "snd pair \<in> Pow G - {{}}" shows "sets
 setsum (%g. 
 ((bidMaximizedBy a N G) Elsee 0)
 (fst pair, g)) (finestpart (snd pair))"
-using assms lm01 lm05 lm04 Un_upper1 UnCI UnI1 setsum.cong lm55n Diff_iff Pow_iff in_mono
+using assms lm01 lm05 lm04 Un_upper1 UnCI UnI1 setsum.cong finestpartSubset Diff_iff Pow_iff in_mono
 proof -
 let ?f1="%g.(toFunction (bidMaximizedBy a N G))(fst pair, g)"
 let ?f2="%g.((bidMaximizedBy a N G) Elsee 0)(fst pair, g)"
 { 
   fix g assume "g \<in> finestpart (snd pair)" then have 
-  0: "g \<in> finestpart G" using assms lm55n by (metis Diff_iff Pow_iff in_mono)
+  0: "g \<in> finestpart G" using assms finestpartSubset  by (metis Diff_iff Pow_iff in_mono)
   have "?f1 g = ?f2 g" 
   proof -
     have "\<And>x\<^sub>1 x\<^sub>2. (x\<^sub>1, g) \<in> x\<^sub>2 \<times> finestpart G \<or> x\<^sub>1 \<notin> x\<^sub>2" by (metis 0 mem_Sigma_iff) 
