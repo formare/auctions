@@ -1,7 +1,11 @@
 (*
 Auction Theory Toolbox (http://formare.github.io/auctions/)
 
-Author: Marco B. Caminati http://caminati.co.nr
+Authors:
+* Marco B. Caminati http://caminati.co.nr
+* Manfred Kerber <mnfrd.krbr@gmail.com>
+* Christoph Lange <math.semantic.web@gmail.com>
+* Colin Rowat <c.rowat@bham.ac.uk>
 
 Dually licenced under
 * Creative Commons Attribution (CC-BY) 3.0
@@ -23,30 +27,56 @@ begin
 
 
 section {* Uniform tie breaking: definitions *}
-text{* To each allocation we associate the bid in which each participant bids for a set of goods 
-the cardinality of the intersection of that set with the set she gets in the given allocation.
+text{* Let us repeat the general context. Each bidder has made their bids and the VCG algorithm up
+ to now allocates goods to the higher bidders. If there are several high bidders tie breaking has 
+to take place. To do tie breaking we generate out of a random number a second bid vector so that 
+the same algorithm can be run again to determine a unique allocation.
+
+To this end, we associate to each allocation the bid in which each participant bids for a set 
+of goods an amount equal to the cardinality of the intersection of the bid with the set 
+she gets in this allocation.
 By construction, the revenue of an auction run using this bid is maximal on the given allocation,
 and this maximal is unique.
 We can then use the bid constructed this way @{term tiebids'} to break ties by running an auction 
 having the same form as a normal auction (that is why we use the adjective ``uniform''), 
 only with this special bid vector. *}
+
+(* omega pair is a tool to compute cardinalities of pairs *)
 abbreviation "omega pair == {fst pair} \<times> (finestpart (snd pair))"
+
+(* pseudo allocation is like an allocation, but without uniqueness of the elements allocated *)
 definition "pseudoAllocation allocation == \<Union> (omega ` allocation)"
-(*abbreviation "allocation2Goods allocation == \<Union> (snd ` allocation)"*)
+
+(* some abbreviation to defined tiebids below *)
 abbreviation "bidMaximizedBy allocation N G == 
-(* (N \<times> finestpart G) \<times> {0::price} +* ((pseudoAllocation allocation) \<times> {1}) *)
-pseudoAllocation allocation <|| ((N \<times> (finestpart G)))"
-abbreviation "maxbid' a N G == toFunction (bidMaximizedBy a N G)"
-abbreviation "partialCompletionOf bids pair == (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
-abbreviation "aux bids pair == setsum (%g. bids (fst pair, g)) (finestpart (snd pair))"
+              pseudoAllocation allocation <|| ((N \<times> (finestpart G)))"
+(* functional version of the above *)
+abbreviation "maxbid' a N G == 
+              toFunction (bidMaximizedBy a N G)"
+
+abbreviation "partialCompletionOf bids pair == 
+              (pair, setsum (%g. bids (fst pair, g)) (finestpart (snd pair)))"
+
+abbreviation "partialCompletionOfSecond bids pair == 
+              setsum (%g. bids (fst pair, g)) (finestpart (snd pair))"
+
 abbreviation "LinearCompletion bids N G == (partialCompletionOf bids) ` (N \<times> (Pow G - {{}}))"
+
 abbreviation "linearCompletion' bids N G == toFunction (LinearCompletion bids N G)"
-abbreviation "tiebids' a N G == linearCompletion' (maxbid' a N G) N G"
-abbreviation "Tiebids a N G == LinearCompletion (real\<circ>maxbid' a N G) N G"
+
+(* tiebids returns a bid vector that when the VCG algorithm runs on it yields the singleton {allocation}. Functional version*)
+abbreviation "tiebids' allocation N G == linearCompletion' (maxbid' allocation N G) N G"
+
+(* relational version *)
+abbreviation "Tiebids allocation N G == LinearCompletion (real\<circ>maxbid' allocation N G) N G"
+
 abbreviation "chosenAllocation' N G bids random == 
 hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) (possibleAllocationsAlg N G)) (nat_of_integer random))"
-abbreviation "resolvingBid' N G bids random == tiebids' (chosenAllocation' N G bids random) N (set G)"
 
+
+
+
+abbreviation "resolvingBid' N G bids random == tiebids' (chosenAllocation' N G bids random) N (set G)"
 
 section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid'} *}
 
@@ -694,14 +724,14 @@ by (metis (lifting, mono_tags))
 ultimately show ?thesis by presburger
 qed
 
-lemma lm66e: "LinearCompletion bids N G = graph (N \<times> (Pow G-{{}})) (aux bids)" 
+lemma lm66e: "LinearCompletion bids N G = graph (N \<times> (Pow G-{{}})) (partialCompletionOfSecond bids)" 
 unfolding graph_def using lm66 by blast
 lemma ll33b: assumes "x\<in>X" shows "toFunction (graph X f) x = f x" using assms 
 by (metis ll33 toFunction_def)
-corollary ll33c: assumes "pair \<in> N \<times> (Pow G-{{}})" shows "linearCompletion' bids N G pair=aux bids pair"
+corollary ll33c: assumes "pair \<in> N \<times> (Pow G-{{}})" shows "linearCompletion' bids N G pair=partialCompletionOfSecond bids pair"
 using assms ll33b lm66e by (metis(mono_tags))
 
-lemma lm031: "aux (real \<circ> ((bids:: _ => nat))) pair = real (aux bids pair)" (is "?L=?R")
+lemma lm031: "partialCompletionOfSecond (real \<circ> ((bids:: _ => nat))) pair = real (partialCompletionOfSecond bids pair)" (is "?L=?R")
 by simp
 lemma lm031b: assumes "pair \<in> N \<times> (Pow G-{{}})" shows 
 "linearCompletion' (real\<circ>(bids:: _ => nat)) N G pair = real (linearCompletion' bids N G pair)" 

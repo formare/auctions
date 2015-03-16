@@ -554,6 +554,11 @@ argmax (setsum b) (set (allStrictAllocations ({seller}\<union>N) G))"
 
 definition "chosenAllocation N G b (r::integer) == 
 hd(perm2 (takeAll (%x. x\<in> (argmax \<circ> setsum) b (set (allStrictAllocations N G))) (allStrictAllocations N G)) (nat_of_integer r))"
+
+definition "chosenAllocationEff N G b (r::integer) == 
+(takeAll (%x. x\<in> (argmax \<circ> setsum) b (set (allStrictAllocations N G))) (allStrictAllocations N G) ! (nat_of_integer r))"
+
+
 definition "maxbid a N G == (bidMaximizedBy a N G) Elsee 0"
 definition "linearCompletion bids N G == (LinearCompletion bids N G) Elsee 0"
 definition "tiebids a N G == linearCompletion (maxbid a N G) N G"
@@ -912,7 +917,7 @@ definition "allocation b r = {allocationPrettyPrint2
 }"
 
 definition "payments b r = vcgpAlg ((participantsSet b)) (goodsList2 b) (Bid2funcBid b) r"
-export_code allocation payments in Scala module_name VCG file "/dev/shm/VCG.scala"
+export_code allocation payments chosenAllocationEff in Scala module_name VCG file "/dev/shm/VCG.scala"
 
 
 
