@@ -227,7 +227,7 @@ lemma lm001: assumes
 shows "vcga N G b r = 
 (the_elem
 ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set G))))) -- seller"
-using assms lm012 by auto
+using assms cardOneTheElem by auto
 
 corollary lm001b: assumes 
 "card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1"
@@ -258,12 +258,12 @@ lemma lm002: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 
 theorem vcgaDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 "card (vcgas N G b r)=1"
-using assms lm92c lm011 (* by blast: MC made explicit to paper-comment it *)
+using assms lm92c cardOneImageCardOne (* by blast: MC made explicit to paper-comment it *)
 proof -
 have "card ((argmax\<circ>setsum) (randomBids' N G b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set G))))=1" 
 (is "card ?X=_") using assms lm92c by blast
 moreover have "(Outside'{seller}) ` ?X = vcgas N G b r" by blast
-ultimately show ?thesis using lm011 by blast
+ultimately show ?thesis using cardOneImageCardOne by blast
 qed
 
 theorem vcgpDefiniteness: assumes "distinct G" "set G \<noteq> {}" "finite N" shows

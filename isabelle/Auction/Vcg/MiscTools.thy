@@ -62,7 +62,7 @@ definition
 lemma "toFunction = eval_rel" 
       using toFunction_def eval_rel_def by blast
 
-lemma xm001: "((P \<union> Q) || X) = ((P || X) \<union> (Q||X))" 
+lemma lm001: "((P \<union> Q) || X) = ((P || X) \<union> (Q||X))" 
       unfolding restrict_def using assms by blast
 
 text {* update behaves like P +* Q (paste), but without enlarging P's Domain. update is the set theoretic equivalent of the lambda function update @{term fun_upd} *}
@@ -82,16 +82,16 @@ Duplicates the eponymous definition found in @{text Function_Order}, which is ot
 definition graph 
            where "graph X f = {(x, f x) | x. x \<in> X}" 
 
-lemma xm002: assumes "runiq R" shows "R \<supseteq> graph (Domain R) (toFunction R)" 
+lemma lm002: assumes "runiq R" shows "R \<supseteq> graph (Domain R) (toFunction R)" 
 unfolding graph_def toFunction_def
 using assms graph_def toFunction_def eval_runiq_rel by fastforce
 
-lemma xm003: assumes "runiq R" shows "R \<subseteq> graph (Domain R) (toFunction R)" 
+lemma lm003: assumes "runiq R" shows "R \<subseteq> graph (Domain R) (toFunction R)" 
 unfolding graph_def toFunction_def
 using assms eval_runiq_rel runiq_basic Domain.DomainI mem_Collect_eq subrelI by fastforce
 
-lemma xm004: assumes "runiq R" shows "R = graph (Domain R) (toFunction R)"
-using assms xm002 xm003 by fast
+lemma lm004: assumes "runiq R" shows "R = graph (Domain R) (toFunction R)"
+using assms lm002 lm003 by fast
 
 lemma domainOfGraph: "runiq(graph X f) & Domain(graph X f)=X" unfolding graph_def 
 using rightUniqueRestrictedGraph by fast
@@ -104,7 +104,7 @@ lemma imageEquivalence: assumes "runiq (f::(('a \<times> ('b set)) set))" "x \<i
 using assms Image_runiq_eq_eval cSup_singleton by metis
 
 (* UNIV is the universal set containing everything of the given type. It is defined in Set.thy.*)
-lemma xm005: "Graph f=graph UNIV f" unfolding Graph_def graph_def by simp
+lemma lm005: "Graph f=graph UNIV f" unfolding Graph_def graph_def by simp
 
 lemma graphIntersection: "graph (X \<inter> Y) f \<subseteq> ((graph X f) || Y)" unfolding graph_def 
 using Int_iff mem_Collect_eq restrict_ext subrelI by auto
@@ -113,52 +113,52 @@ definition runiqs where "runiqs={f. runiq f}"
 
 lemma outsideOutside: "((P outside X) outside Y) = P outside (X\<union>Y)" unfolding Outside_def by blast
 
-corollary xm006: "((P outside X) outside X) = P outside X" using outsideOutside by force 
+corollary lm006: "((P outside X) outside X) = P outside X" using outsideOutside by force 
 
-lemma xm007: assumes "(X \<inter> Domain P) \<subseteq> Domain Q" shows 
+lemma lm007: assumes "(X \<inter> Domain P) \<subseteq> Domain Q" shows 
 "P +* Q = (P outside X) +* Q" unfolding paste_def Outside_def using assms by blast
 
-corollary xm008: "P +* Q = (P outside (Domain Q)) +* Q" using xm007 by fast
+corollary lm008: "P +* Q = (P outside (Domain Q)) +* Q" using lm007 by fast
 
 corollary outsideUnion: "R = (R outside {x}) \<union> ({x} \<times> (R `` {x}))" 
 using restrict_to_singleton outside_union_restrict by metis
 
-lemma xm009: "P = P \<union> {x}\<times>P``{x}" using assms by (metis outsideUnion sup.right_idem)
+lemma lm009: "P = P \<union> {x}\<times>P``{x}" using assms by (metis outsideUnion sup.right_idem)
 
-corollary xm010: "R = (R outside {x}) +* ({x} \<times> (R `` {x}))" 
+corollary lm010: "R = (R outside {x}) +* ({x} \<times> (R `` {x}))" 
 by (metis paste_outside_restrict restrict_to_singleton)
 
-lemma xm011: "R \<subseteq> R +* ({x} \<times> (R``{x}))" using 
-xm010 xm008 paste_def Outside_def by fast
+lemma lm011: "R \<subseteq> R +* ({x} \<times> (R``{x}))" using 
+lm010 lm008 paste_def Outside_def by fast
 
-lemma xm012: "R \<supseteq> R+*({x} \<times> (R``{x}))" by (metis 
+lemma lm012: "R \<supseteq> R+*({x} \<times> (R``{x}))" by (metis 
 Un_least Un_upper1 outside_union_restrict paste_def restrict_to_singleton restriction_is_subrel)
 
-lemma xm013: "R = R +* ({x} \<times> (R``{x}))" using xm011 xm012 by force
+lemma lm013: "R = R +* ({x} \<times> (R``{x}))" using lm011 lm012 by force
 
 lemma rightUniqueTrivialCartes: assumes "trivial Y" shows "runiq (X \<times> Y)" using assms 
-runiq_def Image_subset xm013 trivial_subset xm011 by (metis(no_types))
+runiq_def Image_subset lm013 trivial_subset lm011 by (metis(no_types))
 
 (* Two constant functions can be combined to a function *)
-lemma xm014: "runiq ((X \<times> {x}) +* (Y \<times> {y}))" using assms rightUniqueTrivialCartes trivial_singleton runiq_paste2 by metis
+lemma lm014: "runiq ((X \<times> {x}) +* (Y \<times> {y}))" using assms rightUniqueTrivialCartes trivial_singleton runiq_paste2 by metis
 
-lemma xm015: "(P || (X \<inter> Y)) \<subseteq> (P||X)    &    P outside (X \<union> Y) \<subseteq> P outside X" using 
+lemma lm015: "(P || (X \<inter> Y)) \<subseteq> (P||X)    &    P outside (X \<union> Y) \<subseteq> P outside X" using 
 Outside_def restrict_def Sigma_Un_distrib1 Un_upper1 inf_mono Diff_mono 
 subset_refl by (metis (lifting) Sigma_mono inf_le1)
 
-lemma xm016: "P || X \<subseteq> (P||(X \<union> Y))       &    P outside X \<subseteq> P outside (X \<inter> Y)" 
-using xm015 distrib_sup_le sup_idem 
+lemma lm016: "P || X \<subseteq> (P||(X \<union> Y))       &    P outside X \<subseteq> P outside (X \<inter> Y)" 
+using lm015 distrib_sup_le sup_idem 
 le_inf_iff subset_antisym sup_commute
 by (metis sup_ge1)
 
-lemma xm017: "P``(X \<inter> Domain P) = P``X" by blast
+lemma lm017: "P``(X \<inter> Domain P) = P``X" by blast
 
 lemma cardinalityOneSubset: assumes "card X=1" and "X \<subseteq> Y" shows "Union X \<in> Y" using assms cardinalityOneTheElemIdentity by (metis cSup_singleton insert_subset)
 
 lemma cardinalityOneTheElem: assumes "card X=1" "X \<subseteq> Y" shows "the_elem X \<in> Y" using assms 
 by (metis (full_types) insert_subset cardinalityOneTheElemIdentity)
 
-lemma xm018: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis outsideOutside sup_commute)
+lemma lm018: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis outsideOutside sup_commute)
 
 
 
@@ -169,34 +169,34 @@ lemma xm018: "(R outside X1) outside X2 = (R outside X2) outside X1" by (metis o
 section {* ordered relations *}
 
 (* note that card \<^bold>X\<ge>1 means in Isabelle that X is finite and not empty *)
-lemma xm019: assumes "card X\<ge>1" "\<forall>x\<in>X. y > x" shows "y > Max X" using assms
+lemma lm019: assumes "card X\<ge>1" "\<forall>x\<in>X. y > x" shows "y > Max X" using assms
 by (metis (poly_guards_query) Max_in One_nat_def card_eq_0_iff lessI not_le)
 
 (* assume the function f has a maximum in mx *)
-lemma xm020: assumes "finite X" "mx \<in> X" "f x < f mx" shows"x \<notin> argmax f X" using assms not_less by fastforce
+lemma lm020: assumes "finite X" "mx \<in> X" "f x < f mx" shows"x \<notin> argmax f X" using assms not_less by fastforce
 
-lemma xm021: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X \<subseteq> {mx}"
+lemma lm021: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X \<subseteq> {mx}"
 using assms mk_disjoint_insert by force
 
-lemma xm022: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X = {mx}" 
-using assms xm021 by (metis argmax_non_empty_iff equals0D subset_singletonD)
+lemma lm022: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X-{mx}. f x < f mx" shows "argmax f X = {mx}" 
+using assms lm021 by (metis argmax_non_empty_iff equals0D subset_singletonD)
 
-(* The following corollary is essentially the same as xm022, however, is simplifies a proof in UniformTieBreaking.thy *)
+(* The following corollary is essentially the same as lm022, however, is simplifies a proof in UniformTieBreaking.thy *)
 corollary argmaxProperty: "(finite X & mx \<in> X & (\<forall>aa \<in> X-{mx}. f aa < f mx)) \<longrightarrow> argmax f X = {mx}"
-using assms xm022 by metis
+using assms lm022 by metis
 
-corollary xm023: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X. x \<noteq> mx \<longrightarrow> f x < f mx" shows "argmax f X = {mx}"
-using assms xm022 by (metis Diff_iff insertI1)
+corollary lm023: assumes "finite X" "mx \<in> X" "\<forall>x \<in> X. x \<noteq> mx \<longrightarrow> f x < f mx" shows "argmax f X = {mx}"
+using assms lm022 by (metis Diff_iff insertI1)
 
-lemma xm024: assumes "f \<circ> g = id" shows "inj_on g UNIV" using assms 
+lemma lm024: assumes "f \<circ> g = id" shows "inj_on g UNIV" using assms 
 by (metis inj_on_id inj_on_imageI2)
 
 (* Note that Pow X is the powerset of X *)
-lemma xm025: assumes "inj_on f X" shows "inj_on (image f) (Pow X)"
+lemma lm025: assumes "inj_on f X" shows "inj_on (image f) (Pow X)"
 using assms inj_on_image_eq_iff inj_onI PowD by (metis (mono_tags, lifting))
 
 lemma injectionPowerset: assumes "inj_on f Y" "X \<subseteq> Y" shows "inj_on (image f) (Pow X)"
-using assms xm025 by (metis subset_inj_on)
+using assms lm025 by (metis subset_inj_on)
 
 (* the finest possible partition of X, e.g., X = {1, 2, 3} goes to {{1}, {2}, {3}}. *)
 definition finestpart where "finestpart X = (%x. {x}) ` X"
@@ -205,13 +205,13 @@ lemma finestPart: "finestpart X = {{x}|x . x\<in>X}" unfolding finestpart_def by
 
 lemma finestPartUnion: "X=\<Union> (finestpart X)" using finestPart by auto
 
-lemma xm026: "Union \<circ> finestpart = id" using finestpart_def finestPartUnion by fastforce
+lemma lm026: "Union \<circ> finestpart = id" using finestpart_def finestPartUnion by fastforce
 
-lemma xm027: "inj_on Union (finestpart ` UNIV)" using assms xm026 by (metis inj_on_id inj_on_imageI)
+lemma lm027: "inj_on Union (finestpart ` UNIV)" using assms lm026 by (metis inj_on_id inj_on_imageI)
 
 lemma nonEqualitySetOfSets: assumes "X \<noteq> Y" shows "{{x}| x. x \<in> X} \<noteq> {{x}| x. x \<in> Y}" using assms by auto
 
-corollary xm028: "inj_on finestpart UNIV" using nonEqualitySetOfSets finestPart by (metis (lifting, no_types) injI)
+corollary lm028: "inj_on finestpart UNIV" using nonEqualitySetOfSets finestPart by (metis (lifting, no_types) injI)
 
 (* E.g. in the following example, with X = {{1}, {1,2}}, x can be {1} and {1,2} and Y is {{1}} and {{1},{2}}, that is, the lefthand and righthand sides evaluate to {{1},{2}} *)
 lemma unionFinestPart: "{Y | Y. EX x.((Y \<in> finestpart x) & (x \<in> X))} = \<Union>(finestpart`X)" by auto
@@ -227,97 +227,97 @@ using finestpart_def by fastforce
 
 lemma setOfPairs: "{(fst pair, {y})| y. y \<in>  snd pair} = {fst pair} \<times> {{y}| y. y \<in> snd pair}" by fastforce
 
-lemma xm029: "x \<in> X = ({x} \<in> finestpart X)" using finestpart_def by force
+lemma lm029: "x \<in> X = ({x} \<in> finestpart X)" using finestpart_def by force
 
 lemma pairDifference: "{(x,X)}-{(x,Y)} = {x}\<times>({X}-{Y})" by blast
 
-lemma xm030: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
+lemma lm030: assumes "\<Union> P = X" shows "P \<subseteq> Pow X" using assms by blast
 
-lemma xm031: "argmax f {x} = {x}" using argmax_def by auto
+lemma lm031: "argmax f {x} = {x}" using argmax_def by auto
 
 lemma sortingSameSet: assumes "finite X" shows "set (sorted_list_of_set X) = X" using assms by simp
 
 (* We assume for the next lemma that f has value in numbers, and setsum f A is
    sum f(x) for x in A. *)
-lemma xm032: assumes "finite A" shows "setsum f A = setsum f (A \<inter> B) + setsum f (A - B)" using 
+lemma lm032: assumes "finite A" shows "setsum f A = setsum f (A \<inter> B) + setsum f (A - B)" using 
 assms by (metis DiffD2 Int_iff Un_Diff_Int Un_commute finite_Un setsum.union_inter_neutral)
 
 corollary setsumOutside: assumes "finite g" shows "setsum f g = setsum f (g outside X) + (setsum f (g||X))" 
-unfolding Outside_def restrict_def using assms add.commute inf_commute xm032 by (metis)
+unfolding Outside_def restrict_def using assms add.commute inf_commute lm032 by (metis)
 
-lemma xm033: assumes "(Domain P \<subseteq> Domain Q)" shows "(P +* Q) = Q"
+lemma lm033: assumes "(Domain P \<subseteq> Domain Q)" shows "(P +* Q) = Q"
 unfolding paste_def Outside_def using assms by fast
 
-lemma xm034: assumes "(P +* Q=Q)" shows "(Domain P \<subseteq> Domain Q)"
+lemma lm034: assumes "(P +* Q=Q)" shows "(Domain P \<subseteq> Domain Q)"
 using assms paste_def Outside_def by blast
 
-lemma xm035: "(Domain P \<subseteq> Domain Q) = (P +* Q=Q)" using xm033 xm034 by metis
+lemma lm035: "(Domain P \<subseteq> Domain Q) = (P +* Q=Q)" using lm033 lm034 by metis
 
-lemma "(P||(Domain Q)) +* Q = Q" by (metis Int_lower2 restrictedDomain xm035)
+lemma "(P||(Domain Q)) +* Q = Q" by (metis Int_lower2 restrictedDomain lm035)
 
-lemma xm036: "P||X   =   P outside (Domain P - X)" 
+lemma lm036: "P||X   =   P outside (Domain P - X)" 
 using Outside_def restrict_def by fastforce
 
-lemma xm037: "(P outside X) \<subseteq>    P || ((Domain P)-X)" 
-using xm036 xm016 by (metis Int_commute restrictedDomain outside_reduces_domain)
+lemma lm037: "(P outside X) \<subseteq>    P || ((Domain P)-X)" 
+using lm036 lm016 by (metis Int_commute restrictedDomain outside_reduces_domain)
 
-lemma xm038: shows "Domain (P outside X) \<inter> Domain (Q || X) = {}" using xm036 by 
+lemma lm038: shows "Domain (P outside X) \<inter> Domain (Q || X) = {}" using lm036 by 
 (metis Diff_disjoint Domain_empty_iff Int_Diff inf_commute restrictedDomain outside_reduces_domain restrict_empty)
 
-lemma xm039: shows "(P outside X) \<inter> (Q || X) = {}" using xm038 by fast
+lemma lm039: shows "(P outside X) \<inter> (Q || X) = {}" using lm038 by fast
 
-lemma xm040: shows "(P outside (X \<union> Y)) \<inter> (Q || X) = {} & 
+lemma lm040: shows "(P outside (X \<union> Y)) \<inter> (Q || X) = {} & 
 (P outside X) \<inter> (Q || (X \<inter> Z)) = {}
-" using assms Outside_def restrict_def xm039 xm015 by fast
+" using assms Outside_def restrict_def lm039 lm015 by fast
 
-lemma xm041: shows "P outside X    =    P || ((Domain P) - X)" 
-using Outside_def restrict_def  xm037 by fast
+lemma lm041: shows "P outside X    =    P || ((Domain P) - X)" 
+using Outside_def restrict_def  lm037 by fast
 
-lemma xm042: "R``(X-Y) = (R||X)``(X-Y)" using restrict_def by blast
+lemma lm042: "R``(X-Y) = (R||X)``(X-Y)" using restrict_def by blast
 
 (* x is a (non-empty) element of the family XX whose union is a subset of X *)
-lemma xm043: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" shows "x \<inter> X \<noteq> {}" using assms by blast
+lemma lm043: assumes "\<Union> XX \<subseteq> X" "x \<in> XX" "x \<noteq> {}" shows "x \<inter> X \<noteq> {}" using assms by blast
 
 (* Note that set converts lists such as L1 into sets. L1 is here a list of lists and l an element, that is, a list. We assume furthermore that f2 is constant function with the fixed 2nd argument N. Then we can convert lists to sets in a canonical way. *)
-lemma xm044: assumes "\<forall>l \<in> set L1. set L2 = f2 (set l) N" shows 
+lemma lm044: assumes "\<forall>l \<in> set L1. set L2 = f2 (set l) N" shows 
 "set [set L2. l <- L1]  =  {f2 P N| P. P \<in> set (map set L1)}" using assms by auto
 
 (* Two Variants of the previous lemma *)
 lemma setVsList: assumes "\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N" shows 
 "set [set (g2 l N). l <- (g1 G)]  =  {f2 P N| P. P \<in> set (map set (g1 G))}" using assms by auto
 
-lemma xm045: "(\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N) --> 
+lemma lm045: "(\<forall>l \<in> set (g1 G). set (g2 l N) = f2 (set l) N) --> 
 {f2 P N| P. P \<in> set (map set (g1 G))} = set [set (g2 l N). l <- g1 G]" by auto
 
-lemma xm046: assumes "X \<inter> Y  =  {}" shows "R``X = (R outside Y)``X"
+lemma lm046: assumes "X \<inter> Y  =  {}" shows "R``X = (R outside Y)``X"
 using assms Outside_def Image_def by blast
 
-lemma xm047: assumes "(Range P) \<inter> (Range Q) = {}" "runiq (P^-1)" "runiq (Q^-1)" 
+lemma lm047: assumes "(Range P) \<inter> (Range Q) = {}" "runiq (P^-1)" "runiq (Q^-1)" 
 shows "runiq ((P \<union> Q)^-1)"
 using assms by (metis Domain_converse converse_Un disj_Un_runiq)
 
-lemma xm048: assumes "(Range P) \<inter> (Range Q) = {}" "runiq (P^-1)" "runiq (Q^-1)" 
+lemma lm048: assumes "(Range P) \<inter> (Range Q) = {}" "runiq (P^-1)" "runiq (Q^-1)" 
 shows "runiq ((P +* Q)^-1)"
-using xm047 assms subrel_runiq by (metis converse_converse converse_subset_swap paste_sub_Un)
+using lm047 assms subrel_runiq by (metis converse_converse converse_subset_swap paste_sub_Un)
 
-lemma xm049: assumes "runiq R" shows "card (R `` {a}) = 1 \<longleftrightarrow> a \<in> Domain R"
+lemma lm049: assumes "runiq R" shows "card (R `` {a}) = 1 \<longleftrightarrow> a \<in> Domain R"
 using assms card_Suc_eq One_nat_def  by (metis Image_within_domain' Suc_neq_Zero assms rightUniqueSetCardinality)
 
 (* triples a can be bracket in any way, i.e., (1st, (2nd, 3rd)) \<rightarrow> ((1st, 2nd), 3rd).*)
-lemma xm050: "inj_on  (%a. ((fst a, fst (snd a)), snd (snd a))) UNIV" 
+lemma lm050: "inj_on  (%a. ((fst a, fst (snd a)), snd (snd a))) UNIV" 
 by (metis (lifting, mono_tags) Pair_fst_snd_eq Pair_inject injI)
 
-lemma xm051: assumes "finite X" "x > Max X" shows "x \<notin> X" using assms Max.coboundedI by (metis leD)
+lemma lm051: assumes "finite X" "x > Max X" shows "x \<notin> X" using assms Max.coboundedI by (metis leD)
 
-lemma xm052: assumes "finite A" "A \<noteq> {}" shows "Max (f`A) \<in> f`A" 
+lemma lm052: assumes "finite A" "A \<noteq> {}" shows "Max (f`A) \<in> f`A" 
 using assms by (metis Max_in finite_imageI image_is_empty)
 
 (* Note that in the following -` means the inverse image of the following set. *)
-lemma xm053: "argmax f A \<subseteq> f -` {Max (f ` A)}" by force
+lemma lm053: "argmax f A \<subseteq> f -` {Max (f ` A)}" by force
 
-lemma xm054: "argmax f A = A \<inter> { x . f x = Max (f ` A) }" by auto
+lemma lm054: "argmax f A = A \<inter> { x . f x = Max (f ` A) }" by auto
 
-lemma xm055: "(x \<in> argmax f X) = (x \<in> X & f x = Max (f ` X))" 
+lemma lm055: "(x \<in> argmax f X) = (x \<in> X & f x = Max (f ` X))" 
 using argmax.simps mem_Collect_eq
 by (metis (mono_tags, lifting))
 
@@ -325,83 +325,83 @@ lemma rangeEmpty: "Range -` {{}} = {{}}" by auto
 
 lemma finitePairSecondRange: "(\<forall> pair \<in> R. finite (snd pair)) = (\<forall> y \<in> Range R. finite y)" by fastforce
 
-lemma xm056: "fst ` P = snd ` (P^-1)" by force
+lemma lm056: "fst ` P = snd ` (P^-1)" by force
 
-lemma xm057: "fst pair = snd (flip pair) & snd pair = fst (flip pair)" unfolding flip_def by simp
+lemma lm057: "fst pair = snd (flip pair) & snd pair = fst (flip pair)" unfolding flip_def by simp
 
 lemma flip_flip2: "flip \<circ> flip   =   id" using flip_flip by fastforce
 
-lemma xm058: "fst = (snd\<circ>flip)" using xm057 by fastforce
+lemma lm058: "fst = (snd\<circ>flip)" using lm057 by fastforce
 
-lemma xm059: "snd = (fst\<circ>flip)" using xm057 by fastforce
+lemma lm059: "snd = (fst\<circ>flip)" using lm057 by fastforce
 
-lemma xm060: "inj_on fst P = inj_on (snd\<circ>flip) P" using xm058 by metis
+lemma lm060: "inj_on fst P = inj_on (snd\<circ>flip) P" using lm058 by metis
 
-lemma xm062: "inj_on fst P = inj_on snd (P^-1)" 
-using xm060 flip_conv by (metis converse_converse inj_on_imageI xm059)
+lemma lm062: "inj_on fst P = inj_on snd (P^-1)" 
+using lm060 flip_conv by (metis converse_converse inj_on_imageI lm059)
 
 lemma setsumPairsInverse: assumes "runiq (P^-1)" shows "setsum (f \<circ> snd) P = setsum f (Range P)" 
-using assms xm062 converse_converse rightUniqueInjectiveOnFirst rightUniqueInjectiveOnFirst setsum.reindex snd_eq_Range by metis
+using assms lm062 converse_converse rightUniqueInjectiveOnFirst rightUniqueInjectiveOnFirst setsum.reindex snd_eq_Range by metis
 
 lemma notEmptyFinestpart: assumes "X \<noteq> {}" shows "finestpart X \<noteq> {}" using assms finestpart_def by blast
 
-lemma xm063: assumes "inj_on g X" shows "setsum f (g`X) = setsum (f \<circ> g) X" using assms by (metis setsum.reindex)
+lemma lm063: assumes "inj_on g X" shows "setsum f (g`X) = setsum (f \<circ> g) X" using assms by (metis setsum.reindex)
 
 lemma functionOnFirstEqualsSecond: assumes "runiq R" "z \<in> R" shows "R,,(fst z) = snd z" 
 using assms by (metis rightUniquePair surjective_pairing)
 
-lemma xm064: assumes "runiq R" shows "setsum (toFunction R) (Domain R) = setsum snd R" using 
+lemma lm064: assumes "runiq R" shows "setsum (toFunction R) (Domain R) = setsum snd R" using 
 assms toFunction_def setsum.reindex_cong functionOnFirstEqualsSecond rightUniqueInjectiveOnFirst by (metis (no_types) fst_eq_Domain)
 
-corollary xm065: assumes "runiq (f||X)" 
+corollary lm065: assumes "runiq (f||X)" 
 shows "setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum snd (f||X)" 
-using assms xm064 by (metis Int_commute restrictedDomain)
+using assms lm064 by (metis Int_commute restrictedDomain)
 
-lemma xm066: "Range (R outside X) = R``((Domain R) - X)" 
-using assms by (metis Diff_idemp ImageE Range.intros Range_outside_sub_Image_Domain xm041 xm042 order_class.order.antisym subsetI)
+lemma lm066: "Range (R outside X) = R``((Domain R) - X)" 
+using assms by (metis Diff_idemp ImageE Range.intros Range_outside_sub_Image_Domain lm041 lm042 order_class.order.antisym subsetI)
 
-lemma xm067: "(R||X) `` X = R``X" using Int_absorb  doubleRestriction restrictedRange by metis
+lemma lm067: "(R||X) `` X = R``X" using Int_absorb  doubleRestriction restrictedRange by metis
 
-lemma xm068: assumes "x \<in> Domain (f||X)" shows "(f||X)``{x} = f``{x}" using assms
+lemma lm068: assumes "x \<in> Domain (f||X)" shows "(f||X)``{x} = f``{x}" using assms
 doubleRestriction restrictedRange Int_empty_right Int_iff Int_insert_right_if1 restrictedDomain by metis
 
-lemma xm069: assumes "x \<in> X \<inter> Domain f" "runiq (f||X)" shows "(f||X),,x = f,,x" 
+lemma lm069: assumes "x \<in> X \<inter> Domain f" "runiq (f||X)" shows "(f||X),,x = f,,x" 
 using assms doubleRestriction restrictedRange Int_empty_right Int_iff Int_insert_right_if1 eval_rel.simps by metis
 
-lemma xm070: assumes "runiq (f||X)" shows 
+lemma lm070: assumes "runiq (f||X)" shows 
 "setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum (toFunction f) (X \<inter> Domain f)" 
-using assms setsum.cong xm069 toFunction_def by metis
+using assms setsum.cong lm069 toFunction_def by metis
 
 corollary setsumRestrictedToDomainInvariant: assumes "runiq (f||X)" shows 
-"setsum (toFunction f) (X \<inter> Domain f) = setsum snd (f||X)" using assms xm065 xm070 by fastforce
+"setsum (toFunction f) (X \<inter> Domain f) = setsum snd (f||X)" using assms lm065 lm070 by fastforce
 
 corollary setsumRestrictedOnFunction: assumes "runiq (f||X)" 
 shows "setsum (toFunction (f||X)) (X \<inter> Domain f) = setsum snd (f||X)" 
-using assms xm064 restrictedDomain Int_commute by metis
+using assms lm064 restrictedDomain Int_commute by metis
 
 lemma cardFinestpart: "card (finestpart X) = card X" 
 using finestpart_def by (metis (lifting) card_image inj_on_inverseI the_elem_eq)
 
-corollary xm071: "finestpart {} = {}    &    card \<circ> finestpart = card" 
+corollary lm071: "finestpart {} = {}    &    card \<circ> finestpart = card" 
 using cardFinestpart finestpart_def by fastforce
 
-lemma finiteFinestpart: "finite (finestpart X) = finite X" using assms finestpart_def xm071 
+lemma finiteFinestpart: "finite (finestpart X) = finite X" using assms finestpart_def lm071 
 by (metis card_eq_0_iff empty_is_image finite.simps cardFinestpart)
 
-lemma xm072: "finite \<circ> finestpart = finite" using finiteFinestpart by fastforce
+lemma lm072: "finite \<circ> finestpart = finite" using finiteFinestpart by fastforce
 
 lemma finestpartSubset: assumes "X \<subseteq> Y" shows "finestpart X \<subseteq> finestpart Y" using assms finestpart_def by (metis image_mono)
 
-corollary xm073: assumes "x \<in> X" shows "finestpart x \<subseteq> finestpart (\<Union> X)" using assms
+corollary lm073: assumes "x \<in> X" shows "finestpart x \<subseteq> finestpart (\<Union> X)" using assms
 finestpartSubset by (metis Union_upper)
 
-lemma xm074: "\<Union> (finestpart ` XX) \<subseteq> finestpart (\<Union> XX)" using assms finestpart_def 
-xm073 by force
+lemma lm074: "\<Union> (finestpart ` XX) \<subseteq> finestpart (\<Union> XX)" using assms finestpart_def 
+lm073 by force
 
-lemma xm075: "\<Union> (finestpart ` XX) \<supseteq> finestpart (\<Union> XX)" (is "?L \<supseteq> ?R") 
+lemma lm075: "\<Union> (finestpart ` XX) \<supseteq> finestpart (\<Union> XX)" (is "?L \<supseteq> ?R") 
 unfolding finestpart_def using finestpart_def by auto
 
-corollary commuteUnionFinestpart: "\<Union> (finestpart ` XX) = finestpart (\<Union> XX)" using xm074 xm075 by fast
+corollary commuteUnionFinestpart: "\<Union> (finestpart ` XX) = finestpart (\<Union> XX)" using lm074 lm075 by fast
 
 lemma unionImage: assumes "runiq a" 
 shows "{(x, {y})| x y. y \<in> \<Union> (a``{x}) & x \<in> Domain a} = 
@@ -409,11 +409,11 @@ shows "{(x, {y})| x y. y \<in> \<Union> (a``{x}) & x \<in> Domain a} =
 using assms Image_runiq_eq_eval 
 by (metis (lifting, no_types) cSup_singleton)
 
-lemma xm076: assumes "runiq P" shows "card (Domain P) = card P" 
+lemma lm076: assumes "runiq P" shows "card (Domain P) = card P" 
 using assms rightUniqueInjectiveOnFirst card_image by (metis Domain_fst)
 
 lemma finiteDomainImpliesFinite: assumes "runiq f" shows "finite (Domain f) = finite f" 
-using assms Domain_empty_iff card_eq_0_iff finite.emptyI xm076 by metis
+using assms Domain_empty_iff card_eq_0_iff finite.emptyI lm076 by metis
 
 (* A relation for the sum of all y\<in>Y of f(x,y) for a fixed x. *)
 lemma sumCurry: "setsum ((curry f) x) Y = setsum f ({x} \<times> Y)"
@@ -425,33 +425,33 @@ moreover have "\<forall> y. y \<in> Y \<longrightarrow> ?g y = ?h (?f y)" by sim
 ultimately show ?thesis using setsum.reindex_cong by metis
 qed
 
-lemma xm077: "setsum (%y. f (x,y)) Y = setsum f ({x}\<times>Y)" 
+lemma lm077: "setsum (%y. f (x,y)) Y = setsum f ({x}\<times>Y)" 
 using sumCurry Sigma_cong curry_def setsum.cong by fastforce
 
-corollary xm078: assumes "finite X" shows "setsum f X = setsum f (X-Y) + (setsum f (X \<inter> Y))" 
+corollary lm078: assumes "finite X" shows "setsum f X = setsum f (X-Y) + (setsum f (X \<inter> Y))" 
 using assms Diff_iff IntD2 Un_Diff_Int finite_Un inf_commute setsum.union_inter_neutral by metis
 
-lemma xm079: "(P +* Q)``(Domain Q\<inter>X)  =  Q``(Domain Q\<inter>X)" 
+lemma lm079: "(P +* Q)``(Domain Q\<inter>X)  =  Q``(Domain Q\<inter>X)" 
 unfolding paste_def Outside_def Image_def Domain_def by blast
 
-corollary xm080: "(P +* Q)``(X\<inter>(Domain Q))  =  Q``X" using Int_commute xm079 by (metis xm017)
+corollary lm080: "(P +* Q)``(X\<inter>(Domain Q))  =  Q``X" using Int_commute lm079 by (metis lm017)
 
-corollary xm081: assumes "X \<inter> (Domain Q) = {}"
+corollary lm081: assumes "X \<inter> (Domain Q) = {}"
 shows "(P +* Q) `` X = (P outside (Domain Q))`` X" 
 using assms paste_def by fast
 
-lemma xm082: assumes "X\<inter>Y = {}" shows "(P outside Y)``X=P``X" using assms Outside_def by blast
+lemma lm082: assumes "X\<inter>Y = {}" shows "(P outside Y)``X=P``X" using assms Outside_def by blast
 
-corollary xm083: assumes "X\<inter> (Domain Q) = {}" shows "(P +* Q)``X=P``X" using assms xm081 xm082 by metis
+corollary lm083: assumes "X\<inter> (Domain Q) = {}" shows "(P +* Q)``X=P``X" using assms lm081 lm082 by metis
 
-lemma xm084: assumes "finite X" "finite Y" "card(X\<inter>Y) = card X" shows "X \<subseteq> Y" using assms 
+lemma lm084: assumes "finite X" "finite Y" "card(X\<inter>Y) = card X" shows "X \<subseteq> Y" using assms 
 by (metis Int_lower1 Int_lower2 card_seteq order_refl)
 
 lemma cardinalityIntersectionEquality: assumes "finite X" "finite Y" "card X = card Y" 
 shows "(card (X\<inter>Y) = card X)     =    (X = Y)"
-using assms xm084 by (metis card_seteq le_iff_inf order_refl)
+using assms lm084 by (metis card_seteq le_iff_inf order_refl)
 
-lemma xm085: (*fixes f::"'a => 'b" fixes P::"'a => bool" fixes xx::"'a"*) 
+lemma lm085: (*fixes f::"'a => 'b" fixes P::"'a => bool" fixes xx::"'a"*) 
 assumes "P xx" 
 shows "{(x,f x)| x. P x},,xx   =   f xx"
 proof -
@@ -459,50 +459,50 @@ let ?F="{(x,f x)| x. P x}" let ?X="?F``{xx}"
 have "?X={f xx}" using Image_def assms by blast thus ?thesis by fastforce 
 qed
 
-lemma ll33: assumes "x \<in> X" shows "graph X f,,x   =   f x" 
-unfolding graph_def using assms xm085 by (metis (mono_tags) Gr_def)
+lemma graphEqImage: assumes "x \<in> X" shows "graph X f,,x   =   f x" 
+unfolding graph_def using assms lm085 by (metis (mono_tags) Gr_def)
 
-lemma ll28: "Graph f,,x    =    f x" using UNIV_I ll33 xm005 by (metis(no_types))
+lemma lm086: "Graph f,,x    =    f x" using UNIV_I graphEqImage lm005 by (metis(no_types))
 
-lemma "toFunction (Graph f)    =    f"    (is "?L=_") 
-proof-{fix x have "?L x=f x" unfolding toFunction_def ll28 by metis} thus ?thesis by blast qed
+lemma lm087: "toFunction (Graph f)    =    f"    (is "?L=_") 
+proof-{fix x have "?L x=f x" unfolding toFunction_def lm086 by metis} thus ?thesis by blast qed
 
-lemma nn29: "R outside X \<subseteq> R" by (metis outside_union_restrict subset_Un_eq sup_left_idem)
+lemma lm088: "R outside X \<subseteq> R" by (metis outside_union_restrict subset_Un_eq sup_left_idem)
 
-lemma nn30a: "Range(f outside X) \<supseteq> (Range f)-(f``X)" using assms Outside_def by blast
+lemma lm089: "Range(f outside X) \<supseteq> (Range f)-(f``X)" using assms Outside_def by blast
 
-lemma lll71b: assumes "runiq P" shows "(P\<inverse>``((Range P)-Y)) \<inter> ((P\<inverse>)``Y)   =   {}"
+lemma lm090: assumes "runiq P" shows "(P\<inverse>``((Range P)-Y)) \<inter> ((P\<inverse>)``Y)   =   {}"
 using assms rightUniqueFunctionAfterInverse by blast
 
-lemma lll78: assumes "runiq (P\<inverse>)" shows "(P``((Domain P) - X)) \<inter> (P``X)  =  {}"
+lemma lm091: assumes "runiq (P\<inverse>)" shows "(P``((Domain P) - X)) \<inter> (P``X)  =  {}"
 using assms rightUniqueFunctionAfterInverse by fast
 
-lemma nn30b: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) \<subseteq> (Range f)-(f``X)" 
-using assms Diff_triv lll78 xm066 Diff_iff ImageE Range_iff subsetI by metis 
+lemma lm092: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) \<subseteq> (Range f)-(f``X)" 
+using assms Diff_triv lm091 lm066 Diff_iff ImageE Range_iff subsetI by metis 
 
-lemma nn30: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) = (Range f)-(f``X)" 
-using assms nn30a nn30b by (metis order_class.order.antisym)
+lemma rangeOutside: assumes "runiq f" "runiq (f^-1)" shows "Range(f outside X) = (Range f)-(f``X)" 
+using assms lm089 lm092 by (metis order_class.order.antisym)
 
 (* X and Y are family of sets such that any x and y in X and Y resp. are disjoint. *)
-lemma lm42: "(\<forall>x\<in>X. \<forall>y\<in>Y. x\<inter>y = {}) = ((\<Union>X)\<inter>(\<Union> Y)={})" by blast
+lemma unionIntersectionEmpty: "(\<forall>x\<in>X. \<forall>y\<in>Y. x\<inter>y = {}) = ((\<Union>X)\<inter>(\<Union> Y)={})" by blast
 
-lemma lm44: "{x}-{y} = {}  =  (x = y)" by auto
+lemma setEqualityAsDifference: "{x}-{y} = {}  =  (x = y)" by auto
 
-lemma assumes "R \<noteq> {}" "Domain R \<inter> X \<noteq> {}" shows "R``X \<noteq> {}" using assms by blast
+lemma lm093: assumes "R \<noteq> {}" "Domain R \<inter> X \<noteq> {}" shows "R``X \<noteq> {}" using assms by blast
 
-lemma "R``{}={}" by (metis Image_empty)
+lemma lm094: "R``{}={}" by (metis Image_empty)
 
-lemma lm56: "R \<subseteq> (Domain R) \<times> (Range R)" by auto
+lemma lm095: "R \<subseteq> (Domain R) \<times> (Range R)" by auto
 
-lemma lm57: "(finite (Domain Q) & finite (Range Q)) = finite Q" using 
-rev_finite_subset finite_SigmaI lm56 finite_Domain finite_Range by metis
+lemma finiteRelationCharacterization: "(finite (Domain Q) & finite (Range Q)) = finite Q" using 
+rev_finite_subset finite_SigmaI lm095 finite_Domain finite_Range by metis
 
-lemma lll41: assumes "finite (\<Union> XX)" shows "\<forall>X \<in> XX. finite X" using assms
+lemma familyUnionFiniteEverySetFinite: assumes "finite (\<Union> XX)" shows "\<forall>X \<in> XX. finite X" using assms
 by (metis Union_upper finite_subset)
 
-lemma ll71b: assumes "runiq f" "X \<subseteq> (f^-1)``Y" shows "f``X \<subseteq> Y" using assms rightUniqueFunctionAfterInverse by (metis Image_mono order_refl subset_trans)
+lemma lm096: assumes "runiq f" "X \<subseteq> (f^-1)``Y" shows "f``X \<subseteq> Y" using assms rightUniqueFunctionAfterInverse by (metis Image_mono order_refl subset_trans)
 
-lemma l31b: assumes "y \<in> f``{x}" "runiq f" shows "f,,x = y" using assms
+lemma lm097: assumes "y \<in> f``{x}" "runiq f" shows "f,,x = y" using assms
 by (metis Image_singleton_iff rightUniquePair)
 
 
@@ -521,111 +521,111 @@ notation chii (infix "<|" 80)
 (* X is a set and chi X is a function that returns 1 for elements X and 0 else. *)
 abbreviation "chi X == indicator X"
 
-lemma lm13: "runiq (X <|| Y)" by (rule xm014)
+lemma lm098: "runiq (X <|| Y)" by (rule lm014)
 
-lemma lm14c: assumes "x \<in> X" shows "1 \<in> (X <|| Y) `` {x}" using assms toFunction_def 
-paste_def Outside_def runiq_def xm014 by blast
+lemma lm099: assumes "x \<in> X" shows "1 \<in> (X <|| Y) `` {x}" using assms toFunction_def 
+paste_def Outside_def runiq_def lm014 by blast
 
-lemma lm14d: assumes "x \<in> Y-X" shows "0 \<in> (X <|| Y) `` {x}" using assms toFunction_def
-paste_def Outside_def runiq_def xm014 by blast
+lemma lm100: assumes "x \<in> Y-X" shows "0 \<in> (X <|| Y) `` {x}" using assms toFunction_def
+paste_def Outside_def runiq_def lm014 by blast
 
-lemma lm14e: assumes "x \<in> X \<union> Y" shows "(X <|| Y),,x = chi X x" (is "?L=?R") using 
-assms xm014 lm14c lm14d l31b by (metis DiffI Un_iff indicator_simps(1) indicator_simps(2))
+lemma lm101: assumes "x \<in> X \<union> Y" shows "(X <|| Y),,x = chi X x" (is "?L=?R") using 
+assms lm014 lm099 lm100 lm097 by (metis DiffI Un_iff indicator_simps(1) indicator_simps(2))
 
-lemma lm14f: assumes "x \<in> X \<union> Y" shows "(X <| Y) x = chi X x" (is "?L=?R") 
-using assms toFunction_def lm14e by metis
+lemma lm102: assumes "x \<in> X \<union> Y" shows "(X <| Y) x = chi X x" (is "?L=?R") 
+using assms toFunction_def lm101 by metis
 
-corollary lm15b: "setsum (X <| Y) (X\<union>Y) = setsum (chi X) (X\<union>Y)"
-using lm14f setsum.cong by metis
+corollary lm103: "setsum (X <| Y) (X\<union>Y) = setsum (chi X) (X\<union>Y)"
+using lm102 setsum.cong by metis
 
-corollary lmm02: assumes "\<forall>x\<in>X. f x = g x" shows "setsum f X = setsum g X" using assms 
+corollary lm104: assumes "\<forall>x\<in>X. f x = g x" shows "setsum f X = setsum g X" using assms 
 by (metis (poly_guards_query) setsum.cong)
 
-corollary lm02b: assumes "\<forall>x\<in>X. f x = g x" "Y\<subseteq>X" shows "setsum f Y = setsum g Y" using assms lmm02
+corollary lm105: assumes "\<forall>x\<in>X. f x = g x" "Y\<subseteq>X" shows "setsum f Y = setsum g Y" using assms lm104
 by (metis contra_subsetD)
 
-corollary lm15: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) Z = setsum (chi X) Z"  
+corollary lm106: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) Z = setsum (chi X) Z"  
 proof - 
-have "!x:Z.(X<|Y) x=(chi X) x" using assms lm14f in_mono by metis thus ?thesis using lmm02 by blast 
+have "!x:Z.(X<|Y) x=(chi X) x" using assms lm102 in_mono by metis thus ?thesis using lm104 by blast 
 qed
 
-corollary lm16: "setsum (chi X) (Z - X) = 0" by simp
+corollary lm107: "setsum (chi X) (Z - X) = 0" by simp
 
-corollary lm17: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) (Z - X) = 0" 
-using assms lm16 lm15 Diff_iff in_mono subsetI by metis
+corollary lm108: assumes "Z \<subseteq> X \<union> Y" shows "setsum (X <| Y) (Z - X) = 0" 
+using assms lm107 lm106 Diff_iff in_mono subsetI by metis
 
-corollary lm18: assumes "finite Z" 
+corollary lm109: assumes "finite Z" 
 shows "setsum (X <| Y) Z    =    setsum (X <| Y) (Z - X)   +  (setsum (X <| Y) (Z \<inter> X))" 
-using xm078 assms by blast
+using lm078 assms by blast
 
-corollary lm18b: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
+corollary lm110: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
 shows "setsum (X <| Y) Z = setsum (X <| Y) (Z \<inter> X)" 
-using assms xm078 lm17 comm_monoid_add_class.add.left_neutral by metis
+using assms lm078 lm108 comm_monoid_add_class.add.left_neutral by metis
 
-corollary lm21: assumes "finite Z" 
+corollary lm111: assumes "finite Z" 
 shows "setsum (chi X) Z = card (X \<inter> Z)" 
 using assms setsum_indicator_eq_card by (metis Int_commute)
 
-corollary lm22: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
+corollary lm112: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
 shows "setsum (X <| Y) Z = card (Z \<inter> X)"
-using assms lm21 by (metis lm15 setsum_indicator_eq_card)
+using assms lm111 by (metis lm106 setsum_indicator_eq_card)
 
-corollary lm28: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
+corollary subsetCardinality: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
 shows "(setsum (X <| Y) X) - (setsum (X <| Y) Z) = card X - card (Z \<inter> X)" 
-using assms lm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+using assms lm112 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
 
-corollary lm28b: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
+corollary differenceSetsumVsCardinality: assumes "Z \<subseteq> X \<union> Y" "finite Z" 
 shows "int (setsum (X <| Y) X) - int (setsum (X <| Y) Z) =  int (card X) - int (card (Z \<inter> X))" 
-using assms lm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+using assms lm112 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
 
 (* type conversion in Isabelle *)
-lemma lm28c: "int (n::nat) = real n" by simp
+lemma lm113: "int (n::nat) = real n" by simp
 
-(* same as lm28b but for type real *)
-corollary lm28d: assumes "Z\<subseteq>X\<union>Y" "finite Z" shows 
+(* same as differenceSetsumVsCardinality but for type real *)
+corollary differenceSetsumVsCardinalityReal: assumes "Z\<subseteq>X\<union>Y" "finite Z" shows 
 "real (setsum (X <| Y) X) - real (setsum (X <| Y) Z) = real (card X) - real (card (Z \<inter> X))" 
-using assms lm22 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
+using assms lm112 by (metis Int_absorb2 Un_upper1 card_infinite equalityE setsum.infinite)
 
 
 section{* Lists *}
 (* If there is an element in a list satisfying P, then the list of all elements satisfying P is not the empty list *)
-lemma lm84c: assumes "\<exists> n \<in> {0..<size l}. P (l!n)" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []"
+lemma lm114: assumes "\<exists> n \<in> {0..<size l}. P (l!n)" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []"
 using assms by auto
 
 (* Assume ll is an element of list l, then there is an index n such that the n-th entry of l is ll. *)
-lemma lm84d: assumes "ll \<in> set (l::'a list)" shows "\<exists> n\<in> (nth l) -` (set l). ll=l!n"
+lemma lm115: assumes "ll \<in> set (l::'a list)" shows "\<exists> n\<in> (nth l) -` (set l). ll=l!n"
 using assms(1) by (metis in_set_conv_nth vimageI2)
 
 (* variant of the above *)
-lemma lm84e: assumes "ll \<in> set (l::'a list)" shows "\<exists> n. ll=l!n & n < size l & n >= 0"
+lemma lm116: assumes "ll \<in> set (l::'a list)" shows "\<exists> n. ll=l!n & n < size l & n >= 0"
 using assms in_set_conv_nth by (metis le0)
 
 (* another variant of the above *)
-lemma lm84f: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "\<exists> n \<in> {0..<size l}. P (l!n)" 
-using assms lm84e by fastforce
+lemma lm117: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "\<exists> n \<in> {0..<size l}. P (l!n)" 
+using assms lm116 by fastforce
 
-(* variant of lm84c *)
-lemma lm84g: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []" 
-using assms filterpositions2_def lm84f lm84c by metis
+(* variant of lm114 *)
+lemma nonEmptyListFiltered: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "[n. n \<leftarrow> [0..<size l], P (l!n)] \<noteq> []" 
+using assms filterpositions2_def lm117 lm114 by metis
 
 (* take the elements of a list l which are also in a set X then this forms a subset of X intersection with the elements of the list *)
-lemma nn06: "(nth l) ` set ([n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)]) \<subseteq> X\<inter>set l" by force
+lemma lm118: "(nth l) ` set ([n. n \<leftarrow> [0..<size l], (%x. x\<in>X) (l!n)]) \<subseteq> X\<inter>set l" by force
 
 (* variant of the above *)
-corollary nn06b: "(nth l)` set (filterpositions2 (%x.(x\<in>X)) l) \<subseteq> X \<inter>  set l" 
-unfolding filterpositions2_def using nn06 by fast
+corollary lm119: "(nth l)` set (filterpositions2 (%x.(x\<in>X)) l) \<subseteq> X \<inter>  set l" 
+unfolding filterpositions2_def using lm118 by fast
 
-lemma "(n\<in>{0..<N}) = ((n::nat) < N)" using atLeast0LessThan lessThan_iff by metis
+lemma lm120: "(n\<in>{0..<N}) = ((n::nat) < N)" using atLeast0LessThan lessThan_iff by metis
 
 (* If X is a set of indices then the corresponding elements combined are a subset of all the elements of the list. *)
-lemma nn01: assumes "X \<subseteq> {0..<size list}" shows "(nth list)`X \<subseteq> set list" 
+lemma lm121: assumes "X \<subseteq> {0..<size list}" shows "(nth list)`X \<subseteq> set list" 
 using assms atLeastLessThan_def atLeast0LessThan lessThan_iff by auto
 
 (* The indices of the elements of a list satisfying a predicate P are a subset of all the indices. *)
-lemma lm99: "set ([n. n \<leftarrow> [0..<size l], P (l!n)]) \<subseteq> {0..<size l}" by force
+lemma lm122: "set ([n. n \<leftarrow> [0..<size l], P (l!n)]) \<subseteq> {0..<size l}" by force
 
 (* variant of the above *)
-lemma lm99b: "set (filterpositions2 pre list) \<subseteq> {0..<size list}" using filterpositions2_def lm99 by metis
+lemma lm123: "set (filterpositions2 pre list) \<subseteq> {0..<size list}" using filterpositions2_def lm122 by metis
 
 
 
@@ -646,32 +646,32 @@ fun perm2 where
 
 abbreviation "takeAll P list == map (nth list) (filterpositions2 P list)"
 
-lemma lm83: assumes "l \<noteq> []" shows "perm2 l n \<noteq> []" 
+lemma permutationNotEmpty: assumes "l \<noteq> []" shows "perm2 l n \<noteq> []" 
 using assms perm2_def perm2.simps(2) rotate_is_Nil_conv by (metis neq_Nil_conv)
 
-lemma lm98: "set (takeAll P list) = ((nth list) ` set (filterpositions2 P list))" by simp
+lemma lm124: "set (takeAll P list) = ((nth list) ` set (filterpositions2 P list))" by simp
 
-corollary nn06c: "set (takeAll (%x.(x\<in>X)) l) \<subseteq>  (X \<inter> set l)" using nn06b lm98 by metis
+corollary listIntersectionWithSet: "set (takeAll (%x.(x\<in>X)) l) \<subseteq>  (X \<inter> set l)" using lm119 lm124 by metis
 
-corollary nn02: "set (takeAll P list) \<subseteq> set list" using lm99b lm98 nn01 by metis
+corollary lm125: "set (takeAll P list) \<subseteq> set list" using lm123 lm124 lm121 by metis
 
-lemma nn03: "set (insertAt x l n) = {x} \<union> set l" by simp
+lemma lm126: "set (insertAt x l n) = {x} \<union> set l" by simp
 
-lemma nn04a: "\<forall>n. set (perm2 [] n) = set []" by simp
+lemma lm127: "\<forall>n. set (perm2 [] n) = set []" by simp
 
-lemma nn04b: assumes "\<forall>n. (set (perm2 l n) = set l)" shows "set (perm2 (x#l) n) = {x} \<union> set l" 
-using assms perm2_def nn03 by force
+lemma lm128: assumes "\<forall>n. (set (perm2 l n) = set l)" shows "set (perm2 (x#l) n) = {x} \<union> set l" 
+using assms perm2_def lm126 by force
 
 (* Combining the previous two lemmas we get inductively that the set of elements in a permuted list are the same as the elements in the original list. This is weaker than saying (perm2 l n) is a permutation of l, but suffices for our purposes. *) 
-corollary nn04: "\<forall>n. set (perm2 l n) = set l" 
+corollary permutationInvariance: "\<forall>n. set (perm2 l n) = set l" 
 proof (induct l)
 let ?P = "%l. (\<forall>n. set (perm2 l n)  =  set l)"
-show "?P []" using nn04a by force next let ?P="%l. (\<forall>n. set (perm2 l n) = set l)"
+show "?P []" using lm127 by force next let ?P="%l. (\<forall>n. set (perm2 l n) = set l)"
 fix x fix l assume "?P l" then show "?P (x#l)" by force
 qed
 
-(* variant of nn06c with permutation added *)
-corollary nn05a: "set (perm2 (takeAll (%x.(x\<in>X)) l) n) \<subseteq> X \<inter> set l" using nn06c nn04 by metis
+(* variant of listIntersectionWithSet with permutation added *)
+corollary takeAllPermutation: "set (perm2 (takeAll (%x.(x\<in>X)) l) n) \<subseteq> X \<inter> set l" using listIntersectionWithSet permutationInvariance by metis
 
 
 
@@ -683,106 +683,108 @@ notation toFunctionWithFallback (infix "Else" 75)
 
 abbreviation "setsum' R X == setsum (R Else 0) X"
 
-lemma nn47: assumes "runiq f" "x \<in> Domain f" shows "(f Else 0) x = (toFunction f) x" using assms 
+lemma lm129: assumes "runiq f" "x \<in> Domain f" shows "(f Else 0) x = (toFunction f) x" using assms 
 by (metis Image_runiq_eq_eval toFunction_def)
 
-lemma nn48b: assumes "runiq f" 
+lemma lm130: assumes "runiq f" 
 shows "setsum (f Else 0) (X\<inter>(Domain f))  =  setsum (toFunction f) (X\<inter>(Domain f))" 
-using assms setsum.cong nn47 by fastforce
+using assms setsum.cong lm129 by fastforce
 
-lemma nn51: assumes "Y \<subseteq> f-`{0}" shows "setsum f Y  =  0" using assms 
+lemma lm131: assumes "Y \<subseteq> f-`{0}" shows "setsum f Y  =  0" using assms 
 by (metis set_rev_mp setsum.neutral vimage_singleton_eq)
 
-lemma nn49: assumes "Y \<subseteq> f-`{0}" "finite X" shows "setsum f X = setsum f (X-Y)" 
-using assms Int_lower2 comm_monoid_add_class.add.right_neutral inf.boundedE inf.orderE xm078 nn51
+lemma lm132: assumes "Y \<subseteq> f-`{0}" "finite X" shows "setsum f X = setsum f (X-Y)" 
+using assms Int_lower2 comm_monoid_add_class.add.right_neutral inf.boundedE inf.orderE lm078 lm131
 by (metis(no_types))
 
 (* - means the complement of a set. *)
-lemma nn50: "-(Domain f) \<subseteq> (f Else 0)-`{0}" by fastforce
+lemma lm133: "-(Domain f) \<subseteq> (f Else 0)-`{0}" by fastforce
 
-corollary nn52: assumes "finite X" 
+corollary lm134: assumes "finite X" 
 shows "setsum (f Else 0) X    =   setsum (f Else 0) (X\<inter>Domain f)" 
-proof- have "X\<inter>Domain f=X-(-Domain f)" by simp thus ?thesis using assms nn50 nn49 by fastforce qed
+proof- have "X\<inter>Domain f=X-(-Domain f)" by simp thus ?thesis using assms lm133 lm132 by fastforce qed
 
-corollary nn52b: assumes "finite X" 
+corollary lm135: assumes "finite X" 
 shows "setsum (f Else 0) (X\<inter>Domain f)   =   setsum (f Else 0) X"
-(is "?L=?R") proof - have "?R=?L" using assms by (rule nn52) thus ?thesis by simp qed
+(is "?L=?R") proof - have "?R=?L" using assms by (rule lm134) thus ?thesis by simp qed
 
-corollary nn48c: assumes "finite X" "runiq f" shows 
+corollary lm136: assumes "finite X" "runiq f" shows 
 "setsum (f Else 0) X = setsum (toFunction f) (X\<inter>Domain f)" (is "?L=?R") 
 proof -
-have "?R = setsum (f Else 0) (X\<inter>Domain f) " using assms(2) nn48b by fastforce
-moreover have "... = ?L" using assms(1) by (rule nn52b) ultimately show ?thesis by presburger
+have "?R = setsum (f Else 0) (X\<inter>Domain f) " using assms(2) lm130 by fastforce
+moreover have "... = ?L" using assms(1) by (rule lm135) ultimately show ?thesis by presburger
 qed
 
-lemma nn53: "setsum (f Else 0) X = setsum' f X" by fast
+lemma lm137: "setsum (f Else 0) X = setsum' f X" by fast
 
-corollary nn48d: assumes "finite X" "runiq f" 
+corollary lm138: assumes "finite X" "runiq f" 
 shows "setsum (toFunction f) (X\<inter>Domain f)   =   setsum' f X"
-using assms nn53 nn48c by fastforce
+using assms lm137 lm136 by fastforce
 
-lemma "argmax (setsum' b) = (argmax \<circ> setsum') b" by simp
+lemma lm139: "argmax (setsum' b) = (argmax \<circ> setsum') b" by simp
+
+
 
 section {* cardinalities of sets. *}
-lemma lm015: assumes "runiq R" "runiq (R^-1)" shows "(R``A) \<inter> (R``B) = R``(A\<inter>B)" 
+lemma lm140: assumes "runiq R" "runiq (R^-1)" shows "(R``A) \<inter> (R``B) = R``(A\<inter>B)" 
 using assms rightUniqueInjectiveOnFirst converse_Image by force
 
-lemma lm41: assumes "runiq (R^-1)" "runiq R" "X1 \<inter> X2 = {}" shows "(R``X1) \<inter> (R``X2) = {}"
+lemma intersectionEmptyRelationIntersectionEmpty: assumes "runiq (R^-1)" "runiq R" "X1 \<inter> X2 = {}" shows "(R``X1) \<inter> (R``X2) = {}"
 using assms by (metis disj_Domain_imp_disj_Image inf_assoc inf_bot_right)
 
-lemma ll70: assumes "runiq f" "trivial Y" shows "trivial (f `` (f^-1 `` Y))"
+lemma lm141: assumes "runiq f" "trivial Y" shows "trivial (f `` (f^-1 `` Y))"
 using assms by (metis rightUniqueFunctionAfterInverse trivial_subset)
 
-lemma lm020: assumes "trivial X" shows "card (Pow X)\<in>{1,2}" using trivial_empty_or_singleton card_Pow 
+lemma lm142: assumes "trivial X" shows "card (Pow X)\<in>{1,2}" using trivial_empty_or_singleton card_Pow 
 Pow_empty assms trivial_implies_finite cardinalityOneTheElemIdentity power_one_right the_elem_eq by (metis insert_iff)
 
-lemma lm017: assumes "card (Pow A)=1" shows "A={}" using assms 
+lemma lm143: assumes "card (Pow A)=1" shows "A={}" using assms 
 by (metis Pow_bottom Pow_top cardinalityOneTheElemIdentity singletonD)
 
 (* Note that in Isabelle infinite sets have cardinality 0 *) 
-lemma lm022: "(\<not> (finite A)) = (card (Pow A) = 0)" by auto
+lemma lm144: "(\<not> (finite A)) = (card (Pow A) = 0)" by auto
 
-corollary lm022b: "(finite A) = (card (Pow A) \<noteq> 0)" using lm022 by metis
+corollary lm145: "(finite A) = (card (Pow A) \<noteq> 0)" using lm144 by metis
 
-lemma lm016: assumes "card (Pow A) \<noteq> 0" shows "card A=Discrete.log (card (Pow A))" using assms 
+lemma lm146: assumes "card (Pow A) \<noteq> 0" shows "card A=Discrete.log (card (Pow A))" using assms 
 log_exp card_Pow by (metis card_infinite finite_Pow_iff)
 
-lemma lm018: assumes "card (Pow A) = 2" shows "card A = 1" using assms lm016 
+lemma lm147: assumes "card (Pow A) = 2" shows "card A = 1" using assms lm146 
 by (metis(no_types) comm_semiring_1_class.normalizing_semiring_rules(33) log_exp zero_neq_numeral)
 
-lemma lm019: assumes "card (Pow X) = 1 \<or> card (Pow X) = 2" shows "trivial X" 
-using assms trivial_empty_or_singleton lm017 lm018 cardinalityOneTheElemIdentity by metis
+lemma lm148: assumes "card (Pow X) = 1 \<or> card (Pow X) = 2" shows "trivial X" 
+using assms trivial_empty_or_singleton lm143 lm147 cardinalityOneTheElemIdentity by metis
 
-lemma lm021: "trivial A = (card (Pow A) \<in> {1,2})" using lm019 lm020 by blast
+lemma lm149: "trivial A = (card (Pow A) \<in> {1,2})" using lm148 lm142 by blast
 
-lemma assumes "R \<subseteq> f" "runiq f" "Domain f = Domain R" shows "runiq R"
+lemma lm150: assumes "R \<subseteq> f" "runiq f" "Domain f = Domain R" shows "runiq R"
 using assms by (metis subrel_runiq)
 
-lemma ll81a: assumes "f \<subseteq> g" "runiq g" "Domain f = Domain g" shows "g \<subseteq> f"
+lemma lm151: assumes "f \<subseteq> g" "runiq g" "Domain f = Domain g" shows "g \<subseteq> f"
 using assms Domain_iff contra_subsetD runiq_wrt_ex1 subrelI
 by (metis (full_types,hide_lams))
 
-lemma ll81: assumes "R \<subseteq> f" "runiq f" "Domain f \<subseteq> Domain R" shows "f = R" 
-using assms ll81a by (metis Domain_mono dual_order.antisym)
+lemma lm152: assumes "R \<subseteq> f" "runiq f" "Domain f \<subseteq> Domain R" shows "f = R" 
+using assms lm151 by (metis Domain_mono dual_order.antisym)
 
-lemma lm06: "graph X f = (Graph f) || X" using inf_top.left_neutral xm005 domainOfGraph restrictedDomain 
-ll81 graphIntersection restriction_is_subrel subrel_runiq subset_iff by (metis (erased, lifting))
+lemma lm153: "graph X f = (Graph f) || X" using inf_top.left_neutral lm005 domainOfGraph restrictedDomain 
+lm152 graphIntersection restriction_is_subrel subrel_runiq subset_iff by (metis (erased, lifting))
 
-lemma lm05: "graph (X \<inter> Y) f = (graph X f) || Y" using doubleRestriction lm06 by metis
-lemma lm65:"{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" using graph_def lm05 by metis
+lemma lm154: "graph (X \<inter> Y) f = (graph X f) || Y" using doubleRestriction lm153 by metis
+lemma lm65:"{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" using graph_def lm154 by metis
 
-lemma lm10: assumes "runiq f" "X \<subseteq> Domain f" shows "graph X (toFunction f) = (f||X)" 
+lemma lm155: assumes "runiq f" "X \<subseteq> Domain f" shows "graph X (toFunction f) = (f||X)" 
 proof -
   have "\<And>v w. (v\<Colon>'a set) \<subseteq> w \<longrightarrow> w \<inter> v = v" by (simp add: Int_commute inf.absorb1)
-  thus "graph X (toFunction f) = f || X" by (metis assms(1) assms(2) doubleRestriction xm004 lm06)
+  thus "graph X (toFunction f) = f || X" by (metis assms(1) assms(2) doubleRestriction lm004 lm153)
 qed
 
-lemma l4: "(Graph f) `` X = f ` X" unfolding Graph_def image_def by auto
+lemma lm156: "(Graph f) `` X = f ` X" unfolding Graph_def image_def by auto
 
-lemma lm025: assumes "X \<subseteq> Domain f" "runiq f" shows "f``X = (eval_rel f)`X"
-using assms l4 by (metis restrictedRange lm06 lm10 toFunction_def)
+lemma lm157: assumes "X \<subseteq> Domain f" "runiq f" shows "f``X = (eval_rel f)`X"
+using assms lm156 by (metis restrictedRange lm153 lm155 toFunction_def)
 
-lemma lm011: assumes "card A = 1" shows "card (f`A) = 1" using assms card_image card_image_le 
+lemma cardOneImageCardOne: assumes "card A = 1" shows "card (f`A) = 1" using assms card_image card_image_le 
 proof -
 have "finite (f`A)" using assms One_nat_def Suc_not_Zero card_infinite finite_imageI by (metis(no_types)) 
 moreover have "f`A \<noteq> {}" using assms by fastforce
@@ -790,28 +792,28 @@ moreover have "card (f`A) \<le> 1" using assms card_image_le One_nat_def Suc_not
 ultimately show ?thesis by (metis assms image_empty image_insert cardinalityOneTheElemIdentity the_elem_eq)
 qed
 
-lemma lm012: assumes "card A = 1" shows "the_elem (f`A) = f (the_elem A)" using assms 
+lemma cardOneTheElem: assumes "card A = 1" shows "the_elem (f`A) = f (the_elem A)" using assms 
 image_empty image_insert the_elem_eq by (metis cardinalityOneTheElemIdentity)
 
 (* With split being the inverse of curry we have with g as swap f,  (g x y) = (f y x) *)
 abbreviation "swap f == curry ((split f) \<circ> flip)" (*swaps the two arguments of a function*)
 
 (* X is finite if and only if X is the set of elements of some list. *)
-lemma lm45: "finite X   =  (X \<in> range set)" by (metis List.finite_set finite_list image_iff rangeI)
+lemma lm158: "finite X   =  (X \<in> range set)" by (metis List.finite_set finite_list image_iff rangeI)
 
 (* as above, just as lambda expression *)
-lemma lm45b: "finite = (%X. X\<in>range set)" using lm45 by metis
+lemma lm159: "finite = (%X. X\<in>range set)" using lm158 by metis
 
-lemma lm46: "swap f = (%x. %y. f y x)" by (metis comp_eq_dest_lhs curry_def flip_def fst_conv old.prod.case snd_conv)
+lemma lm160: "swap f = (%x. %y. f y x)" by (metis comp_eq_dest_lhs curry_def flip_def fst_conv old.prod.case snd_conv)
 
 
 
 section{* some easy properties on real numbers *}
-lemma ll57: fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
+lemma lm161: fixes a::real fixes b c shows "a*b - a*c=a*(b-c)"
 using assms by (metis real_scaleR_def real_vector.scale_right_diff_distrib)
 
-lemma lll62: fixes a::real fixes b c shows "a*b - c*b=(a-c)*b"
-using assms ll57 by (metis comm_semiring_1_class.normalizing_semiring_rules(7))
+lemma lm162: fixes a::real fixes b c shows "a*b - c*b=(a-c)*b"
+using assms lm161 by (metis comm_semiring_1_class.normalizing_semiring_rules(7))
 
 end
 

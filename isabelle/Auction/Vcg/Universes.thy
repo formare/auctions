@@ -70,7 +70,7 @@ lemma lm04: assumes "\<forall> x1 \<in> X. (x1 \<noteq> {} & (\<forall> x2 \<in>
 
 lemma lm72: assumes "\<forall>x \<in> X. f x \<in> x" 
             shows "isChoice (graph X f)" using assms
-            by (metis Image_within_domain' empty_subsetI insert_subset ll33 domainOfGraph 
+            by (metis Image_within_domain' empty_subsetI insert_subset graphEqImage domainOfGraph 
                       runiq_wrt_eval_rel subset_trans)
 
 lemma lm24: "injections = injections'" using injections_def by (metis(no_types))
@@ -397,7 +397,7 @@ proof -
     have "?r ?a1 \<noteq> {} & ?r ?a2 \<noteq> {}" using 0 by auto
     moreover have "?r ?a1 \<subseteq> a``(?d ?a1)" using assms by blast
     moreover have "?Yi \<inter> (a``(?d a - ?Xi)) = {}" using assms 0 1 
-    Diff_disjoint MiscTools.lm41 by metis
+    Diff_disjoint intersectionEmptyRelationIntersectionEmpty by metis
     ultimately moreover have "?r ?a1 \<inter> ?Yi = {} & ?Yi \<noteq> {}" by blast
     ultimately moreover have "?p {?r ?a1, ?Yi}" unfolding is_non_overlapping_def using  
 IntI Int_commute empty_iff insert_iff subsetI subset_empty by metis
@@ -409,7 +409,7 @@ IntI Int_commute empty_iff insert_iff subsetI subset_empty by metis
     using IntI empty_iff by metis
     ultimately moreover have "\<forall> x \<in> ?r ?a1. \<forall> y\<in>?Yi. x \<inter> y = {}" using 0 1 2 is_non_overlapping_def
     by (metis set_rev_mp)
-    ultimately have "?U (?r ?a1) \<inter> ?Y = {}" using lm42 
+    ultimately have "?U (?r ?a1) \<inter> ?Y = {}" using unionIntersectionEmpty
 proof -
   have "\<forall>v0. v0 \<in> Range (a - (X \<union> {i}) \<times> Range a) \<longrightarrow> (\<forall>v1. v1 \<in> a `` (X \<union> {i}) \<longrightarrow> v0 \<inter> v1 = {})" 
 by (metis (no_types) `\<forall>x\<in>Range (a - (X \<union> {i}) \<times> Range a). \<forall>y\<in>a \`\` (X \<union> {i}). x \<inter> y = {}`) 
@@ -602,7 +602,7 @@ lemma lm55: assumes "finite X" "XX \<in> all_partitions X"
 
 lemma lm58: assumes "finite N" "finite G" "a \<in> possibleAllocationsRel N G"
             shows "finite a" 
-            using assms lm57 rev_finite_subset by (metis lm28b lm55)
+            using assms finiteRelationCharacterization rev_finite_subset by (metis lm28b lm55)
 
 lemma lm59: assumes "finite N" "finite G" 
             shows "finite (possibleAllocationsRel N G)"
@@ -641,7 +641,7 @@ lemma lm42: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_non_overlapp
 
 corollary lm33b: assumes "XX partitions X" "finite X" "finite XX" 
                  shows   "card (\<Union> XX) = setsum card XX" 
-                 using assms lm42 by (metis is_partition_of_def lll41)
+                 using assms lm42 by (metis is_partition_of_def familyUnionFiniteEverySetFinite)
 
 (* \<Sigma>_x\<in> (Union C) (f x)   is the same as \<Sigma>_x\<in> C (\<Sigma>_set\<in> C (\<Sigma>_x\<in>set (f x))) *)
 lemma setsumUnionDisjoint1: assumes "\<forall>A\<in>C. finite A" "\<forall>A\<in>C. \<forall>B\<in>C. A \<noteq> B \<longrightarrow> A Int B = {}" 
@@ -661,7 +661,7 @@ corollary setsumUnionDisjoint3: assumes "\<forall>x\<in>X. finite x" "X partitio
 corollary setsum_associativity: assumes "finite x" "X partitions x" 
                                 shows  "setsum f x = setsum (setsum f) X" 
                                 using assms setsumUnionDisjoint3 
-                                by (metis is_partition_of_def lll41)
+                                by (metis is_partition_of_def familyUnionFiniteEverySetFinite)
 
 lemma lm19e: assumes "a \<in> allocationsUniverse" "Domain a \<subseteq> N" "(\<Union>Range a) = G" 
              shows   "a \<in> possibleAllocationsRel N G" 
@@ -792,7 +792,7 @@ corollary lm92: assumes "x \<in> Domain f" "runiq f"
 
 lemma nn30b: assumes "f \<in> injectionsUniverse" 
              shows   "Range(f outside A) = Range f - f``A" 
-             using assms mem_Collect_eq nn30 by (metis)
+             using assms mem_Collect_eq rangeOutside by (metis)
 
 lemma lm76: assumes "g \<in> injections' X Y" "x \<in> Domain g" 
             shows   "g \<in> {g--x \<union> {(x,y)}|y. y \<in> Y - (Range(g--x))}" 

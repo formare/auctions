@@ -93,7 +93,7 @@ corollary lm38b: "{(x,{y})} \<in> allocationsUniverse" using lm38 lm44 insert_no
 proof -
   have "(x, {y}) \<noteq> (x, {})" by blast
   thus "{(x, {y})} \<in> allocationsUniverse" 
-  using insert_Diff_if insert_iff by (metis (no_types) Universes.lm38 MiscTools.lm44)
+  using insert_Diff_if insert_iff by (metis (no_types) Universes.lm38  setEqualityAsDifference)
 qed
 corollary lm38c: "allocationsUniverse \<noteq> {}" using lm38b by fast
 corollary nn39: "{} \<in> allocationsUniverse" using lm35b lm38b by (metis (lifting, mono_tags) empty_subsetI)
@@ -283,7 +283,7 @@ corollary lm49: assumes
 "pseudoAllocation aa \<subseteq> pseudoAllocation a \<union> (N \<times> (finestpart G))" "finite (pseudoAllocation aa)"
 shows "setsum (toFunction (bidMaximizedBy a N G)) (pseudoAllocation a) - 
 (setsum (toFunction (bidMaximizedBy a N G)) (pseudoAllocation aa)) = 
-card (pseudoAllocation a) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" using assms MiscTools.lm28 
+card (pseudoAllocation a) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" using assms subsetCardinality
 by blast
 
 corollary lm49c: assumes 
@@ -291,7 +291,7 @@ corollary lm49c: assumes
 shows "int (setsum (maxbid' a N G) (pseudoAllocation a)) - 
 int (setsum (maxbid' a N G) (pseudoAllocation aa)) = 
 int (card (pseudoAllocation a)) - int (card (pseudoAllocation aa \<inter> (pseudoAllocation a)))" 
-using MiscTools.lm28b assms by blast
+using differenceSetsumVsCardinality assms by blast
 
 lemma lm50: "pseudoAllocation {} = {}" unfolding pseudoAllocation_def by simp
 
@@ -690,21 +690,21 @@ corollary lm96b: assumes
 "(%x. x\<in>winningAllocationsRel N (set G) bids)-`{True} \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
 using assms lm96 lm97 by metis
 lemma lm84b: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "takeAll P l \<noteq> []" using assms
-lm84g filterpositions2_def by (metis Nil_is_map_conv)
+nonEmptyListFiltered filterpositions2_def by (metis Nil_is_map_conv)
 corollary lm84h: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
 "takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G) \<noteq> []"
 using assms lm84b lm96b by metis
 
 corollary nn05b: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
 "perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G)) n \<noteq> []"
-using assms MiscTools.lm83 lm84h by metis
+using assms permutationNotEmpty lm84h by metis
 corollary lm82: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
 "chosenAllocation' N G bids random \<in> winningAllocationsRel N (set G) bids"
-using assms nn05a nn05b hd_in_set in_mono Int_def Int_lower1 all_not_in_conv image_set nn04 nn06c set_empty subsetI subset_trans
+using assms takeAllPermutation nn05b hd_in_set in_mono Int_def Int_lower1 all_not_in_conv image_set permutationInvariance listIntersectionWithSet set_empty subsetI subset_trans
 proof -
 let ?w=winningAllocationsRel let ?p=possibleAllocationsAlg let ?G="set G"
 let ?X="?w N ?G bids" let ?l="perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
-have "set ?l \<subseteq> ?X" using nn05a by fast
+have "set ?l \<subseteq> ?X" using takeAllPermutation by fast
 moreover have "?l \<noteq> []" using assms nn05b by blast
 ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
 qed
@@ -718,7 +718,7 @@ let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid' let ?B="?m a N G" have
 0: "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto moreover have 
 1: "finite (?p aa)" using assms lm48 lm54 by blast ultimately have 
 "real(setsum ?B (?p a))-setsum ?B (?p aa) = real(card (?p a))-card(?p aa \<inter> (?p a))" 
-using MiscTools.lm28d by fast
+using differenceSetsumVsCardinalityReal by fast
 moreover have "... = real (card G) - card (?p aa \<inter> (?p a))" using assms lm48 
 by (metis (lifting, mono_tags))
 ultimately show ?thesis by presburger
@@ -727,7 +727,7 @@ qed
 lemma lm66e: "LinearCompletion bids N G = graph (N \<times> (Pow G-{{}})) (partialCompletionOfSecond bids)" 
 unfolding graph_def using lm66 by blast
 lemma ll33b: assumes "x\<in>X" shows "toFunction (graph X f) x = f x" using assms 
-by (metis ll33 toFunction_def)
+by (metis graphEqImage toFunction_def)
 corollary ll33c: assumes "pair \<in> N \<times> (Pow G-{{}})" shows "linearCompletion' bids N G pair=partialCompletionOfSecond bids pair"
 using assms ll33b lm66e by (metis(mono_tags))
 
