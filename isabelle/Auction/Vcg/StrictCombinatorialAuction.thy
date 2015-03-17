@@ -48,7 +48,7 @@ abbreviation "allocatedGoods (allo::allocation) == \<Union> (Range allo)"
   This assumption facilitates the paper\<leftrightarrow>algorithm equivalence proof for injective functions.
 *)
 fun possible_allocations_rel 
-where "possible_allocations_rel G N = Union { injections Y N | Y . Y \<in> all_partitions G }" 
+  where "possible_allocations_rel G N = Union { injections Y N | Y . Y \<in> all_partitions G }" 
 
 (* The following abbreviations duplicate the corresponding definitions in RelationProperties.thy. This is done since typically abbreviations are efficient in theorem proving, however, not in code extraction. *)
 
@@ -61,11 +61,11 @@ abbreviation possibleAllocationsRel where
 
 text {* algorithmic version of @{const possible_allocations_rel} *}
 fun possible_allocations_alg :: "goods \<Rightarrow> participant set \<Rightarrow> allocation_rel list"
-where "possible_allocations_alg G N = 
-concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
+  where "possible_allocations_alg G N = 
+         concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
 
 abbreviation "possibleAllocationsAlg N G == 
-map converse (concat [(injections_alg l N) . l \<leftarrow> all_partitions_list G])"
+              map converse (concat [(injections_alg l N) . l \<leftarrow> all_partitions_list G])"
 
 
 
@@ -73,7 +73,7 @@ section {* VCG mechanism *}
 
 (* N is the set of bidders, G the set of goods, and b the bidvector *)
 abbreviation "winningAllocationsRel N G b == 
-argmax (setsum b) (possibleAllocationsRel N G)"
+              argmax (setsum b) (possibleAllocationsRel N G)"
 
 (* t is a tie breaking function *)
 abbreviation "winningAllocationRel N G t b == t (winningAllocationsRel N G b)"
