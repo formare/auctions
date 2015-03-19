@@ -90,7 +90,7 @@ let ?aa'="a +* ?b"
 have
 1: "a \<in> allocationsUniverse" using assms(1) by fast 
 have "?b \<subseteq> {(?i,G-\<Union> Range a)} - {(?i, {})}" by fastforce then have 
-2: "?b \<in> allocationsUniverse" using Universes.lm38 lm35b by (metis(no_types)) have 
+2: "?b \<in> allocationsUniverse" using allocationUniverseProperty lm35b by (metis(no_types)) have 
 3: "\<Union> Range a \<inter> \<Union> (Range ?b) = {}" by blast have 
 4: "Domain a \<inter> Domain ?b ={}" using assms by fast
 have "?aa \<in> allocationsUniverse" using 1 2 3 4 by (rule lm23)
@@ -560,8 +560,8 @@ definition "chosenAllocationEff N G b (r::integer) ==
 
 
 definition "maxbid a N G == (bidMaximizedBy a N G) Elsee 0"
-definition "linearCompletion bids N G == (LinearCompletion bids N G) Elsee 0"
-definition "tiebids a N G == linearCompletion (maxbid a N G) N G"
+definition "summedBidVector bids N G == (summedBidVectorRel bids N G) Elsee 0"
+definition "tiebids a N G == summedBidVector (maxbid a N G) N G"
 definition "resolvingBid N G bids random == tiebids (chosenAllocation N G bids random) N (set G)"
 definition "randomBids N \<Omega> b random==resolvingBid (N\<union>{seller}) \<Omega> b random"
 definition "vcgaAlgWithoutLosers N G b r == (the_elem
@@ -583,7 +583,7 @@ by metis
 lemma lm19: "(pseudoAllocation a) \<subseteq> Domain (bidMaximizedBy a N G)" by (metis lm04 Un_upper1)
 
 lemma lm02: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
-"linearCompletion' b N G x=linearCompletion b N G x" unfolding linearCompletion_def 
+"summedBidVector' b N G x=summedBidVector b N G x" unfolding summedBidVector_def 
 using assms lm01 Domain.simps imageI by (metis(no_types,lifting))
 (*lm64*)
 
@@ -646,8 +646,8 @@ thus ?thesis using setsum.cong by simp
 qed
 
 corollary lm07: assumes "pair \<in> N \<times> (Pow G - {{}})" shows 
-"partialCompletionOf (toFunction (bidMaximizedBy a N G)) pair = 
-partialCompletionOf ((bidMaximizedBy a N G) Elsee 0) pair" using assms lm06 
+"summedBid (toFunction (bidMaximizedBy a N G)) pair = 
+summedBid ((bidMaximizedBy a N G) Elsee 0) pair" using assms lm06 
 proof - 
 have "fst pair \<in> N" using assms by force 
 moreover have "snd pair \<in> Pow G - {{}}" using assms(1) by force
@@ -657,36 +657,36 @@ qed
 lemma lm08: assumes "\<forall>x \<in> X. f x = g x" shows "f`X=g`X" using assms by (metis image_cong)
 
 corollary lm09: "\<forall> pair \<in> N \<times> (Pow G - {{}}).  
-partialCompletionOf (toFunction (bidMaximizedBy a N G)) pair = 
-partialCompletionOf ((bidMaximizedBy a N G) Elsee 0) pair" using lm07 
+summedBid (toFunction (bidMaximizedBy a N G)) pair = 
+summedBid ((bidMaximizedBy a N G) Elsee 0) pair" using lm07 
 by blast  
 
 corollary lm10: 
-"(partialCompletionOf (toFunction (bidMaximizedBy a N G))) ` (N \<times> (Pow G - {{}}))=
-(partialCompletionOf ((bidMaximizedBy a N G) Elsee 0)) ` (N \<times> (Pow G - {{}}))" (is "?f1 ` ?Z = ?f2 ` ?Z")
+"(summedBid (toFunction (bidMaximizedBy a N G))) ` (N \<times> (Pow G - {{}}))=
+(summedBid ((bidMaximizedBy a N G) Elsee 0)) ` (N \<times> (Pow G - {{}}))" (is "?f1 ` ?Z = ?f2 ` ?Z")
 proof - (*MC: no way to automatize this trivial proof??!! *)
 have "\<forall> z \<in> ?Z. ?f1 z = ?f2 z" by (rule lm09) thus ?thesis by (rule lm08)
 qed
 
-corollary lm11: "LinearCompletion (toFunction (bidMaximizedBy a N G)) N G =
-LinearCompletion ((bidMaximizedBy a N G) Elsee 0) N G" using lm10 by metis
+corollary lm11: "summedBidVectorRel (toFunction (bidMaximizedBy a N G)) N G =
+summedBidVectorRel ((bidMaximizedBy a N G) Elsee 0) N G" using lm10 by metis
 
-corollary lm12: "LinearCompletion (maxbid' a N G) N G = LinearCompletion (maxbid a N G) N G"
+corollary lm12: "summedBidVectorRel (maxbid' a N G) N G = summedBidVectorRel (maxbid a N G) N G"
 unfolding maxbid_def using lm11 by metis
 
 lemma lm13: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows 
-"linearCompletion' (maxbid' a N G) N G x = linearCompletion (maxbid a N G) N G x"
+"summedBidVector' (maxbid' a N G) N G x = summedBidVector (maxbid a N G) N G x"
 (is "?f1 ?g1 N G x = ?f2 ?g2 N G x")
 using assms lm02 lm12  
 proof -
 let ?h1="maxbid' a N G" let ?h2="maxbid a N G" let ?hh1="real \<circ> ?h1" let ?hh2="real \<circ> ?h2"
-have "LinearCompletion ?h1 N G = LinearCompletion ?h2 N G" using lm12 by metis 
-moreover have "linearCompletion ?h2 N G=(LinearCompletion ?h2 N G) Elsee 0"
-unfolding linearCompletion_def by fast
-ultimately have " linearCompletion ?h2 N G=LinearCompletion ?h1 N G Elsee 0" by presburger
-moreover have "... x = (toFunction (LinearCompletion ?h1 N G)) x" using assms 
+have "summedBidVectorRel ?h1 N G = summedBidVectorRel ?h2 N G" using lm12 by metis 
+moreover have "summedBidVector ?h2 N G=(summedBidVectorRel ?h2 N G) Elsee 0"
+unfolding summedBidVector_def by fast
+ultimately have " summedBidVector ?h2 N G=summedBidVectorRel ?h1 N G Elsee 0" by presburger
+moreover have "... x = (toFunction (summedBidVectorRel ?h1 N G)) x" using assms 
 lm01 UniformTieBreaking.lm64 by (metis (mono_tags))
-ultimately have "linearCompletion ?h2 N G x = (toFunction (LinearCompletion ?h1 N G)) x" 
+ultimately have "summedBidVector ?h2 N G x = (toFunction (summedBidVectorRel ?h1 N G)) x" 
 by (metis (lifting, no_types))
 thus ?thesis by simp
 qed
@@ -732,8 +732,8 @@ corollary lm70g: assumes "card N > 0" "distinct G" shows
 unfolding chosenAllocation_def using assms lm70f allStrictAllocations_def by (metis(no_types)) 
 corollary lm13b: assumes "x \<in> (N \<times> (Pow G - {{}}))" shows "tiebids' a N G x = tiebids a N G x" (is "?L=_") 
 proof - 
-have "?L = linearCompletion' (maxbid' a N G) N G x" by fast moreover have "...= 
-linearCompletion (maxbid a N G) N G x" using assms by (rule lm13) ultimately show ?thesis 
+have "?L = summedBidVector' (maxbid' a N G) N G x" by fast moreover have "...= 
+summedBidVector (maxbid a N G) N G x" using assms by (rule lm13) ultimately show ?thesis 
 unfolding tiebids_def by fast
 qed 
 

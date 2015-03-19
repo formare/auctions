@@ -10,8 +10,8 @@
 # (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 # Isabelle build script
 
-i=/home/staff/caminamb/apps/Isabelle2014
-
+# i=/home/staff/caminamb/apps/Isabelle2014
+i=/usr/local/Isabelle2014
 rm -f ./ROOT
 rm -rf ./document ./output
 

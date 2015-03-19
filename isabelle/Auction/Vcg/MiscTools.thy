@@ -1014,11 +1014,13 @@ lemma lm128:
 
 (* Combining the previous two lemmas we get inductively that the set of elements in a permuted list are the same as the elements in the original list. This is weaker than saying (perm2 l n) is a permutation of l, but suffices for our purposes. *) 
 corollary permutationInvariance: 
-   "\<forall>n. set (perm2 l n) = set l" 
+   "\<forall>n. set (perm2 (l::'a list) n) = set l" 
 proof (induct l)
-   let ?P = "%l. (\<forall>n. set (perm2 l n)  =  set l)"
-   show "?P []" using lm127 by force next let ?P="%l. (\<forall>n. set (perm2 l n) = set l)"
-   fix x fix l assume "?P l" then show "?P (x#l)" by force
+   let ?P = "%l::('a list). (\<forall>n. set (perm2 l n)  =  set l)"
+   show "?P []" using lm127 by force 
+   fix x fix l 
+   assume "?P l" then 
+   show "?P (x#l)" by force
 qed
 
 (* variant of listIntersectionWithSet with permutation added *)
@@ -1190,7 +1192,7 @@ lemma lm154:
   "graph (X \<inter> Y) f = (graph X f) || Y" 
   using doubleRestriction lm153 by metis
 
-lemma lm65:
+lemma restrictionVsIntersection:
   "{(x, f x)| x. x \<in> X2} || X1 = {(x, f x)| x. x \<in> X2 \<inter> X1}" 
   using graph_def lm154 by metis
 

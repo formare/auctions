@@ -344,7 +344,7 @@ lemma lm37: "{(x, X)} \<in> injectionsUniverse"
             unfolding runiq_basic using runiq_singleton_rel 
             by blast
 
-lemma lm38: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" 
+lemma allocationUniverseProperty: "{(x,X)} - {(x,{})} \<in> allocationsUniverse" 
              using lm36b lm37 lm27 Int_iff 
              by (metis (no_types))
 
@@ -385,7 +385,7 @@ proof -
   1: "?u a & ?u (a^-1) & ?p (?r a) & ?r ?a1 \<subseteq> ?r a & ?Yi \<subseteq> ?r a" 
   using assms Int_iff lm22 mem_Collect_eq by auto then have 
   2: "?p (?r ?a1) & ?p ?Yi" using subset_is_non_overlapping by metis have 
-  "?a1 \<in> allocationsUniverse & ?a2 \<in> allocationsUniverse" using lm38 assms(1) lm35 by fastforce then have 
+  "?a1 \<in> allocationsUniverse & ?a2 \<in> allocationsUniverse" using allocationUniverseProperty assms(1) lm35 by fastforce then have 
   "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?t1" using Un_empty_left by (metis (lifting, no_types) Un_absorb2 empty_subsetI) moreover have 
   "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?U (?r a) = ?U (?r ?a1) \<union> ?U (?r ?a2)" by fast ultimately have 
   3: "(?a1 = {} \<or> ?a2 = {})\<longrightarrow> ?thesis" using 7 by presburger
@@ -418,7 +418,7 @@ qed then have
     "?U (?r ?a1) \<inter> (?U (?r ?a2)) = {}" by blast
     moreover have "?d ?a1 \<inter> (?d ?a2) = {}" by blast
     moreover have "?a1 \<in> allocationsUniverse" using assms(1) lm35 by blast
-    moreover have "?a2 \<in> allocationsUniverse" using lm38 by fastforce
+    moreover have "?a2 \<in> allocationsUniverse" using allocationUniverseProperty by fastforce
     ultimately have "?a1 \<in> allocationsUniverse & 
     ?a2 \<in> allocationsUniverse &
     \<Union>Range ?a1 \<inter> \<Union>Range ?a2 = {} & Domain ?a1 \<inter> Domain ?a2 = {}" 
@@ -635,13 +635,13 @@ proof -
   then show ?thesis using 0 by linarith
 qed
 
-lemma lm42: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_non_overlapping XX" 
+lemma cardinalityPreservation: assumes "finite XX" "\<forall>X \<in> XX. finite X" "is_non_overlapping XX" 
             shows   "card (\<Union> XX) = setsum card XX" 
             using assms is_non_overlapping_def card_Union_disjoint by fast
 
 corollary lm33b: assumes "XX partitions X" "finite X" "finite XX" 
                  shows   "card (\<Union> XX) = setsum card XX" 
-                 using assms lm42 by (metis is_partition_of_def familyUnionFiniteEverySetFinite)
+                 using assms cardinalityPreservation by (metis is_partition_of_def familyUnionFiniteEverySetFinite)
 
 (* \<Sigma>_x\<in> (Union C) (f x)   is the same as \<Sigma>_x\<in> C (\<Sigma>_set\<in> C (\<Sigma>_x\<in>set (f x))) *)
 lemma setsumUnionDisjoint1: assumes "\<forall>A\<in>C. finite A" "\<forall>A\<in>C. \<forall>B\<in>C. A \<noteq> B \<longrightarrow> A Int B = {}" 
@@ -965,14 +965,14 @@ lemma listInduct: assumes "P []" "\<forall> xs x. P xs \<longrightarrow> P (x#xs
                   shows   "\<forall>x. P x"
                   using assms by (metis structInduct)
 
-lemma lm02: "set (injections_alg [] Z) = {{}}" 
+lemma injectionsFromEmptyAreEmpty: "set (injections_alg [] Z) = {{}}" 
             by simp
 
 theorem injections_equiv: assumes "finite Y" and "distinct X" 
                           shows  "set (injections_alg X Y) = injections (set X) Y"
 proof -
   let ?P="\<lambda> l. (distinct l \<longrightarrow> (set (injections_alg l Y)=injections (set l) Y))"
-  have "?P []" using lm02 list.set(1) lm44b by (metis)
+  have "?P []" using injectionsFromEmptyAreEmpty list.set(1) lm44b by (metis)
   moreover have "\<forall>x xs. ?P xs \<longrightarrow> ?P (x#xs)" using assms(1) lm86b by (metis distinct.simps(2) list.simps(15))
   ultimately have "?P X" by (rule structInduct)
   then show ?thesis using assms(2) by blast
