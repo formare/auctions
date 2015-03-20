@@ -1028,12 +1028,15 @@ corollary takeAllPermutation:
   "set (perm2 (takeAll (%x.(x\<in>X)) l) n)  \<subseteq>  X \<inter> set l" 
   using listIntersectionWithSet permutationInvariance by metis
 
+(* "subList list1 list2" extracts the components of list1 according to the indices given in list2, e.g.,  "subList [1::nat,2,3,4] [0,2]" gives [1,3] *)
+abbreviation "subList l xl == map (nth l) (takeAll (%x. x \<le> size l) xl)"
 
 
 section {* A more computable version of @{term toFunction}.*}
 
 (* If R is a relation and the image of x is unique then take that, else take the fallback *)
-abbreviation "toFunctionWithFallback R fallback == (% x. if (R``{x} = {R,,x}) then (R,,x) else fallback)"
+abbreviation "toFunctionWithFallback R fallback == 
+              (% x. if (R``{x} = {R,,x}) then (R,,x) else fallback)"
 notation 
   toFunctionWithFallback (infix "Else" 75)
 

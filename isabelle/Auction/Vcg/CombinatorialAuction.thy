@@ -247,7 +247,7 @@ proof -
   have 1: "?N\<noteq>{}" by auto have 4: "finite ?N" using assms(3) by simp
   have "?a (?s ?b') (?a (?s bids) (allAllocations ?N (set G)))=
   {chosenAllocation' ?N G bids random}" (is "?L=?R")
-  using 1 assms(1) assms(2) 4 by (rule lm92)
+  using 1 assms(1) assms(2) 4 by (rule winningAllocationUniqueness)
   moreover have "?L= ?f ?b' (?f bids (allAllocations ?N (set G)))" by auto
   ultimately have "?l={chosenAllocation' ?N G bids random}" by presburger
   moreover have "card ...=1" by simp ultimately show ?thesis by presburger 
@@ -281,7 +281,7 @@ let ?n="{seller}" have
 1: "(?n \<union> N)\<noteq>{}" by simp have 
 4: "finite (?n\<union>N)" using assms(3) by fast have 
 "terminatingAuctionRel (?n\<union>N) G b r = {chosenAllocation' (?n\<union>N) G b r}" using 1 assms(1) 
-assms(2) 4 by (rule lm92) moreover have "?L = terminatingAuctionRel (?n\<union>N) G b r" by auto
+assms(2) 4 by (rule winningAllocationUniqueness) moreover have "?L = terminatingAuctionRel (?n\<union>N) G b r" by auto
 ultimately show ?thesis by auto
 qed
 
@@ -476,11 +476,11 @@ proof - have "a \<in> soldAllocations''' N G" using assms lm28e by metis thus ?t
 corollary assumes 
 "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
 shows "(Outside' {seller}) ` (terminatingAuctionRel N G (bids) random) = 
-{chosenAllocation' N G bids random -- (seller)}" (is "?L=?R") using assms lm92 Outside_def 
+{chosenAllocation' N G bids random -- (seller)}" (is "?L=?R")
 proof -
 have "?R = Outside' {seller} ` {chosenAllocation' N G bids random}" using Outside_def 
 by blast 
-moreover have "... = (Outside'{seller})`(terminatingAuctionRel N G bids random)" using assms lm92 
+moreover have "... = (Outside'{seller})`(terminatingAuctionRel N G bids random)" using assms winningAllocationUniqueness 
 by blast
 ultimately show ?thesis by presburger
 qed
@@ -574,7 +574,7 @@ definition "vcgpAlg N G b r n =
 Max (setsum b ` (allAllocationsComp (N-{n}) G)) - (setsum b (vcgaAlgWithoutLosers N G b r -- n))"
 
 lemma lm01: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x"
-unfolding toFunctionWithFallback2_def
+unfolding toFunctionWithFallbackAlg_def
 by (metis assms toFunction_def)
 lemma lm03: "Domain (Y \<times> {0::nat}) = Y & Domain (X \<times> {1})=X" by blast
 lemma lm04: "Domain (X <|| Y) = X \<union> Y" using lm03 paste_Domain sup_commute by metis
@@ -637,7 +637,7 @@ let ?f2="%g.((bidMaximizedBy a N G) Elsee 0)(fst pair, g)"
   proof -
     have "\<And>x\<^sub>1 x\<^sub>2. (x\<^sub>1, g) \<in> x\<^sub>2 \<times> finestpart G \<or> x\<^sub>1 \<notin> x\<^sub>2" by (metis 0 mem_Sigma_iff) 
     then have "(pseudoAllocation a <| (N \<times> finestpart G)) (fst pair, g) = maxbid a N G (fst pair, g)"
-    unfolding toFunctionWithFallback2_def maxbid_def
+    unfolding toFunctionWithFallbackAlg_def maxbid_def
     by (metis (no_types) lm04 UnCI assms(1) toFunction_def)
     thus ?thesis unfolding maxbid_def by blast
   qed

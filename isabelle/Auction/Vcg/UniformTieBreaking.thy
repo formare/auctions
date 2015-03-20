@@ -547,100 +547,120 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-corollary lm59g: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (summedBidVector' bids N G) a = setsum snd ((summedBid bids) ` a)" (is "?L=?R")
-using assms lm59f lm40c 
+corollary lm59g: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "setsum (summedBidVector' bids N G) a = setsum snd ((summedBid bids) ` a)" 
+  (is "?L=?R")
 proof -
-let ?p=summedBid let ?l=summedBidVector'
-have "?L = setsum snd ((?p bids)`((N \<times> (Pow G - {{}}))\<inter> a))" using assms by (rule lm59f)
-moreover have "... = ?R" using assms lm40c Int_absorb1 by (metis (no_types))
-ultimately show ?thesis by presburger
-qed
-corollary lm57c: "setsum snd ((summedBid bids) ` a) = setsum (snd \<circ> (summedBid bids)) a"
-using assms setsum.reindex lm57b by blast
-corollary lm59h: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (summedBidVector' bids N G) a = setsum (snd \<circ> (summedBid bids)) a" (is "?L=?R")
-using assms lm59g lm57c 
-proof -
-let ?p=summedBid let ?l=summedBidVector'
-have "?L = setsum snd ((?p bids)` a)" using assms by (rule lm59g)
-moreover have "... = ?R" using assms lm57c by blast
-ultimately show ?thesis by presburger
-qed
-corollary lm25c: assumes "a \<in> possibleAllocationsRel N G" shows 
-"setsum (summedBidVector' bids N G) a = setsum ((setsum bids) \<circ> omega) a" (is "?L=?R") 
-using assms lm59h lm25 
-proof -
-let ?inner1="snd \<circ> (summedBid bids)" let ?inner2="(setsum bids) \<circ> omega"
-let ?M="setsum ?inner1 a"
-have "?L = ?M" using assms by (rule lm59h)
-moreover have "?inner1 = ?inner2" using lm25 assms by fastforce
-ultimately show "?L = ?R" using assms by metis
+  let ?p=summedBid 
+  let ?l=summedBidVector'
+  have "?L = setsum snd ((?p bids)`((N \<times> (Pow G - {{}}))\<inter> a))" using assms by (rule lm59f)
+  moreover have "... = ?R" using assms lm40c Int_absorb1 by (metis (no_types))
+  ultimately show ?thesis by simp
 qed
 
-corollary lm25d: assumes "a \<in> possibleAllocationsRel N G" shows
-"setsum (summedBidVector' bids N G) a = setsum (setsum bids) (omega` a)"
-using assms lm25c setsum.reindex lm32 
+corollary lm57c: 
+  "setsum snd ((summedBid bids) ` a) = setsum (snd \<circ> (summedBid bids)) a"
+  using assms setsum.reindex lm57b by blast
+
+corollary lm59h: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "setsum (summedBidVector' bids N G) a = setsum (snd \<circ> (summedBid bids)) a" 
+  (is "?L=?R")
 proof -
-have "{} \<notin> Range a" using assms by (metis Universes.lm39b)
-then have "inj_on omega a" using lm32 by blast
-then have "setsum (setsum bids) (omega ` a) = setsum ((setsum bids) \<circ> omega) a" 
-by (rule setsum.reindex)
-moreover have "setsum (summedBidVector' bids N G) a = setsum ((setsum bids) \<circ> omega) a"
-using assms lm25c by (rule Extraction.exE_realizer)
-ultimately show ?thesis by presburger
+  let ?p = summedBid 
+  let ?l = summedBidVector'
+  have "?L = setsum snd ((?p bids)` a)" using assms by (rule lm59g)
+  moreover have "... = ?R" using assms lm57c by blast
+  ultimately show ?thesis by simp
 qed
 
-lemma lm67: assumes "finite (snd pair)" shows "finite (omega pair)" using assms
-finite.emptyI finite.insertI finite_SigmaI finiteFinestpart  by (metis(no_types))
-corollary lm67b: assumes "\<forall>y\<in>(Range a). finite y" shows "\<forall>y\<in>(omega ` a). finite y"
-using assms lm67 imageE finitePairSecondRange by fast
-lemma assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "\<forall>y \<in> (Range a). finite y"
-using assms by (metis lm41)
+corollary lm25c: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "setsum (summedBidVector' bids N G) a = setsum ((setsum bids) \<circ> omega) a" 
+  (is "?L=?R") 
+proof -
+  let ?inner1 = "snd \<circ> (summedBid bids)" 
+  let ?inner2="(setsum bids) \<circ> omega"
+  let ?M="setsum ?inner1 a"
+  have "?L = ?M" using assms by (rule lm59h)
+  moreover have "?inner1 = ?inner2" using lm25 assms by fastforce
+  ultimately show "?L = ?R" using assms by metis
+qed
 
-corollary lm67c: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows "\<forall>x\<in>(omega ` a). finite x" 
-using assms lm67b lm41 by (metis(no_types))
+corollary lm25d: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "setsum (summedBidVector' bids N G) a = setsum (setsum bids) (omega` a)"
+proof -
+  have "{} \<notin> Range a" using assms by (metis Universes.lm39b)
+  then have "inj_on omega a" using lm32 by blast
+  then have "setsum (setsum bids) (omega ` a) = setsum ((setsum bids) \<circ> omega) a" 
+       by (rule setsum.reindex)
+  moreover have "setsum (summedBidVector' bids N G) a = setsum ((setsum bids) \<circ> omega) a"
+       using assms lm25c by (rule Extraction.exE_realizer)
+  ultimately show ?thesis by presburger
+qed
 
-corollary lm30b: assumes "a \<in> possibleAllocationsRel N G" shows "is_non_overlapping (omega ` a)"
-using assms lm30 lm45b image_iff lll81a 
+lemma lm67: 
+  assumes "finite (snd pair)" 
+  shows "finite (omega pair)" 
+  using assms finite.emptyI finite.insertI finite_SigmaI finiteFinestpart  by (metis(no_types))
+
+corollary lm67b: 
+  assumes "\<forall>y\<in>(Range a). finite y" 
+  shows "\<forall>y\<in>(omega ` a). finite y"
+  using assms lm67 imageE finitePairSecondRange by fast
+
+corollary lm67c: 
+  assumes "a \<in> possibleAllocationsRel N G" "finite G" 
+  shows "\<forall>x\<in>(omega ` a). finite x" 
+  using assms lm67b lm41 by (metis(no_types))
+
+corollary lm30b: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "is_non_overlapping (omega ` a)"
 proof -
   have "runiq a" by (metis (no_types) assms image_iff lll81a)
   moreover have "{} \<notin> Range a" using assms by (metis Universes.lm39b)
   ultimately show ?thesis using lm30 by blast
 qed
 
-lemma lm68: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
-"setsum (setsum bids) (omega` a) = setsum bids (\<Union> (omega ` a)) " 
-using assms setsumUnionDisjoint2 lm30b lm67c by (metis (lifting, mono_tags))
+lemma lm68: 
+  assumes "a \<in> possibleAllocationsRel N G" "finite G" 
+  shows "setsum (setsum bids) (omega` a) = setsum bids (\<Union> (omega ` a))" 
+  using assms setsumUnionDisjoint2 lm30b lm67c by (metis (lifting, mono_tags))
 
-corollary lm69: assumes "a \<in> possibleAllocationsRel N G" "finite G" shows 
-"setsum (summedBidVector' bids N G) a = setsum bids (pseudoAllocation a)" (is "?L = ?R")
-using assms lm25d lm68 
+corollary lm69: 
+  assumes "a \<in> possibleAllocationsRel N G" "finite G" 
+  shows "setsum (summedBidVector' bids N G) a = setsum bids (pseudoAllocation a)" 
+  (is "?L = ?R")
 proof -
-have "?L = setsum (setsum bids) (omega `a)" using assms lm25d by blast
-moreover have "... = setsum bids (\<Union> (omega ` a))" using assms lm68 by blast
-ultimately show ?thesis 
-unfolding pseudoAllocation_def
-by presburger
+  have "?L = setsum (setsum bids) (omega `a)" using assms lm25d by blast
+  moreover have "... = setsum bids (\<Union> (omega ` a))" using assms lm68 by blast
+  ultimately show ?thesis unfolding pseudoAllocation_def by presburger
 qed
 
-lemma lm73: "Domain (pseudoAllocation a) \<subseteq> Domain a"
-unfolding pseudoAllocation_def by fastforce
-corollary assumes "a \<in> possibleAllocationsRel N G" shows "\<Union> Range a = G" using assms lm47 
-is_partition_of_def by metis
-corollary lm72: assumes "a \<in> possibleAllocationsRel N G" shows "Range (pseudoAllocation a) = finestpart G" 
-using assms lm55s lm47 is_partition_of_def by metis
-corollary lm73b: assumes "a \<in> possibleAllocationsRel N G" shows "Domain (pseudoAllocation a) \<subseteq> N & 
-Range (pseudoAllocation a) = finestpart G" 
-using assms lm73 lm47 lm55s is_partition_of_def subset_trans by (metis(no_types))
-corollary lm73c: assumes "a \<in> possibleAllocationsRel N G" 
-shows "pseudoAllocation a \<subseteq> N \<times> finestpart G" using assms lm73b 
+lemma lm73: 
+  "Domain (pseudoAllocation a) \<subseteq> Domain a"
+  unfolding pseudoAllocation_def by fastforce
+
+corollary lm73b: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "Domain (pseudoAllocation a) \<subseteq> N   &   Range (pseudoAllocation a) = finestpart G" 
+  using assms lm73 lm47 lm55s is_partition_of_def subset_trans by (metis(no_types))
+
+corollary lm73c: 
+  assumes "a \<in> possibleAllocationsRel N G" 
+  shows "pseudoAllocation a \<subseteq> N \<times> finestpart G"
 proof -
-let ?p=pseudoAllocation let ?aa="?p a" let ?d=Domain let ?r=Range
-have "?d ?aa \<subseteq> N" using assms lm73b by (metis (lifting, mono_tags))
-moreover have "?r ?aa \<subseteq> finestpart G" using assms lm73b by (metis (lifting, mono_tags) equalityE)
-ultimately have "?d ?aa \<times> (?r ?aa) \<subseteq> N \<times> finestpart G" by auto
-then show "?aa \<subseteq> N \<times> finestpart G" by auto
+  let ?p = pseudoAllocation 
+  let ?aa = "?p a" 
+  let ?d = Domain 
+  let ?r = Range
+  have "?d ?aa \<subseteq> N" using assms lm73b by (metis (lifting, mono_tags))
+  moreover have "?r ?aa \<subseteq> finestpart G" using assms lm73b by (metis (lifting, mono_tags) equalityE)
+  ultimately have "?d ?aa \<times> (?r ?aa) \<subseteq> N \<times> finestpart G" by auto
+  then show "?aa \<subseteq> N \<times> finestpart G" by auto
 qed
 
 
@@ -650,247 +670,210 @@ qed
 
 
 
+section{* From Pseudo-allocations to allocations  *}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-abbreviation "mbc pseudo == {(x, \<Union> (pseudo `` {x}))| x. x \<in> Domain pseudo}"
+(* pseudoAllocationInv inverts pseudoAllocation *)
+abbreviation "pseudoAllocationInv pseudo == {(x, \<Union> (pseudo `` {x}))| x. x \<in> Domain pseudo}"
  
-corollary assumes "{} \<notin> Range X" shows "inj_on (image omega) (Pow X)" using assms injectionPowerset lm32 by blast
-
-lemma "pseudoAllocation = Union \<circ> (image omega)"
-using pseudoAllocation_def sorry
-lemma lm75d: assumes "runiq a" "{} \<notin> Range a" shows 
-"a = mbc (pseudoAllocation a)"
+lemma lm75d: 
+  assumes "runiq a" "{} \<notin> Range a" 
+  shows "a = pseudoAllocationInv (pseudoAllocation a)"
 proof -
-let ?p="{(x, Y)| Y x. Y \<in> finestpart (a,,x) & x \<in> Domain a}"
-let ?a="{(x, \<Union> (?p `` {x}))| x. x \<in> Domain ?p}" 
-have "\<forall>x \<in> Domain a. a,,x \<noteq> {}" by (metis assms eval_runiq_in_Range)
-then have "\<forall>x \<in> Domain a. finestpart (a,,x) \<noteq> {}" by (metis notEmptyFinestpart) 
-then have "Domain a \<subseteq> Domain ?p" by force
-moreover have "Domain a \<supseteq> Domain ?p" by fast
-ultimately have 
-1: "Domain a = Domain ?p" by fast
-{
-  fix z assume "z \<in> ?a" 
-  then obtain x where 
-  "x \<in> Domain ?p & z=(x , \<Union> (?p `` {x}))" by blast
-  then have "x \<in> Domain a & z=(x , \<Union> (?p `` {x}))" by fast
-  then moreover have "?p``{x} = finestpart (a,,x)" using assms by fastforce
-  moreover have "\<Union> (finestpart (a,,x))= a,,x" by (metis finestPartUnion)
-  ultimately have "z \<in> a" by (metis assms(1) eval_runiq_rel)
+  let ?p="{(x, Y)| Y x. Y \<in> finestpart (a,,x) & x \<in> Domain a}"
+  let ?a="{(x, \<Union> (?p `` {x}))| x. x \<in> Domain ?p}" 
+  have "\<forall>x \<in> Domain a. a,,x \<noteq> {}" by (metis assms eval_runiq_in_Range)
+  then have "\<forall>x \<in> Domain a. finestpart (a,,x) \<noteq> {}" by (metis notEmptyFinestpart) 
+  then have "Domain a \<subseteq> Domain ?p" by force
+  moreover have "Domain a \<supseteq> Domain ?p" by fast
+  ultimately have 
+  1: "Domain a = Domain ?p" by fast
+  {
+    fix z assume "z \<in> ?a" 
+    then obtain x where 
+    "x \<in> Domain ?p & z=(x , \<Union> (?p `` {x}))" by blast
+    then have "x \<in> Domain a & z=(x , \<Union> (?p `` {x}))" by fast
+    then moreover have "?p``{x} = finestpart (a,,x)" using assms by fastforce
+    moreover have "\<Union> (finestpart (a,,x))= a,,x" by (metis finestPartUnion)
+    ultimately have "z \<in> a" by (metis assms(1) eval_runiq_rel)
   }
-then have
-3: "?a \<subseteq> a" by fast
-{
-  fix z assume 0: "z \<in> a" let ?x="fst z" let ?Y="a,,?x" let ?YY="finestpart ?Y"
-  have "z \<in> a & ?x \<in> Domain a" using 0 by (metis fst_eq_Domain rev_image_eqI) then
-  have 
-  2:"z \<in> a & ?x \<in> Domain ?p" using 1 by presburger  then
-  have "?p `` {?x} = ?YY" by fastforce
-  then have "\<Union> (?p `` {?x}) = ?Y" by (metis finestPartUnion)
-  moreover have "z = (?x, ?Y)" using assms by (metis "0" functionOnFirstEqualsSecond surjective_pairing)
-  ultimately have "z \<in> ?a" using 2 by (metis (lifting, mono_tags) mem_Collect_eq)
+  then have
+  2: "?a \<subseteq> a" by fast
+  {
+    fix z assume 0: "z \<in> a" let ?x="fst z" let ?Y="a,,?x" let ?YY="finestpart ?Y"
+    have "z \<in> a & ?x \<in> Domain a" using 0 by (metis fst_eq_Domain rev_image_eqI) 
+    then have 
+    3: "z \<in> a & ?x \<in> Domain ?p" using 1 by presburger  
+    then have "?p `` {?x} = ?YY" by fastforce
+    then have "\<Union> (?p `` {?x}) = ?Y" by (metis finestPartUnion)
+    moreover have "z = (?x, ?Y)" using assms by (metis "0" functionOnFirstEqualsSecond
+                                                           surjective_pairing)
+    ultimately have "z \<in> ?a" using 3 by (metis (lifting, mono_tags) mem_Collect_eq)
   }
-then have "a = ?a" using 3 by blast
-moreover have "?p = pseudoAllocation a" using lm55v assms by (metis (lifting, mono_tags))
-ultimately show ?thesis by auto
-qed
-corollary lm75dd: assumes "a \<in> runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}}))" shows
-"(mbc \<circ> pseudoAllocation) a = id a" using assms lm75d 
-proof -
-have "runiq a" using runiqs_def assms by fast
-moreover have "{} \<notin> Range a" using assms by blast
-ultimately show ?thesis using lm75d by fastforce
-qed
-lemma lm75e: "inj_on (mbc \<circ> pseudoAllocation) (runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}})))" 
-using assms lm75dd inj_on_def inj_on_id 
-proof -
-let ?ne="Pow (UNIV \<times> (UNIV - {{}}))" let ?X="runiqs \<inter> ?ne" let ?f="mbc \<circ> pseudoAllocation"
-have "\<forall>a1 \<in> ?X. \<forall> a2 \<in> ?X. ?f a1 = ?f a2 \<longrightarrow> id a1 = id a2" using lm75dd by blast then 
-have "\<forall>a1 \<in> ?X. \<forall> a2 \<in> ?X. ?f a1 = ?f a2 \<longrightarrow> a1 = a2" by auto
-thus ?thesis unfolding inj_on_def by blast
+  then have "a = ?a" using 2 by blast
+  moreover have "?p = pseudoAllocation a" using lm55v assms by (metis (lifting, mono_tags))
+  ultimately show ?thesis by auto
 qed
 
-corollary lm75g: "inj_on pseudoAllocation (runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}})))" 
-using lm75e inj_on_imageI2 by blast
-lemma lm76: "injectionsUniverse \<subseteq> runiqs" using runiqs_def Collect_conj_eq Int_lower1 by metis
-lemma lm77: "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (UNIV - {{}}))" using assms is_non_overlapping_def by force
-corollary lm75i: "allocationsUniverse \<subseteq> runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}}))" using lm76 lm77 by auto
-corollary lm75h: "inj_on pseudoAllocation allocationsUniverse" using assms lm75g lm75i subset_inj_on by blast
-corollary lm75j: "inj_on pseudoAllocation (possibleAllocationsRel N G)" 
+corollary lm75dd: 
+  assumes "a \<in> runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}}))" 
+  shows "(pseudoAllocationInv \<circ> pseudoAllocation) a = id a"
+proof -
+  have "runiq a" using runiqs_def assms by fast
+  moreover have "{} \<notin> Range a" using assms by blast
+  ultimately show ?thesis using lm75d by fastforce
+qed
+
+lemma lm75e: 
+  "inj_on (pseudoAllocationInv \<circ> pseudoAllocation) (runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}})))" 
+proof -
+  let ?ne="Pow (UNIV \<times> (UNIV - {{}}))" 
+  let ?X="runiqs \<inter> ?ne" 
+  let ?f="pseudoAllocationInv \<circ> pseudoAllocation"
+  have "\<forall>a1 \<in> ?X. \<forall> a2 \<in> ?X. ?f a1 = ?f a2 \<longrightarrow> id a1 = id a2" using lm75dd by blast 
+  then have "\<forall>a1 \<in> ?X. \<forall> a2 \<in> ?X. ?f a1 = ?f a2 \<longrightarrow> a1 = a2" by auto
+  thus ?thesis unfolding inj_on_def by blast
+qed
+
+corollary lm75g: 
+  "inj_on pseudoAllocation (runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}})))" 
+  using lm75e inj_on_imageI2 by blast
+
+lemma lm76: 
+  "injectionsUniverse \<subseteq> runiqs" 
+  using runiqs_def Collect_conj_eq Int_lower1 by metis
+
+lemma lm77: 
+  "partitionValuedUniverse \<subseteq> Pow (UNIV \<times> (UNIV - {{}}))" 
+  using assms is_non_overlapping_def by force
+
+corollary lm75i: 
+  "allocationsUniverse \<subseteq> runiqs \<inter> Pow (UNIV \<times> (UNIV - {{}}))" 
+  using lm76 lm77 by auto
+
+corollary lm75h: 
+  "inj_on pseudoAllocation allocationsUniverse" 
+  using assms lm75g lm75i subset_inj_on by blast
+
+corollary lm75j: 
+  "inj_on pseudoAllocation (possibleAllocationsRel N G)" 
 proof -
   have "possibleAllocationsRel N G \<subseteq> allocationsUniverse" by (metis (no_types) Universes.lm50)
   thus "inj_on pseudoAllocation (possibleAllocationsRel N G)" using lm75h subset_inj_on by blast
 qed
 
+lemma lm95: 
+  assumes "card N > 0" "distinct G" 
+  shows "winningAllocationsRel N (set G) bids \<subseteq> set (possibleAllocationsAlg N G)"
+  using assms lm03 lm70b by (metis(no_types))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-fun prova where "prova f X 0 = X" | "prova f X (Suc n) = f n (prova f X n)"
-
-fun prova2 where "prova2 f 0 = UNIV" |"prova2 f (Suc n) = f n (prova2 f n)"
-
-fun geniter where "geniter f 0 = f 0" | "geniter f (Suc n)=(f (Suc n)) o (geniter f n)"
-
-abbreviation "pseudodecreasing X Y == card X - 1 \<le> card Y - 2"
-(* We'll use this to model the behaviour {1,2,3} -> {1,2} -> {1} -> {1} -> {1} ... *)
-notation pseudodecreasing (infix "<~" 75)
-
-abbreviation "subList l xl == map (nth l) (takeAll (%x. x \<le> size l) xl)"
-abbreviation "insertRightOf2 x l n == (subList l (map nat [0..n])) @ [x] @ 
-(subList l (map nat [n+1..size l - 1]))"
-abbreviation "insertRightOf3 x l n == insertRightOf2 x l (Min {n, size l - 1})"
-definition "insertRightOf x l n = sublist l {0..<1+n} @ [x] @ sublist l {n+1..< 1+size l}"
-lemma "set (insertRightOf x l n) = set (sublist l {0..<1+n}) \<union> (set [x]) \<union> 
-set (sublist l {n+1..<1+size l})" using insertRightOf_def 
-by (metis append_assoc set_append)
-lemma "set l1 \<union> set l2 = set (l1 @ l2)" by simp
-
-fun permOld::"'a list => (nat \<times> ('a list)) set" where 
-"permOld [] = {}" | "permOld (x#l) = 
-graph {fact (size l) ..< 1+fact (1 + (size l))}
-(%n::nat. insertRightOf x (permOld l,,(n div size l)) (n mod (size l)))
-+* (permOld l)"
-
-fun permL where (* associate to every n=1...(size l)! a unique permutation of l, 
-parsing all and only the possible permutations (assuming distinct l)*)
-"permL [] = (%n. [])"|
-"permL (x#l) = (%n. 
-if (fact (size l) < n & n <= fact (1 + (size l)))
-then
-(insertRightOf3 x (permL l (n div size l)) (n mod (size l)))
-else
-(x # (permL l n))
-)"
-
-(* lemma lm94: "possibleAllocationsAlg2 N G = set (possibleAllocationsAlg3 N G)" by auto*)
-lemma lm95: assumes "card N > 0" "distinct G" shows 
-"winningAllocationsRel N (set G) bids \<subseteq> set (possibleAllocationsAlg N G)"
-using assms lm03 lm70b by (metis(no_types))
-corollary lm96: assumes 
-"N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows
-"winningAllocationsRel N (set G) bids \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
-using assms lm91 lm95 
+corollary lm96: 
+  assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
+  shows "winningAllocationsRel N (set G) bids \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
 proof -
-let ?w=winningAllocationsRel let ?a=possibleAllocationsAlg
-let ?G="set G" have "card N > 0" using assms by (metis card_gt_0_iff)
-then have "?w N ?G bids \<subseteq> set (?a N G)" using lm95 by (metis assms(3))
-then show ?thesis using assms lm91 by (metis List.finite_set le_iff_inf)
-qed
-lemma lm97: "X = (%x. x \<in> X) -`{True}" by blast
-corollary lm96b: assumes 
-"N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows
-"(%x. x\<in>winningAllocationsRel N (set G) bids)-`{True} \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
-using assms lm96 lm97 by metis
-lemma lm84b: assumes "P -` {True} \<inter> set l \<noteq> {}" shows "takeAll P l \<noteq> []" using assms
-nonEmptyListFiltered filterpositions2_def by (metis Nil_is_map_conv)
-corollary lm84h: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G) \<noteq> []"
-using assms lm84b lm96b by metis
-
-corollary nn05b: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G)) n \<noteq> []"
-using assms permutationNotEmpty lm84h by metis
-corollary lm82: assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" shows 
-"chosenAllocation' N G bids random \<in> winningAllocationsRel N (set G) bids"
-using assms takeAllPermutation nn05b hd_in_set in_mono Int_def Int_lower1 all_not_in_conv image_set permutationInvariance listIntersectionWithSet set_empty subsetI subset_trans
-proof -
-let ?w=winningAllocationsRel let ?p=possibleAllocationsAlg let ?G="set G"
-let ?X="?w N ?G bids" let ?l="perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
-have "set ?l \<subseteq> ?X" using takeAllPermutation by fast
-moreover have "?l \<noteq> []" using assms nn05b by blast
-ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
+  let ?w = winningAllocationsRel 
+  let ?a = possibleAllocationsAlg
+  let ?G = "set G" 
+  have "card N > 0" using assms by (metis card_gt_0_iff)
+  then have "?w N ?G bids \<subseteq> set (?a N G)" using lm95 by (metis assms(3))
+  then show ?thesis using assms lm91 by (metis List.finite_set le_iff_inf)
 qed
 
-lemma lm49b: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows "real(setsum(maxbid' a N G)(pseudoAllocation a)) - setsum(maxbid' a N G)(pseudoAllocation aa) 
-= real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
+(* -` is the reverse image *)
+lemma lm97: 
+  "X = (%x. x \<in> X) -`{True}" 
+  by blast
+
+corollary lm96b: 
+  assumes  "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
+  shows "(%x. x\<in>winningAllocationsRel N (set G) bids)-`{True} \<inter> 
+         set (possibleAllocationsAlg N G) \<noteq> {}"
+  using assms lm96 lm97 by metis
+
+lemma lm84b: 
+  assumes "P -` {True} \<inter> set l \<noteq> {}" 
+  shows "takeAll P l \<noteq> []" 
+  using assms nonEmptyListFiltered filterpositions2_def by (metis Nil_is_map_conv)
+
+corollary lm84h: 
+  assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
+  shows "takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G) \<noteq> []"
+  using assms lm84b lm96b by metis
+
+corollary nn05b: 
+  assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
+  shows "perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) 
+                        (possibleAllocationsAlg N G)) 
+               n \<noteq> []"
+  using assms permutationNotEmpty lm84h by metis
+
+(* The chosen allocation is in the set of possible winning allocations *)
+corollary lm82: 
+  assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
+  shows "chosenAllocation' N G bids random \<in> winningAllocationsRel N (set G) bids"
 proof -
-let ?p=pseudoAllocation let ?f=finestpart let ?m=maxbid' let ?B="?m a N G" have 
-2: "?p aa \<subseteq> N \<times> ?f G" using assms lm73c by (metis (lifting, mono_tags)) then have 
-0: "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto moreover have 
-1: "finite (?p aa)" using assms lm48 lm54 by blast ultimately have 
-"real(setsum ?B (?p a))-setsum ?B (?p aa) = real(card (?p a))-card(?p aa \<inter> (?p a))" 
-using differenceSetsumVsCardinalityReal by fast
-moreover have "... = real (card G) - card (?p aa \<inter> (?p a))" using assms lm48 
-by (metis (lifting, mono_tags))
-ultimately show ?thesis by presburger
+  let ?w=winningAllocationsRel 
+  let ?p=possibleAllocationsAlg 
+  let ?G="set G"
+  let ?X="?w N ?G bids" 
+  let ?l="perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
+  have "set ?l \<subseteq> ?X" using takeAllPermutation by fast
+  moreover have "?l \<noteq> []" using assms nn05b by blast
+  ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
 qed
 
-lemma lm66e: "summedBidVectorRel bids N G = graph (N \<times> (Pow G-{{}})) (summedBidSecond bids)" 
-unfolding graph_def using lm66 by blast
-lemma ll33b: assumes "x\<in>X" shows "toFunction (graph X f) x = f x" using assms 
-by (metis graphEqImage toFunction_def)
-corollary ll33c: assumes "pair \<in> N \<times> (Pow G-{{}})" shows "summedBidVector' bids N G pair=summedBidSecond bids pair"
-using assms ll33b lm66e by (metis(mono_tags))
+(* The following lemma proves a property of maxbid', which in the following will be proved to maximize the revenue. a and aa are allocations. *)
+lemma lm49b: 
+  assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
+  shows "real(setsum(maxbid' a N G)(pseudoAllocation a)) - 
+            setsum(maxbid' a N G)(pseudoAllocation aa) = 
+         real (card G) - 
+            card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
+proof -
+  let ?p = pseudoAllocation 
+  let ?f = finestpart 
+  let ?m = maxbid' 
+  let ?B = "?m a N G" 
+  have "?p aa \<subseteq> N \<times> ?f G" using assms lm73c by (metis (lifting, mono_tags)) 
+  then have "?p aa \<subseteq> ?p a \<union> (N \<times> ?f G)" by auto 
+  moreover have "finite (?p aa)" using assms lm48 lm54 by blast 
+  ultimately have "real(setsum ?B (?p a)) - setsum ?B (?p aa) = 
+                   real(card (?p a))-card(?p aa \<inter> (?p a))" 
+    using differenceSetsumVsCardinalityReal by fast
+  moreover have "... = real (card G) - card (?p aa \<inter> (?p a))" 
+    using assms lm48 by (metis (lifting, mono_tags))
+  ultimately show ?thesis by simp
+qed
 
-lemma lm031: "summedBidSecond (real \<circ> ((bids:: _ => nat))) pair = real (summedBidSecond bids pair)" (is "?L=?R")
-by simp
-lemma lm031b: assumes "pair \<in> N \<times> (Pow G-{{}})" shows 
-"summedBidVector' (real\<circ>(bids:: _ => nat)) N G pair = real (summedBidVector' bids N G pair)" 
-using assms ll33c lm031 by (metis(no_types))
-corollary lm031c: assumes "X \<subseteq> N \<times> (Pow G - {{}})" shows "\<forall>pair \<in> X. 
-summedBidVector' (real \<circ> (bids::_=>nat)) N G pair= (real \<circ> (summedBidVector' bids N G)) pair"
-using assms lm031b 
+lemma lm66e: 
+  "summedBidVectorRel bids N G = graph (N \<times> (Pow G-{{}})) (summedBidSecond bids)" 
+  unfolding graph_def using lm66 by blast
+
+lemma ll33b: 
+  assumes "x\<in>X" 
+  shows "toFunction (graph X f) x = f x" 
+  using assms by (metis graphEqImage toFunction_def)
+
+corollary ll33c: 
+  assumes "pair \<in> N \<times> (Pow G-{{}})" 
+  shows "summedBidVector' bids N G pair = summedBidSecond bids pair"
+  using assms ll33b lm66e by (metis(mono_tags))
+
+(* type conversion to real commutes *)
+lemma lm031: 
+  "summedBidSecond (real \<circ> ((bids:: _ => nat))) pair = real (summedBidSecond bids pair)" 
+  by simp
+
+lemma lm031b: 
+  assumes "pair \<in> N \<times> (Pow G-{{}})" 
+  shows  "summedBidVector' (real\<circ>(bids:: _ => nat)) N G pair = 
+          real (summedBidVector' bids N G pair)" 
+  using assms ll33c lm031 by (metis(no_types))
+
+(* TPTP?*)
+corollary lm031c: 
+  assumes "X \<subseteq> N \<times> (Pow G - {{}})" 
+  shows "\<forall>pair \<in> X. summedBidVector' (real \<circ> (bids::_=>nat)) N G pair =
+         (real \<circ> (summedBidVector' bids N G)) pair"
 proof -
   { fix esk48\<^sub>0 :: "'a \<times> 'b set"
     { assume "esk48\<^sub>0 \<in> N \<times> (Pow G - {{}})"
@@ -900,122 +883,148 @@ proof -
   thus "\<forall>pair\<in>X. summedBidVector' (real \<circ> bids) N G pair = (real \<circ> summedBidVector' bids N G) pair" by blast
 qed
 
-corollary lm031e: assumes "aa \<subseteq> N \<times> (Pow G-{{}})" shows
-"setsum ((summedBidVector' (real \<circ> (bids::_=>nat)) N G)) aa = real (setsum ((summedBidVector' bids N G)) aa)" 
-(is "?L=?R")
+corollary lm031e: 
+  assumes "aa \<subseteq> N \<times> (Pow G-{{}})" 
+  shows "setsum ((summedBidVector' (real \<circ> (bids::_=>nat)) N G)) aa = 
+         real (setsum ((summedBidVector' bids N G)) aa)" 
+  (is "?L=?R")
 proof -
-have "\<forall> pair \<in> aa. summedBidVector' (real \<circ> bids) N G pair = (real \<circ> (summedBidVector' bids N G)) pair"
-using assms by (rule lm031c)
-then have "?L = setsum (real\<circ>(summedBidVector' bids N G)) aa" using setsum.cong by force
-then show ?thesis by simp
+  have "\<forall> pair \<in> aa. summedBidVector' (real \<circ> bids) N G pair = 
+                     (real \<circ> (summedBidVector' bids N G)) pair"
+  using assms by (rule lm031c)
+  then have "?L = setsum (real\<circ>(summedBidVector' bids N G)) aa" using setsum.cong by force
+  then show ?thesis by simp
 qed
 
-corollary lm031d: assumes "aa \<in> possibleAllocationsRel N G" shows
-"setsum ((summedBidVector' (real \<circ> (bids::_=>nat)) N G)) aa = real (setsum ((summedBidVector' bids N G)) aa)" 
-using assms lm031e lm40c by (metis(lifting,mono_tags))
+corollary lm031d: 
+  assumes "aa \<in> possibleAllocationsRel N G" 
+  shows "setsum ((summedBidVector' (real \<circ> (bids::_=>nat)) N G)) aa = 
+         real (setsum ((summedBidVector' bids N G)) aa)" 
+  using assms lm031e lm40c by (metis(lifting,mono_tags))
 
 corollary lm70b: 
-assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-shows (* int (setsum (tiebids' a N G) a) - int (setsum (tiebids' a N G) aa) *)
-"real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa = 
-real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" (is "?L=?R")
+  assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
+  shows "real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa = 
+         real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))" 
+  (is "?L=?R")
 proof -
-  let ?l=summedBidVector' let ?m=maxbid' let ?s=setsum let ?p=pseudoAllocation
-  let ?bb="?m a N G" let ?b="real \<circ> (?m a N G)"  
+  let ?l=summedBidVector' 
+  let ?m=maxbid' 
+  let ?s=setsum 
+  let ?p=pseudoAllocation
+  let ?bb="?m a N G" 
+  let ?b="real \<circ> (?m a N G)"  
   have "real (?s ?bb (?p a)) - (?s ?bb (?p aa)) = ?R" using assms lm49b by blast 
-  then have "?R = real (?s ?bb (?p a)) - (?s ?bb (?p aa))" by presburger
+  then have 
+  1: "?R = real (?s ?bb (?p a)) - (?s ?bb (?p aa))" by simp
   have " ?s (?l ?b N G) aa = ?s ?b (?p aa)" using assms lm69 by blast moreover have 
   "... = ?s ?bb (?p aa)" by fastforce 
-moreover have "(?s (?l ?b N G) aa) = real (?s (?l ?bb N G) aa)" using assms(3) by (rule lm031d)
-(*  ultimately have "real (?s ?bb (?p a)) - (?s ?bb (?p aa)) = real (?s ?bb (?p a)) - (?s (?l ?bb N G) aa)"
-  try0 *)
-ultimately have 
-  1: "?R = real (?s ?bb (?p a)) - (?s (?l ?bb N G) aa)"
-by (metis `real (card G) - real (card (pseudoAllocation aa \<inter> pseudoAllocation a)) = real (setsum (pseudoAllocation a <| (N \<times> finestpart G)) (pseudoAllocation a)) - real (setsum (pseudoAllocation a <| (N \<times> finestpart G)) (pseudoAllocation aa))`)
+  moreover have "(?s (?l ?b N G) aa) = real (?s (?l ?bb N G) aa)" using assms(3) by (rule lm031d)
+  ultimately have 
+  2: "?R = real (?s ?bb (?p a)) - (?s (?l ?bb N G) aa)" by (metis 1)
   have "?s (?l ?b N G) a=(?s ?b (?p a))" using assms lm69 by blast
   moreover have "... = ?s ?bb (?p a)" by force
   moreover have "... = real (?s ?bb (?p a))" by fast
   moreover have "?s (?l ?b N G) a = real (?s (?l ?bb N G) a)" using assms(2) by (rule lm031d)
-  ultimately have "?s (?l ?bb N G) a = real (?s ?bb (?p a))" by presburger
-  thus ?thesis using 1 by presburger
+  ultimately have "?s (?l ?bb N G) a = real (?s ?bb (?p a))" by simp
+  thus ?thesis using 2 by simp
 qed
 
-corollary lm70c: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-"x=real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa" shows
-"x <= card G & x \<ge> 0 & (x=0 \<longleftrightarrow> a = aa) & (aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a)"
+corollary lm70c: 
+  assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
+          "x = real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa" 
+  shows "x <= card G & 
+         x \<ge> 0 & 
+        (x=0 \<longleftrightarrow> a = aa) & 
+        (aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a)"
 proof -
-let ?p=pseudoAllocation have "real (card G) >= real (card G) - card (?p aa \<inter> (?p a))" by force
-moreover have 
-"real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa = 
-real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
-using assms lm70b by blast ultimately have
-4: "x=real(card G)-card(pseudoAllocation aa\<inter>(pseudoAllocation a))" using assms by force then have
-1: "x \<le> real (card G)" using assms by linarith have 
-0: "card (?p aa) = card G & card (?p a) = card G" using assms lm48 by blast 
-moreover have "finite (?p aa) & finite (?p a)" using assms lm54 by blast ultimately
-have "card (?p aa \<inter> ?p a) \<le> card G" using Int_lower2 card_mono by fastforce then have 
-2: "x \<ge> 0" using assms lm70b 4 by linarith 
-have "card (?p aa \<inter> (?p a)) = card G \<longleftrightarrow> (?p aa = ?p a)" 
-using 0 lm56 4 assms by (metis (lifting, mono_tags))
-moreover have "?p aa = ?p a \<longrightarrow> a = aa" using assms lm75j inj_on_def 
-by (metis (lifting, mono_tags))
-ultimately have "card (?p aa \<inter> (?p a)) = card G \<longleftrightarrow> (a=aa)" by blast
-moreover have "x = real (card G) - card (?p aa \<inter> (?p a))" using assms lm70b by blast
-ultimately have 
-3: "x = 0 \<longleftrightarrow> (a=aa)" by linarith then have 
-"aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < real (setsum (tiebids' a N G) a)" using 1 2 assms 
-by auto
-thus ?thesis using 1 2 3 by force
+  let ?p = pseudoAllocation 
+  have "real (card G) >= real (card G) - card (?p aa \<inter> (?p a))" by force
+  moreover have "real (setsum (tiebids' a N G) a) - setsum (tiebids' a N G) aa = 
+                 real (card G) - card (pseudoAllocation aa \<inter> (pseudoAllocation a))"
+           using assms lm70b by blast 
+  ultimately have
+  1: "x=real(card G)-card(pseudoAllocation aa\<inter>(pseudoAllocation a))" using assms by force 
+  then have
+  2: "x \<le> real (card G)" using assms by linarith 
+  have 
+  3: "card (?p aa) = card G & card (?p a) = card G" using assms lm48 by blast 
+  moreover have "finite (?p aa) & finite (?p a)" using assms lm54 by blast
+  ultimately have "card (?p aa \<inter> ?p a) \<le> card G" using Int_lower2 card_mono by fastforce 
+  then have 
+  4: "x \<ge> 0" using assms lm70b 1 by linarith 
+  have "card (?p aa \<inter> (?p a)) = card G \<longleftrightarrow> (?p aa = ?p a)" 
+       using 3 lm56 4 assms by (metis (lifting, mono_tags))
+  moreover have "?p aa = ?p a \<longrightarrow> a = aa" using assms lm75j inj_on_def 
+       by (metis (lifting, mono_tags))
+  ultimately have "card (?p aa \<inter> (?p a)) = card G \<longleftrightarrow> (a=aa)" by blast
+  moreover have "x = real (card G) - card (?p aa \<inter> (?p a))" using assms lm70b by blast
+  ultimately have 
+  5: "x = 0 \<longleftrightarrow> (a=aa)" by linarith 
+  then have 
+  "aa \<noteq> a \<longrightarrow> setsum (tiebids' a N G) aa < real (setsum (tiebids' a N G) a)" 
+        using 1 4 assms by auto
+  thus ?thesis using 2 4 5 by force
 qed 
 
-corollary lm70d: assumes "finite G" "a \<in> possibleAllocationsRel N G" "aa \<in> possibleAllocationsRel N G"
-"aa \<noteq> a" shows "setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a" using assms lm70c by blast
+(* If for an arbitrary allocation a we compute tiebids for it then the corresponding revenue is strictly maximal. *)
+corollary lm70d: 
+  assumes "finite G" "a \<in> possibleAllocationsRel N G" 
+          "aa \<in> possibleAllocationsRel N G" "aa \<noteq> a" 
+  shows "setsum (tiebids' a N G) aa < setsum (tiebids' a N G) a" 
+  using assms lm70c by blast
 
-lemma lm81: assumes
-"N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
-"aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation' N G bids random}" shows 
-"setsum (resolvingBid' N G bids random) aa < setsum (resolvingBid' N G bids random) (chosenAllocation' N G bids random)" 
+lemma lm81: 
+  assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
+          "aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation' N G bids random}" 
+  shows "setsum (resolvingBid' N G bids random) aa < 
+         setsum (resolvingBid' N G bids random) (chosenAllocation' N G bids random)" 
 proof -
-let ?a="chosenAllocation' N G bids random" let ?p=possibleAllocationsRel let ?G="set G"
-have "?a \<in> winningAllocationsRel N (set G) bids" using assms lm82 by blast
-moreover have "winningAllocationsRel N (set G) bids \<subseteq> ?p N ?G" using assms lm03 by metis
-ultimately have "?a \<in> ?p N ?G" using lm82 assms lm03 set_rev_mp by blast
-then show ?thesis using assms lm70d by blast 
+  let ?a="chosenAllocation' N G bids random" 
+  let ?p=possibleAllocationsRel 
+  let ?G="set G"
+  have "?a \<in> winningAllocationsRel N (set G) bids" using assms lm82 by blast
+  moreover have "winningAllocationsRel N (set G) bids \<subseteq> ?p N ?G" using assms lm03 by metis
+  ultimately have "?a \<in> ?p N ?G" using lm82 assms lm03 set_rev_mp by blast
+  then show ?thesis using assms lm70d by blast 
 qed
 
+(* putting together the two rounds in the auction, first using the bids, then the random values. *)
 abbreviation "terminatingAuctionRel N G bids random == 
-argmax (setsum (resolvingBid' N G bids random)) (argmax (setsum bids) (possibleAllocationsRel N (set G)))"
+              argmax (setsum (resolvingBid' N G bids random)) 
+                     (argmax (setsum bids) (possibleAllocationsRel N (set G)))"
 
 text{* Termination theorem: it assures that the number of winning allocations is exactly one *}
-theorem lm92: assumes 
-"N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
-shows "terminatingAuctionRel N G (bids) random = {chosenAllocation' N G bids random}"
+theorem winningAllocationUniqueness: 
+  assumes "N \<noteq> {}" "distinct G" "set G \<noteq> {}" "finite N"
+  shows "terminatingAuctionRel N G (bids) random = {chosenAllocation' N G bids random}"
 proof -
-let ?p=possibleAllocationsRel let ?G="set G" 
-let ?X="argmax (setsum bids) (?p N ?G)"
-let ?a="chosenAllocation' N G bids random" let ?b="resolvingBid' N G bids random"
-let ?f="setsum ?b" let ?ff="setsum ?b" 
-let ?t=terminatingAuctionRel have "\<forall>aa\<in>(possibleAllocationsRel N ?G)-{?a}.  ?f aa < ?f ?a" 
-using assms lm81 by blast then have 
-0: "\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a" using assms lm81 by auto
-have "finite N" using assms by simp then 
-have "finite (?p N ?G)" using assms lm59 by (metis List.finite_set)
-then have "finite ?X" using assms by (metis finite_subset lm03)
-moreover have "?a \<in> ?X" using lm82 assms by blast
-ultimately have 
-"finite ?X & ?a \<in> ?X & (\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a)" using 0 by force
-moreover have "(finite ?X & ?a \<in> ?X & (\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a)) \<longrightarrow> argmax ?f ?X = {?a}"
-by (rule argmaxProperty)
-ultimately have "{?a} = argmax ?f ?X" using lm80 by presburger
-moreover have "... = ?t N G bids random" by simp
-ultimately show ?thesis by presburger
+  let ?p = possibleAllocationsRel 
+  let ?G = "set G" 
+  let ?X = "argmax (setsum bids) (?p N ?G)"
+  let ?a = "chosenAllocation' N G bids random" 
+  let ?b = "resolvingBid' N G bids random"
+  let ?f = "setsum ?b" 
+  let ?t=terminatingAuctionRel 
+  have "\<forall>aa \<in> (possibleAllocationsRel N ?G)-{?a}. ?f aa < ?f ?a" 
+    using assms lm81 by blast 
+  then have "\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a" using assms lm81 by auto
+  moreover have "finite N" using assms by simp 
+  then have "finite (?p N ?G)" using assms lm59 by (metis List.finite_set)
+  then have "finite ?X" using assms by (metis finite_subset lm03)
+  moreover have "?a \<in> ?X" using lm82 assms by blast
+  ultimately have "finite ?X & ?a \<in> ?X & (\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a)" by force
+  moreover have "(finite ?X & ?a \<in> ?X & (\<forall>aa \<in> ?X-{?a}. ?f aa < ?f ?a)) \<longrightarrow> argmax ?f ?X = {?a}"
+    by (rule argmaxProperty)
+  ultimately have "{?a} = argmax ?f ?X" using lm80 by presburger
+  moreover have "... = ?t N G bids random" by simp
+  ultimately show ?thesis by simp
 qed
 
-text {* A more computable adaptor from set-theoretical to HOL function, with fallback value *}
-definition "toFunctionWithFallback2 R fallback == (% x. if (x \<in> Domain R) then (R,,x) else fallback)"
-notation toFunctionWithFallback2 (infix "Elsee" 75) (* MC: This is computable, `Else' is not *)
-
-section {* Combinatorial auction input examples *}
+text {* The computable variant of Else is defined next as Elsee. *}
+definition "toFunctionWithFallbackAlg R fallback == 
+            (% x. if (x \<in> Domain R) then (R,,x) else fallback)"
+notation toFunctionWithFallbackAlg (infix "Elsee" 75) 
 
 end
 
