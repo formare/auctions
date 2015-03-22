@@ -34,7 +34,7 @@ abbreviation "allAllocations' N \<Omega> == injectionsUniverse \<inter>
 {a. Domain a \<subseteq> N & Range a \<in> all_partitions \<Omega>}" 
 abbreviation "allAllocations'' N G == allocationsUniverse\<inter>{a. Domain a \<subseteq> N & \<Union> Range a = G}"
 lemma lm28: "allAllocations N G=allAllocations' N G & 
-allAllocations N G=allAllocations'' N G" using lm19 nn24 by metis
+allAllocations N G=allAllocations'' N G" using allocationInjectionsUnivervseProperty possibleAllocationsIntersection by metis
 lemma lm28b: 
 "(a \<in> allAllocations'' N G) = (a \<in> allocationsUniverse& Domain a \<subseteq> N & \<Union> Range a = G)" by force
 abbreviation "soldAllocations N \<Omega> == 
@@ -60,13 +60,13 @@ lemma lm37: assumes "a \<in> soldAllocations N G" shows "a \<in> allocationsUniv
 proof -
 obtain aa where "a=aa -- seller & aa \<in> allAllocations (N\<union>{seller}) G"
 using assms by blast
-then have "a \<subseteq> aa & aa \<in> allocationsUniverse" unfolding Outside_def using nn24b by blast
+then have "a \<subseteq> aa & aa \<in> allocationsUniverse" unfolding Outside_def using possibleAllocationsIntersectionSubset by blast
 then show ?thesis using lm35b by blast
 qed
 lemma lm38: assumes "a \<in> soldAllocations N G" shows "a \<in> allAllocations'' (Domain a) (\<Union>Range a)"
 proof - show ?thesis using assms lm37 by blast qed
 lemma  assumes "N1 \<subseteq> N2" shows "soldAllocations'' N1 G \<subseteq> soldAllocations'' N2 G"
-using assms lm35 lm36  nn24c lm28b lm28 lm34 lm38 Outside_def by blast
+using assms lm35 lm36 possibleAllocationsIntersectionSetEquals lm28b lm28 lm34 lm38 Outside_def by blast
 (*
 lemma lm39a: "{} \<in> injectionsUniverse" by (metis converse_empty mem_Collect_eq runiq_emptyrel)
 lemma lm39b: "{} \<in> partitionValuedUniverse" by (metis (lifting) Pow_bottom UN_iff lm36b)
@@ -75,7 +75,7 @@ by (metis nn39)
  corollary lm39: "{} \<in> allocationsUniverse" using lm39a lm39b by blast
 *)
 lemma lll59b: "runiq (X\<times>{y})" using rightUniqueTrivialCartes by (metis trivial_singleton)
-lemma lm37b: "{x}\<times>{y} \<in> injectionsUniverse" using Universes.lm37 by fastforce
+lemma lm37b: "{x}\<times>{y} \<in> injectionsUniverse" using singlePairInInjectionsUniverse by fastforce
 lemma lm40b: assumes "a \<in> soldAllocations'' N G" shows "\<Union> Range a \<subseteq> G" using assms Outside_def by blast
 lemma lm41: "a \<in> soldAllocations'' N G = 
 (EX aa. aa -- (seller)=a & aa\<in>allAllocations'' (N \<union> {seller}) G)" by blast
@@ -93,7 +93,7 @@ have "?b \<subseteq> {(?i,G-\<Union> Range a)} - {(?i, {})}" by fastforce then h
 2: "?b \<in> allocationsUniverse" using allocationUniverseProperty lm35b by (metis(no_types)) have 
 3: "\<Union> Range a \<inter> \<Union> (Range ?b) = {}" by blast have 
 4: "Domain a \<inter> Domain ?b ={}" using assms by fast
-have "?aa \<in> allocationsUniverse" using 1 2 3 4 by (rule lm23)
+have "?aa \<in> allocationsUniverse" using 1 2 3 4 by (rule allocationUnion)
 then have "?aa \<in> allAllocations'' (Domain ?aa) 
 (\<Union> Range ?aa)" unfolding lm34 by metis then have 
 "?aa \<in> allAllocations'' (N\<union>{?i}) (\<Union> Range ?aa)" using lm35 assms paste_def by auto
@@ -110,7 +110,7 @@ qed
 
 lemma lm23: 
 "a\<in>allAllocations N \<Omega>=(a\<in>injectionsUniverse & Domain a\<subseteq>N & Range a\<in>all_partitions \<Omega>)" 
-by (metis (full_types) lm19c)
+by (metis (full_types) posssibleAllocationsRelCharacterization)
 
 lemma lm37n: assumes "a \<in> soldAllocations'' N G" shows "Domain a \<subseteq> N-{seller} & a \<in> allocationsUniverse"  
 proof -
@@ -164,7 +164,7 @@ proof -
   "... = N-{n}-{?bb}" by fastforce ultimately have 
   "?d (a--n) \<subseteq> N-{n}-{?bb}" by blast moreover have "\<Union> ?r (a--n) \<subseteq> G" 
   unfolding Outside_def using 0 by blast ultimately have "a -- n \<in> ?X1" by fast moreover have 
-  "a--n \<in> allocationsUniverse" using assms(1) Int_iff lm35d by (metis(lifting,mono_tags)) 
+  "a--n \<in> allocationsUniverse" using assms(1) Int_iff allocationsUniverseOutside by (metis(lifting,mono_tags)) 
   ultimately show ?thesis by blast
 qed
 
@@ -206,7 +206,7 @@ abbreviation "maximalAllocations G b == argmaxList (setsum' b) ((allAllocations 
 *)
 
 corollary lm43d: assumes "a \<in> allocationsUniverse" shows 
-"(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse" using assms lm43b 
+"(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse" using assms allocationsUniverseOutsideUnion 
 by fastforce
 
 (* lemma lm27c: "seller \<notin> int `N" by fastforce *)
@@ -346,8 +346,8 @@ using assms(1,2,3) lm58c by blast have
 1: "\<forall>aa\<in>?X. finite aa & (\<forall> X. X\<in>Range aa \<longrightarrow> b (?n, X)=0)" using assms(4) 
 List.finite_set UniformTieBreaking.lm44 by metis have 
 2: "a \<in> ?X" using 0 by auto have "a \<in> ?Z" using 0 by fast 
-then have "a \<in> ?X\<inter>{x. ?s b x = Max (?s b ` ?X)}" using lm78 by simp
-then have "a \<in> {x. ?s b x = Max (?s b ` ?X)}" using lm78 by simp
+then have "a \<in> ?X\<inter>{x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
+then have "a \<in> {x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
 moreover have "?s b ` ?X = {?s b aa| aa. aa\<in>?X}" by blast
 ultimately have "?s b a = Max {?s b aa| aa. aa\<in>?X}" by auto
 moreover have "{?s b aa| aa. aa\<in>?X} = {?s b (aa--?n)| aa. aa\<in>?X}" using 1 by (rule lm59c)
@@ -430,12 +430,12 @@ using assms lm58b by blast
 then moreover have 
 1: "a \<in> allAllocations ({?n}\<union>N) (set G)" by auto
 moreover have "maximalStrictAllocations' N (set G) b \<subseteq> allocationsUniverse" 
-by (metis (lifting, mono_tags) UniformTieBreaking.lm03 Universes.lm50 subset_trans)
+by (metis (lifting, mono_tags) UniformTieBreaking.lm03 possibleAllocationsUniverse subset_trans)
 ultimately moreover have "?a=a -- seller & a \<in> allocationsUniverse" by blast
-then have "?a \<in> allocationsUniverse" using lm35d by auto
-moreover have "\<Union> Range a= set G" using nn24c 1 by metis
+then have "?a \<in> allocationsUniverse" using allocationsUniverseOutside by auto
+moreover have "\<Union> Range a= set G" using possibleAllocationsIntersectionSetEquals 1 by metis
 then moreover have "\<Union> Range ?a \<subseteq> set G" using Outside_def 0 by fast
-ultimately show ?thesis using lm35d Outside_def by blast
+ultimately show ?thesis using allocationsUniverseOutside Outside_def by blast
 qed
 
 lemma "vcga' N G b r = the_elem ((argmax \<circ> setsum) (randomBids' N G b r) 
@@ -447,7 +447,7 @@ Max (setsum b ` (soldAllocations (N-{n}) (set G))) - (setsum b (vcga N G b r -- 
 lemma lm63: assumes "x \<in> X" "finite X" shows "Max (f`X) >= f x" (is "?L >= ?R") using assms 
 by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
-lemma lm59: assumes "finite N" "finite G" shows "finite (soldAllocations N G)" using assms lm59
+lemma lm59: assumes "finite N" "finite G" shows "finite (soldAllocations N G)" using assms possibleAllocationsRelFinite
 finite.emptyI finite.insertI finite_UnI finite_imageI by metis
 
 text{* The price paid by any participant is non-negative. *}
@@ -462,13 +462,13 @@ ultimately have "Max (?f`(?A (N-{n}) (set G))) \<ge> ?f (?a -- n)" (is "?L >= ?R
 then show "?L - ?R >=0" by linarith
 qed
 
-lemma lm19b: "allAllocations N G = possibleAllocationsRel N G" using assms by (metis lm19)
+lemma lm19b: "allAllocations N G = possibleAllocationsRel N G" using assms by (metis allocationInjectionsUnivervseProperty)
 abbreviation "strictAllocationsUniverse == allocationsUniverse"
 
 abbreviation "Goods bids == \<Union>((snd\<circ>fst)`bids)"
 
 corollary lm45: assumes "a \<in> soldAllocations''' N G" shows "Range a \<in> partitionsUniverse" 
-using assms by (metis (lifting, mono_tags) Int_iff lm22 mem_Collect_eq)
+using assms by (metis (lifting, mono_tags) Int_iff nonOverlapping mem_Collect_eq)
 
 corollary lm45a: assumes "a \<in> soldAllocations N G" shows "Range a \<in> partitionsUniverse"
 proof - have "a \<in> soldAllocations''' N G" using assms lm28e by metis thus ?thesis by (rule lm45) qed
@@ -497,8 +497,8 @@ lemma "maximalStrictAllocations' N G b=winningAllocationsRel ({seller} \<union> 
 lemma lm64: assumes "a \<in> allocationsUniverse" 
 "n1 \<in> Domain a" "n2 \<in> Domain a"
 "n1 \<noteq> n2" 
-shows "a,,n1 \<inter> a,,n2={}" using assms is_non_overlapping_def lm22 mem_Collect_eq 
-proof - have "Range a \<in> partitionsUniverse" using assms lm22 by blast
+shows "a,,n1 \<inter> a,,n2={}" using assms is_non_overlapping_def nonOverlapping mem_Collect_eq 
+proof - have "Range a \<in> partitionsUniverse" using assms nonOverlapping by blast
 moreover have "a \<in> injectionsUniverse & a \<in> partitionValuedUniverse" using assms by (metis (lifting, no_types) IntD1 IntD2)
 ultimately moreover have "a,,n1 \<in> Range a" using assms 
 by (metis (mono_tags) eval_runiq_in_Range mem_Collect_eq)
@@ -693,7 +693,7 @@ qed
 
 corollary lm70c: assumes "card N > 0" "distinct G" shows 
 "possibleAllocationsRel N (set G) = set (possibleAllocationsAlg N G)"  
-using assms Universes.lm70b by metis
+using assms possibleAllocationsBridgingLemma by metis
 
 lemma lm24: assumes "card A > 0" "card B > 0" shows "card (A \<union> B) > 0" 
 using assms card_gt_0_iff finite_Un sup_eq_bot_iff by (metis(no_types))
@@ -748,7 +748,7 @@ moreover have "\<forall>x \<in> a. tiebids' ?c N (set G) x = tiebids ?c N (set G
 ultimately have "\<forall>x \<in> a. ?r' x = resolvingBid N G b r x" unfolding resolvingBid_def by presburger
 thus ?thesis using setsum.cong by simp
 qed
-lemma lm15: "allAllocations N G \<subseteq> Pow (N \<times> (Pow G - {{}}))" by (metis PowI lm40c subsetI)
+lemma lm15: "allAllocations N G \<subseteq> Pow (N \<times> (Pow G - {{}}))" by (metis PowI allocationPowerset subsetI)
 corollary lm14b: assumes "card N > 0" "distinct G" "a \<in> allAllocations N (set G)" 
 shows "setsum (resolvingBid' N G b r) a = setsum (resolvingBid N G b r) a"
 proof -
