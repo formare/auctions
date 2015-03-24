@@ -61,7 +61,7 @@ proof -
 obtain aa where "a=aa -- seller & aa \<in> allAllocations (N\<union>{seller}) G"
 using assms by blast
 then have "a \<subseteq> aa & aa \<in> allocationsUniverse" unfolding Outside_def using possibleAllocationsIntersectionSubset by blast
-then show ?thesis using lm35b by blast
+then show ?thesis using subsetAllocation by blast
 qed
 lemma lm38: assumes "a \<in> soldAllocations N G" shows "a \<in> allAllocations'' (Domain a) (\<Union>Range a)"
 proof - show ?thesis using assms lm37 by blast qed
@@ -90,7 +90,8 @@ let ?aa'="a +* ?b"
 have
 1: "a \<in> allocationsUniverse" using assms(1) by fast 
 have "?b \<subseteq> {(?i,G-\<Union> Range a)} - {(?i, {})}" by fastforce then have 
-2: "?b \<in> allocationsUniverse" using allocationUniverseProperty lm35b by (metis(no_types)) have 
+2: "?b \<in> allocationsUniverse" using allocationUniverseProperty subsetAllocation by (metis(no_types))
+have 
 3: "\<Union> Range a \<inter> \<Union> (Range ?b) = {}" by blast have 
 4: "Domain a \<inter> Domain ?b ={}" using assms by fast
 have "?aa \<in> allocationsUniverse" using 1 2 3 4 by (rule allocationUnion)
@@ -291,7 +292,8 @@ maximalStrictAllocations' N (set G) b" by auto
 corollary lm58: assumes "distinct G" "set G \<noteq> {}" "finite N" shows
 "the_elem
 (argmax (setsum (randomBids' N G b r)) (maximalStrictAllocations' N (set G) b)) \<in>
-(maximalStrictAllocations' N (set G) b)" (is "the_elem ?X \<in> ?R") using assms lm92b lm57
+(maximalStrictAllocations' N (set G) b)" (is "the_elem ?X \<in> ?R") 
+  using assms lm92b summedBidInjective
 proof -
 have "card ?X=1" using assms by (rule lm92b) moreover have "?X \<subseteq> ?R" by auto
 ultimately show ?thesis using cardinalityOneTheElem by blast
@@ -333,7 +335,7 @@ using assms lm58b argmax_def by fast
 
 lemma assumes "distinct G" "set G \<noteq> {}" "finite N" shows 
 "\<forall>aa\<in>allAllocations ({seller}\<union>N) (set G). finite aa"
-using assms by (metis List.finite_set UniformTieBreaking.lm44)
+using assms by (metis List.finite_set allocationFinite)
 
 lemma lm61: assumes "distinct G" "set G \<noteq> {}" "finite N" 
 "\<forall>aa\<in>allAllocations ({seller}\<union>N) (set G). \<forall> X \<in> Range aa. b (seller, X)=0"
@@ -344,7 +346,7 @@ let ?n=seller let ?s=setsum let ?a="vcga' N G b r" obtain a where
 (a\<in>argmax (setsum b) (allAllocations({seller}\<union>N)(set G)))"(is "_ & ?a=_ & a\<in>?Z")
 using assms(1,2,3) lm58c by blast have 
 1: "\<forall>aa\<in>?X. finite aa & (\<forall> X. X\<in>Range aa \<longrightarrow> b (?n, X)=0)" using assms(4) 
-List.finite_set UniformTieBreaking.lm44 by metis have 
+List.finite_set allocationFinite by metis have 
 2: "a \<in> ?X" using 0 by auto have "a \<in> ?Z" using 0 by fast 
 then have "a \<in> ?X\<inter>{x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
 then have "a \<in> {x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
@@ -430,7 +432,7 @@ using assms lm58b by blast
 then moreover have 
 1: "a \<in> allAllocations ({?n}\<union>N) (set G)" by auto
 moreover have "maximalStrictAllocations' N (set G) b \<subseteq> allocationsUniverse" 
-by (metis (lifting, mono_tags) UniformTieBreaking.lm03 possibleAllocationsUniverse subset_trans)
+by (metis (lifting, mono_tags) winningAllocationPossible possibleAllocationsUniverse subset_trans)
 ultimately moreover have "?a=a -- seller & a \<in> allocationsUniverse" by blast
 then have "?a \<in> allocationsUniverse" using allocationsUniverseOutside by auto
 moreover have "\<Union> Range a= set G" using possibleAllocationsIntersectionSetEquals 1 by metis
@@ -685,7 +687,7 @@ moreover have "summedBidVector ?h2 N G=(summedBidVectorRel ?h2 N G) Elsee 0"
 unfolding summedBidVector_def by fast
 ultimately have " summedBidVector ?h2 N G=summedBidVectorRel ?h1 N G Elsee 0" by presburger
 moreover have "... x = (toFunction (summedBidVectorRel ?h1 N G)) x" using assms 
-lm01 UniformTieBreaking.lm64 by (metis (mono_tags))
+lm01 summedBidVectorCharacterization by (metis (mono_tags))
 ultimately have "summedBidVector ?h2 N G x = (toFunction (summedBidVectorRel ?h1 N G)) x" 
 by (metis (lifting, no_types))
 thus ?thesis by simp
@@ -800,7 +802,7 @@ using assms(3,1) by (rule lm70e) ultimately show ?thesis by metis
 qed
 
 lemma "maximalStrictAllocations' N (set G) b \<subseteq> Pow (({seller}\<union>N) \<times> (Pow (set G) - {{}}))"
-using lm15 UniformTieBreaking.lm03 subset_trans by (metis (no_types))
+using lm15 winningAllocationPossible subset_trans by (metis (no_types))
 
 lemma lm17: "(image converse) (Union X)=Union ((image converse) ` X)" by auto
 
