@@ -57,10 +57,12 @@ lemma allAllocationsVarCharacterization:
 abbreviation "soldAllocations N \<Omega> == (Outside' {seller}) ` (allAllocations (N \<union> {seller}) \<Omega>)"
 
 (* soldAllocations' and soldAllocations'' are variants of soldAllocations reflecting the different
-   formulations of allAllocations *)
+   formulations of allAllocations. soldAllocations''' is yet another variant. These variants are
+   used since for different proofs different variants are easier to use. *)
 abbreviation "soldAllocations' N \<Omega> == (Outside' {seller}) ` (allAllocations' (N \<union> {seller}) \<Omega>)"
 abbreviation "soldAllocations'' N \<Omega> == (Outside' {seller}) ` (allAllocations'' (N \<union> {seller}) \<Omega>)"
-
+abbreviation "soldAllocations''' N \<Omega> == 
+  allocationsUniverse \<inter> {aa. Domain aa\<subseteq>N-{seller} & \<Union>Range aa\<subseteq>\<Omega>}"
 lemma soldAllocationsEquivalence: 
   "soldAllocations N \<Omega> = soldAllocations' N \<Omega> & 
    soldAllocations' N \<Omega> = soldAllocations'' N \<Omega>"
@@ -164,7 +166,9 @@ lemma allocationCharacterization:
    (a \<in> injectionsUniverse & Domain a \<subseteq> N & Range a \<in> all_partitions \<Omega>)" 
   by (metis (full_types) posssibleAllocationsRelCharacterization)
 
-lemma soldAllocationIsAllocationToNonSeller: 
+(* The lemmas lm01, lm02, lm03, and lm04 are used in order to prove
+   lemma soldAllocationVariantEquivalence   *)
+lemma lm01: 
   assumes "a \<in> soldAllocations'' N \<Omega>" 
   shows "Domain a \<subseteq> N-{seller} & a \<in> allocationsUniverse"  
 proof -
@@ -179,69 +183,83 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-corollary soldAllocationIsAllocationToNonSellerVariant: 
+corollary lm02: 
   assumes "a \<in> soldAllocations'' N \<Omega>" 
   shows "a \<in> allocationsUniverse & Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>"
 proof -
-  have "a \<in> allocationsUniverse" using assms soldAllocationIsAllocationToNonSeller by blast
-  moreover have "Domain a \<subseteq> N-{seller}" using assms soldAllocationIsAllocationToNonSeller by blast
+  have "a \<in> allocationsUniverse" using assms lm01 by blast
+  moreover have "Domain a \<subseteq> N-{seller}" using assms lm01 by blast
   moreover have "\<Union> Range a \<subseteq> \<Omega>" using assms onlyGoodsAreSold by blast
   ultimately show ?thesis by blast
 qed
 
-(*
-corollary soldAllocationIsAllocationd: 
-"(a\<in>soldAllocations'' N \<Omega>)=(a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" 
-using soldAllocationIsAllocationToNonSellerVariant allocatedToBuyerMeansSold by (metis (mono_tags))
-
-lemma lm42: "(a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>) = 
-(a\<in>allocationsUniverse& a\<in>{aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>})" 
-by (metis (lifting, no_types) mem_Collect_eq)
-*)
-
-corollary soldAllocationIsAllocationf: "(a\<in>soldAllocations'' N \<Omega>)=
-(a\<in>allocationsUniverse& a\<in>{aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>})" (is "?L = ?R") 
+corollary lm03:
+  "(a \<in> soldAllocations'' N \<Omega>) =
+   (a \<in> allocationsUniverse & a \<in> {aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>})" 
+  (is "?L = ?R") 
 proof -
-have "(a\<in>soldAllocations'' N \<Omega>)=(a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" 
-using soldAllocationIsAllocationToNonSellerVariant allocatedToBuyerMeansSold by (metis (mono_tags))
-then have "?L = (a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" by fast
-moreover have "... = ?R" using mem_Collect_eq by (metis (lifting, no_types))
-ultimately show ?thesis by auto
+  have "(a\<in>soldAllocations'' N \<Omega>) =
+        (a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" 
+  using lm02 allocatedToBuyerMeansSold by (metis (mono_tags))
+  then have "?L = (a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" by fast
+  moreover have "... = ?R" using mem_Collect_eq by (metis (lifting, no_types))
+  ultimately show ?thesis by auto
 qed
 
-corollary soldAllocationIsAllocationg: "a\<in>soldAllocations'' N \<Omega>=
-(a\<in> (allocationsUniverse \<inter> {aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>}))" 
-using soldAllocationIsAllocationf by (metis (mono_tags) Int_iff)
+corollary lm04: 
+  "a \<in> soldAllocations'' N \<Omega> =
+   (a\<in> (allocationsUniverse \<inter> {aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>}))" 
+  using lm03 by (metis (mono_tags) Int_iff)
 
-abbreviation "soldAllocations''' N \<Omega> == 
-allocationsUniverse\<inter>{aa. Domain aa\<subseteq>N-{seller} & \<Union>Range aa\<subseteq>\<Omega>}"
+corollary soldAllocationVariantEquivalence: 
+  "soldAllocations'' N \<Omega> = soldAllocations''' N \<Omega>" 
+  (is "?L=?R") 
+proof - 
+  {
+   fix a 
+   have "a \<in> ?L = (a \<in> ?R)" by (rule lm04)
+  } 
+  thus ?thesis by blast 
+qed
 
-corollary soldAllocationIsAllocationh: "soldAllocations'' N \<Omega>=soldAllocations''' N \<Omega>" (is "?L=?R") 
-proof - {fix a have "a \<in> ?L = (a \<in> ?R)" by (rule soldAllocationIsAllocationg)} thus ?thesis by blast qed
-
-lemma lm44: assumes "a \<in> soldAllocations''' N \<Omega>" shows "a -- n \<in> soldAllocations''' (N-{n}) \<Omega>"
+lemma soldAllocationRestriction: 
+  assumes "a \<in> soldAllocations''' N \<Omega>" 
+  shows "a -- n \<in> soldAllocations''' (N-{n}) \<Omega>"
 proof -
-  let ?bb=seller let ?d=Domain let ?r=Range let ?X2="{aa. ?d aa\<subseteq>N-{?bb} & \<Union>?r aa\<subseteq>\<Omega>}" 
-  let ?X1="{aa. ?d aa\<subseteq>N-{n}-{?bb} & \<Union>?r aa\<subseteq>\<Omega>}" 
-  have "a\<in>?X2" using assms(1) by fast then have 
-  0: "?d a \<subseteq> N-{?bb} & \<Union>?r a \<subseteq> \<Omega>" by blast then have "?d (a--n) \<subseteq> N-{?bb}-{n}" 
-  using outside_reduces_domain by (metis Diff_mono subset_refl) moreover have 
-  "... = N-{n}-{?bb}" by fastforce ultimately have 
-  "?d (a--n) \<subseteq> N-{n}-{?bb}" by blast moreover have "\<Union> ?r (a--n) \<subseteq> \<Omega>" 
-  unfolding Outside_def using 0 by blast ultimately have "a -- n \<in> ?X1" by fast moreover have 
-  "a--n \<in> allocationsUniverse" using assms(1) Int_iff allocationsUniverseOutside by (metis(lifting,mono_tags)) 
+  let ?bb = seller 
+  let ?d = Domain 
+  let ?r = Range 
+  let ?X1 = "{aa. ?d aa \<subseteq> N-{n}-{?bb} & \<Union>?r aa\<subseteq>\<Omega>}" 
+  let ?X2 = "{aa. ?d aa \<subseteq> N-{?bb} & \<Union>?r aa \<subseteq> \<Omega>}" 
+  have "a\<in>?X2" using assms(1) by fast  
+  then have 
+  0: "?d a \<subseteq> N-{?bb} & \<Union>?r a \<subseteq> \<Omega>" by blast 
+  then have "?d (a--n) \<subseteq> N-{?bb}-{n}" 
+    using outside_reduces_domain by (metis Diff_mono subset_refl) 
+  moreover have "... = N-{n}-{?bb}" by fastforce 
+  ultimately have "?d (a--n) \<subseteq> N-{n}-{?bb}" by blast 
+  moreover have "\<Union> ?r (a--n) \<subseteq> \<Omega>" 
+    unfolding Outside_def using 0 by blast 
+  ultimately have "a -- n \<in> ?X1" by fast 
+  moreover have "a--n \<in> allocationsUniverse" 
+    using assms(1) Int_iff allocationsUniverseOutside by (metis(lifting,mono_tags)) 
   ultimately show ?thesis by blast
 qed
 
-lemma allAllocationsEquivalencee: "soldAllocations=soldAllocations' & soldAllocations'=soldAllocations'' &
-soldAllocations''=soldAllocations'''" using soldAllocationIsAllocationh soldAllocationsEquivalenceVariant by metis
+lemma allAllocationsEquivalenceExtended: 
+  "soldAllocations =  soldAllocations' & 
+   soldAllocations' = soldAllocations'' &
+   soldAllocations'' = soldAllocations'''" 
+  using soldAllocationVariantEquivalence soldAllocationsEquivalenceVariant by metis
 
-corollary lm44b: assumes "a \<in> soldAllocations N \<Omega>" shows "a -- n \<in> soldAllocations (N-{n}) \<Omega>"
+corollary soldAllocationRestrictionb: 
+  assumes "a \<in> soldAllocations N \<Omega>" 
+  shows "a -- n \<in> soldAllocations (N-{n}) \<Omega>"
 (* MC: being an allocation is invariant to subtracting any single bidder 
 This is the fundamental step to prove non-negativity of vcgp *)
 proof - 
-let ?A'=soldAllocations''' have "a \<in> ?A' N \<Omega>" using assms allAllocationsEquivalencee by metis then
-have "a -- n \<in> ?A' (N-{n}) \<Omega>" by (rule lm44) thus ?thesis using allAllocationsEquivalencee by metis 
+let ?A'=soldAllocations''' have "a \<in> ?A' N \<Omega>" using assms allAllocationsEquivalenceExtended by metis then
+have "a -- n \<in> ?A' (N-{n}) \<Omega>" by (rule soldAllocationRestriction) thus ?thesis using allAllocationsEquivalenceExtended by metis 
 qed
 
 corollary soldAllocationIsAllocationi: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations''' N \<Omega>1 \<subseteq> soldAllocations''' N \<Omega>2"
@@ -249,9 +267,9 @@ using assms by blast
 
 corollary lm33: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations'' N \<Omega>1 \<subseteq> soldAllocations'' N \<Omega>2" 
 proof -
-have "soldAllocations'' N \<Omega>1 = soldAllocations''' N \<Omega>1" by (rule soldAllocationIsAllocationh)
+have "soldAllocations'' N \<Omega>1 = soldAllocations''' N \<Omega>1" by (rule soldAllocationVariantEquivalence)
 moreover have "... \<subseteq> soldAllocations''' N \<Omega>2" using assms(1) by (rule soldAllocationIsAllocationi)
-moreover have "... = soldAllocations'' N \<Omega>2" using soldAllocationIsAllocationh by metis
+moreover have "... = soldAllocations'' N \<Omega>2" using soldAllocationVariantEquivalence by metis
 ultimately show ?thesis by auto
 qed
 
@@ -518,7 +536,7 @@ theorem NonnegPrices: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "fi
 proof - 
 let ?a="vcga N \<Omega> b r" let ?A=soldAllocations let ?f="setsum b" 
 have "?a \<in> ?A N (set \<Omega>)" using assms by (rule lm58f)
-then have "?a -- n \<in> ?A (N-{n}) (set \<Omega>)" by (rule lm44b)
+then have "?a -- n \<in> ?A (N-{n}) (set \<Omega>)" by (rule soldAllocationRestrictionb)
 moreover have "finite (?A (N-{n}) (set \<Omega>))" using assms(3) lm59 finite_set finite_Diff by blast
 ultimately have "Max (?f`(?A (N-{n}) (set \<Omega>))) \<ge> ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
 then show "?L - ?R >=0" by linarith
@@ -533,7 +551,7 @@ corollary lm45: assumes "a \<in> soldAllocations''' N \<Omega>" shows "Range a \
 using assms by (metis (lifting, mono_tags) Int_iff nonOverlapping mem_Collect_eq)
 
 corollary lm45a: assumes "a \<in> soldAllocations N \<Omega>" shows "Range a \<in> partitionsUniverse"
-proof - have "a \<in> soldAllocations''' N \<Omega>" using assms allAllocationsEquivalencee by metis thus ?thesis by (rule lm45) qed
+proof - have "a \<in> soldAllocations''' N \<Omega>" using assms allAllocationsEquivalenceExtended by metis thus ?thesis by (rule lm45) qed
 
 corollary assumes 
 "N \<noteq> {}" "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" (*MC: why does this emerge only now? *) 
@@ -635,18 +653,18 @@ abbreviation "allAllocationsComp N \<Omega> ==
 definition "vcgpAlg N \<Omega> b r n =
 Max (setsum b ` (allAllocationsComp (N-{n}) \<Omega>)) - (setsum b (vcgaAlgWithoutLosers N \<Omega> b r -- n))"
 
-lemma lm01: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x"
+lemma lm01a: assumes "x \<in> Domain f" shows "toFunction f x = (f Elsee 0) x"
 unfolding toFunctionWithFallbackAlg_def
 by (metis assms toFunction_def)
-lemma lm03: "Domain (Y \<times> {0::nat}) = Y & Domain (X \<times> {1})=X" by blast
-lemma lm04: "Domain (X <|| Y) = X \<union> Y" using lm03 paste_Domain sup_commute by metis
-corollary lm04b: "Domain (bidMaximizedBy a N \<Omega>) = pseudoAllocation a \<union> N \<times> (finestpart \<Omega>)" using lm04 
+lemma lm03a: "Domain (Y \<times> {0::nat}) = Y & Domain (X \<times> {1})=X" by blast
+lemma lm04a: "Domain (X <|| Y) = X \<union> Y" using lm03a paste_Domain sup_commute by metis
+corollary lm04b: "Domain (bidMaximizedBy a N \<Omega>) = pseudoAllocation a \<union> N \<times> (finestpart \<Omega>)" using lm04a
 by metis
-lemma lm19: "(pseudoAllocation a) \<subseteq> Domain (bidMaximizedBy a N \<Omega>)" by (metis lm04 Un_upper1)
+lemma lm19: "(pseudoAllocation a) \<subseteq> Domain (bidMaximizedBy a N \<Omega>)" by (metis lm04a Un_upper1)
 
-lemma lm02: assumes "x \<in> (N \<times> (Pow \<Omega> - {{}}))" shows 
+lemma lm02a: assumes "x \<in> (N \<times> (Pow \<Omega> - {{}}))" shows 
 "summedBidVector' b N \<Omega> x=summedBidVector b N \<Omega> x" unfolding summedBidVector_def 
-using assms lm01 Domain.simps imageI by (metis(no_types,lifting))
+using assms lm01a Domain.simps imageI by (metis(no_types,lifting))
 (*lm64*)
 
 (*
@@ -688,7 +706,7 @@ lemma lm06: assumes "fst pair \<in> N" "snd pair \<in> Pow \<Omega> - {{}}" show
 setsum (%g. 
 ((bidMaximizedBy a N \<Omega>) Elsee 0)
 (fst pair, g)) (finestpart (snd pair))"
-using assms lm01 lm05 lm04 Un_upper1 UnCI UnI1 setsum.cong finestpartSubset Diff_iff Pow_iff in_mono
+using assms lm01a lm05 lm04a Un_upper1 UnCI UnI1 setsum.cong finestpartSubset Diff_iff Pow_iff in_mono
 proof -
 let ?f1="%g.(toFunction (bidMaximizedBy a N \<Omega>))(fst pair, g)"
 let ?f2="%g.((bidMaximizedBy a N \<Omega>) Elsee 0)(fst pair, g)"
@@ -700,7 +718,7 @@ let ?f2="%g.((bidMaximizedBy a N \<Omega>) Elsee 0)(fst pair, g)"
     have "\<And>x\<^sub>1 x\<^sub>2. (x\<^sub>1, g) \<in> x\<^sub>2 \<times> finestpart \<Omega> \<or> x\<^sub>1 \<notin> x\<^sub>2" by (metis 0 mem_Sigma_iff) 
     then have "(pseudoAllocation a <| (N \<times> finestpart \<Omega>)) (fst pair, g) = maxbid a N \<Omega> (fst pair, g)"
     unfolding toFunctionWithFallbackAlg_def maxbid_def
-    by (metis (no_types) lm04 UnCI assms(1) toFunction_def)
+    by (metis (no_types) lm04a UnCI assms(1) toFunction_def)
     thus ?thesis unfolding maxbid_def by blast
   qed
 }
@@ -747,7 +765,7 @@ moreover have "summedBidVector ?h2 N \<Omega>=(summedBidVectorRel ?h2 N \<Omega>
 unfolding summedBidVector_def by fast
 ultimately have " summedBidVector ?h2 N \<Omega>=summedBidVectorRel ?h1 N \<Omega> Elsee 0" by presburger
 moreover have "... x = (toFunction (summedBidVectorRel ?h1 N \<Omega>)) x" using assms 
-lm01 summedBidVectorCharacterization by (metis (mono_tags))
+lm01a summedBidVectorCharacterization by (metis (mono_tags))
 ultimately have "summedBidVector ?h2 N \<Omega> x = (toFunction (summedBidVectorRel ?h1 N \<Omega>)) x" 
 by (metis (lifting, no_types))
 thus ?thesis by simp
