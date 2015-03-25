@@ -189,6 +189,7 @@ proof -
   ultimately show ?thesis by blast
 qed
 
+(*
 corollary soldAllocationIsAllocationd: 
 "(a\<in>soldAllocations'' N \<Omega>)=(a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" 
 using soldAllocationIsAllocationToNonSellerVariant allocatedToBuyerMeansSold by (metis (mono_tags))
@@ -196,12 +197,16 @@ using soldAllocationIsAllocationToNonSellerVariant allocatedToBuyerMeansSold by 
 lemma lm42: "(a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>) = 
 (a\<in>allocationsUniverse& a\<in>{aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>})" 
 by (metis (lifting, no_types) mem_Collect_eq)
+*)
 
 corollary soldAllocationIsAllocationf: "(a\<in>soldAllocations'' N \<Omega>)=
 (a\<in>allocationsUniverse& a\<in>{aa. Domain aa \<subseteq> N-{seller} & \<Union> Range aa \<subseteq> \<Omega>})" (is "?L = ?R") 
 proof -
-  have "?L = (a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" by (rule soldAllocationIsAllocationd)
-  moreover have "... = ?R" by (rule lm42) ultimately show ?thesis by presburger
+have "(a\<in>soldAllocations'' N \<Omega>)=(a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" 
+using soldAllocationIsAllocationToNonSellerVariant allocatedToBuyerMeansSold by (metis (mono_tags))
+then have "?L = (a\<in>allocationsUniverse& Domain a \<subseteq> N-{seller} & \<Union> Range a \<subseteq> \<Omega>)" by fast
+moreover have "... = ?R" using mem_Collect_eq by (metis (lifting, no_types))
+ultimately show ?thesis by auto
 qed
 
 corollary soldAllocationIsAllocationg: "a\<in>soldAllocations'' N \<Omega>=
@@ -210,6 +215,9 @@ using soldAllocationIsAllocationf by (metis (mono_tags) Int_iff)
 
 abbreviation "soldAllocations''' N \<Omega> == 
 allocationsUniverse\<inter>{aa. Domain aa\<subseteq>N-{seller} & \<Union>Range aa\<subseteq>\<Omega>}"
+
+corollary soldAllocationIsAllocationh: "soldAllocations'' N \<Omega>=soldAllocations''' N \<Omega>" (is "?L=?R") 
+proof - {fix a have "a \<in> ?L = (a \<in> ?R)" by (rule soldAllocationIsAllocationg)} thus ?thesis by blast qed
 
 lemma lm44: assumes "a \<in> soldAllocations''' N \<Omega>" shows "a -- n \<in> soldAllocations''' (N-{n}) \<Omega>"
 proof -
@@ -225,9 +233,6 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-corollary soldAllocationIsAllocationh: "soldAllocations'' N \<Omega>=soldAllocations''' N \<Omega>"
-(is "?L=?R") proof - {fix a have "a \<in> ?L = (a \<in> ?R)" by (rule soldAllocationIsAllocationg)} thus ?thesis by blast qed
-
 lemma allAllocationsEquivalencee: "soldAllocations=soldAllocations' & soldAllocations'=soldAllocations'' &
 soldAllocations''=soldAllocations'''" using soldAllocationIsAllocationh soldAllocationsEquivalenceVariant by metis
 
@@ -242,8 +247,7 @@ qed
 corollary soldAllocationIsAllocationi: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations''' N \<Omega>1 \<subseteq> soldAllocations''' N \<Omega>2"
 using assms by blast
 
-corollary lm33: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations'' N \<Omega>1 \<subseteq> soldAllocations'' N \<Omega>2"
-using assms soldAllocationIsAllocationi soldAllocationIsAllocationh 
+corollary lm33: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations'' N \<Omega>1 \<subseteq> soldAllocations'' N \<Omega>2" 
 proof -
 have "soldAllocations'' N \<Omega>1 = soldAllocations''' N \<Omega>1" by (rule soldAllocationIsAllocationh)
 moreover have "... \<subseteq> soldAllocations''' N \<Omega>2" using assms(1) by (rule soldAllocationIsAllocationi)
@@ -1011,3 +1015,4 @@ end
 (* 
 { { echo asdff; tac ../VCG.scala ; } | sed -n -e '1,/\}/ !p'  | tac | cat - ../addedWrapper.scala; echo \}; }| sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g"
 *)
+
