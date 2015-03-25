@@ -1078,7 +1078,7 @@ qed
 lemma lm087: 
   assumes "\<forall> x. (P x \<longrightarrow> (f x = g x))" 
   shows   "Union {f x|x. P x} = Union {g x | x. P x}" 
-  using assms try0 by blast
+  using assms by blast
 
 lemma lm088: 
   assumes "x \<notin> Domain R" 
