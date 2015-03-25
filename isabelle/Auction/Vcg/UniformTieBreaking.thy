@@ -83,12 +83,12 @@ abbreviation "chosenAllocation' N G bids random ==
             (nat_of_integer random))"
 
 (* find the bid vector in random values that returns the chosen winning allocation *)
-abbreviation "resolvingBid' N G bids random == 
+abbreviation "resolvingBid N G bids random == 
   tiebids' (chosenAllocation' N G bids random) N (set G)"
 
 
 
-section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid'} *}
+section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid} *}
 
 corollary winningAllocationPossible: 
   "winningAllocationsRel N G b \<subseteq> possibleAllocationsRel N G" 
@@ -983,8 +983,8 @@ corollary lm102:
 lemma lm103: 
   assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}"
           "aa \<in> (possibleAllocationsRel N (set G))-{chosenAllocation' N G bids random}" 
-  shows "setsum (resolvingBid' N G bids random) aa < 
-         setsum (resolvingBid' N G bids random) (chosenAllocation' N G bids random)" 
+  shows "setsum (resolvingBid N G bids random) aa < 
+         setsum (resolvingBid N G bids random) (chosenAllocation' N G bids random)" 
 proof -
   let ?a="chosenAllocation' N G bids random" 
   let ?p=possibleAllocationsRel 
@@ -997,7 +997,7 @@ qed
 
 (* putting together the two rounds in the auction, first using the bids, then the random values. *)
 abbreviation "terminatingAuctionRel N G bids random == 
-              argmax (setsum (resolvingBid' N G bids random)) 
+              argmax (setsum (resolvingBid N G bids random)) 
                      (argmax (setsum bids) (possibleAllocationsRel N (set G)))"
 
 text{* Termination theorem: it assures that the number of winning allocations is exactly one *}
@@ -1009,7 +1009,7 @@ proof -
   let ?G = "set G" 
   let ?X = "argmax (setsum bids) (?p N ?G)"
   let ?a = "chosenAllocation' N G bids random" 
-  let ?b = "resolvingBid' N G bids random"
+  let ?b = "resolvingBid N G bids random"
   let ?f = "setsum ?b" 
   let ?t=terminatingAuctionRel 
   have "\<forall>aa \<in> (possibleAllocationsRel N ?G)-{?a}. ?f aa < ?f ?a" 

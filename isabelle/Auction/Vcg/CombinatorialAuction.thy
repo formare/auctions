@@ -222,7 +222,8 @@ proof -
   thus ?thesis by blast 
 qed
 
-lemma soldAllocationRestriction: 
+(* We use lm05 in order to show a variant for soldAllocations without ''' *)
+lemma lm05: 
   assumes "a \<in> soldAllocations''' N \<Omega>" 
   shows "a -- n \<in> soldAllocations''' (N-{n}) \<Omega>"
 proof -
@@ -252,273 +253,279 @@ lemma allAllocationsEquivalenceExtended:
    soldAllocations'' = soldAllocations'''" 
   using soldAllocationVariantEquivalence soldAllocationsEquivalenceVariant by metis
 
-corollary soldAllocationRestrictionb: 
+(* The following corollary shows that an allocation is invariant to subtracting a single bidder.   
+   This is used a fundamental step to prove the non-negativity of price in VCG. *)
+corollary soldAllocationRestriction: 
   assumes "a \<in> soldAllocations N \<Omega>" 
   shows "a -- n \<in> soldAllocations (N-{n}) \<Omega>"
-(* MC: being an allocation is invariant to subtracting any single bidder 
-This is the fundamental step to prove non-negativity of vcgp *)
 proof - 
-let ?A'=soldAllocations''' have "a \<in> ?A' N \<Omega>" using assms allAllocationsEquivalenceExtended by metis then
-have "a -- n \<in> ?A' (N-{n}) \<Omega>" by (rule soldAllocationRestriction) thus ?thesis using allAllocationsEquivalenceExtended by metis 
+  let ?A' = soldAllocations''' 
+  have "a \<in> ?A' N \<Omega>" using assms allAllocationsEquivalenceExtended by metis 
+  then have "a -- n \<in> ?A' (N-{n}) \<Omega>" by (rule lm05) 
+  thus ?thesis using allAllocationsEquivalenceExtended by metis 
 qed
 
-corollary soldAllocationIsAllocationi: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations''' N \<Omega>1 \<subseteq> soldAllocations''' N \<Omega>2"
-using assms by blast
+corollary allocationGoodsMonotonicity: 
+  assumes "\<Omega>1 \<subseteq> \<Omega>2" 
+  shows "soldAllocations''' N \<Omega>1 \<subseteq> soldAllocations''' N \<Omega>2"
+  using assms by blast
 
-corollary lm33: assumes "\<Omega>1 \<subseteq> \<Omega>2" shows "soldAllocations'' N \<Omega>1 \<subseteq> soldAllocations'' N \<Omega>2" 
+corollary allocationGoodsMonotonicityVariant: 
+  assumes "\<Omega>1 \<subseteq> \<Omega>2" 
+  shows "soldAllocations'' N \<Omega>1 \<subseteq> soldAllocations'' N \<Omega>2" 
 proof -
-have "soldAllocations'' N \<Omega>1 = soldAllocations''' N \<Omega>1" by (rule soldAllocationVariantEquivalence)
-moreover have "... \<subseteq> soldAllocations''' N \<Omega>2" using assms(1) by (rule soldAllocationIsAllocationi)
-moreover have "... = soldAllocations'' N \<Omega>2" using soldAllocationVariantEquivalence by metis
-ultimately show ?thesis by auto
+  have "soldAllocations'' N \<Omega>1 = soldAllocations''' N \<Omega>1" 
+    by (rule soldAllocationVariantEquivalence)
+  moreover have "... \<subseteq> soldAllocations''' N \<Omega>2" 
+    using assms(1) by (rule allocationGoodsMonotonicity)
+  moreover have "... = soldAllocations'' N \<Omega>2" using soldAllocationVariantEquivalence by metis
+  ultimately show ?thesis by auto
 qed
 
-abbreviation "maximalAllocations'' N \<Omega> b == argmax (setsum b) (soldAllocations N \<Omega>)"
+(* maximalStrictAllocationsAlg are the allocations maximizing the revenue. They also include the
+   unallocated goods assigned to the seller (bidder 0).*)
+abbreviation "maximalStrictAllocations N \<Omega> b == argmax (setsum b) (allAllocations ({seller}\<union>N) \<Omega>)"
 
-abbreviation "maximalStrictAllocations' N \<Omega> b==
-argmax (setsum b) (allAllocations ({seller}\<union>N) \<Omega>)"
-(*MC: these are the allocations maximizing the revenue, and also including the unallocated goods assigned to
-the virtual participant addedBidder. 
-Note that commonly b is set to zero identically for such bidder, but this is not formally imposed here.*)
-(*abbreviation "allAllocations N \<Omega> == possibleAllocationsAlg3 N \<Omega>"
-abbreviation "maximalAllocations \<Omega> b == argmaxList (setsum' b) ((allAllocations (Participants b) \<Omega>))"
-*)
+(* randomBids builds up a bid vector from a random number so that bidding with this bid vector
+   resolves any ties. Details are defined in UniformTieBreaking.thy *)
+abbreviation "randomBids N \<Omega> b random == resolvingBid (N\<union>{seller}) \<Omega> b random"
 
-corollary lm43d: assumes "a \<in> allocationsUniverse" shows 
-"(a outside (X\<union>{i})) \<union> ({i}\<times>({\<Union>(a``(X\<union>{i}))}-{{}})) \<in> allocationsUniverse" using assms allocationsUniverseOutsideUnion 
-by fastforce
+(* vcgas gives the one-element set with the winning allocation after tie breaking.
+   (argmax\<circ>setsum) b ... determines the set of all maximal allocations.
+   (argmax\<circ>setsum) (randomBids ...) restricts that by tie-breaking to a singleton.
+   Outside' {seller} removes the seller from the only allocation in the singleton.   *)
+abbreviation "vcgas N \<Omega> b r  == 
+  Outside' {seller} `((argmax\<circ>setsum) (randomBids N \<Omega> b r)
+                                      ((argmax\<circ>setsum) b (allAllocations (N \<union> {seller}) (set \<Omega>))))"
 
-(* lemma lm27c: "seller \<notin> int `N" by fastforce *)
-
-abbreviation "randomBids' N \<Omega> b random==resolvingBid' (N\<union>{seller}) \<Omega> b random"
-
-(* abbreviation "vcgas N \<Omega> b r  ==    (argmax (setsum (randomBids' N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b))"*)
-
-abbreviation "vcgas N \<Omega> b r  == Outside' {seller} ` 
-   ((argmax\<circ>setsum) (randomBids' N \<Omega> b r)
-    ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>))))"
+(* Takes the element out of the one elemnt set (vcgas ...) *)
 abbreviation "vcga N \<Omega> b r == the_elem (vcgas N \<Omega> b r)"
-abbreviation "vcga' N \<Omega> b r == (the_elem
-(argmax (setsum (randomBids' N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b))) -- seller"
 
-lemma lm001: assumes 
-"card ((argmax\<circ>setsum) (randomBids' N \<Omega> b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>))))=1" 
-shows "vcga N \<Omega> b r = 
-(the_elem
-((argmax\<circ>setsum) (randomBids' N \<Omega> b r) ((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set \<Omega>))))) -- seller"
-using assms cardOneTheElem by auto
+(* alternative definition of vcga *)
+abbreviation "vcga' N \<Omega> b r == 
+  (the_elem (argmax (setsum (randomBids N \<Omega> b r)) 
+                    (maximalStrictAllocations N (set \<Omega>) b)))
+  -- seller"
 
-corollary lm001b: assumes 
-"card ((argmax\<circ>setsum) (randomBids' N \<Omega> b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>))))=1"
-shows "vcga N \<Omega> b r = vcga' N \<Omega> b r" (is "?l=?r") using assms lm001
+(* The following three auxiliary lemmas, lm06, lm07, and lm08 are used to prove lemma
+   vcgaEquivalence as well as in the theorem that cardinality of vcgas is one.*)
+lemma lm06: 
+  assumes "card ((argmax\<circ>setsum) (randomBids N \<Omega> b r) 
+                                 ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>)))) = 1" 
+  shows "vcga N \<Omega> b r = 
+         (the_elem ((argmax\<circ>setsum) (randomBids N \<Omega> b r) 
+                                    ((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set \<Omega>))))) 
+          -- seller"
+  using assms cardOneTheElem by auto
+
+corollary lm07: 
+  assumes "card ((argmax\<circ>setsum) (randomBids N \<Omega> b r) 
+                                 ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>)))) = 1"
+  shows "vcga N \<Omega> b r = vcga' N \<Omega> b r" 
+  (is "?l = ?r")
 proof -
-have "?l=(the_elem ((argmax\<circ>setsum) (randomBids' N \<Omega> b r) 
-((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set \<Omega>))))) -- seller"
-using assms by (rule lm001) moreover have "... = ?r" by force ultimately show ?thesis by blast
+  have "?l = (the_elem ((argmax\<circ>setsum) (randomBids N \<Omega> b r) 
+                                        ((argmax\<circ>setsum) b (allAllocations ({seller}\<union>N) (set \<Omega>)))))
+              -- seller"
+    using assms by (rule lm06) 
+  moreover have "... = ?r" by force 
+  ultimately show ?thesis by blast
 qed
 
-lemma lm92c: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"card (
-(argmax\<circ>setsum) (randomBids' N \<Omega> bids random)
-    ((argmax\<circ>setsum) bids (allAllocations (N\<union>{seller}) (set \<Omega>))))=1" (is "card ?l=_")
+lemma lm08: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "card ((argmax\<circ>setsum) (randomBids N \<Omega> bids random)
+                               ((argmax\<circ>setsum) bids (allAllocations (N\<union>{seller}) (set \<Omega>)))) = 1"
+  (is "card ?l=_")
 proof - 
-  let ?N="N\<union>{seller}" let ?b'="randomBids' N \<Omega> bids random" let ?s=setsum let ?a=argmax let ?f="?a \<circ> ?s"
-  have 1: "?N\<noteq>{}" by auto have 4: "finite ?N" using assms(3) by simp
-  have "?a (?s ?b') (?a (?s bids) (allAllocations ?N (set \<Omega>)))=
-  {chosenAllocation' ?N \<Omega> bids random}" (is "?L=?R")
-  using 1 assms(1) assms(2) 4 by (rule winningAllocationUniqueness)
+  let ?N = "N\<union>{seller}" 
+  let ?b' = "randomBids N \<Omega> bids random" 
+  let ?s = setsum 
+  let ?a = argmax 
+  let ?f = "?a \<circ> ?s"
+  have 
+  1: "?N\<noteq>{}" by auto 
+  have 
+  2: "finite ?N" using assms(3) by simp
+  have "?a (?s ?b') (?a (?s bids) (allAllocations ?N (set \<Omega>))) =
+        {chosenAllocation' ?N \<Omega> bids random}" (is "?L=?R")
+  using 1 assms(1) assms(2) 2 by (rule winningAllocationUniqueness)
   moreover have "?L= ?f ?b' (?f bids (allAllocations ?N (set \<Omega>)))" by auto
-  ultimately have "?l={chosenAllocation' ?N \<Omega> bids random}" by presburger
-  moreover have "card ...=1" by simp ultimately show ?thesis by presburger 
+  ultimately have "?l = {chosenAllocation' ?N \<Omega> bids random}" by simp
+  moreover have "card ...=1" by simp ultimately show ?thesis by simp 
 qed
 
-lemma lm002: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"vcga N \<Omega> b r = vcga' N \<Omega> b r" (is "?l=?r") using assms lm001b lm92c by blast
+lemma vcgaEquivalence: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "vcga N \<Omega> b r = vcga' N \<Omega> b r"
+  using assms lm07 lm08 by blast
 
-theorem vcgaDefiniteness: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"card (vcgas N \<Omega> b r)=1"
-using assms lm92c cardOneImageCardOne (* by blast: MC made explicit to paper-comment it *)
+(* After showing that the cardinality of vcgas is 1, we know that the_elem to determine vcga
+   will return a definite value. *)
+theorem vcgaDefiniteness: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "card (vcgas N \<Omega> b r) = 1"
 proof -
-have "card ((argmax\<circ>setsum) (randomBids' N \<Omega> b r) ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>))))=1" 
-(is "card ?X=_") using assms lm92c by blast
-moreover have "(Outside'{seller}) ` ?X = vcgas N \<Omega> b r" by blast
-ultimately show ?thesis using cardOneImageCardOne by blast
+  have "card ((argmax\<circ>setsum) (randomBids N \<Omega> b r) 
+                              ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>)))) =
+        1" 
+  (is "card ?X = _") using assms lm08 by blast
+  moreover have "(Outside'{seller}) ` ?X = vcgas N \<Omega> b r" by blast
+  ultimately show ?thesis using cardOneImageCardOne by blast
 qed
 
-theorem vcgpDefiniteness: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"\<exists>! y. vcgap N \<Omega> b r n=y" using assms vcgaDefiniteness by simp
+(* Since vcga is well-defined the following theorem is trivial. *)
+theorem vcgpDefiniteness: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "\<exists>! y. vcgap N \<Omega> b r n = y" 
+  using assms vcgaDefiniteness by simp
 
-text {* Here we are showing that our way of randomizing using randomBids' actually breaks the tie:
-we are left with a singleton after the tie-breaking step. *}
-
-lemma lm92b: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"card (argmax (setsum (randomBids' N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b))=1"
-(is "card ?L=_")
-(*"card (vcgas N \<Omega> b r) = 1"*)
+(* The following lemma is a variant of the vcgaDefiniteness theorem. *)
+lemma vcgaDefinitenessVariant: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows  "card (argmax (setsum (randomBids N \<Omega> b r)) 
+                       (maximalStrictAllocations N (set \<Omega>) b)) =
+          1"
+  (is "card ?L=_")
 proof -
-let ?n="{seller}" have 
-1: "(?n \<union> N)\<noteq>{}" by simp have 
-4: "finite (?n\<union>N)" using assms(3) by fast have 
-"terminatingAuctionRel (?n\<union>N) \<Omega> b r = {chosenAllocation' (?n\<union>N) \<Omega> b r}" using 1 assms(1) 
-assms(2) 4 by (rule winningAllocationUniqueness) moreover have "?L = terminatingAuctionRel (?n\<union>N) \<Omega> b r" by auto
-ultimately show ?thesis by auto
+  let ?n = "{seller}" 
+  have 
+  1: "(?n \<union> N)\<noteq>{}" by simp 
+  have 
+  2: "finite (?n\<union>N)" using assms(3) by fast 
+  have "terminatingAuctionRel (?n\<union>N) \<Omega> b r = {chosenAllocation' (?n\<union>N) \<Omega> b r}" 
+    using 1 assms(1) assms(2) 2 by (rule winningAllocationUniqueness) 
+  moreover have "?L = terminatingAuctionRel (?n\<union>N) \<Omega> b r" by auto
+  ultimately show ?thesis by auto
 qed
 
-lemma "argmax (setsum (randomBids' N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b) \<subseteq> 
-maximalStrictAllocations' N (set \<Omega>) b" by auto
-
-corollary lm58: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"the_elem
-(argmax (setsum (randomBids' N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b)) \<in>
-(maximalStrictAllocations' N (set \<Omega>) b)" (is "the_elem ?X \<in> ?R") 
-  using assms lm92b summedBidInjective
+theorem winningAllocationIsMaximal:
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "the_elem (argmax (setsum (randomBids N \<Omega> b r)) 
+                          (maximalStrictAllocations N (set \<Omega>) b)) \<in>
+         (maximalStrictAllocations N (set \<Omega>) b)" 
+  (is "the_elem ?X \<in> ?R") 
 proof -
-have "card ?X=1" using assms by (rule lm92b) moreover have "?X \<subseteq> ?R" by auto
-ultimately show ?thesis using cardinalityOneTheElem by blast
+  have "card ?X=1" using assms by (rule vcgaDefinitenessVariant) 
+  moreover have "?X \<subseteq> ?R" by auto
+  ultimately show ?thesis using cardinalityOneTheElem by blast
 qed
 
-corollary lm58b: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"vcga' N \<Omega> b r \<in> (Outside' {seller})`(maximalStrictAllocations' N (set \<Omega>) b)"
-using assms lm58 by blast
+corollary winningAllocationIsMaximalWithoutSeller: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "vcga' N \<Omega> b r \<in> (Outside' {seller})`(maximalStrictAllocations N (set \<Omega>) b)"
+  using assms winningAllocationIsMaximal by blast
 
-lemma lm62: "(Outside' {seller})`(maximalStrictAllocations' N \<Omega> b) \<subseteq> soldAllocations N \<Omega>"
-using Outside_def by force
+lemma maximalAllactionWithoutSeller: 
+  "(Outside' {seller})`(maximalStrictAllocations N \<Omega> b) \<subseteq> soldAllocations N \<Omega>"
+  using Outside_def by force
 
-theorem lm58d: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"vcga' N \<Omega> b r \<in> soldAllocations N (set \<Omega>)" (is "?a \<in> ?A") using assms lm58b lm62 
-proof - have "?a \<in> (Outside' {seller})`(maximalStrictAllocations' N (set \<Omega>) b)" 
-using assms by (rule lm58b) thus ?thesis using lm62  by fastforce qed
-corollary lm58f: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"vcga N \<Omega> b r \<in> soldAllocations N (set \<Omega>)" (is "_\<in>?r") 
-proof - have "vcga' N \<Omega> b r \<in> ?r" using assms by (rule lm58d) then show ?thesis using assms lm002 by blast qed
+lemma onlyGoodsAreAllocatedAuxiliary: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "vcga' N \<Omega> b r \<in> soldAllocations N (set \<Omega>)" 
+  (is "?a \<in> ?A") 
+proof - 
+  have "?a \<in> (Outside' {seller})`(maximalStrictAllocations N (set \<Omega>) b)" 
+    using assms by (rule winningAllocationIsMaximalWithoutSeller) 
+  thus ?thesis using maximalAllactionWithoutSeller  by fastforce 
+qed
 
-corollary lm59b: assumes "\<forall>X. X \<in> Range a \<longrightarrow>b (seller, X)=0" "finite a" shows 
-"setsum b a = setsum b (a--seller)"
+theorem onlyGoodsAreAllocated: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "vcga N \<Omega> b r \<in> soldAllocations N (set \<Omega>)" 
+  (is "_\<in>?r") 
+proof - 
+  have "vcga' N \<Omega> b r \<in> ?r" using assms by (rule onlyGoodsAreAllocatedAuxiliary) 
+  then show ?thesis using assms vcgaEquivalence by blast 
+qed
+
+(* Let b be a bid vector such that the seller's bid for each possible set of goods is 0 then 
+   the revenue does not depend on the presence of the seller. *)
+corollary neutralSeller: 
+  assumes "\<forall>X. X \<in> Range a \<longrightarrow>b (seller, X)=0" "finite a" 
+  shows "setsum b a = setsum b (a--seller)"
 proof -
-let ?n=seller have "finite (a||{?n})" using assms restrict_def by (metis finite_Int) 
-moreover have "\<forall>z \<in> a||{?n}. b z=0" using assms restrict_def by fastforce
-ultimately have "setsum b (a||{?n}) = 0" using assms by (metis setsum.neutral)
-thus ?thesis using setsumOutside assms(2) by (metis comm_monoid_add_class.add.right_neutral)
+  let ?n = seller 
+  have "finite (a||{?n})" using assms restrict_def by (metis finite_Int) 
+  moreover have "\<forall>z \<in> a||{?n}. b z=0" using assms restrict_def by fastforce
+  ultimately have "setsum b (a||{?n}) = 0" using assms by (metis setsum.neutral)
+  thus ?thesis using setsumOutside assms(2) by (metis comm_monoid_add_class.add.right_neutral)
 qed
 
-corollary lm59c: assumes "\<forall>a\<in>A. finite a & (\<forall> X. X\<in>Range a \<longrightarrow> b (seller, X)=0)"
-shows "{setsum b a| a. a\<in>A}={setsum b (a -- seller)| a. a\<in>A}" using assms lm59b 
-by (metis (lifting, no_types))
-corollary lm58c: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"EX a. ((a \<in> (maximalStrictAllocations' N (set \<Omega>) b)) 
-& (vcga' N \<Omega> b r = a -- seller) 
-& (a \<in> argmax (setsum b) (allAllocations ({seller}\<union>N) (set \<Omega>)))
-)" (is "EX a. _ & _ & a \<in> ?X")
-using assms lm58b argmax_def by fast
+corollary neutralSellerVariant: 
+  assumes "\<forall>a\<in>A. finite a & (\<forall> X. X\<in>Range a \<longrightarrow> b (seller, X)=0)"
+  shows "{setsum b a| a. a\<in>A} = {setsum b (a -- seller)| a. a\<in>A}" 
+  using assms neutralSeller by (metis (lifting, no_types))
 
-lemma assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"\<forall>aa\<in>allAllocations ({seller}\<union>N) (set \<Omega>). finite aa"
-using assms by (metis List.finite_set allocationFinite)
+lemma vcgaIsMaximalAux1: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "EX a. ((a \<in> (maximalStrictAllocations N (set \<Omega>) b))  &  (vcga' N \<Omega> b r = a -- seller)  &
+                (a \<in> argmax (setsum b) (allAllocations ({seller}\<union>N) (set \<Omega>))))" 
+  using assms winningAllocationIsMaximalWithoutSeller argmax_def by fast
 
-lemma lm61: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
-"\<forall>aa\<in>allAllocations ({seller}\<union>N) (set \<Omega>). \<forall> X \<in> Range aa. b (seller, X)=0"
-(is "\<forall>aa\<in>?X. _") shows "setsum b (vcga' N \<Omega> b r)=Max{setsum b aa| aa. aa \<in> soldAllocations N (set \<Omega>)}"
+lemma vcgaIsMaximalAux2: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  "\<forall>a \<in> allAllocations ({seller}\<union>N) (set \<Omega>). \<forall> X \<in> Range a. b (seller, X)=0"
+  (is "\<forall>a\<in>?X. _") 
+  shows "setsum b (vcga' N \<Omega> b r) = Max{setsum b a| a. a \<in> soldAllocations N (set \<Omega>)}"
 proof -
-let ?n=seller let ?s=setsum let ?a="vcga' N \<Omega> b r" obtain a where 
-0: "a \<in> maximalStrictAllocations' N (set \<Omega>) b & ?a=a--?n & 
-(a\<in>argmax (setsum b) (allAllocations({seller}\<union>N)(set \<Omega>)))"(is "_ & ?a=_ & a\<in>?Z")
-using assms(1,2,3) lm58c by blast have 
-1: "\<forall>aa\<in>?X. finite aa & (\<forall> X. X\<in>Range aa \<longrightarrow> b (?n, X)=0)" using assms(4) 
-List.finite_set allocationFinite by metis have 
-2: "a \<in> ?X" using 0 by auto have "a \<in> ?Z" using 0 by fast 
-then have "a \<in> ?X\<inter>{x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
-then have "a \<in> {x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
-moreover have "?s b ` ?X = {?s b aa| aa. aa\<in>?X}" by blast
-ultimately have "?s b a = Max {?s b aa| aa. aa\<in>?X}" by auto
-moreover have "{?s b aa| aa. aa\<in>?X} = {?s b (aa--?n)| aa. aa\<in>?X}" using 1 by (rule lm59c)
-moreover have "... = {?s b aa| aa. aa \<in> Outside' {?n}`?X}" by blast
-moreover have "... = {?s b aa| aa. aa \<in> soldAllocations N (set \<Omega>)}" by simp
-ultimately have "Max {?s b aa| aa. aa \<in> soldAllocations N (set \<Omega>)} = ?s b a" by presburger
-moreover have "... = ?s b (a--?n)" using 1 2 lm59b by (metis (lifting, no_types))
-ultimately show "?s b ?a=Max{?s b aa| aa. aa \<in> soldAllocations N (set \<Omega>)}" using 0 by presburger
+  let ?n = seller 
+  let ?s = setsum 
+  let ?a = "vcga' N \<Omega> b r" 
+  obtain a where 
+  0: "a \<in> maximalStrictAllocations N (set \<Omega>) b & 
+      ?a = a--?n & 
+      (a \<in> argmax (setsum b) (allAllocations({seller}\<union>N)(set \<Omega>)))"
+  (is "_ & ?a=_ & a\<in>?Z")
+    using assms(1,2,3) vcgaIsMaximalAux1 by blast
+  have 
+  1: "\<forall>a \<in> ?X. finite a & (\<forall> X. X\<in>Range a \<longrightarrow> b (?n, X)=0)" 
+    using assms(4) List.finite_set allocationFinite by metis 
+  have 
+  2: "a \<in> ?X" using 0 by auto have "a \<in> ?Z" using 0 by fast 
+  then have "a \<in> ?X\<inter>{x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
+  then have "a \<in> {x. ?s b x = Max (?s b ` ?X)}" using injectionsUnionCommute by simp
+  moreover have "?s b ` ?X = {?s b a| a. a\<in>?X}" by blast
+  ultimately have "?s b a = Max {?s b a| a. a\<in>?X}" by auto
+  moreover have "{?s b a| a. a\<in>?X} = {?s b (a--?n)| a. a\<in>?X}" 
+    using 1 by (rule neutralSellerVariant)
+  moreover have "... = {?s b a| a. a \<in> Outside' {?n}`?X}" by blast
+  moreover have "... = {?s b a| a. a \<in> soldAllocations N (set \<Omega>)}" by simp
+  ultimately have "Max {?s b a| a. a \<in> soldAllocations N (set \<Omega>)} = ?s b a" by simp
+  moreover have "... = ?s b (a--?n)" using 1 2 neutralSeller by (metis (lifting, no_types))
+  ultimately show "?s b ?a=Max{?s b a| a. a \<in> soldAllocations N (set \<Omega>)}" using 0 by simp
 qed
 
+text {* Adequacy theorem: The allocation satisfies the standard pen-and-paper specification 
+of a VCG auction. See, for example, \cite[\S~1.2]{cramton}. *}
+theorem vcgaIsMaximal: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" "\<forall> X. b (seller, X) = 0" 
+  shows "setsum b (vcga' N \<Omega> b r) = Max{setsum b a| a. a \<in> soldAllocations N (set \<Omega>)}"
+  using assms vcgaIsMaximalAux2 by blast
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-text {* Adequacy theorem: the allocation satisfies the standard pen-and-paper specification of a VCG auction.
-See, for example, \cite[\S~1.2]{cramton}. *}
-theorem lm61b: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" "\<forall> X. b (seller, X)=0" 
-shows "setsum b (vcga' N \<Omega> b r)=Max{setsum b aa| aa. aa \<in> soldAllocations N (set \<Omega>)}"
-using assms lm61 by blast
-
-corollary lm58e: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows
-"vcga' N \<Omega> b r \<in> allocationsUniverse & \<Union> Range (vcga' N \<Omega> b r) \<subseteq> set \<Omega>" using assms lm58b 
+corollary vcgaIsAllocationAllocatingGoodsOnly: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "vcga' N \<Omega> b r \<in> allocationsUniverse & \<Union> Range (vcga' N \<Omega> b r) \<subseteq> set \<Omega>" 
 proof -
-let ?a="vcga' N \<Omega> b r" let ?n=seller
-obtain a where 
-0: "?a=a -- seller & a \<in> maximalStrictAllocations' N (set \<Omega>) b"
-using assms lm58b by blast
-then moreover have 
-1: "a \<in> allAllocations ({?n}\<union>N) (set \<Omega>)" by auto
-moreover have "maximalStrictAllocations' N (set \<Omega>) b \<subseteq> allocationsUniverse" 
-by (metis (lifting, mono_tags) winningAllocationPossible possibleAllocationsUniverse subset_trans)
-ultimately moreover have "?a=a -- seller & a \<in> allocationsUniverse" by blast
-then have "?a \<in> allocationsUniverse" using allocationsUniverseOutside by auto
-moreover have "\<Union> Range a= set \<Omega>" using possibleAllocationsIntersectionSetEquals 1 by metis
-then moreover have "\<Union> Range ?a \<subseteq> set \<Omega>" using Outside_def 0 by fast
-ultimately show ?thesis using allocationsUniverseOutside Outside_def by blast
+  let ?a = "vcga' N \<Omega> b r" 
+  let ?n = seller
+  obtain a where 
+  0: "?a = a -- seller & a \<in> maximalStrictAllocations N (set \<Omega>) b"
+    using assms winningAllocationIsMaximalWithoutSeller by blast
+  then moreover have 
+  1: "a \<in> allAllocations ({?n}\<union>N) (set \<Omega>)" by auto
+  moreover have "maximalStrictAllocations N (set \<Omega>) b \<subseteq> allocationsUniverse" 
+     by (metis (lifting, mono_tags) winningAllocationPossible 
+                                    possibleAllocationsUniverse subset_trans)
+  ultimately moreover have "?a = a -- seller  &  a \<in> allocationsUniverse" by blast
+  then have "?a \<in> allocationsUniverse" using allocationsUniverseOutside by auto
+  moreover have "\<Union> Range a= set \<Omega>" using possibleAllocationsIntersectionSetEquals 1 by metis
+  then moreover have "\<Union> Range ?a \<subseteq> set \<Omega>" using Outside_def 0 by fast
+  ultimately show ?thesis using allocationsUniverseOutside Outside_def by blast
 qed
 
-lemma "vcga' N \<Omega> b r = the_elem ((argmax \<circ> setsum) (randomBids' N \<Omega> b r) 
+(***)
+lemma "vcga' N \<Omega> b r = the_elem ((argmax \<circ> setsum) (randomBids N \<Omega> b r) 
 ((argmax \<circ> setsum) b (allAllocations ({seller}\<union>N) (set \<Omega>)))) -- seller" by simp
 
 abbreviation "vcgp N \<Omega> b r n ==
@@ -535,8 +542,8 @@ theorem NonnegPrices: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "fi
 "vcgp N \<Omega> b r n >= (0::price)" 
 proof - 
 let ?a="vcga N \<Omega> b r" let ?A=soldAllocations let ?f="setsum b" 
-have "?a \<in> ?A N (set \<Omega>)" using assms by (rule lm58f)
-then have "?a -- n \<in> ?A (N-{n}) (set \<Omega>)" by (rule soldAllocationRestrictionb)
+have "?a \<in> ?A N (set \<Omega>)" using assms by (rule onlyGoodsAreAllocated)
+then have "?a -- n \<in> ?A (N-{n}) (set \<Omega>)" by (rule soldAllocationRestriction)
 moreover have "finite (?A (N-{n}) (set \<Omega>))" using assms(3) lm59 finite_set finite_Diff by blast
 ultimately have "Max (?f`(?A (N-{n}) (set \<Omega>))) \<ge> ?f (?a -- n)" (is "?L >= ?R") by (rule lm63)
 then show "?L - ?R >=0" by linarith
@@ -567,12 +574,12 @@ qed
 
 (* abbreviation "argMax X f == argmax f X" *)
 lemma "terminatingAuctionRel N \<Omega> b r = 
-((argmax (setsum (resolvingBid' N \<Omega> b (r)))) \<circ> (argmax (setsum b)))
+((argmax (setsum (resolvingBid N \<Omega> b (r)))) \<circ> (argmax (setsum b)))
 (possibleAllocationsRel N (set \<Omega>))" by force
-term "(Union \<circ> (argmax (setsum (resolvingBid' N \<Omega> b (r)))) \<circ> (argmax (setsum b)))
+term "(Union \<circ> (argmax (setsum (resolvingBid N \<Omega> b (r)))) \<circ> (argmax (setsum b)))
 (possibleAllocationsRel N (set \<Omega>))"
 
-lemma "maximalStrictAllocations' N \<Omega> b=winningAllocationsRel ({seller} \<union> N) \<Omega> b" by fast
+lemma "maximalStrictAllocations N \<Omega> b=winningAllocationsRel ({seller} \<union> N) \<Omega> b" by fast
 
 lemma lm64: assumes "a \<in> allocationsUniverse" 
 "n1 \<in> Domain a" "n2 \<in> Domain a"
@@ -600,7 +607,7 @@ assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N"
 "n1 \<noteq> n2" 
 shows "(vcga' N \<Omega> b r),,,n1 \<inter> (vcga' N \<Omega> b r),,,n2={}"  
 proof -
-have "vcga' N \<Omega> b r \<in> allocationsUniverse" using lm58e assms by blast
+have "vcga' N \<Omega> b r \<in> allocationsUniverse" using vcgaIsAllocationAllocatingGoodsOnly assms by blast
 then show ?thesis using lm64c assms by fast
 qed
 
@@ -615,18 +622,18 @@ text {* Nothing outside the set of goods is allocated. *}
 theorem OnlyGoodsAllocated: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" "g \<in> (vcga N \<Omega> b r),,,n" 
 shows "g \<in> set \<Omega>"
 proof - 
-let ?a="vcga' N \<Omega> b r" have "?a \<in> allocationsUniverse" using assms(1,2,3) lm58e by blast
+let ?a="vcga' N \<Omega> b r" have "?a \<in> allocationsUniverse" using assms(1,2,3) vcgaIsAllocationAllocatingGoodsOnly by blast
 then have "runiq ?a" using assms(1,2,3) by blast
-moreover have "n \<in> Domain ?a" using assms eval_rel_def lm002 by fast
+moreover have "n \<in> Domain ?a" using assms eval_rel_def vcgaEquivalence by fast
 ultimately moreover have "?a,,n \<in> Range ?a" using eval_runiq_in_Range by fast 
 ultimately have "?a,,,n \<in> Range ?a" using imageEquivalence by fastforce
-then have "g \<in> \<Union> Range ?a" using assms lm002 by blast 
-moreover have "\<Union> Range ?a \<subseteq> set \<Omega>" using assms(1,2,3) lm58e by fast
+then have "g \<in> \<Union> Range ?a" using assms vcgaEquivalence by blast 
+moreover have "\<Union> Range ?a \<subseteq> set \<Omega>" using assms(1,2,3) vcgaIsAllocationAllocatingGoodsOnly by fast
 ultimately show ?thesis by blast
 qed
 
 definition "allStrictAllocations N \<Omega> == possibleAllocationsAlg N \<Omega>"
-abbreviation "maximalStrictAllocations N \<Omega> b==
+abbreviation "maximalStrictAllocationsAlg N \<Omega> b==
 argmax (setsum b) (set (allStrictAllocations ({seller}\<union>N) \<Omega>))"
 
 definition "maximalStrictAllocations2 N \<Omega> b=
@@ -642,10 +649,10 @@ definition "chosenAllocationEff N \<Omega> b (r::integer) ==
 definition "maxbid a N \<Omega> == (bidMaximizedBy a N \<Omega>) Elsee 0"
 definition "summedBidVector bids N \<Omega> == (summedBidVectorRel bids N \<Omega>) Elsee 0"
 definition "tiebids a N \<Omega> == summedBidVector (maxbid a N \<Omega>) N \<Omega>"
-definition "resolvingBid N \<Omega> bids random == tiebids (chosenAllocation N \<Omega> bids random) N (set \<Omega>)"
-definition "randomBids N \<Omega> b random==resolvingBid (N\<union>{seller}) \<Omega> b random"
+definition "resolvingBidAlg N \<Omega> bids random == tiebids (chosenAllocation N \<Omega> bids random) N (set \<Omega>)"
+definition "randomBidsAlg N \<Omega> b random==resolvingBidAlg (N\<union>{seller}) \<Omega> b random"
 definition "vcgaAlgWithoutLosers N \<Omega> b r == (the_elem
-(argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations N \<Omega> b))) -- seller"
+(argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocationsAlg N \<Omega> b))) -- seller"
 abbreviation "addLosers participantset allo==(participantset \<times> {{}}) +* allo"
 definition "vcgaAlg N \<Omega> b r = addLosers N (vcgaAlgWithoutLosers N \<Omega> b r)"
 abbreviation "allAllocationsComp N \<Omega> == 
@@ -700,7 +707,7 @@ qed
 corollary lm20: assumes "\<forall>x \<in> X. f x = g x" shows "setsum f X = setsum g X" 
 using assms setsum.cong by auto
 
-lemma lm06: assumes "fst pair \<in> N" "snd pair \<in> Pow \<Omega> - {{}}" shows "setsum (%g.
+lemma lm06a: assumes "fst pair \<in> N" "snd pair \<in> Pow \<Omega> - {{}}" shows "setsum (%g.
 (toFunction (bidMaximizedBy a N \<Omega>))
 (fst pair, g)) (finestpart (snd pair)) =
 setsum (%g. 
@@ -725,27 +732,27 @@ let ?f2="%g.((bidMaximizedBy a N \<Omega>) Elsee 0)(fst pair, g)"
 thus ?thesis using setsum.cong by simp
 qed
 
-corollary lm07: assumes "pair \<in> N \<times> (Pow \<Omega> - {{}})" shows 
+corollary lm07a: assumes "pair \<in> N \<times> (Pow \<Omega> - {{}})" shows 
 "summedBid (toFunction (bidMaximizedBy a N \<Omega>)) pair = 
 summedBid ((bidMaximizedBy a N \<Omega>) Elsee 0) pair" using assms lm06 
 proof - 
 have "fst pair \<in> N" using assms by force 
 moreover have "snd pair \<in> Pow \<Omega> - {{}}" using assms(1) by force
-ultimately show ?thesis using lm06 by blast
+ultimately show ?thesis using lm06a by blast
 qed
 
-lemma lm08: assumes "\<forall>x \<in> X. f x = g x" shows "f`X=g`X" using assms by (metis image_cong)
+lemma lm08a: assumes "\<forall>x \<in> X. f x = g x" shows "f`X=g`X" using assms by (metis image_cong)
 
-corollary lm09: "\<forall> pair \<in> N \<times> (Pow \<Omega> - {{}}).  
+corollary lm09a: "\<forall> pair \<in> N \<times> (Pow \<Omega> - {{}}).  
 summedBid (toFunction (bidMaximizedBy a N \<Omega>)) pair = 
-summedBid ((bidMaximizedBy a N \<Omega>) Elsee 0) pair" using lm07 
+summedBid ((bidMaximizedBy a N \<Omega>) Elsee 0) pair" using lm07a 
 by blast  
 
 corollary lm10: 
 "(summedBid (toFunction (bidMaximizedBy a N \<Omega>))) ` (N \<times> (Pow \<Omega> - {{}}))=
 (summedBid ((bidMaximizedBy a N \<Omega>) Elsee 0)) ` (N \<times> (Pow \<Omega> - {{}}))" (is "?f1 ` ?Z = ?f2 ` ?Z")
 proof - (*MC: no way to automatize this trivial proof??!! *)
-have "\<forall> z \<in> ?Z. ?f1 z = ?f2 z" by (rule lm09) thus ?thesis by (rule lm08)
+have "\<forall> z \<in> ?Z. ?f1 z = ?f2 z" by (rule lm09a) thus ?thesis by (rule lm08a)
 qed
 
 corollary lm11: "summedBidVectorRel (toFunction (bidMaximizedBy a N \<Omega>)) N \<Omega> =
@@ -781,7 +788,7 @@ corollary lm24b: assumes "card A > 0" shows "card ({a} \<union> A) > 0" using as
 by (metis card_empty card_insert_disjoint empty_iff finite.emptyI lessI)
 
 corollary assumes "card N > 0" "distinct \<Omega>" shows
-"maximalStrictAllocations' N (set \<Omega>) b = maximalStrictAllocations N \<Omega> b"
+"maximalStrictAllocations N (set \<Omega>) b = maximalStrictAllocationsAlg N \<Omega> b"
 unfolding allStrictAllocations_def
 using assms lm70c lm24b by (metis(no_types))
 
@@ -818,32 +825,32 @@ unfolding tiebids_def by fast
 qed 
 
 lemma lm14: assumes "card N > 0" "distinct \<Omega>" "a \<subseteq> (N \<times> (Pow (set \<Omega>) - {{}}))" shows
-"setsum (resolvingBid' N \<Omega> b r) a = setsum (resolvingBid N \<Omega> b r) a" (is "?L=?R") 
+"setsum (resolvingBid N \<Omega> b r) a = setsum (resolvingBidAlg N \<Omega> b r) a" (is "?L=?R") 
 (* (is "?s ?r' a = ?s ?r a") *)
 proof - 
-let ?c'="chosenAllocation' N \<Omega> b r" let ?c="chosenAllocation N \<Omega> b r" let ?r'="resolvingBid' N \<Omega> b r"
+let ?c'="chosenAllocation' N \<Omega> b r" let ?c="chosenAllocation N \<Omega> b r" let ?r'="resolvingBid N \<Omega> b r"
 have "?c' = ?c" using assms(1,2) by (rule lm70g) then
 have "?r' = tiebids' ?c N (set \<Omega>)" by presburger
 moreover have "\<forall>x \<in> a. tiebids' ?c N (set \<Omega>) x = tiebids ?c N (set \<Omega>) x" using assms(3) lm13b by blast
-ultimately have "\<forall>x \<in> a. ?r' x = resolvingBid N \<Omega> b r x" unfolding resolvingBid_def by presburger
+ultimately have "\<forall>x \<in> a. ?r' x = resolvingBidAlg N \<Omega> b r x" unfolding resolvingBidAlg_def by presburger
 thus ?thesis using setsum.cong by simp
 qed
 lemma lm15: "allAllocations N \<Omega> \<subseteq> Pow (N \<times> (Pow \<Omega> - {{}}))" by (metis PowI allocationPowerset subsetI)
 corollary lm14b: assumes "card N > 0" "distinct \<Omega>" "a \<in> allAllocations N (set \<Omega>)" 
-shows "setsum (resolvingBid' N \<Omega> b r) a = setsum (resolvingBid N \<Omega> b r) a"
+shows "setsum (resolvingBid N \<Omega> b r) a = setsum (resolvingBidAlg N \<Omega> b r) a"
 proof -
 have "a \<subseteq> N \<times> (Pow (set \<Omega>) - {{}})" using assms(3) lm15 by blast 
 thus ?thesis using assms(1,2) lm14 by blast
 qed
 
-corollary lm14c: assumes "finite N" "distinct \<Omega>" "a \<in> maximalStrictAllocations' N (set \<Omega>) b" 
-shows "setsum (randomBids' N \<Omega> b r) a = setsum (randomBids N \<Omega> b r) a"
+corollary lm14c: assumes "finite N" "distinct \<Omega>" "a \<in> maximalStrictAllocations N (set \<Omega>) b" 
+shows "setsum (randomBids N \<Omega> b r) a = setsum (randomBidsAlg N \<Omega> b r) a"
 proof - 
 have "card (N\<union>{seller})>0" using assms(1) sup_eq_bot_iff insert_not_empty
 by (metis card_gt_0_iff finite.emptyI finite.insertI finite_UnI)
 moreover have "distinct \<Omega>" using assms(2) by simp
 moreover have "a \<in> allAllocations (N\<union>{seller}) (set \<Omega>)" using assms(3) by fastforce
-ultimately show ?thesis unfolding randomBids_def by (rule lm14b)
+ultimately show ?thesis unfolding randomBidsAlg_def by (rule lm14b)
 qed
 
 lemma lm16: assumes "\<forall>x\<in>X. f x = g x" shows "argmax f X=argmax g X" 
@@ -853,33 +860,33 @@ by (metis(no_types,lifting))
 (*MC: without passing theorem lm02 with "using", e and z3 (through sledgehammer) say this theorem is unprovable *)
 
 corollary lm92e: assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"1=card (argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b))"
-using assms lm92b lm14c 
+"1=card (argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocations N (set \<Omega>) b))"
+using assms vcgaDefinitenessVariant lm14c 
 proof -
-have "\<forall> a \<in> maximalStrictAllocations' N (set \<Omega>) b. 
-setsum (randomBids' N \<Omega> b r) a = setsum (randomBids N \<Omega> b r) a" using assms(3,1) lm14c by blast
-then have "argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b) =
-argmax (setsum (randomBids' N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b)" using lm16 by blast
-moreover have "card ... = 1" using assms by (rule lm92b)
+have "\<forall> a \<in> maximalStrictAllocations N (set \<Omega>) b. 
+setsum (randomBids N \<Omega> b r) a = setsum (randomBidsAlg N \<Omega> b r) a" using assms(3,1) lm14c by blast
+then have "argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocations N (set \<Omega>) b) =
+argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations N (set \<Omega>) b)" using lm16 by blast
+moreover have "card ... = 1" using assms by (rule vcgaDefinitenessVariant)
 ultimately show ?thesis by presburger
 qed
 corollary lm70e: assumes "finite N" "distinct \<Omega>" shows
-"maximalStrictAllocations' N (set \<Omega>) b=maximalStrictAllocations N \<Omega> b" 
+"maximalStrictAllocations N (set \<Omega>) b=maximalStrictAllocationsAlg N \<Omega> b" 
 proof -
 let ?N="{seller} \<union> N" 
 have "card ?N>0" using assms(1) by (metis (full_types) card_gt_0_iff finite_insert insert_is_Un insert_not_empty)
 thus ?thesis using assms(2) lm70d by metis
 qed
 corollary assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
-"1=card (argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations N \<Omega> b))"
+"1=card (argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocationsAlg N \<Omega> b))"
 proof - 
-have "1=card (argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations' N (set \<Omega>) b))"
+have "1=card (argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocations N (set \<Omega>) b))"
 using assms by (rule lm92e)
-moreover have "maximalStrictAllocations' N (set \<Omega>) b = maximalStrictAllocations N \<Omega> b" 
+moreover have "maximalStrictAllocations N (set \<Omega>) b = maximalStrictAllocationsAlg N \<Omega> b" 
 using assms(3,1) by (rule lm70e) ultimately show ?thesis by metis
 qed
 
-lemma "maximalStrictAllocations' N (set \<Omega>) b \<subseteq> Pow (({seller}\<union>N) \<times> (Pow (set \<Omega>) - {{}}))"
+lemma "maximalStrictAllocations N (set \<Omega>) b \<subseteq> Pow (({seller}\<union>N) \<times> (Pow (set \<Omega>) - {{}}))"
 using lm15 winningAllocationPossible subset_trans by (metis (no_types))
 
 lemma lm17: "(image converse) (Union X)=Union ((image converse) ` X)" by auto
@@ -929,16 +936,16 @@ term b00
 (* definition "example = vcgaAlg (int`N00) \<Omega>00 (b00 Elsee 0) 1" *)
 definition ao where "ao=(%x. (if x=0 then (24::nat) else 11))"
 
-value "randomBids {1,2,3} [11,12,13] (b01 Elsee 0) 1 (2,{12})" 
+value "randomBidsAlg {1,2,3} [11,12,13] (b01 Elsee 0) 1 (2,{12})" 
 definition "N01={1::integer,2,3}"
 definition "\<Omega>01=[11::integer,12,13]"
 definition "f01=b01 Elsee 0"
 definition "evaluateMe01 = vcgaAlg N01 \<Omega>01 f01 1"
-definition "evaluateMe02 = maximalStrictAllocations N01 \<Omega>01 f01"
-definition "evaluateMe03 = randomBids N01 \<Omega>01 f01 1 (2,{12})"
+definition "evaluateMe02 = maximalStrictAllocationsAlg N01 \<Omega>01 f01"
+definition "evaluateMe03 = randomBidsAlg N01 \<Omega>01 f01 1 (2,{12})"
 value "chosenAllocation (N01\<union>{seller}) \<Omega>01 f01 1" 
 definition "chosenAllocation01={(2, {12}), (3, {13, 11})}"
-(* value "graph ((N01\<union>{seller}) \<times> (Pow (set \<Omega>01)-{{}})) (randomBids N01 \<Omega>01 f01 1)" *) 
+(* value "graph ((N01\<union>{seller}) \<times> (Pow (set \<Omega>01)-{{}})) (randomBidsAlg N01 \<Omega>01 f01 1)" *) 
 abbreviation "graphRandomBids01::((integer \<times> integer set) \<times> nat) set ==
 {((3, {12, 13}), 1), ((3, {12}), 0), ((3, {}), 0), ((3, {13}), 1), ((3, {11, 13}), 2), ((3, {11}), 1),
   ((3, {11, 12}), 1), ((3, {11, 12, 13}), 2), ((2, {12, 13}), 1), ((2, {12}), 1), ((2, {}), 0), ((2, {13}), 0),
@@ -969,7 +976,7 @@ abbreviation "\<Omega>02==goods b02"
 abbreviation "f02==b02 Elsee 0"
 
 (*value "chosenAllocation (N02\<union>{seller}) \<Omega>02 f02 1"
-value "maximalStrictAllocations (N02\<union>{seller}) \<Omega>02 f02"*)
+value "maximalStrictAllocationsAlg (N02\<union>{seller}) \<Omega>02 f02"*)
 abbreviation "chosenAllocation02==
 {(2, {14}), (3, {15}), (1, {12, 13, 11})}" 
 value "graph ((N02\<union>{seller}) \<times> (Pow (set \<Omega>02)-{{}}))
@@ -977,8 +984,8 @@ value "graph ((N02\<union>{seller}) \<times> (Pow (set \<Omega>02)-{{}}))
 (*value "graph ((N02\<union>{seller}) \<times> (Pow (set \<Omega>02)-{{}}))
 (tiebids (chosenAllocation (N02\<union>{seller}) \<Omega>02 f02 1) (participants b02) (set (goods b02)))"*)
 (*value "graph ((N02\<union>{seller}) \<times> (Pow (set \<Omega>02)-{{}}))
-(resolvingBid (N02\<union>{seller}) \<Omega>02 f02 1)"*) 
-(* value "randomBids ((fst o fst)`b02) (sorted_list_of_set (Union ((snd o fst)`b02))) (b02 Elsee 0) 1 (1,{11})" *)
+(resolvingBidAlg (N02\<union>{seller}) \<Omega>02 f02 1)"*) 
+(* value "randomBidsAlg ((fst o fst)`b02) (sorted_list_of_set (Union ((snd o fst)`b02))) (b02 Elsee 0) 1 (1,{11})" *)
 *)
 
 (* part to make input/output easier *)
@@ -1020,10 +1027,10 @@ abbreviation "b01 ==
 value "participants b01"
 (*
 MC: Why does this 
-value "maximalStrictAllocations {1,2,3} [11, 12, 13]
+value "maximalStrictAllocationsAlg {1,2,3} [11, 12, 13]
  (%x. (0::integer))"
 take longer than this?
-value "maximalStrictAllocations {1,2,3} [11, 12, 13]
+value "maximalStrictAllocationsAlg {1,2,3} [11, 12, 13]
  (b01 Elsee 0)"
 *)
 (* value "possibleAllocationsAlg3 {1,2,3,4,5,6,7,8} [11, 12, 13, 14, 15, 16, 17, 18, 19]"*)
