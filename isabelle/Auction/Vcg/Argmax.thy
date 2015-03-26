@@ -42,12 +42,21 @@ lemma maxLemma:
   (is "?L >= ?R") using assms 
   by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
-lemma lm01: "argmax f A = A \<inter> f -` {Max (f ` A)}" 
-      by force
+lemma lm01: 
+  "argmax f A = A \<inter> f -` {Max (f ` A)}" 
+  by force
 
-lemma lm02: assumes "y \<in> f`A" 
-            shows "A \<inter> f -` {y} \<noteq> {}" 
-      using assms by blast
+lemma lm02: 
+  assumes "y \<in> f`A" 
+  shows "A \<inter> f -` {y} \<noteq> {}" 
+  using assms by blast
+
+
+lemma argmaxEquivalence: 
+  assumes "\<forall>x\<in>X. f x = g x" 
+  shows "argmax f X = argmax g X" 
+  using assms argmaxLemma Collect_cong image_cong 
+  by (metis(no_types,lifting))
 
 text {* The arg max of a function over a non-empty set is non-empty. *}
 corollary argmax_non_empty_iff: assumes "finite X" "X \<noteq> {}" 
