@@ -1109,6 +1109,18 @@ lemma lm139:
   "argmax (setsum' b) = (argmax \<circ> setsum') b" 
   by simp
 
+lemma domainConstant: 
+  "Domain (Y \<times> {0::nat}) = Y & Domain (X \<times> {1}) = X" 
+  by blast
+
+lemma domainCharacteristicFunction: 
+  "Domain (X <|| Y) = X \<union> Y" 
+  using domainConstant paste_Domain sup_commute by metis
+
+lemma functionEquivalenceOnSets: 
+  assumes "\<forall>x \<in> X. f x = g x" 
+  shows "f`X = g`X" 
+  using assms by (metis image_cong)
 
 
 section {* cardinalities of sets. *}

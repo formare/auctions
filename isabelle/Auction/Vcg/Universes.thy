@@ -93,7 +93,7 @@ lemma lm008: "injections' X Y = totalRels X Y \<inter> injectionsUniverse"
   by fastforce
 
 lemma allocationInverseRangeDomainProperty: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows  "a^-1 \<in> injections (Range a) N & 
           (Range a) partitions G & 
           Domain a \<subseteq> N" 
@@ -196,7 +196,7 @@ lemma lm020:
   by force
 
 lemma allocationInjectionsUnivervseProperty: 
-  "possibleAllocationsRel N G = 
+  "allAllocations N G = 
    injectionsUniverse \<inter> {a. Domain a \<subseteq> N & Range a \<in> all_partitions G}"
 proof -
   let ?A="possible_allocations_rel G N" 
@@ -212,26 +212,26 @@ proof -
 qed
 
 lemma lm021: 
-  "possibleAllocationsRel N G \<subseteq> injectionsUniverse" 
+  "allAllocations N G \<subseteq> injectionsUniverse" 
   using allocationInjectionsUnivervseProperty by fast
 
 lemma lm022: 
-  "possibleAllocationsRel N G \<subseteq> partitionValuedUniverse"
+  "allAllocations N G \<subseteq> partitionValuedUniverse"
   using assms allocationInverseRangeDomainProperty is_partition_of_def is_non_overlapping_def 
   by blast
 
 corollary possibleAllocationsUniverse: 
-  "possibleAllocationsRel N G \<subseteq> allocationsUniverse" 
+  "allAllocations N G \<subseteq> allocationsUniverse" 
   using lm021 lm022 by (metis (lifting, mono_tags) inf.bounded_iff)
 
 corollary posssibleAllocationsRelCharacterization: 
-  "a \<in> possibleAllocationsRel N G = 
+  "a \<in> allAllocations N G = 
    (a \<in> injectionsUniverse & Domain a \<subseteq> N & Range a \<in> all_partitions G)" 
   using allocationInjectionsUnivervseProperty Int_Collect Int_iff by (metis (lifting))
 
 corollary lm023: 
-  assumes "a \<in> possibleAllocationsRel N1 G" 
-  shows   "a \<in> possibleAllocationsRel (N1 \<union> N2) G"
+  assumes "a \<in> allAllocations N1 G" 
+  shows   "a \<in> allAllocations (N1 \<union> N2) G"
 proof - 
   have "Domain a \<subseteq> N1 \<union> N2" using assms(1) posssibleAllocationsRelCharacterization 
        by (metis le_supI1) 
@@ -241,7 +241,7 @@ proof -
 qed
 
 corollary lm024: 
-  "possibleAllocationsRel N1 G \<subseteq> possibleAllocationsRel (N1 \<union> N2) G"
+  "allAllocations N1 G \<subseteq> allAllocations (N1 \<union> N2) G"
   using lm023 by (metis subsetI)
 
 lemma lm025: 
@@ -338,18 +338,18 @@ lemma lm031:
   by fastforce
 
 lemma lm032: 
-  "possibleAllocationsRel N G = 
+  "allAllocations N G = 
    injectionsUniverse \<inter> ((Range -` (all_partitions G)) \<inter> (Domain -`(Pow N)))"
   using allocationInjectionsUnivervseProperty lm031 by (metis (no_types) Int_commute)
 
 (* -` is the reverse image of a function. This is a variant of lm023 with different bracketing *)
 corollary lm033: 
-  "possibleAllocationsRel N G = 
+  "allAllocations N G = 
    injectionsUniverse \<inter> (Range -` (all_partitions G)) \<inter> (Domain -`(Pow N))" 
   using lm032 Int_assoc by (metis)
 
 lemma lm034: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows "(a^-1 \<in> injections (Range a) N & 
          Range a \<in> all_partitions G)"
   using assms 
@@ -358,16 +358,16 @@ lemma lm034:
 
 lemma lm035: 
   assumes "a^-1 \<in> injections (Range a) N" "Range a \<in> all_partitions G" 
-  shows "a \<in> possibleAllocationsRel N G" 
+  shows "a \<in> allAllocations N G" 
   using assms image_iff by fastforce
 
 lemma allocationReverseInjective: 
-  "a \<in> possibleAllocationsRel N G = 
+  "a \<in> allAllocations N G = 
    (a^-1 \<in> injections (Range a) N  &  Range a \<in> all_partitions G)"
   using lm034 lm035 by metis
 
 lemma lm036: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows "a \<in> injections (Domain a) (Range a) & 
          Range a \<in> all_partitions G &
          Domain a \<subseteq> N"
@@ -378,12 +378,12 @@ lemma lm037:
   assumes "a \<in> injections (Domain a) (Range a)" 
           "Range a \<in> all_partitions G" 
           "Domain a \<subseteq> N" 
-  shows "a \<in> possibleAllocationsRel N G" 
+  shows "a \<in> allAllocations N G" 
   using assms mem_Collect_eq posssibleAllocationsRelCharacterization injections_def 
   by (metis (erased, lifting))
 
-lemma characterizationPossibleAllocationsRel: 
-  "a \<in> possibleAllocationsRel N G = (a \<in> injections (Domain a) (Range a)  & 
+lemma characterizationallAllocations: 
+  "a \<in> allAllocations N G = (a \<in> injections (Domain a) (Range a)  & 
    Range a \<in> all_partitions G & 
    Domain a \<subseteq> N)" 
   using lm036 lm037 by metis
@@ -405,7 +405,7 @@ lemma lm039:
 
 lemma lm040: 
   assumes "a \<in> allocationsUniverse" 
-  shows "a \<in> possibleAllocationsRel (Domain a) (\<Union> (Range a))"
+  shows "a \<in> allAllocations (Domain a) (\<Union> (Range a))"
 proof -
   let ?r=Range 
   let ?p=is_non_overlapping 
@@ -655,37 +655,37 @@ lemma lm049:
   using assms mem_Collect_eq no_empty_in_non_overlapping by auto
 
 corollary emptyNotInRange: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows "{} \<notin> Range a" 
   using assms lm049 possibleAllocationsUniverse by blast
 
 lemma lm050: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows "Range a \<subseteq> Pow G"
   using assms allocationInverseRangeDomainProperty is_partition_of_def by (metis subset_Pow_Union)
 
 corollary lm051: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows "Domain a \<subseteq> N & Range a \<subseteq> Pow G - {{}}" 
   using assms lm050 insert_Diff_single emptyNotInRange subset_insert
         allocationInverseRangeDomainProperty by metis
 
 corollary allocationPowerset: 
-  assumes "a \<in> possibleAllocationsRel N G" 
+  assumes "a \<in> allAllocations N G" 
   shows "a \<subseteq> N \<times> (Pow G - {{}})" 
   using assms lm051 by blast
 
 corollary lm052: 
-  "possibleAllocationsRel N G \<subseteq> Pow (N\<times>(Pow G-{{}}))" 
+  "allAllocations N G \<subseteq> Pow (N\<times>(Pow G-{{}}))" 
   using allocationPowerset by blast
 
 (* reformulation of 43c with given set of goods and set of participants *)
 lemma lm053: 
-  assumes  "a \<in> possibleAllocationsRel N G" 
+  assumes  "a \<in> allAllocations N G" 
            "i \<in> N-X" 
            "Domain a \<inter> X \<noteq> {}" 
   shows   "a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))}) \<in> 
-           possibleAllocationsRel (N-X) (\<Union> (Range a))"
+           allAllocations (N-X) (\<Union> (Range a))"
 proof -
   let ?R = "a outside X" 
   let ?I = "{i}" 
@@ -702,16 +702,16 @@ proof -
   have "a \<in> allocationsUniverse" using 1 by fast 
   moreover have "?d a \<inter> X \<noteq> {}" using assms by fast 
   ultimately have "?aa \<in> allocationsUniverse & ?U (?r ?aa) = ?U (?r a)" apply (rule lm047) done
-  then have "?aa \<in> possibleAllocationsRel (?d ?aa) (?U (?r a))"
+  then have "?aa \<in> allAllocations (?d ?aa) (?U (?r a))"
      using lm040 by (metis (lifting, mono_tags))
-  then have "?aa \<in> possibleAllocationsRel (?d ?aa \<union> (?d a - X \<union> {i}))  (?U (?r a))"
+  then have "?aa \<in> allAllocations (?d ?aa \<union> (?d a - X \<union> {i}))  (?U (?r a))"
      by (metis lm023)
   moreover have "?d a - X \<union> {i} = ?d ?aa \<union> (?d a - X \<union> {i})" using Outside_def by auto
-  ultimately have "?aa \<in> possibleAllocationsRel (?d a - X \<union> {i}) (?U (?r a))" by simp
-  then have "?aa \<in> possibleAllocationsRel (?d a \<union> {i} - X) (?U (?r a))" using 2 by simp
+  ultimately have "?aa \<in> allAllocations (?d a - X \<union> {i}) (?U (?r a))" by simp
+  then have "?aa \<in> allAllocations (?d a \<union> {i} - X) (?U (?r a))" using 2 by simp
   moreover have "?d a \<subseteq> N" using assms(1) posssibleAllocationsRelCharacterization by metis
   then moreover have "(?d a \<union> {i} - X) \<union> (N - X) = N - X" using assms by fast
-  ultimately have "?aa \<in> possibleAllocationsRel (N - X) (?U (?r a))" using lm024 
+  ultimately have "?aa \<in> allAllocations (N - X) (?U (?r a))" using lm024 
     by (metis (lifting, no_types) in_mono)
   then show ?thesis by fast
 qed
@@ -763,14 +763,14 @@ lemma elementOfPartitionOfFiniteSetIsFinite:
   by (metis assms(1) assms(2) finite_UnionD mem_Collect_eq)
 
 lemma lm055: 
-  assumes "finite N" "finite G" "a \<in> possibleAllocationsRel N G"
+  assumes "finite N" "finite G" "a \<in> allAllocations N G"
   shows "finite a" 
   using assms finiteRelationCharacterization rev_finite_subset 
-  by (metis characterizationPossibleAllocationsRel elementOfPartitionOfFiniteSetIsFinite)
+  by (metis characterizationallAllocations elementOfPartitionOfFiniteSetIsFinite)
 
-lemma possibleAllocationsRelFinite: 
+lemma allAllocationsFinite: 
   assumes "finite N" "finite G" 
-  shows "finite (possibleAllocationsRel N G)"
+  shows "finite (allAllocations N G)"
 proof -
   have "finite (Pow(N\<times>(Pow G-{{}})))" using assms finite_Pow_iff by blast
   then show ?thesis using lm052 rev_finite_subset by (metis(no_types))
@@ -778,12 +778,12 @@ qed
 
 corollary lm056: 
   assumes "bidMonotonicity (b::_ => real) i" 
-          "a \<in> possibleAllocationsRel N G" 
+          "a \<in> allAllocations N G" 
           "i \<in> N-X" 
           "Domain a \<inter> X \<noteq> {}" 
           "finite N" 
           "finite G" 
-  shows   "Max ((setsum b)`(possibleAllocationsRel (N-X) G)) \<ge> 
+  shows   "Max ((setsum b)`(allAllocations (N-X) G)) \<ge> 
            setsum b (a outside X)"
 proof -
   let ?aa = "a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))})"
@@ -793,13 +793,13 @@ proof -
   moreover have "finite a" using assms lm055 by metis 
   ultimately have 
   0: "setsum b (a outside X) \<le> setsum b ?aa" by (rule lm054)
-  have "?aa \<in> possibleAllocationsRel (N-X) (\<Union> (Range a))" using assms lm053 by metis
+  have "?aa \<in> allAllocations (N-X) (\<Union> (Range a))" using assms lm053 by metis
   moreover have "\<Union> (Range a) = G" 
     using assms allocationInverseRangeDomainProperty is_partition_of_def by metis
-  ultimately have "setsum b ?aa \<in> (setsum b)`(possibleAllocationsRel (N-X) G)" by (metis imageI)
-  moreover have "finite ((setsum b)`(possibleAllocationsRel (N-X) G))" 
-    using assms possibleAllocationsRelFinite assms(5,6) by (metis finite_Diff finite_imageI)
-  ultimately have "setsum b ?aa \<le> Max ((setsum b)`(possibleAllocationsRel (N-X) G))" by auto
+  ultimately have "setsum b ?aa \<in> (setsum b)`(allAllocations (N-X) G)" by (metis imageI)
+  moreover have "finite ((setsum b)`(allAllocations (N-X) G))" 
+    using assms allAllocationsFinite assms(5,6) by (metis finite_Diff finite_imageI)
+  ultimately have "setsum b ?aa \<le> Max ((setsum b)`(allAllocations (N-X) G))" by auto
   then show ?thesis using 0 by linarith
 qed
 
@@ -837,30 +837,30 @@ corollary setsum_associativity:
 
 lemma lm057: 
   assumes "a \<in> allocationsUniverse" "Domain a \<subseteq> N" "(\<Union>Range a) = G" 
-  shows   "a \<in> possibleAllocationsRel N G" 
+  shows   "a \<in> allAllocations N G" 
   using assms posssibleAllocationsRelCharacterization lm040 by (metis (mono_tags, lifting))
 
 corollary lm058: 
   "(allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}) \<subseteq>
-   possibleAllocationsRel N G"
+   allAllocations N G"
   using lm057 by fastforce
 
 corollary lm059: 
-  "possibleAllocationsRel N G \<subseteq> {a. (Domain a) \<subseteq> N}" 
+  "allAllocations N G \<subseteq> {a. (Domain a) \<subseteq> N}" 
   using allocationInverseRangeDomainProperty by blast
 
 corollary lm060: 
-  "possibleAllocationsRel N G \<subseteq> {a. (\<Union>Range a) = G}" 
+  "allAllocations N G \<subseteq> {a. (\<Union>Range a) = G}" 
   using is_partition_of_def allocationInverseRangeDomainProperty mem_Collect_eq subsetI
   by (metis(mono_tags))
 
 corollary lm061: 
-  "possibleAllocationsRel N G  \<subseteq>  allocationsUniverse &
-   possibleAllocationsRel N G \<subseteq> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}" 
+  "allAllocations N G  \<subseteq>  allocationsUniverse &
+   allAllocations N G \<subseteq> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}" 
   using lm059 lm060 conj_subset_def possibleAllocationsUniverse by (metis (no_types))
 
 corollary possibleAllocationsIntersectionSubset: 
-  "possibleAllocationsRel N G \<subseteq> 
+  "allAllocations N G \<subseteq> 
    allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}"
   (is "?L \<subseteq> ?R1 \<inter> ?R2")
 proof - 
@@ -868,7 +868,7 @@ proof -
 qed
 
 corollary possibleAllocationsIntersection: 
-  "possibleAllocationsRel N G = 
+  "allAllocations N G = 
    (allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G})" 
   (is "?L = ?R") 
 proof -
@@ -878,7 +878,7 @@ proof -
 qed
 
 corollary possibleAllocationsIntersectionSetEquals: 
-  "a \<in> possibleAllocationsRel N G  = 
+  "a \<in> allAllocations N G  = 
    (a \<in> allocationsUniverse  & (Domain a) \<subseteq> N & (\<Union>Range a) = G)" 
   using possibleAllocationsIntersection Int_Collect by (metis (mono_tags, lifting))
 
@@ -1272,7 +1272,7 @@ qed
 (* bridging lemma for possibleAllocations *)
 corollary possibleAllocationsBridgingLemma: 
   assumes "card N > 0" "distinct G" 
-  shows   "possibleAllocationsRel N (set G) = 
+  shows   "allAllocations N (set G) = 
            set(possibleAllocationsAlg N G)" 
 proof -
   let ?LL = "\<Union> {injections P N| P. P \<in> all_partitions (set G)}"
