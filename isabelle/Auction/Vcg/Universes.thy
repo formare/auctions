@@ -80,17 +80,14 @@ lemma lm004:
   by (metis Image_within_domain' empty_subsetI insert_subset graphEqImage domainOfGraph 
             runiq_wrt_eval_rel subset_trans)
 
-lemma lm005: "injections = injections'" 
-  using injections_def by (metis(no_types))
-
-lemma lm006: "injections' X Y \<subseteq> injectionsUniverse" 
-  by fast
+lemma lm006: "injections X Y \<subseteq> injectionsUniverse" 
+  using injections_def by fast
 
 lemma lm007: "injections X Y \<subseteq> injectionsUniverse" 
   using injections_def by blast
 
-lemma lm008: "injections' X Y = totalRels X Y \<inter> injectionsUniverse" 
-  by fastforce
+lemma lm008: "injections X Y = totalRels X Y \<inter> injectionsUniverse" 
+  using injections_def by (simp add: Collect_conj_eq Int_assoc)
 
 lemma allocationInverseRangeDomainProperty: 
   assumes "a \<in> allAllocations N G" 
@@ -146,14 +143,14 @@ lemma allocationProperty:
 
 lemma lm011: 
   "possible_allocations_rel' G N \<subseteq> injectionsUniverse"
-  using assms by force
+  using assms injections_def by force
 
 lemma lm012: 
   "possible_allocations_rel G N \<subseteq> {a. (Range a) \<subseteq> N & (Domain a) \<in> all_partitions G}"
   using assms possible_allocations_rel_def injections_def by fastforce
 
 lemma lm013: 
-  "injections X Y = injections' X Y" 
+  "injections X Y = injections X Y" 
   using injections_def by metis
 
 lemma lm014: 
@@ -166,7 +163,7 @@ lemma lm015:
 proof -
   have "?B=\<Union> { injections Y B | Y . Y \<in> all_partitions A }"
     using possible_allocations_rel_def by auto 
-  moreover have "... = ?A" using injections_def lm014 by metis
+  moreover have "... = ?A" using lm014 by metis
   ultimately show ?thesis by presburger
 qed
 
@@ -953,7 +950,7 @@ qed
 
 lemma lm073: 
   "injections X Y = totalRels X Y \<inter> injectionsUniverse" 
-  using injections_def lm008 by metis
+  using lm008 by metis
 
 lemma lm074: 
   assumes "f \<in> injectionsUniverse" 
@@ -966,15 +963,16 @@ lemma lm075:
   unfolding Outside_def using assms by blast
 
 lemma lm076: 
-  assumes "g \<in> injections' A B" 
-  shows   "g outside C \<in> injections' (A - C) B" 
+  assumes "g \<in> injections A B" 
+  shows   "g outside C \<in> injections (A - C) B" 
   using assms Outside_def Range_outside_sub lm030 mem_Collect_eq outside_reduces_domain
+  unfolding injections_def 
   by fastforce
 
 lemma lm077: 
   assumes "g \<in> injections A B" 
   shows   "g outside C \<in> injections (A - C) B"
-  using assms lm076 by (metis injections_def)
+  using assms lm076 by metis
 
 lemma lm078: 
   "{x}\<times>{y}={(x,y)}" 
@@ -996,16 +994,16 @@ lemma lm081:
   using assms mem_Collect_eq rangeOutside by (metis)
 
 lemma lm082: 
-  assumes "g \<in> injections' X Y" "x \<in> Domain g" 
+  assumes "g \<in> injections X Y" "x \<in> Domain g" 
   shows   "g \<in> {g--x \<union> {(x,y)}|y. y \<in> Y - (Range(g--x))}" 
 proof - 
   let ?f = "g--x" 
   have "g\<in>injectionsUniverse" using assms(1) lm008 by fast 
   then moreover have "g,,x \<in> g``{x}" 
        using assms(2) by (metis Image_runiq_eq_eval insertI1 mem_Collect_eq)
-  ultimately have "g,,x \<in> Y-Range ?f" using lm081 assms(1) by fast 
+  ultimately have "g,,x \<in> Y-Range ?f" using lm081 assms(1) unfolding injections_def by fast 
   moreover have "g=?f\<union>{(x, g,,x)}" 
-     using assms lm080 mem_Collect_eq by (metis (lifting)) 
+     using assms lm080 mem_Collect_eq unfolding injections_def by (metis (lifting)) 
   ultimately show ?thesis by blast 
 qed
 
@@ -1021,8 +1019,9 @@ corollary lm084:
 proof - 
   let ?f = "g--x" 
   have 
-  0: "g\<in>injections' ?X Y" using assms lm005 by metis 
-  have "Domain g=?X" using assms(2) lm005 mem_Collect_eq by (metis (mono_tags, lifting))
+  0: "g\<in>injections ?X Y" using assms by metis 
+  have "Domain g=?X" 
+    using assms(2) mem_Collect_eq unfolding injections_def by (metis (mono_tags, lifting))
   then have 
   1: "x \<in> Domain g" by simp then have "?f \<in> injections X Y" using assms lm083 by fast
   moreover have "g\<in>{?f\<union>{(x,y)}|y. y\<in>Y-Range ?f}" using 0 1 by (rule lm082)
@@ -1037,14 +1036,15 @@ corollary lm085:
 
 lemma lm086: 
   assumes "x \<notin> X" 
-  shows  "(\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) \<subseteq> 
-          injections' ({x} \<union> X) Y" 
+  shows  "(\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f}) \<subseteq> 
+          injections ({x} \<union> X) Y" 
   using assms lm072 injections_def lm073 lm070 
 proof -
   { fix f 
-    assume "f \<in> injections' X Y" 
+    assume "f \<in> injections X Y" 
     then have 
-    0: "f \<in> injectionsUniverse & x \<notin> Domain f & Domain f = X & Range f \<subseteq> Y" using assms by fast 
+    0: "f \<in> injectionsUniverse & x \<notin> Domain f & Domain f = X & Range f \<subseteq> Y" 
+      using assms unfolding injections_def by fast 
     then have "f \<in> injectionsUniverse" by fast 
     moreover have "x \<notin> Domain f" using 0 by fast
     moreover have 
@@ -1056,7 +1056,7 @@ proof -
                      injectionsUniverse \<inter> totalRels ({x}\<union>X) Y" 
         by auto
   }
-  thus ?thesis using lm008 by blast
+  thus ?thesis using lm008 unfolding injections_def by blast
 qed
 
 corollary injectionsUnionCommute: 
@@ -1066,9 +1066,9 @@ corollary injectionsUnionCommute:
   (is "?r=injections ?X _") 
 proof - 
   have 
-  0: "?r = (\<Union> f\<in>injections' X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" 
-    (is "_=?r'") unfolding lm005 by blast 
-  have "?r' \<subseteq> injections' ?X Y" using assms by (rule lm086) moreover have "... = injections ?X Y"
+  0: "?r = (\<Union> f\<in>injections X Y. {f \<union> {(x, y)} | y . y \<in> Y-Range f})" 
+    (is "_=?r'") by blast 
+  have "?r' \<subseteq> injections ?X Y" using assms by (rule lm086) moreover have "... = injections ?X Y"
     unfolding lm005 
   by simp ultimately have "?r \<subseteq> injections ?X Y" using 0 by simp
   moreover have "injections ?X Y \<subseteq> ?r" using assms by (rule lm085) 
@@ -1173,12 +1173,12 @@ corollary lm097:
 text{* We sometimes use parallel @{term abbreviation} and @{term definition} for the same object to save typing `unfolding xxx' each time. There is also different behaviour in the code extraction. *}
 
 lemma lm098:  
-  "injections' {} Y  =  {{}}" 
+  "injections {} Y  =  {{}}" 
   by (simp add: lm008 lm062 runiq_emptyrel)
 
 lemma lm099: 
   "injections {} Y  =  {{}}" 
-  unfolding injections_def by (simp add: lm008 lm062 runiq_emptyrel) 
+  unfolding injections_def by (metis lm098 injections_def)
 
 lemma injectionsFromEmptyIsEmpty: 
   "injectionsAlg [] Y  =  [{}]" 

@@ -51,7 +51,6 @@ lemma lm02:
   shows "A \<inter> f -` {y} \<noteq> {}" 
   using assms by blast
 
-
 lemma argmaxEquivalence: 
   assumes "\<forall>x\<in>X. f x = g x" 
   shows "argmax f X = argmax g X" 

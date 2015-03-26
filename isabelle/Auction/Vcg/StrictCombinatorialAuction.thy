@@ -54,8 +54,8 @@ fun possible_allocations_rel
 
 abbreviation "is_partition_of' P A == (\<Union> P = A \<and> is_non_overlapping P)"
 abbreviation "all_partitions' A == {P . is_partition_of' P A}"
-abbreviation "injections' X Y == {R . Domain R = X \<and> Range R \<subseteq> Y \<and> runiq R \<and> runiq (R\<inverse>)}"
-abbreviation "possible_allocations_rel' G N == Union{injections' Y N | Y . Y \<in> all_partitions' G}"
+
+abbreviation "possible_allocations_rel' G N == Union{injections Y N | Y . Y \<in> all_partitions' G}"
 abbreviation allAllocations where 
   "allAllocations N G == converse ` (possible_allocations_rel G N)"
 
