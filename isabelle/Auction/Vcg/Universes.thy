@@ -220,7 +220,7 @@ lemma lm022:
   using assms allocationInverseRangeDomainProperty is_partition_of_def is_non_overlapping_def 
   by blast
 
-corollary possibleAllocationsUniverse: 
+corollary allAllocationsUniverse: 
   "allAllocations N G \<subseteq> allocationsUniverse" 
   using lm021 lm022 by (metis (lifting, mono_tags) inf.bounded_iff)
 
@@ -657,7 +657,7 @@ lemma lm049:
 corollary emptyNotInRange: 
   assumes "a \<in> allAllocations N G" 
   shows "{} \<notin> Range a" 
-  using assms lm049 possibleAllocationsUniverse by blast
+  using assms lm049 allAllocationsUniverse by blast
 
 lemma lm050: 
   assumes "a \<in> allAllocations N G" 
@@ -695,7 +695,7 @@ proof -
   let ?d = Domain
   let ?aa = "a outside (X \<union> {i}) \<union> ({i} \<times> {?U(a``(X\<union>{i}))})" 
   have 
-  1: "a \<in> allocationsUniverse" using assms(1) possibleAllocationsUniverse  set_rev_mp by blast
+  1: "a \<in> allocationsUniverse" using assms(1) allAllocationsUniverse  set_rev_mp by blast
   have "i \<notin> X" using assms by fast 
   then have 
   2: "?d a - X \<union> {i} = ?d a \<union> {i} - X" by fast
@@ -788,7 +788,7 @@ corollary lm056:
 proof -
   let ?aa = "a outside (X \<union> {i}) \<union> ({i} \<times> {\<Union>(a``(X\<union>{i}))})"
   have "bidMonotonicity (b::_ => real) i" using assms(1) by fast
-  moreover have "a \<in> allocationsUniverse" using assms(2) possibleAllocationsUniverse by blast
+  moreover have "a \<in> allocationsUniverse" using assms(2) allAllocationsUniverse by blast
   moreover have "Domain a \<inter> X \<noteq> {}" using assms(4) by auto
   moreover have "finite a" using assms lm055 by metis 
   ultimately have 
@@ -857,9 +857,9 @@ corollary lm060:
 corollary lm061: 
   "allAllocations N G  \<subseteq>  allocationsUniverse &
    allAllocations N G \<subseteq> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}" 
-  using lm059 lm060 conj_subset_def possibleAllocationsUniverse by (metis (no_types))
+  using lm059 lm060 conj_subset_def allAllocationsUniverse by (metis (no_types))
 
-corollary possibleAllocationsIntersectionSubset: 
+corollary allAllocationsIntersectionSubset: 
   "allAllocations N G \<subseteq> 
    allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G}"
   (is "?L \<subseteq> ?R1 \<inter> ?R2")
@@ -867,20 +867,20 @@ proof -
   have "?L \<subseteq> ?R1 & ?L \<subseteq> ?R2" by (rule lm061) thus ?thesis by auto 
 qed
 
-corollary possibleAllocationsIntersection: 
+corollary allAllocationsIntersection: 
   "allAllocations N G = 
    (allocationsUniverse \<inter> {a. (Domain a) \<subseteq> N & (\<Union>Range a) = G})" 
   (is "?L = ?R") 
 proof -
-  have "?L \<subseteq> ?R" using possibleAllocationsIntersectionSubset by metis 
+  have "?L \<subseteq> ?R" using allAllocationsIntersectionSubset by metis 
   moreover have "?R \<subseteq> ?L" using lm058 by fast
   ultimately show ?thesis by force
 qed
 
-corollary possibleAllocationsIntersectionSetEquals: 
+corollary allAllocationsIntersectionSetEquals: 
   "a \<in> allAllocations N G  = 
    (a \<in> allocationsUniverse  & (Domain a) \<subseteq> N & (\<Union>Range a) = G)" 
-  using possibleAllocationsIntersection Int_Collect by (metis (mono_tags, lifting))
+  using allAllocationsIntersection Int_Collect by (metis (mono_tags, lifting))
 
 corollary allocationsUniverseOutside: 
   assumes "a \<in> allocationsUniverse" 
@@ -1269,11 +1269,11 @@ proof -
   have "?L = ?R" using assms by (rule lm103) thus ?thesis by presburger 
 qed
 
-(* bridging lemma for possibleAllocations *)
-corollary possibleAllocationsBridgingLemma: 
+(* bridging lemma for allAllocations *)
+corollary allAllocationsBridgingLemma: 
   assumes "card N > 0" "distinct G" 
   shows   "allAllocations N (set G) = 
-           set(possibleAllocationsAlg N G)" 
+           set(allAllocationsAlg N G)" 
 proof -
   let ?LL = "\<Union> {injections P N| P. P \<in> all_partitions (set G)}"
   let ?RR = "\<Union> (set [set (injections_alg l N) . l \<leftarrow> all_partitions_list G])"

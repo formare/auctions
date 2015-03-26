@@ -79,7 +79,7 @@ abbreviation "Tiebids allocation N G == summedBidVectorRel (real\<circ>maxbid al
 (* the chosen allocation takes the random-th element of all possible winning allocations. This is done by taking the head of permuting the list random-times. The definition is easier for proving theorems. Since it is not the computational version, this inefficiency is irrelevant for the extracted code. *)
 abbreviation "chosenAllocation N G bids random == 
    hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) 
-                     (possibleAllocationsAlg N G)) 
+                     (allAllocationsAlg N G)) 
             (nat_of_integer random))"
 
 (* find the bid vector in random values that returns the chosen winning allocation *)
@@ -763,21 +763,21 @@ corollary lm082:
   "inj_on pseudoAllocation (allAllocations N G)" 
 proof -
   have "allAllocations N G \<subseteq> allocationsUniverse" 
-    by (metis (no_types) possibleAllocationsUniverse)
+    by (metis (no_types) allAllocationsUniverse)
   thus "inj_on pseudoAllocation (allAllocations N G)" using lm081 subset_inj_on by blast
 qed
 
 lemma lm083: 
   assumes "card N > 0" "distinct G" 
-  shows "winningAllocationsRel N (set G) bids \<subseteq> set (possibleAllocationsAlg N G)"
-  using assms winningAllocationPossible possibleAllocationsBridgingLemma by (metis(no_types))
+  shows "winningAllocationsRel N (set G) bids \<subseteq> set (allAllocationsAlg N G)"
+  using assms winningAllocationPossible allAllocationsBridgingLemma by (metis(no_types))
  
 corollary lm084: 
   assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
-  shows "winningAllocationsRel N (set G) bids \<inter> set (possibleAllocationsAlg N G) \<noteq> {}"
+  shows "winningAllocationsRel N (set G) bids \<inter> set (allAllocationsAlg N G) \<noteq> {}"
 proof -
   let ?w = winningAllocationsRel 
-  let ?a = possibleAllocationsAlg
+  let ?a = allAllocationsAlg
   let ?G = "set G" 
   have "card N > 0" using assms by (metis card_gt_0_iff)
   then have "?w N ?G bids \<subseteq> set (?a N G)" using lm083 by (metis assms(3))
@@ -792,7 +792,7 @@ lemma lm085:
 corollary lm086: 
   assumes  "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
   shows "(%x. x\<in>winningAllocationsRel N (set G) bids)-`{True} \<inter> 
-         set (possibleAllocationsAlg N G) \<noteq> {}"
+         set (allAllocationsAlg N G) \<noteq> {}"
   using assms lm084 lm085 by metis
 
 lemma lm087: 
@@ -802,13 +802,13 @@ lemma lm087:
 
 corollary lm088: 
   assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
-  shows "takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (possibleAllocationsAlg N G) \<noteq> []"
+  shows "takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) (allAllocationsAlg N G) \<noteq> []"
   using assms lm087 lm086 by metis
 
 corollary lm089: 
   assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
   shows "perm2 (takeAll (%x. x \<in> winningAllocationsRel N (set G) bids) 
-                        (possibleAllocationsAlg N G)) 
+                        (allAllocationsAlg N G)) 
                n \<noteq> []"
   using assms permutationNotEmpty lm088 by metis
 
@@ -817,11 +817,11 @@ corollary lm090:
   assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
   shows "chosenAllocation N G bids random \<in> winningAllocationsRel N (set G) bids"
 proof -
-  let ?w=winningAllocationsRel 
-  let ?p=possibleAllocationsAlg 
-  let ?G="set G"
-  let ?X="?w N ?G bids" 
-  let ?l="perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
+  let ?w = winningAllocationsRel 
+  let ?p = allAllocationsAlg 
+  let ?G = "set G"
+  let ?X = "?w N ?G bids" 
+  let ?l = "perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
   have "set ?l \<subseteq> ?X" using takeAllPermutation by fast
   moreover have "?l \<noteq> []" using assms lm089 by blast
   ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
@@ -1033,3 +1033,4 @@ definition "toFunctionWithFallbackAlg R fallback ==
 notation toFunctionWithFallbackAlg (infix "Elsee" 75) 
 
 end
+
