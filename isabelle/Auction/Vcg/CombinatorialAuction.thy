@@ -707,12 +707,10 @@ qed
 corollary lm20: assumes "\<forall>x \<in> X. f x = g x" shows "setsum f X = setsum g X" 
 using assms setsum.cong by auto
 
-lemma lm06a: assumes "fst pair \<in> N" "snd pair \<in> Pow \<Omega> - {{}}" shows "setsum (%g.
-(toFunction (bidMaximizedBy a N \<Omega>))
-(fst pair, g)) (finestpart (snd pair)) =
-setsum (%g. 
-((bidMaximizedBy a N \<Omega>) Elsee 0)
-(fst pair, g)) (finestpart (snd pair))"
+lemma lm06a: assumes "fst pair \<in> N" "snd pair \<in> Pow \<Omega> - {{}}" shows 
+"setsum (%g. (toFunction (bidMaximizedBy a N \<Omega>)) (fst pair, g))
+        (finestpart (snd pair)) =
+setsum (%g. ((bidMaximizedBy a N \<Omega>) Elsee 0) (fst pair, g)) (finestpart (snd pair))"
 using assms lm01a lm05 lm04a Un_upper1 UnCI UnI1 setsum.cong finestpartSubset Diff_iff Pow_iff in_mono
 proof -
 let ?f1="%g.(toFunction (bidMaximizedBy a N \<Omega>))(fst pair, g)"
@@ -752,7 +750,8 @@ corollary lm10:
 "(summedBid (toFunction (bidMaximizedBy a N \<Omega>))) ` (N \<times> (Pow \<Omega> - {{}}))=
 (summedBid ((bidMaximizedBy a N \<Omega>) Elsee 0)) ` (N \<times> (Pow \<Omega> - {{}}))" (is "?f1 ` ?Z = ?f2 ` ?Z")
 proof - (*MC: no way to automatize this trivial proof??!! *)
-have "\<forall> z \<in> ?Z. ?f1 z = ?f2 z" by (rule lm09a) thus ?thesis by (rule lm08a)
+have "\<forall> z \<in> ?Z. ?f1 z = ?f2 z" by (rule lm09a) thus ?thesis 
+using image_cong by (metis(mono_tags,lifting))
 qed
 
 corollary lm11: "summedBidVectorRel (toFunction (bidMaximizedBy a N \<Omega>)) N \<Omega> =
@@ -870,6 +869,7 @@ argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations N (set \<O
 moreover have "card ... = 1" using assms by (rule vcgaDefinitenessVariant)
 ultimately show ?thesis by presburger
 qed
+
 corollary lm70e: assumes "finite N" "distinct \<Omega>" shows
 "maximalStrictAllocations N (set \<Omega>) b=maximalStrictAllocationsAlg N \<Omega> b" 
 proof -
@@ -877,6 +877,7 @@ let ?N="{seller} \<union> N"
 have "card ?N>0" using assms(1) by (metis (full_types) card_gt_0_iff finite_insert insert_is_Un insert_not_empty)
 thus ?thesis using assms(2) lm70d by metis
 qed
+
 corollary assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" shows 
 "1=card (argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocationsAlg N \<Omega> b))"
 proof - 
