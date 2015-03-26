@@ -64,7 +64,7 @@ fun possible_allocations_alg :: "goods \<Rightarrow> participant set \<Rightarro
   where "possible_allocations_alg G N = 
          concat [ injections_alg Y N . Y \<leftarrow> all_partitions_alg G ]"
 
-abbreviation "possibleAllocationsAlg N G == 
+abbreviation "allAllocationsAlg N G == 
               map converse (concat [(injections_alg l N) . l \<leftarrow> all_partitions_list G])"
 
 
@@ -79,7 +79,7 @@ abbreviation "winningAllocationsRel N G b ==
 abbreviation "winningAllocationRel N G t b == t (winningAllocationsRel N G b)"
 
 (* This is the computational version of winningAllocationsRel *)
-abbreviation "winningAllocationsAlg N G b == argmaxList (proceeds b) (possibleAllocationsAlg N G)"
+abbreviation "winningAllocationsAlg N G b == argmaxList (proceeds b) (allAllocationsAlg N G)"
 
 (* This is the computational version of winningAllocationRel *)
 definition "winningAllocationAlg N G t b == t (winningAllocationsAlg N G b)"
@@ -91,7 +91,7 @@ text {* alpha is the maximum sum of bids of all bidders except bidder @{text n}'
 abbreviation "alpha N G b n == Max ((setsum b)`(allAllocations (N-{n}) G))"
 
 (* computational version of alpha *)
-abbreviation "alphaAlg N G b n == Max ((proceeds b)`(set (possibleAllocationsAlg (N-{n}) (G::_ list))))"
+abbreviation "alphaAlg N G b n == Max ((proceeds b)`(set (allAllocationsAlg (N-{n}) (G::_ list))))"
 
 (* revenue with participant n removed from winning allocation *)
 abbreviation "remainingValueRel N G t b n == setsum b ((winningAllocationRel N G t b) -- n)"
