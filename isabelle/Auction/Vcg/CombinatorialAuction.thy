@@ -761,6 +761,7 @@ corollary chosenAllocationAuxiliaryEquivalence:
   unfolding chosenAllocationAuxiliary_def 
   using assms allAllocationsBridgingLemma by (metis comp_apply) 
 
+(* TPTP ? *)
 corollary chosenAllocationEquivalence: 
   assumes "card N > 0" and "distinct \<Omega>" and 
           "(nat_of_ingeger r) < 
@@ -768,6 +769,7 @@ corollary chosenAllocationEquivalence:
                           (allAllocationsAlg N \<Omega>)))"
   shows  "chosenAllocation N \<Omega> b r = chosenAllocationAlg N \<Omega> b r" 
   sorry
+
 
 corollary tiebidsBridgingLemma: 
   assumes "x \<in> (N \<times> (Pow \<Omega> - {{}}))" 
@@ -856,4 +858,6 @@ proof -
     using assms(3,1) by (rule maximalAllocationBridgingTheorem) 
   ultimately show ?thesis by metis
 qed
+
+end
 
