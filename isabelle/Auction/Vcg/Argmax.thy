@@ -31,9 +31,16 @@ text {* the subset of elements of a set where a function reaches its maximum *}
 fun argmax :: "('a \<Rightarrow> 'b\<Colon>linorder) \<Rightarrow> 'a set \<Rightarrow> 'a set"
     where "argmax f A = { x \<in> A . f x = Max (f ` A) }"
 
-(* For reasons we do not understand we have to duplicate the definition as a lemma in order to prove lm16 in CombinatorialAuctions.thy. *)
+(* For reasons we do not understand we have to duplicate the definition as a lemma 
+   in order to prove lm16 in CombinatorialAuctions.thy. *)
 lemma argmaxLemma: "argmax f A = { x \<in> A . f x = Max (f ` A) }" 
       using argmax_def by simp
+
+lemma maxLemma: 
+  assumes "x \<in> X" "finite X" 
+  shows "Max (f`X) >= f x" 
+  (is "?L >= ?R") using assms 
+  by (metis (hide_lams, no_types) Max.coboundedI finite_imageI image_eqI)
 
 lemma lm01: "argmax f A = A \<inter> f -` {Max (f ` A)}" 
       by force
@@ -151,3 +158,4 @@ proof -
 qed
 
 end
+
