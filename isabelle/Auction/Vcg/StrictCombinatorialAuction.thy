@@ -28,7 +28,7 @@ section {* Types *}
 
 type_synonym index = "integer"
 type_synonym participant = index
-type_synonym good = nat
+type_synonym good = "integer"
 type_synonym goods = "good set"
 type_synonym price = real
 type_synonym bids3 = "((participant \<times> goods) \<times> price) set"

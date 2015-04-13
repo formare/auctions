@@ -21,17 +21,15 @@ theory CombinatorialAuction
 imports
 UniformTieBreaking
 
-(* The following three theories are needed for the extraction of Scala code *)
-"~~/src/HOL/Library/Code_Target_Nat" 
-"~~/src/HOL/Library/Code_Target_Int" 
-"~~/src/HOL/Library/Code_Numeral"
-
 begin
 
 section {* Definition of a VCG auction scheme, through the pair @{term "(vcga, vcgp)"} *}
 
 (* b is a bid vector and participants is the set of all participants present in b *) 
 abbreviation "participants b == Domain (Domain b)"
+
+(* goods is the list of goods auctioned *)
+abbreviation "goods == sorted_list_of_set o Union o Range o Domain"
 
 (* The seller is represented as integer 0, the other particants as integers 1, ..., n *)
 abbreviation "seller == (0::integer)"
@@ -371,12 +369,6 @@ proof -
   ultimately show ?thesis using cardOneImageCardOne by blast
 qed
 
-(* Since vcga is well-defined the following theorem is trivial. *)
-theorem vcgpDefiniteness: 
-  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
-  shows "\<exists>! y. vcgap N \<Omega> b r n = y" 
-  using assms vcgaDefiniteness by simp
-
 (* The following lemma is a variant of the vcgaDefiniteness theorem. *)
 lemma vcgaDefinitenessVariant: 
   assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
@@ -527,6 +519,12 @@ abbreviation "vcgp N \<Omega> b r n ==
    Max (setsum b ` (soldAllocations (N-{n}) (set \<Omega>))) 
     -  (setsum b (vcga N \<Omega> b r -- n))"
 
+(* Since vcga is well-defined the following theorem is trivial. *)
+theorem vcgpDefiniteness: 
+  assumes "distinct \<Omega>" "set \<Omega> \<noteq> {}" "finite N" 
+  shows "\<exists>! y. vcgp N \<Omega> b r n = y" 
+  using assms vcgaDefiniteness by simp
+
 lemma soldAllocationsFinite: 
   assumes "finite N" "finite \<Omega>" 
   shows "finite (soldAllocations N \<Omega>)" 
@@ -608,18 +606,11 @@ section{* We now introduce computable versions of the vcg formalization in order
 abbreviation "maximalStrictAllocationsAlg N \<Omega> b ==
   argmax (setsum b) (set (allAllocationsAlg ({seller}\<union>N) \<Omega>))"
 
-(* This computes the maximal allocation after tie breaking. This is done using permutations which 
-   make theorem proving easier, however, is inefficient for code extraction. *)
-definition "chosenAllocationAuxiliary N \<Omega> b (r::integer) == 
-  hd(perm2 (takeAll (%x. x\<in> (argmax \<circ> setsum) b (set (allAllocationsAlg N \<Omega>)))
-                    (allAllocationsAlg N \<Omega>)) 
-           (nat_of_integer r))"
-
 (* This computes the maximal allocation after tie breaking. *)
 definition "chosenAllocationAlg N \<Omega> b (r::integer) == 
-  (takeAll (%x. x\<in> (argmax \<circ> setsum) b (set (allAllocationsAlg N \<Omega>))) 
-           (allAllocationsAlg N \<Omega>) 
-   ! (nat_of_integer r))"
+  (randomEl (takeAll (%x. x\<in> (argmax \<circ> setsum) b (set (allAllocationsAlg N \<Omega>))) 
+                    (allAllocationsAlg N \<Omega>)) 
+            r)"
 
 (* This is the computable version of maxbid in UniformTieBreaking.thy. It takes an allocation, 
    the bidders and the goods and computes a bid such for each good a bidder bids 1 if they get
@@ -637,7 +628,7 @@ definition "tiebidsAlg a N \<Omega> == summedBidVectorAlg (maxbidAlg a N \<Omega
 (* Computable version of resolvingBid, that is, is computes the bid vector in random values 
    that returns the chosen winning allocation *)
 definition "resolvingBidAlg N \<Omega> bids random == 
-  tiebidsAlg (chosenAllocationAuxiliary N \<Omega> bids random) N (set \<Omega>)"
+  tiebidsAlg (chosenAllocationAlg N \<Omega> bids random) N (set \<Omega>)"
 
 (* The same as above, but adding the seller who receives all unallocated goods. *)
 definition "randomBidsAlg N \<Omega> b random == resolvingBidAlg (N\<union>{seller}) \<Omega> b random"
@@ -662,9 +653,9 @@ abbreviation "soldAllocationsAlg N \<Omega> ==
    losers do not pay anything, hence vcgaAlgWithoutLosers is here equivalent to vcgaAlg. 
    The price a participant n has to pay is the revenue achieved if n had not participated minus
    the value of the goods allocated not to n.*)
-definition "vcgpAlg N \<Omega> b r n =
+definition "vcgpAlg N \<Omega> b r n (winningAllocation::allocation) =
   Max (setsum b ` (soldAllocationsAlg (N-{n}) \<Omega>)) - 
-  (setsum b (vcgaAlgWithoutLosers N \<Omega> b r -- n))"
+  (setsum b (winningAllocation -- n))"
 
 lemma functionCompletion: 
   assumes "x \<in> Domain f" 
@@ -755,21 +746,12 @@ proof -
   thus ?thesis by simp
 qed
 
-corollary chosenAllocationAuxiliaryEquivalence: 
-  assumes "card N > 0" "distinct \<Omega>" 
-  shows "chosenAllocation N \<Omega> b r = chosenAllocationAuxiliary N \<Omega> b r" 
-  unfolding chosenAllocationAuxiliary_def 
-  using assms allAllocationsBridgingLemma by (metis comp_apply) 
-
 (* TPTP ? *)
 corollary chosenAllocationEquivalence: 
-  assumes "card N > 0" and "distinct \<Omega>" and 
-          "(nat_of_ingeger r) < 
-           (size (takeAll (%x. x\<in>(winningAllocationsRel N (set \<Omega>) b)) 
-                          (allAllocationsAlg N \<Omega>)))"
+  assumes "card N > 0" and "distinct \<Omega>"
   shows  "chosenAllocation N \<Omega> b r = chosenAllocationAlg N \<Omega> b r" 
-  sorry
-
+  using assms allAllocationsBridgingLemma
+  by (metis (no_types) chosenAllocationAlg_def comp_apply)
 
 corollary tiebidsBridgingLemma: 
   assumes "x \<in> (N \<times> (Pow \<Omega> - {{}}))" 
@@ -782,28 +764,46 @@ proof -
   ultimately show ?thesis unfolding tiebidsAlg_def by fast
 qed 
 
+definition "tiebids'=tiebids"
+corollary tiebidsBridgingLemma': 
+  assumes "x \<in> (N \<times> (Pow \<Omega> - {{}}))" 
+  shows "tiebids' a N \<Omega> x = tiebidsAlg a N \<Omega> x"
+using assms tiebidsBridgingLemma tiebids'_def by metis 
+
+abbreviation "resolvingBid' N G bids random == 
+  tiebids' (chosenAllocation N G bids random) N (set G)"
+
+lemma resolvingBidEquivalence: 
+  assumes "x \<in> (N \<times> (Pow (set \<Omega>) - {{}}))"  "card N > 0" "distinct \<Omega>"
+  shows "resolvingBid' N \<Omega> b r x = resolvingBidAlg N \<Omega> b r x" 
+  using assms chosenAllocationEquivalence tiebidsBridgingLemma' resolvingBidAlg_def by metis
+  
+lemma setsumResolvingBidEquivalence:
+  assumes "card N > 0" "distinct \<Omega>" "a \<subseteq> (N \<times> (Pow (set \<Omega>) - {{}}))" 
+  shows "setsum (resolvingBid' N \<Omega> b r) a = setsum (resolvingBidAlg N \<Omega> b r) a" 
+  (is "?L=?R")
+proof - 
+    have "\<forall>x\<in>a. resolvingBid' N \<Omega> b r x = resolvingBidAlg N \<Omega> b r x" 
+      using assms resolvingBidEquivalence by blast
+    thus ?thesis using setsum.cong by force 
+qed
+
 lemma resolvingBidBridgingLemma: 
   assumes "card N > 0" "distinct \<Omega>" "a \<subseteq> (N \<times> (Pow (set \<Omega>) - {{}}))" 
   shows "setsum (resolvingBid N \<Omega> b r) a = setsum (resolvingBidAlg N \<Omega> b r) a" 
-  (is "?L=?R") 
+  (is "?L=?R")
 proof - 
-  let ?c' = "chosenAllocation N \<Omega> b r" 
-  let ?c  = "chosenAllocationAuxiliary N \<Omega> b r" 
-  let ?r' = "resolvingBid N \<Omega> b r"
-  have "?c' = ?c" using assms(1,2) by (rule chosenAllocationAuxiliaryEquivalence) 
-  then have "?r' = tiebids ?c N (set \<Omega>)" by simp
-  moreover have "\<forall>x \<in> a. tiebids ?c N (set \<Omega>) x = tiebidsAlg ?c N (set \<Omega>) x" 
-    using assms(3) tiebidsBridgingLemma by blast
-  ultimately have "\<forall>x \<in> a. ?r' x = resolvingBidAlg N \<Omega> b r x" 
-    unfolding resolvingBidAlg_def by simp
-  thus ?thesis using setsum.cong by simp
+  have "?L=setsum (resolvingBid' N \<Omega> b r) a" unfolding tiebids'_def by fast
+  moreover have "...=?R" 
+  using assms by (rule setsumResolvingBidEquivalence) 
+  ultimately show ?thesis by simp
 qed
 
 lemma allAllocationsInPowerset: 
   "allAllocations N \<Omega> \<subseteq> Pow (N \<times> (Pow \<Omega> - {{}}))" 
   by (metis PowI allocationPowerset subsetI)
 
-corollary resolvingBidBridgingLemmaAuxiliary: 
+corollary resolvingBidBridgingLemmaVariant1: 
   assumes "card N > 0" "distinct \<Omega>" "a \<in> allAllocations N (set \<Omega>)" 
   shows "setsum (resolvingBid N \<Omega> b r) a = setsum (resolvingBidAlg N \<Omega> b r) a"
 proof -
@@ -811,7 +811,7 @@ proof -
   thus ?thesis using assms(1,2) resolvingBidBridgingLemma by blast
 qed
 
-corollary resolvingBidBridgingLemmaVariant: 
+corollary resolvingBidBridgingLemmaVariant2: 
   assumes "finite N" "distinct \<Omega>" "a \<in> maximalStrictAllocations N (set \<Omega>) b" 
   shows "setsum (randomBids N \<Omega> b r) a = setsum (randomBidsAlg N \<Omega> b r) a"
 proof - 
@@ -819,7 +819,7 @@ proof -
     by (metis card_gt_0_iff finite.emptyI finite.insertI finite_UnI)
   moreover have "distinct \<Omega>" using assms(2) by simp
   moreover have "a \<in> allAllocations (N\<union>{seller}) (set \<Omega>)" using assms(3) by fastforce
-  ultimately show ?thesis unfolding randomBidsAlg_def by (rule resolvingBidBridgingLemmaAuxiliary)
+  ultimately show ?thesis unfolding randomBidsAlg_def by (rule resolvingBidBridgingLemmaVariant1)
 qed
 
 corollary tiebreakingGivesSingleton: 
@@ -830,7 +830,7 @@ corollary tiebreakingGivesSingleton:
 proof -
   have "\<forall> a \<in> maximalStrictAllocations N (set \<Omega>) b. 
         setsum (randomBids N \<Omega> b r) a = setsum (randomBidsAlg N \<Omega> b r) a" 
-    using assms(3,1) resolvingBidBridgingLemmaVariant by blast
+    using assms(3,1) resolvingBidBridgingLemmaVariant2 by blast
   then have "argmax (setsum (randomBidsAlg N \<Omega> b r)) (maximalStrictAllocations N (set \<Omega>) b) =
              argmax (setsum (randomBids N \<Omega> b r)) (maximalStrictAllocations N (set \<Omega>) b)" 
     using argmaxEquivalence by blast

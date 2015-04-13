@@ -76,17 +76,29 @@ abbreviation "tiebids allocation N G == summedBidVector (maxbid allocation N G) 
 (* relational version of the above *)
 abbreviation "Tiebids allocation N G == summedBidVectorRel (real\<circ>maxbid allocation N G) N G"
 
-(* the chosen allocation takes the random-th element of all possible winning allocations. This is done by taking the head of permuting the list random-times. The definition is easier for proving theorems. Since it is not the computational version, this inefficiency is irrelevant for the extracted code. *)
+(* Assumed we have a list and a random we take the random-th element of the list. However, if the
+   random number is bigger than the list is long we take it modulo the length of the list *)
+definition "randomEl list (random::integer) = list ! ((nat_of_integer random) mod (size list))"
+
+value "nat_of_integer (-3::integer) mod 2"
+
+(* The randomEl taken out of a list is in the list *)
+lemma randomElLemma:
+   assumes "set list \<noteq> {}"
+   shows "randomEl list random \<in> set list"
+   by (metis assms bot.not_eq_extremum ex_in_conv gr_implies_not0 in_set_conv_nth 
+             randomEl_def semiring_numeral_div_class.pos_mod_bound)
+
+(* The chosen allocation takes the random-th element of all possible winning allocations. This is
+   done by taking the element given by randomEl list random defined above. *)
 abbreviation "chosenAllocation N G bids random == 
-   hd(perm2 (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) 
+   randomEl (takeAll (%x. x\<in>(winningAllocationsRel N (set G) bids)) 
                      (allAllocationsAlg N G)) 
-            (nat_of_integer random))"
+            random"
 
 (* find the bid vector in random values that returns the chosen winning allocation *)
 abbreviation "resolvingBid N G bids random == 
   tiebids (chosenAllocation N G bids random) N (set G)"
-
-
 
 section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid} *}
 
@@ -813,18 +825,18 @@ corollary lm089:
   using assms permutationNotEmpty lm088 by metis
 
 (* The chosen allocation is in the set of possible winning allocations *)
+
 corollary lm090: 
   assumes "N \<noteq> {}" "finite N" "distinct G" "set G \<noteq> {}" 
   shows "chosenAllocation N G bids random \<in> winningAllocationsRel N (set G) bids"
 proof -
-  let ?w = winningAllocationsRel 
-  let ?p = allAllocationsAlg 
-  let ?G = "set G"
-  let ?X = "?w N ?G bids" 
-  let ?l = "perm2 (takeAll (%x.(x\<in>?X)) (?p N G)) (nat_of_integer random)"
-  have "set ?l \<subseteq> ?X" using takeAllPermutation by fast
-  moreover have "?l \<noteq> []" using assms lm089 by blast
-  ultimately show ?thesis by (metis (lifting, no_types) hd_in_set in_mono)
+  have "\<And>x\<^sub>1 b_x x. set x\<^sub>1 = {} 
+        \<or> (randomEl x\<^sub>1 b_x\<Colon>('a \<times> 'b set) set) \<in> x 
+        \<or> \<not> set x\<^sub>1 \<subseteq> x" by (metis (no_types) randomElLemma subsetCE)
+  thus "winningAllocationRel N (set G) 
+          (op \<in> (randomEl (takeAll (\<lambda>x. winningAllocationRel N (set G) (op \<in> x) bids)
+                (allAllocationsAlg N G)) random)) bids" 
+       by (metis lm088 assms(1) assms(2) assms(3) assms(4) takeAllSubset set_empty)
 qed
 
 (* The following lemma proves a property of maxbid, which in the following will be proved to maximize the revenue. a and aa are allocations. *)

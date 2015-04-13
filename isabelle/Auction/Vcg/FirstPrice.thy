@@ -14,23 +14,27 @@ See LICENSE file for details
 (Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
 *)
 
-header {* VCG auction: definitions and theorems *}
+header {* First-price auction: adapted from VCG auction *}
 
 theory FirstPrice
 
 imports
 CombinatorialAuction
-    
-(* The following three theories are needed for the extraction of Scala code *)
-"~~/src/HOL/Library/Code_Target_Nat" 
-"~~/src/HOL/Library/Code_Target_Int" 
-"~~/src/HOL/Library/Code_Numeral"
+
 
 begin
+
+(* In a first price auction we use the same allocation algorithm as in a VCG auction. 
+   The price a winning bidder has to pay is given by evaluating b with respect to the bidder
+   and the set he/she gets. *)
 abbreviation "firstPriceP N \<Omega> b r n ==
   b (n, winningAllocationAlg N \<Omega> r b,, n)"
 
-lemma assumes "\<forall> X. b (n, X) \<ge> 0" shows
-"firstPriceP N \<Omega> b r n \<ge> 0" using assms by blast
+(* The non-negativity of prices follows immediately from the assumptions that all bids are
+   non-negative. *)
+theorem NonnegFirstPrices:
+   assumes "\<forall> X. b (n, X) \<ge> 0" 
+   shows "firstPriceP N \<Omega> b r n \<ge> 0" 
+   using assms by blast
 end
 

@@ -999,6 +999,10 @@ corollary lm125:
   "set (takeAll P list) \<subseteq> set list" 
   using lm123 lm124 lm121 by metis
 
+lemma takeAllSubset:
+  "set (takeAll (%x. x\<in> P) list) \<subseteq> P"
+  by (metis Int_subset_iff listIntersectionWithSet) 
+
 lemma lm126: 
   "set (insertAt x l n) = {x} \<union> set l" 
   by simp
