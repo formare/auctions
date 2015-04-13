@@ -81,6 +81,6 @@ CombinatorialAuctionCodeExtraction.thy.
 -   link to the CICM-2014
     http://arxiv.org/abs/1406.0774.
 -   link to the nVCG
-    http://www.cs.bham.ac.uk/research/projects/formare/vcg.html
+    http://www.cs.bham.ac.uk/research/projects/formare/vcg.php
 *)
 
