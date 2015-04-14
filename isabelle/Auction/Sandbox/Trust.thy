@@ -2,8 +2,8 @@ theory Trust
 
 imports
 t
-"~/afp/Coinductive/Coinductive_List"
-"~/afp/Show/Show_Instances"
+"~~/src/afp/Coinductive/Coinductive_List"
+"~~/src/afp/Show/Show_Instances"
 
 "~~/src/HOL/Library/Code_Target_Nat" 
 "~~/src/HOL/Library/Code_Target_Int"

@@ -3,6 +3,11 @@ theory Trust2
 imports Trust
 begin
 
+(* l is a flat list of all bids of all participants with the first element of the list representing
+   the number of participants n, then the next n elements represent the bids of the first round
+   for each participants and so on. E.g., (3 1 2 2 2 3 3 4 5 5) means there are 3 participants who
+   bid in the first round 1, 2, and 2, respectively, in the second 2, 3, 3, and 
+   in the third 4, 5, 5 *)
 abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)" (* the first bidder has label 0 *)
 abbreviation "nextBidder l == (size l - (1::nat)) mod (l!0)"
 abbreviation "currentRound l == (size l - (2::nat)) div (l!0)" (* the first round has label 0 *)
@@ -17,26 +22,13 @@ abbreviation "listToBidMatrix (l::nat list)==
 listToGraph (map (\<lambda>i. zip (replicate ((currentRound l)+1) True) (pickParticipantBids l i))
 [(0::nat)..<(l!0)])"
 
-lemma lm37: assumes "Suc n<size l" shows "(l!n = l!(Suc n)) = (sametomyleft l)!(Suc n)" 
-using assms unfolding sametomyleft_def by fastforce
 
-lemma lm37b: assumes "Suc n<size l" shows "(l!n = l!(Suc n)) = (sametomyleft' l)!(Suc n)" 
-using assms by force
-
-lemma lm38: assumes "0<size l" shows "(sametomyleft' l) ! 0 = False & (sametomyleft l) ! 0 = False" 
-unfolding sametomyleft_def using assms by auto
-lemma lm39: "size (sametomyleft l)=size l & size (sametomyleft' l)=size l" unfolding sametomyleft_def by simp
-lemma lm40: assumes "i < size l" shows "(sametomyleft l) ! i = (sametomyleft' l) ! i"   
-proof -
-have "i=0 \<or> (EX j. (i=Suc j))" by presburger
-then show ?thesis using assms lm37 lm37b lm38 by blast
-qed
 (*  
-lemma lm39b:"size (sametomyleft l)=size l & size (sametomyleft'' l)=size l" sorry
-lemma lm40b: assumes "i < size l" shows "(sametomyleft l) ! i = (sametomyleft'' l) ! i" sorry
-corollary lm41: "ALL i<size (sametomyleft l). sametomyleft l ! i = sametomyleft'' l ! i" using lm40b 
+lemma lm39b:"size (sameToMyLeft l)=size l & size (sameToMyLeft'' l)=size l" sorry
+lemma sameToMyLeftEquivalenceb: assumes "i < size l" shows "(sameToMyLeft l) ! i = (sameToMyLeft'' l) ! i" sorry
+corollary lm41: "ALL i<size (sameToMyLeft l). sameToMyLeft l ! i = sameToMyLeft'' l ! i" using sameToMyLeftEquivalenceb 
 lm39b length_map nth_map by metis
-lemma lm42: "sametomyleft l = sametomyleft'' l" using lm41 lm39b nth_equalityI sorry
+lemma lm42: "sameToMyLeft l = sameToMyLeft'' l" using lm41 lm39b nth_equalityI sorry
 *)
 
 definition "message l = ''Current winner: '' @ 
@@ -425,10 +417,10 @@ thus ?thesis by (rule HOL.ccontr)
 qed
 
 abbreviation "amendedbidlist3 step l == 
-update2 l {firstInvalidBidIndex step l..<size l} (%x. l!(firstInvalidBidIndex step l - 1))"
+updateList l {firstInvalidBidIndex step l..<size l} (%x. l!(firstInvalidBidIndex step l - 1))"
 
 corollary lm34: assumes "i<size l" shows 
-"(i \<notin> A \<longrightarrow> (update2 l A f)!i = l!i) & (i \<in> A \<longrightarrow> (update2 l A f)!i = f i)" using assms by auto
+"(i \<notin> A \<longrightarrow> (updateList l A f)!i = l!i) & (i \<in> A \<longrightarrow> (updateList l A f)!i = f i)" using assms by auto
 
 theorem assumes "i<firstInvalidBidIndex step l" shows "(amendedbidlist3 step l)!i = l!i"
 proof -
@@ -506,21 +498,21 @@ abbreviation "isGrowing step l == (\<forall>n\<in>{0..<size l}. l!(Suc n) - (l!n
 abbreviation "setOfAllowedBids step l == {x. x=Max (set l) \<or> (isGrowing step l \<and> x \<ge> step+Max (set l))}"
 
 value "listToBidMatrix E01"
-value "sametomyleft [1]"
-lemma assumes "i\<in>set (stopauctionat l)" shows 
-"l!i = l!(i-(1))" using assms stopauctionat_def filterpositions2_def sorry
-lemma "set (stopauctionat' l) = {Suc i| i. i\<in>{0..<size l}  & l!(Suc i) = l!i}"
-unfolding sametomyleft''_def lm06b sorry 
-lemma lm43: "set (stopauctionat' l) = {n\<in>{1..<size l}. l!n = (l!(n-(1)))}"
-unfolding lm06b sametomyleft''_def by auto
-lemma lm43b: "set (stopauctionat' l) = {n. n\<in>{1..<size l} & l!n = (l!(n-(1)))}"
+value "sameToMyLeft [1]"
+lemma assumes "i\<in>set (stopAuctionAt l)" shows 
+"l!i = l!(i-(1))" using assms stopAuctionAt_def filterpositions2_def sorry
+lemma "set (stopAuctionAt l) = {Suc i| i. i\<in>{0..<size l}  & l!(Suc i) = l!i}"
+unfolding lm06b sorry 
+lemma lm43: "set (stopAuctionAt l) = {n\<in>{1..<size l}. l!n = (l!(n-(1)))}"
+unfolding lm06b stopAuctionAt_def by auto
+lemma lm43b: "set (stopAuctionAt l) = {n. n\<in>{1..<size l} & l!n = (l!(n-(1)))}"
 using lm43 by auto
 term stops
 lemma lm44: "stops B = {n. \<forall>i\<in>Domain B. (n\<in>{1..<size (unzip2 (B,,i))} & (unzip2 (B,,i))!n=(unzip2 (B,,i))!(n-(1)))}"
 using stops_def lm43 by fast
 lemma lm44b: "stops B = {n. \<forall>i\<in>Domain B. (n\<in>{1..<size (B,,i)} & snd ((B,,i)!n)=snd ((B,,i)!(n-(1))))}"
 unfolding lm44 by force
-lemma lm45: "update2 l X f = [if (n \<in> X) then (f n) else (l!n). n <- [0..<size l]]"
+lemma lm45: "updateList l X f = [if (n \<in> X) then (f n) else (l!n). n <- [0..<size l]]"
 unfolding override_on_def by blast
 lemma "((nth (livelinessList B)) o Suc)-`{False}\<supseteq>{0..<size (livelinessList B)-(1)}\<inter>stops B" 
 using assms lm34 lm44b livelinessList_def 
@@ -528,7 +520,7 @@ nth_Cons_Suc diff_Suc_1
 comp_def diff_zero length_Cons length_map length_upt 
 IntE atLeastLessThan_iff singletonI subsetI vimageI
 by smt2
-lemma lm47: "size (update2 l f X)=size l" by simp
+lemma lm47: "size (updateList l f X)=size l" by simp
 lemma lm48: assumes "i<duration B" "\<not> ((mbc0 B)!i)" shows "i \<in> stops B" 
 using assms List.nth_replicate length_replicate lm34 by (metis (no_types, lifting))
 
