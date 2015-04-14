@@ -71,10 +71,12 @@ This is done, in different ways, by @{term filterpositions} and @{term filterpos
 definition filterpositions :: "('a => bool) => 'a list => nat list"
            where "filterpositions P l = map snd (filter (P o fst) (zip l (upt 0 (size l))))"
 (* That is, you take the list [a0, a1, ..., an] pair with the indices [0, 1, ..., n], i.e., you get
-   [(a0,0), (a1,1), ..., (an,n)] look where the predicate (P o fst) holds and return the list of the corresponding snd elements. *)
+   [(a0,0), (a1,1), ..., (an,n)] look where the predicate (P o fst) holds and return the list of the
+   corresponding snd elements. *)
 
 
-(* Alternative definition, making use of list comprehension. In the next line the type info is commented out, since the type inference can be left to Isabelle. *)
+(* Alternative definition, making use of list comprehension. In the next line the type info is
+   commented out, since the type inference can be left to Isabelle. *)
 definition filterpositions2 (*  :: "('a => bool) => 'a list => nat list" *)
            where "filterpositions2 P l = [n. n \<leftarrow> [0..<size l], P (l!n)]"
 
