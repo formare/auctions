@@ -1,7 +1,0 @@
-theory Trust
-
-
-begin
-
-end
-
