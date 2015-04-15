@@ -80,7 +80,8 @@ CombinatorialAuctionCodeExtraction.thy.
 
 -   link to the CICM-2014
     http://arxiv.org/abs/1406.0774.
--   link to the nVCG
+-   link to the VCG description
     http://www.cs.bham.ac.uk/research/projects/formare/vcg.php
+-   link to the Isabelle source code and the corresponding scala files
+    https://github.com/formare/auctions/tree/master/isabelle/Auction/Vcg
 *)
-
