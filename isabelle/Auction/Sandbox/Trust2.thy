@@ -3,15 +3,8 @@ imports
 t
 "~~/src/afp/Coinductive/Coinductive_List"
 "~~/src/afp/Show/Show_Instances"
-
-"~~/src/HOL/Library/Code_Target_Nat" 
-"~~/src/HOL/Library/Code_Target_Int"
-"~~/src/HOL/Library/Code_Target_Numeral"
-(* "~~/src/HOL/Library/Code_Binary_Nat" *)
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
-(* "~~/src/HOL/UNITY/ListOrder"
-"~~/src/HOL/Library/Formal_Power_Series"*)
 
 begin
 
@@ -20,78 +13,96 @@ begin
    for each participants and so on. E.g., (3 1 2 2 2 3 3 4 5 5) means there are 3 participants who
    bid in the first round 1, 2, and 2, respectively, in the second 2, 3, 3, and 
    in the third 4, 5, 5 *)
-abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)" (* the first bidder has label 0 *)
+
+(* l!0 is the number of participants, currentBidder computes the bidder wrt the last bid given.*)
+abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)"
+
+(* nextBidder is the bidder after the currentBidder *)
 abbreviation "nextBidder l == (size l - (1::nat)) mod (l!0)"
-abbreviation "currentRound l == (size l - (2::nat)) div (l!0)" (* the first round has label 0 *)
+
+(* the currentRound of bidding starting from 0 *)
+abbreviation "currentRound l == (size l - (2::nat)) div (l!0)"
+
+(* The round in which the next bid will be.*)
 abbreviation "roundForNextBidder l == (size l - (1::nat)) div (l!0)"
-abbreviation "E01 == [3::nat, 1, 2, 3, 4, 5, 6, 7, 8, 9, 7, 8, 9, 10 ,10, 10, 10, 10, 10, 11, 10]"
 
-abbreviation "pickParticipantBids l i == sublist l
-(((op +) (Suc i))`(((op *) (l!0))`{0..(currentRound l)}))"
+
+(* pickParticipantBids l i extracts the bids of participant i *)
+abbreviation "pickParticipantBids l i == 
+              sublist l (((op +) (Suc i)) 
+                         `(((op *) (l!0))  `{0..(currentRound l)}))"
+
+(* pickRoundBids extracts the bids in round i, starting with counting from 0 *)
 abbreviation "pickRoundBids l i == sublist l {Suc(i*(l!0))..(Suc i)*(l!0)}"
+
+(* listToGraph transforms a list into a function from indices to values in a set theoretical form, 
+   e.g. with l0 = l0 == [3::nat, 1, 1, 2, 2, 3, 4, 4, 6, 5] you get
+   "{(0, 3), (1, 1), (2, 1), (3, 2), (4, 2), (5, 3), (6, 4), (7, 4), (8, 6), (9, 5)}" *)
 abbreviation "listToGraph l == graph {0..<size l} (nth l)"
+
+(* listToBidMatrix creates from a flat of bids a bidMatrix in which the activity flag of a bidder
+   is always True, e.g, with "l0 == [3::nat, 1, 1, 2, 2, 3, 4, 4, 6, 5]" we get: 
+   "{(0, [(True, 1), (True, 2), (True, 4)]), 
+     (1, [(True, 1), (True, 3), (True, 6)]),
+     (2, [(True, 2), (True, 4), (True, 5)])}"*)
 abbreviation "listToBidMatrix (l::nat list)==
-listToGraph (map (\<lambda>i. zip (replicate ((currentRound l)+1) True) (pickParticipantBids l i))
-[(0::nat)..<(l!0)])"
+              listToGraph (map (\<lambda>i. zip (replicate ((currentRound l) + 1) True) 
+                                        (pickParticipantBids l i))
+                           [(0::nat)..<(l!0)])"
+
+(* messageAfterEachBid is a string which informs the next bidder about the current winner, the liveliness information plus a request for their next bid. *)
+definition "messageAfterEachBid l = 
+            ''Current winner: '' @ 
+            (Show.show (maxpositions (pickRoundBids l (currentRound l)))) @ 
+            ''\<newline>'' @ 
+            ''Liveliness: '' @ 
+            Show.show(livelinessList (listToBidMatrix l)) @ 
+            ''\<newline>'' @ 
+            ''Next, input bid for round ''@Show.show(roundForNextBidder l)@
+            '', participant '' @
+            (Show.show(nextBidder l))"
 
 
-(*  
-lemma lm39b:"size (sameToMyLeft l)=size l & size (sameToMyLeft'' l)=size l" sorry
-lemma sameToMyLeftEquivalenceb: assumes "i < size l" shows "(sameToMyLeft l) ! i = (sameToMyLeft'' l) ! i" sorry
-corollary lm41: "ALL i<size (sameToMyLeft l). sameToMyLeft l ! i = sameToMyLeft'' l ! i" using sameToMyLeftEquivalenceb 
-lm39b length_map nth_map by metis
-lemma lm42: "sameToMyLeft l = sameToMyLeft'' l" using lm41 lm39b nth_equalityI sorry
-*)
-
-definition "message l = ''Current winner: '' @ 
-(Show.show (maxpositions (pickRoundBids l (currentRound l)))) @ 
-''Liveliness: '' @ Show.show(livelinessList (listToBidMatrix l)) @ ''\<newline>'' @ 
-''Next, input bid for round ''@Show.show(roundForNextBidder l)@'', participant ''@(Show.show(nextBidder l))"
-(*
-value "int_of_string ''123''"
-definition trusted where "trusted (output::(String.literal => _)) (input::(integer  => _)) = 
-(output (String.implode ''zio''), input 0)"
-*)
-
-(*
-definition "prova (input::(integer => String.literal)) 
-(output::(String.literal => String.literal))
-= (output (String.implode ''start''), (inf_llist (output o String.implode o
-concat o (tolist (String.explode o input \<circ> integer_of_nat))
-)))"
-*)
-
-definition "prova (input::(integer => String.literal)) (output::(String.literal => String.literal))
-= inf_llist (output o id o input \<circ> integer_of_nat)"
-(* MC: This approach ignores the argument given to input, giving a thinner wrapper.
-I couldn't find a way to preserve the previous history of inputs, in this way, however.
-Hence we use evaluateMe below.*)
-(*
-definition "evaluateMe (input::(String.literal list => String.literal list)) 
-(output::(String.literal list \<times> String.literal => String.literal list))
-= (output ([], String.implode ''Starting\<newline>Input the number of bidders:''), 
-iterates (output o (%x. (x,String.implode (concat (map String.explode x)))) o input) [])"
-*)
-
+(* In the following we use a simple example of a static auction, which can be replaced by a more
+   sophisticated one. Here it just prints the current state of the auction after each input bid. 
+   The print is done by the messageAfterEachBid which is applied after the bid has been added
+   to the end of the flat bid list l. E.g., for "l0 == [5, 3, 1, 1, 2, 2, 3, 4, 4, 6]" 
+   staticAuction will put first the 5 to the end of the list and then return the message
+   "(STR ''Current winner: [1]\<newline>Liveliness: [True, True, True, True]\<newline>Next, input bid for round 3,
+         participant 0'',  [3, 1, 1, 2, 2, 3, 4, 4, 6, 5])" :: "String.literal \<times> integer list"
+   which will be used in the Scala code."
+   *)
 abbreviation "staticAuction == 
-(%l. (String.implode(message (map nat_of_integer l)), 
-l
-(* ,(livelinessList (listToBidMatrix (map nat_of_integer l)))!(currentRound (map nat_of_integer l)) *)
-)) o (%l. (tl l)@[hd l])"
+             (%l. (String.implode(messageAfterEachBid (map nat_of_integer l)), 
+                  l)) 
+             o (
+             %l. (tl l) @ [hd l])"
 
+abbreviation "l0 == [5, 3, 1, 1, 2, 2, 3, 4, 4, 6]"
+
+(* The dynamic auction is defined as an iteration of output, staticAuction, and input, where the
+   output and input are written in Scala and essentially are assumed to be the identity, except
+   for the side effects of printing the message of staticAuction and reading in the next bid,
+   respectively. *)
 abbreviation "dynamicAuction input output == 
-iterates (output o staticAuction o input) []"
+   iterates (output o staticAuction o input) []"
 
+section{* Terminating dynamic auction using conditionalIterates *}
+
+(* conditionalIterates is similar to iterates but operates on pairs and continues to iterate if
+   and only if the first element of the pair returned by f is True. Its type is
+   "(('a list) \<Rightarrow> ('a list)) \<Rightarrow> ('a list)\<Rightarrow> ('a list) llist" 
+   LCons and LNil are the equivalents of Cons and Nil for lazy lists.*)
 primcorec conditionalIterates 
-(* :: "(('a list) \<Rightarrow> ('a list)) \<Rightarrow> ('a list)\<Rightarrow> ('a list) llist" *) 
-where 
-"conditionalIterates f x = (if (fst x) then 
-(LCons x (conditionalIterates f (f x))) else (LCons x LNil))"
+  where "conditionalIterates f x = 
+         (if   (fst x) 
+          then (LCons x (conditionalIterates f (f x))) 
+          else (LCons x LNil))"
 
 abbreviation "appendNewBid z == ((snd o snd) z) @ [(nat_of_integer o fst) z]"
 
 abbreviation "liveliness B == (livelinessList B) ! (size ((livelinessList B)) - (1))"
-abbreviation "staticAuction2 z == (String.implode (message (appendNewBid z)),
+abbreviation "staticAuction2 z == (String.implode (messageAfterEachBid (appendNewBid z)),
 liveliness (listToBidMatrix (appendNewBid z))
 , appendNewBid z)"
 
@@ -122,8 +133,8 @@ o (%l. (tl l) @ [hd l]) o input) [])"
 input and output will be the only manually written Scala functions 
 (and will be passed as arguments to evaluateMe as the only action of the main method of our Scala wrapper ) 
 - input will take a list as an argument, and grow it by the input (side effect) provided by the user.
-- output will take a pair (list, message) as an argument, will return list without touching it, 
-while printing message to the user (side effect).
+- output will take a pair (list, messageAfterEachBid) as an argument, will return list without touching it, 
+while printing messageAfterEachBid to the user (side effect).
 Thus, iterating the combined function output o XXX o input (where XXX is the Isabelle function doing 
 the ``real work''), evaluateMe will provide a dynamic auction execution.
 The length of the list passed to XXX will be used to determine in which round we are.
@@ -156,8 +167,6 @@ this is definitely possible, but how realistic given our schedule?
 We could momentarily choose to directly use Scala integers as input/output, 
 which is less robust/flexible/elegant but simpler.
 *)
-
-export_code fst snd evaluateMe evaluateMe2 in Scala module_name a file "/dev/shm/a.scala"
 
 abbreviation "pairWise Op l m == [Op (l!i) (m!i). i <- [0..<min (size l) (size m)]]"
 lemma lm01: assumes "n\<in>{0..<min (size l) (size m)}" shows "(pairWise Op l m)!n = Op (l!n) (m!n)"
@@ -574,10 +583,6 @@ length_Cons length_map length_upt livelinessList_def
   thus "(True # tolist (\<lambda>n. if n \<in> stops B then False else replicate (duration B) True ! n) (length (replicate (duration B) True))) ! Suc n = False" by simp
 qed
 *)
-
-value "(listToBidMatrix E01)"
-value "size (livelinessList (listToBidMatrix E01))"
-value "stops (listToBidMatrix E01)"
 
 end
 
