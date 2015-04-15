@@ -1,6 +1,18 @@
 theory Trust2
+imports
+t
+"~~/src/afp/Coinductive/Coinductive_List"
+"~~/src/afp/Show/Show_Instances"
 
-imports Trust
+"~~/src/HOL/Library/Code_Target_Nat" 
+"~~/src/HOL/Library/Code_Target_Int"
+"~~/src/HOL/Library/Code_Target_Numeral"
+(* "~~/src/HOL/Library/Code_Binary_Nat" *)
+"~~/src/HOL/Library/Code_Numeral"
+"~~/src/HOL/Library/Code_Char"
+(* "~~/src/HOL/UNITY/ListOrder"
+"~~/src/HOL/Library/Formal_Power_Series"*)
+
 begin
 
 (* l is a flat list of all bids of all participants with the first element of the list representing
@@ -520,7 +532,7 @@ nth_Cons_Suc diff_Suc_1
 comp_def diff_zero length_Cons length_map length_upt 
 IntE atLeastLessThan_iff singletonI subsetI vimageI
 by smt2
-lemma lm47: "size (updateList l f X)=size l" by simp
+(*lemma lm47: "size (updateList l f X)=size l" by simp
 lemma lm48: assumes "i<duration B" "\<not> ((mbc0 B)!i)" shows "i \<in> stops B" 
 using assms List.nth_replicate length_replicate lm34 by (metis (no_types, lifting))
 
@@ -528,8 +540,10 @@ lemma lm49a: "{0..<duration B} \<inter> ((nth (mbc0 B))-`{False}) \<subseteq> st
 using assms lm45 lm48 by fastforce
 lemma lm49b: "{0..<duration B} \<inter> stops B \<subseteq> ((nth (mbc0 B))-`{False})"
 using lm45 by force
+
 corollary "nth (mbc0 B)-`{False} \<inter> {0..<duration B} = {0..<duration B} \<inter> stops B"
 using lm49a lm49b by blast
+*)
 lemma "size (livelinessList B)=1+duration B" unfolding livelinessList_def by force
 
 (* nth_Cons_Suc diff_Suc_1
