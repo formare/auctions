@@ -1,12 +1,15 @@
 theory DynamicAuctionNonTerminating
 imports
 
-t
+"DynamicAuctionCommon"
 "~~/src/afp/Coinductive/Coinductive_List"
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
 
 begin
+
+section{* Non-Terminating dynamic auction using iterates *}
+
 
 (* In the following we use a simple example of a static auction, which can be replaced by a more
    sophisticated one. Here it just prints the current state of the auction after each input bid. 

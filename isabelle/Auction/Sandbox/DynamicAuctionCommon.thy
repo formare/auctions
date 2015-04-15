@@ -1,5 +1,7 @@
-theory t
-imports Main 
+theory DynamicAuctionCommon
+
+imports
+
 "~~/src/HOL/Library/Code_Target_Nat"
 "~~/src/afp/Show/Show_Instances"
 "../Vcg/MiscTools"

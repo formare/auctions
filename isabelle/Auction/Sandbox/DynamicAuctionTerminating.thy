@@ -1,14 +1,14 @@
 theory DynamicAuctionTerminating
+
 imports
-t
+
+"DynamicAuctionCommon"
 "~~/src/afp/Coinductive/Coinductive_List"
 "~~/src/afp/Show/Show_Instances"
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
 
 begin
-
-abbreviation "l0 == [5, 3, 1, 1, 2, 2, 3, 4, 4, 6]"
 
 section{* Terminating dynamic auction using conditionalIterates *}
 
@@ -22,194 +22,147 @@ primcorec conditionalIterates
           then (LCons x (conditionalIterates f (f x))) 
           else (LCons x LNil))"
 
+(* z is a pair consisting of the new bid value and a pair of a boolean (stating whether the
+   auction has not terminated in the previous round) and the flat list of all bids.
+   It appends the new bid to the end of the flat list of all bids and returns this. E.g.
+   z0 == (5::integer, (True, [3::nat,1,2,3])) then appendNewBid z0 returns [3, 1, 2, 3, 5].
+ *)
 abbreviation "appendNewBid z == ((snd o snd) z) @ [(nat_of_integer o fst) z]"
 
+(* liveleness states whether the auction has terminated in the current round *)
 abbreviation "liveliness B == (livelinessList B) ! (size ((livelinessList B)) - (1))"
-abbreviation "staticAuction2 z == (String.implode (messageAfterEachBid (appendNewBid z)),
-liveliness (listToBidMatrix (appendNewBid z))
-, appendNewBid z)"
 
-abbreviation "dynamicAuction2 input output == 
-conditionalIterates (output o staticAuction2 o input) (True,[])"
-abbreviation "myInput x == (( integer_of_nat o (%(n::nat). 11-n) o Suc o size o snd) x, x)"
-definition "evaluateMe2 
-(input :: _)
-(output:: _) 
-= snd (output (
-String.implode ''Starting\<newline>Input the number of bidders:'', True, []),
-dynamicAuction2 input output)"
- 
+(* In the following we use a simple example of a static auction, which can be replaced by a more
+   sophisticated one. Here it just prints the current state of the auction after each input bid. 
+   The print is done by the messageAfterEachBid. For instance with 
+   "z0 == (5::integer, (True, [3::nat,1,2,3]))
+   staticAuction will put first the 5 to the end of the list and then return the message
+   "(STR ''Current winner: [0]\<newline>Liveliness: [True, True, True]\<newline>Next, input bid for round 1,
+           participant 1'', True, [3, 1, 2, 3, 5])" :: "String.literal \<times> bool \<times> nat list"
+   which will be used in the Scala code."
 
-(*
-definition "evaluateMe (input::(integer list => integer list)) 
-(output::(integer list \<times> String.literal => integer list))
-= (output ([], String.implode ''Starting\<newline>Input the number of bidders:''), 
-iterates (output o 
-(%x. (x,String.implode (concat (map (Show.show \<circ> int_of_integer) x)))) 
-o (%l. (tl l) @ [hd l]) o input) [])"
-*)
-(* 
-input and output will be the only manually written Scala functions 
-(and will be passed as arguments to evaluateMe as the only action of the main method of our Scala wrapper ) 
-- input will take a list as an argument, and grow it by the input (side effect) provided by the user.
-- output will take a pair (list, messageAfterEachBid) as an argument, will return list without touching it, 
-while printing messageAfterEachBid to the user (side effect).
-Thus, iterating the combined function output o XXX o input (where XXX is the Isabelle function doing 
-the ``real work''), evaluateMe will provide a dynamic auction execution.
-The length of the list passed to XXX will be used to determine in which round we are.
+   staticAuction return a triple consisting of the message, the liveliness boolean, and the
+   flat list of all bids.
+   *)
+abbreviation "staticAuction z == 
+   (String.implode (messageAfterEachBid (appendNewBid z)),
+    liveliness (listToBidMatrix (appendNewBid z)), 
+    appendNewBid z)"
 
-Thus, the manually-written Scala code (to be appended to the Isabelle-generated lines) will be:
-*)
+(* A dynamic auction starts being alive (True) with the empty list (no bids done yet, []), taking
+   an input, computing the result for the staticAuction, and returning an output. This is iterated
+   as long as the liveliness condition is True. *)
+abbreviation "dynamicAuction input output == 
+   conditionalIterates (output o staticAuction o input) (True,[])"
 
-(*
-def untrustedInput(n:List[String]) : List[String] = {
-	val x=readLine;
-	return (x::n);
-}
 
-def untrustedOutput(x: (List[String], String)) : List[String] = {
-	println(snd (x));
-	return (fst (x));
-}
 
-def main(args: Array[String]) {
-	val x=evaluateMe(untrustedInput, untrustedOutput);
-}
+section{* Theorems on terminating dynamic auctions *}
 
-*)
+(* pairWise applies an operator Op to two lists l and m pairwise and returns the corresponding
+   results in a list, starting with 0 up to the point that one list runs out of elements. *)
+abbreviation "pairWise Op l m == 
+  [Op (l!i) (m!i). i <- [0..<min (size l) (size m)]]"
 
-(*
-It can't probably get thinner than this.
-My ambition would be to handle everything besides input/output from inside Isabelle, including
-conversion from strings (as from input) to numbers and viceversa (for output); 
-this is definitely possible, but how realistic given our schedule?
-We could momentarily choose to directly use Scala integers as input/output, 
-which is less robust/flexible/elegant but simpler.
-*)
+(* If l is the list of bids by a single agent, then deltaBids will determine the difference
+   between consecutive bids. *)
+abbreviation "deltaBids l ==  (pairWise (op -) (tl l) l)"
 
-abbreviation "pairWise Op l m == [Op (l!i) (m!i). i <- [0..<min (size l) (size m)]]"
-lemma lm01: assumes "n\<in>{0..<min (size l) (size m)}" shows "(pairWise Op l m)!n = Op (l!n) (m!n)"
-using assms by auto
-abbreviation "deltaBids (*step*) l == (* step # *) (pairWise (op -) (tl l) l)"
+lemma sizeTail: 
+  "min (size (tl l)) (size l) = size l - (1::nat)" 
+  by simp
 
-lemma lm02: "min (size (tl l)) (size l)=size l - (1::nat)" by simp
+lemma deltaBidsLemma: 
+  fixes   l::"int list"
+  assumes "n\<in>{0..<(size l) - 1}"
+  shows   "(deltaBids l)!n = (l!(Suc n)) - (l!n)" 
+  using assms sizeTail length_tl nth_tl atLeastLessThan_iff diff_zero
+        monoid_add_class.add.left_neutral nth_map_upt 
+  by (metis (erased, lifting))
 
-lemma lm03: assumes "n\<in>{0..<(size l)-(1)}" (* why the brackets around 1??? *) shows 
-"(deltaBids l)!n = (l!(Suc n)) - (l!n)" using assms lm02 length_tl nth_tl atLeastLessThan_iff 
-diff_zero monoid_add_class.add.left_neutral nth_map_upt by (metis (erased, lifting))
+lemma deltaBidsSumLemma: 
+  fixes l::"int list"
+  assumes "m \<le> size l - 1" 
+  shows   "setsum (nth (deltaBids l)) {0..<m} = setsum (%i. (l!(Suc i) - l!i)) {0..<m}"
+  using assms deltaBidsLemma unfolding setsum.cong by auto
 
-lemma lm03b: fixes l::"int list" (* remove *) assumes "n\<in>{0..<(size l)-(1)}" (* why the brackets around 1??? *) shows 
-"(deltaBids l)!n = (l!(Suc n)) - (l!n)" using assms lm02 length_tl nth_tl atLeastLessThan_iff 
-diff_zero monoid_add_class.add.left_neutral nth_map_upt by (metis (erased, lifting))
+lemma sumDifferenceCancellation: 
+  fixes l::"'a::ab_group_add list" 
+  shows "(\<Sum>i = 0..<m. l ! (Suc i) - l!i) = l!m - l!0" 
+  using atLeastLessThanSuc_atLeastAtMost atLeastLessThan_empty diff_self order_refl 
+        setsum_Suc_diff not0_implies_Suc le0 
+  by (metis(no_types))
 
-(* lemma fixes l::"'a::ab_group_add list" shows 
-"(\<Sum>i = 0..<size l-(1::nat). nth l i) = listsum l" using assms sorry *)
 
-lemma "listsum (map (nth l) [0..<size l]) = listsum l" by (metis map_nth)
-value "deltaBids [0::int, 2, 78]"
-lemma "setsum (nth l) {0..<size l} = listsum l" using assms by (metis listsum_setsum_nth)
+corollary deltaBidsSumCancellation: 
+  fixes   l::"int list" 
+  assumes "i < size l" 
+  shows   "setsum (nth (deltaBids l)) {0..<i} = l!i - (hd l)" 
+  using assms sumDifferenceCancellation drop_0 hd_drop_conv_nth
+  by (metis (no_types) One_nat_def Suc_leI Suc_pred atLeast0LessThan atLeastLessThan_empty
+      deltaBidsSumLemma empty_iff lessThan_iff linorder_not_le)
 
-lemma lm10: "setsum (nth (deltaBids l)) {0..<size l-(1)} = setsum (%i. (l!(Suc i) - l!i)) {0..<size l-(1)}"
-using assms lm03 lm02 atLeastLessThan_iff diff_zero length_upt nth_map set_upt setsum.cong
-by smt2
+lemma listEquivalence: 
+  "[n. n\<leftarrow>[0..<N], Q n] = [n\<leftarrow>[0..<N]. Q n]" 
+  by (induct N) auto 
 
-lemma lm10b: fixes l::"int list" (*remove*)
-assumes "m\<le>size l - (1)" shows "setsum (nth (deltaBids l)) {0..<m} = setsum (%i. (l!(Suc i) - l!i)) {0..<m}"
-using assms lm03b unfolding setsum.cong by auto
+corollary filterPositionEquivalence: 
+  "filterpositions2 P l = [n<-[0..<size l]. P (l!n)]" 
+  unfolding listEquivalence filterpositions2_def by blast
 
-lemma lm04: fixes l::"'a::ab_group_add list" shows 
-"(\<Sum>i = 0..<size l. nth l (Suc i) - nth l i) = nth l (size l) - nth l 0"
-using setsum_Suc_diff 
+lemma filterSortednessInvariance: 
+  "sorted [n\<leftarrow>[0..<N]. Q n]" 
+  by (metis (full_types) map_ident sorted_filter sorted_upt)
+
+corollary filterSortedness: 
+  "sorted (filterpositions2 P l)" 
+  using filterSortednessInvariance listEquivalence unfolding filterpositions2_def 
+  by presburger
+
+lemma minimumProperty: 
+  assumes "m < Min A" "finite A" 
+  shows "m \<notin> A" 
+  using assms by (metis Min.boundedE equals0D not_less not_less_iff_gr_or_eq)
+
+lemma minSortedListIsFirstElement: 
+  assumes "sorted l" "set l \<noteq> {}" 
+  shows "Min (set l)=hd l" 
+  using assms sorted.cases List.finite_set Min_in insert_iff le_neq_trans 
+        list.sel(1) minimumProperty set_simps(2) set_empty 
+  by (metis(no_types)) 
+
+lemma lm01: 
+  assumes "set [n\<leftarrow>[0..<N]. P n] \<noteq> {}" "m < Min (set [n\<leftarrow>[0..<N]. P n])" 
+  shows   "\<not> (P m)" 
+  using assms Min_in minimumProperty by fastforce
+
+corollary lm02: 
+  assumes "set [(n::nat)\<leftarrow>[0..<N]. P n] \<noteq> {}" "m<hd [n<-[0..<N]. P n]" 
+  shows   "\<not> (P m)"
+  using assms filterSortednessInvariance lm01 minSortedListIsFirstElement by metis
+
+corollary minimumPropertyVariant: 
+  assumes "set (filterpositions2 P l) \<noteq> {}" "m<hd (filterpositions2 P l)" 
+  shows   "\<not> (P (l!m))" 
+  using assms filterPositionEquivalence lm02 by metis
+
+lemma lm03: 
+  "(nth l)`(set ([n<-[0..<size l]. P (l!n)])) \<supseteq> {y\<in>set l. P y}"
+  using imageE image_eqI  map_nth mem_Collect_eq  set_filter set_map subsetI
 proof -
-  have f1: "\<forall>x\<^sub>9 x\<^sub>1\<^sub>4. Suc x\<^sub>9 \<le> x\<^sub>1\<^sub>4 \<longrightarrow> (\<exists>x\<^sub>1\<^sub>5. x\<^sub>1\<^sub>4 = Suc x\<^sub>1\<^sub>5)" using Suc_le_D by blast
-  obtain esk4\<^sub>2 :: "nat \<Rightarrow> nat \<Rightarrow> nat" where f2: "\<And>x\<^sub>1. x\<^sub>1 = 0 \<or> Suc 0 \<le> x\<^sub>1" by (metis (no_types) diff_is_0_eq' diff_zero not_less_eq_eq)
-  have "\<And>x\<^sub>1 x\<^sub>2. (\<Sum>R = 0..<Suc x\<^sub>2. x\<^sub>1 (Suc R) - (x\<^sub>1 R\<Colon>'a)) = x\<^sub>1 (Suc x\<^sub>2) - x\<^sub>1 0" by (simp add: atLeastLessThanSuc_atLeastAtMost setsum_Suc_diff)
-  then obtain esk4\<^sub>2 :: "nat \<Rightarrow> nat \<Rightarrow> nat" where "\<And>x\<^sub>1 x\<^sub>2. (\<Sum>R = 0..<x\<^sub>2. x\<^sub>1 (Suc R) - (x\<^sub>1 R\<Colon>'a)) = x\<^sub>1 x\<^sub>2 - x\<^sub>1 0 \<or> x\<^sub>2 = 0" using f1 f2 by (metis (no_types))
-  thus "(\<Sum>i = 0..<length l. l ! Suc i - l ! i) = l ! length l - l ! 0" by fastforce
+  have "\<And>x\<^sub>1 x b_x. set (map x\<^sub>1 [R\<leftarrow>b_x . x (x\<^sub>1 (R\<Colon>nat)\<Colon>'a)]) = set (filter x (map x\<^sub>1 b_x))" 
+     by (simp add: Compr_image_eq)
+  thus "{y \<in> set l. P y} \<subseteq> op ! l ` set [n\<leftarrow>[0..<length l] . P (l ! n)]" 
+     by (metis (no_types) eq_iff list.set_map map_nth set_filter)
 qed
 
-lemma lm04a: fixes l::"'a::ab_group_add list" shows 
-"(\<Sum>i = 0..<size l-(1). nth l (Suc i) - nth l i) = nth l (size l-(1)) - nth l 0" 
-using One_nat_def Suc_diff_1 atLeastLessThanSuc_atLeastAtMost atLeastLessThan_empty diff_Suc_Suc diff_is_0_eq' 
-diff_self diff_zero length_0_conv length_tl length_upt lessI nat_less_le neq0_conv set_upt setsum.cong 
-setsum.empty setsum_Suc_diff by smt2
+(***)
 
-lemma lm04c: fixes l::"'a::ab_group_add list" shows
-"(\<Sum>i = 0..<m. l ! (Suc i) - l!i) = l!m - l!0" using 
-atLeastLessThanSuc_atLeastAtMost atLeastLessThan_empty 
-diff_self order_refl setsum_Suc_diff not0_implies_Suc le0 
-by (metis(no_types))
-
-corollary lm04b: fixes l::"int list" shows 
-"(\<Sum>i = 0..<size l-(1). nth l (Suc i) - nth l i) = nth l (size l-(1)) - nth l 0"
-using lm04a by blast
-
-corollary lm12: fixes l::"'a::ab_group_add list" shows 
-"setsum (nth (deltaBids l)) {0..<size l-(1)} = l!(size l - (1)) - l!0" 
-using assms lm04a lm10 by (metis (no_types))
-
-corollary lm12b: fixes l::"int list" (* remove *) assumes "i<size l" shows 
-"setsum (nth (deltaBids l)) {0..<i} = l!i - l!0" 
-proof -
-  have "i \<le> length l - 1" using assms by linarith
-  thus "setsum (op ! (deltaBids l)) {0..<i} = l ! i - l ! 0" by (metis (no_types) lm04c lm10b)
-qed
-
-corollary lm12c: fixes l::"int list" (* remove *) assumes "i<size l" shows 
-"setsum (nth (deltaBids l)) {0..<i} = l!i - (hd l)" using assms lm12b 
-drop_0 hd_drop_conv_nth by (metis (full_types) less_nat_zero_code neq0_conv)
-
-lemma lm06: "[n. n\<leftarrow>[0..<N], Q n] = [n\<leftarrow>[0..<N]. Q n]" by (induct N) auto 
-corollary lm06b: "filterpositions2 P l = [n<-[0..<size l]. P (l!n)]" unfolding lm06 
-filterpositions2_def by blast
-lemma lm07: "sorted [n\<leftarrow>[0..<N]. Q n]" by (metis (full_types) map_ident sorted_filter sorted_upt)
-corollary lm07b: "sorted (filterpositions2 P l)" using lm07 lm06 unfolding filterpositions2_def by presburger
-
-corollary lm11: assumes "sorted l" "x \<ge> Max (set l)" shows "sorted (l@[x])" 
-using assms(1,2) sorted_append dual_order.trans by fastforce
-
-lemma lm08: assumes "m < Min A" "finite A" shows "m \<notin> A" using assms by (metis Min.boundedE equals0D not_less not_less_iff_gr_or_eq)
-
-lemma lm13: assumes "sorted l" "set l \<noteq> {}" shows "Min (set l)=hd l" using assms sorted.cases
-List.finite_set Min_in insert_iff le_neq_trans list.sel(1) lm08 set_simps(2)
-set_empty by (metis(no_types)) 
-(*
-proof -
-  have f1: "l \<noteq> []" using assms(2) by fastforce
-  have "\<And>v. \<forall>w. \<exists>uu uua. (sorted w \<longrightarrow> w = [] \<or> (uu\<Colon>'a) # uua = w) \<and> (sorted w \<and> v \<in> set uua \<longrightarrow> w = [] \<or> uu \<le> v)" by (metis (no_types) sorted.cases)
-  thus "Min (set l) = hd l" using f1 by (metis (no_types) List.finite_set Min_in assms(1) assms(2) insert_iff le_neq_trans list.sel(1) lm08 set_simps(2))
-qed
-*)
-
-lemma lm09: assumes "set [n\<leftarrow>[0..<N]. P n] \<noteq> {}" "m<Min (set [n\<leftarrow>[0..<N]. P n])" shows "\<not> (P m)" 
-using assms Min_in lm08 by fastforce
-
-corollary lm09c: assumes "set [(n::nat)\<leftarrow>[0..<N]. P n] \<noteq> {}" "m<hd [n<-[0..<N]. P n]" shows "\<not> (P m)"
-using assms lm07 lm09 lm13 by metis
-corollary lm09b: assumes "set (filterpositions2 P l) \<noteq> {}" "m<hd (filterpositions2 P l)" shows
-"\<not> (P (l!m))" using assms lm06b lm09c by metis
-
-lemma lm14: "filter P l = [x<-l. P x]" by blast
-
-lemma lm25: "set (filterpositions2 P l) = {0..<size l} \<inter> (P o (nth l))-`{True}"
-unfolding lm06b by force
-
-lemma lm26: "distinct (filterpositions2 P l)" using lm06b distinct_filter distinct_upt by metis
-
-corollary "(filterpositions2 P l) = sorted_list_of_set ({0..<size l} \<inter> (P o (nth l))-`{True})"
-using lm25 lm26 lm07b sorted_list_of_set List.finite_set finite_sorted_distinct_unique by (metis (no_types))
-find_consts "(nat => 'a) => 'a list"
-lemma "map f l = tolist (f o (nth l)) (size l)" by (metis List.map.compositionality map_nth)
-lemma assumes "\<forall>n \<in> {0..<N}. f n = g n" shows "tolist f N = tolist g N" using assms by force
-
-(* lemma "[x<-l. P x] = map (nth l) [n<-[0..<size l]. P (nth l n)]" using nth_map map_nth structInduct sorry *) 
-
-lemma lm15a: "(nth l)`(set ([n<-[0..<size l]. P (l!n)])) \<supseteq> {y\<in>set l. P y}"
-using imageE image_eqI  map_nth mem_Collect_eq  set_filter set_map subsetI by smt2
-lemma lm15: "(nth l)`(set ([n<-[0..<size l]. P (l!n)])) = (set l) \<inter> (P-`{True})" using lm15a by force
+lemma lm15: "(nth l)`(set ([n<-[0..<size l]. P (l!n)])) = (set l) \<inter> (P-`{True})" 
+  using lm03 by force
 
 lemma lm16: assumes "P y" "y\<in>set l" shows "y \<in> (nth l)`(set (filterpositions2 P l))" 
-using assms lm15 unfolding lm06b by force
+using assms lm15 unfolding filterPositionEquivalence by force
 
 lemma lm17: assumes "m < hd (filterpositions2 (%x. x<step) (deltaBids (*step*) l)@[size l-(1)])"
 shows "\<not> ((deltaBids l)!m < step)" 
@@ -217,11 +170,11 @@ proof -
 let ?l="filterpositions2 (%x. x<step) (deltaBids l)"
 have "?l=[] \<longrightarrow> (\<forall>x \<in> set (deltaBids l). \<not> (x<step))" 
 using lm16 by (smt2 empty_iff list.simps(8) set_empty set_map)
-moreover have "?l \<noteq> [] \<longrightarrow> ?thesis" using assms lm09b by (metis (mono_tags) empty_iff hd_append2 list.sel_set(1))
+moreover have "?l \<noteq> [] \<longrightarrow> ?thesis" using assms minimumPropertyVariant by (metis (mono_tags) empty_iff hd_append2 list.sel_set(1))
 ultimately show ?thesis using assms by fastforce
 qed
 
-corollary lm02b: "size (deltaBids l) = size l - 1" by (metis lm02 diff_zero length_map length_upt)
+corollary sizeTailb: "size (deltaBids l) = size l - 1" by (metis sizeTail diff_zero length_map length_upt)
 
 lemma lm20: "hd ((filterpositions2 (%x. x<step) (deltaBids l))@[size l-(1::int)]) \<in> {-1..(size l-(1::int))}" 
 proof -
@@ -282,7 +235,7 @@ setsum (%x. int_of_nat step) {0..<i}" using setsum_mono by (metis (erased, lifti
 moreover have "setsum (%x. int_of_nat step) {0..<i} = i*step" 
 using int_of_nat_def by (metis atLeast0LessThan card_lessThan of_nat_mult setsum_constant)
 ultimately have "setsum (nth (deltaBids l)) {0..<i} \<ge> i*step" by presburger
-moreover have "l!i = hd l + setsum (nth (deltaBids l)) {0..<i}" using assms lm12c by auto
+moreover have "l!i = hd l + setsum (nth (deltaBids l)) {0..<i}" using assms deltaBidsSumCancellation by auto
 ultimately have "l!i \<ge> hd l + i*step" by presburger
 thus ?thesis by (metis of_nat_mult)
 qed
@@ -293,7 +246,7 @@ shows "l!i \<ge> hd l + i*step" using assms lm22 int_of_nat_def by force
 corollary lm22c: fixes l::"int list" assumes "int_of_nat i < min (firstInvalidBidIndex' (step::nat) l) (size l)"
 shows "l!i \<ge> hd l + int_of_nat (i*step)" using assms lm22 int_of_nat_def of_nat_mult lm22b
 proof -
-  have f1: "\<And>x\<^sub>1. min (length (tl (x\<^sub>1\<Colon>int list))) (length x\<^sub>1) = length (tl x\<^sub>1)" by (metis (no_types) lm02 length_tl)
+  have f1: "\<And>x\<^sub>1. min (length (tl (x\<^sub>1\<Colon>int list))) (length x\<^sub>1) = length (tl x\<^sub>1)" by (metis (no_types) sizeTail length_tl)
   hence "int i < int (min (1 + hd (filterpositions2 (\<lambda>R. R < int step) (tolist (\<lambda>R. tl l ! R - l ! R) (length (tl l))) @ [length (tl l)])) (length l))" using assms int_of_nat_def by auto
   thus "hd l + int_of_nat (i * step) \<le> l ! i" using f1 by (simp add: int_of_nat_def lm22b of_nat_mult)
 qed
@@ -381,11 +334,11 @@ have "i+1 < firstInvalidBidIndex' step l" using assms lm24 by fastforce then hav
 have "i <(firstInvalidBidIndex step l)-(1)" using assms by linarith
 moreover have "...\<le>size l-(1)" using lm23b using diff_le_mono by blast
 ultimately have "i\<in>{0..<size l - (1)}" by force
-then show ?thesis using lm03 0 by fastforce
+then show ?thesis using deltaBidsLemma 0 by fastforce
 qed
 
 theorem lm33: fixes l::"int list" assumes "N+1=firstInvalidBidIndex step l" 
-"N+1<size l" shows "l!(N+1)-(l!N)<step" using assms lm25   
+"N+1<size l" shows "l!(N+1)-(l!N)<step"
 proof -
 let ?d="deltaBids l" let ?f=filterpositions2 let ?P="%x. x<step" 
 have 
@@ -404,8 +357,8 @@ proof -
   thus "N = hd (filterpositions2 (\<lambda>x. x < step) (deltaBids l))" using 
   f1 by (metis (lifting) 0 hd_conv_nth list.disc_map_iff nat_int)
 qed
-ultimately have "N\<in>set (?f ?P ?d)" by auto then have "?P (?d!N)" unfolding lm25 by force
-thus ?thesis using lm03 Suc_eq_plus1 add.commute assms(2) atLeastLessThan_iff diff_diff_left 
+ultimately have "N\<in>set (?f ?P ?d)" by auto then have "?P (?d!N)" unfolding filterPositionEquivalence by force
+thus ?thesis using deltaBidsLemma Suc_eq_plus1 add.commute assms(2) atLeastLessThan_iff diff_diff_left 
 le0 zero_less_diff by (metis(no_types))
 qed
 
@@ -416,12 +369,12 @@ abbreviation "EX02 == [0::nat, 2, 4, 6, 8, 11, 12, 15]"
 (* abbreviation "allowedBids bidSet bid == " activity rule*)
 
 (*
-lemma lm09: assumes "set l \<noteq> {}" "sorted l" "x \<ge> Max (set l)" "finite (set l)" shows "sorted (l@[x])" 
+lemma minimumPropertyVariant: assumes "set l \<noteq> {}" "sorted l" "x \<ge> Max (set l)" "finite (set l)" shows "sorted (l@[x])" 
 using assms sorted_append sorted_single Max.bounded_iff ball_empty list.set(1) set_ConsD by (metis (mono_tags, lifting) )
-corollary lm09c: assumes "set l \<noteq> {}" "sorted l" "x \<ge> Sup (set l)" shows "sorted (l@[x])"
-using assms lm09 Max_Sup List.finite_set
+corollary minimumPropertyVariantc: assumes "set l \<noteq> {}" "sorted l" "x \<ge> Sup (set l)" shows "sorted (l@[x])"
+using assms minimumPropertyVariant Max_Sup List.finite_set
 sorry
-using assms lm09 sorted_single append_Nil set_empty2 List.finite_set Max_Sup sorry
+using assms minimumPropertyVariant sorted_single append_Nil set_empty2 List.finite_set Max_Sup sorry
 *)
 
 
@@ -442,9 +395,9 @@ value "sameToMyLeft [1]"
 lemma assumes "i\<in>set (stopAuctionAt l)" shows 
 "l!i = l!(i-(1))" using assms stopAuctionAt_def filterpositions2_def sorry
 lemma "set (stopAuctionAt l) = {Suc i| i. i\<in>{0..<size l}  & l!(Suc i) = l!i}"
-unfolding lm06b sorry 
+unfolding filterPositionEquivalence sorry 
 lemma lm43: "set (stopAuctionAt l) = {n\<in>{1..<size l}. l!n = (l!(n-(1)))}"
-unfolding lm06b stopAuctionAt_def by auto
+unfolding filterPositionEquivalence stopAuctionAt_def by auto
 lemma lm43b: "set (stopAuctionAt l) = {n. n\<in>{1..<size l} & l!n = (l!(n-(1)))}"
 using lm43 by auto
 term stops
