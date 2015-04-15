@@ -1,4 +1,4 @@
-theory Trust2
+theory DynamicAuctionTerminating
 imports
 t
 "~~/src/afp/Coinductive/Coinductive_List"
@@ -8,84 +8,7 @@ t
 
 begin
 
-(* l is a flat list of all bids of all participants with the first element of the list representing
-   the number of participants n, then the next n elements represent the bids of the first round
-   for each participants and so on. E.g., (3 1 2 2 2 3 3 4 5 5) means there are 3 participants who
-   bid in the first round 1, 2, and 2, respectively, in the second 2, 3, 3, and 
-   in the third 4, 5, 5 *)
-
-(* l!0 is the number of participants, currentBidder computes the bidder wrt the last bid given.*)
-abbreviation "currentBidder l == (size l - (2::nat)) mod (l!0)"
-
-(* nextBidder is the bidder after the currentBidder *)
-abbreviation "nextBidder l == (size l - (1::nat)) mod (l!0)"
-
-(* the currentRound of bidding starting from 0 *)
-abbreviation "currentRound l == (size l - (2::nat)) div (l!0)"
-
-(* The round in which the next bid will be.*)
-abbreviation "roundForNextBidder l == (size l - (1::nat)) div (l!0)"
-
-
-(* pickParticipantBids l i extracts the bids of participant i *)
-abbreviation "pickParticipantBids l i == 
-              sublist l (((op +) (Suc i)) 
-                         `(((op *) (l!0))  `{0..(currentRound l)}))"
-
-(* pickRoundBids extracts the bids in round i, starting with counting from 0 *)
-abbreviation "pickRoundBids l i == sublist l {Suc(i*(l!0))..(Suc i)*(l!0)}"
-
-(* listToGraph transforms a list into a function from indices to values in a set theoretical form, 
-   e.g. with l0 = l0 == [3::nat, 1, 1, 2, 2, 3, 4, 4, 6, 5] you get
-   "{(0, 3), (1, 1), (2, 1), (3, 2), (4, 2), (5, 3), (6, 4), (7, 4), (8, 6), (9, 5)}" *)
-abbreviation "listToGraph l == graph {0..<size l} (nth l)"
-
-(* listToBidMatrix creates from a flat of bids a bidMatrix in which the activity flag of a bidder
-   is always True, e.g, with "l0 == [3::nat, 1, 1, 2, 2, 3, 4, 4, 6, 5]" we get: 
-   "{(0, [(True, 1), (True, 2), (True, 4)]), 
-     (1, [(True, 1), (True, 3), (True, 6)]),
-     (2, [(True, 2), (True, 4), (True, 5)])}"*)
-abbreviation "listToBidMatrix (l::nat list)==
-              listToGraph (map (\<lambda>i. zip (replicate ((currentRound l) + 1) True) 
-                                        (pickParticipantBids l i))
-                           [(0::nat)..<(l!0)])"
-
-(* messageAfterEachBid is a string which informs the next bidder about the current winner, the liveliness information plus a request for their next bid. *)
-definition "messageAfterEachBid l = 
-            ''Current winner: '' @ 
-            (Show.show (maxpositions (pickRoundBids l (currentRound l)))) @ 
-            ''\<newline>'' @ 
-            ''Liveliness: '' @ 
-            Show.show(livelinessList (listToBidMatrix l)) @ 
-            ''\<newline>'' @ 
-            ''Next, input bid for round ''@Show.show(roundForNextBidder l)@
-            '', participant '' @
-            (Show.show(nextBidder l))"
-
-
-(* In the following we use a simple example of a static auction, which can be replaced by a more
-   sophisticated one. Here it just prints the current state of the auction after each input bid. 
-   The print is done by the messageAfterEachBid which is applied after the bid has been added
-   to the end of the flat bid list l. E.g., for "l0 == [5, 3, 1, 1, 2, 2, 3, 4, 4, 6]" 
-   staticAuction will put first the 5 to the end of the list and then return the message
-   "(STR ''Current winner: [1]\<newline>Liveliness: [True, True, True, True]\<newline>Next, input bid for round 3,
-         participant 0'',  [3, 1, 1, 2, 2, 3, 4, 4, 6, 5])" :: "String.literal \<times> integer list"
-   which will be used in the Scala code."
-   *)
-abbreviation "staticAuction == 
-             (%l. (String.implode(messageAfterEachBid (map nat_of_integer l)), 
-                  l)) 
-             o (
-             %l. (tl l) @ [hd l])"
-
 abbreviation "l0 == [5, 3, 1, 1, 2, 2, 3, 4, 4, 6]"
-
-(* The dynamic auction is defined as an iteration of output, staticAuction, and input, where the
-   output and input are written in Scala and essentially are assumed to be the identity, except
-   for the side effects of printing the message of staticAuction and reading in the next bid,
-   respectively. *)
-abbreviation "dynamicAuction input output == 
-   iterates (output o staticAuction o input) []"
 
 section{* Terminating dynamic auction using conditionalIterates *}
 
@@ -116,11 +39,7 @@ definition "evaluateMe2
 String.implode ''Starting\<newline>Input the number of bidders:'', True, []),
 dynamicAuction2 input output)"
  
-definition "evaluateMe (input(*::(integer list => integer list)*)) 
-(output(*::(_ => integer list)*))
-= snd (output (String.implode ''Starting\<newline>Input the number of bidders:'', [])
-, dynamicAuction input output)"
-term evaluateMe
+
 (*
 definition "evaluateMe (input::(integer list => integer list)) 
 (output::(integer list \<times> String.literal => integer list))
