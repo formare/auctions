@@ -1,6 +1,6 @@
 theory DynamicAuctionCodeExtraction
 imports
-Trust2
+DynamicAuctionTerminating
 "~~/src/HOL/Library/Code_Target_Nat" 
 "~~/src/HOL/Library/Code_Target_Int"
 "~~/src/HOL/Library/Code_Target_Numeral"

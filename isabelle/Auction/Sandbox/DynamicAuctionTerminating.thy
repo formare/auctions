@@ -201,8 +201,6 @@ corollary deltaBidValidity:
   shows   "(deltaBids l)!m \<ge> step" using assms lm05
   by fastforce
 
-(***)
-
 (* Auxiliary lemma for the following corolary. *)
 lemma lm06: 
   "hd ((filterpositions2 (%x. x < step) (deltaBids l)) @ [size l-(1::int)]) \<in> 
@@ -256,253 +254,276 @@ corollary firstInvalidBidIndexRange:
 corollary firstInvalidBidIndexUpperBound:"firstInvalidBidIndex0 step l \<le> size l" using 
 firstInvalidBidIndexRange Set_Interval.transfer_nat_int_set_functions(1) by blast
 
-lemma lm24: 
+lemma firstInvalidBidIndexEquivalence: 
   assumes "l \<noteq> []" 
   shows "firstInvalidBidIndex0 step l = firstInvalidBidIndex1 step l"
 proof -
   let ?n = "size l" 
-  let ?l = "filterpositions2 (%x. x<step) (deltaBids l)" have 
-  0: "?n-(1::nat)=?n-(1::int)" using assms One_nat_def eq_diff_eq length_tl list.collapse 
-  list.size(4) of_nat_1 of_nat_add by (metis (mono_tags, hide_lams))
-  then have "(?l@[?n-(1::nat)]) = (?l@[?n-(1::int)])" using list.simps(8) 
-  list.simps(9) map_append by (metis (no_types, lifting))
-  then have "hd (?l@[?n-(1::nat)]) = hd (?l@[?n-(1::int)])" using 0 lm02 append_is_Nil_conv 
-  length_tl list.collapse list.sel(1) list.simps(9) not_Cons_self by (metis(lifting,no_types))
+  let ?l = "filterpositions2 (%x. x<step) (deltaBids l)" 
+  have 
+  0: "?n-(1::nat)=?n-(1::int)" 
+        using assms One_nat_def eq_diff_eq length_tl list.collapse list.size(4) of_nat_1 of_nat_add 
+        by (metis (mono_tags, hide_lams))
+  then have "(?l@[?n-(1::nat)]) = (?l@[?n-(1::int)])" 
+     using list.simps(8) list.simps(9) map_append by (metis (no_types, lifting))
+  then have "hd (?l@[?n-(1::nat)]) = hd (?l@[?n-(1::int)])" 
+     using 0 lm02 append_is_Nil_conv length_tl list.collapse list.sel(1) list.simps(9) not_Cons_self
+     by (metis(lifting,no_types))
   thus ?thesis by linarith
 qed
 
-lemma lm19: "int (nat i)=i = (i\<ge>0)" by simp
 
-
-lemma lm22: fixes l::"int list" assumes "(i::nat) < min (firstInvalidBidIndex1 (step::nat) l) (size l)"
-shows "l!i \<ge> hd l + i*step" using assms 
+lemma minimalValidBidValueAuxiliary: 
+  fixes l::"int list" 
+  assumes "(i::nat) < min (firstInvalidBidIndex1 (step::nat) l) (size l)"
+  shows "l!i \<ge> hd l + i * step"
 proof -
-have "\<forall>x \<in> {0..<i}. step \<le> (deltaBids l)!x" using assms deltaBidValidity by auto
-then have "setsum (nth (deltaBids l)) {0..<i} \<ge> 
-setsum (%x. int_of_nat step) {0..<i}" using setsum_mono by (metis (erased, lifting) int_of_nat_def)
-moreover have "setsum (%x. int_of_nat step) {0..<i} = i*step" 
-using int_of_nat_def by (metis atLeast0LessThan card_lessThan of_nat_mult setsum_constant)
-ultimately have "setsum (nth (deltaBids l)) {0..<i} \<ge> i*step" by presburger
-moreover have "l!i = hd l + setsum (nth (deltaBids l)) {0..<i}" using assms deltaBidsSumCancellation by auto
-ultimately have "l!i \<ge> hd l + i*step" by presburger
-thus ?thesis by (metis of_nat_mult)
+  have "\<forall>x \<in> {0..<i}. step \<le> (deltaBids l)!x" using assms deltaBidValidity by auto
+  then have "setsum (nth (deltaBids l)) {0..<i} \<ge> setsum (%x. int_of_nat step) {0..<i}" 
+    using setsum_mono by (metis (erased, lifting) int_of_nat_def)
+  moreover have "setsum (%x. int_of_nat step) {0..<i} = i*step" 
+    using int_of_nat_def by (metis atLeast0LessThan card_lessThan of_nat_mult setsum_constant)
+  ultimately have "setsum (nth (deltaBids l)) {0..<i} \<ge> i*step" by presburger
+  moreover have "l!i = hd l + setsum (nth (deltaBids l)) {0..<i}" 
+    using assms deltaBidsSumCancellation by auto
+  ultimately have "l!i \<ge> hd l + i*step" by presburger
+  thus ?thesis by (metis of_nat_mult)
 qed
 
-corollary lm22b: fixes l::"int list" assumes "int_of_nat i < min (firstInvalidBidIndex1 (step::nat) l) (size l)"
-shows "l!i \<ge> hd l + i*step" using assms lm22 int_of_nat_def by force
+corollary minimalValidBidValue: 
+  fixes l::"int list" 
+  assumes "int_of_nat i < min (firstInvalidBidIndex1 (step::nat) l) (size l)"
+  shows "l!i \<ge> hd l + i*step" 
+  using assms minimalValidBidValueAuxiliary int_of_nat_def by force
 
-corollary lm22c: fixes l::"int list" assumes "int_of_nat i < min (firstInvalidBidIndex1 (step::nat) l) (size l)"
-shows "l!i \<ge> hd l + int_of_nat (i*step)" using assms lm22 int_of_nat_def of_nat_mult lm22b
+corollary minimalValidBidValueVariant: 
+  fixes l::"int list" 
+  assumes "int_of_nat i < min (firstInvalidBidIndex1 (step::nat) l) (size l)"
+  shows "l!i \<ge> hd l + int_of_nat (i*step)" 
 proof -
-  have f1: "\<And>x\<^sub>1. min (length (tl (x\<^sub>1\<Colon>int list))) (length x\<^sub>1) = length (tl x\<^sub>1)" by (metis (no_types) sizeTail length_tl)
-  hence "int i < int (min (1 + hd (filterpositions2 (\<lambda>R. R < int step) (tolist (\<lambda>R. tl l ! R - l ! R) (length (tl l))) @ [length (tl l)])) (length l))" using assms int_of_nat_def by auto
-  thus "hd l + int_of_nat (i * step) \<le> l ! i" using f1 by (simp add: int_of_nat_def lm22b of_nat_mult)
+  have f1: "\<And>x\<^sub>1. min (length (tl (x\<^sub>1\<Colon>int list))) (length x\<^sub>1) = length (tl x\<^sub>1)" 
+    by (metis (no_types) sizeTail length_tl)
+  hence "int i < int (min (1 + hd(filterpositions2 (\<lambda>R. R < int step) 
+                                                   (tolist (\<lambda>R. tl l ! R - l ! R) (length (tl l)))
+                                                    @ [length (tl l)]))
+                          (length l))" 
+    using assms int_of_nat_def by auto
+  thus "hd l + int_of_nat (i * step) \<le> l ! i" 
+    using f1 by (simp add: int_of_nat_def minimalValidBidValue of_nat_mult)
 qed
 
-corollary lm27:
-fixes l::"int list" assumes "i < firstInvalidBidIndex0 (step::nat) l" shows "l!i \<ge> hd l + int_of_nat(i*step)"
+corollary minimalValidBidValueVariant2:
+  fixes l::"int list" 
+  assumes "i < firstInvalidBidIndex0 (step::nat) l" 
+  shows "l!i \<ge> hd l + int_of_nat(i*step)"
 proof -
-have 1: "firstInvalidBidIndex0 step l \<le> size l" using firstInvalidBidIndexUpperBound by auto
-have "l\<noteq>[]" using assms 
+  have 
+  1: "firstInvalidBidIndex0 step l \<le> size l" using firstInvalidBidIndexUpperBound by auto
+  have "l\<noteq>[]" using assms 
+    proof -
+      have "\<And>x\<^sub>1. filterpositions2 x\<^sub>1 ([]\<Colon>int list) = []"
+        using Nil_is_map_conv MiscTools.lm123 empty_iff list.sel_set(1) list.set(1) map_nth 
+              set_upt subsetCE
+        by (metis (no_types))
+      thus "l \<noteq> []" using assms by force
+    qed 
+  then have 
+  0: "firstInvalidBidIndex0 step l = firstInvalidBidIndex1 step l" 
+    using firstInvalidBidIndexEquivalence by blast
+  then have "firstInvalidBidIndex1 step l \<le> size l" 
+    using firstInvalidBidIndexUpperBound 1 by presburger 
+  then moreover have "i < min (firstInvalidBidIndex1 step l) (size l)" 
+    using assms 0 by linarith
+  ultimately have "int_of_nat i < ..." 
+    by (metis (no_types, lifting) int_of_nat_def of_nat_less_iff) 
+  then have "l!i \<ge> hd l + int_of_nat (i*step)" 
+    by (rule minimalValidBidValueVariant) 
+  then show ?thesis by simp
+qed
+
+(* Type property between int and nat *)
+lemma lm08: 
+  "int_of_nat (m*n)=m*int_of_nat n" 
+  by (metis int_of_nat_def zmult_int)
+
+lemma lm09: 
+  assumes "(t::int)>0" "y\<ge>z*t" 
+  shows "(z::int)\<le>y div t" 
+  using assms Divides.pos_mod_bound mult.commute zmult_zless_mono2
+  by (metis div_mult_self1_is_id neq_iff zdiv_mono1)
+
+corollary indexBidBound: 
+  fixes l::"int list" 
+  assumes "(i::nat) < firstInvalidBidIndex0 (step::nat) l"  "step > 0" 
+  shows "int_of_nat i \<le> (l!i - hd l) div (int_of_nat step) + (1::int)"
+proof - 
+  have "l!i - hd l \<ge> int_of_nat(i*step)" using assms(1) minimalValidBidValueVariant2 by force
+  moreover have "int_of_nat(i*step) = int_of_nat i * int_of_nat step" 
+    using lm08 int_of_nat_def by auto
+  ultimately have "int_of_nat i \<le> (l!i - hd l) div (int_of_nat step)" 
+    using assms(2) lm09 by (metis int_of_nat_def of_nat_0_less_iff)
+  show "int_of_nat i \<le> (l!i - hd l) div (int_of_nat step) + (1::int)"
+    by (metis Nat_Transfer.transfer_nat_int_function_closures(6) 
+        `int_of_nat i \<le> (l ! i - hd l) div int_of_nat step` add.commute 
+        le_add_same_cancel2 order_trans) 
+qed
+
+lemma divMonotonicity: 
+  assumes "(k::int)>0" "(i::int) \<le> j" 
+  shows "i div k \<le> j div k" 
+  using assms by (metis zdiv_mono1)
+
+theorem auctionTermination: 
+  fixes l::"int list" 
+  assumes "step > (0::nat)" "\<forall>i<size l. l!i \<le> M" "l \<noteq> []" 
+  shows  "int_of_nat (firstInvalidBidIndex0 step l) \<le> (M - hd l) div (int_of_nat step) + (2::int)"
+  (is "?L \<le> ?R + (2::int)")
+proof - 
+  have 
+  0: "?R \<ge> 0" using assms(1,2,3) Divides.transfer_nat_int_function_closures(1) 
+                    diff_right_mono diff_self hd_conv_nth int_of_nat_def 
+                    length_greater_0_conv max.semilattice_strict_iff_order of_nat_0_less_iff 
+              by metis
+  let ?i = "firstInvalidBidIndex0 step l - 1"
+  {
+    assume "\<not> ?thesis" 
+    then have 
+    1: "?L > ?R+(2::int)" by linarith 
+    then have "?L > 0" using 0 by linarith 
+    then have 
+    2: "?i < firstInvalidBidIndex0 step l" 
+      using One_nat_def diff_less int_of_nat_def lessI neq0_conv of_nat_0 order_less_irrefl
+      by (metis (no_types, lifting))
+    moreover have "firstInvalidBidIndex0 step l \<le> size l" 
+      using firstInvalidBidIndexUpperBound by auto ultimately have 
+    3: "?i < size l" by linarith
+    moreover have 
+    4: "int_of_nat ?i > ?R+(1::int)" using 0 1 2 int_of_nat_def by auto
+    moreover have "int_of_nat ?i \<le> (l! ?i - hd l) div (int_of_nat step)+(1::int)"
+      using 2 assms(1) by (rule indexBidBound)
+    moreover have "... \<le> ?R+(1::int)" 
+      using assms(1,2) divMonotonicity int_of_nat_def 2 3 by simp
+    ultimately have False using 4 by linarith
+  }
+  thus ?thesis by (rule HOL.ccontr)
+qed
+
+(* let l be a list of bids by one bidder. From the first invalid bid onwards the bid list will be
+   changed to be constantly the last valid bid, e.g. with step being 1 and l being
+   (1 2 3 4 3 5 6 7 8) the bids become invalid as soon as the bidder decreases their bid, hence
+   the result of ammendedBidList in this case will be (1 2 3 4 4 4 4 4 4) *)
+abbreviation "amendedBidList step l == 
+  updateList l {firstInvalidBidIndex0 step l..<size l} (%x. l!(firstInvalidBidIndex0 step l - 1))"
+
+lemma amendedBidListIdentity: 
+  assumes "i < firstInvalidBidIndex0 step l" 
+  shows "(amendedBidList step l)!i = l!i"
 proof -
-  have "\<And>x\<^sub>1. filterpositions2 x\<^sub>1 ([]\<Colon>int list) = []"
-  using Nil_is_map_conv lm123 empty_iff list.sel_set(1) list.set(1) map_nth set_upt subsetCE
-  by (metis (no_types))
-  thus "l \<noteq> []" using assms by force
-qed then have 
-0: "firstInvalidBidIndex0 step l = firstInvalidBidIndex1 step l" using lm24 by blast
-then have "firstInvalidBidIndex1 step l \<le> size l" using firstInvalidBidIndexUpperBound 1 by presburger then moreover have 
-"i < min (firstInvalidBidIndex1 step l) (size l)" using assms 0 by linarith
-ultimately have "int_of_nat i < ..." by (smt2 int_of_nat_def of_nat_less_iff) 
-then have "l!i \<ge> hd l + int_of_nat (i*step)" by (rule lm22c) then show ?thesis by simp
+  have "firstInvalidBidIndex0 step l \<le> size l" 
+    using firstInvalidBidIndexUpperBound by auto 
+  then have "i<size l" using assms by linarith
+  thus ?thesis using assms by force
 qed
 
-lemma lm28: "int_of_nat (m*n)=m*int_of_nat n" by (metis int_of_nat_def zmult_int)
+lemma amendedBidListConstancy:
+  assumes "i \<in> {firstInvalidBidIndex0 step l ..< size l}" 
+  shows  "(amendedBidList step l)!i = l!(firstInvalidBidIndex0 step l - 1)" 
+  using assms by auto
 
-lemma lm29: assumes "(t::int)>0" "y\<ge>z*t" shows "(z::int)\<le>y div t + 1" using assms
-Divides.pos_mod_bound div_add_self2 div_mod_equality2 mult.commute zmult_zless_mono2 by smt2
+lemma amendedBidListSize: 
+  "size (amendedBidList step l)= size l" 
+  by simp
 
-corollary lm30: fixes l::"int list" assumes "(i::nat) < firstInvalidBidIndex0 (step::nat) l" 
-"step > 0" shows "int_of_nat i \<le> (l!i - hd l) div (int_of_nat step) + (1::int)"
-proof - have "l!i - hd l \<ge> int_of_nat(i*step)" using assms(1) lm27 by force
-moreover have "int_of_nat(i*step) = int_of_nat i * int_of_nat step" using lm28 int_of_nat_def by auto
-ultimately show "int_of_nat i \<le> (l!i - hd l) div (int_of_nat step) + (1::int)" using assms(2) lm29 by (metis int_of_nat_def of_nat_0_less_iff)
-qed
-
-lemma lm32: assumes "(k::int)>0" "(i::int) \<le> j" shows "i div k \<le> j div k" using assms by (metis zdiv_mono1)
-
-theorem auctionTermination: fixes l::"int list" assumes "step > (0::nat)" "\<forall>i<size l. l!i \<le> M" "l \<noteq> []" shows 
-"int_of_nat (firstInvalidBidIndex0 step l) \<le> (M - hd l) div (int_of_nat step) + (2::int)"
-(is "?L \<le> ?R + (2::int)")
-proof - have 
-1: "?R \<ge> 0" using assms(1,2,3)
-Divides.transfer_nat_int_function_closures(1) diff_right_mono diff_self hd_conv_nth int_of_nat_def 
-length_greater_0_conv max.semilattice_strict_iff_order of_nat_0_less_iff by metis
-let ?i="firstInvalidBidIndex0 step l - 1"
-{
-  assume "\<not> ?thesis" then have 
-  0: "?L > ?R+(2::int)" by linarith then have "?L > 0" using 1 by linarith then have 
-  2: "?i < firstInvalidBidIndex0 step l" using
-  One_nat_def diff_less int_of_nat_def lessI neq0_conv of_nat_0 order_less_irrefl
-  by (metis (no_types, lifting))
-  moreover have "firstInvalidBidIndex0 step l \<le> size l" using firstInvalidBidIndexUpperBound by auto ultimately have 
-  3: "?i < size l" by linarith
-  moreover have 
-  4: "int_of_nat ?i > ?R+(1::int)" using 0 1 2 int_of_nat_def by auto
-  moreover have "int_of_nat ?i \<le> (l! ?i - hd l) div (int_of_nat step)+(1::int)"
-  using 2 assms(1) by (rule lm30)
-  moreover have "... \<le> ?R+(1::int)" using assms(1,2) lm32 int_of_nat_def 2 3 by simp
-  ultimately have False using 4 by linarith
-}
-thus ?thesis by (rule HOL.ccontr)
-qed
-
-abbreviation "amendedbidlist3 step l == 
-updateList l {firstInvalidBidIndex0 step l..<size l} (%x. l!(firstInvalidBidIndex0 step l - 1))"
-
-corollary lm34: assumes "i<size l" shows 
-"(i \<notin> A \<longrightarrow> (updateList l A f)!i = l!i) & (i \<in> A \<longrightarrow> (updateList l A f)!i = f i)" using assms by auto
-
-theorem assumes "i<firstInvalidBidIndex0 step l" shows "(amendedbidlist3 step l)!i = l!i"
+lemma bidConsistency:
+  fixes l::"int list" 
+  assumes "l \<noteq> []" "i+1 < firstInvalidBidIndex0 step l" 
+  shows "l!(i+1) - (l!i) \<ge> step"
 proof -
-have "firstInvalidBidIndex0 step l \<le> size l" using firstInvalidBidIndexUpperBound by auto then have "i<size l" using assms by linarith
-thus ?thesis using assms by force
+  have "i+1 < firstInvalidBidIndex1 step l" 
+   using assms firstInvalidBidIndexEquivalence by fastforce 
+  then have 
+  0: "step \<le> (deltaBids l)!i" by (rule deltaBidValidity)
+  have "i <(firstInvalidBidIndex0 step l)-(1)" using assms by linarith
+  moreover have "...\<le>size l-(1)" using firstInvalidBidIndexUpperBound diff_le_mono by blast
+  ultimately have "i\<in>{0..<size l - (1)}" by force
+  then show ?thesis using deltaBidsLemma 0 by fastforce
 qed
 
-theorem assumes "i\<in>{firstInvalidBidIndex0 step l ..< size l}" shows 
-"(amendedbidlist3 step l)!i = l!(firstInvalidBidIndex0 step l - 1)" using assms by auto
-
-lemma lm36: "size (amendedbidlist3 step l)= size l" by simp
-
-theorem lm35: fixes l::"int list" assumes "l \<noteq> []" "i+1 < firstInvalidBidIndex0 step l" 
-shows "l!(i+1) - (l!i) \<ge> step"
+lemma firstInvalidBidProperty: 
+  fixes l::"int list" 
+  assumes "N+1 = firstInvalidBidIndex0 step l" "N+1 < size l" 
+  shows "l!(N+1)-(l!N)<step"
 proof -
-have "i+1 < firstInvalidBidIndex1 step l" using assms lm24 by fastforce then have 
-0: "step \<le> (deltaBids l)!i" by (rule deltaBidValidity)
-have "i <(firstInvalidBidIndex0 step l)-(1)" using assms by linarith
-moreover have "...\<le>size l-(1)" using firstInvalidBidIndexUpperBound using diff_le_mono by blast
-ultimately have "i\<in>{0..<size l - (1)}" by force
-then show ?thesis using deltaBidsLemma 0 by fastforce
+  let ?d = "deltaBids l" 
+  let ?f = filterpositions2 
+  let ?P="%x. x < step" 
+  have 
+  1: "N = hd (?f ?P ?d @ [size l - (1::int)])" using assms by linarith
+  moreover have "N \<noteq> size l - (1::int)" using assms by fastforce
+  ultimately moreover have 
+  2: "?f ?P ?d \<noteq> []" by fastforce
+  ultimately moreover have "N = hd(?f ?P ?d)" 
+  proof -
+    have f1: "\<And>x x\<^sub>3. x = [] \<or> map x\<^sub>3 x ! 0 = (x\<^sub>3 (hd x\<Colon>nat)\<Colon>int)" 
+      by (metis (lifting) hd_conv_nth length_greater_0_conv nth_map)
+    then have "map int (filterpositions2 (\<lambda>R. R < step) (deltaBids l)) = [] \<or> 
+              hd (map int (filterpositions2 (\<lambda>R. R < step) (deltaBids l))) = int N" 
+      by (metis (lifting) 1 hd_append)
+    thus "N = hd (filterpositions2 (\<lambda>x. x < step) (deltaBids l))" 
+      using f1 by (metis (lifting) 2 hd_conv_nth list.disc_map_iff nat_int)
+  qed
+  ultimately have "N\<in>set (?f ?P ?d)" by auto 
+  then have "?P (?d!N)" unfolding filterPositionEquivalence by force
+  thus ?thesis 
+    using deltaBidsLemma Suc_eq_plus1 add.commute assms(2) atLeastLessThan_iff diff_diff_left le0
+          zero_less_diff 
+    by (metis(no_types))
 qed
 
-theorem lm33: fixes l::"int list" assumes "N+1=firstInvalidBidIndex0 step l" 
-"N+1<size l" shows "l!(N+1)-(l!N)<step"
+(* l is a list of bids from a single bidder. stopAuctionAt checks whether the bidder has terminated
+   bidding. This is the case iff the bid is the same as in the previous round.  *)
+lemma stopAuctionAtAsSet: 
+  "set (stopAuctionAt l) = {n\<in>{1..<size l}. l!n = (l!(n - 1))}"
+  unfolding filterPositionEquivalence stopAuctionAt_def by auto
+
+(* Auxiliary lemma for lemma stopsCharacterization *)
+lemma lm10:
+  "stops B = {n. \<forall>i\<in>Domain B. (n \<in> {1..<size (unzip2 (B,,i))} & 
+                 (unzip2 (B,,i))!n = (unzip2 (B,,i))!(n - 1))}"
+  using stops_def stopAuctionAtAsSet by fast
+
+(* stops is the set of all rounds in which each bidder bids the same as in the previous round. 
+   B is the bid matrix. *)
+lemma stopsCharacterization: 
+  "stops B = {n. \<forall>i\<in>Domain B. (n\<in>{1..<size (B,,i)} & 
+                              snd ((B,,i)!n) = snd ((B,,i)!(n-(1))))}"
+  unfolding lm10 by force
+
+lemma updateListCharacterization: 
+  "updateList l X f = [if (n \<in> X) then (f n) else (l!n). n <- [0..<size l]]"
+  unfolding override_on_def by blast
+
+lemma stopsMeansNotLively: 
+  assumes "Suc n < size (livelinessList B)" "n \<in> stops B" 
+  shows "(livelinessList B)!(Suc n) = False"
 proof -
-let ?d="deltaBids l" let ?f=filterpositions2 let ?P="%x. x<step" 
-have 
-3: "N=hd (?f ?P ?d @ [size l - (1::int)])" using assms by linarith
-moreover have 
-1: "N \<noteq> size l - (1::int)" using assms by fastforce
-ultimately moreover have 
-0: "?f ?P ?d \<noteq> []" by fastforce ultimately 
-moreover have 
-2: "N=hd(?f ?P ?d)" 
-proof -
-  have f1: "\<And>x x\<^sub>3. x = [] \<or> map x\<^sub>3 x ! 0 = (x\<^sub>3 (hd x\<Colon>nat)\<Colon>int)" 
-  by (metis (lifting) hd_conv_nth length_greater_0_conv nth_map)
-  then have "map int (filterpositions2 (\<lambda>R. R < step) (deltaBids l)) = [] \<or> hd (map int (filterpositions2 (\<lambda>R. R < step) (deltaBids l))) = int N" 
-  by (metis (lifting) 3 hd_append)
-  thus "N = hd (filterpositions2 (\<lambda>x. x < step) (deltaBids l))" using 
-  f1 by (metis (lifting) 0 hd_conv_nth list.disc_map_iff nat_int)
+  have "n < length (replicate (duration B) True) - 0 \<and> 
+       (0 + n \<in> stops B \<or> 0 + n \<notin> stops B \<and> \<not> replicate (duration B) True ! (0 + n))"
+    using Suc_less_eq assms(1) assms(2) comm_monoid_add_class.add.left_neutral 
+          length_Cons length_map length_upt livelinessList_def
+    by (metis)
+  hence "\<not> tolist (\<lambda>R. R \<notin> stops B \<and> (R \<notin> stops B \<longrightarrow> replicate (duration B) True ! R)) 
+                  (length (replicate (duration B) True)) ! n"
+    using nth_map_upt by auto
+  have "(True # tolist (\<lambda>n. if n \<in> stops B then False else replicate (duration B) True ! n) 
+                       (length (replicate (duration B) True))) ! Suc n = False"
+     by (metis `\<not> tolist (\<lambda>R. R \<notin> stops B \<and> (R \<notin> stops B \<longrightarrow> replicate (duration B) True ! R))
+                         (length (replicate (duration B) True)) ! n` nth_Cons_Suc)
+  show ?thesis using livelinessList_def 
+     by (metis (no_types, lifting) `n < length (replicate (duration B) True) - 0 \<and> 
+           (0 + n \<in> stops B \<or> 0 + n \<notin> stops B \<and> \<not> replicate (duration B) True ! (0 + n))`
+         add.commute assms(2) diff_zero length_replicate  monoid_add_class.add.right_neutral
+         nth_Cons_Suc nth_map_upt override_on_def)
 qed
-ultimately have "N\<in>set (?f ?P ?d)" by auto then have "?P (?d!N)" unfolding filterPositionEquivalence by force
-thus ?thesis using deltaBidsLemma Suc_eq_plus1 add.commute assms(2) atLeastLessThan_iff diff_diff_left 
-le0 zero_less_diff by (metis(no_types))
-qed
-
-lemma assumes "step \<ge>(1::nat)" "firstInvalidBidIndex0 step (l::nat list)=Suc 0" shows "l!0 \<ge> 0*step" using assms by presburger
-
-abbreviation "EX02 == [0::nat, 2, 4, 6, 8, 11, 12, 15]"
-
-(* abbreviation "allowedBids bidSet bid == " activity rule*)
-
-(*
-lemma minimumPropertyVariant: assumes "set l \<noteq> {}" "sorted l" "x \<ge> Max (set l)" "finite (set l)" shows "sorted (l@[x])" 
-using assms sorted_append sorted_single Max.bounded_iff ball_empty list.set(1) set_ConsD by (metis (mono_tags, lifting) )
-corollary minimumPropertyVariantc: assumes "set l \<noteq> {}" "sorted l" "x \<ge> Sup (set l)" shows "sorted (l@[x])"
-using assms minimumPropertyVariant Max_Sup List.finite_set
-sorry
-using assms minimumPropertyVariant sorted_single append_Nil set_empty2 List.finite_set Max_Sup sorry
-*)
-
-
-abbreviation "sublistAccordingTo list boolList == sublist list (set (filterpositions2 (%x. x=True) boolList))"
-
-fun valid where "valid step [] = []" |
-"valid step (x#xs) = (
-(card((set (maxpositions (sublistAccordingTo xs (valid step xs))))) \<ge> 2 & (x=Max (set 
-(sublistAccordingTo xs (valid step xs))))) \<or>
-(card((set (maxpositions (sublistAccordingTo xs (valid step xs))))) = 1 & (x\<ge>Max (set 
-(sublistAccordingTo xs (valid step xs))) + step))\<or>(xs = [] & (x \<ge> 0)))#(valid step xs)"
-
-abbreviation "isGrowing step l == (\<forall>n\<in>{0..<size l}. l!(Suc n) - (l!n)\<ge>step)"
-abbreviation "setOfAllowedBids step l == {x. x=Max (set l) \<or> (isGrowing step l \<and> x \<ge> step+Max (set l))}"
-
-value "listToBidMatrix E01"
-value "sameToMyLeft [1]"
-lemma assumes "i\<in>set (stopAuctionAt l)" shows 
-"l!i = l!(i-(1))" using assms stopAuctionAt_def filterpositions2_def sorry
-lemma "set (stopAuctionAt l) = {Suc i| i. i\<in>{0..<size l}  & l!(Suc i) = l!i}"
-unfolding filterPositionEquivalence sorry 
-lemma lm43: "set (stopAuctionAt l) = {n\<in>{1..<size l}. l!n = (l!(n-(1)))}"
-unfolding filterPositionEquivalence stopAuctionAt_def by auto
-lemma lm43b: "set (stopAuctionAt l) = {n. n\<in>{1..<size l} & l!n = (l!(n-(1)))}"
-using lm43 by auto
-term stops
-lemma lm44: "stops B = {n. \<forall>i\<in>Domain B. (n\<in>{1..<size (unzip2 (B,,i))} & (unzip2 (B,,i))!n=(unzip2 (B,,i))!(n-(1)))}"
-using stops_def lm43 by fast
-lemma lm44b: "stops B = {n. \<forall>i\<in>Domain B. (n\<in>{1..<size (B,,i)} & snd ((B,,i)!n)=snd ((B,,i)!(n-(1))))}"
-unfolding lm44 by force
-lemma lm45: "updateList l X f = [if (n \<in> X) then (f n) else (l!n). n <- [0..<size l]]"
-unfolding override_on_def by blast
-lemma "((nth (livelinessList B)) o Suc)-`{False}\<supseteq>{0..<size (livelinessList B)-(1)}\<inter>stops B" 
-using assms lm34 lm44b livelinessList_def 
-nth_Cons_Suc diff_Suc_1 
-comp_def diff_zero length_Cons length_map length_upt 
-IntE atLeastLessThan_iff singletonI subsetI vimageI
-by smt2
-(*lemma lm47: "size (updateList l f X)=size l" by simp
-lemma lm48: assumes "i<duration B" "\<not> ((mbc0 B)!i)" shows "i \<in> stops B" 
-using assms List.nth_replicate length_replicate lm34 by (metis (no_types, lifting))
-
-lemma lm49a: "{0..<duration B} \<inter> ((nth (mbc0 B))-`{False}) \<subseteq> stops B"
-using assms lm45 lm48 by fastforce
-lemma lm49b: "{0..<duration B} \<inter> stops B \<subseteq> ((nth (mbc0 B))-`{False})"
-using lm45 by force
-
-corollary "nth (mbc0 B)-`{False} \<inter> {0..<duration B} = {0..<duration B} \<inter> stops B"
-using lm49a lm49b by blast
-*)
-lemma "size (livelinessList B)=1+duration B" unfolding livelinessList_def by force
-
-(* nth_Cons_Suc diff_Suc_1
-comp_def diff_zero length_Cons length_map length_upt 
-IntE atLeastLessThan_iff singletonI subsetI vimageI *)
-
-(* *)
-lemma assumes "Suc n<size (livelinessList B)" "n \<in> stops B" shows "((nth (livelinessList B)) o Suc) n=False"
-using livelinessList_def  assms(1,2)
-Suc_lessE diff_Suc_1 lm34 lm44b
-comp_def diff_zero length_Cons length_map length_upt  nth_Cons_Suc
-by smt2
-lemma lm46: assumes "Suc n<size (livelinessList B)" "n \<in> stops B" shows "(livelinessList B)!(Suc n)=False"
-using livelinessList_def lm45 assms(1,2)
-Suc_lessE diff_Suc_1 comm_monoid_add_class.add.left_neutral
-length_Cons length_map length_upt nth_Cons_Suc nth_map_upt
-by smt2
-(*  Suc_less_eq comm_monoid_add_class.add.left_neutral length_Cons length_map 
-length_upt nth_Cons_Suc nth_map_upt by smt2 *)
-(*
-proof -
-  have "n < length (replicate (duration B) True) - 0 \<and> (0 + n \<in> stops B \<or> 0 + n \<notin> stops B \<and> \<not> replicate (duration B) True ! (0 + n))"
-using Suc_less_eq assms(1) assms(2) comm_monoid_add_class.add.left_neutral 
-length_Cons length_map length_upt livelinessList_def
-  by (metis)
-  hence "\<not> tolist (\<lambda>R. R \<notin> stops B \<and> (R \<notin> stops B \<longrightarrow> replicate (duration B) True ! R)) (length (replicate (duration B) True)) ! n"
-  using nth_map_upt by auto
-  thus "(True # tolist (\<lambda>n. if n \<in> stops B then False else replicate (duration B) True ! n) (length (replicate (duration B) True))) ! Suc n = False" by simp
-qed
-*)
-
 end
 

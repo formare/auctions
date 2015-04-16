@@ -145,5 +145,9 @@ value "(listToBidMatrix E01)"
 value "size (livelinessList (listToBidMatrix E01))"
 value "stops (listToBidMatrix E01)"
 
+
+
+abbreviation "EX02 == [0::nat, 2, 4, 6, 8, 11, 12, 15]"
+
 end
 
