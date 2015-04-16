@@ -261,21 +261,13 @@ lemma lm24:
   shows "firstInvalidBidIndex0 step l = firstInvalidBidIndex1 step l"
 proof -
   let ?n = "size l" 
-  let ?l = "filterpositions2 (%x. x<step) (deltaBids l)"
-  have 1: "?n-(1::nat) = ?n-(1::int)" 
-    using assms One_nat_def eq_diff_eq length_tl list.collapse list.size(4) of_nat_1 of_nat_add 
-    by (metis (mono_tags, hide_lams) )
-  then have 2: "?l@[?n-(1::nat)] = ?l@[?n-(1::int)]"
-    proof -
-      have "map int (filterpositions2 (\<lambda>R. R < step) (deltaBids l)) @ [int (length l - 1)] = 
-            map int (filterpositions2 (\<lambda>R. R < step) (deltaBids l) @ [length l - 1])" by simp
-      thus "map int (filterpositions2 (\<lambda>x. x < step) (deltaBids l) @ [length l - 1]) = 
-            map int (filterpositions2 (\<lambda>x. x < step) (deltaBids l)) @ [int (length l) - 1]" 
-        by (metis "1") 
-   qed
-  then have "hd (?l@[?n-(1::nat)]) = hd (?l@[?n-(1::int)])" 
-    using 2 arg_cong 
-    by (metis append_Cons list.collapse list.simps(9) nth_Cons_0 self_append_conv2)
+  let ?l = "filterpositions2 (%x. x<step) (deltaBids l)" have 
+  0: "?n-(1::nat)=?n-(1::int)" using assms One_nat_def eq_diff_eq length_tl list.collapse 
+  list.size(4) of_nat_1 of_nat_add by (metis (mono_tags, hide_lams))
+  then have "(?l@[?n-(1::nat)]) = (?l@[?n-(1::int)])" using list.simps(8) 
+  list.simps(9) map_append by (metis (no_types, lifting))
+  then have "hd (?l@[?n-(1::nat)]) = hd (?l@[?n-(1::int)])" using 0 lm02 append_is_Nil_conv 
+  length_tl list.collapse list.sel(1) list.simps(9) not_Cons_self by (metis(lifting,no_types))
   thus ?thesis by linarith
 qed
 
