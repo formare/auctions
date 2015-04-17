@@ -54,6 +54,35 @@ export_code fst snd dynamicAuctionTerminatingExported in Scala
 export_code fst snd dynamicAuctionNonTerminatingExported in Scala 
             module_name dynamicAuctionNonTerminating
             file "/dev/shm/dynamicAuctionNonTerminating.scala"
+value "firstInvalidBidIndex0 2 []"
+value "pickParticipantBids [3] 1"
+definition "lastValidBidVector L == [
+(pickParticipantBids L i)!(firstInvalidBidIndex0 2 (pickParticipantBids L i) - 1)
+ . i <- [0..<hd L]]"
+value "lastValidBidVector [3::nat, 1, 2, 3,5,6,9]"
+definition "message l = 
+            ''Current winner: '' @ 
+            (Show.show (maxpositions (lastValidBidVector l))) @  
+            ''\<newline>'' @ 
+            ''Next, input bid for round ''@Show.show(roundForNextBidder l)@
+            '', participant '' @
+            (Show.show(nextBidder l))"
+
+definition "staticAuctionGeneric livelinessGeneric Z == 
+(String.implode (messageAfterEachBid (appendNewBid Z)),
+livelinessGeneric (appendNewBid Z), appendNewBid Z)"
+definition "staticAuctionThreshold step == staticAuctionGeneric 
+(%z. (\<exists> i \<in> {0..<hd z}. firstInvalidBidIndex0 step (pickParticipantBids z i)\<ge>size (pickParticipantBids z i)))"
+definition "dynamicAuctionThreshold input output == 
+   conditionalIterates (output o (staticAuctionThreshold 2) o input) (True,[])"
+
+definition "evaluateMe2  (input :: _)  (output:: _) = 
+            snd (output ( String.implode ''Starting\<newline>Input the number of bidders:'', True, []),
+                 dynamicAuctionThreshold input output)"
+
+export_code fst snd evaluateMe2 in Scala 
+            module_name a 
+            file "/dev/shm/a.scala"
 
 end
 
