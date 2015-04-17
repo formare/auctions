@@ -54,6 +54,9 @@ export_code fst snd dynamicAuctionTerminatingExported in Scala
 export_code fst snd dynamicAuctionNonTerminatingExported in Scala 
             module_name dynamicAuctionNonTerminating
             file "/dev/shm/dynamicAuctionNonTerminating.scala"
+
+
+
 value "firstInvalidBidIndex0 2 []"
 value "pickParticipantBids [3] 1"
 definition "lastValidBidVector L == [

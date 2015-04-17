@@ -47,7 +47,7 @@ primcorec conditionalIterates
 abbreviation "appendNewBid z == ((snd o snd) z) @ [(nat_of_integer o fst) z]"
 
 (* liveleness states whether the auction has terminated in the current round *)
-abbreviation "liveliness B == (livelinessList B) ! (size ((livelinessList B)) - (1))"
+abbreviation "liveliness B == (livelinessList B) ! (size ((livelinessList B)) - 1)"
 
 (* In the following we use a simple example of a static auction, which can be replaced by a more
    sophisticated one. Here it just prints the current state of the auction after each input bid. 
