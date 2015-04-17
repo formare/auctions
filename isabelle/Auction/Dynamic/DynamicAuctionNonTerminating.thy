@@ -1,3 +1,20 @@
+(*
+Auction Theory Toolbox (http://formare.github.io/auctions/)
+
+Authors:
+* Marco B. Caminati http://caminati.co.nr
+* Manfred Kerber <mnfrd.krbr@gmail.com>
+* Colin Rowat <c.rowat@bham.ac.uk>
+
+Dually licenced under
+* Creative Commons Attribution (CC-BY) 3.0
+* ISC License (1-clause BSD License)
+See LICENSE file for details
+(Rationale for this dual licence: http://arxiv.org/abs/1107.3212)
+*)
+
+
+
 theory DynamicAuctionNonTerminating
 imports
 

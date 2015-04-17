@@ -201,7 +201,7 @@ def unverifiedOutput[A](x: (String, A)) : A = {
 }
 
 def main(args: Array[String]) {
-	val x=evaluateMe2(unverifiedInput, unverifiedOutput);
+	val x=dynamicAuctionTerminatingExported(unverifiedInput, unverifiedOutput);
 }
 
 
@@ -260,7 +260,7 @@ def output[A](x: (String, A)) : A = {
 }
 
 def main(args: Array[String]) {
-	val x=evaluateMe2(input, output);
+	val x=dynamicAuctionTerminatingExported(input, output);
 }
 
 
