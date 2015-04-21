@@ -20,8 +20,8 @@ theory DynamicAuctionTerminating
 imports
 
 "DynamicAuctionCommon"
-"~~/src/afp/Coinductive/Coinductive_List"
-"~~/src/afp/Show/Show_Instances"
+"~/afp/Coinductive/Coinductive_List"
+"~/afp/Show/Show_Instances"
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
 
@@ -38,13 +38,6 @@ primcorec conditionalIterates
          (if   (fst x) 
           then (LCons x (conditionalIterates f (f x))) 
           else (LCons x LNil))"
-
-(* z is a pair consisting of the new bid value and a pair of a boolean (stating whether the
-   auction has not terminated in the previous round) and the flat list of all bids.
-   It appends the new bid to the end of the flat list of all bids and returns this. E.g.
-   z0 == (5::integer, (True, [3::nat,1,2,3])) then appendNewBid z0 returns [3, 1, 2, 3, 5].
- *)
-abbreviation "appendNewBid z == ((snd o snd) z) @ [(nat_of_integer o fst) z]"
 
 (* liveleness states whether the auction has terminated in the current round *)
 abbreviation "liveliness B == (livelinessList B) ! (size ((livelinessList B)) - 1)"
@@ -74,7 +67,6 @@ abbreviation "dynamicAuction input output ==
 
 
 
-section{* Theorems on terminating dynamic auctions *}
 
 (* pairWise applies an operator Op to two lists l and m pairwise and returns the corresponding
    results in a list, starting with 0 up to the point that one list runs out of elements. *)
@@ -84,6 +76,56 @@ abbreviation "pairWise Op l m ==
 (* If l is the list of bids by a single agent, then deltaBids will determine the difference
    between consecutive bids. *)
 abbreviation "deltaBids l ==  (pairWise (op -) (tl l) l)"
+
+(* firstInvalidBidIndex0 tells the first round in which a bidder does not increase their 
+   sufficiently in order to be an active participant. The bidder can after that no longer
+   change their final bid. It return 0 for the empty list.*)
+abbreviation "firstInvalidBidIndex0 step l == 
+nat (1 + hd (filterpositions2 (%x. x<step) (deltaBids l)@[size l- (1::int)]))"
+
+(* Same as above for non-empty lists, but returns 1 for empty list*)
+abbreviation "firstInvalidBidIndex1 step l == 
+1 + hd (filterpositions2 (%x. x<step) (deltaBids l)@[size l- (1::nat)])"
+
+(* Given a flat list L containing the bids from all participants in temporal order 
+(except for its head representing the number of participants), we compose the list containing 
+for each participant his last valid bid. If only the first n participants have submitted a bid, 
+the produced list will have n entries. 
+Obtaining a list of lists which is then flattened through concat 
+(as opposed to directly building the wanted list) permits to smoothly handle such a case, 
+in which some participants have not bid yet. 
+Note that to speak of a valid bid, you must have specified a minimal increase threshold.
+In this simple case, we assume this is the same for each participant, but in principle it could 
+be a list, so as to have different thresholds for different participants. *)
+definition "lastValidBidVector step L = 
+            concat [sublist (pickParticipantBids L i) 
+                            {firstInvalidBidIndex0 step (pickParticipantBids L i) - 1}
+                    . i <- [0..<hd L]]"
+
+definition "thresholdMessage step l = 
+            ''Current winner: '' @ 
+            (Show.show (maxpositions (lastValidBidVector step l))) @  
+            ''\<newline>'' @ 
+            ''Next, input bid for round ''@Show.show(roundForNextBidder l)@
+            '', participant '' @
+            (Show.show(nextBidder l))"
+
+definition "staticAuctionThreshold step = 
+staticAuctionGeneric (thresholdMessage step)
+                     (%z. (\<exists> i \<in> {0..<hd z}. firstInvalidBidIndex0 step (pickParticipantBids z i)
+                                              \<ge>size (pickParticipantBids z i)))"
+
+definition "dynamicAuctionThreshold step input output == 
+            conditionalIterates (output o (staticAuctionThreshold step) o input) (True,[])"
+
+definition "dynamicAuctionThresholdExported  (input :: _)  (output:: _) = 
+            snd (output ( String.implode ''Starting\<newline>Input the number of bidders:'', True, []),
+                 dynamicAuctionThreshold 2 input output)"
+
+
+
+section{* Theorems on terminating dynamic auctions *}
+
 
 lemma sizeTail: 
   "min (size (tl l)) (size l) = size l - (1::nat)" 
@@ -200,16 +242,6 @@ proof -
     using assms by fastforce
 qed
 
-(* firstInvalidBidIndex0 tells the first round in which a bidder does not increase their 
-   sufficiently in order to be an active participant. The bidder can after that no longer
-   change their final bid. It return 0 for the empty list.*)
-abbreviation "firstInvalidBidIndex0 step l == 
-nat (1 + hd (filterpositions2 (%x. x<step) (deltaBids l)@[size l- (1::int)]))"
-
-(* Same as above for non-empty lists, but returns 1 for empty list*)
-abbreviation "firstInvalidBidIndex1 step l == 
-1 + hd (filterpositions2 (%x. x<step) (deltaBids l)@[size l- (1::nat)])"
-
 (* For all indices smaller than the firstInvalidBidIndex1 the deltaBids entries are greater 
    than the step size. *)
 corollary deltaBidValidity: 
@@ -218,7 +250,7 @@ corollary deltaBidValidity:
   shows   "(deltaBids l)!m \<ge> step" using assms lm05
   by fastforce
 
-(* Auxiliary lemma for the following corolary. *)
+(* Auxiliary lemma for the following corollary. *)
 lemma lm06: 
   "hd ((filterpositions2 (%x. x < step) (deltaBids l)) @ [size l-(1::int)]) \<in> 
    {-1..(size l-(1::int))}" 
@@ -542,5 +574,6 @@ proof -
          add.commute assms(2) diff_zero length_replicate  monoid_add_class.add.right_neutral
          nth_Cons_Suc nth_map_upt override_on_def)
 qed
+
 end
 

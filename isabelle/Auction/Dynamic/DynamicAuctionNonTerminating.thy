@@ -19,7 +19,7 @@ theory DynamicAuctionNonTerminating
 imports
 
 "DynamicAuctionCommon"
-"~~/src/afp/Coinductive/Coinductive_List"
+"~/afp/Coinductive/Coinductive_List"
 "~~/src/HOL/Library/Code_Numeral"
 "~~/src/HOL/Library/Code_Char"
 

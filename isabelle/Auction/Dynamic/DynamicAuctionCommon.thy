@@ -19,7 +19,7 @@ theory DynamicAuctionCommon
 imports
 
 "~~/src/HOL/Library/Code_Target_Nat"
-"~~/src/afp/Show/Show_Instances"
+"~/afp/Show/Show_Instances"
 "../Vcg/MiscTools"
 
 begin
@@ -161,6 +161,17 @@ definition "messageAfterEachBid l =
             '', participant '' @
             (Show.show(nextBidder l))"
 
+
+(* z is a pair consisting of the new bid value and a pair of a boolean (stating whether the
+   auction has not terminated in the previous round) and the flat list of all bids.
+   It appends the new bid to the end of the flat list of all bids and returns this. E.g.
+   z0 == (5::integer, (True, [3::nat,1,2,3])) then appendNewBid z0 returns [3, 1, 2, 3, 5]. *)
+abbreviation "appendNewBid z == ((snd o snd) z) @ [(nat_of_integer o fst) z]"
+
+(* A generic engine taking arbitrary message and liveliness functions, with input and output
+suitable to be used inside the co-recursive framework introduced later in DynamicAuctionTerminating *)
+definition "staticAuctionGeneric message livelinessGeneric Z =
+            (String.implode (message (appendNewBid Z)), livelinessGeneric (appendNewBid Z), appendNewBid Z)"
 
 end
 
