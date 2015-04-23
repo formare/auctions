@@ -1,0 +1,901 @@
+% Could-be-implicit typings (18)
+tff(ty_n_t__fun_It__Set__Oset_It__Set__Oset_Itf__a_J_J_Mt__fun_It__Set__Oset_It__Set__Oset_Itf__a_J_J_Mt__Set__Oset_It__Set__Oset_Itf__a_J_J_J_J, type,
+    fun_se2141830932_set_a : $tType).
+tff(ty_n_t__fun_It__Set__Oset_Itf__a_J_Mt__fun_It__Set__Oset_Itf__a_J_Mt__Set__Oset_Itf__a_J_J_J, type,
+    fun_se1598405044_set_a : $tType).
+tff(ty_n_t__fun_It__Set__Oset_It__Set__Oset_Itf__a_J_J_Mt__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    fun_se1180259523_set_a : $tType).
+tff(ty_n_t__fun_It__Set__Oset_Itf__a_J_Mt__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    fun_set_a_set_set_a : $tType).
+tff(ty_n_t__Set__Oset_It__Set__Oset_It__Set__Oset_It__Set__Oset_Itf__a_J_J_J_J, type,
+    set_set_set_set_a : $tType).
+tff(ty_n_t__fun_It__Set__Oset_It__Set__Oset_Itf__a_J_J_Mt__Nat__Onat_J, type,
+    fun_set_set_a_nat : $tType).
+tff(ty_n_t__fun_It__Set__Oset_Itf__a_J_Mt__Set__Oset_Itf__a_J_J, type,
+    fun_set_a_set_a : $tType).
+tff(ty_n_t__Set__Oset_It__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    set_set_set_a : $tType).
+tff(ty_n_t__fun_It__Set__Oset_Itf__a_J_Mt__HOL__Obool_J, type,
+    fun_set_a_bool : $tType).
+tff(ty_n_t__fun_It__Set__Oset_Itf__a_J_Mt__Nat__Onat_J, type,
+    fun_set_a_nat : $tType).
+tff(ty_n_t__List__Olist_It__Set__Oset_Itf__a_J_J, type,
+    list_set_a : $tType).
+tff(ty_n_t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    set_set_a : $tType).
+tff(ty_n_t__fun_Itf__a_Mt__HOL__Obool_J, type,
+    fun_a_bool : $tType).
+tff(ty_n_t__fun_Itf__a_Mt__Nat__Onat_J, type,
+    fun_a_nat : $tType).
+tff(ty_n_t__Set__Oset_Itf__a_J, type,
+    set_a : $tType).
+tff(ty_n_t__HOL__Obool, type,
+    bool : $tType).
+tff(ty_n_t__Nat__Onat, type,
+    nat : $tType).
+tff(ty_n_tf__a, type,
+    a : $tType).
+
+% Explicit typings (80)
+tff(sy_c_ATP_058Lamm__a____, type,
+    aTP_Lamm_a : set_set_a > fun_set_a_bool).
+tff(sy_c_Complete__Lattices_OSup__class_OSUPREMUM_001t__Set__Oset_Itf__a_J_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    comple859179328_set_a : (set_set_a * fun_set_a_set_set_a) > set_set_a).
+tff(sy_c_Complete__Lattices_OSup__class_OSup_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    comple968993579_set_a : set_set_set_a > set_set_a).
+tff(sy_c_Complete__Lattices_OSup__class_OSup_001t__Set__Oset_Itf__a_J, type,
+    comple1766734283_set_a : set_set_a > set_a).
+tff(sy_c_Finite__Set_Ocard_001t__Set__Oset_Itf__a_J, type,
+    finite_card_set_a : fun_set_set_a_nat).
+tff(sy_c_Finite__Set_Ocard_001tf__a, type,
+    finite_card_a : fun_set_a_nat).
+tff(sy_c_Finite__Set_Ofinite_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    finite1606323175_set_a : set_set_set_a > $o).
+tff(sy_c_Finite__Set_Ofinite_001t__Set__Oset_Itf__a_J, type,
+    finite_finite_set_a : set_set_a > $o).
+tff(sy_c_Finite__Set_Ofinite_001tf__a, type,
+    finite_finite_a : fun_set_a_bool).
+tff(sy_c_Groups_Ominus__class_Ominus_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    minus_1444187941_set_a : fun_se2141830932_set_a).
+tff(sy_c_Groups_Ominus__class_Ominus_001t__Set__Oset_Itf__a_J, type,
+    minus_minus_set_a : fun_se1598405044_set_a).
+tff(sy_c_Groups_Oplus__class_Oplus_001t__Nat__Onat, type,
+    plus_plus_nat : (nat * nat) > nat).
+tff(sy_c_Groups_Ouminus__class_Ouminus_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    uminus1261309877_set_a : set_set_a > set_set_a).
+tff(sy_c_Groups_Ozero__class_Ozero_001t__Nat__Onat, type,
+    zero_zero_nat : nat).
+tff(sy_c_Groups__Big_Ocomm__monoid__add__class_Osetsum_001t__Set__Oset_It__Set__Oset_Itf__a_J_J_001t__Nat__Onat, type,
+    groups1281204852_a_nat : (fun_set_set_a_nat * set_set_set_a) > nat).
+tff(sy_c_Groups__Big_Ocomm__monoid__add__class_Osetsum_001t__Set__Oset_Itf__a_J_001t__Nat__Onat, type,
+    groups488050964_a_nat : (fun_set_a_nat * set_set_a) > nat).
+tff(sy_c_Groups__Big_Ocomm__monoid__add__class_Osetsum_001tf__a_001t__Nat__Onat, type,
+    groups1269595060_a_nat : fun_a_nat > fun_set_a_nat).
+tff(sy_c_Lattices_Oinf__class_Oinf_001t__Set__Oset_It__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    inf_in1178296588_set_a : (set_set_set_a * set_set_set_a) > set_set_set_a).
+tff(sy_c_Lattices_Oinf__class_Oinf_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    inf_inf_set_set_a : fun_se2141830932_set_a).
+tff(sy_c_Lattices_Oinf__class_Oinf_001t__Set__Oset_Itf__a_J, type,
+    inf_inf_set_a : fun_se1598405044_set_a).
+tff(sy_c_Lattices_Oinf__class_Oinf_001t__fun_It__Set__Oset_Itf__a_J_Mt__HOL__Obool_J, type,
+    inf_in1265702286a_bool : (fun_set_a_bool * fun_set_a_bool) > fun_set_a_bool).
+tff(sy_c_Lattices_Oinf__class_Oinf_001t__fun_Itf__a_Mt__HOL__Obool_J, type,
+    inf_inf_fun_a_bool : (fun_a_bool * fun_a_bool) > fun_a_bool).
+tff(sy_c_Lattices_Osup__class_Osup_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    sup_sup_set_set_a : fun_se2141830932_set_a).
+tff(sy_c_Lattices_Osup__class_Osup_001t__Set__Oset_Itf__a_J, type,
+    sup_sup_set_a : fun_se1598405044_set_a).
+tff(sy_c_List_Odistinct_001t__Set__Oset_Itf__a_J, type,
+    distinct_set_a : list_set_a > $o).
+tff(sy_c_List_Olist_OCons_001t__Set__Oset_Itf__a_J, type,
+    cons_set_a : (set_a * list_set_a) > list_set_a).
+tff(sy_c_List_Olist_Oset_001t__Set__Oset_Itf__a_J, type,
+    set_set_a2 : list_set_a > set_set_a).
+tff(sy_c_Nat_OSuc, type,
+    suc : nat > nat).
+tff(sy_c_Orderings_Obot__class_Obot_001t__Set__Oset_It__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    bot_bo1264989578_set_a : set_set_set_a).
+tff(sy_c_Orderings_Obot__class_Obot_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    bot_bot_set_set_a : set_set_a).
+tff(sy_c_Orderings_Obot__class_Obot_001t__Set__Oset_Itf__a_J, type,
+    bot_bot_set_a : set_a).
+tff(sy_c_Orderings_Obot__class_Obot_001t__fun_It__Set__Oset_Itf__a_J_Mt__HOL__Obool_J, type,
+    bot_bo1386472592a_bool : fun_set_a_bool).
+tff(sy_c_Orderings_Obot__class_Obot_001t__fun_Itf__a_Mt__HOL__Obool_J, type,
+    bot_bot_fun_a_bool : fun_a_bool).
+tff(sy_c_Orderings_Oord__class_Oless_001t__Nat__Onat, type,
+    ord_less_nat : (nat * nat) > $o).
+tff(sy_c_Orderings_Oord__class_Oless_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    ord_less_set_set_a : (set_set_a * set_set_a) > $o).
+tff(sy_c_Orderings_Oord__class_Oless__eq_001t__Nat__Onat, type,
+    ord_less_eq_nat : (nat * nat) > $o).
+tff(sy_c_Orderings_Oord__class_Oless__eq_001t__Set__Oset_It__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    ord_le2103863998_set_a : (set_set_set_a * set_set_set_a) > $o).
+tff(sy_c_Orderings_Oord__class_Oless__eq_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    ord_le318720350_set_a : (set_set_a * set_set_a) > $o).
+tff(sy_c_Orderings_Oord__class_Oless__eq_001t__Set__Oset_Itf__a_J, type,
+    ord_less_eq_set_a : set_a > fun_set_a_bool).
+tff(sy_c_Orderings_Otop__class_Otop_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    top_top_set_set_a : set_set_a).
+tff(sy_c_Orderings_Otop__class_Otop_001t__Set__Oset_Itf__a_J, type,
+    top_top_set_a : set_a).
+tff(sy_c_Partitions_Ois__non__overlapping_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    is_non1591609618_set_a : set_set_set_set_a > $o).
+tff(sy_c_Partitions_Ois__non__overlapping_001t__Set__Oset_Itf__a_J, type,
+    is_non364753842_set_a : set_set_set_a > $o).
+tff(sy_c_Partitions_Ois__non__overlapping_001tf__a, type,
+    is_non_overlapping_a : set_set_a > $o).
+tff(sy_c_SetUtils_Otrivial_001t__Set__Oset_Itf__a_J, type,
+    trivial_set_a : set_set_a > $o).
+tff(sy_c_SetUtils_Otrivial_001tf__a, type,
+    trivial_a : fun_set_a_bool).
+tff(sy_c_Set_OCollect_001t__Set__Oset_Itf__a_J, type,
+    collect_set_a : fun_set_a_bool > set_set_a).
+tff(sy_c_Set_OCollect_001tf__a, type,
+    collect_a : fun_a_bool > set_a).
+tff(sy_c_Set_OPow_001t__Set__Oset_Itf__a_J, type,
+    pow_set_a : set_set_a > set_set_set_a).
+tff(sy_c_Set_OPow_001tf__a, type,
+    pow_a : fun_set_a_set_set_a).
+tff(sy_c_Set_Oimage_001t__Set__Oset_Itf__a_J_001t__Set__Oset_Itf__a_J, type,
+    image_set_a_set_a : (fun_set_a_set_a * set_set_a) > set_set_a).
+tff(sy_c_Set_Oinsert_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    insert_set_set_a : (set_set_a * set_set_set_a) > set_set_set_a).
+tff(sy_c_Set_Oinsert_001t__Set__Oset_Itf__a_J, type,
+    insert_set_a : (set_a * set_set_a) > set_set_a).
+tff(sy_c_Set_Oinsert_001tf__a, type,
+    insert_a : a > fun_set_a_set_a).
+tff(sy_c_Set_Ois__empty_001t__Set__Oset_Itf__a_J, type,
+    is_empty_set_a : set_set_a > $o).
+tff(sy_c_Set_Ois__empty_001tf__a, type,
+    is_empty_a : fun_set_a_bool).
+tff(sy_c_Set_Oremove_001t__Set__Oset_Itf__a_J, type,
+    remove_set_a : (set_a * set_set_a) > set_set_a).
+tff(sy_c_Set_Othe__elem_001t__Set__Oset_Itf__a_J, type,
+    the_elem_set_a : set_set_a > set_a).
+tff(sy_c_Set_Othe__elem_001tf__a, type,
+    the_elem_a : set_a > a).
+tff(sy_c_Set_Ovimage_001t__Set__Oset_Itf__a_J_001t__Set__Oset_Itf__a_J, type,
+    vimage_set_a_set_a : (fun_set_a_set_a * set_set_a) > set_set_a).
+tff(sy_c_Set__Interval_Oord__class_OatMost_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    set_or393464965_set_a : set_set_a > set_set_set_a).
+tff(sy_c_Set__Interval_Oord__class_OatMost_001t__Set__Oset_Itf__a_J, type,
+    set_ord_atMost_set_a : fun_set_a_set_set_a).
+tff(sy_c_aa_001t__Set__Oset_It__Set__Oset_Itf__a_J_J_001t__Nat__Onat, type,
+    aa_set_set_a_nat : (fun_set_set_a_nat * set_set_a) > nat).
+tff(sy_c_aa_001t__Set__Oset_It__Set__Oset_Itf__a_J_J_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    aa_set1291673148_set_a : (fun_se1180259523_set_a * set_set_a) > set_set_a).
+tff(sy_c_aa_001t__Set__Oset_It__Set__Oset_Itf__a_J_J_001t__fun_It__Set__Oset_It__Set__Oset_Itf__a_J_J_Mt__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    aa_set1672802245_set_a : (fun_se2141830932_set_a * set_set_a) > fun_se1180259523_set_a).
+tff(sy_c_aa_001t__Set__Oset_Itf__a_J_001t__HOL__Obool, type,
+    aa_set_a_bool : (fun_set_a_bool * set_a) > bool).
+tff(sy_c_aa_001t__Set__Oset_Itf__a_J_001t__Nat__Onat, type,
+    aa_set_a_nat : (fun_set_a_nat * set_a) > nat).
+tff(sy_c_aa_001t__Set__Oset_Itf__a_J_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    aa_set_a_set_set_a : (fun_set_a_set_set_a * set_a) > set_set_a).
+tff(sy_c_aa_001t__Set__Oset_Itf__a_J_001t__Set__Oset_Itf__a_J, type,
+    aa_set_a_set_a : (fun_set_a_set_a * set_a) > set_a).
+tff(sy_c_aa_001t__Set__Oset_Itf__a_J_001t__fun_It__Set__Oset_Itf__a_J_Mt__Set__Oset_Itf__a_J_J, type,
+    aa_set133540453_set_a : (fun_se1598405044_set_a * set_a) > fun_set_a_set_a).
+tff(sy_c_aa_001tf__a_001t__HOL__Obool, type,
+    aa_a_bool : (fun_a_bool * a) > bool).
+tff(sy_c_fFalse, type,
+    fFalse : bool).
+tff(sy_c_fTrue, type,
+    fTrue : bool).
+tff(sy_c_member_001t__Set__Oset_It__Set__Oset_It__Set__Oset_Itf__a_J_J_J, type,
+    member_set_set_set_a : (set_set_set_a * set_set_set_set_a) > $o).
+tff(sy_c_member_001t__Set__Oset_It__Set__Oset_Itf__a_J_J, type,
+    member_set_set_a : (set_set_a * set_set_set_a) > $o).
+tff(sy_c_member_001t__Set__Oset_Itf__a_J, type,
+    member_set_a : (set_a * set_set_a) > $o).
+tff(sy_c_member_001tf__a, type,
+    member_a : a > fun_set_a_bool).
+tff(sy_c_pp, type,
+    pp : bool > $o).
+tff(sy_v_P, type,
+    p : set_set_a).
+tff(sy_v_Q, type,
+    q : set_set_a).
+
+% Relevant facts (345)
+tff(fact_0_subset, axiom, % subset
+    (ord_le318720350_set_a(p, q))).
+tff(fact_1_non__overlapping, axiom, % non_overlapping
+    (is_non_overlapping_a(q))).
+tff(fact_2_is__non__overlapping__def, axiom, % is_non_overlapping_def
+    ((![P : set_set_set_set_a]: (is_non1591609618_set_a(P) <=> (![X : set_set_set_a]: (member_set_set_set_a(X, P) => (![Xa : set_set_set_a]: (member_set_set_set_a(Xa, P) => ((~ inf_in1178296588_set_a(X, Xa) = bot_bo1264989578_set_a) <=> X = Xa))))))))).
+tff(fact_3_is__non__overlapping__def, axiom, % is_non_overlapping_def
+    ((![P : set_set_set_a]: (is_non364753842_set_a(P) <=> (![X : set_set_a]: (member_set_set_a(X, P) => (![Xa : set_set_a]: (member_set_set_a(Xa, P) => ((~ aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X), Xa) = bot_bot_set_set_a) <=> X = Xa))))))))).
+tff(fact_4_is__non__overlapping__def, axiom, % is_non_overlapping_def
+    ((![P : set_set_a]: (is_non_overlapping_a(P) <=> (![X : set_a]: (member_set_a(X, P) => (![Xa : set_a]: (member_set_a(Xa, P) => ((~ aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X), Xa) = bot_bot_set_a) <=> X = Xa))))))))).
+tff(fact_5_empty__subsetI, axiom, % empty_subsetI
+    ((![A : set_set_set_a]: ord_le2103863998_set_a(bot_bo1264989578_set_a, A)))).
+tff(fact_6_empty__subsetI, axiom, % empty_subsetI
+    ((![A : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(bot_bot_set_a), A))))).
+tff(fact_7_empty__subsetI, axiom, % empty_subsetI
+    ((![A : set_set_a]: ord_le318720350_set_a(bot_bot_set_set_a, A)))).
+tff(fact_8_subset__eq, axiom, % subset_eq
+    ((![A : set_set_set_a, B : set_set_set_a]: (ord_le2103863998_set_a(A, B) <=> (![X : set_set_a]: (member_set_set_a(X, A) => member_set_set_a(X, B))))))).
+tff(fact_9_subset__eq, axiom, % subset_eq
+    ((![A : set_a, B : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), B)) <=> (![X : a]: (pp(aa_set_a_bool(member_a(X), A)) => pp(aa_set_a_bool(member_a(X), B)))))))).
+tff(fact_10_subset__eq, axiom, % subset_eq
+    ((![A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(A, B) <=> (![X : set_a]: (member_set_a(X, A) => member_set_a(X, B))))))).
+tff(fact_11_subsetI, axiom, % subsetI
+    ((![A : set_set_set_a, B : set_set_set_a]: ((![X2 : set_set_a]: (member_set_set_a(X2, A) => member_set_set_a(X2, B))) => ord_le2103863998_set_a(A, B))))).
+tff(fact_12_subsetI, axiom, % subsetI
+    ((![A : set_a, B : set_a]: ((![X2 : a]: (pp(aa_set_a_bool(member_a(X2), A)) => pp(aa_set_a_bool(member_a(X2), B)))) => pp(aa_set_a_bool(ord_less_eq_set_a(A), B)))))).
+tff(fact_13_subsetI, axiom, % subsetI
+    ((![A : set_set_a, B : set_set_a]: ((![X2 : set_a]: (member_set_a(X2, A) => member_set_a(X2, B))) => ord_le318720350_set_a(A, B))))).
+tff(fact_14_subset__iff, axiom, % subset_iff
+    ((![A : set_set_set_a, B : set_set_set_a]: (ord_le2103863998_set_a(A, B) <=> (![T : set_set_a]: (member_set_set_a(T, A) => member_set_set_a(T, B))))))).
+tff(fact_15_subset__iff, axiom, % subset_iff
+    ((![A : set_a, B : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), B)) <=> (![T : a]: (pp(aa_set_a_bool(member_a(T), A)) => pp(aa_set_a_bool(member_a(T), B)))))))).
+tff(fact_16_subset__iff, axiom, % subset_iff
+    ((![A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(A, B) <=> (![T : set_a]: (member_set_a(T, A) => member_set_a(T, B))))))).
+tff(fact_17_Int__subset__iff, axiom, % Int_subset_iff
+    ((![C : set_a, A : set_a, B : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(C), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B))) <=> (pp(aa_set_a_bool(ord_less_eq_set_a(C), A)) & pp(aa_set_a_bool(ord_less_eq_set_a(C), B))))))).
+tff(fact_18_Int__subset__iff, axiom, % Int_subset_iff
+    ((![C : set_set_a, A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(C, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)) <=> (ord_le318720350_set_a(C, A) & ord_le318720350_set_a(C, B)))))).
+tff(fact_19_subset__antisym, axiom, % subset_antisym
+    ((![A : set_a, B : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), B)) => (pp(aa_set_a_bool(ord_less_eq_set_a(B), A)) => A = B))))).
+tff(fact_20_subset__antisym, axiom, % subset_antisym
+    ((![A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(A, B) => (ord_le318720350_set_a(B, A) => A = B))))).
+tff(fact_21_IntI, axiom, % IntI
+    ((![C2 : set_set_a, A : set_set_set_a, B : set_set_set_a]: (member_set_set_a(C2, A) => (member_set_set_a(C2, B) => member_set_set_a(C2, inf_in1178296588_set_a(A, B))))))).
+tff(fact_22_IntI, axiom, % IntI
+    ((![C2 : a, A : set_a, B : set_a]: (pp(aa_set_a_bool(member_a(C2), A)) => (pp(aa_set_a_bool(member_a(C2), B)) => pp(aa_set_a_bool(member_a(C2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)))))))).
+tff(fact_23_IntI, axiom, % IntI
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, A) => (member_set_a(C2, B) => member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B))))))).
+tff(fact_24_subset__empty, axiom, % subset_empty
+    ((![A : set_set_set_a]: (ord_le2103863998_set_a(A, bot_bo1264989578_set_a) <=> A = bot_bo1264989578_set_a)))).
+tff(fact_25_subset__empty, axiom, % subset_empty
+    ((![A : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), bot_bot_set_a)) <=> A = bot_bot_set_a)))).
+tff(fact_26_subset__empty, axiom, % subset_empty
+    ((![A : set_set_a]: (ord_le318720350_set_a(A, bot_bot_set_set_a) <=> A = bot_bot_set_set_a)))).
+tff(fact_27_inf__bot__left, axiom, % inf_bot_left
+    ((![X3 : fun_set_a_bool]: inf_in1265702286a_bool(bot_bo1386472592a_bool, X3) = bot_bo1386472592a_bool))).
+tff(fact_28_inf__bot__left, axiom, % inf_bot_left
+    ((![X3 : fun_a_bool]: inf_inf_fun_a_bool(bot_bot_fun_a_bool, X3) = bot_bot_fun_a_bool))).
+tff(fact_29_inf__bot__left, axiom, % inf_bot_left
+    ((![X3 : set_set_set_a]: inf_in1178296588_set_a(bot_bo1264989578_set_a, X3) = bot_bo1264989578_set_a))).
+tff(fact_30_inf__bot__left, axiom, % inf_bot_left
+    ((![X3 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, bot_bot_set_a), X3) = bot_bot_set_a))).
+tff(fact_31_inf__bot__left, axiom, % inf_bot_left
+    ((![X3 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, bot_bot_set_set_a), X3) = bot_bot_set_set_a))).
+tff(fact_32_emptyE, axiom, % emptyE
+    ((![A2 : set_set_a]: (~ member_set_set_a(A2, bot_bo1264989578_set_a))))).
+tff(fact_33_emptyE, axiom, % emptyE
+    ((![A2 : a]: (~ pp(aa_set_a_bool(member_a(A2), bot_bot_set_a)))))).
+tff(fact_34_emptyE, axiom, % emptyE
+    ((![A2 : set_a]: (~ member_set_a(A2, bot_bot_set_set_a))))).
+tff(fact_35_empty__iff, axiom, % empty_iff
+    ((![C2 : set_set_a]: (~ member_set_set_a(C2, bot_bo1264989578_set_a))))).
+tff(fact_36_empty__iff, axiom, % empty_iff
+    ((![C2 : a]: (~ pp(aa_set_a_bool(member_a(C2), bot_bot_set_a)))))).
+tff(fact_37_empty__iff, axiom, % empty_iff
+    ((![C2 : set_a]: (~ member_set_a(C2, bot_bot_set_set_a))))).
+tff(fact_38_inf__bot__right, axiom, % inf_bot_right
+    ((![X3 : fun_set_a_bool]: inf_in1265702286a_bool(X3, bot_bo1386472592a_bool) = bot_bo1386472592a_bool))).
+tff(fact_39_inf__bot__right, axiom, % inf_bot_right
+    ((![X3 : fun_a_bool]: inf_inf_fun_a_bool(X3, bot_bot_fun_a_bool) = bot_bot_fun_a_bool))).
+tff(fact_40_inf__bot__right, axiom, % inf_bot_right
+    ((![X3 : set_set_set_a]: inf_in1178296588_set_a(X3, bot_bo1264989578_set_a) = bot_bo1264989578_set_a))).
+tff(fact_41_inf__bot__right, axiom, % inf_bot_right
+    ((![X3 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), bot_bot_set_a) = bot_bot_set_a))).
+tff(fact_42_inf__bot__right, axiom, % inf_bot_right
+    ((![X3 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), bot_bot_set_set_a) = bot_bot_set_set_a))).
+tff(fact_43_singletonD, axiom, % singletonD
+    ((![B2 : set_set_a, A2 : set_set_a]: (member_set_set_a(B2, insert_set_set_a(A2, bot_bo1264989578_set_a)) => B2 = A2)))).
+tff(fact_44_singletonD, axiom, % singletonD
+    ((![B2 : a, A2 : a]: (pp(aa_set_a_bool(member_a(B2), aa_set_a_set_a(insert_a(A2), bot_bot_set_a))) => B2 = A2)))).
+tff(fact_45_singletonD, axiom, % singletonD
+    ((![B2 : set_a, A2 : set_a]: (member_set_a(B2, insert_set_a(A2, bot_bot_set_set_a)) => B2 = A2)))).
+tff(fact_46_Int__iff, axiom, % Int_iff
+    ((![C2 : set_set_a, A : set_set_set_a, B : set_set_set_a]: (member_set_set_a(C2, inf_in1178296588_set_a(A, B)) <=> (member_set_set_a(C2, A) & member_set_set_a(C2, B)))))).
+tff(fact_47_Int__iff, axiom, % Int_iff
+    ((![C2 : a, A : set_a, B : set_a]: (pp(aa_set_a_bool(member_a(C2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B))) <=> (pp(aa_set_a_bool(member_a(C2), A)) & pp(aa_set_a_bool(member_a(C2), B))))))).
+tff(fact_48_Int__iff, axiom, % Int_iff
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)) <=> (member_set_a(C2, A) & member_set_a(C2, B)))))).
+tff(fact_49_inf_Obounded__iff, axiom, % inf.bounded_iff
+    ((![A2 : set_a, B2 : set_a, C2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), C2))) <=> (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) & pp(aa_set_a_bool(ord_less_eq_set_a(A2), C2))))))).
+tff(fact_50_inf_Obounded__iff, axiom, % inf.bounded_iff
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: (ord_le318720350_set_a(A2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), C2)) <=> (ord_le318720350_set_a(A2, B2) & ord_le318720350_set_a(A2, C2)))))).
+tff(fact_51_inf_Oidem, axiom, % inf.idem
+    ((![A2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), A2) = A2))).
+tff(fact_52_inf_Oidem, axiom, % inf.idem
+    ((![A2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), A2) = A2))).
+tff(fact_53_all__not__in__conv, axiom, % all_not_in_conv
+    ((![A : set_a]: ((![X : a]: (~ pp(aa_set_a_bool(member_a(X), A)))) <=> A = bot_bot_set_a)))).
+tff(fact_54_all__not__in__conv, axiom, % all_not_in_conv
+    ((![A : set_set_a]: ((![X : set_a]: (~ member_set_a(X, A))) <=> A = bot_bot_set_set_a)))).
+tff(fact_55_le__inf__iff, axiom, % le_inf_iff
+    ((![X3 : set_a, Y : set_a, Z : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), Z))) <=> (pp(aa_set_a_bool(ord_less_eq_set_a(X3), Y)) & pp(aa_set_a_bool(ord_less_eq_set_a(X3), Z))))))).
+tff(fact_56_le__inf__iff, axiom, % le_inf_iff
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: (ord_le318720350_set_a(X3, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), Z)) <=> (ord_le318720350_set_a(X3, Y) & ord_le318720350_set_a(X3, Z)))))).
+tff(fact_57_mem__Collect__eq, axiom, % mem_Collect_eq
+    ((![A2 : set_a, P : fun_set_a_bool]: (member_set_a(A2, collect_set_a(P)) <=> pp(aa_set_a_bool(P, A2)))))).
+tff(fact_58_subsetCE, axiom, % subsetCE
+    ((![A : set_set_a, B : set_set_a, C2 : set_a]: (ord_le318720350_set_a(A, B) => (member_set_a(C2, A) => member_set_a(C2, B)))))).
+tff(fact_59_IntE, axiom, % IntE
+    ((![C2 : a, A : set_a, B : set_a]: (pp(aa_set_a_bool(member_a(C2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B))) => (~ (pp(aa_set_a_bool(member_a(C2), A)) => (~ pp(aa_set_a_bool(member_a(C2), B))))))))).
+tff(fact_60_IntE, axiom, % IntE
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)) => (~ (member_set_a(C2, A) => (~ member_set_a(C2, B)))))))).
+tff(fact_61_equalityCE, axiom, % equalityCE
+    ((![A : set_set_a, B : set_set_a, C2 : set_a]: (A = B => ((member_set_a(C2, A) => (~ member_set_a(C2, B))) => (~ ((~ member_set_a(C2, A)) => member_set_a(C2, B)))))))).
+tff(fact_62_subsetD, axiom, % subsetD
+    ((![A : set_set_a, B : set_set_a, C2 : set_a]: (ord_le318720350_set_a(A, B) => (member_set_a(C2, A) => member_set_a(C2, B)))))).
+tff(fact_63_insertCI, axiom, % insertCI
+    ((![A2 : set_a, B : set_set_a, B2 : set_a]: (((~ member_set_a(A2, B)) => A2 = B2) => member_set_a(A2, insert_set_a(B2, B)))))).
+tff(fact_64_bspec, axiom, % bspec
+    ((![A : set_set_a, P : fun_set_a_bool, X3 : set_a]: ((![X2 : set_a]: (member_set_a(X2, A) => pp(aa_set_a_bool(P, X2)))) => (member_set_a(X3, A) => pp(aa_set_a_bool(P, X3))))))).
+tff(fact_65_inf__right__idem, axiom, % inf_right_idem
+    ((![X3 : set_a, Y : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), Y) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)))).
+tff(fact_66_inf__right__idem, axiom, % inf_right_idem
+    ((![X3 : set_set_a, Y : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)), Y) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)))).
+tff(fact_67_subset__refl, axiom, % subset_refl
+    ((![A : set_set_a]: ord_le318720350_set_a(A, A)))).
+tff(fact_68_UnionI, axiom, % UnionI
+    ((![X4 : set_set_a, C : set_set_set_a, A : set_a]: (member_set_set_a(X4, C) => (member_set_a(A, X4) => member_set_a(A, comple968993579_set_a(C))))))).
+tff(fact_69_UnionI, axiom, % UnionI
+    ((![X4 : set_a, C : set_set_a, A : a]: (member_set_a(X4, C) => (pp(aa_set_a_bool(member_a(A), X4)) => pp(aa_set_a_bool(member_a(A), comple1766734283_set_a(C)))))))).
+tff(fact_70_inf_Oright__idem, axiom, % inf.right_idem
+    ((![A2 : set_a, B2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), B2) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)))).
+tff(fact_71_inf_Oright__idem, axiom, % inf.right_idem
+    ((![A2 : set_set_a, B2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2)), B2) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2)))).
+tff(fact_72_insert__iff, axiom, % insert_iff
+    ((![A2 : set_a, B2 : set_a, A : set_set_a]: (member_set_a(A2, insert_set_a(B2, A)) <=> (A2 = B2 | member_set_a(A2, A)))))).
+tff(fact_73_empty__Collect__eq, axiom, % empty_Collect_eq
+    ((![P : fun_a_bool]: (bot_bot_set_a = collect_a(P) <=> (![X : a]: (~ pp(aa_a_bool(P, X)))))))).
+tff(fact_74_empty__Collect__eq, axiom, % empty_Collect_eq
+    ((![P : fun_set_a_bool]: (bot_bot_set_set_a = collect_set_a(P) <=> (![X : set_a]: (~ pp(aa_set_a_bool(P, X)))))))).
+tff(fact_75_Collect__empty__eq, axiom, % Collect_empty_eq
+    ((![P : fun_a_bool]: (collect_a(P) = bot_bot_set_a <=> (![X : a]: (~ pp(aa_a_bool(P, X)))))))).
+tff(fact_76_Collect__empty__eq, axiom, % Collect_empty_eq
+    ((![P : fun_set_a_bool]: (collect_set_a(P) = bot_bot_set_set_a <=> (![X : set_a]: (~ pp(aa_set_a_bool(P, X)))))))).
+tff(fact_77_singletonI, axiom, % singletonI
+    ((![A2 : a]: pp(aa_set_a_bool(member_a(A2), aa_set_a_set_a(insert_a(A2), bot_bot_set_a)))))).
+tff(fact_78_singletonI, axiom, % singletonI
+    ((![A2 : set_a]: member_set_a(A2, insert_set_a(A2, bot_bot_set_set_a))))).
+tff(fact_79_insertE, axiom, % insertE
+    ((![A2 : set_a, B2 : set_a, A : set_set_a]: (member_set_a(A2, insert_set_a(B2, A)) => ((~ A2 = B2) => member_set_a(A2, A)))))).
+tff(fact_80_contra__subsetD, axiom, % contra_subsetD
+    ((![A : set_set_a, B : set_set_a, C2 : set_a]: (ord_le318720350_set_a(A, B) => ((~ member_set_a(C2, B)) => (~ member_set_a(C2, A))))))).
+tff(fact_81_in__mono, axiom, % in_mono
+    ((![A : set_set_a, B : set_set_a, X3 : set_a]: (ord_le318720350_set_a(A, B) => (member_set_a(X3, A) => member_set_a(X3, B)))))).
+tff(fact_82_DiffE, axiom, % DiffE
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), B)) => (~ (member_set_a(C2, A) => member_set_a(C2, B))))))).
+tff(fact_83_equals0D, axiom, % equals0D
+    ((![A : set_a, A2 : a]: (A = bot_bot_set_a => (~ pp(aa_set_a_bool(member_a(A2), A))))))).
+tff(fact_84_equals0D, axiom, % equals0D
+    ((![A : set_set_a, A2 : set_a]: (A = bot_bot_set_set_a => (~ member_set_a(A2, A)))))).
+tff(fact_85_ex__in__conv, axiom, % ex_in_conv
+    ((![A : set_a]: ((?[X : a]: pp(aa_set_a_bool(member_a(X), A))) <=> (~ A = bot_bot_set_a))))).
+tff(fact_86_ex__in__conv, axiom, % ex_in_conv
+    ((![A : set_set_a]: ((?[X : set_a]: member_set_a(X, A)) <=> (~ A = bot_bot_set_set_a))))).
+tff(fact_87_rev__subsetD, axiom, % rev_subsetD
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, A) => (ord_le318720350_set_a(A, B) => member_set_a(C2, B)))))).
+tff(fact_88_DiffI, axiom, % DiffI
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, A) => ((~ member_set_a(C2, B)) => member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), B))))))).
+tff(fact_89_set__rev__mp, axiom, % set_rev_mp
+    ((![X3 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(X3, A) => (ord_le318720350_set_a(A, B) => member_set_a(X3, B)))))).
+tff(fact_90_Diff__iff, axiom, % Diff_iff
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), B)) <=> (member_set_a(C2, A) & (~ member_set_a(C2, B))))))).
+tff(fact_91_inf__idem, axiom, % inf_idem
+    ((![X3 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), X3) = X3))).
+tff(fact_92_inf__idem, axiom, % inf_idem
+    ((![X3 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), X3) = X3))).
+tff(fact_93_insert__not__empty, axiom, % insert_not_empty
+    ((![A2 : a, A : set_a]: (~ aa_set_a_set_a(insert_a(A2), A) = bot_bot_set_a)))).
+tff(fact_94_insert__not__empty, axiom, % insert_not_empty
+    ((![A2 : set_a, A : set_set_a]: (~ insert_set_a(A2, A) = bot_bot_set_set_a)))).
+tff(fact_95_bot__set__def, axiom, % bot_set_def
+    (bot_bot_set_a = collect_a(bot_bot_fun_a_bool))).
+tff(fact_96_bot__set__def, axiom, % bot_set_def
+    (bot_bot_set_set_a = collect_set_a(bot_bo1386472592a_bool))).
+tff(fact_97_order__refl, axiom, % order_refl
+    ((![X3 : set_set_a]: ord_le318720350_set_a(X3, X3)))).
+tff(fact_98_Int__commute, axiom, % Int_commute
+    ((![A : set_a, B : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B), A)))).
+tff(fact_99_Int__commute, axiom, % Int_commute
+    ((![A : set_set_a, B : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B), A)))).
+tff(fact_100_inf_Oleft__idem, axiom, % inf.left_idem
+    ((![A2 : set_a, B2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)))).
+tff(fact_101_inf_Oleft__idem, axiom, % inf.left_idem
+    ((![A2 : set_set_a, B2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2)))).
+tff(fact_102_Int__absorb, axiom, % Int_absorb
+    ((![A : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), A) = A))).
+tff(fact_103_Int__absorb, axiom, % Int_absorb
+    ((![A : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), A) = A))).
+tff(fact_104_equals0I, axiom, % equals0I
+    ((![A : set_a]: ((![Y2 : a]: (~ pp(aa_set_a_bool(member_a(Y2), A)))) => A = bot_bot_set_a)))).
+tff(fact_105_equals0I, axiom, % equals0I
+    ((![A : set_set_a]: ((![Y2 : set_a]: (~ member_set_a(Y2, A))) => A = bot_bot_set_set_a)))).
+tff(fact_106_inf__left__idem, axiom, % inf_left_idem
+    ((![X3 : set_a, Y : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)))).
+tff(fact_107_inf__left__idem, axiom, % inf_left_idem
+    ((![X3 : set_set_a, Y : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)))).
+tff(fact_108_imageE, axiom, % imageE
+    ((![B2 : set_a, F : fun_set_a_set_a, A : set_set_a]: (member_set_a(B2, image_set_a_set_a(F, A)) => (~ (![X2 : set_a]: (B2 = aa_set_a_set_a(F, X2) => (~ member_set_a(X2, A))))))))).
+tff(fact_109_disjoint__iff__not__equal, axiom, % disjoint_iff_not_equal
+    ((![A : set_a, B : set_a]: (aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B) = bot_bot_set_a <=> (![X : a]: (pp(aa_set_a_bool(member_a(X), A)) => (![Xa : a]: (pp(aa_set_a_bool(member_a(Xa), B)) => (~ X = Xa))))))))).
+tff(fact_110_disjoint__iff__not__equal, axiom, % disjoint_iff_not_equal
+    ((![A : set_set_a, B : set_set_a]: (aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B) = bot_bot_set_set_a <=> (![X : set_a]: (member_set_a(X, A) => (![Xa : set_a]: (member_set_a(Xa, B) => (~ X = Xa))))))))).
+tff(fact_111_bot_Oextremum, axiom, % bot.extremum
+    ((![A2 : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(bot_bot_set_a), A2))))).
+tff(fact_112_bot_Oextremum, axiom, % bot.extremum
+    ((![A2 : set_set_a]: ord_le318720350_set_a(bot_bot_set_set_a, A2)))).
+tff(fact_113_Int__insert__left__if0, axiom, % Int_insert_left_if0
+    ((![A2 : a, C : set_a, B : set_a]: ((~ pp(aa_set_a_bool(member_a(A2), C))) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(insert_a(A2), B)), C) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B), C))))).
+tff(fact_114_Int__insert__left__if0, axiom, % Int_insert_left_if0
+    ((![A2 : set_a, C : set_set_a, B : set_set_a]: ((~ member_set_a(A2, C)) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, insert_set_a(A2, B)), C) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B), C))))).
+tff(fact_115_subset__trans, axiom, % subset_trans
+    ((![A : set_set_a, B : set_set_a, C : set_set_a]: (ord_le318720350_set_a(A, B) => (ord_le318720350_set_a(B, C) => ord_le318720350_set_a(A, C)))))).
+tff(fact_116_Int__absorb2, axiom, % Int_absorb2
+    ((![A : set_a, B : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), B)) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B) = A)))).
+tff(fact_117_Int__absorb2, axiom, % Int_absorb2
+    ((![A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(A, B) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B) = A)))).
+tff(fact_118_sup__bot_Oright__neutral, axiom, % sup_bot.right_neutral
+    ((![A2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(sup_sup_set_a, A2), bot_bot_set_a) = A2))).
+tff(fact_119_sup__bot_Oright__neutral, axiom, % sup_bot.right_neutral
+    ((![A2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A2), bot_bot_set_set_a) = A2))).
+tff(fact_120_UnionE, axiom, % UnionE
+    ((![A : a, C : set_set_a]: (pp(aa_set_a_bool(member_a(A), comple1766734283_set_a(C))) => (~ (![X5 : set_a]: (pp(aa_set_a_bool(member_a(A), X5)) => (~ member_set_a(X5, C))))))))).
+tff(fact_121_UnionE, axiom, % UnionE
+    ((![A : set_a, C : set_set_set_a]: (member_set_a(A, comple968993579_set_a(C)) => (~ (![X5 : set_set_a]: (member_set_a(A, X5) => (~ member_set_set_a(X5, C))))))))).
+tff(fact_122_Collect__mono, axiom, % Collect_mono
+    ((![P : fun_set_a_bool, Q : fun_set_a_bool]: ((![X2 : set_a]: (pp(aa_set_a_bool(P, X2)) => pp(aa_set_a_bool(Q, X2)))) => ord_le318720350_set_a(collect_set_a(P), collect_set_a(Q)))))).
+tff(fact_123_set__mp, axiom, % set_mp
+    ((![A : set_set_a, B : set_set_a, X3 : set_a]: (ord_le318720350_set_a(A, B) => (member_set_a(X3, A) => member_set_a(X3, B)))))).
+tff(fact_124_inf_Oabsorb1, axiom, % inf.absorb1
+    ((![A2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2) = A2)))).
+tff(fact_125_inf_Oabsorb1, axiom, % inf.absorb1
+    ((![A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, B2) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2) = A2)))).
+tff(fact_126_member__remove, axiom, % member_remove
+    ((![X3 : set_a, Y : set_a, A : set_set_a]: (member_set_a(X3, remove_set_a(Y, A)) <=> (member_set_a(X3, A) & (~ X3 = Y)))))).
+tff(fact_127_insert__subset, axiom, % insert_subset
+    ((![X3 : set_a, A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(insert_set_a(X3, A), B) <=> (member_set_a(X3, B) & ord_le318720350_set_a(A, B)))))).
+tff(fact_128_equalityE, axiom, % equalityE
+    ((![A : set_set_a, B : set_set_a]: (A = B => (~ (ord_le318720350_set_a(A, B) => (~ ord_le318720350_set_a(B, A)))))))).
+tff(fact_129_IntD2, axiom, % IntD2
+    ((![C2 : a, A : set_a, B : set_a]: (pp(aa_set_a_bool(member_a(C2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B))) => pp(aa_set_a_bool(member_a(C2), B)))))).
+tff(fact_130_IntD2, axiom, % IntD2
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)) => member_set_a(C2, B))))).
+tff(fact_131_equalityD1, axiom, % equalityD1
+    ((![A : set_set_a, B : set_set_a]: (A = B => ord_le318720350_set_a(A, B))))).
+tff(fact_132_inf__commute, axiom, % inf_commute
+    ((![X3 : set_a, Y : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), X3)))).
+tff(fact_133_inf__commute, axiom, % inf_commute
+    ((![X3 : set_set_a, Y : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), X3)))).
+tff(fact_134_ballE, axiom, % ballE
+    ((![A : set_set_a, P : fun_set_a_bool, X3 : set_a]: ((![X2 : set_a]: (member_set_a(X2, A) => pp(aa_set_a_bool(P, X2)))) => ((~ pp(aa_set_a_bool(P, X3))) => (~ member_set_a(X3, A))))))).
+tff(fact_135_equalityD2, axiom, % equalityD2
+    ((![A : set_set_a, B : set_set_a]: (A = B => ord_le318720350_set_a(B, A))))).
+tff(fact_136_set__eq__subset, axiom, % set_eq_subset
+    ((![A : set_set_a, B : set_set_a]: (A = B <=> (ord_le318720350_set_a(A, B) & ord_le318720350_set_a(B, A)))))).
+tff(fact_137_image__eqI, axiom, % image_eqI
+    ((![B2 : set_a, F : fun_set_a_set_a, X3 : set_a, A : set_set_a]: (B2 = aa_set_a_set_a(F, X3) => (member_set_a(X3, A) => member_set_a(B2, image_set_a_set_a(F, A))))))).
+tff(fact_138_inf_Ocommute, axiom, % inf.commute
+    ((![A2 : set_a, B2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), A2)))).
+tff(fact_139_inf_Ocommute, axiom, % inf.commute
+    ((![A2 : set_set_a, B2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), A2)))).
+tff(fact_140_vimage__eq, axiom, % vimage_eq
+    ((![A2 : set_a, F : fun_set_a_set_a, B : set_set_a]: (member_set_a(A2, vimage_set_a_set_a(F, B)) <=> member_set_a(aa_set_a_set_a(F, A2), B))))).
+tff(fact_141_Diff__disjoint, axiom, % Diff_disjoint
+    ((![A : set_a, B : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, B), A)) = bot_bot_set_a))).
+tff(fact_142_Diff__disjoint, axiom, % Diff_disjoint
+    ((![A : set_set_a, B : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, B), A)) = bot_bot_set_set_a))).
+tff(fact_143_Union__iff, axiom, % Union_iff
+    ((![A : set_a, C : set_set_set_a]: (member_set_a(A, comple968993579_set_a(C)) <=> (?[X : set_set_a]: (member_set_set_a(X, C) & member_set_a(A, X))))))).
+tff(fact_144_Collect__mem__eq, axiom, % Collect_mem_eq
+    ((![A : set_set_a]: collect_set_a(aTP_Lamm_a(A)) = A))).
+tff(fact_145_vimageE, axiom, % vimageE
+    ((![A2 : set_a, F : fun_set_a_set_a, B : set_set_a]: (member_set_a(A2, vimage_set_a_set_a(F, B)) => member_set_a(aa_set_a_set_a(F, A2), B))))).
+tff(fact_146_Int__insert__right__if0, axiom, % Int_insert_right_if0
+    ((![A2 : a, A : set_a, B : set_a]: ((~ pp(aa_set_a_bool(member_a(A2), A))) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), aa_set_a_set_a(insert_a(A2), B)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B))))).
+tff(fact_147_Int__insert__right__if0, axiom, % Int_insert_right_if0
+    ((![A2 : set_a, A : set_set_a, B : set_set_a]: ((~ member_set_a(A2, A)) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), insert_set_a(A2, B)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B))))).
+tff(fact_148_IntD1, axiom, % IntD1
+    ((![C2 : a, A : set_a, B : set_a]: (pp(aa_set_a_bool(member_a(C2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B))) => pp(aa_set_a_bool(member_a(C2), A)))))).
+tff(fact_149_IntD1, axiom, % IntD1
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)) => member_set_a(C2, A))))).
+tff(fact_150_empty__Diff, axiom, % empty_Diff
+    ((![A : set_a]: aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, bot_bot_set_a), A) = bot_bot_set_a))).
+tff(fact_151_empty__Diff, axiom, % empty_Diff
+    ((![A : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, bot_bot_set_set_a), A) = bot_bot_set_set_a))).
+tff(fact_152_UNIV__not__empty, axiom, % UNIV_not_empty
+    ((~ top_top_set_a = bot_bot_set_a))).
+tff(fact_153_UNIV__not__empty, axiom, % UNIV_not_empty
+    ((~ top_top_set_set_a = bot_bot_set_set_a))).
+tff(fact_154_UnE, axiom, % UnE
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A), B)) => ((~ member_set_a(C2, A)) => member_set_a(C2, B)))))).
+tff(fact_155_Pow__iff, axiom, % Pow_iff
+    ((![A : set_a, B : set_a]: (member_set_a(A, aa_set_a_set_set_a(pow_a, B)) <=> pp(aa_set_a_bool(ord_less_eq_set_a(A), B)))))).
+tff(fact_156_Pow__iff, axiom, % Pow_iff
+    ((![A : set_set_a, B : set_set_a]: (member_set_set_a(A, pow_set_a(B)) <=> ord_le318720350_set_a(A, B))))).
+tff(fact_157_inf__sup__aci_I1_J, axiom, % inf_sup_aci(1)
+    ((![X3 : set_a, Y : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), X3)))).
+tff(fact_158_inf__sup__aci_I1_J, axiom, % inf_sup_aci(1)
+    ((![X3 : set_set_a, Y : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), X3)))).
+tff(fact_159_Int__absorb1, axiom, % Int_absorb1
+    ((![B : set_a, A : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(B), A)) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B) = B)))).
+tff(fact_160_Int__absorb1, axiom, % Int_absorb1
+    ((![B : set_set_a, A : set_set_a]: (ord_le318720350_set_a(B, A) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B) = B)))).
+tff(fact_161_Int__lower2, axiom, % Int_lower2
+    ((![A : set_a, B : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)), B))))).
+tff(fact_162_Int__lower2, axiom, % Int_lower2
+    ((![A : set_set_a, B : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B), B)))).
+tff(fact_163_vimageI, axiom, % vimageI
+    ((![F : fun_set_a_set_a, A2 : set_a, B2 : set_a, B : set_set_a]: (aa_set_a_set_a(F, A2) = B2 => (member_set_a(B2, B) => member_set_a(A2, vimage_set_a_set_a(F, B))))))).
+tff(fact_164_monoid__add__class_Oadd_Oright__neutral, axiom, % monoid_add_class.add.right_neutral
+    ((![A2 : nat]: plus_plus_nat(A2, zero_zero_nat) = A2))).
+tff(fact_165_eq__iff, axiom, % eq_iff
+    ((![X3 : set_set_a, Y : set_set_a]: (X3 = Y <=> (ord_le318720350_set_a(X3, Y) & ord_le318720350_set_a(Y, X3)))))).
+tff(fact_166_inf__sup__ord_I2_J, axiom, % inf_sup_ord(2)
+    ((![X3 : set_a, Y : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), Y))))).
+tff(fact_167_inf__sup__ord_I2_J, axiom, % inf_sup_ord(2)
+    ((![X3 : set_set_a, Y : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y), Y)))).
+tff(fact_168_Int__empty__left, axiom, % Int_empty_left
+    ((![B : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, bot_bot_set_a), B) = bot_bot_set_a))).
+tff(fact_169_Int__empty__left, axiom, % Int_empty_left
+    ((![B : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, bot_bot_set_set_a), B) = bot_bot_set_set_a))).
+tff(fact_170_empty__not__insert, axiom, % empty_not_insert
+    ((![A2 : a, A : set_a]: (~ bot_bot_set_a = aa_set_a_set_a(insert_a(A2), A))))).
+tff(fact_171_empty__not__insert, axiom, % empty_not_insert
+    ((![A2 : set_a, A : set_set_a]: (~ bot_bot_set_set_a = insert_set_a(A2, A))))).
+tff(fact_172_Int__Diff, axiom, % Int_Diff
+    ((![A : set_a, B : set_a, C : set_a]: aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)), C) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, B), C))))).
+tff(fact_173_Int__Diff, axiom, % Int_Diff
+    ((![A : set_set_a, B : set_set_a, C : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)), C) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, B), C))))).
+tff(fact_174_Un__upper2, axiom, % Un_upper2
+    ((![B : set_set_a, A : set_set_a]: ord_le318720350_set_a(B, aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A), B))))).
+tff(fact_175_ComplD, axiom, % ComplD
+    ((![C2 : set_a, A : set_set_a]: (member_set_a(C2, uminus1261309877_set_a(A)) => (~ member_set_a(C2, A)))))).
+tff(fact_176_Compl__iff, axiom, % Compl_iff
+    ((![C2 : set_a, A : set_set_a]: (member_set_a(C2, uminus1261309877_set_a(A)) <=> (~ member_set_a(C2, A)))))).
+tff(fact_177_Int__left__absorb, axiom, % Int_left_absorb
+    ((![A : set_a, B : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)))).
+tff(fact_178_Int__left__absorb, axiom, % Int_left_absorb
+    ((![A : set_set_a, B : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)))).
+tff(fact_179_Int__left__commute, axiom, % Int_left_commute
+    ((![A : set_a, B : set_a, C : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B), C)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), C))))).
+tff(fact_180_Int__left__commute, axiom, % Int_left_commute
+    ((![A : set_set_a, B : set_set_a, C : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B), C)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), C))))).
+tff(fact_181_inf__sup__aci_I4_J, axiom, % inf_sup_aci(4)
+    ((![X3 : set_a, Y : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)))).
+tff(fact_182_inf__sup__aci_I4_J, axiom, % inf_sup_aci(4)
+    ((![X3 : set_set_a, Y : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)))).
+tff(fact_183_Int__assoc, axiom, % Int_assoc
+    ((![A : set_a, B : set_a, C : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)), C) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B), C))))).
+tff(fact_184_Int__assoc, axiom, % Int_assoc
+    ((![A : set_set_a, B : set_set_a, C : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B)), C) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B), C))))).
+tff(fact_185_inf__sup__aci_I3_J, axiom, % inf_sup_aci(3)
+    ((![X3 : set_a, Y : set_a, Z : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), Z)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Z))))).
+tff(fact_186_inf__sup__aci_I3_J, axiom, % inf_sup_aci(3)
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), Z)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Z))))).
+tff(fact_187_inf_Oleft__commute, axiom, % inf.left_commute
+    ((![B2 : set_a, A2 : set_a, C2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), C2)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), C2))))).
+tff(fact_188_inf_Oleft__commute, axiom, % inf.left_commute
+    ((![B2 : set_set_a, A2 : set_set_a, C2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), C2)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), C2))))).
+tff(fact_189_bexI, axiom, % bexI
+    ((![P : fun_set_a_bool, X3 : set_a, A : set_set_a]: (pp(aa_set_a_bool(P, X3)) => (member_set_a(X3, A) => (?[X2 : set_a]: (member_set_a(X2, A) & pp(aa_set_a_bool(P, X2))))))))).
+tff(fact_190_inf__left__commute, axiom, % inf_left_commute
+    ((![X3 : set_a, Y : set_a, Z : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), Z)) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Z))))).
+tff(fact_191_inf__left__commute, axiom, % inf_left_commute
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), Z)) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Z))))).
+tff(fact_192_add__Suc__right, axiom, % add_Suc_right
+    ((![M : nat, N : nat]: plus_plus_nat(M, suc(N)) = suc(plus_plus_nat(M, N))))).
+tff(fact_193_inf__sup__aci_I2_J, axiom, % inf_sup_aci(2)
+    ((![X3 : set_a, Y : set_a, Z : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), Z) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), Z))))).
+tff(fact_194_inf__sup__aci_I2_J, axiom, % inf_sup_aci(2)
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)), Z) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), Z))))).
+tff(fact_195_inf__le1, axiom, % inf_le1
+    ((![X3 : set_a, Y : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), X3))))).
+tff(fact_196_inf__le1, axiom, % inf_le1
+    ((![X3 : set_set_a, Y : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y), X3)))).
+tff(fact_197_inf_Oassoc, axiom, % inf.assoc
+    ((![A2 : set_a, B2 : set_a, C2 : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), C2) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), C2))))).
+tff(fact_198_inf_Oassoc, axiom, % inf.assoc
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2)), C2) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), C2))))).
+tff(fact_199_insert__absorb, axiom, % insert_absorb
+    ((![A2 : set_a, A : set_set_a]: (member_set_a(A2, A) => insert_set_a(A2, A) = A)))).
+tff(fact_200_inf__assoc, axiom, % inf_assoc
+    ((![X3 : set_a, Y : set_a, Z : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), Z) = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), Z))))).
+tff(fact_201_inf__assoc, axiom, % inf_assoc
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y)), Z) = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), Z))))).
+tff(fact_202_inf_Oabsorb2, axiom, % inf.absorb2
+    ((![B2 : set_a, A2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(B2), A2)) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2) = B2)))).
+tff(fact_203_inf_Oabsorb2, axiom, % inf.absorb2
+    ((![B2 : set_set_a, A2 : set_set_a]: (ord_le318720350_set_a(B2, A2) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2) = B2)))).
+tff(fact_204_lessI, axiom, % lessI
+    ((![N : nat]: ord_less_nat(N, suc(N))))).
+tff(fact_205_Diff__insert__absorb, axiom, % Diff_insert_absorb
+    ((![X3 : a, A : set_a]: ((~ pp(aa_set_a_bool(member_a(X3), A))) => aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, aa_set_a_set_a(insert_a(X3), A)), aa_set_a_set_a(insert_a(X3), bot_bot_set_a)) = A)))).
+tff(fact_206_Diff__insert__absorb, axiom, % Diff_insert_absorb
+    ((![X3 : set_a, A : set_set_a]: ((~ member_set_a(X3, A)) => aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, insert_set_a(X3, A)), insert_set_a(X3, bot_bot_set_set_a)) = A)))).
+tff(fact_207_less__irrefl, axiom, % less_irrefl
+    ((![X3 : nat]: (~ ord_less_nat(X3, X3))))).
+tff(fact_208_Union__upper, axiom, % Union_upper
+    ((![B : set_a, A : set_set_a]: (member_set_a(B, A) => pp(aa_set_a_bool(ord_less_eq_set_a(B), comple1766734283_set_a(A))))))).
+tff(fact_209_Union__upper, axiom, % Union_upper
+    ((![B : set_set_a, A : set_set_set_a]: (member_set_set_a(B, A) => ord_le318720350_set_a(B, comple968993579_set_a(A)))))).
+tff(fact_210_le__iff__inf, axiom, % le_iff_inf
+    ((![X3 : set_a, Y : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X3), Y)) <=> aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y) = X3)))).
+tff(fact_211_le__iff__inf, axiom, % le_iff_inf
+    ((![X3 : set_set_a, Y : set_set_a]: (ord_le318720350_set_a(X3, Y) <=> aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y) = X3)))).
+tff(fact_212_bexE, axiom, % bexE
+    ((![A : set_set_a, P : fun_set_a_bool]: ((?[X6 : set_a]: (member_set_a(X6, A) & pp(aa_set_a_bool(P, X6)))) => (~ (![X2 : set_a]: (member_set_a(X2, A) => (~ pp(aa_set_a_bool(P, X2)))))))))).
+tff(fact_213_trivial__empty, axiom, % trivial_empty
+    (pp(aa_set_a_bool(trivial_a, bot_bot_set_a)))).
+tff(fact_214_trivial__empty, axiom, % trivial_empty
+    (trivial_set_a(bot_bot_set_set_a))).
+tff(fact_215_inf__absorb2, axiom, % inf_absorb2
+    ((![Y : set_a, X3 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(Y), X3)) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y) = Y)))).
+tff(fact_216_inf__absorb2, axiom, % inf_absorb2
+    ((![Y : set_set_a, X3 : set_set_a]: (ord_le318720350_set_a(Y, X3) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y) = Y)))).
+tff(fact_217_not__less, axiom, % not_less
+    ((![X3 : nat, Y : nat]: ((~ ord_less_nat(X3, Y)) <=> ord_less_eq_nat(Y, X3))))).
+tff(fact_218_subset__insert, axiom, % subset_insert
+    ((![X3 : set_a, A : set_set_a, B : set_set_a]: ((~ member_set_a(X3, A)) => (ord_le318720350_set_a(A, insert_set_a(X3, B)) <=> ord_le318720350_set_a(A, B)))))).
+tff(fact_219_Set_Oset__insert, axiom, % Set.set_insert
+    ((![X3 : set_a, A : set_set_a]: (member_set_a(X3, A) => (~ (![B3 : set_set_a]: (A = insert_set_a(X3, B3) => member_set_a(X3, B3)))))))).
+tff(fact_220_mk__disjoint__insert, axiom, % mk_disjoint_insert
+    ((![A2 : set_a, A : set_set_a]: (member_set_a(A2, A) => (?[B3 : set_set_a]: (A = insert_set_a(A2, B3) & (~ member_set_a(A2, B3)))))))).
+tff(fact_221_UnCI, axiom, % UnCI
+    ((![C2 : set_a, B : set_set_a, A : set_set_a]: (((~ member_set_a(C2, B)) => member_set_a(C2, A)) => member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A), B)))))).
+tff(fact_222_not__le, axiom, % not_le
+    ((![X3 : nat, Y : nat]: ((~ ord_less_eq_nat(X3, Y)) <=> ord_less_nat(Y, X3))))).
+tff(fact_223_insert__Diff__single, axiom, % insert_Diff_single
+    ((![A2 : a, A : set_a]: aa_set_a_set_a(insert_a(A2), aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, A), aa_set_a_set_a(insert_a(A2), bot_bot_set_a))) = aa_set_a_set_a(insert_a(A2), A)))).
+tff(fact_224_insert__Diff__single, axiom, % insert_Diff_single
+    ((![A2 : set_a, A : set_set_a]: insert_set_a(A2, aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), insert_set_a(A2, bot_bot_set_set_a))) = insert_set_a(A2, A)))).
+tff(fact_225_singleton__iff, axiom, % singleton_iff
+    ((![B2 : a, A2 : a]: (pp(aa_set_a_bool(member_a(B2), aa_set_a_set_a(insert_a(A2), bot_bot_set_a))) <=> B2 = A2)))).
+tff(fact_226_singleton__iff, axiom, % singleton_iff
+    ((![B2 : set_a, A2 : set_a]: (member_set_a(B2, insert_set_a(A2, bot_bot_set_set_a)) <=> B2 = A2)))).
+tff(fact_227_inf__sup__ord_I1_J, axiom, % inf_sup_ord(1)
+    ((![X3 : set_a, Y : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), X3))))).
+tff(fact_228_inf__sup__ord_I1_J, axiom, % inf_sup_ord(1)
+    ((![X3 : set_set_a, Y : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y), X3)))).
+tff(fact_229_Int__lower1, axiom, % Int_lower1
+    ((![A : set_a, B : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)), A))))).
+tff(fact_230_Int__lower1, axiom, % Int_lower1
+    ((![A : set_set_a, B : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B), A)))).
+tff(fact_231_Sup__empty, axiom, % Sup_empty
+    (comple968993579_set_a(bot_bo1264989578_set_a) = bot_bot_set_set_a)).
+tff(fact_232_Sup__empty, axiom, % Sup_empty
+    (comple1766734283_set_a(bot_bot_set_set_a) = bot_bot_set_a)).
+tff(fact_233_less__imp__le, axiom, % less_imp_le
+    ((![X3 : nat, Y : nat]: (ord_less_nat(X3, Y) => ord_less_eq_nat(X3, Y))))).
+tff(fact_234_less__imp__le, axiom, % less_imp_le
+    ((![X3 : set_set_a, Y : set_set_a]: (ord_less_set_set_a(X3, Y) => ord_le318720350_set_a(X3, Y))))).
+tff(fact_235_Diff__subset, axiom, % Diff_subset
+    ((![A : set_set_a, B : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), B), A)))).
+tff(fact_236_the__elem__eq, axiom, % the_elem_eq
+    ((![X3 : a]: the_elem_a(aa_set_a_set_a(insert_a(X3), bot_bot_set_a)) = X3))).
+tff(fact_237_the__elem__eq, axiom, % the_elem_eq
+    ((![X3 : set_a]: the_elem_set_a(insert_set_a(X3, bot_bot_set_set_a)) = X3))).
+tff(fact_238_subset__singletonD, axiom, % subset_singletonD
+    ((![A : set_a, X3 : a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), aa_set_a_set_a(insert_a(X3), bot_bot_set_a))) => (A = bot_bot_set_a | A = aa_set_a_set_a(insert_a(X3), bot_bot_set_a)))))).
+tff(fact_239_subset__singletonD, axiom, % subset_singletonD
+    ((![A : set_set_a, X3 : set_a]: (ord_le318720350_set_a(A, insert_set_a(X3, bot_bot_set_set_a)) => (A = bot_bot_set_set_a | A = insert_set_a(X3, bot_bot_set_set_a)))))).
+tff(fact_240_inf__le2, axiom, % inf_le2
+    ((![X3 : set_a, Y : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y)), Y))))).
+tff(fact_241_inf__le2, axiom, % inf_le2
+    ((![X3 : set_set_a, Y : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y), Y)))).
+tff(fact_242_trivial__singleton, axiom, % trivial_singleton
+    ((![X3 : a]: pp(aa_set_a_bool(trivial_a, aa_set_a_set_a(insert_a(X3), bot_bot_set_a)))))).
+tff(fact_243_trivial__singleton, axiom, % trivial_singleton
+    ((![X3 : set_a]: trivial_set_a(insert_set_a(X3, bot_bot_set_set_a))))).
+tff(fact_244_inf_Ocobounded1, axiom, % inf.cobounded1
+    ((![A2 : set_a, B2 : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), A2))))).
+tff(fact_245_inf_Ocobounded1, axiom, % inf.cobounded1
+    ((![A2 : set_set_a, B2 : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), A2)))).
+tff(fact_246_Int__empty__right, axiom, % Int_empty_right
+    ((![A : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), bot_bot_set_a) = bot_bot_set_a))).
+tff(fact_247_Int__empty__right, axiom, % Int_empty_right
+    ((![A : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), bot_bot_set_set_a) = bot_bot_set_set_a))).
+tff(fact_248_UN__I, axiom, % UN_I
+    ((![A2 : set_a, A : set_set_a, B2 : set_a, B : fun_set_a_set_set_a]: (member_set_a(A2, A) => (member_set_a(B2, aa_set_a_set_set_a(B, A2)) => member_set_a(B2, comple859179328_set_a(A, B))))))).
+tff(fact_249_inf_Ocobounded2, axiom, % inf.cobounded2
+    ((![A2 : set_a, B2 : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), B2))))).
+tff(fact_250_inf_Ocobounded2, axiom, % inf.cobounded2
+    ((![A2 : set_set_a, B2 : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), B2)))).
+tff(fact_251_singleton__insert__inj__eq_H, axiom, % singleton_insert_inj_eq'
+    ((![A2 : a, A : set_a, B2 : a]: (aa_set_a_set_a(insert_a(A2), A) = aa_set_a_set_a(insert_a(B2), bot_bot_set_a) <=> (A2 = B2 & pp(aa_set_a_bool(ord_less_eq_set_a(A), aa_set_a_set_a(insert_a(B2), bot_bot_set_a)))))))).
+tff(fact_252_singleton__insert__inj__eq_H, axiom, % singleton_insert_inj_eq'
+    ((![A2 : set_a, A : set_set_a, B2 : set_a]: (insert_set_a(A2, A) = insert_set_a(B2, bot_bot_set_set_a) <=> (A2 = B2 & ord_le318720350_set_a(A, insert_set_a(B2, bot_bot_set_set_a))))))).
+tff(fact_253_add_Ocommute, axiom, % add.commute
+    ((![A2 : nat, B2 : nat]: plus_plus_nat(A2, B2) = plus_plus_nat(B2, A2)))).
+tff(fact_254_UNIV__I, axiom, % UNIV_I
+    ((![X3 : set_a]: member_set_a(X3, top_top_set_set_a)))).
+tff(fact_255_le__infI1, axiom, % le_infI1
+    ((![A2 : set_a, X3 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), X3)) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), X3)))))).
+tff(fact_256_le__infI1, axiom, % le_infI1
+    ((![A2 : set_set_a, X3 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, X3) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), X3))))).
+tff(fact_257_le__infI2, axiom, % le_infI2
+    ((![B2 : set_a, X3 : set_a, A2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(B2), X3)) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), X3)))))).
+tff(fact_258_le__infI2, axiom, % le_infI2
+    ((![B2 : set_set_a, X3 : set_set_a, A2 : set_set_a]: (ord_le318720350_set_a(B2, X3) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), X3))))).
+tff(fact_259_inf_OcoboundedI1, axiom, % inf.coboundedI1
+    ((![A2 : set_a, C2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), C2)) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), C2)))))).
+tff(fact_260_inf_OcoboundedI1, axiom, % inf.coboundedI1
+    ((![A2 : set_set_a, C2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, C2) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), C2))))).
+tff(fact_261_inf_OcoboundedI2, axiom, % inf.coboundedI2
+    ((![B2 : set_a, C2 : set_a, A2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(B2), C2)) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), C2)))))).
+tff(fact_262_inf_OcoboundedI2, axiom, % inf.coboundedI2
+    ((![B2 : set_set_a, C2 : set_set_a, A2 : set_set_a]: (ord_le318720350_set_a(B2, C2) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), C2))))).
+tff(fact_263_Set_Ois__empty__def, axiom, % Set.is_empty_def
+    ((![A : set_a]: (pp(aa_set_a_bool(is_empty_a, A)) <=> A = bot_bot_set_a)))).
+tff(fact_264_Set_Ois__empty__def, axiom, % Set.is_empty_def
+    ((![A : set_set_a]: (is_empty_set_a(A) <=> A = bot_bot_set_set_a)))).
+tff(fact_265_Pow__not__empty, axiom, % Pow_not_empty
+    ((![A : set_a]: (~ aa_set_a_set_set_a(pow_a, A) = bot_bot_set_set_a)))).
+tff(fact_266_dual__order_Oantisym, axiom, % dual_order.antisym
+    ((![B2 : set_set_a, A2 : set_set_a]: (ord_le318720350_set_a(B2, A2) => (ord_le318720350_set_a(A2, B2) => A2 = B2))))).
+tff(fact_267_Int__mono, axiom, % Int_mono
+    ((![A : set_a, C : set_a, B : set_a, D : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), C)) => (pp(aa_set_a_bool(ord_less_eq_set_a(B), D)) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, C), D)))))))).
+tff(fact_268_Int__mono, axiom, % Int_mono
+    ((![A : set_set_a, C : set_set_a, B : set_set_a, D : set_set_a]: (ord_le318720350_set_a(A, C) => (ord_le318720350_set_a(B, D) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, C), D))))))).
+tff(fact_269_bot__empty__eq, axiom, % bot_empty_eq
+    ((![X6 : a]: (pp(aa_a_bool(bot_bot_fun_a_bool, X6)) <=> pp(aa_set_a_bool(member_a(X6), bot_bot_set_a)))))).
+tff(fact_270_bot__empty__eq, axiom, % bot_empty_eq
+    ((![X6 : set_a]: (pp(aa_set_a_bool(bot_bo1386472592a_bool, X6)) <=> member_set_a(X6, bot_bot_set_set_a))))).
+tff(fact_271_Int__greatest, axiom, % Int_greatest
+    ((![C : set_a, A : set_a, B : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(C), A)) => (pp(aa_set_a_bool(ord_less_eq_set_a(C), B)) => pp(aa_set_a_bool(ord_less_eq_set_a(C), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B)))))))).
+tff(fact_272_Int__greatest, axiom, % Int_greatest
+    ((![C : set_set_a, A : set_set_a, B : set_set_a]: (ord_le318720350_set_a(C, A) => (ord_le318720350_set_a(C, B) => ord_le318720350_set_a(C, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B))))))).
+tff(fact_273_add_Oleft__commute, axiom, % add.left_commute
+    ((![B2 : nat, A2 : nat, C2 : nat]: plus_plus_nat(B2, plus_plus_nat(A2, C2)) = plus_plus_nat(A2, plus_plus_nat(B2, C2))))).
+tff(fact_274_inf__absorb1, axiom, % inf_absorb1
+    ((![X3 : set_a, Y : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X3), Y)) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y) = X3)))).
+tff(fact_275_inf__absorb1, axiom, % inf_absorb1
+    ((![X3 : set_set_a, Y : set_set_a]: (ord_le318720350_set_a(X3, Y) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y) = X3)))).
+tff(fact_276_inf__sup__absorb, axiom, % inf_sup_absorb
+    ((![X3 : set_a, Y : set_a]: aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), aa_set_a_set_a(aa_set133540453_set_a(sup_sup_set_a, X3), Y)) = X3))).
+tff(fact_277_inf__sup__absorb, axiom, % inf_sup_absorb
+    ((![X3 : set_set_a, Y : set_set_a]: aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, X3), Y)) = X3))).
+tff(fact_278_trivial__subset, axiom, % trivial_subset
+    ((![Y3 : set_set_a, X4 : set_set_a]: (trivial_set_a(Y3) => (ord_le318720350_set_a(X4, Y3) => trivial_set_a(X4)))))).
+tff(fact_279_distinct_Osimps_I2_J, axiom, % distinct.simps(2)
+    ((![X3 : set_a, Xs : list_set_a]: (distinct_set_a(cons_set_a(X3, Xs)) <=> ((~ member_set_a(X3, set_set_a2(Xs))) & distinct_set_a(Xs)))))).
+tff(fact_280_dual__order_Orefl, axiom, % dual_order.refl
+    ((![A2 : set_set_a]: ord_le318720350_set_a(A2, A2)))).
+tff(fact_281_UN__E, axiom, % UN_E
+    ((![B2 : set_a, A : set_set_a, B : fun_set_a_set_set_a]: (member_set_a(B2, comple859179328_set_a(A, B)) => (~ (![X2 : set_a]: (member_set_a(X2, A) => (~ member_set_a(B2, aa_set_a_set_set_a(B, X2)))))))))).
+tff(fact_282_le__infI, axiom, % le_infI
+    ((![X3 : set_a, A2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X3), A2)) => (pp(aa_set_a_bool(ord_less_eq_set_a(X3), B2)) => pp(aa_set_a_bool(ord_less_eq_set_a(X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)))))))).
+tff(fact_283_le__infI, axiom, % le_infI
+    ((![X3 : set_set_a, A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(X3, A2) => (ord_le318720350_set_a(X3, B2) => ord_le318720350_set_a(X3, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2))))))).
+tff(fact_284_dual__order_Otrans, axiom, % dual_order.trans
+    ((![B2 : set_set_a, A2 : set_set_a, C2 : set_set_a]: (ord_le318720350_set_a(B2, A2) => (ord_le318720350_set_a(C2, B2) => ord_le318720350_set_a(C2, A2)))))).
+tff(fact_285_inf_OboundedI, axiom, % inf.boundedI
+    ((![A2 : set_a, B2 : set_a, C2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) => (pp(aa_set_a_bool(ord_less_eq_set_a(A2), C2)) => pp(aa_set_a_bool(ord_less_eq_set_a(A2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), C2)))))))).
+tff(fact_286_inf_OboundedI, axiom, % inf.boundedI
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: (ord_le318720350_set_a(A2, B2) => (ord_le318720350_set_a(A2, C2) => ord_le318720350_set_a(A2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), C2))))))).
+tff(fact_287_ord__eq__le__trans, axiom, % ord_eq_le_trans
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: (A2 = B2 => (ord_le318720350_set_a(B2, C2) => ord_le318720350_set_a(A2, C2)))))).
+tff(fact_288_trivial__def, axiom, % trivial_def
+    ((![X3 : set_a]: (pp(aa_set_a_bool(trivial_a, X3)) <=> pp(aa_set_a_bool(ord_less_eq_set_a(X3), aa_set_a_set_a(insert_a(the_elem_a(X3)), bot_bot_set_a))))))).
+tff(fact_289_trivial__def, axiom, % trivial_def
+    ((![X3 : set_set_a]: (trivial_set_a(X3) <=> ord_le318720350_set_a(X3, insert_set_a(the_elem_set_a(X3), bot_bot_set_set_a)))))).
+tff(fact_290_inf__greatest, axiom, % inf_greatest
+    ((![X3 : set_a, Y : set_a, Z : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X3), Y)) => (pp(aa_set_a_bool(ord_less_eq_set_a(X3), Z)) => pp(aa_set_a_bool(ord_less_eq_set_a(X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, Y), Z)))))))).
+tff(fact_291_inf__greatest, axiom, % inf_greatest
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: (ord_le318720350_set_a(X3, Y) => (ord_le318720350_set_a(X3, Z) => ord_le318720350_set_a(X3, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, Y), Z))))))).
+tff(fact_292_Un__iff, axiom, % Un_iff
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A), B)) <=> (member_set_a(C2, A) | member_set_a(C2, B)))))).
+tff(fact_293_Diff__eq__empty__iff, axiom, % Diff_eq_empty_iff
+    ((![A : set_a, B : set_a]: (aa_set_a_set_a(aa_set133540453_set_a(minus_minus_set_a, A), B) = bot_bot_set_a <=> pp(aa_set_a_bool(ord_less_eq_set_a(A), B)))))).
+tff(fact_294_Diff__eq__empty__iff, axiom, % Diff_eq_empty_iff
+    ((![A : set_set_a, B : set_set_a]: (aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), B) = bot_bot_set_set_a <=> ord_le318720350_set_a(A, B))))).
+tff(fact_295_Pow__empty, axiom, % Pow_empty
+    (aa_set_a_set_set_a(pow_a, bot_bot_set_a) = insert_set_a(bot_bot_set_a, bot_bot_set_set_a))).
+tff(fact_296_Pow__empty, axiom, % Pow_empty
+    (pow_set_a(bot_bot_set_set_a) = insert_set_set_a(bot_bot_set_set_a, bot_bo1264989578_set_a))).
+tff(fact_297_inf__mono, axiom, % inf_mono
+    ((![A2 : set_a, C2 : set_a, B2 : set_a, D2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), C2)) => (pp(aa_set_a_bool(ord_less_eq_set_a(B2), D2)) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2)), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, C2), D2)))))))).
+tff(fact_298_inf__mono, axiom, % inf_mono
+    ((![A2 : set_set_a, C2 : set_set_a, B2 : set_set_a, D2 : set_set_a]: (ord_le318720350_set_a(A2, C2) => (ord_le318720350_set_a(B2, D2) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, C2), D2))))))).
+tff(fact_299_order__trans, axiom, % order_trans
+    ((![X3 : set_set_a, Y : set_set_a, Z : set_set_a]: (ord_le318720350_set_a(X3, Y) => (ord_le318720350_set_a(Y, Z) => ord_le318720350_set_a(X3, Z)))))).
+tff(fact_300_trivial__imp__no__distinct, axiom, % trivial_imp_no_distinct
+    ((![X4 : set_set_a, X3 : set_a, Y : set_a]: (trivial_set_a(X4) => (member_set_a(X3, X4) => (member_set_a(Y, X4) => X3 = Y)))))).
+tff(fact_301_antisym, axiom, % antisym
+    ((![X3 : set_set_a, Y : set_set_a]: (ord_le318720350_set_a(X3, Y) => (ord_le318720350_set_a(Y, X3) => X3 = Y))))).
+tff(fact_302_inf_OorderE, axiom, % inf.orderE
+    ((![A2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) => A2 = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2))))).
+tff(fact_303_inf_OorderE, axiom, % inf.orderE
+    ((![A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, B2) => A2 = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2))))).
+tff(fact_304_le__infE, axiom, % le_infE
+    ((![X3 : set_a, A2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X3), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2))) => (~ (pp(aa_set_a_bool(ord_less_eq_set_a(X3), A2)) => (~ pp(aa_set_a_bool(ord_less_eq_set_a(X3), B2))))))))).
+tff(fact_305_le__infE, axiom, % le_infE
+    ((![X3 : set_set_a, A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(X3, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2)) => (~ (ord_le318720350_set_a(X3, A2) => (~ ord_le318720350_set_a(X3, B2)))))))).
+tff(fact_306_Pow__top, axiom, % Pow_top
+    ((![A : set_a]: member_set_a(A, aa_set_a_set_set_a(pow_a, A))))).
+tff(fact_307_inf_OboundedE, axiom, % inf.boundedE
+    ((![A2 : set_a, B2 : set_a, C2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B2), C2))) => (~ (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) => (~ pp(aa_set_a_bool(ord_less_eq_set_a(A2), C2))))))))).
+tff(fact_308_inf_OboundedE, axiom, % inf.boundedE
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: (ord_le318720350_set_a(A2, aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B2), C2)) => (~ (ord_le318720350_set_a(A2, B2) => (~ ord_le318720350_set_a(A2, C2)))))))).
+tff(fact_309_UnI1, axiom, % UnI1
+    ((![C2 : set_a, A : set_set_a, B : set_set_a]: (member_set_a(C2, A) => member_set_a(C2, aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A), B)))))).
+tff(fact_310_rev__finite__subset, axiom, % rev_finite_subset
+    ((![B : set_set_a, A : set_set_a]: (finite_finite_set_a(B) => (ord_le318720350_set_a(A, B) => finite_finite_set_a(A)))))).
+tff(fact_311_inf_OorderI, axiom, % inf.orderI
+    ((![A2 : set_a, B2 : set_a]: (A2 = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2) => pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)))))).
+tff(fact_312_inf_OorderI, axiom, % inf.orderI
+    ((![A2 : set_set_a, B2 : set_set_a]: (A2 = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2) => ord_le318720350_set_a(A2, B2))))).
+tff(fact_313_Sup__upper, axiom, % Sup_upper
+    ((![X3 : set_a, A : set_set_a]: (member_set_a(X3, A) => pp(aa_set_a_bool(ord_less_eq_set_a(X3), comple1766734283_set_a(A))))))).
+tff(fact_314_Sup__upper, axiom, % Sup_upper
+    ((![X3 : set_set_a, A : set_set_set_a]: (member_set_set_a(X3, A) => ord_le318720350_set_a(X3, comple968993579_set_a(A)))))).
+tff(fact_315_monoid__add__class_Oadd_Oleft__neutral, axiom, % monoid_add_class.add.left_neutral
+    ((![A2 : nat]: plus_plus_nat(zero_zero_nat, A2) = A2))).
+tff(fact_316_insertI1, axiom, % insertI1
+    ((![A2 : set_a, B : set_set_a]: member_set_a(A2, insert_set_a(A2, B))))).
+tff(fact_317_inf__unique, axiom, % inf_unique
+    ((![F : fun_se1598405044_set_a, X3 : set_a, Y : set_a]: ((![X2 : set_a, Y2 : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(F, X2), Y2)), X2))) => ((![X2 : set_a, Y2 : set_a]: pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(F, X2), Y2)), Y2))) => ((![X2 : set_a, Y2 : set_a, Z2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(X2), Y2)) => (pp(aa_set_a_bool(ord_less_eq_set_a(X2), Z2)) => pp(aa_set_a_bool(ord_less_eq_set_a(X2), aa_set_a_set_a(aa_set133540453_set_a(F, Y2), Z2)))))) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X3), Y) = aa_set_a_set_a(aa_set133540453_set_a(F, X3), Y))))))).
+tff(fact_318_inf__unique, axiom, % inf_unique
+    ((![F : fun_se2141830932_set_a, X3 : set_set_a, Y : set_set_a]: ((![X2 : set_set_a, Y2 : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(F, X2), Y2), X2)) => ((![X2 : set_set_a, Y2 : set_set_a]: ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(F, X2), Y2), Y2)) => ((![X2 : set_set_a, Y2 : set_set_a, Z2 : set_set_a]: (ord_le318720350_set_a(X2, Y2) => (ord_le318720350_set_a(X2, Z2) => ord_le318720350_set_a(X2, aa_set1291673148_set_a(aa_set1672802245_set_a(F, Y2), Z2))))) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X3), Y) = aa_set1291673148_set_a(aa_set1672802245_set_a(F, X3), Y))))))).
+tff(fact_319_insert__Diff1, axiom, % insert_Diff1
+    ((![X3 : set_a, B : set_set_a, A : set_set_a]: (member_set_a(X3, B) => aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, insert_set_a(X3, A)), B) = aa_set1291673148_set_a(aa_set1672802245_set_a(minus_1444187941_set_a, A), B))))).
+tff(fact_320_inf_Oorder__iff, axiom, % inf.order_iff
+    ((![A2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) <=> A2 = aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2))))).
+tff(fact_321_inf_Oorder__iff, axiom, % inf.order_iff
+    ((![A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, B2) <=> A2 = aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2))))).
+tff(fact_322_setsum_Ounion__disjoint, axiom, % setsum.union_disjoint
+    ((![A : set_a, B : set_a, G : fun_a_nat]: (pp(aa_set_a_bool(finite_finite_a, A)) => (pp(aa_set_a_bool(finite_finite_a, B)) => (aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), B) = bot_bot_set_a => aa_set_a_nat(groups1269595060_a_nat(G), aa_set_a_set_a(aa_set133540453_set_a(sup_sup_set_a, A), B)) = plus_plus_nat(aa_set_a_nat(groups1269595060_a_nat(G), A), aa_set_a_nat(groups1269595060_a_nat(G), B)))))))).
+tff(fact_323_setsum_Ounion__disjoint, axiom, % setsum.union_disjoint
+    ((![A : set_set_a, B : set_set_a, G : fun_set_a_nat]: (finite_finite_set_a(A) => (finite_finite_set_a(B) => (aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), B) = bot_bot_set_set_a => groups488050964_a_nat(G, aa_set1291673148_set_a(aa_set1672802245_set_a(sup_sup_set_set_a, A), B)) = plus_plus_nat(groups488050964_a_nat(G, A), groups488050964_a_nat(G, B)))))))).
+tff(fact_324_inf_Oabsorb__iff1, axiom, % inf.absorb_iff1
+    ((![A2 : set_a, B2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(A2), B2)) <=> aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2) = A2)))).
+tff(fact_325_inf_Oabsorb__iff1, axiom, % inf.absorb_iff1
+    ((![A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, B2) <=> aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2) = A2)))).
+tff(fact_326_ord__le__eq__trans, axiom, % ord_le_eq_trans
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: (ord_le318720350_set_a(A2, B2) => (B2 = C2 => ord_le318720350_set_a(A2, C2)))))).
+tff(fact_327_Pow__bottom, axiom, % Pow_bottom
+    ((![B : set_a]: member_set_a(bot_bot_set_a, aa_set_a_set_set_a(pow_a, B))))).
+tff(fact_328_Pow__bottom, axiom, % Pow_bottom
+    ((![B : set_set_a]: member_set_set_a(bot_bot_set_set_a, pow_set_a(B))))).
+tff(fact_329_inf_Oabsorb__iff2, axiom, % inf.absorb_iff2
+    ((![B2 : set_a, A2 : set_a]: (pp(aa_set_a_bool(ord_less_eq_set_a(B2), A2)) <=> aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A2), B2) = B2)))).
+tff(fact_330_inf_Oabsorb__iff2, axiom, % inf.absorb_iff2
+    ((![B2 : set_set_a, A2 : set_set_a]: (ord_le318720350_set_a(B2, A2) <=> aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A2), B2) = B2)))).
+tff(fact_331_antisym__conv, axiom, % antisym_conv
+    ((![Y : set_set_a, X3 : set_set_a]: (ord_le318720350_set_a(Y, X3) => (ord_le318720350_set_a(X3, Y) <=> X3 = Y))))).
+tff(fact_332_order_Otrans, axiom, % order.trans
+    ((![A2 : set_set_a, B2 : set_set_a, C2 : set_set_a]: (ord_le318720350_set_a(A2, B2) => (ord_le318720350_set_a(B2, C2) => ord_le318720350_set_a(A2, C2)))))).
+tff(fact_333_card__Union__disjoint, axiom, % card_Union_disjoint
+    ((![C : set_set_a]: (finite_finite_set_a(C) => ((![X2 : set_a]: (member_set_a(X2, C) => pp(aa_set_a_bool(finite_finite_a, X2)))) => ((![X2 : set_a]: (member_set_a(X2, C) => (![Xa2 : set_a]: (member_set_a(Xa2, C) => ((~ X2 = Xa2) => aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, X2), Xa2) = bot_bot_set_a))))) => aa_set_a_nat(finite_card_a, comple1766734283_set_a(C)) = groups488050964_a_nat(finite_card_a, C))))))).
+tff(fact_334_card__Union__disjoint, axiom, % card_Union_disjoint
+    ((![C : set_set_set_a]: (finite1606323175_set_a(C) => ((![X2 : set_set_a]: (member_set_set_a(X2, C) => finite_finite_set_a(X2))) => ((![X2 : set_set_a]: (member_set_set_a(X2, C) => (![Xa2 : set_set_a]: (member_set_set_a(Xa2, C) => ((~ X2 = Xa2) => aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, X2), Xa2) = bot_bot_set_set_a))))) => aa_set_set_a_nat(finite_card_set_a, comple968993579_set_a(C)) = groups1281204852_a_nat(finite_card_set_a, C))))))).
+tff(fact_335_ComplI, axiom, % ComplI
+    ((![C2 : set_a, A : set_set_a]: ((~ member_set_a(C2, A)) => member_set_a(C2, uminus1261309877_set_a(A)))))).
+tff(fact_336_finite_OemptyI, axiom, % finite.emptyI
+    (pp(aa_set_a_bool(finite_finite_a, bot_bot_set_a)))).
+tff(fact_337_finite_OemptyI, axiom, % finite.emptyI
+    (finite_finite_set_a(bot_bot_set_set_a))).
+tff(fact_338_order__class_Oorder_Oantisym, axiom, % order_class.order.antisym
+    ((![A2 : set_set_a, B2 : set_set_a]: (ord_le318720350_set_a(A2, B2) => (ord_le318720350_set_a(B2, A2) => A2 = B2))))).
+tff(fact_339_Int__Collect__mono, axiom, % Int_Collect_mono
+    ((![A : set_a, B : set_a, P : fun_a_bool, Q : fun_a_bool]: (pp(aa_set_a_bool(ord_less_eq_set_a(A), B)) => ((![X2 : a]: (pp(aa_set_a_bool(member_a(X2), A)) => (pp(aa_a_bool(P, X2)) => pp(aa_a_bool(Q, X2))))) => pp(aa_set_a_bool(ord_less_eq_set_a(aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, A), collect_a(P))), aa_set_a_set_a(aa_set133540453_set_a(inf_inf_set_a, B), collect_a(Q))))))))).
+tff(fact_340_Int__Collect__mono, axiom, % Int_Collect_mono
+    ((![A : set_set_a, B : set_set_a, P : fun_set_a_bool, Q : fun_set_a_bool]: (ord_le318720350_set_a(A, B) => ((![X2 : set_a]: (member_set_a(X2, A) => (pp(aa_set_a_bool(P, X2)) => pp(aa_set_a_bool(Q, X2))))) => ord_le318720350_set_a(aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, A), collect_set_a(P)), aa_set1291673148_set_a(aa_set1672802245_set_a(inf_inf_set_set_a, B), collect_set_a(Q)))))))).
+tff(fact_341_atMost__iff, axiom, % atMost_iff
+    ((![I : set_a, K : set_a]: (member_set_a(I, aa_set_a_set_set_a(set_ord_atMost_set_a, K)) <=> pp(aa_set_a_bool(ord_less_eq_set_a(I), K)))))).
+tff(fact_342_atMost__iff, axiom, % atMost_iff
+    ((![I : set_set_a, K : set_set_a]: (member_set_set_a(I, set_or393464965_set_a(K)) <=> ord_le318720350_set_a(I, K))))).
+tff(fact_343_leD, axiom, % leD
+    ((![Y : nat, X3 : nat]: (ord_less_eq_nat(Y, X3) => (~ ord_less_nat(X3, Y)))))).
+tff(fact_344_ATP_Olambda__1, axiom, % ATP.lambda_1
+    ((![Uu : set_set_a, Uua : set_a]: (pp(aa_set_a_bool(aTP_Lamm_a(Uu), Uua)) <=> member_set_a(Uua, Uu))))).
+
+% Helper facts (2)
+tff(help_pp_2_1_U, axiom,
+    (pp(fTrue))).
+tff(help_pp_1_1_U, axiom,
+    ((~ pp(fFalse)))).
+
+% Conjectures (1)
+tff(conj_0, conjecture,
+    (is_non_overlapping_a(p))).
