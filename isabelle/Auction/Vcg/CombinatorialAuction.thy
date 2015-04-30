@@ -599,10 +599,10 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-section{* We now introduce computable versions of the vcg formalization in order to extract code.
-   Furthermore we prove the equivalence with their classical counterparts. *}
+section{* Computable versions of the VCG formalization *}
 
-(* This computes the set of all maximal allocations including the seller. *)
+(*  The computable versions are used to extract code.
+   Furthermore we prove the equivalence with their classical counterparts. This computes the set of all maximal allocations including the seller. *)
 abbreviation "maximalStrictAllocationsAlg N \<Omega> b ==
   argmax (setsum b) (set (allAllocationsAlg ({seller}\<union>N) \<Omega>))"
 

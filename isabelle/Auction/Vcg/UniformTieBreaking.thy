@@ -100,7 +100,7 @@ abbreviation "chosenAllocation N G bids random ==
 abbreviation "resolvingBid N G bids random == 
   tiebids (chosenAllocation N G bids random) N (set G)"
 
-section {* Termination theorem for the uniform tie-breaking scheme @{term resolvingBid} *}
+section {* Termination theorem for the uniform tie-breaking scheme *}
 
 corollary winningAllocationPossible: 
   "winningAllocationsRel N G b \<subseteq> allAllocations N G" 

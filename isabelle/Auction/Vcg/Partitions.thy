@@ -217,7 +217,7 @@ lemma emptyset_part_emptyset3:
   shows "all_partitions {} = {{}}"
   unfolding all_partitions_def using emptyset_part_emptyset1 emptyset_part_emptyset2 by fast
 
-text {* inserts an element new_el into a specified set S inside a given family of sets *}
+text {* inserts an element new\_el into a specified set S inside a given family of sets *}
 definition insert_into_member :: "'a \<Rightarrow> 'a set set \<Rightarrow> 'a set \<Rightarrow> 'a set set"
    where "insert_into_member new_el Sets S = insert (S \<union> {new_el}) (Sets - {S})"
 
@@ -335,7 +335,7 @@ proof -
 qed
 
 text {* Any member of the set of coarser partitions of a given partition, obtained by inserting 
-  a given fresh element into each of its classes, is non_overlapping. *}
+  a given fresh element into each of its classes, is non\_overlapping. *}
 lemma non_overlapping_extension3:
   fixes elem::'a
     and P::"'a set set"
