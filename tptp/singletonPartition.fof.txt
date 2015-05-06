@@ -1,0 +1,32 @@
+%--------------------------------------------------------------------------
+% File     : ?? 
+% Domain   : Set Theory (Equivalence relations)
+% Problem  : {E} is a partition of E 
+% Version  : ??
+% English  :
+
+% Refs     : [??], Email to G. Sutcliffe
+% Source   : [??]
+% Names    :
+
+% Status   : ??
+% Rating   : ??
+% Syntax   : ??
+% SPC      : ??
+
+% Comments : This is one of the simplest problems extracted from the Auction Theory Toolbox
+%--------------------------------------------------------------------------
+%----Include set theory definitions
+include('Axioms/SET006+0.ax').
+%----Include partition axioms
+include('Axioms/SET006+2.ax').
+%--------------------------------------------------------------------------
+fof(formareTheorem,conjecture,
+    ( ! [E] :
+        ( partition(singleton(E),E)
+        )
+    )
+   ).
+
+%--------------------------------------------------------------------------
+
