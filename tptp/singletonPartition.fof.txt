@@ -22,9 +22,8 @@ include('Axioms/SET006+0.ax').
 include('Axioms/SET006+2.ax').
 %--------------------------------------------------------------------------
 fof(formareTheorem,conjecture,
-    ( ! [E] :
-        ( partition(singleton(E),E)
-        )
+    ( ! [E] : 
+    	    (~ (E = empty_set)) => ( partition(singleton(E),E))
     )
    ).
 
