@@ -18,39 +18,37 @@ VCG
 
 Abstract:
 
-An auction mechanism is mathematically represented
-through a pair of functions (a, p): the first describes how
-some given goods at stake are allocated among the bidders
-(also called participants or agents), while the second spec-
-ifies how much each bidder pays following this allocation.
-Each possible output of this pair of functions is referred to
-as an outcome of the auction. Both functions take the same
-argument, which is another function, commonly called a
-bid vector b; it describes how much each bidder values the
-possible outcomes of the auction. This valuation is usually
-expressed through money.
-In this setting, some common questions are the study of
-the quantitative and qualitative properties of a given auc-
-tion mechanism (e.g., whether it maximizes some relevant
-quantity, such as revenue, or whether it is efficient, that is,
-whether it allocates the item to the bidder who values it
-most), and the study of the algorithms running it (in partic-
-ular, their correctness).
+An auction mechanism is mathematically represented through a pair of
+functions (a, p): the first describes how some given goods at stake
+are allocated among the bidders (also called participants or agents),
+while the second specifies how much each bidder pays following this
+allocation.  Each possible output of this pair of functions is
+referred to as an outcome of the auction. Both functions take the same
+argument, which is another function, commonly called a bid vector b;
+it describes how much each bidder values the possible outcomes of the
+auction. This valuation is usually expressed through money.  In this
+setting, some common questions are the study of the quantitative and
+qualitative properties of a given auction mechanism (e.g., whether it
+maximizes some relevant quantity, such as revenue, or whether it is
+efficient, that is, whether it allocates the item to the bidder who
+values it most), and the study of the algorithms running it (in
+particular, their correctness).
 
 A VCG auction (named after their inventors Vickrey, Clarke, and
 Groves) is a generalization of the single-good, second price Vickrey
 auction to the case of a combinatorial auction (multiple goods, from
 which any participant can bid on each possible combination). We
 formalize in this entry VCG auctions, including tie-breaking and prove
-that the function a and p are well-defined. Furthermore we show that a
-allocates goods only to participants, only goods in the auction are
-allocated, and no good is allocated twice. Furthermore we show that
-the price function p is non-negative. These properties also hold for
-the automatically extracted Scala.
+that the functions a and p are well-defined. Furthermore we show that
+the allocation function a allocates goods only to participants, only
+goods in the auction are allocated, and no good is allocated
+twice. Furthermore we show that the price function p is
+non-negative. These properties also hold for the automatically
+extracted Scala code.
 
-For further details, see,
-EC-2015, http://dx.doi.org/10.1145/2764468.2764511,
-or http://www.cs.bham.ac.uk/research/projects/formare.
+For further details, see, EC-2015,
+http://dx.doi.org/10.1145/2764468.2764511, or
+http://www.cs.bham.ac.uk/research/projects/formare.
 
 
 Maintainer:
