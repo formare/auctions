@@ -1,7 +1,7 @@
 %--------------------------------------------------------------------------
 % File     : ?? 
 % Domain   : Set Theory (Equivalence relations)
-% Problem  : {E} is a partition of E 
+% Problem  : {E} is a partition of E for any non-empty set E; 
 % Version  : ??
 % English  :
 
@@ -23,7 +23,7 @@ include('Axioms/SET006+2.ax').
 %--------------------------------------------------------------------------
 fof(formareTheorem,conjecture,
     ( ! [E] : 
-    	    (~ (E = empty_set)) => ( partition(singleton(E),E))
+    	    (~ (E = empty_set)) => (partition(singleton(E),E))
     )
    ).
 
