@@ -51,8 +51,8 @@ formalize in this entry VCG auctions, including tie-breaking and prove
 that the functions for the allocation and the price determination are
 well-defined. Furthermore we show that the allocation function
 allocates goods only to participants, only goods in the auction are
-allocated, and no good is allocated twice. Furthermore we show that
-the price function is non-negative. These properties also hold for the
+allocated, and no good is allocated twice. We also show that the price
+function is non-negative. These properties also hold for the
 automatically extracted Scala code.
 \end{abstract}
 
@@ -99,7 +99,7 @@ The theories \texttt{CombinatorialAuction.thy},
 \texttt{UniformTieBreaking.thy} contain the relevant definitions and
 theorems; \texttt{CombinatorialAuctionExamples.thy} and
 \texttt{CombinatorialAuctionCodeExtraction.thy} present simple helper
-definitions to run the definitions on given examples and to export
+definitions to run them on given examples and to export
 them to the Scala language, respectively; \texttt{FirstPrice.thy}
 shows how easy it is to adapt the definitions to the first price
 combinatorial auction.  The remaining theories contain more general
@@ -112,7 +112,7 @@ Throughout the whole ATT, there is a duality in the way mathematical
 notions are modeled: either through objects typical of lambda calculus
 and HOL (lambda-abstracted functions and lists, for example) or
 through objects typical of set theory (for example, relations,
-intersection, union, set difference, cartesian product).
+intersection, union, set difference, Cartesian product).
 
 This is possible because inside HOL, it is possible to model a
 simply-typed set theory which, although quite restrained if compared
@@ -142,10 +142,10 @@ definitions, they are the same.
 
 \subsection{Main theorems}
 
-The main theorems about VCG auctions are
+The main theorems about VCG auctions are:
 \begin{description}
   \item[the definiteness theorem:] our definitions grant that there is exactly one solution; this is 
-    ensured by vcgaDefiniteness.
+    ensured by \texttt{vcgaDefiniteness}.
   \item[PairwiseDisjointAllocations:] no good is allocated to more than one participant.
   \item[onlyGoodsAreAllocated:] only the actually available goods are allocated.
   \item[the adequacy theorem:] the solution provided by our algorithm is indeed the one prescribed by
@@ -164,15 +164,15 @@ to run any VCG auction.  Use
 in the form of Scala functions which can be evaluated on any input
 (e.g., a bidvector) to return the resulting allocation and prices.
 
-One easy way to deploy such functions is to use the provided Scala
+To deploy such functions use the provided Scala
 wrapper (taking care of the output and including sample inputs).  In
 order to do so, you can evaluate inside Isabelle/JEdit the file
-CombinatorialAuctionCodeExtraction.thy (position the cursor on its
+\texttt{CombinatorialAuctionCodeExtraction.thy} (position the cursor on its
 last line and wait for Isabelle/JEdit to end all its processing).
 This will result in the file
 \texttt{/dev/shm/VCG-withoutWrapper.scala}, which can be automatically
-appended the wrapper by running the shell script commented out after
-the end of. For details of how to run the Scala code see
+appended to the wrapper by running the shell script at
+the end of \texttt{CombinatorialAuctionCodeExtraction.thy}. For details of how to run the Scala code see
 \url{http://www.cs.bham.ac.uk/research/projects/formare/vcg.php}.
 
 
