@@ -1,6 +1,6 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage{isabelle,isabellesym}
-
+\usepackage{url}
 % further packages required for unusual symbols (see also
 % isabellesym.sty), use only when needed
 
@@ -35,8 +35,11 @@
 
 \begin{document}
 
-\title{Vcg}
-\author{M. B. Caminati, C. Lange, M. Kerber, C. Rowat}
+\title{Vickrey-Clarke-Groves (VCG) Auctions}
+\author{M. B. Caminati\footnote{School of Computer Science, University of Birmingham, UK}\addtocounter{footnote}{-1}
+  \and M. Kerber\footnotemark
+  \and C. Lange\footnote{Fraunhofer IAIS and University of Bonn, Germany, and School of Computer Science, University of Birmingham, UK}
+  \and C. Rowat\footnote{Department of Economics, University of Birmingham, UK}}
 \maketitle
 
 \begin{abstract}
@@ -80,17 +83,18 @@ Groves) is a generalization of the single-good, second price Vickrey
 auction to the case of a combinatorial auction (multiple goods, from
 which any participant can bid on each possible combination). We
 formalize in this entry VCG auctions, including tie-breaking and prove
-that the functions $a$ and $p$ are well-defined. Furthermore we show that
-the allocation function $a$ allocates goods only to participants, only
-goods in the auction are allocated, and no good is allocated
+that the functions $a$ and $p$ are well-defined. Furthermore we show
+that the allocation function $a$ allocates goods only to participants,
+only goods in the auction are allocated, and no good is allocated
 twice. Furthermore we show that the price function $p$ is
 non-negative. These properties also hold for the automatically
-extracted Scala code. For further details, \cite{ec15}.
+extracted Scala code. For further details on the formalization, see
+\cite{ec15}. For background information on VCG auctions, see \cite{cramton}.
 
   
-The following files are part of the Auction Theory Toolbox (ATT)
-developed in the ForMaRE project~\cite{formare}.  The theories
-\texttt{CombinatorialAuction.thy},
+The following files are part of the Auction Theory Toolbox
+(ATT)~\cite{github} developed in the ForMaRE project~\cite{formare}.
+The theories \texttt{CombinatorialAuction.thy},
 \texttt{StrictCombinatorialAuction.thy} and
 \texttt{UniformTieBreaking.thy} contain the relevant definitions and
 theorems; \texttt{CombinatorialAuctionExamples.thy} and
@@ -141,42 +145,35 @@ definitions, they are the same.
 The main theorems about VCG auctions are
 \begin{description}
   \item[the definiteness theorem:] our definitions grant that there is exactly one solution; this is 
-  ensured by vcgaDefiniteness.
-  \item[PairwiseDisjointAllocations: no good is allocated to more than one participant.
-- onlyGoodsAreAllocated: only the actually available goods are allocated.
-- the adequacy theorem: the solution provided by our algorithm is indeed the one prescribed by
-  standard pen-and-paper definition.
-- NonnegPrices: no participant ends up paying a negative price 
-  (e.g., no participant receives money at the end of the auction).
-- Bridging theorems: as discussed above, such theorems permit to apply the theorems in this 
-  list to the executable code Isabelle generates.
+    ensured by vcgaDefiniteness.
+  \item[PairwiseDisjointAllocations:] no good is allocated to more than one participant.
+  \item[onlyGoodsAreAllocated:] only the actually available goods are allocated.
+  \item[the adequacy theorem:] the solution provided by our algorithm is indeed the one prescribed by
+    standard pen-and-paper definition.
+  \item[NonnegPrices:] no participant ends up paying a negative price 
+    (e.g., no participant receives money at the end of the auction).
+  \item[Bridging theorems:] as discussed above, such theorems permit to apply the theorems in this 
+    list to the executable code Isabelle generates.
+\end{description}
 
--  Scala code extraction
+\subsection{Scala code extraction}
 
-Isabelle permits to generate, from our definition of VCG, Scala code to run any VCG auction.
-This code is in the form of Scala functions which can be evaluated on any input 
+Isabelle permits to generate, from our definition of VCG, Scala code
+to run any VCG auction.  Use
+\texttt{CombinatorialAuctionCodeExtraction.thy} for this. This code is
+in the form of Scala functions which can be evaluated on any input
 (e.g., a bidvector) to return the resulting allocation and prices.
 
-One easy way to deploy such functions is to use the provided Scala wrapper (taking care of the
-output and including sample inputs).
-In order to do so, you can evaluate inside Isabelle/JEdit the file
-CombinatorialAuctionCodeExtraction.thy (position the cursor on its last line and wait for
-Isabelle/JEdit to end all its processing).
-This will result in the file /dev/shm/VCG-withoutWrapper.scala, which can be automatically appended
-the wrapper by running the shell script commented out after the end of
-CombinatorialAuctionCodeExtraction.thy.
-
-
+One easy way to deploy such functions is to use the provided Scala
+wrapper (taking care of the output and including sample inputs).  In
+order to do so, you can evaluate inside Isabelle/JEdit the file
+CombinatorialAuctionCodeExtraction.thy (position the cursor on its
+last line and wait for Isabelle/JEdit to end all its processing).
+This will result in the file
+\texttt{/dev/shm/VCG-withoutWrapper.scala}, which can be automatically
+appended the wrapper by running the shell script commented out after
+the end of. For details of how to run the Scala code see
 \url{http://www.cs.bham.ac.uk/research/projects/formare/vcg.php}.
-
-
--   link to the CICM-2014
-    http://arxiv.org/abs/1406.0774.
--   link to the VCG description
-    http://www.cs.bham.ac.uk/research/projects/formare/vcg.php
--   link to the Isabelle source code and the corresponding scala files
-    https://github.com/formare/auctions/tree/master/isabelle/Auction/Vcg
-
 
 
 % sane default for proof documents
@@ -186,8 +183,8 @@ CombinatorialAuctionCodeExtraction.thy.
 \input{session}
 
 % optional bibliography
-%\bibliographystyle{abbrv}
-%\bibliography{root}
+\bibliographystyle{abbrv}
+\bibliography{root}
 
 \end{document}
 
