@@ -32,10 +32,9 @@ fof(insertIntoMember, axiom,
   )
 ).
 
-
 fof(d4_tarski,axiom,(
     ! [A,B] :
-      ( B = union(A)
+      ( B = unaryUnion(A)
     <=> ! [C] :
           ( member(C,B)
         <=> ? [D] :
@@ -44,7 +43,7 @@ fof(d4_tarski,axiom,(
 
 fof(th01,conjecture,
     ( ! [P,Q] : 
-    	    (subset(P,Q) & non_overlapping(Q) => non_overlapping(P))
+    	    ((subset(P,Q) & non_overlapping(Q)) => non_overlapping(P))
     )
    ).
 
@@ -67,8 +66,8 @@ fof(th04, conjecture,
 
 fof(th05, conjecture, 
 (! [A, B, C] : (
-                union(insertIntoMember(A,B,C)) = 
-                union(union(singleton(union(singleton(A), B)), difference(C, singleton(B)))
+                unaryUnion(insertIntoMember(A,B,C)) = 
+                unaryUnion(union(singleton(union(singleton(A), B)), difference(C, singleton(B)))
 ))
 ).
 
