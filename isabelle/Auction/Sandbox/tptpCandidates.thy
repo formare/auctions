@@ -115,7 +115,7 @@ lemma lm095:
 lemma map_commutes: fixes f::"'a => 'b" fixes Q::"'b => bool" fixes xs::"'a list" 
                     shows "[f n . n <- xs, Q (f n)] = [x <- (map f xs). Q x]"
       using map_commutes_a map_commutes_b structInduct by fast
-  
+
 (* TPTP: a general fact about Max *)      
 lemma maxLemma: 
   assumes "x \<in> X" "finite X" 
@@ -133,7 +133,8 @@ lemma lm101:
   shows    "set (injections_alg (x#xs) Y) = injections ({x} \<union> set xs) Y" 
   (is "?l=?r")
 
-  
+
+
 (* from MiscTools.thy *)
 
 lemma lm024: 
@@ -150,11 +151,12 @@ lemma pairDifference:
   "{(x,X)}-{(x,Y)} = {x}\<times>({X}-{Y})" 
   by blast
 
+  (*
 (* triples a can be bracket in any way, i.e., (1st, (2nd, 3rd)) \<rightarrow> ((1st, 2nd), 3rd).*)
 lemma lm050: 
   "inj_on  (%a. ((fst a, fst (snd a)), snd (snd a))) UNIV" 
   by (metis (lifting, mono_tags) Pair_fst_snd_eq Pair_inject injI)
-
+*)
 
 lemma setsumPairsInverse: 
   assumes "runiq (P^-1)" 
@@ -168,7 +170,7 @@ lemma lm072:
   "finite \<circ> finestpart = finite" 
   using finiteFinestpart by fastforce
 
-
+(*
 (* A relation for the sum of all y\<in>Y of f(x,y) for a fixed x. *)
 lemma sumCurry: 
   "setsum ((curry f) x) Y = setsum f ({x} \<times> Y)"  
@@ -176,6 +178,7 @@ lemma sumCurry:
 lemma lm060: 
   "inj_on fst P = inj_on (snd\<circ>flip) P" 
   using lm058 by metis
+*)
 
 lemma lm142: 
   assumes "trivial X" 
@@ -183,6 +186,4 @@ lemma lm142:
   using trivial_empty_or_singleton card_Pow Pow_empty assms trivial_implies_finite
         cardinalityOneTheElemIdentity power_one_right the_elem_eq 
   by (metis insert_iff)
-  
 
-  
