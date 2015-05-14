@@ -34,11 +34,11 @@ type_synonym allocation = "real vector"
 type_synonym payments = "real vector"
 
 
-text{* Initially we'd like to formalise any single good auction as a relation of bids and outcome.
+text{* Initially we would like to formalize any single good auction as a relation of bids and outcome.
   Proving the well-definedness of an auction is then a separate step in the auction design process.
   It involves:
   \begin{enumerate}
-  \item checking that the allocation and payments vectors actually meet our expectation of an allocation or payment,
+  \item checking that the allocation and payment vectors actually meet our expectation of an allocation or payment,
     as defined by the @{term allocation_def} predicate below, and auction-specific payment predicates
   \item checking that the relation actually is a function, i.e. that it is
     \begin{enumerate}
@@ -67,7 +67,7 @@ subsection {* Admissible input *}
 type_synonym input_admissibility = "participant set \<Rightarrow> bids \<Rightarrow> bool"
 
 text {* Admissible input (i.e.\ admissible bids, given the participants).  As we represent
-  @{typ bids} as functions, which are always total in Isabelle/HOL, we can't simply test, e.g., whether
+  @{typ bids} as functions, which are always total in Isabelle/HOL, we cannot simply test, e.g., whether
   their domain is @{term N} for the given participants @{term N}.  Therefore
   we test whether the function returns a value within some set, which a partial function would not do *}
 
@@ -126,3 +126,4 @@ definition single_good_auction :: "single_good_auction \<Rightarrow> bool"
   where "single_good_auction = rel_sat_sga_pred sga_pred"
 
 end
+

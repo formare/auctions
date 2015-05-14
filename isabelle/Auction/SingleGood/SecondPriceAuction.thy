@@ -63,12 +63,13 @@ definition second_price_auction_loser ::
   where "second_price_auction_loser N x p i \<longleftrightarrow> i \<in> N \<and>
      second_price_auction_loser_outcome N x p i"
 
+(* admissible input to a second price auction (spa) *)
 definition spa_admissible_input :: "participant set \<Rightarrow> bids \<Rightarrow> bool"
   where "spa_admissible_input N b \<longleftrightarrow> card N > 1 \<and> bids N b"
 
 text{* A second-price auction is an auction whose outcome satisfies the following conditions:
 \begin{enumerate}
-\item One of the participants with the highest bids wins. (We do not formalise the random selection of one distinct participants from the set of highest bidders,
+\item One of the participants with the highest bids wins. (We do not formalize the random selection of one distinct participants from the set of highest bidders,
 in case there is more than one.)
 \item The price that the winner pays is the maximum bid that remains after removing the winner's own bid from the vector of bids.
 \item The losers do not pay anything.
@@ -80,10 +81,11 @@ definition spa_pred :: "participant set \<Rightarrow> bids \<Rightarrow> allocat
       (\<exists>i \<in> N. i \<in> arg_max N b \<and> second_price_auction_winner_outcome N b x p i \<and>
         (\<forall>j \<in> N . j \<noteq> i \<longrightarrow> second_price_auction_loser_outcome N x p j))"
 
+text{* definition of a second price auction, projected to the allocation *}
 definition second_price_auction :: "single_good_auction \<Rightarrow> bool"
   where "second_price_auction = rel_sat_sga_pred spa_pred"
 
-text{* definition of a second price auction, projected to the allocation *}
+(* For a second price auction there exists a winner and all the other participants are losers. *)
 lemma spa_allocation :
   fixes N :: "participant set" and b :: bids
     and x :: allocation and p :: payments
@@ -95,6 +97,7 @@ lemma spa_allocation :
     second_price_auction_loser_outcome_def
   by auto
 
+(* If a predicate p, characterizing a Vickrey auction on a set A of pairs (admissible input, admissible result) implies another predicate q, characterizing a Vickrey auction on a set B of similar pairs then A must be a subset of B. *)
 lemma sga_pred_imp_lift_to_rel_all:
   fixes p q A B
   assumes PA: "rel_all_sga_pred p A"
@@ -116,7 +119,8 @@ proof -
   then have "(\<Sum> k \<in> N . x k) = 1"
     using `card N > 0` i_def
     by (metis (mono_tags) card_ge_0_finite monoid_add_class.add.right_neutral setsum.neutral setsum.remove)
-  then show ?thesis unfolding allocation_def non_negative_def le_def zero_def by (smt spa spa_allocation)
+  then show ?thesis unfolding allocation_def non_negative_def le_def zero_def spa spa_allocation
+  by (metis (poly_guards_query) i_def j_def member_remove order_refl remove_def zero_le_one) 
 qed
 
 text{* definition of a second price auction, projected to the payments *}
@@ -146,8 +150,15 @@ proof -
   from card_N and i_range obtain k where k_def: "k \<in> N \<and> k \<noteq> i"
     using  maximum_except_defined maximum_is_component
     by (metis Diff_iff insertCI)
-  with maximum_defined have greater: "maximum (N - {i}) b \<ge> b k" by (rule maximum_except_is_greater_or_equal)
-  also have "\<dots> \<ge> 0" using spa spa_pred_def second_price_auction_def spa_admissible_input_def bids_def non_negative_def le_def zero_def by (smt greater k_def)
+  with maximum_defined 
+  have greater: "maximum (N - {i}) b \<ge> b k" by (rule maximum_except_is_greater_or_equal)
+  also have "\<dots> \<ge> 0" 
+  (*   using spa spa_pred_def second_price_auction_def spa_admissible_input_def 
+           bids_def non_negative_def le_def zero_def 
+     by (smt greater k_def) *)
+    using spa spa_pred_def second_price_auction_def spa_admissible_input_def 
+           bids_def non_negative_def le_def zero_def greater k_def
+    by (metis dual_order.trans i_pay)
   with i_pay and calculation have "p i \<ge> 0" by simp
   with i_range and losers_pay have "\<forall> k \<in> N . p k \<ge> 0" by auto
   with vickrey_payment_def show ?thesis ..
@@ -160,8 +171,10 @@ lemma spa_is_sga_pred :
   assumes "spa_pred N b x p"
   shows "sga_pred N b x p"
   using assms
-  unfolding spa_pred_def spa_admissible_input_def sga_pred_def admissible_input_def by fast
+  unfolding spa_pred_def spa_admissible_input_def sga_pred_def admissible_input_def 
+  by fast
 
+(* Version of sga_pred_imp_lift_to_rel_all in form of relations rather than sets *)
 lemma sga_pred_imp_lift_to_rel_sat:
   fixes P Q p q A
   assumes P_def: "P = rel_sat_sga_pred p"
@@ -174,8 +187,8 @@ lemma spa_is_sga :
   fixes A :: single_good_auction
   assumes spa: "second_price_auction A"
   shows "single_good_auction A"
-using second_price_auction_def single_good_auction_def spa spa_is_sga_pred
-by (rule sga_pred_imp_lift_to_rel_sat)
+  using second_price_auction_def single_good_auction_def spa spa_is_sga_pred
+  by (rule sga_pred_imp_lift_to_rel_sat)
 
 lemma spa_allocates_binary :
   fixes N :: "participant set" and b :: bids
@@ -198,11 +211,9 @@ lemma allocated_implies_spa_winner:
     and "x winner = 1"
   shows "second_price_auction_winner N b x p winner"
   using assms
-  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def second_price_auction_loser_outcome_def
-    allocation_def
+  unfolding spa_pred_def second_price_auction_def second_price_auction_winner_def
+            second_price_auction_loser_outcome_def allocation_def
   by (metis zero_neq_one)
-   (* CL: With the generalised allocation_def, this proof needed a bit more complexity,
-          as "x winner = 1" implies "x i = 0" for all other participants is rather implicit now. *)
 
 text{* A participant who doesn't get the good satisfies the further properties of a second-price auction loser. *}
 lemma not_allocated_implies_spa_loser:

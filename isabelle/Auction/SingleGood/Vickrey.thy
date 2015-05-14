@@ -33,7 +33,7 @@ Thus, the auction is also efficient, awarding the item to the bidder with the hi
 Vickrey was awarded Economics' Nobel prize in 1996 for his work.
 High level versions of his theorem, and 12 others, were collected in Eric Maskin's 2004 review of Paul Milgrom's influential book on auction theory
 (``The unity of auction theory: Milgrom's master class'', Journal of Economic Literature, 42(4), pp. 1102--1115).
-Maskin himself won the Nobel in 2007.
+Maskin himself won the Nobel prize in 2007.
 *}
 
 
@@ -70,7 +70,8 @@ proof -
     fix whatever_bid :: bids  (* this is an alternative to the bid vector b *)
     assume alternative_is_bid: "bids N whatever_bid"
  
-    let ?b = "whatever_bid(i := b i)" (* ?b is a bid built from whatever_bid by setting the ith component to b i which is equal to v i *)
+    let ?b = "whatever_bid(i := b i)" 
+    (* ?b is a bid built from whatever_bid by setting the ith component to b i which is equal to v i *)
     
     have is_bid: "bids N ?b"
       using bids alternative_is_bid
@@ -216,3 +217,4 @@ proof -
 qed
 
 end
+

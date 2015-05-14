@@ -22,7 +22,7 @@ imports Main
 begin
 
 text{*
-The maximum component value of a vector y of non-negative values is equal to the value of one of the components, and it is greater or equal than the values of all [other] components.
+The maximum component value of a vector y of non-negative values is equal to the value of one of the components, and it is greater than or equal to the values of all [other] components.
 
 We implement this as a computable function, whereas a mathematical characterization could be given by the following two axioms:
 \begin{enumerate}
@@ -84,7 +84,7 @@ proof -
   then show ?thesis unfolding maximum_def by fast
 qed
 
-text{* Being a component of a non-negative vector and being greater or equal than all other components uniquely defines a maximum component. *}
+text{* Being a component of a non-negative vector and being greater than or equal to all other components uniquely defines a maximum component. *}
 lemma maximum_sufficient:
   fixes N :: "'a set" and f :: "'a \<Rightarrow> 'b::linorder" and m :: 'b
   assumes defined: "maximum_defined N"
@@ -113,10 +113,12 @@ text{* the set of all indices of maximum components of a vector (computable vers
 fun arg_max_alg_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a list"
   where "arg_max_alg_list [] f = []"
       | "arg_max_alg_list [x] f = [x]"
-      | "arg_max_alg_list (x # xs) f = (let arg_max_xs = arg_max_alg_list xs f; prev_max = f (hd arg_max_xs) in
-          if f x > prev_max then [x]
-          else if f x = prev_max then x # arg_max_xs
-          else arg_max_xs)"
+      | "arg_max_alg_list (x # xs) f = 
+          (let arg_max_xs = arg_max_alg_list xs f; 
+               prev_max = f (hd arg_max_xs) in
+           if f x > prev_max then [x]
+           else if f x = prev_max then x # arg_max_xs
+           else arg_max_xs)"
 
 text{* the set of all indices of maximum components of a vector (computable version with same signature as @{term arg_max}) *}
 fun arg_max_alg :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'a set"
@@ -126,8 +128,10 @@ text{* the indices of the maximum values of the elements of a list *}
 fun max_positions :: "'a::ord list \<Rightarrow> nat list" 
 where "max_positions [] = []"
     | "max_positions [x] = [0]" 
-    | "max_positions (x # xs) = (let 
-        prevout = max_positions xs; prev_max = xs ! (hd prevout); nextout=map Suc prevout (* increment position indices *) in
+    | "max_positions (x # xs) = 
+        (let prevout = max_positions xs; 
+             prev_max = xs ! (hd prevout); 
+             nextout=map Suc prevout (* increment position indices *) in
         if x > prev_max then [0::nat] 
         else if x<prev_max then nextout
         else [0::nat] @ nextout (* tie case *)
@@ -136,15 +140,17 @@ where "max_positions [] = []"
 fun maximum_alg_list :: "'a list \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
   where "maximum_alg_list [] f = undefined"
       | "maximum_alg_list [x] f = f x"
-      | "maximum_alg_list (x # xs) f = (let max_xs = maximum_alg_list xs f in
-          if f x > max_xs then f x
-          else max_xs)"
+      | "maximum_alg_list (x # xs) f = 
+          (let max_xs = maximum_alg_list xs f in
+         if f x > max_xs then f x
+         else max_xs)"
 
+(* the same as the above, but takes a set rather than a list as argument *)
 fun maximum_alg :: "'a::linorder set \<Rightarrow> ('a \<Rightarrow> 'b::linorder) \<Rightarrow> 'b"
   where "maximum_alg N b = maximum_alg_list (sorted_list_of_set N) b"
 
-text{* The maximum component that remains after removing one component from a vector is greater
- or equal than the values of all remaining components *}
+text{* The maximum component that remains after removing one component from a vector is greater than
+ or equal to the values of all remaining components *}
 lemma maximum_except_is_greater_or_equal:
   fixes N :: "'a set" and f :: "'a \<Rightarrow> 'b::linorder" and j :: 'a and i :: 'a
   assumes defined: "maximum_defined N"
@@ -174,8 +180,7 @@ proof -
   finally show ?thesis .
 qed
 
-text{* Changing one component in a vector doesn't affect the maximum of the remaining component
-s. *}
+text{* Changing one component in a vector does not affect the maximum of the remaining components. *}
 lemma remaining_maximum_invariant:
   fixes N :: "'a set" and f :: "'a \<Rightarrow> 'b::linorder" and i :: 'a and a :: 'b
   shows "maximum (N - {i}) (f(i := a)) = maximum (N - {i}) f"

@@ -113,7 +113,7 @@ definition efficient :: "participant set \<Rightarrow> valuations \<Rightarrow> 
 subsection {* Equilibrium in weakly dominant strategies *}
 
 text{* Given some single good auction, a strategy profile supports an equilibrium in weakly dominant strategies
-  if each participant maximises their payoff by bidding their valuation,
+  if each participant maximizes their payoff by bidding their valuation,
     whatever the other participants do. *}
 definition equilibrium_weakly_dominant_strategy ::
   "participant set \<Rightarrow> valuations \<Rightarrow> bids \<Rightarrow> single_good_auction \<Rightarrow> bool" where
@@ -128,3 +128,4 @@ definition equilibrium_weakly_dominant_strategy ::
           payoff (v i) (x' i) (p' i) \<ge> payoff (v i) (x i) (p i)))))"
 
 end
+
