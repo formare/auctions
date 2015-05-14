@@ -364,7 +364,7 @@ proof -
   have "card ((argmax\<circ>setsum) (randomBids N \<Omega> b r) 
                               ((argmax\<circ>setsum) b (allAllocations (N\<union>{seller}) (set \<Omega>)))) =
         1" 
-  (is "card ?X = _") using assms lm08 by blast
+  (is "card ?X = 1") using assms lm08 by blast
   moreover have "(Outside'{seller}) ` ?X = vcgas N \<Omega> b r" by blast
   ultimately show ?thesis using cardOneImageCardOne by blast
 qed
