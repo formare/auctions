@@ -1,0 +1,21 @@
+thf(Pow,definition,
+  ( Pow = 
+    ( ^ [ A : $i > $o, a : $i > $o ] : (subset @ A @ a) )
+  )
+).
+  
+thf(Runiq,definition,
+  (Runiq = (^ [ R :$i > $i > $o ] : 
+    (! [ x: $i , y: $i, z: $i] : ( R @ x @ y & R @ x @ z ) => y = z ))
+  )).
+  
+thf(allInjections, definition,
+  (allInjections = ^ [ X: $i > $o, Y: $i > $o, R: ($i > $i > $o) ] : 
+    (rel_domain @ R = X & subset @ (rel_codomain @ R) @ Y & Runiq @ R & Runiq @ (rel_inverse @ R )) 
+  )
+).
+
+thf(allPartitions, definition,
+  allPartitions = ^ [ X: $i > $o ] : ()
+).
+
