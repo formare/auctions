@@ -1,0 +1,156 @@
+%------------------------------------------------------------------------------
+% File     : <For TPTP use only>
+% Domain   : Set Theory
+% Axioms   : Additional definitions for partitions 
+% Version  : [ATT] axioms
+% English  : 
+
+% Refs     : [CKLR:SASI-EC15], Email to G. Sutcliffe
+% Source   : [ATT]
+% Names    : 
+
+% Status   : Satisfiable
+% Syntax   : <Don't worry about this one - we'll do it automatically>
+% SPC      : <Don't worry about this one - we'll do it automatically>
+
+% Comments : 
+%------------------------------------------------------------------------------
+
+fof(non_overlapping, axiom, 
+(! [X] : (non_overlapping(X) <=> (? [U] : partition(X,U))))
+).
+
+fof(insertIntoMember, axiom,
+  (! [A, B, C] : insertIntoMember(A,B,C) = 
+                 union(union(B,singleton(A)), difference(C,singleton(B)))
+  )
+).
+
+%----Can also use sum from SET006
+fof(d4_tarski,axiom,(
+    ! [A,B] :
+      ( B = unaryUnion(A)
+    <=> ! [C] :
+          ( member(C,B)
+        <=> ? [D] :
+              ( member(C,D)
+              & member(D,A) ) ) ) )).
+
+%------------------------------------------------------------------------------
+
+fof(pair, axiom,
+	(pair(A,B) = unordered_pair( unordered_pair(A,B), unordered_pair(A,A))) 
+).
+
+fof(domain, axiom,
+	( ! [X,R] : 
+		(member (X, domain(R)) <=> (? [Y] : member(pair(X,Y), R)) )
+	)
+).
+
+fof(converse, axiom,
+	( ! [X,Y,R] : 
+		(member(pair(Y,X), converse(R)) <=> member(pair(X,Y), R))
+	)
+).
+
+fof(cartprod, axiom,
+	( ! [A, B, Z] : (member(Z,cartprod(A,B))) <=> ( ? [X,Y] : Z=pair(X,Y)))
+).
+
+fof(isrelation, axiom,
+	( ! [R] : (isrelation(R) <=> ( ? [X,Y] : (R=cartprod(X,Y))))
+	)
+).
+
+fof(allrelations, axiom,
+	(! [A,B] : (allrelations(A,B) = power_set(cartprod(A,B))))
+).
+
+fof(range,axiom,
+	(! [R] : (range(R) = domain(converse(R)))) 
+).
+
+fof(image, axiom,
+	(! [Y,R,A] : ( member(Y, image(R,A))) <=> ( ? [X] : ((member(X,A)) & (member (
+	pair(X,Y), R
+	) )) ))
+).
+
+fof(issingleton, axiom, 
+	(! [A] : (issingleton(A)) <=> (? [X] : (A=singleton(X))))
+).
+
+fof(istrivial, axiom,
+	(! [A] : (
+		(istrivial(A)) <=> (subset(A, singleton(prod(A))))
+	))
+).
+
+fof(isruniq, axiom, 
+	(! [R] : ( (isruniq(R)) <=> (
+		! [X,Y] : (trivial(X) => (trivial(image(R,X)))) 
+	)))
+).
+
+fof(outside, axiom, 
+	(! [R,A] : (
+		outside(R,A) = diff(R, cartprod(A,range(R)))
+	))
+).
+
+fof(allinjections, axiom,
+	(! [A, B, R] : (member (R,allinjections(A,B))) <=>
+		( (domain(R) = A) &
+		  (subset(range(R),B)) &
+		  (isruniq(R)) &
+		  (isruniq(converse(R))) &
+		  (isrelation(R))
+		)
+	)
+).
+
+fof(allallocations, axiom,
+	( ! [B,C,A] :
+		(
+			(member(A,allallocations(B,C)) <=>
+			(
+				?[D, E] : (
+						(
+						subset(D,B) &
+						partition(E,C) &
+						member(A,allinjections(D,E))
+						)
+				) 
+			)
+		)
+	)
+).
+
+fof(soldallocations, axiom,
+	(
+	! [S,N,G,A] : ( member(A,soldallocations) <=> (
+		member(outside(A,singleton(S)), allallocations(N,G))
+	))
+	)
+).
+
+
+%------
+
+fof(allAllocationsInPowerset, conjecture,
+	(
+		subset(allallocations(N,G),
+			power_set(cartprod(N, diff(power_set(G), singleton(empty_set))))
+		)
+	)
+).
+
+fof(soldAllocationRestriction, conjecture,
+	( ! [N,G,A,X] : (
+	(member(A, allallocations(N,G))) => (member(outside(A,singleton(X)), 
+	soldallocations(diff(N, singleton(X)), G)
+	)) 
+	))
+).
+
