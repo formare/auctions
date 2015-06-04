@@ -16,13 +16,16 @@
 % Comments : 
 %------------------------------------------------------------------------------
 
+%----- A family of sets X is non overlapping if its element are pairwise disjoint
+%----- Alternatively, if it is the partition of some set U
 fof(non_overlapping, axiom, 
 (! [X] : (non_overlapping(X) <=> (? [U] : partition(X,U))))
 ).
 
+%----- Given a partition P, we grow one of its sets B by adding A to B.
 fof(insertIntoMember, axiom,
-  (! [A, B, C] : insertIntoMember(A,B,C) = 
-                 union(union(B,singleton(A)), difference(C,singleton(B)))
+  (! [A, B, P] : insertIntoMember(A,B,P) = 
+                 union(union(B,singleton(A)), difference(P,singleton(B)))
   )
 ).
 
@@ -59,7 +62,9 @@ fof(cartprod, axiom,
 ).
 
 fof(isrelation, axiom,
-	( ! [R] : (isrelation(R) <=> ( ? [X,Y] : (R=cartprod(X,Y))))
+	( ! [R] : (isrelation(R) <=> ( ? [X,Y] : (
+	subset(R,cartprod(X,Y))
+	)))
 	)
 ).
 
@@ -93,6 +98,8 @@ fof(isruniq, axiom,
 	)))
 ).
 
+fof(isfunction, axiom, (! [F]: (isfunction(F) <=> ((isrelation(F)) & (isruniq(F)))))).
+
 fof(outside, axiom, 
 	(! [R,A] : (
 		outside(R,A) = diff(R, cartprod(A,range(R)))
@@ -110,15 +117,16 @@ fof(allinjections, axiom,
 	)
 ).
 
+%--- N is the set of participants, G the set of goods
 fof(allallocations, axiom,
-	( ! [B,C,A] :
+	( ! [N,G,A] :
 		(
-			(member(A,allallocations(B,C)) <=>
+			(member(A,allallocations(N,G)) <=>
 			(
 				?[D, E] : (
 						(
-						subset(D,B) &
-						partition(E,C) &
+						subset(D,N) &
+						partition(E,G) &
 						member(A,allinjections(D,E))
 						)
 				) 
@@ -127,16 +135,25 @@ fof(allallocations, axiom,
 	)
 ).
 
+%--- S is the seller
 fof(soldallocations, axiom,
 	(
-	! [S,N,G,A] : ( member(A,soldallocations) <=> (
+	! [S,N,G,A] : ( member(A,soldallocations(S,N,G)) <=> (
 		member(outside(A,singleton(S)), allallocations(N,G))
 	))
 	)
 ).
 
+fof(isinductive, axiom, ( ![A]: 
+	(isinductive(A) <=> (! [X]: ((member(X,A)) => (member(suc(X),A))) ))
+)	
+).
 
-%------
+fof(isnatnumber, axiom, ( ![N]: 
+	(isnatnumber(N) <=> (![X]: (isinductive(X) => (member(N,X)))))
+)).
+
+%------ END of Axioms
 
 fof(allAllocationsInPowerset, conjecture,
 	(
@@ -153,4 +170,25 @@ fof(soldAllocationRestriction, conjecture,
 	)) 
 	))
 ).
+
+fof(pairDifference, conjecture, ( ! [A, B, C]: (
+	diff(singleton( pair(A,B) ) 
+	singleton( pair(A,C) )) = 
+	cartprod(singleton(A), (diff(singleton(B), singleton(C))))
+	))
+).
+
+fof(lm142, conjecture,( ! [A]: (
+(istrivial(A)) =>
+(issingleton(power_set(A))) | (issingleton(sum(power_set(A))))
+))).
+
+
+fof(soldAllocationsFinite, conjecture, (! [S, N, G] : ( 
+	((isfinite(N)) & (isfinite(G))) => (isfinite(soldallocations(S,N,G)))	
+))).
+
+fof(maxLemma, conjecture, ( ! [A, B, F]: (
+	((member(A,B)) & (isfinite(B)) & (isfunction(F))) => (max(image(F,B)) >= apply(F,A))
+))).
 
