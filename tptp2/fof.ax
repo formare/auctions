@@ -42,22 +42,12 @@ fof(insertIntoMember, axiom,
   )
 ).
 
-%----Can also use sum from SET006
-fof(d4_tarski,axiom,(
-    ! [A,B] :
-      ( B = unaryUnion(A)
-    <=> ! [C] :
-          ( member(C,B)
-        <=> ? [D] :
-              ( member(C,D)
-              & member(D,A) ) ) ) )).
-
-%------------------------------------------------------------------------------
-
+%---- Ordered pair (standard Kuratowski definition)
 fof(pair, axiom,
 	(pair(A,B) = unordered_pair( unordered_pair(A,B), unordered_pair(A,A))) 
 ).
 
+%---- Given a relation P, returns a function yielding the second component for each pair in P
 fof(snd, axiom, (
 	! [P,Z] : ((member(Z,snd(P))) <=> (? [X,Y] : (
 		(member(pair(X,Y),P)) & (Z=pair(pair(X,Y), Y)) 
@@ -104,13 +94,14 @@ fof(allrelations, axiom,
 	(! [A,B] : (allrelations(A,B) = power_set(cartprod(A,B))))
 ).
 
+%--- image(R,A) is the set obtained by applying the relation R to the set A.
 fof(image, axiom,
 	(! [Y,R,A] : ( member(Y, image(R,A))) <=> ( ? [X] : ((member(X,A)) & (member (
 	pair(X,Y), R
 	) )) ))
 ).
 
-%--- Applies a relation to a single argument (typically, a member of its domain; also typically, F will be runiq)
+%--- Applies a relation to a single argument (typically, a member of its domain; also typically, F will be runiq).
 fof(relapply, axiom, (
 	! [F, A] : (relapply(F,A) = sum (image(F, singleton(A))))
 )).
@@ -119,12 +110,14 @@ fof(issingleton, axiom,
 	(! [A] : (issingleton(A)) <=> (? [X] : (A=singleton(X))))
 ).
 
+%--- A trivial set is either empty or singleton
 fof(istrivial, axiom,
 	(! [A] : (
 		(istrivial(A)) <=> (subset(A, singleton(prod(A))))
 	))
 ).
 
+%--- A relation is right-unique if each member of its domain has only one image (i.e., R is a function)
 fof(isruniq, axiom, 
 	(! [R] : ( (isruniq(R)) <=> (
 		! [X,Y] : (trivial(X) => (trivial(image(R,X)))) 
@@ -203,10 +196,12 @@ fof(isnatnumber, axiom, ( ! [N]:
 	(isnatnumber(N) <=> (![X]: (isinductive(X) => (member(N,X)))))
 )).
 
+%--- omega is the set of naturals (you need infinity axiom for that; here, we just impose omega exists)
 fof(omega, axiom, (
 	! [N] : (member(N,omega) <=> isnatnumber(N))
 )).
 
+%--- This assumes that the cardinality exists, bypassing ordinal theory
 fof(card, axiom, (
 	! [F] : ((member(N,omega)) & (? [G] : 
 		(member(G,allbijections(F,N))) =>
