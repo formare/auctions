@@ -268,9 +268,9 @@ fof(soldAllocationsFinite, conjecture, (! [S, N, G] : (
 	((isfinite(N)) & (isfinite(G))) => (isfinite(soldallocations(S,N,G)))	
 ))).
 
-%--- Here, sum means max, and member means <= 
+%--- Here, sum means max, and member means < 
 fof(maxLemma, conjecture, ( ! [A, B, F]: (
-	((member(A,B)) & (isfinite(B)) & (isfunction(F)) & (subset(range(F),omega)) & (subset(B,domain(F)))) => (member(relapply(F,A),sum(image(F,B))))
+	((member(A,B)) & (isfinite(B)) & (isfunction(F)) & (subset(range(F),omega)) & (subset(B,domain(F)))) => (member(relapply(F,A),suc(sum(image(F,B)))))
 ))).
 
 fof(setsumPairsInverse, conjecture, (
