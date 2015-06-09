@@ -71,11 +71,16 @@ fof(range,axiom,
 ).
 
 fof(cartprod, axiom,
-	( ! [A, B, Z] : (member(Z,cartprod(A,B))) <=> ( ? [X,Y] : Z=pair(X,Y)))
+	( ! [A, B, Z] : ((member(Z,cartprod(A,B))) <=> ( ? [X,Y] : 
+								((Z=pair(X,Y)) & (member(X,A)) & (member(Y,B)))
+						      )
+			)
+						       
+         )
 ).
 
 fof(isrelation, axiom,
-	( ! [R] : (isrelation(R) <=> ( ? [X,Y] : (
+	( ! [R] : ( (isrelation(R)) <=> ( ? [X,Y] : (
 	subset(R,cartprod(X,Y))
 	)))
 	)
@@ -96,9 +101,10 @@ fof(allrelations, axiom,
 
 %--- image(R,A) is the set obtained by applying the relation R to the set A.
 fof(image, axiom,
-	(! [Y,R,A] : ( member(Y, image(R,A))) <=> ( ? [X] : ((member(X,A)) & (member (
-	pair(X,Y), R
-	) )) ))
+	(! [Y,R,A] : (  
+			( member(Y, image(R,A))) <=> 
+			( ? [X] : ((member(X,A)) & (member (pair(X,Y), R) )) ))
+		     )
 ).
 
 %--- Applies a relation to a single argument (typically, a member of its domain; also typically, F will be runiq).
@@ -106,8 +112,9 @@ fof(relapply, axiom, (
 	! [F, A] : (relapply(F,A) = sum (image(F, singleton(A))))
 )).
 
-fof(issingleton, axiom, 
-	(! [A] : (issingleton(A)) <=> (? [X] : (A=singleton(X))))
+fof(issingleton, axiom, (! [A] : 
+			 ((issingleton(A)) <=> (? [X] : (A=singleton(X))))
+			)
 ).
 
 %--- A trivial set is either empty or singleton
@@ -203,10 +210,11 @@ fof(omega, axiom, (
 
 %--- This assumes that the cardinality exists, bypassing ordinal theory
 fof(card, axiom, (
-	! [F] : ((member(N,omega)) & (? [G] : 
-		(member(G,allbijections(F,N))) =>
-		((card(F) = N)
-	)))
+	! [F] :
+	      (
+	      	((member(N,omega)) & (? [G] : (member(G,allbijections(F,N))))) 
+	      	=> (card(F) = N)
+	      )	      
 )).
 
 %--- disjointer takes a family of sets and maps each of them to an equinumerous set. The fundamental difference is that the new family has the non-overlapping property.
