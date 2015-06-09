@@ -236,6 +236,24 @@ fof(fsetsum, axiom, (
 	! [F, A] : (fsetsum(F,A) = setsum(disjointer(image(F,A))))
 )).
 
+
+%--- In set theory, where function implicitly specifies its domain, we can talk about the argmax of a function (without specifying a second argument) without losing generality.
+fof(argmaxaux, axiom, (
+	! [F,X] : (
+		(member(X,argmaxaux(F)) <=> ((member(X,domain(F))) & (relapply(F,X)=sum(range(F)))))
+		)
+)).
+
+%--- Restriction of a relation to a set.
+fof(restrict, axiom, (
+	! [R, A] : (restrict(R,A) = outside(R,difference(domain(R),A)))
+)).
+
+%--- We use the one-argument argmax to easily define the standard argmax 
+fof(argmax, axiom, (
+	! [F,A] : (argmax(F,A) = argmaxaux(restrict(F,A)))
+)).
+
 %------ END of Axioms
 
 fof(allAllocationsInPowerset, conjecture,
@@ -287,7 +305,6 @@ fof(lm142, conjecture, (
 
 %--- lm112 links the concept of cardinality to the sum over a set: it is somehow a bridge between
 %--- set theory and economics (where we use fsetsum to calculate revenues)
-
 fof(lm112, conjecture, (
 	! [X,Y,Z] : ( 
   ((subset(Z,union(X,Y))) & (isfinite(Z))) => 
@@ -313,5 +330,26 @@ fof(lm053, conjecture, (
 			allallocations (difference(N,X), sum(range(A))))
 		)
         )
+)).
+
+%--- argmax F is the counterimage, through F, of {max(range(F))}. max is set-theoretically rendered via sum
+fof(lm01, conjecture, (
+	((isfunction(F)) & (finite(F)) & (subset(range(F),omega))) => 
+	(argmaxaux(F) = image(converse(F),singleton(sum(range(F)))))
+)).
+
+%---
+fof(argmaxEquivalence, conjecture, (
+( ! [F,G,A] :
+	(
+	( 	(isfunction(F)) & (isfunction(G)) & (subset(A,intersection(domain(F),domain(G)))) & 
+		(subset(union(range(F),range(G)),omega)) &
+		(finite(A)) &
+		( ! [X] : ((member(X,A)) => (relapply(F,X)=relapply(G,X))))
+	) 
+	=> 
+	(argmax(F,A) = argmax(G,A))
+	)
+)
 )).
 
