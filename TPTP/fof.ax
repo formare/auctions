@@ -217,9 +217,8 @@ fof(soldallocations, axiom,
 
 %--- An inductive set is a superset of the set of natural numbers.
 fof(isinductive, axiom, ( ! [A]: 
-	(isinductive(A) <=> ((member(zero, A)) & (! [X]: ((member(X,A)) => (member(suc(X),A))) ))))
-)	
-).
+	(isinductive(A) <=> ((member(zero, A)) & (! [X]: ((member(X,A)) => (member(suc(X),A))) )))
+)).
 
 %--- The natural numbers are the smallest inductive set.
 fof(isnatnumber, axiom, ( ! [N]: 
@@ -295,7 +294,7 @@ fof(allAllocationsInPowerset, conjecture,
 
 fof(soldAllocationRestriction, conjecture,
 	( ! [N,G,A,X,S] : (
-	(member(A, soldallocations(N,G))) => (member(outside(A,singleton(X)), 
+	(member(A, soldallocations(S,N,G))) => (member(outside(A,singleton(X)), 
 	soldallocations(S,difference(N, singleton(X)), G)
 	)) 
 	))
@@ -356,11 +355,11 @@ fof(lm053, conjecture, (
         )
 )).
 
-%--- argmax F is the counterimage, through F, of {max(range(F))}. max is set-theoretically rendered via sum
-%--- model more closely to lm01 in Argmax.thy
+%--- argmax F is the counterimage, through F, of {max(F[A])}, where F[A] is the image of the set A through F.
+%--- max is set-theoretically rendered via sum.
 fof(lm01, conjecture, (
 	((isfunction(F)) & (finite(F)) & (subset(range(F),omega))) => 
-	(argmaxaux(F) = image(converse(F),singleton(sum(range(F)))))
+	(argmax(F,A) = intersection(A,image(converse(F),singleton(sum(image(F,A))))))
 )).
 
 %---
