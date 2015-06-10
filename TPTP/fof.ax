@@ -21,7 +21,7 @@ include('Axioms/SET006+1.ax').
 include('Axioms/SET006+2.ax').
 
 %--- The successor of a set for defining natural number as sets such as
-%--- 0 is the empty set and n+1 := {n, {n}}.
+%--- 0 is the empty set and n+1 := n u {n}.
 fof(suc, axiom, (
 	! [A] : (suc(A) = union(A, singleton(A)))
 )).
