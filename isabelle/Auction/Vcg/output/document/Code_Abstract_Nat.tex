@@ -1,0 +1,207 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{Code{\isacharunderscore}Abstract{\isacharunderscore}Nat}%
+%
+\isamarkupheader{Avoidance of pattern matching on natural numbers%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Code{\isacharunderscore}Abstract{\isacharunderscore}Nat\isanewline
+\isakeyword{imports}\ Main\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\begin{isamarkuptext}%
+When natural numbers are implemented in another than the
+  conventional inductive \isa{{\isadigit{0}}}/\isa{Suc} representation,
+  it is necessary to avoid all pattern matching on natural numbers
+  altogether.  This is accomplished by this theory (up to a certain
+  extent).%
+\end{isamarkuptext}%
+\isamarkuptrue%
+%
+\isamarkupsubsection{Case analysis%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Case analysis on natural numbers is rephrased using a conditional
+  expression:%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharcomma}\ code{\isacharunderscore}unfold{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}case{\isacharunderscore}nat\ {\isacharequal}\ {\isacharparenleft}{\isasymlambda}f\ g\ n{\isachardot}\ if\ n\ {\isacharequal}\ {\isadigit{0}}\ then\ f\ else\ g\ {\isacharparenleft}n\ {\isacharminus}\ {\isadigit{1}}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}auto\ simp\ add{\isacharcolon}\ fun{\isacharunderscore}eq{\isacharunderscore}iff\ dest{\isacharbang}{\isacharcolon}\ gr{\isadigit{0}}{\isacharunderscore}implies{\isacharunderscore}Suc{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsubsection{Preprocessors%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The term \isa{Suc\ n} is no longer a valid pattern.  Therefore,
+  all occurrences of this term in a position where a pattern is
+  expected (i.e.~on the left-hand side of a code equation) must be
+  eliminated.  This can be accomplished -- as far as possible -- by
+  applying the following transformation rule:%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ Suc{\isacharunderscore}if{\isacharunderscore}eq{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymAnd}n{\isachardot}\ f\ {\isacharparenleft}Suc\ n{\isacharparenright}\ {\isasymequiv}\ h\ n{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}f\ {\isadigit{0}}\ {\isasymequiv}\ g{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}f\ n\ {\isasymequiv}\ if\ n\ {\isacharequal}\ {\isadigit{0}}\ then\ g\ else\ h\ {\isacharparenleft}n\ {\isacharminus}\ {\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ eq{\isacharunderscore}reflection{\isacharparenright}\ {\isacharparenleft}cases\ n{\isacharcomma}\ insert\ assms{\isacharcomma}\ simp{\isacharunderscore}all{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The rule above is built into a preprocessor that is plugged into
+  the code generator.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+%
+\isadelimML
+%
+\endisadelimML
+%
+\isatagML
+\isacommand{setup}\isamarkupfalse%
+\ {\isacharverbatimopen}\isanewline
+let\isanewline
+\isanewline
+val\ Suc{\isacharunderscore}if{\isacharunderscore}eq\ {\isacharequal}\ Thm{\isachardot}incr{\isacharunderscore}indexes\ {\isadigit{1}}\ %
+\isaantiq
+thm\ Suc{\isacharunderscore}if{\isacharunderscore}eq{}%
+\endisaantiq
+{\isacharsemicolon}\isanewline
+\isanewline
+fun\ remove{\isacharunderscore}suc\ ctxt\ thms\ {\isacharequal}\isanewline
+\ \ let\isanewline
+\ \ \ \ val\ thy\ {\isacharequal}\ Proof{\isacharunderscore}Context{\isachardot}theory{\isacharunderscore}of\ ctxt{\isacharsemicolon}\isanewline
+\ \ \ \ val\ vname\ {\isacharequal}\ singleton\ {\isacharparenleft}Name{\isachardot}variant{\isacharunderscore}list\ {\isacharparenleft}map\ fst\isanewline
+\ \ \ \ \ \ {\isacharparenleft}fold\ {\isacharparenleft}Term{\isachardot}add{\isacharunderscore}var{\isacharunderscore}names\ o\ Thm{\isachardot}full{\isacharunderscore}prop{\isacharunderscore}of{\isacharparenright}\ thms\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isachardoublequote}n{\isachardoublequote}{\isacharsemicolon}\isanewline
+\ \ \ \ val\ cv\ {\isacharequal}\ cterm{\isacharunderscore}of\ thy\ {\isacharparenleft}Var\ {\isacharparenleft}{\isacharparenleft}vname{\isacharcomma}\ {\isadigit{0}}{\isacharparenright}{\isacharcomma}\ HOLogic{\isachardot}natT{\isacharparenright}{\isacharparenright}{\isacharsemicolon}\isanewline
+\ \ \ \ val\ lhs{\isacharunderscore}of\ {\isacharequal}\ snd\ o\ Thm{\isachardot}dest{\isacharunderscore}comb\ o\ fst\ o\ Thm{\isachardot}dest{\isacharunderscore}comb\ o\ cprop{\isacharunderscore}of{\isacharsemicolon}\isanewline
+\ \ \ \ val\ rhs{\isacharunderscore}of\ {\isacharequal}\ snd\ o\ Thm{\isachardot}dest{\isacharunderscore}comb\ o\ cprop{\isacharunderscore}of{\isacharsemicolon}\isanewline
+\ \ \ \ fun\ find{\isacharunderscore}vars\ ct\ {\isacharequal}\ {\isacharparenleft}case\ term{\isacharunderscore}of\ ct\ of\isanewline
+\ \ \ \ \ \ \ \ {\isacharparenleft}Const\ {\isacharparenleft}%
+\isaantiq
+const{\isacharunderscore}name\ Suc{}%
+\endisaantiq
+{\isacharcomma}\ {\isacharunderscore}{\isacharparenright}\ {\isachardollar}\ Var\ {\isacharunderscore}{\isacharparenright}\ {\isacharequal}{\isachargreater}\ {\isacharbrackleft}{\isacharparenleft}cv{\isacharcomma}\ snd\ {\isacharparenleft}Thm{\isachardot}dest{\isacharunderscore}comb\ ct{\isacharparenright}{\isacharparenright}{\isacharbrackright}\isanewline
+\ \ \ \ \ \ {\isacharbar}\ {\isacharunderscore}\ {\isachardollar}\ {\isacharunderscore}\ {\isacharequal}{\isachargreater}\isanewline
+\ \ \ \ \ \ \ \ let\ val\ {\isacharparenleft}ct{\isadigit{1}}{\isacharcomma}\ ct{\isadigit{2}}{\isacharparenright}\ {\isacharequal}\ Thm{\isachardot}dest{\isacharunderscore}comb\ ct\isanewline
+\ \ \ \ \ \ \ \ in\ \isanewline
+\ \ \ \ \ \ \ \ \ \ map\ {\isacharparenleft}apfst\ {\isacharparenleft}fn\ ct\ {\isacharequal}{\isachargreater}\ Thm{\isachardot}apply\ ct\ ct{\isadigit{2}}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}find{\isacharunderscore}vars\ ct{\isadigit{1}}{\isacharparenright}\ {\isacharat}\isanewline
+\ \ \ \ \ \ \ \ \ \ map\ {\isacharparenleft}apfst\ {\isacharparenleft}Thm{\isachardot}apply\ ct{\isadigit{1}}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}find{\isacharunderscore}vars\ ct{\isadigit{2}}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ end\isanewline
+\ \ \ \ \ \ {\isacharbar}\ {\isacharunderscore}\ {\isacharequal}{\isachargreater}\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}{\isacharsemicolon}\isanewline
+\ \ \ \ val\ eqs\ {\isacharequal}\ maps\isanewline
+\ \ \ \ \ \ {\isacharparenleft}fn\ thm\ {\isacharequal}{\isachargreater}\ map\ {\isacharparenleft}pair\ thm{\isacharparenright}\ {\isacharparenleft}find{\isacharunderscore}vars\ {\isacharparenleft}lhs{\isacharunderscore}of\ thm{\isacharparenright}{\isacharparenright}{\isacharparenright}\ thms{\isacharsemicolon}\isanewline
+\ \ \ \ fun\ mk{\isacharunderscore}thms\ {\isacharparenleft}thm{\isacharcomma}\ {\isacharparenleft}ct{\isacharcomma}\ cv{\isacharprime}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ let\isanewline
+\ \ \ \ \ \ \ \ val\ thm{\isacharprime}\ {\isacharequal}\isanewline
+\ \ \ \ \ \ \ \ \ \ Thm{\isachardot}implies{\isacharunderscore}elim\isanewline
+\ \ \ \ \ \ \ \ \ \ \ {\isacharparenleft}Conv{\isachardot}fconv{\isacharunderscore}rule\ {\isacharparenleft}Thm{\isachardot}beta{\isacharunderscore}conversion\ true{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharparenleft}Drule{\isachardot}instantiate{\isacharprime}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharbrackleft}SOME\ {\isacharparenleft}ctyp{\isacharunderscore}of{\isacharunderscore}term\ ct{\isacharparenright}{\isacharbrackright}\ {\isacharbrackleft}SOME\ {\isacharparenleft}Thm{\isachardot}lambda\ cv\ ct{\isacharparenright}{\isacharcomma}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ SOME\ {\isacharparenleft}Thm{\isachardot}lambda\ cv{\isacharprime}\ {\isacharparenleft}rhs{\isacharunderscore}of\ thm{\isacharparenright}{\isacharparenright}{\isacharcomma}\ NONE{\isacharcomma}\ SOME\ cv{\isacharprime}{\isacharbrackright}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Suc{\isacharunderscore}if{\isacharunderscore}eq{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}Thm{\isachardot}forall{\isacharunderscore}intr\ cv{\isacharprime}\ thm{\isacharparenright}\isanewline
+\ \ \ \ \ \ in\isanewline
+\ \ \ \ \ \ \ \ case\ map{\isacharunderscore}filter\ {\isacharparenleft}fn\ thm{\isacharprime}{\isacharprime}\ {\isacharequal}{\isachargreater}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ SOME\ {\isacharparenleft}thm{\isacharprime}{\isacharprime}{\isacharcomma}\ singleton\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharparenleft}Variable{\isachardot}trade\ {\isacharparenleft}K\ {\isacharparenleft}fn\ {\isacharbrackleft}thm{\isacharprime}{\isacharprime}{\isacharprime}{\isacharbrackright}\ {\isacharequal}{\isachargreater}\ {\isacharbrackleft}thm{\isacharprime}{\isacharprime}{\isacharprime}\ RS\ thm{\isacharprime}{\isacharbrackright}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\isacharparenleft}Variable{\isachardot}global{\isacharunderscore}thm{\isacharunderscore}context\ thm{\isacharprime}{\isacharprime}{\isacharparenright}{\isacharparenright}\ thm{\isacharprime}{\isacharprime}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \ \ handle\ THM\ {\isacharunderscore}\ {\isacharequal}{\isachargreater}\ NONE{\isacharparenright}\ thms\ of\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ {\isacharbrackleft}{\isacharbrackright}\ {\isacharequal}{\isachargreater}\ NONE\isanewline
+\ \ \ \ \ \ \ \ \ \ {\isacharbar}\ thmps\ {\isacharequal}{\isachargreater}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ let\ val\ {\isacharparenleft}thms{\isadigit{1}}{\isacharcomma}\ thms{\isadigit{2}}{\isacharparenright}\ {\isacharequal}\ split{\isacharunderscore}list\ thmps\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ in\ SOME\ {\isacharparenleft}subtract\ Thm{\isachardot}eq{\isacharunderscore}thm\ {\isacharparenleft}thm\ {\isacharcolon}{\isacharcolon}\ thms{\isadigit{1}}{\isacharparenright}\ thms\ {\isacharat}\ thms{\isadigit{2}}{\isacharparenright}\ end\isanewline
+\ \ \ \ \ \ end\isanewline
+\ \ in\ get{\isacharunderscore}first\ mk{\isacharunderscore}thms\ eqs\ end{\isacharsemicolon}\isanewline
+\isanewline
+fun\ eqn{\isacharunderscore}suc{\isacharunderscore}base{\isacharunderscore}preproc\ thy\ thms\ {\isacharequal}\isanewline
+\ \ let\isanewline
+\ \ \ \ val\ dest\ {\isacharequal}\ fst\ o\ Logic{\isachardot}dest{\isacharunderscore}equals\ o\ prop{\isacharunderscore}of{\isacharsemicolon}\isanewline
+\ \ \ \ val\ contains{\isacharunderscore}suc\ {\isacharequal}\ exists{\isacharunderscore}Const\ {\isacharparenleft}fn\ {\isacharparenleft}c{\isacharcomma}\ {\isacharunderscore}{\isacharparenright}\ {\isacharequal}{\isachargreater}\ c\ {\isacharequal}\ %
+\isaantiq
+const{\isacharunderscore}name\ Suc{}%
+\endisaantiq
+{\isacharparenright}{\isacharsemicolon}\isanewline
+\ \ in\isanewline
+\ \ \ \ if\ forall\ {\isacharparenleft}can\ dest{\isacharparenright}\ thms\ andalso\ exists\ {\isacharparenleft}contains{\isacharunderscore}suc\ o\ dest{\isacharparenright}\ thms\isanewline
+\ \ \ \ \ \ then\ thms\ {\isacharbar}{\isachargreater}\ perhaps{\isacharunderscore}loop\ {\isacharparenleft}remove{\isacharunderscore}suc\ thy{\isacharparenright}\ {\isacharbar}{\isachargreater}\ {\isacharparenleft}Option{\isachardot}map\ o\ map{\isacharparenright}\ Drule{\isachardot}zero{\isacharunderscore}var{\isacharunderscore}indexes\isanewline
+\ \ \ \ \ \ \ else\ NONE\isanewline
+\ \ end{\isacharsemicolon}\isanewline
+\isanewline
+val\ eqn{\isacharunderscore}suc{\isacharunderscore}preproc\ {\isacharequal}\ Code{\isacharunderscore}Preproc{\isachardot}simple{\isacharunderscore}functrans\ eqn{\isacharunderscore}suc{\isacharunderscore}base{\isacharunderscore}preproc{\isacharsemicolon}\isanewline
+\isanewline
+in\isanewline
+\isanewline
+\ \ Code{\isacharunderscore}Preproc{\isachardot}add{\isacharunderscore}functrans\ {\isacharparenleft}{\isachardoublequote}eqn{\isacharunderscore}Suc{\isachardoublequote}{\isacharcomma}\ eqn{\isacharunderscore}suc{\isacharunderscore}preproc{\isacharparenright}\isanewline
+\isanewline
+end{\isacharsemicolon}\isanewline
+{\isacharverbatimclose}%
+\endisatagML
+{\isafoldML}%
+%
+\isadelimML
+%
+\endisadelimML
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

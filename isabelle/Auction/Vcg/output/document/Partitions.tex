@@ -1,0 +1,1926 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{Partitions}%
+%
+\isamarkupheader{Partitions of sets%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Partitions\isanewline
+\isakeyword{imports}\isanewline
+\ \ Main\isanewline
+\ \ SetUtils\isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\begin{isamarkuptext}%
+We define the set of all partitions of a set (\isa{all{\isacharunderscore}partitions}) in textbook style, as well as a computable function \isa{all{\isacharunderscore}partitions{\isacharunderscore}list} to algorithmically compute this set (then represented as a list).  This function is suitable for code generation.  We prove the equivalence of the two definition in order to ensure that the generated code correctly implements the original textbook-style definition.  For further background on the overall approach, see Caminati, Kerber, Lange, Rowat: \href{http://arxiv.org/abs/1308.1779}{Proving soundness of combinatorial Vickrey auctions and generating verified executable code}, 2013.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+\isa{P} is a family of non-overlapping  sets.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \isakeyword{where}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P\ {\isacharequal}\ {\isacharparenleft}{\isasymforall}\ X{\isasymin}P\ {\isachardot}\ {\isasymforall}\ Y{\isasymin}\ P\ {\isachardot}\ {\isacharparenleft}X\ {\isasyminter}\ Y\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ X\ {\isacharequal}\ Y{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+A subfamily of a non-overlapping family is also a non-overlapping family%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ subset{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ subset{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isasymsubseteq}\ Q{\isachardoublequoteclose}\ \isakeyword{and}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ Q{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ X\ Y\ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasymin}\ P\ {\isasymand}\ Y\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasymin}\ Q\ {\isasymand}\ Y\ {\isasymin}\ Q{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ subset\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasyminter}\ Y\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ X\ {\isacharequal}\ Y{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The family that results from removing one element from an equivalence class of a non-overlapping family is not otherwise a member of the family.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ remove{\isacharunderscore}from{\isacharunderscore}eq{\isacharunderscore}class{\isacharunderscore}preserves{\isacharunderscore}disjoint{\isacharcolon}\isanewline
+\ \ \ \ \ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ X{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{assumes}\ non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ eq{\isacharunderscore}class{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ elem{\isacharcolon}\ {\isachardoublequoteopen}elem\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{shows}\ {\isachardoublequoteopen}X\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}\ {\isasymnotin}\ P{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ Int{\isacharunderscore}Diff\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ Diff{\isacharunderscore}disjoint\ Diff{\isacharunderscore}eq{\isacharunderscore}empty{\isacharunderscore}iff\ \isanewline
+\ \ \ \ \ \ \ \ Int{\isacharunderscore}absorb{\isadigit{2}}\ insert{\isacharunderscore}Diff{\isacharunderscore}if\ insert{\isacharunderscore}not{\isacharunderscore}empty\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Inserting into a non-overlapping family \isa{P} a set \isa{X}, which is disjoint with the set 
+  partitioned by \isa{P}, yields another non-overlapping family.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{1}}{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ X{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ partition{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \isakeyword{and}\ disjoint{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasyminter}\ {\isasymUnion}\ P\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \isakeyword{and}\ non{\isacharunderscore}empty{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}insert\ X\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ Y{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\ \isakeyword{and}\ Z{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ Y{\isacharunderscore}Z{\isacharunderscore}in{\isacharunderscore}ext{\isacharunderscore}P{\isacharcolon}\ {\isachardoublequoteopen}Y\ {\isasymin}\ insert\ X\ P\ {\isasymand}\ Z\ {\isasymin}\ insert\ X\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isasyminter}\ Z\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ Y\ {\isacharequal}\ Z{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isasyminter}\ Z\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isacharequal}\ Z{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Y{\isacharunderscore}Z{\isacharunderscore}in{\isacharunderscore}ext{\isacharunderscore}P\ partition\ disjoint\isanewline
+\ \ \ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isacharequal}\ Z{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isasyminter}\ Z\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Y{\isacharunderscore}Z{\isacharunderscore}in{\isacharunderscore}ext{\isacharunderscore}P\ partition\ non{\isacharunderscore}empty\isanewline
+\ \ \ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+An element of a non-overlapping family has no intersection with any other of its elements.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ disj{\isacharunderscore}eq{\isacharunderscore}classes{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ X{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ {\isachardoublequoteopen}X\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}X\ {\isasyminter}\ {\isasymUnion}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ x{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ x{\isacharunderscore}in{\isacharunderscore}two{\isacharunderscore}eq{\isacharunderscore}classes{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ X\ {\isasyminter}\ {\isasymUnion}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{obtain}\isamarkupfalse%
+\ Y\ \isakeyword{where}\ other{\isacharunderscore}eq{\isacharunderscore}class{\isacharcolon}\ {\isachardoublequoteopen}Y\ {\isasymin}\ P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}\ {\isasymand}\ x\ {\isasymin}\ Y{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}x\ {\isasymin}\ X\ {\isasyminter}\ Y\ {\isasymand}\ Y\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ x{\isacharunderscore}in{\isacharunderscore}two{\isacharunderscore}eq{\isacharunderscore}classes\ other{\isacharunderscore}eq{\isacharunderscore}class\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isacharequal}\ Y{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}x\ {\isasymin}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ other{\isacharunderscore}eq{\isacharunderscore}class\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The empty set is not element of a non-overlapping family.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ no{\isacharunderscore}empty{\isacharunderscore}in{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ p{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharbraceleft}{\isacharbraceright}\ {\isasymnotin}\ p{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+\isa{P} is a partition of the set \isa{A}. The infix notation takes the form ``noun-verb-object''%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of\ {\isacharparenleft}\isakeyword{infix}\ {\isachardoublequoteopen}partitions{\isachardoublequoteclose}\ {\isadigit{7}}{\isadigit{5}}{\isacharparenright}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \isakeyword{where}\ {\isachardoublequoteopen}is{\isacharunderscore}partition{\isacharunderscore}of\ P\ A\ {\isacharequal}\ {\isacharparenleft}{\isasymUnion}\ P\ {\isacharequal}\ A\ {\isasymand}\ is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+No partition of a non-empty set is empty.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ non{\isacharunderscore}empty{\isacharunderscore}imp{\isacharunderscore}non{\isacharunderscore}empty{\isacharunderscore}partition{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ {\isachardoublequoteopen}P\ partitions\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}P\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Every element of a partitioned set ends up in one element in the partition.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ elem{\isacharunderscore}in{\isacharunderscore}partition{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ in{\isacharunderscore}set{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ part{\isacharcolon}\ {\isachardoublequoteopen}P\ partitions\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ X\ \isakeyword{where}\ {\isachardoublequoteopen}x\ {\isasymin}\ X{\isachardoublequoteclose}\ \isakeyword{and}\ {\isachardoublequoteopen}X\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ part\ in{\isacharunderscore}set\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}auto\ simp\ add{\isacharcolon}\ UnionE{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Every element of the difference of a set \isa{A} and another set \isa{B} ends up in 
+  an element of a partition of \isa{A}, but not in an element of the partition of \isa{{\isacharbraceleft}B{\isacharbraceright}}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ diff{\isacharunderscore}elem{\isacharunderscore}in{\isacharunderscore}partition{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ x{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ A\ {\isacharminus}\ B{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ part{\isacharcolon}\ {\isachardoublequoteopen}P\ partitions\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymexists}\ S\ {\isasymin}\ P\ {\isacharminus}\ {\isacharbraceleft}\ B\ {\isacharbraceright}\ {\isachardot}\ x\ {\isasymin}\ S{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ part\ x\ \isacommand{obtain}\isamarkupfalse%
+\ X\ \isakeyword{where}\ {\isachardoublequoteopen}x\ {\isasymin}\ X{\isachardoublequoteclose}\ \isakeyword{and}\ {\isachardoublequoteopen}X\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Diff{\isacharunderscore}iff\ elem{\isacharunderscore}in{\isacharunderscore}partition{\isacharparenright}\isanewline
+\ \ \isacommand{with}\isamarkupfalse%
+\ x\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasymnoteq}\ B{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{with}\isamarkupfalse%
+\ {\isacharbackquoteopen}x\ {\isasymin}\ X{\isacharbackquoteclose}\ {\isacharbackquoteopen}X\ {\isasymin}\ P{\isacharbackquoteclose}\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Every element of a partitioned set ends up in exactly one set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ elem{\isacharunderscore}in{\isacharunderscore}uniq{\isacharunderscore}set{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ in{\isacharunderscore}set{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ part{\isacharcolon}\ {\isachardoublequoteopen}P\ partitions\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymexists}{\isacharbang}\ X\ {\isasymin}\ P\ {\isachardot}\ x\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ assms\ \isacommand{obtain}\isamarkupfalse%
+\ X\ \isakeyword{where}\ {\isacharasterisk}{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasymin}\ P\ {\isasymand}\ x\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ elem{\isacharunderscore}in{\isacharunderscore}partition{\isacharparenright}\ blast\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ Y\ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isasymin}\ P\ {\isasymand}\ x\ {\isasymin}\ Y{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isacharequal}\ X{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ part\ in{\isacharunderscore}set\ {\isacharasterisk}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ disjoint{\isacharunderscore}iff{\isacharunderscore}not{\isacharunderscore}equal{\isacharparenright}\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ ex{\isadigit{1}}I{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A non-empty set ``is'' a partition of itself.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ set{\isacharunderscore}partitions{\isacharunderscore}itself{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharbraceleft}A{\isacharbraceright}\ partitions\ A{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\isanewline
+\isanewline
+\isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isacharequal}\ A{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ X\ Y\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasymin}\ {\isacharbraceleft}A{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isacharequal}\ A{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ singletonD{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isasymin}\ {\isacharbraceleft}A{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Y\ {\isacharequal}\ A{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ singletonD{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ {\isacharbackquoteopen}X\ {\isacharequal}\ A{\isacharbackquoteclose}\ {\isacharbackquoteopen}Y\ {\isacharequal}\ A{\isacharbackquoteclose}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasyminter}\ Y\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ X\ {\isacharequal}\ Y{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ X\ {\isasymin}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isachardot}\ {\isasymforall}\ Y\ {\isasymin}\ {\isacharbraceleft}A{\isacharbraceright}\ {\isachardot}\ X\ {\isasyminter}\ Y\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ X\ {\isacharequal}\ Y{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The empty set is a partition of the empty set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ emptyset{\isacharunderscore}part{\isacharunderscore}emptyset{\isadigit{1}}{\isacharcolon}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharbraceleft}{\isacharbraceright}\ partitions\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Any partition of the empty set is empty.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ emptyset{\isacharunderscore}part{\isacharunderscore}emptyset{\isadigit{2}}{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}P\ partitions\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}P\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Classical set-theoretical definition of ``all partitions of a set \isa{A}''%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ all{\isacharunderscore}partitions\ \isakeyword{where}\ \isanewline
+{\isachardoublequoteopen}all{\isacharunderscore}partitions\ A\ {\isacharequal}\ {\isacharbraceleft}P\ {\isachardot}\ P\ partitions\ A{\isacharbraceright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+The set of all partitions of the empty set only contains the empty set.
+  We need this to prove the base case of \isa{all{\isacharunderscore}partitions{\isacharunderscore}paper{\isacharunderscore}equiv{\isacharunderscore}alg}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ emptyset{\isacharunderscore}part{\isacharunderscore}emptyset{\isadigit{3}}{\isacharcolon}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}all{\isacharunderscore}partitions\ {\isacharbraceleft}{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ emptyset{\isacharunderscore}part{\isacharunderscore}emptyset{\isadigit{1}}\ emptyset{\isacharunderscore}part{\isacharunderscore}emptyset{\isadigit{2}}\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+inserts an element new_el into a specified set S inside a given family of sets%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \isakeyword{where}\ {\isachardoublequoteopen}insert{\isacharunderscore}into{\isacharunderscore}member\ new{\isacharunderscore}el\ Sets\ S\ {\isacharequal}\ insert\ {\isacharparenleft}S\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}Sets\ {\isacharminus}\ {\isacharbraceleft}S{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+Using \isa{insert{\isacharunderscore}into{\isacharunderscore}member} to insert a fresh element, which is not a member of the
+  set \isa{S} being partitioned, into a non-overlapping family of sets yields another
+  non-overlapping family.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{2}}{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ new{\isacharunderscore}el{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ X{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ class{\isacharunderscore}element{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ new{\isacharcolon}\ {\isachardoublequoteopen}new{\isacharunderscore}el\ {\isasymnotin}\ {\isasymUnion}\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member\ new{\isacharunderscore}el\ P\ X{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}Y\ {\isacharequal}\ {\isachardoublequoteopen}insert\ new{\isacharunderscore}el\ X{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ rest{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping\ subset{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isacharasterisk}{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasyminter}\ {\isasymUnion}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \isacommand{using}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping\ class{\isacharunderscore}element\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ disj{\isacharunderscore}eq{\isacharunderscore}classes{\isacharparenright}\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ {\isacharasterisk}\ \isacommand{have}\isamarkupfalse%
+\ non{\isacharunderscore}empty{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}Y\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ {\isacharasterisk}\ \isacommand{have}\isamarkupfalse%
+\ disjoint{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}Y\ {\isasyminter}\ {\isasymUnion}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ new\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}insert\ {\isacharquery}Y\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ rest{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping\ disjoint\ non{\isacharunderscore}empty\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{1}}{\isacharparenright}\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+inserts an element into a specified set inside the given list of sets --
+   the list variant of \isa{insert{\isacharunderscore}into{\isacharunderscore}member}
+
+   The rationale for this variant and for everything that depends on it is:
+   While it is possible to computationally enumerate ``all partitions of a set'' as an
+   \isa{{\isacharprime}a\ set\ set\ set}, we need a list representation to apply further computational
+   functions to partitions.  Because of the way we construct partitions (using functions
+   such as \isa{all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with} below) it is not sufficient to simply use 
+   \isa{{\isacharprime}a\ set\ set\ list}, but we need \isa{{\isacharprime}a\ set\ list\ list}.  This is because it is hard 
+   to impossible to convert a set to a list, whereas it is easy to convert a \isa{list} to a \isa{set}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ {\isasymRightarrow}\ {\isacharprime}a\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ new{\isacharunderscore}el\ Sets\ S\ {\isacharequal}\ {\isacharparenleft}S\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}{\isacharparenright}\ {\isacharhash}\ {\isacharparenleft}remove{\isadigit{1}}\ S\ Sets{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+\isa{insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list} and \isa{insert{\isacharunderscore}into{\isacharunderscore}member} are equivalent
+  (as in returning the same set).%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list{\isacharunderscore}equivalence{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ new{\isacharunderscore}el{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ Sets{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ list{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ S{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ Sets{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}set\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ new{\isacharunderscore}el\ Sets\ S{\isacharparenright}\ {\isacharequal}\ insert{\isacharunderscore}into{\isacharunderscore}member\ new{\isacharunderscore}el\ {\isacharparenleft}set\ Sets{\isacharparenright}\ S{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list{\isacharunderscore}def\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+an alternative characterization of the set partitioned by a partition obtained by 
+  inserting an element into an equivalence class of a given partition (if \isa{P}
+  \emph{is} a partition)%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}partition{\isadigit{1}}{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ set{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymUnion}\ insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ P\ set\ {\isacharequal}\ {\isasymUnion}\ insert\ {\isacharparenleft}set\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}set{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+\ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}def\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Assuming that \isa{P} is a partition of a set \isa{S}, and \isa{new{\isacharunderscore}el\ {\isasymnotin}\ S}, the function defined below yields
+  all possible partitions of \isa{S\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}} that are coarser than \isa{P}
+  (i.e.\ not splitting classes that already exist in \isa{P}).  These comprise one partition 
+  with a class \isa{{\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}} and all other classes unchanged,
+  as well as all partitions obtained by inserting \isa{new{\isacharunderscore}el} into one class of \isa{P} at a time. While we use the definition to build coarser partitions of an existing partition P, the definition itself does not require P to be a partition.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ {\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ new{\isacharunderscore}el\ P\ {\isacharequal}\ \isanewline
+\ \ \ \ insert\isanewline
+\ \ \ \ {\isacharparenleft}{\isacharasterisk}\ Let\ P\ be\ a\ partition\ of\ a\ set\ Set{\isacharcomma}\isanewline
+\ \ \ \ \ and\ suppose\ new{\isacharunderscore}el\ {\isasymnotin}\ Set{\isacharcomma}\ i{\isachardot}e{\isachardot}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ {\isasymnotin}\ P{\isacharcomma}\isanewline
+\ \ \ \ \ then\ the\ following\ constructs\ a\ partition\ of\ {\isacharprime}Set\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}{\isacharprime}\ obtained\ by\isanewline
+\ \ \ \ \ inserting\ a\ new\ class\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ and\ leaving\ all\ previous\ classes\ unchanged{\isachardot}\ {\isacharasterisk}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}insert\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ P{\isacharparenright}\isanewline
+\ \ {\isacharparenleft}{\isacharasterisk}\ Let\ P\ be\ a\ partition\ of\ a\ set\ Set{\isacharcomma}\isanewline
+\ \ \ \ \ and\ suppose\ new{\isacharunderscore}el\ {\isasymnotin}\ Set{\isacharcomma}\isanewline
+\ \ \ \ \ then\ the\ following\ constructs\isanewline
+\ \ \ \ \ the\ set\ of\ those\ partitions\ of\ {\isacharprime}Set\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}{\isacharprime}\ obtained\ by\isanewline
+\ \ \ \ \ inserting\ new{\isacharunderscore}el\ into\ one\ class\ of\ P\ at\ a\ time{\isachardot}\ {\isacharasterisk}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}{\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member\ new{\isacharunderscore}el\ P{\isacharparenright}\ {\isacharbackquote}\ P{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+the list variant of \isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ {\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ new{\isacharunderscore}el\ P\ {\isacharequal}\ \isanewline
+\ \ {\isacharparenleft}{\isacharasterisk}\ Let\ P\ be\ a\ partition\ of\ a\ set\ Set{\isacharcomma}\isanewline
+\ \ \ \ \ and\ suppose\ new{\isacharunderscore}el\ {\isasymnotin}\ Set{\isacharcomma}\ i{\isachardot}e{\isachardot}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ {\isasymnotin}\ set\ P{\isacharcomma}\isanewline
+\ \ \ \ \ then\ the\ following\ constructs\ a\ partition\ of\ {\isacharprime}Set\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}{\isacharprime}\ obtained\ by\isanewline
+\ \ \ \ \ inserting\ a\ new\ class\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ and\ leaving\ all\ previous\ classes\ unchanged{\isachardot}\ {\isacharasterisk}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}{\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ {\isacharhash}\ P{\isacharparenright}\isanewline
+\ \ \ \ {\isacharhash}\isanewline
+\ \ {\isacharparenleft}{\isacharasterisk}\ Let\ P\ be\ a\ partition\ of\ a\ set\ Set{\isacharcomma}\isanewline
+\ \ \ \ \ and\ suppose\ new{\isacharunderscore}el\ {\isasymnotin}\ Set{\isacharcomma}\isanewline
+\ \ \ \ \ then\ the\ following\ constructs\isanewline
+\ \ \ \ \ the\ set\ of\ those\ partitions\ of\ {\isacharprime}Set\ {\isasymunion}\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}{\isacharprime}\ obtained\ by\isanewline
+\ \ \ \ \ inserting\ new{\isacharunderscore}el\ into\ one\ class\ of\ P\ at\ a\ time{\isachardot}\ {\isacharasterisk}{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}map\ {\isacharparenleft}{\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ new{\isacharunderscore}el\ P{\isacharparenright}{\isacharparenright}\ P{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+\isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list} and \isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with} are equivalent.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}equivalence{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ new{\isacharunderscore}el\ P{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ \isanewline
+\ \ \ \ \ \ \ \ \ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ new{\isacharunderscore}el\ {\isacharparenleft}set\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ new{\isacharunderscore}el\ P{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}{\isacharparenleft}{\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ {\isacharhash}\ P{\isacharparenright}\ {\isacharhash}\ {\isacharparenleft}map\ {\isacharparenleft}{\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ new{\isacharunderscore}el\ P{\isacharparenright}{\isacharparenright}\ P{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ insert\ {\isacharparenleft}insert\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ {\isacharparenleft}set\ P{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}set\ {\isasymcirc}\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ new{\isacharunderscore}el\ P{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ set\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ insert\ {\isacharparenleft}insert\ {\isacharbraceleft}new{\isacharunderscore}el{\isacharbraceright}\ {\isacharparenleft}set\ P{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member\ new{\isacharunderscore}el\ {\isacharparenleft}set\ P{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ set\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ assms\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list{\isacharunderscore}equivalence\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ comp{\isacharunderscore}apply{\isacharparenright}\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Any member of the set of coarser partitions of a given partition, obtained by inserting 
+  a given fresh element into each of its classes, is non_overlapping.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{3}}{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ Q{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ P{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ new{\isacharunderscore}elem{\isacharcolon}\ {\isachardoublequoteopen}elem\ {\isasymnotin}\ {\isasymUnion}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ Q{\isacharunderscore}coarser{\isacharcolon}\ {\isachardoublequoteopen}Q\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ Q{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}q\ {\isacharequal}\ {\isachardoublequoteopen}insert\ {\isacharbraceleft}elem{\isacharbraceright}\ P{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ Q{\isacharunderscore}coarser{\isacharunderscore}unfolded{\isacharcolon}\ {\isachardoublequoteopen}Q\ {\isasymin}\ insert\ {\isacharquery}q\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ P\ {\isacharbackquote}\ P{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}coarser\ \isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\ {\isacharparenleft}cases\ {\isachardoublequoteopen}Q\ {\isacharequal}\ {\isacharquery}q{\isachardoublequoteclose}{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{case}\isamarkupfalse%
+\ True\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ P{\isacharunderscore}non{\isacharunderscore}overlapping\ new{\isacharunderscore}elem\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{1}}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\ \ \isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{case}\isamarkupfalse%
+\ False\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Q\ {\isasymin}\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ P{\isacharparenright}\ {\isacharbackquote}\ P{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}coarser{\isacharunderscore}unfolded\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{2}}\ P{\isacharunderscore}non{\isacharunderscore}overlapping\ new{\isacharunderscore}elem\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Let \isa{P} be a partition of a set \isa{S}, and \isa{elem} an element (which may or may not be
+  in \isa{S} already).  Then, any member of \isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ P} is a set of sets
+  whose union is \isa{S\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}}, i.e.\ it satisfies one of the necessary criteria for being a partition of \isa{S\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}covers{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeyword{and}\ Q{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}Q\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymUnion}\ Q\ {\isacharequal}\ insert\ elem\ {\isacharparenleft}{\isasymUnion}\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}S\ {\isacharequal}\ {\isachardoublequoteopen}{\isasymUnion}\ P{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ Q{\isacharunderscore}cases{\isacharcolon}\ {\isachardoublequoteopen}Q\ {\isasymin}\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ P{\isacharparenright}\ {\isacharbackquote}\ P\ {\isasymor}\ Q\ {\isacharequal}\ insert\ {\isacharbraceleft}elem{\isacharbraceright}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ eq{\isacharunderscore}class\ \isacommand{assume}\isamarkupfalse%
+\ eq{\isacharunderscore}class{\isacharunderscore}in{\isacharunderscore}P{\isacharcolon}\ {\isachardoublequoteopen}eq{\isacharunderscore}class\ {\isasymin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ insert\ {\isacharparenleft}eq{\isacharunderscore}class\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}eq{\isacharunderscore}class{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharquery}S\ {\isasymunion}\ {\isacharparenleft}eq{\isacharunderscore}class\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}partition{\isadigit{1}}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Sup{\isacharunderscore}insert\ Un{\isacharunderscore}commute\ Un{\isacharunderscore}empty{\isacharunderscore}right\ Un{\isacharunderscore}insert{\isacharunderscore}right\ insert{\isacharunderscore}Diff{\isacharunderscore}single{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ eq{\isacharunderscore}class{\isacharunderscore}in{\isacharunderscore}P\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ insert\ {\isacharparenleft}eq{\isacharunderscore}class\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}P\ {\isacharminus}\ {\isacharbraceleft}eq{\isacharunderscore}class{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharquery}S\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ P\ eq{\isacharunderscore}class\ {\isacharequal}\ {\isacharquery}S\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}partition{\isadigit{1}}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ subst{\isacharparenright}\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}cases\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Removes the element \isa{elem} from every set in \isa{P}, and removes from \isa{P} any
+  remaining empty sets.  This function is intended to be applied to partitions, i.e. \isa{elem}
+  occurs in at most one set.  \isa{partition{\isacharunderscore}without\ e} reverses \isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with\ e}.
+\isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with} is one-to-many, while this is one-to-one, so we can think of a tree relation,
+where coarser partitions of a set \isa{S\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}} are child nodes of one partition of \isa{S}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ partition{\isacharunderscore}without\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}partition{\isacharunderscore}without\ elem\ P\ {\isacharequal}\ {\isacharparenleft}{\isasymlambda}X\ {\isachardot}\ X\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ P\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+alternative characterization of the set partitioned by the partition obtained 
+  by removing an element from a given partition using \isa{partition{\isacharunderscore}without}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ partition{\isacharunderscore}without{\isacharunderscore}covers{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymUnion}\ partition{\isacharunderscore}without\ elem\ P\ {\isacharequal}\ {\isacharparenleft}{\isasymUnion}\ P{\isacharparenright}\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ partition{\isacharunderscore}without\ elem\ P\ {\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}{\isacharparenleft}{\isasymlambda}x\ {\isachardot}\ x\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ P\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ partition{\isacharunderscore}without{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isasymUnion}\ P\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Any class of the partition obtained by removing an element \isa{elem} from an
+  original partition \isa{P} using \isa{partition{\isacharunderscore}without} equals some
+  class of \isa{P}, reduced by \isa{elem}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ super{\isacharunderscore}class{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}X\ {\isasymin}\ partition{\isacharunderscore}without\ elem\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{obtains}\ Z\ \isakeyword{where}\ {\isachardoublequoteopen}Z\ {\isasymin}\ P{\isachardoublequoteclose}\ \isakeyword{and}\ {\isachardoublequoteopen}X\ {\isacharequal}\ Z\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ assms\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasymin}\ {\isacharparenleft}{\isasymlambda}X\ {\isachardot}\ X\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ P\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ partition{\isacharunderscore}without{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{obtain}\isamarkupfalse%
+\ Z\ \isakeyword{where}\ Z{\isacharunderscore}in{\isacharunderscore}P{\isacharcolon}\ {\isachardoublequoteopen}Z\ {\isasymin}\ P{\isachardoublequoteclose}\ \isakeyword{and}\ Z{\isacharunderscore}sup{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isacharequal}\ Z\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharparenright}\ Diff{\isacharunderscore}iff\ image{\isacharunderscore}iff{\isacharparenright}\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The class of sets obtained by removing an element from a non-overlapping class is another
+  non-overlapping clas.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping{\isacharunderscore}without{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}partition{\isacharunderscore}without\ elem\ P{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharquery}Q{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \ \ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ X{\isadigit{1}}\ {\isasymin}\ {\isacharquery}Q{\isachardot}\ {\isasymforall}\ X{\isadigit{2}}\ {\isasymin}\ {\isacharquery}Q{\isachardot}\ X{\isadigit{1}}\ {\isasyminter}\ X{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ X{\isadigit{1}}\ {\isacharequal}\ X{\isadigit{2}}{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\ \isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ X{\isadigit{1}}\ \isacommand{assume}\isamarkupfalse%
+\ X{\isadigit{1}}{\isacharunderscore}in{\isacharunderscore}Q{\isacharcolon}\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isasymin}\ {\isacharquery}Q{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{obtain}\isamarkupfalse%
+\ Z{\isadigit{1}}\ \isakeyword{where}\ Z{\isadigit{1}}{\isacharunderscore}in{\isacharunderscore}P{\isacharcolon}\ {\isachardoublequoteopen}Z{\isadigit{1}}\ {\isasymin}\ P{\isachardoublequoteclose}\ \isakeyword{and}\ Z{\isadigit{1}}{\isacharunderscore}sup{\isacharcolon}\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isacharequal}\ Z{\isadigit{1}}\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ super{\isacharunderscore}class{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ X{\isadigit{1}}{\isacharunderscore}non{\isacharunderscore}empty{\isacharcolon}\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ X{\isadigit{1}}{\isacharunderscore}in{\isacharunderscore}Q\ partition{\isacharunderscore}without{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ X{\isadigit{2}}\ {\isasymin}\ {\isacharquery}Q{\isachardot}\ X{\isadigit{1}}\ {\isasyminter}\ X{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongleftrightarrow}\ X{\isadigit{1}}\ {\isacharequal}\ X{\isadigit{2}}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ X{\isadigit{2}}\ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}X{\isadigit{2}}\ {\isasymin}\ {\isacharquery}Q{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{obtain}\isamarkupfalse%
+\ Z{\isadigit{2}}\ \isakeyword{where}\ Z{\isadigit{2}}{\isacharunderscore}in{\isacharunderscore}P{\isacharcolon}\ {\isachardoublequoteopen}Z{\isadigit{2}}\ {\isasymin}\ P{\isachardoublequoteclose}\ \isakeyword{and}\ Z{\isadigit{2}}{\isacharunderscore}sup{\isacharcolon}\ {\isachardoublequoteopen}X{\isadigit{2}}\ {\isacharequal}\ Z{\isadigit{2}}\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ super{\isacharunderscore}class{\isacharparenright}\isanewline
+\ \ \ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isasyminter}\ X{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymlongrightarrow}\ X{\isadigit{1}}\ {\isacharequal}\ X{\isadigit{2}}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isasyminter}\ X{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Z{\isadigit{1}}\ {\isasyminter}\ Z{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Z{\isadigit{1}}{\isacharunderscore}sup\ Z{\isadigit{2}}{\isacharunderscore}sup\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Z{\isadigit{1}}\ {\isacharequal}\ Z{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Z{\isadigit{1}}{\isacharunderscore}in{\isacharunderscore}P\ Z{\isadigit{2}}{\isacharunderscore}in{\isacharunderscore}P\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isacharequal}\ X{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Z{\isadigit{1}}{\isacharunderscore}sup\ Z{\isadigit{2}}{\isacharunderscore}sup\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}X{\isadigit{1}}\ {\isacharequal}\ X{\isadigit{2}}\ {\isasymlongrightarrow}\ X{\isadigit{1}}\ {\isasyminter}\ X{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ X{\isadigit{1}}{\isacharunderscore}non{\isacharunderscore}empty\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \ \ \ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}X{\isadigit{1}}\ {\isasyminter}\ X{\isadigit{2}}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isacharparenright}\ {\isasymlongleftrightarrow}\ X{\isadigit{1}}\ {\isacharequal}\ X{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+\isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem} is the ``inverse'' of 
+  \isa{partition{\isacharunderscore}without\ elem}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}inv{\isacharunderscore}without{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ elem{\isacharcolon}\ {\isachardoublequoteopen}elem\ {\isasymin}\ {\isasymUnion}\ P{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}P\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharparenleft}partition{\isacharunderscore}without\ elem\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}P\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharquery}Q{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}remove{\isacharunderscore}elem\ {\isacharequal}\ {\isachardoublequoteopen}{\isasymlambda}X\ {\isachardot}\ X\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{obtain}\isamarkupfalse%
+\ Y\ \isanewline
+\ \ \ \ \isakeyword{where}\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharcolon}\ {\isachardoublequoteopen}elem\ {\isasymin}\ Y{\isachardoublequoteclose}\ \isakeyword{and}\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharprime}{\isacharcolon}\ {\isachardoublequoteopen}Y\ {\isasymin}\ P{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ elem\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isacharequal}\ {\isachardoublequoteopen}P\ {\isacharminus}\ {\isacharbraceleft}Y{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ P{\isacharunderscore}wrt{\isacharunderscore}elem{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}Y{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharprime}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}elem{\isacharunderscore}eq\ {\isacharequal}\ {\isachardoublequoteopen}Y\ {\isacharminus}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ Y{\isacharunderscore}elem{\isacharunderscore}eq{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}remove{\isacharunderscore}elem\ {\isacharbackquote}\ {\isacharbraceleft}Y{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharunderscore}part{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ subset{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping\ non{\isacharunderscore}overlapping\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}wrt{\isacharunderscore}P{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}eq\ {\isasymin}\ {\isacharquery}remove{\isacharunderscore}elem\ {\isacharbackquote}\ P{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharprime}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isanewline
+\ \ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\ \isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ W\ \isacommand{assume}\isamarkupfalse%
+\ W{\isacharunderscore}eq{\isacharunderscore}class{\isacharcolon}\ {\isachardoublequoteopen}W\ {\isasymin}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}elem\ {\isasymnotin}\ W{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}class\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharprime}\ non{\isacharunderscore}overlapping\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}remove{\isacharunderscore}elem\ W\ {\isacharequal}\ W{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharunderscore}id{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}remove{\isacharunderscore}elem\ {\isacharbackquote}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ Q{\isacharunderscore}unfolded{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}Q\ {\isacharequal}\ {\isacharquery}remove{\isacharunderscore}elem\ {\isacharbackquote}\ P\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ partition{\isacharunderscore}without{\isacharunderscore}def\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ image{\isacharunderscore}Collect{\isacharunderscore}mem\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharquery}remove{\isacharunderscore}elem\ {\isacharbackquote}\ {\isacharparenleft}{\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}Y{\isacharbraceright}{\isacharparenright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ P{\isacharunderscore}wrt{\isacharunderscore}elem\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Y{\isacharunderscore}elem{\isacharunderscore}eq\ elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharunderscore}id\ image{\isacharunderscore}Un\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ Q{\isacharunderscore}wrt{\isacharunderscore}elem{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}Q\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}eq\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymor}\ {\isacharquery}elem{\isacharunderscore}eq\ {\isasymnotin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}class\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharprime}\ non{\isacharunderscore}overlapping\ Diff{\isacharunderscore}Int{\isacharunderscore}distrib{\isadigit{2}}\ Diff{\isacharunderscore}iff\ empty{\isacharunderscore}Diff\ insert{\isacharunderscore}iff\isanewline
+\isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}eq\ {\isasymnotin}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping\ no{\isacharunderscore}empty{\isacharunderscore}in{\isacharunderscore}non{\isacharunderscore}overlapping\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isacharminus}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\isanewline
+\ \ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\ cases\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}eq\ {\isasymnotin}\ {\isacharquery}Q{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}eq\ {\isasymin}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}wrt{\isacharunderscore}P\ Q{\isacharunderscore}unfolded\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ DiffI{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ Y{\isacharunderscore}singleton{\isacharcolon}\ {\isachardoublequoteopen}Y\ {\isacharequal}\ {\isacharbraceleft}elem{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}class\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}Q\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}wrt{\isacharunderscore}elem\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}Q\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ no{\isacharunderscore}empty{\isacharunderscore}in{\isacharunderscore}non{\isacharunderscore}overlapping\ elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharunderscore}part\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}insert\ {\isacharbraceleft}elem{\isacharbraceright}\ {\isacharquery}Q\ {\isacharequal}\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Y{\isacharunderscore}singleton\ elem{\isacharunderscore}eq{\isacharunderscore}class{\isacharprime}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ True{\isacharcolon}\ {\isachardoublequoteopen}{\isasymnot}\ {\isacharquery}elem{\isacharunderscore}eq\ {\isasymnotin}\ {\isacharquery}Q{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{hence}\isamarkupfalse%
+\ Y{\isacharprime}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ no{\isacharunderscore}empty{\isacharunderscore}in{\isacharunderscore}non{\isacharunderscore}overlapping\ non{\isacharunderscore}overlapping\ non{\isacharunderscore}overlapping{\isacharunderscore}without{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ {\isacharparenleft}{\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isasymunion}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharparenright}\ {\isacharquery}elem{\isacharunderscore}eq\ {\isacharequal}\ insert\ {\isacharparenleft}{\isacharquery}elem{\isacharunderscore}eq\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}{\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isasymunion}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharparenright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharparenleft}{\isacharbraceleft}{\isacharbraceright}\ {\isasymunion}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharparenright}\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq\ {\isasymunion}\ {\isacharbraceleft}elem{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}neq{\isacharunderscore}classes\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}Y{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ elem{\isacharunderscore}eq{\isacharunderscore}class\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ {\isacharparenleft}{\isacharbraceleft}{\isacharquery}elem{\isacharunderscore}eq{\isacharbraceright}\ {\isasymunion}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes{\isacharparenright}\ {\isacharquery}elem{\isacharunderscore}eq\ {\isacharequal}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}Y{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymunion}\ {\isacharbraceleft}Y{\isacharbraceright}\ {\isacharequal}\ insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ {\isacharquery}Q\ {\isacharquery}elem{\isacharunderscore}eq{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}wrt{\isacharunderscore}elem\ Y{\isacharprime}\ partition{\isacharunderscore}without{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharbraceleft}Y{\isacharbraceright}\ {\isasymunion}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymin}\ insert{\isacharunderscore}into{\isacharunderscore}member\ elem\ {\isacharquery}Q\ {\isacharbackquote}\ {\isacharquery}Q{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ True\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharbraceleft}Y{\isacharbraceright}\ {\isasymunion}\ {\isacharquery}elem{\isacharunderscore}neq{\isacharunderscore}classes\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharquery}Q{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ P{\isacharunderscore}wrt{\isacharunderscore}elem\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Given a set \isa{Ps} of partitions, this is intended to compute the set of all coarser
+  partitions (given an extension element) of all partitions in \isa{Ps}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\ {\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \ \isakeyword{where}\ {\isachardoublequoteopen}all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ Ps\ {\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharbackquote}\ Ps{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+the list variant of \isa{all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}\ {\isacharprime}a\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ list\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem\ Ps\ {\isacharequal}\ \isanewline
+\ \ \ \ \ \ \ \ \ concat\ {\isacharparenleft}map\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem{\isacharparenright}\ Ps{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+\isa{all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list} and \isa{all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with} are equivalent.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}equivalence{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ elem{\isacharcolon}{\isacharcolon}{\isacharprime}a\isanewline
+\ \ \ \ \isakeyword{and}\ Ps{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ list\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{assumes}\ distinct{\isacharcolon}\ {\isachardoublequoteopen}{\isasymforall}\ P\ {\isasymin}\ set\ Ps\ {\isachardot}\ distinct\ P{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem\ Ps{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharparenleft}set\ {\isacharparenleft}map\ set\ Ps{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}list{\isacharunderscore}expr\ {\isacharequal}\ {\isacharquery}set{\isacharunderscore}expr{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}list{\isacharunderscore}expr\ {\isacharequal}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}concat\ {\isacharparenleft}map\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem{\isacharparenright}\ Ps{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ set\ {\isacharbackquote}\ {\isacharparenleft}{\isasymUnion}\ x\ {\isasymin}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}set\ Ps{\isacharparenright}\ {\isachardot}\ set\ x{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ set\ {\isacharbackquote}\ {\isacharparenleft}{\isasymUnion}\ x\ {\isasymin}\ {\isacharbraceleft}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem\ P\ {\isacharbar}\ P\ {\isachardot}\ P\ {\isasymin}\ set\ Ps\ {\isacharbraceright}\ {\isachardot}\ set\ x{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}simp\ add{\isacharcolon}\ image{\isacharunderscore}Collect{\isacharunderscore}mem{\isacharparenright}\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isasymUnion}\ {\isacharbraceleft}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ elem\ P{\isacharparenright}{\isacharparenright}\ {\isacharbar}\ P\ {\isachardot}\ P\ {\isasymin}\ set\ Ps\ {\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isasymUnion}\ {\isacharbraceleft}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharparenleft}set\ P{\isacharparenright}\ {\isacharbar}\ P\ {\isachardot}\ P\ {\isasymin}\ set\ Ps\ {\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ distinct\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}equivalence\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharbackquote}\ {\isacharparenleft}set\ {\isacharbackquote}\ {\isacharparenleft}set\ Ps{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}simp\ add{\isacharcolon}\ image{\isacharunderscore}Collect{\isacharunderscore}mem{\isacharparenright}\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ elem\ {\isacharbackquote}\ {\isacharparenleft}set\ {\isacharparenleft}map\ set\ Ps{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharquery}set{\isacharunderscore}expr{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+all partitions of a set (given as list) in form of a set%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}set\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ list\ {\isasymRightarrow}\ {\isacharprime}a\ set\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ \isanewline
+\ \ \ {\isachardoublequoteopen}all{\isacharunderscore}partitions{\isacharunderscore}set\ {\isacharbrackleft}{\isacharbrackright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ {\isacharbar}\isanewline
+\ \ \ {\isachardoublequoteopen}all{\isacharunderscore}partitions{\isacharunderscore}set\ {\isacharparenleft}e\ {\isacharhash}\ X{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ e\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}set\ X{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+all partitions of a set (given as list) in form of a list%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ list\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ \isanewline
+\ \ \ {\isachardoublequoteopen}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharbrackleft}{\isacharbrackright}\ {\isacharequal}\ {\isacharbrackleft}{\isacharbrackleft}{\isacharbrackright}{\isacharbrackright}{\isachardoublequoteclose}\ {\isacharbar}\isanewline
+\ \ \ {\isachardoublequoteopen}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}e\ {\isacharhash}\ X{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ e\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ X{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+A list of partitions coarser than a given partition in list representation (constructed
+  with \isa{coarser{\isacharunderscore}partitions{\isacharunderscore}with} is distinct under certain conditions.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}distinct{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ ps\isanewline
+\ \ \isakeyword{assumes}\ ps{\isacharunderscore}coarser{\isacharcolon}\ {\isachardoublequoteopen}ps\ {\isasymin}\ set\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ distinct{\isacharcolon}\ {\isachardoublequoteopen}distinct\ Q{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ partition{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}set\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ new{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymnotin}\ set\ Q{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}distinct\ ps{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x\ Q{\isacharparenright}\ {\isacharequal}\ insert\ {\isacharparenleft}{\isacharbraceleft}x{\isacharbraceright}\ {\isacharhash}\ Q{\isacharparenright}\ {\isacharparenleft}set\ {\isacharparenleft}map\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ x\ Q{\isacharparenright}\ Q{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{with}\isamarkupfalse%
+\ ps{\isacharunderscore}coarser\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}ps\ {\isasymin}\ insert\ {\isacharparenleft}{\isacharbraceleft}x{\isacharbraceright}\ {\isacharhash}\ Q{\isacharparenright}\ {\isacharparenleft}set\ {\isacharparenleft}map\ {\isacharparenleft}{\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ x\ Q{\isacharparenright}{\isacharparenright}\ Q{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}ps\ {\isacharequal}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isacharhash}\ Q{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ distinct\ \isakeyword{and}\ new\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}ps\ {\isasymin}\ set\ {\isacharparenleft}map\ {\isacharparenleft}insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ x\ Q{\isacharparenright}\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{obtain}\isamarkupfalse%
+\ X\ \isakeyword{where}\ X{\isacharunderscore}in{\isacharunderscore}Q{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasymin}\ set\ Q{\isachardoublequoteclose}\ \isakeyword{and}\ ps{\isacharunderscore}insert{\isacharcolon}\ {\isachardoublequoteopen}ps\ {\isacharequal}\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list\ x\ Q\ X{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ ps{\isacharunderscore}insert\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}ps\ {\isacharequal}\ {\isacharparenleft}X\ {\isasymunion}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}\ {\isacharhash}\ {\isacharparenleft}remove{\isadigit{1}}\ X\ Q{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ insert{\isacharunderscore}into{\isacharunderscore}member{\isacharunderscore}list{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isacharparenleft}X\ {\isasymunion}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}\ {\isacharhash}\ {\isacharparenleft}removeAll\ X\ Q{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ distinct\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ distinct{\isacharunderscore}remove{\isadigit{1}}{\isacharunderscore}removeAll{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ ps{\isacharunderscore}list{\isacharcolon}\ {\isachardoublequoteopen}ps\ {\isacharequal}\ {\isacharparenleft}X\ {\isasymunion}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}\ {\isacharhash}\ {\isacharparenleft}removeAll\ X\ Q{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ distinct{\isacharunderscore}tl{\isacharcolon}\ {\isachardoublequoteopen}X\ {\isasymunion}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isasymnotin}\ set\ {\isacharparenleft}removeAll\ X\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isacommand{from}\isamarkupfalse%
+\ partition\ \isacommand{have}\isamarkupfalse%
+\ partition{\isacharprime}{\isacharcolon}\ {\isachardoublequoteopen}{\isasymforall}x{\isasymin}set\ Q{\isachardot}\ {\isasymforall}y{\isasymin}set\ Q{\isachardot}\ {\isacharparenleft}x\ {\isasyminter}\ y\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}x\ {\isacharequal}\ y{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}X\ {\isasymunion}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isasymin}\ set\ {\isacharparenleft}removeAll\ X\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{with}\isamarkupfalse%
+\ X{\isacharunderscore}in{\isacharunderscore}Q\ partition\ \isacommand{show}\isamarkupfalse%
+\ False\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ partition{\isacharprime}\ inf{\isacharunderscore}sup{\isacharunderscore}absorb\ member{\isacharunderscore}remove\ no{\isacharunderscore}empty{\isacharunderscore}in{\isacharunderscore}non{\isacharunderscore}overlapping\ remove{\isacharunderscore}code{\isacharparenleft}{\isadigit{1}}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ ps{\isacharunderscore}list\ distinct\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}full{\isacharunderscore}types{\isacharparenright}\ distinct{\isachardot}simps{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ distinct{\isacharunderscore}removeAll{\isacharparenright}\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The classical definition \isa{all{\isacharunderscore}partitions} and the algorithmic (constructive) definition \isa{all{\isacharunderscore}partitions{\isacharunderscore}list} are equivalent.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}equivalence{\isacharprime}{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ xs{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}distinct\ xs\ {\isasymLongrightarrow}\ \isanewline
+\ \ \ \ \ \ \ \ \ {\isacharparenleft}{\isacharparenleft}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isacharparenright}\ {\isasymand}\ {\isacharparenleft}{\isasymforall}\ ps\ {\isasymin}\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}\ {\isachardot}\ distinct\ ps{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharparenleft}induct\ xs{\isacharparenright}\isanewline
+\ \ \isacommand{case}\isamarkupfalse%
+\ Nil\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ List{\isachardot}set{\isacharunderscore}simps{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ emptyset{\isacharunderscore}part{\isacharunderscore}emptyset{\isadigit{3}}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ ps\ {\isasymin}\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharbrackleft}{\isacharbrackright}{\isacharparenright}\ {\isachardot}\ distinct\ ps{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}case\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{next}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{case}\isamarkupfalse%
+\ {\isacharparenleft}Cons\ x\ xs{\isacharparenright}\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ Cons{\isachardot}prems\ Cons{\isachardot}hyps\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ hyp{\isacharunderscore}equiv{\isacharcolon}\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ Cons{\isachardot}prems\ Cons{\isachardot}hyps\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ hyp{\isacharunderscore}distinct{\isacharcolon}\ {\isachardoublequoteopen}{\isasymforall}\ ps\ {\isasymin}\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}\ {\isachardot}\ distinct\ ps{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ distinct{\isacharunderscore}xs{\isacharcolon}\ {\isachardoublequoteopen}distinct\ xs{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Cons{\isachardot}prems\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ x{\isacharunderscore}notin{\isacharunderscore}xs{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymnotin}\ set\ xs{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Cons{\isachardot}prems\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\ {\isacharparenleft}rule\ equalitySubsetI{\isacharparenright}\ \isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}P{\isacharunderscore}without{\isacharunderscore}x\ {\isacharequal}\ {\isachardoublequoteopen}partition{\isacharunderscore}without\ x\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ P{\isacharunderscore}partitions{\isacharunderscore}exc{\isacharunderscore}x{\isacharcolon}\ {\isachardoublequoteopen}{\isasymUnion}\ {\isacharquery}P{\isacharunderscore}without{\isacharunderscore}x\ {\isacharequal}\ {\isasymUnion}\ P\ {\isacharminus}\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ partition{\isacharunderscore}without{\isacharunderscore}covers\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharcolon}\ {\isachardoublequoteopen}P\ partitions\ {\isacharparenleft}set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of\ \isacommand{have}\isamarkupfalse%
+\ P{\isacharunderscore}covers{\isacharcolon}\ {\isachardoublequoteopen}{\isasymUnion}\ P\ {\isacharequal}\ set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}P{\isacharunderscore}without{\isacharunderscore}x\ partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping\ non{\isacharunderscore}overlapping{\isacharunderscore}without{\isacharunderscore}is{\isacharunderscore}non{\isacharunderscore}overlapping\ partition{\isacharunderscore}without{\isacharunderscore}covers\ P{\isacharunderscore}covers\ x{\isacharunderscore}notin{\isacharunderscore}xs\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Diff{\isacharunderscore}insert{\isacharunderscore}absorb\ List{\isachardot}set{\isacharunderscore}simps{\isacharparenleft}{\isadigit{2}}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ hyp{\isacharunderscore}equiv\ \isacommand{have}\isamarkupfalse%
+\ p{\isacharunderscore}list{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}P{\isacharunderscore}without{\isacharunderscore}x\ {\isasymin}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharquery}P{\isacharunderscore}without{\isacharunderscore}x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ coarser{\isacharunderscore}partitions{\isacharunderscore}inv{\isacharunderscore}without\ is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isacharunderscore}covers\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ List{\isachardot}set{\isacharunderscore}simps{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ insertI{\isadigit{1}}{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ {\isasymUnion}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharbackquote}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ p{\isacharunderscore}list\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharparenleft}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}equivalence\ hyp{\isacharunderscore}distinct\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ all{\isacharunderscore}partitions{\isacharunderscore}list{\isachardot}simps{\isacharparenleft}{\isadigit{2}}{\isacharparenright}{\isacharparenright}\isanewline
+\ \ \isacommand{next}\isamarkupfalse%
+\ \isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ P{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ set{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \isacommand{assume}\isamarkupfalse%
+\ P{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isasymin}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharparenleft}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ distinct{\isacharunderscore}xs\ hyp{\isacharunderscore}distinct\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}equivalence\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharparenleft}all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ distinct{\isacharunderscore}xs\ hyp{\isacharunderscore}equiv\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ P{\isacharunderscore}set{\isacharcolon}\ {\isachardoublequoteopen}set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharparenleft}all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ P\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharparenleft}all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ {\isasymUnion}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharbackquote}\ {\isacharparenleft}all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}def\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{obtain}\isamarkupfalse%
+\ Y\isanewline
+\ \ \ \ \ \ \isakeyword{where}\ P{\isacharunderscore}in{\isacharunderscore}Y{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isasymin}\ Y{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ Y{\isacharunderscore}coarser{\isacharcolon}\ {\isachardoublequoteopen}Y\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ {\isacharbackquote}\ {\isacharparenleft}all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ Y{\isacharunderscore}coarser\ \isacommand{obtain}\isamarkupfalse%
+\ Q\isanewline
+\ \ \ \ \ \ \isakeyword{where}\ Q{\isacharunderscore}part{\isacharunderscore}xs{\isacharcolon}\ {\isachardoublequoteopen}Q\ {\isasymin}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ Y{\isacharunderscore}coarser{\isacharprime}{\isacharcolon}\ {\isachardoublequoteopen}Y\ {\isacharequal}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ Q{\isachardoublequoteclose}\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ P{\isacharunderscore}in{\isacharunderscore}Y\ Y{\isacharunderscore}coarser{\isacharprime}\ \isacommand{have}\isamarkupfalse%
+\ P{\isacharunderscore}wrt{\isacharunderscore}Q{\isacharcolon}\ {\isachardoublequoteopen}P\ {\isasymin}\ coarser{\isacharunderscore}partitions{\isacharunderscore}with\ x\ Q{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Q\ {\isasymin}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}part{\isacharunderscore}xs\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Q\ partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ Q{\isachardoublequoteclose}\ \isakeyword{and}\ Q{\isacharunderscore}covers{\isacharcolon}\ {\isachardoublequoteopen}{\isasymUnion}\ Q\ {\isacharequal}\ set\ xs{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp{\isacharunderscore}all\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ P{\isacharunderscore}partition{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ non{\isacharunderscore}overlapping{\isacharunderscore}extension{\isadigit{3}}\ P{\isacharunderscore}wrt{\isacharunderscore}Q\ x{\isacharunderscore}notin{\isacharunderscore}xs\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ P\ {\isacharequal}\ set\ xs\ {\isasymunion}\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ Q{\isacharunderscore}covers\ P{\isacharunderscore}in{\isacharunderscore}Y\ Y{\isacharunderscore}coarser{\isacharprime}\ coarser{\isacharunderscore}partitions{\isacharunderscore}covers\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ P\ {\isacharequal}\ set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ x{\isacharunderscore}notin{\isacharunderscore}xs\ P{\isacharunderscore}wrt{\isacharunderscore}Q\ Q{\isacharunderscore}covers\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ List{\isachardot}set{\isacharunderscore}simps{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ insert{\isacharunderscore}is{\isacharunderscore}Un\ sup{\isacharunderscore}commute{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ partitions\ {\isacharparenleft}set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ P{\isacharunderscore}partition\ \isacommand{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}P\ {\isasymin}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ ps\ {\isasymin}\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}\ {\isachardot}\ distinct\ ps{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{fix}\isamarkupfalse%
+\ ps{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ set\ list{\isachardoublequoteclose}\ \isacommand{assume}\isamarkupfalse%
+\ ps{\isacharunderscore}part{\isacharcolon}\ {\isachardoublequoteopen}ps\ {\isasymin}\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ set\ {\isacharparenleft}all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ set\ {\isacharparenleft}concat\ {\isacharparenleft}map\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x{\isacharparenright}\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}def\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isacommand{also}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}{\isacharparenleft}set\ {\isasymcirc}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{finally}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ all{\isacharunderscore}parts{\isacharunderscore}unfolded{\isacharcolon}\ {\isachardoublequoteopen}set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}{\isacharparenleft}set\ {\isasymcirc}\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{{\isachardot}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isanewline
+\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ ps{\isacharunderscore}part\ \isacommand{obtain}\isamarkupfalse%
+\ qs\isanewline
+\ \ \ \ \ \ \isakeyword{where}\ qs{\isacharcolon}\ {\isachardoublequoteopen}qs\ {\isasymin}\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeyword{and}\ ps{\isacharunderscore}coarser{\isacharcolon}\ {\isachardoublequoteopen}ps\ {\isasymin}\ set\ {\isacharparenleft}coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list\ x\ qs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ UnionE\ comp{\isacharunderscore}def\ imageE\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ qs\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}set\ qs\ {\isasymin}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}xs{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{with}\isamarkupfalse%
+\ distinct{\isacharunderscore}xs\ hyp{\isacharunderscore}equiv\ \isacommand{have}\isamarkupfalse%
+\ qs{\isacharunderscore}hyp{\isacharcolon}\ {\isachardoublequoteopen}set\ qs\ {\isasymin}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ qs{\isacharunderscore}part{\isacharcolon}\ {\isachardoublequoteopen}is{\isacharunderscore}non{\isacharunderscore}overlapping\ {\isacharparenleft}set\ qs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ mem{\isacharunderscore}Collect{\isacharunderscore}eq{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ distinct{\isacharunderscore}qs{\isacharcolon}\ {\isachardoublequoteopen}distinct\ qs{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ qs\ distinct{\isacharunderscore}xs\ hyp{\isacharunderscore}distinct\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \ \ \isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ Cons{\isachardot}prems\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}x\ {\isasymnotin}\ set\ xs{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ new{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymnotin}\ set\ qs{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isacommand{using}\isamarkupfalse%
+\ qs{\isacharunderscore}hyp\isanewline
+\ \ \ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}def\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharunderscore}def\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ mono{\isacharunderscore}tags{\isacharparenright}\ UnionI\ insertI{\isadigit{1}}\ mem{\isacharunderscore}Collect{\isacharunderscore}eq{\isacharparenright}\isanewline
+\isanewline
+\ \ \ \ \isacommand{from}\isamarkupfalse%
+\ ps{\isacharunderscore}coarser\ distinct{\isacharunderscore}qs\ qs{\isacharunderscore}part\ new\isanewline
+\ \ \ \ \ \ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}distinct\ ps{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ coarser{\isacharunderscore}partitions{\isacharunderscore}with{\isacharunderscore}list{\isacharunderscore}distinct{\isacharparenright}\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}case\ \isacommand{{\isachardot}{\isachardot}}\isamarkupfalse%
+\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The classical definition \isa{all{\isacharunderscore}partitions} and the algorithmic (constructive) definition \isa{all{\isacharunderscore}partitions{\isacharunderscore}list} are equivalent.  This is a front-end theorem derived from
+  \isa{distinct\ {\isacharquery}xs\ {\isasymLongrightarrow}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharquery}xs{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ {\isacharquery}xs{\isacharparenright}\ {\isasymand}\ {\isacharparenleft}{\isasymforall}ps{\isasymin}set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharquery}xs{\isacharparenright}{\isachardot}\ distinct\ ps{\isacharparenright}}; it does not make the auxiliary statement about partitions
+  being distinct lists.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{theorem}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}paper{\isacharunderscore}equiv{\isacharunderscore}alg{\isacharcolon}\isanewline
+\ \ \isakeyword{fixes}\ xs{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}{\isacharprime}a\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}distinct\ xs\ {\isasymLongrightarrow}\ set\ {\isacharparenleft}map\ set\ {\isacharparenleft}all{\isacharunderscore}partitions{\isacharunderscore}list\ xs{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ all{\isacharunderscore}partitions\ {\isacharparenleft}set\ xs{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}equivalence{\isacharprime}\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The function that we will be using in practice to compute all partitions of a set,
+  a set-oriented front-end to \isa{all{\isacharunderscore}partitions{\isacharunderscore}list}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ all{\isacharunderscore}partitions{\isacharunderscore}alg\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a{\isasymColon}linorder\ set\ {\isasymRightarrow}\ {\isacharprime}a\ set\ list\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}all{\isacharunderscore}partitions{\isacharunderscore}alg\ X\ {\isacharequal}\ all{\isacharunderscore}partitions{\isacharunderscore}list\ {\isacharparenleft}sorted{\isacharunderscore}list{\isacharunderscore}of{\isacharunderscore}set\ X{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

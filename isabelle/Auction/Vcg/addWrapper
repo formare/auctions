@@ -1,0 +1,6 @@
+{ { echo asdff; tac VCG-withoutWrapper.scala ; } | 
+    sed -n -e '1,/\}/ !p'  | 
+    tac | 
+    cat - addedWrapper.scala; echo \}; }| 
+    sed -e "s/\(Nat\)\([^a-zA-Z]\)/NNat\2/g; s/\(Sup_set\)\([^a-zA-Z]\)/SSup_set\2/g" > VCG.scala
+

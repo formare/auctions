@@ -1,0 +1,14 @@
+The directory afp contains the AFP submission as of 2015-04-30.
+Vcg-submitted.tgz contains the original submission which was subsequently
+adjusted for Isabelle2015 in afp-Vickrey_Clarke_Groves-current.tar.gz and
+expanded to Vickrey_Clarke_Groves.
+
+addedWrapper.scala contains the wrapper that needs to be added to deal
+with scala input/output to the automatically generated file
+VCG-withoutWrapper.scala to get VCG.scala e.g., by using the script
+addWrapper.
+
+scrap.thy contains lemmas/theorems not used in the final AFP submission.
+
+The files in output contain the extracted document files together with
+LaTeX style files for generating the documentation.

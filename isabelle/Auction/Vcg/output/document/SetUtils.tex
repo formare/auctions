@@ -1,0 +1,653 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{SetUtils}%
+%
+\isamarkupheader{Additional material that we would have expected in Set.thy%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ SetUtils\isanewline
+\isakeyword{imports}\isanewline
+\ \ Main\isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isamarkupsection{Equality%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+An inference (introduction) rule that combines \isa{{\isasymlbrakk}{\isacharquery}A\ {\isasymsubseteq}\ {\isacharquery}B{\isacharsemicolon}\ {\isacharquery}B\ {\isasymsubseteq}\ {\isacharquery}A{\isasymrbrakk}\ {\isasymLongrightarrow}\ {\isacharquery}A\ {\isacharequal}\ {\isacharquery}B} and \isa{{\isacharparenleft}{\isasymAnd}x{\isachardot}\ x\ {\isasymin}\ {\isacharquery}A\ {\isasymLongrightarrow}\ x\ {\isasymin}\ {\isacharquery}B{\isacharparenright}\ {\isasymLongrightarrow}\ {\isacharquery}A\ {\isasymsubseteq}\ {\isacharquery}B} to a single step%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ equalitySubsetI{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isasymAnd}x\ {\isachardot}\ x\ {\isasymin}\ A\ {\isasymLongrightarrow}\ x\ {\isasymin}\ B{\isacharparenright}\ {\isasymLongrightarrow}\ {\isacharparenleft}{\isasymAnd}x\ {\isachardot}\ x\ {\isasymin}\ B\ {\isasymLongrightarrow}\ x\ {\isasymin}\ A{\isacharparenright}\ {\isasymLongrightarrow}\ A\ {\isacharequal}\ B{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{Trivial sets%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+A trivial set (i.e. singleton or empty), as in Mizar%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ trivial\ \isakeyword{where}\ {\isachardoublequoteopen}trivial\ x\ {\isacharequal}\ {\isacharparenleft}x\ {\isasymsubseteq}\ {\isacharbraceleft}the{\isacharunderscore}elem\ x{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+The empty set is trivial.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}empty{\isacharcolon}\ {\isachardoublequoteopen}trivial\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ empty{\isacharunderscore}subsetI{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A singleton set is trivial.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}singleton{\isacharcolon}\ {\isachardoublequoteopen}trivial\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+If a trivial set has a singleton subset, the latter is unique.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ singleton{\isacharunderscore}sub{\isacharunderscore}trivial{\isacharunderscore}uniq{\isacharcolon}\isanewline
+\ \ \ \ \ \ \isakeyword{fixes}\ \ \ x\ X\isanewline
+\ \ \ \ \ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymsubseteq}\ X{\isachardoublequoteclose}\ \isakeyword{and}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}x\ {\isacharequal}\ the{\isacharunderscore}elem\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Any subset of a trivial set is trivial.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}subset{\isacharcolon}\ \isakeyword{fixes}\ X\ Y\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ Y{\isachardoublequoteclose}\ \isakeyword{assumes}\ {\isachardoublequoteopen}X\ {\isasymsubseteq}\ Y{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+\ \ \ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ \isanewline
+\ \ \ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}full{\isacharunderscore}types{\isacharparenright}\ subset{\isacharunderscore}empty\ subset{\isacharunderscore}insertI{\isadigit{2}}\ subset{\isacharunderscore}singletonD{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+There are no two different elements in a trivial set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}imp{\isacharunderscore}no{\isacharunderscore}distinct{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ triv{\isacharcolon}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\ \isakeyword{and}\ x{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ X{\isachardoublequoteclose}\ \isakeyword{and}\ y{\isacharcolon}\ {\isachardoublequoteopen}y\ {\isasymin}\ X{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}x\ {\isacharequal}\ y{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ empty{\isacharunderscore}subsetI\ insert{\isacharunderscore}subset\ singleton{\isacharunderscore}sub{\isacharunderscore}trivial{\isacharunderscore}uniq{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{The image of a set under a function%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+an equivalent notation for the image of a set, using set comprehension%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ image{\isacharunderscore}Collect{\isacharunderscore}mem{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbraceleft}\ f\ x\ {\isacharbar}\ x\ {\isachardot}\ x\ {\isasymin}\ S\ {\isacharbraceright}\ {\isacharequal}\ f\ {\isacharbackquote}\ S{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{Big Union%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+An element is in the union of a family of sets if it is in one of the family's member sets.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ Union{\isacharunderscore}member{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isasymexists}\ S\ {\isasymin}\ F\ {\isachardot}\ x\ {\isasymin}\ S{\isacharparenright}\ {\isasymlongleftrightarrow}\ x\ {\isasymin}\ {\isasymUnion}\ F{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{Miscellaneous%
+}
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}subset{\isacharunderscore}non{\isacharunderscore}empty{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ t{\isachardoublequoteclose}\ {\isachardoublequoteopen}t\ {\isasyminter}\ X\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}t\ {\isasymsubseteq}\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ assms\ in{\isacharunderscore}mono\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}implies{\isacharunderscore}finite{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}finite\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ finite{\isachardot}simps\ subset{\isacharunderscore}singletonD\ trivial{\isacharunderscore}def{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{1}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ {\isacharparenleft}A\ {\isasymtimes}\ B{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}{\isacharparenleft}finite\ {\isacharparenleft}A{\isasymtimes}B{\isacharparenright}\ {\isacharampersand}\ card\ A\ {\isacharasterisk}\ {\isacharparenleft}card\ B{\isacharparenright}\ {\isasymle}\ {\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ assms\ One{\isacharunderscore}nat{\isacharunderscore}def\ card{\isacharunderscore}cartesian{\isacharunderscore}product\ card{\isacharunderscore}empty\ card{\isacharunderscore}insert{\isacharunderscore}disjoint\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ empty{\isacharunderscore}iff\ finite{\isachardot}emptyI\ le{\isadigit{0}}\ trivial{\isacharunderscore}implies{\isacharunderscore}finite\ order{\isacharunderscore}refl\ subset{\isacharunderscore}singletonD\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{2}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}finite\ X{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}trivial\ X{\isacharequal}{\isacharparenleft}card\ X\ {\isasymle}\ {\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ One{\isacharunderscore}nat{\isacharunderscore}def\ card{\isacharunderscore}empty\ card{\isacharunderscore}insert{\isacharunderscore}if\ card{\isacharunderscore}mono\ card{\isacharunderscore}seteq\ empty{\isacharunderscore}iff\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ empty{\isacharunderscore}subsetI\ finite{\isachardot}cases\ finite{\isachardot}emptyI\ finite{\isacharunderscore}insert\ insert{\isacharunderscore}mono\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ trivial{\isacharunderscore}def\ trivial{\isacharunderscore}singleton\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{3}}{\isacharcolon}\ \isakeyword{shows}\ {\isachardoublequoteopen}trivial\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ order{\isacharunderscore}refl\ the{\isacharunderscore}elem{\isacharunderscore}eq\ trivial{\isacharunderscore}def{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{4}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymsubseteq}\ X{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}\ {\isacharequal}\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ singleton{\isacharunderscore}sub{\isacharunderscore}trivial{\isacharunderscore}uniq\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ subset{\isacharunderscore}antisym\ trivial{\isacharunderscore}def{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{5}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymnot}\ trivial\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}trivial\ T{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}X\ {\isacharminus}\ T\ \ {\isasymnoteq}\ \ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Diff{\isacharunderscore}iff\ empty{\isacharunderscore}iff\ subsetI\ trivial{\isacharunderscore}subset{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{6}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isacharparenleft}finite\ {\isacharparenleft}A\ {\isasymtimes}\ B{\isacharparenright}\ \ {\isacharampersand}\ \ card\ A\ {\isacharasterisk}\ {\isacharparenleft}card\ B{\isacharparenright}\ {\isasymle}\ {\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}trivial\ {\isacharparenleft}A\ {\isasymtimes}\ B{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ card{\isacharunderscore}cartesian{\isacharunderscore}product\ lm{\isadigit{0}}{\isadigit{2}}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{7}}{\isacharcolon}\ {\isachardoublequoteopen}trivial\ {\isacharparenleft}A\ {\isasymtimes}\ B{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}finite\ {\isacharparenleft}A\ {\isasymtimes}\ B{\isacharparenright}\ {\isacharampersand}\ card\ A\ {\isacharasterisk}\ {\isacharparenleft}card\ B{\isacharparenright}\ {\isasymle}\ {\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{1}}\ lm{\isadigit{0}}{\isadigit{6}}\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}empty{\isacharunderscore}or{\isacharunderscore}singleton{\isacharcolon}\ {\isachardoublequoteopen}trivial\ X\ {\isacharequal}\ {\isacharparenleft}X\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}\ {\isasymor}\ X\ {\isacharequal}\ {\isacharbraceleft}the{\isacharunderscore}elem\ X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ subset{\isacharunderscore}singletonD\ trivial{\isacharunderscore}def\ trivial{\isacharunderscore}empty\ trivial{\isacharunderscore}singleton{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}cartesian{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}trivial\ Y{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}trivial\ {\isacharparenleft}X\ {\isasymtimes}\ Y{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{7}}\ One{\isacharunderscore}nat{\isacharunderscore}def\ Sigma{\isacharunderscore}empty{\isadigit{1}}\ Sigma{\isacharunderscore}empty{\isadigit{2}}\ card{\isacharunderscore}empty\ card{\isacharunderscore}insert{\isacharunderscore}if\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ finite{\isacharunderscore}SigmaI\ trivial{\isacharunderscore}implies{\isacharunderscore}finite\ nat{\isacharunderscore}{\isadigit{1}}{\isacharunderscore}eq{\isacharunderscore}mult{\isacharunderscore}iff\ order{\isacharunderscore}refl\ subset{\isacharunderscore}singletonD\ trivial{\isacharunderscore}def\ trivial{\isacharunderscore}empty\isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}full{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ trivial{\isacharunderscore}same{\isacharcolon}\ {\isachardoublequoteopen}trivial\ X\ {\isacharequal}\ {\isacharparenleft}{\isasymforall}x{\isadigit{1}}\ {\isasymin}\ X{\isachardot}\ {\isasymforall}x{\isadigit{2}}\ {\isasymin}\ X{\isachardot}\ x{\isadigit{1}}\ {\isacharequal}\ x{\isadigit{2}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ trivial{\isacharunderscore}imp{\isacharunderscore}no{\isacharunderscore}distinct\ ex{\isacharunderscore}in{\isacharunderscore}conv\ insertCI\ subsetI\ subset{\isacharunderscore}singletonD\isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ trivial{\isacharunderscore}singleton\ \isanewline
+\ \ \ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}no{\isacharunderscore}types{\isacharcomma}\ hide{\isacharunderscore}lams{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{8}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isacharparenleft}Pow\ X\ {\isasymsubseteq}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharcomma}X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ trivial{\isacharunderscore}same\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{9}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ X{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}Pow\ X\ {\isasymsubseteq}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharcomma}X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ trivial{\isacharunderscore}same\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{0}}{\isacharcolon}\ {\isachardoublequoteopen}trivial\ X\ {\isacharequal}\ {\isacharparenleft}Pow\ X\ {\isasymsubseteq}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharcomma}X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{8}}\ lm{\isadigit{0}}{\isadigit{9}}\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymtimes}\ UNIV{\isacharparenright}\ {\isasyminter}\ P\ {\isacharequal}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isasymtimes}\ {\isacharparenleft}P\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}x{\isacharcomma}y{\isacharparenright}\ {\isasymin}\ P\ {\isacharequal}\ {\isacharparenleft}y\ {\isasymin}\ P{\isacharbackquote}{\isacharbackquote}{\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{3}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ f\ A{\isachardoublequoteclose}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ f\ B{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ \ \ {\isachardoublequoteopen}inj{\isacharunderscore}on\ f\ {\isacharparenleft}A\ {\isasymunion}\ B{\isacharparenright}\ \ {\isacharequal}\ \ {\isacharparenleft}f{\isacharbackquote}{\isacharparenleft}A{\isacharminus}B{\isacharparenright}\ {\isasyminter}\ {\isacharparenleft}f{\isacharbackquote}{\isacharparenleft}B{\isacharminus}A{\isacharparenright}{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ inj{\isacharunderscore}on{\isacharunderscore}Un\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ injection{\isacharunderscore}union{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ f\ A{\isachardoublequoteclose}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ f\ B{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isacharparenleft}f{\isacharbackquote}A{\isacharparenright}\ {\isasyminter}\ {\isacharparenleft}f{\isacharbackquote}B{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \isakeyword{shows}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ f\ {\isacharparenleft}A\ {\isasymunion}\ B{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{1}}{\isadigit{3}}\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{4}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}Pow\ X\ {\isacharequal}\ {\isacharbraceleft}X{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}X{\isacharequal}{\isacharbraceleft}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ \ \ \ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

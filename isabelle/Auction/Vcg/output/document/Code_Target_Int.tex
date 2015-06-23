@@ -1,0 +1,466 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{Code{\isacharunderscore}Target{\isacharunderscore}Int}%
+%
+\isamarkupheader{Implementation of integer numbers by target-language integers%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ Code{\isacharunderscore}Target{\isacharunderscore}Int\isanewline
+\isakeyword{imports}\ Main\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\isanewline
+\isanewline
+\isacommand{code{\isacharunderscore}datatype}\isamarkupfalse%
+\ int{\isacharunderscore}of{\isacharunderscore}integer\isanewline
+\isanewline
+\isacommand{declare}\isamarkupfalse%
+\ {\isacharbrackleft}{\isacharbrackleft}code\ drop{\isacharcolon}\ integer{\isacharunderscore}of{\isacharunderscore}int{\isacharbrackright}{\isacharbrackright}\isanewline
+\isanewline
+\isacommand{context}\isamarkupfalse%
+\isanewline
+\isakeyword{includes}\ integer{\isachardot}lifting\isanewline
+\isakeyword{begin}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}integer{\isacharunderscore}of{\isacharunderscore}int\ {\isacharparenleft}int{\isacharunderscore}of{\isacharunderscore}integer\ k{\isacharparenright}\ {\isacharequal}\ k{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ rule%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}Int{\isachardot}Pos\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isasymcirc}\ integer{\isacharunderscore}of{\isacharunderscore}num{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ {\isacharparenleft}simp\ add{\isacharcolon}\ fun{\isacharunderscore}eq{\isacharunderscore}iff{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\ \isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}Int{\isachardot}Neg\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isasymcirc}\ uminus\ {\isasymcirc}\ integer{\isacharunderscore}of{\isacharunderscore}num{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ {\isacharparenleft}simp\ add{\isacharcolon}\ fun{\isacharunderscore}eq{\isacharunderscore}iff{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\ \isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharunderscore}abbrev{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}numeral\ k{\isacharparenright}\ {\isacharequal}\ Int{\isachardot}Pos\ k{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharunderscore}abbrev{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}{\isacharminus}\ numeral\ k{\isacharparenright}\ {\isacharequal}\ Int{\isachardot}Neg\ k{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\ \ \isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharcomma}\ symmetric{\isacharcomma}\ code{\isacharunderscore}post{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}{\isadigit{0}}\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isadigit{0}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharcomma}\ symmetric{\isacharcomma}\ code{\isacharunderscore}post{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}{\isadigit{1}}\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isadigit{1}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ {\isacharplus}\ l\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}of{\isacharunderscore}int\ k\ {\isacharplus}\ of{\isacharunderscore}int\ l{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}{\isacharminus}\ k\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}{\isacharminus}\ of{\isacharunderscore}int\ k{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ {\isacharminus}\ l\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}of{\isacharunderscore}int\ k\ {\isacharminus}\ of{\isacharunderscore}int\ l{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}Int{\isachardot}dup\ k\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}Code{\isacharunderscore}Numeral{\isachardot}dup\ {\isacharparenleft}of{\isacharunderscore}int\ k{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{declare}\isamarkupfalse%
+\ {\isacharbrackleft}{\isacharbrackleft}code\ drop{\isacharcolon}\ Int{\isachardot}sub{\isacharbrackright}{\isacharbrackright}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ {\isacharasterisk}\ l\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}of{\isacharunderscore}int\ k\ {\isacharasterisk}\ of{\isacharunderscore}int\ l{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}Divides{\isachardot}divmod{\isacharunderscore}abs\ k\ l\ {\isacharequal}\ map{\isacharunderscore}prod\ int{\isacharunderscore}of{\isacharunderscore}integer\ int{\isacharunderscore}of{\isacharunderscore}integer\isanewline
+\ \ \ \ {\isacharparenleft}Code{\isacharunderscore}Numeral{\isachardot}divmod{\isacharunderscore}abs\ {\isacharparenleft}of{\isacharunderscore}int\ k{\isacharparenright}\ {\isacharparenleft}of{\isacharunderscore}int\ l{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}simp\ add{\isacharcolon}\ prod{\isacharunderscore}eq{\isacharunderscore}iff{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ div\ l\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}of{\isacharunderscore}int\ k\ div\ of{\isacharunderscore}int\ l{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ mod\ l\ {\isacharequal}\ int{\isacharunderscore}of{\isacharunderscore}integer\ {\isacharparenleft}of{\isacharunderscore}int\ k\ mod\ of{\isacharunderscore}int\ l{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}HOL{\isachardot}equal\ k\ l\ {\isacharequal}\ HOL{\isachardot}equal\ {\isacharparenleft}of{\isacharunderscore}int\ k\ {\isacharcolon}{\isacharcolon}\ integer{\isacharparenright}\ {\isacharparenleft}of{\isacharunderscore}int\ l{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ {\isacharparenleft}simp\ add{\isacharcolon}\ equal{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ {\isasymle}\ l\ {\isasymlongleftrightarrow}\ {\isacharparenleft}of{\isacharunderscore}int\ k\ {\isacharcolon}{\isacharcolon}\ integer{\isacharparenright}\ {\isasymle}\ of{\isacharunderscore}int\ l{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ rule%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}k\ {\isacharless}\ l\ {\isasymlongleftrightarrow}\ {\isacharparenleft}of{\isacharunderscore}int\ k\ {\isacharcolon}{\isacharcolon}\ integer{\isacharparenright}\ {\isacharless}\ of{\isacharunderscore}int\ l{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ rule%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{end}\isamarkupfalse%
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharparenleft}\isakeyword{in}\ ring{\isacharunderscore}{\isadigit{1}}{\isacharparenright}\ of{\isacharunderscore}int{\isacharunderscore}code{\isacharunderscore}if{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}of{\isacharunderscore}int\ k\ {\isacharequal}\ {\isacharparenleft}if\ k\ {\isacharequal}\ {\isadigit{0}}\ then\ {\isadigit{0}}\isanewline
+\ \ \ \ \ else\ if\ k\ {\isacharless}\ {\isadigit{0}}\ then\ {\isacharminus}\ of{\isacharunderscore}int\ {\isacharparenleft}{\isacharminus}\ k{\isacharparenright}\isanewline
+\ \ \ \ \ else\ let\isanewline
+\ \ \ \ \ \ \ {\isacharparenleft}l{\isacharcomma}\ j{\isacharparenright}\ {\isacharequal}\ divmod{\isacharunderscore}int\ k\ {\isadigit{2}}{\isacharsemicolon}\isanewline
+\ \ \ \ \ \ \ l{\isacharprime}\ {\isacharequal}\ {\isadigit{2}}\ {\isacharasterisk}\ of{\isacharunderscore}int\ l\isanewline
+\ \ \ \ \ in\ if\ j\ {\isacharequal}\ {\isadigit{0}}\ then\ l{\isacharprime}\ else\ l{\isacharprime}\ {\isacharplus}\ {\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{from}\isamarkupfalse%
+\ mod{\isacharunderscore}div{\isacharunderscore}equality\ \isacommand{have}\isamarkupfalse%
+\ {\isacharasterisk}{\isacharcolon}\ {\isachardoublequoteopen}of{\isacharunderscore}int\ k\ {\isacharequal}\ of{\isacharunderscore}int\ {\isacharparenleft}k\ div\ {\isadigit{2}}\ {\isacharasterisk}\ {\isadigit{2}}\ {\isacharplus}\ k\ mod\ {\isadigit{2}}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}simp\ add{\isacharcolon}\ Let{\isacharunderscore}def\ divmod{\isacharunderscore}int{\isacharunderscore}mod{\isacharunderscore}div\ of{\isacharunderscore}int{\isacharunderscore}add\ {\isacharbrackleft}symmetric{\isacharbrackright}{\isacharparenright}\isanewline
+\ \ \ \ \ \ {\isacharparenleft}simp\ add{\isacharcolon}\ {\isacharasterisk}\ mult{\isachardot}commute{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{declare}\isamarkupfalse%
+\ of{\isacharunderscore}int{\isacharunderscore}code{\isacharunderscore}if\ {\isacharbrackleft}code{\isacharbrackright}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isacharbrackleft}code{\isacharbrackright}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}nat\ {\isacharequal}\ nat{\isacharunderscore}of{\isacharunderscore}integer\ {\isasymcirc}\ of{\isacharunderscore}int{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{including}\isamarkupfalse%
+\ integer{\isachardot}lifting%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ transfer\ {\isacharparenleft}simp\ add{\isacharcolon}\ fun{\isacharunderscore}eq{\isacharunderscore}iff{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{code{\isacharunderscore}identifier}\isamarkupfalse%
+\isanewline
+\ \ \isakeyword{code{\isacharunderscore}module}\ Code{\isacharunderscore}Target{\isacharunderscore}Int\ {\isasymrightharpoonup}\isanewline
+\ \ \ \ {\isacharparenleft}SML{\isacharparenright}\ Arith\ \isakeyword{and}\ {\isacharparenleft}OCaml{\isacharparenright}\ Arith\ \isakeyword{and}\ {\isacharparenleft}Haskell{\isacharparenright}\ Arith\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

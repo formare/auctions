@@ -1,0 +1,926 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{RelationProperties}%
+%
+\isamarkupheader{Additional properties of relations, and operators on relations,
+  as they have been defined by Relations.thy%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ RelationProperties\isanewline
+\isakeyword{imports}\isanewline
+\ \ Main\isanewline
+\ \ RelationOperators\isanewline
+\ \ SetUtils\isanewline
+\ \ Conditionally{\isacharunderscore}Complete{\isacharunderscore}Lattices\ \isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isamarkupsection{right-uniqueness%
+}
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ injflip{\isacharcolon}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ flip\ A{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ flip{\isacharunderscore}flip\ inj{\isacharunderscore}on{\isacharunderscore}def{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}card\ P\ {\isacharequal}\ card\ {\isacharparenleft}P{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ card{\isacharunderscore}image\ flip{\isacharunderscore}conv\ injflip\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ cardinalityOneTheElemIdentity{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}card\ X\ {\isacharequal}\ {\isadigit{1}}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}X{\isacharequal}{\isacharbraceleft}the{\isacharunderscore}elem\ X{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ One{\isacharunderscore}nat{\isacharunderscore}def\ card{\isacharunderscore}Suc{\isacharunderscore}eq\ card{\isacharunderscore}empty\ empty{\isacharunderscore}iff\ the{\isacharunderscore}elem{\isacharunderscore}eq{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}trivial\ X\ {\isacharequal}\ {\isacharparenleft}X{\isacharequal}{\isacharbraceleft}{\isacharbraceright}\ {\isasymor}\ card\ X{\isacharequal}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ cardinalityOneTheElemIdentity\ order{\isacharunderscore}refl\ subset{\isacharunderscore}singletonD\ trivial{\isacharunderscore}def\ trivial{\isacharunderscore}empty\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{3}}{\isacharcolon}\ {\isachardoublequoteopen}trivial\ P\ {\isacharequal}\ trivial\ {\isacharparenleft}P{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}def\ subset{\isacharunderscore}singletonD\ \ subset{\isacharunderscore}refl\ subset{\isacharunderscore}insertI\ cardinalityOneTheElemIdentity\ converse{\isacharunderscore}inject\isanewline
+\ \ \ \ \ \ \ \ converse{\isacharunderscore}empty\ lm{\isadigit{0}}{\isadigit{1}}\ \isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ restrictedRange{\isacharcolon}\ {\isachardoublequoteopen}Range\ {\isacharparenleft}P{\isacharbar}{\isacharbar}X{\isacharparenright}\ {\isacharequal}\ P{\isacharbackquote}{\isacharbackquote}X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ doubleRestriction{\isacharcolon}\ \ {\isachardoublequoteopen}{\isacharparenleft}{\isacharparenleft}P\ {\isacharbar}{\isacharbar}\ X{\isacharparenright}\ {\isacharbar}{\isacharbar}\ Y{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}P\ {\isacharbar}{\isacharbar}\ {\isacharparenleft}X\ {\isasyminter}\ Y{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ restrictedDomain{\isacharcolon}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}R{\isacharbar}{\isacharbar}X{\isacharparenright}\ {\isacharequal}\ Domain\ R\ {\isasyminter}\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A subrelation of a right-unique relation is right-unique.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ subrel{\isacharunderscore}runiq{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ Q{\isachardoublequoteclose}\ {\isachardoublequoteopen}P\ {\isasymsubseteq}\ Q{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ P{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ runiq{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Image{\isacharunderscore}mono\ subsetI\ trivial{\isacharunderscore}subset{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ rightUniqueInjectiveOnFirstImplication{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ P{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ fst\ P{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ inj{\isacharunderscore}on{\isacharunderscore}def\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ assms\ runiq{\isacharunderscore}def\ trivial{\isacharunderscore}def\ trivial{\isacharunderscore}imp{\isacharunderscore}no{\isacharunderscore}distinct\ \isanewline
+\ \ \ \ \ \ \ \ the{\isacharunderscore}elem{\isacharunderscore}eq\ surjective{\isacharunderscore}pairing\ subsetI\ Image{\isacharunderscore}singleton{\isacharunderscore}iff\ \isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+alternative characterization of right-uniqueness: the image of a singleton set is
+   \isa{trivial}, i.e.\ an empty or a singleton set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}alt{\isacharcolon}\ {\isachardoublequoteopen}runiq\ R\ {\isasymlongleftrightarrow}\ {\isacharparenleft}{\isasymforall}\ x\ {\isachardot}\ trivial\ {\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ runiq{\isacharunderscore}def\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ Image{\isacharunderscore}empty\ trivial{\isacharunderscore}empty{\isacharunderscore}or{\isacharunderscore}singleton\ the{\isacharunderscore}elem{\isacharunderscore}eq\ \isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+an alternative definition of right-uniqueness in terms of \isa{op\ {\isacharcomma}{\isacharcomma}}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}wrt{\isacharunderscore}eval{\isacharunderscore}rel{\isacharcolon}\ {\isachardoublequoteopen}runiq\ R\ {\isacharequal}\ {\isacharparenleft}{\isasymforall}x\ {\isachardot}\ R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isasymsubseteq}\ {\isacharbraceleft}R\ {\isacharcomma}{\isacharcomma}\ x{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ eval{\isacharunderscore}rel{\isachardot}simps\ runiq{\isacharunderscore}alt\ trivial{\isacharunderscore}def{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ rightUniquePair{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ f{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isacharparenleft}x{\isacharcomma}y{\isacharparenright}{\isasymin}f{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}y{\isacharequal}f{\isacharcomma}{\isacharcomma}x{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ runiq{\isacharunderscore}wrt{\isacharunderscore}eval{\isacharunderscore}rel\ subset{\isacharunderscore}singletonD\ Image{\isacharunderscore}singleton{\isacharunderscore}iff\ equals{\isadigit{0}}D\ singletonE\ \isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}basic{\isacharcolon}\ {\isachardoublequoteopen}runiq\ R\ {\isasymlongleftrightarrow}\ {\isacharparenleft}{\isasymforall}\ x\ y\ y{\isacharprime}\ {\isachardot}\ {\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}\ {\isasymin}\ R\ {\isasymand}\ {\isacharparenleft}x{\isacharcomma}\ y{\isacharprime}{\isacharparenright}\ {\isasymin}\ R\ {\isasymlongrightarrow}\ y\ {\isacharequal}\ y{\isacharprime}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ runiq{\isacharunderscore}alt\ trivial{\isacharunderscore}same\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ rightUniqueFunctionAfterInverse{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ f{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}f{\isacharbackquote}{\isacharbackquote}{\isacharparenleft}f{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharbackquote}{\isacharbackquote}Y{\isacharparenright}\ {\isasymsubseteq}\ Y{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ runiq{\isacharunderscore}basic\ ImageE\ converse{\isacharunderscore}iff\ subsetI\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{4}}{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ f{\isachardoublequoteclose}\ {\isachardoublequoteopen}y{\isadigit{1}}\ {\isasymin}\ Range\ f{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}f{\isacharcircum}{\isacharminus}{\isadigit{1}}\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}y{\isadigit{1}}{\isacharbraceright}\ {\isasyminter}\ f{\isacharcircum}{\isacharminus}{\isadigit{1}}\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}y{\isadigit{2}}{\isacharbraceright}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}f{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharbackquote}{\isacharbackquote}{\isacharbraceleft}y{\isadigit{1}}{\isacharbraceright}{\isacharequal}f{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharbackquote}{\isacharbackquote}{\isacharbraceleft}y{\isadigit{2}}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ rightUniqueFunctionAfterInverse\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ converse{\isacharunderscore}Image{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ runiq{\isacharcolon}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ runiq{\isacharunderscore}conv{\isacharcolon}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}R{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}R{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}\ {\isacharbackquote}{\isacharbackquote}\ R\ {\isacharbackquote}{\isacharbackquote}\ X\ {\isasymsubseteq}\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ converse{\isacharunderscore}converse\ rightUniqueFunctionAfterInverse{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{5}}{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}inj{\isacharunderscore}on\ fst\ P{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ P{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ runiq{\isacharunderscore}basic\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ assms\ fst{\isacharunderscore}conv\ inj{\isacharunderscore}on{\isacharunderscore}def\ old{\isachardot}prod{\isachardot}inject\ \isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ rightUniqueInjectiveOnFirst{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}runiq\ P{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}inj{\isacharunderscore}on\ fst\ P{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ rightUniqueInjectiveOnFirstImplication\ lm{\isadigit{0}}{\isadigit{5}}\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ disj{\isacharunderscore}Un{\isacharunderscore}runiq{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ P{\isachardoublequoteclose}\ {\isachardoublequoteopen}runiq\ Q{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isacharparenleft}Domain\ P{\isacharparenright}\ {\isasyminter}\ {\isacharparenleft}Domain\ Q{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}P\ {\isasymunion}\ Q{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ rightUniqueInjectiveOnFirst\ fst{\isacharunderscore}eq{\isacharunderscore}Domain\ injection{\isacharunderscore}union\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}paste{\isadigit{1}}{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ Q{\isachardoublequoteclose}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}P\ outside\ Domain\ Q{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}P\ {\isacharplus}{\isacharasterisk}\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ paste{\isacharunderscore}def\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ assms\ disj{\isacharunderscore}Un{\isacharunderscore}runiq\ Diff{\isacharunderscore}disjoint\ Un{\isacharunderscore}commute\ outside{\isacharunderscore}reduces{\isacharunderscore}domain\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}poly{\isacharunderscore}guards{\isacharunderscore}query{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ runiq{\isacharunderscore}paste{\isadigit{2}}{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ Q{\isachardoublequoteclose}\ {\isachardoublequoteopen}runiq\ P{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}P\ {\isacharplus}{\isacharasterisk}\ Q{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ runiq{\isacharunderscore}paste{\isadigit{1}}\ subrel{\isacharunderscore}runiq\ Diff{\isacharunderscore}subset\ Outside{\isacharunderscore}def\ \isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ rightUniqueRestrictedGraph{\isacharcolon}\ {\isachardoublequoteopen}runiq\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}f\ x{\isacharparenright}{\isacharbar}\ x{\isachardot}\ P\ x{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ runiq{\isacharunderscore}basic\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ rightUniqueSetCardinality{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ R{\isachardoublequoteclose}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}card\ {\isacharparenleft}R{\isacharbackquote}{\isacharbackquote}{\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \ lm{\isadigit{0}}{\isadigit{2}}\ DomainE\ Image{\isacharunderscore}singleton{\isacharunderscore}iff\ empty{\isacharunderscore}iff\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ runiq{\isacharunderscore}alt{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The image of a singleton set under a right-unique relation is a singleton set.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ Image{\isacharunderscore}runiq{\isacharunderscore}eq{\isacharunderscore}eval{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ R{\isachardoublequoteclose}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}R\ {\isacharcomma}{\isacharcomma}\ x{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ rightUniqueSetCardinality\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ eval{\isacharunderscore}rel{\isachardot}simps\ cardinalityOneTheElemIdentity{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{6}}{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}trivial\ f{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ f{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ trivial{\isacharunderscore}subset{\isacharunderscore}non{\isacharunderscore}empty\ runiq{\isacharunderscore}basic\ snd{\isacharunderscore}conv\isanewline
+\ \ \isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A singleton relation is right-unique.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{corollary}\isamarkupfalse%
+\ runiq{\isacharunderscore}singleton{\isacharunderscore}rel{\isacharcolon}\ {\isachardoublequoteopen}runiq\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}\ y{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}singleton\ lm{\isadigit{0}}{\isadigit{6}}\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The empty relation is right-unique%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}emptyrel{\isacharcolon}\ {\isachardoublequoteopen}runiq\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ trivial{\isacharunderscore}empty\ lm{\isadigit{0}}{\isadigit{6}}\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}wrt{\isacharunderscore}ex{\isadigit{1}}{\isacharcolon}\isanewline
+\ \ {\isachardoublequoteopen}runiq\ R\ {\isasymlongleftrightarrow}\ {\isacharparenleft}{\isasymforall}\ a\ {\isasymin}\ Domain\ R\ {\isachardot}\ {\isasymexists}{\isacharbang}\ b\ {\isachardot}\ {\isacharparenleft}a{\isacharcomma}\ b{\isacharparenright}\ {\isasymin}\ R{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ runiq{\isacharunderscore}basic\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Domain{\isachardot}DomainI\ Domain{\isachardot}cases{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+alternative characterization of the fact that, if a relation \isa{R} is right-unique,
+  its evaluation \isa{R\ {\isacharcomma}{\isacharcomma}\ x} on some argument \isa{x} in its domain, occurs in \isa{R}'s
+  range. Note that we need runiq R in order to get a definite value for \isa{R\ {\isacharcomma}{\isacharcomma}\ x}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ eval{\isacharunderscore}runiq{\isacharunderscore}rel{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ domain{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ R{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ runiq{\isacharcolon}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}x{\isacharcomma}\ R{\isacharcomma}{\isacharcomma}x{\isacharparenright}\ {\isasymin}\ R{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ rightUniquePair\ runiq{\isacharunderscore}wrt{\isacharunderscore}ex{\isadigit{1}}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Evaluating a right-unique relation as a function on the relation's domain yields an
+  element from its range.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ eval{\isacharunderscore}runiq{\isacharunderscore}in{\isacharunderscore}Range{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ {\isachardoublequoteopen}a\ {\isasymin}\ Domain\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}R\ {\isacharcomma}{\isacharcomma}\ a\ {\isasymin}\ Range\ R{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Range{\isacharunderscore}iff\ eval{\isacharunderscore}runiq{\isacharunderscore}rel{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsubsection{converse%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The inverse image of the image of a singleton set under some relation is the same
+  singleton set, if both the relation and its converse are right-unique and the singleton set
+  is in the relation's domain.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ converse{\isacharunderscore}Image{\isacharunderscore}singleton{\isacharunderscore}Domain{\isacharcolon}\isanewline
+\ \ \isakeyword{assumes}\ runiq{\isacharcolon}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ runiq{\isacharunderscore}conv{\isacharcolon}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}R{\isasyminverse}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ domain{\isacharcolon}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ R{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}R{\isasyminverse}\ {\isacharbackquote}{\isacharbackquote}\ R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ sup{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymsubseteq}\ R{\isasyminverse}\ {\isacharbackquote}{\isacharbackquote}\ R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ domain\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}trivial\ {\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ runiq\ domain\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ runiq{\isacharunderscore}def\ trivial{\isacharunderscore}singleton{\isacharparenright}\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}trivial\ {\isacharparenleft}R{\isasyminverse}\ {\isacharbackquote}{\isacharbackquote}\ R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ assms\ runiq{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\isanewline
+\ \ \ \ \isacommand{using}\isamarkupfalse%
+\ sup\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ singleton{\isacharunderscore}sub{\isacharunderscore}trivial{\isacharunderscore}uniq\ subset{\isacharunderscore}antisym\ trivial{\isacharunderscore}def{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The images of two disjoint sets under an injective function are disjoint.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ disj{\isacharunderscore}Domain{\isacharunderscore}imp{\isacharunderscore}disj{\isacharunderscore}Image{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}Domain\ R\ {\isasyminter}\ X\ {\isasyminter}\ Y\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ R{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeyword{and}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}R{\isasyminverse}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ X{\isacharparenright}\ {\isasyminter}\ {\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ Y{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{unfolding}\isamarkupfalse%
+\ runiq{\isacharunderscore}basic\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ runiq{\isacharunderscore}converse{\isacharunderscore}paste{\isacharunderscore}singleton{\isacharcolon}\ \isanewline
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}P{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}y{\isasymnotin}{\isacharparenleft}Range\ P{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}{\isacharparenleft}P\ {\isacharplus}{\isacharasterisk}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}y{\isacharparenright}{\isacharbraceright}{\isacharparenright}{\isasyminverse}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\ \ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}u\ {\isacharparenleft}{\isacharquery}P{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharquery}P{\isacharparenright}\ {\isasymsubseteq}\ P\ {\isasymunion}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}y{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ paste{\isacharunderscore}sub{\isacharunderscore}Un{\isacharparenright}\isanewline
+\ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}P{\isacharcircum}{\isacharminus}{\isadigit{1}}\ {\isasymsubseteq}\ P{\isacharcircum}{\isacharminus}{\isadigit{1}}\ {\isasymunion}\ {\isacharparenleft}{\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}y{\isacharparenright}{\isacharbraceright}{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ P{\isacharcircum}{\isacharminus}{\isadigit{1}}\ {\isasymunion}\ {\isacharbraceleft}{\isacharparenleft}y{\isacharcomma}x{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}P{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharparenright}\ {\isasyminter}\ Domain\ {\isacharbraceleft}{\isacharparenleft}y{\isacharcomma}x{\isacharparenright}{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}u\ {\isacharparenleft}P{\isacharcircum}{\isacharminus}{\isadigit{1}}\ {\isasymunion}\ {\isacharbraceleft}{\isacharparenleft}y{\isacharcomma}x{\isacharparenright}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ disj{\isacharunderscore}Un{\isacharunderscore}runiq\ runiq{\isacharunderscore}singleton{\isacharunderscore}rel{\isacharparenright}\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ subrel{\isacharunderscore}runiq{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isamarkupsection{injectivity%
+}
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+The following is a classical definition of the set of all injective functions from \isa{X} to \isa{Y}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{definition}\isamarkupfalse%
+\ injections\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ set\ {\isasymRightarrow}\ {\isacharprime}b\ set\ {\isasymRightarrow}\ {\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}injections\ X\ Y\ {\isacharequal}\ {\isacharbraceleft}R\ {\isachardot}\ Domain\ R\ {\isacharequal}\ X\ {\isasymand}\ Range\ R\ {\isasymsubseteq}\ Y\ {\isasymand}\ runiq\ R\ {\isasymand}\ runiq\ {\isacharparenleft}R{\isasyminverse}{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+The following definition is a constructive (computational) characterization of the set of all injections X Y, represented by a list. That is, we define the list of all injective functions (represented as relations) from one set (represented as a list) to another set. We formally prove the equivalence of the constructive and the classical definition in Universes.thy.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ injections{\isacharunderscore}alg\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharprime}a\ list\ {\isasymRightarrow}\ {\isacharprime}b{\isasymColon}linorder\ set\ {\isasymRightarrow}\ {\isacharparenleft}{\isacharprime}a\ {\isasymtimes}\ {\isacharprime}b{\isacharparenright}\ set\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}injections{\isacharunderscore}alg\ {\isacharbrackleft}{\isacharbrackright}\ Y\ {\isacharequal}\ {\isacharbrackleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbrackright}{\isachardoublequoteclose}\ {\isacharbar}\isanewline
+\ \ \ \ \ \ \ \ {\isachardoublequoteopen}injections{\isacharunderscore}alg\ {\isacharparenleft}x\ {\isacharhash}\ xs{\isacharparenright}\ Y\ {\isacharequal}\ concat\ {\isacharbrackleft}\ {\isacharbrackleft}\ R\ {\isacharplus}{\isacharasterisk}\ {\isacharbraceleft}{\isacharparenleft}x{\isacharcomma}y{\isacharparenright}{\isacharbraceright}\ {\isachardot}\ y\ {\isasymleftarrow}\ sorted{\isacharunderscore}list{\isacharunderscore}of{\isacharunderscore}set\ {\isacharparenleft}Y\ {\isacharminus}\ Range\ R{\isacharparenright}\ {\isacharbrackright}\isanewline
+\ \ \ \ \ \ \ {\isachardot}\ R\ {\isasymleftarrow}\ injections{\isacharunderscore}alg\ xs\ Y\ {\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ Image{\isacharunderscore}within{\isacharunderscore}domain{\isacharprime}{\isacharcolon}\ \isanewline
+\ \ \isakeyword{fixes}\ x\ R\ \isanewline
+\ \ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}x\ {\isasymin}\ Domain\ R{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}R\ {\isacharbackquote}{\isacharbackquote}\ {\isacharbraceleft}x{\isacharbraceright}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

@@ -1,0 +1,9 @@
+chapter AFP
+
+session Vickrey_Clarke_Groves (AFP) = "HOL-Library" +
+  options [timeout = 600]
+  theories
+    CombinatorialAuctionCodeExtraction
+  document_files
+    "root.tex"
+    "root.bib"

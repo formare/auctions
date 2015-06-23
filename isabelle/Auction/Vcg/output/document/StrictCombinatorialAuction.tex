@@ -1,0 +1,161 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{StrictCombinatorialAuction}%
+%
+\isamarkupheader{Definitions about those Combinatorial Auctions which are strict (i.e., which assign all the available goods)%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ StrictCombinatorialAuction\isanewline
+\isakeyword{imports}\ Complex{\isacharunderscore}Main\isanewline
+\ \ Partitions\isanewline
+\ \ MiscTools\isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isamarkupsection{Types%
+}
+\isamarkuptrue%
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ index\ {\isacharequal}\ {\isachardoublequoteopen}integer{\isachardoublequoteclose}\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ participant\ {\isacharequal}\ index\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ good\ {\isacharequal}\ nat\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ goods\ {\isacharequal}\ {\isachardoublequoteopen}good\ set{\isachardoublequoteclose}\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ price\ {\isacharequal}\ real\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ bids{\isadigit{3}}\ {\isacharequal}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharparenleft}participant\ {\isasymtimes}\ goods{\isacharparenright}\ {\isasymtimes}\ price{\isacharparenright}\ set{\isachardoublequoteclose}\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ bids\ {\isacharequal}\ {\isachardoublequoteopen}participant\ {\isasymRightarrow}\ goods\ {\isasymRightarrow}\ price{\isachardoublequoteclose}\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ allocation{\isacharunderscore}rel\ {\isacharequal}\ {\isachardoublequoteopen}{\isacharparenleft}goods\ {\isasymtimes}\ participant{\isacharparenright}\ set{\isachardoublequoteclose}\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ allocation\ {\isacharequal}\ {\isachardoublequoteopen}{\isacharparenleft}participant\ {\isasymtimes}\ goods{\isacharparenright}\ set{\isachardoublequoteclose}\ \isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ payments\ {\isacharequal}\ {\isachardoublequoteopen}participant\ {\isasymRightarrow}\ price{\isachardoublequoteclose}\isanewline
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ bidvector\ {\isacharequal}\ {\isachardoublequoteopen}{\isacharparenleft}participant\ {\isasymtimes}\ goods{\isacharparenright}\ {\isasymRightarrow}\ price{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}bidvector\ {\isacharparenleft}b{\isacharcolon}{\isacharcolon}bids{\isacharparenright}\ {\isacharequal}{\isacharequal}\ split\ b{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}proceeds\ {\isacharparenleft}b{\isacharcolon}{\isacharcolon}bidvector{\isacharparenright}\ {\isacharparenleft}allo{\isacharcolon}{\isacharcolon}allocation{\isacharparenright}\ {\isacharequal}{\isacharequal}\ setsum\ b\ allo{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}winnersOfAllo\ {\isacharparenleft}a{\isacharcolon}{\isacharcolon}allocation{\isacharparenright}\ {\isacharequal}{\isacharequal}\ Domain\ a{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}allocatedGoods\ {\isacharparenleft}allo{\isacharcolon}{\isacharcolon}allocation{\isacharparenright}\ {\isacharequal}{\isacharequal}\ {\isasymUnion}\ {\isacharparenleft}Range\ allo{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{fun}\isamarkupfalse%
+\ possible{\isacharunderscore}allocations{\isacharunderscore}rel\ \isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}possible{\isacharunderscore}allocations{\isacharunderscore}rel\ G\ N\ {\isacharequal}\ Union\ {\isacharbraceleft}\ injections\ Y\ N\ {\isacharbar}\ Y\ {\isachardot}\ Y\ {\isasymin}\ all{\isacharunderscore}partitions\ G\ {\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}is{\isacharunderscore}partition{\isacharunderscore}of{\isacharprime}\ P\ A\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}{\isasymUnion}\ P\ {\isacharequal}\ A\ {\isasymand}\ is{\isacharunderscore}non{\isacharunderscore}overlapping\ P{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}all{\isacharunderscore}partitions{\isacharprime}\ A\ {\isacharequal}{\isacharequal}\ {\isacharbraceleft}P\ {\isachardot}\ is{\isacharunderscore}partition{\isacharunderscore}of{\isacharprime}\ P\ A{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}injections{\isacharprime}\ X\ Y\ {\isacharequal}{\isacharequal}\ {\isacharbraceleft}R\ {\isachardot}\ Domain\ R\ {\isacharequal}\ X\ {\isasymand}\ Range\ R\ {\isasymsubseteq}\ Y\ {\isasymand}\ runiq\ R\ {\isasymand}\ runiq\ {\isacharparenleft}R{\isasyminverse}{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}possible{\isacharunderscore}allocations{\isacharunderscore}rel{\isacharprime}\ G\ N\ {\isacharequal}{\isacharequal}\ Union{\isacharbraceleft}injections{\isacharprime}\ Y\ N\ {\isacharbar}\ Y\ {\isachardot}\ Y\ {\isasymin}\ all{\isacharunderscore}partitions{\isacharprime}\ G{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ possibleAllocationsRel\ \isakeyword{where}\ \isanewline
+\ \ {\isachardoublequoteopen}possibleAllocationsRel\ N\ G\ {\isacharequal}{\isacharequal}\ converse\ {\isacharbackquote}\ {\isacharparenleft}possible{\isacharunderscore}allocations{\isacharunderscore}rel\ G\ N{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+algorithmic version of \isa{possible{\isacharunderscore}allocations{\isacharunderscore}rel}%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{fun}\isamarkupfalse%
+\ possible{\isacharunderscore}allocations{\isacharunderscore}alg\ {\isacharcolon}{\isacharcolon}\ {\isachardoublequoteopen}goods\ {\isasymRightarrow}\ participant\ set\ {\isasymRightarrow}\ allocation{\isacharunderscore}rel\ list{\isachardoublequoteclose}\isanewline
+\ \ \isakeyword{where}\ {\isachardoublequoteopen}possible{\isacharunderscore}allocations{\isacharunderscore}alg\ G\ N\ {\isacharequal}\ \isanewline
+\ \ \ \ \ \ \ \ \ concat\ {\isacharbrackleft}\ injections{\isacharunderscore}alg\ Y\ N\ {\isachardot}\ Y\ {\isasymleftarrow}\ all{\isacharunderscore}partitions{\isacharunderscore}alg\ G\ {\isacharbrackright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}possibleAllocationsAlg\ N\ G\ {\isacharequal}{\isacharequal}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ map\ converse\ {\isacharparenleft}concat\ {\isacharbrackleft}{\isacharparenleft}injections{\isacharunderscore}alg\ l\ N{\isacharparenright}\ {\isachardot}\ l\ {\isasymleftarrow}\ all{\isacharunderscore}partitions{\isacharunderscore}list\ G{\isacharbrackright}{\isacharparenright}{\isachardoublequoteclose}%
+\isamarkupsection{VCG mechanism%
+}
+\isamarkuptrue%
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}winningAllocationsRel\ N\ G\ b\ {\isacharequal}{\isacharequal}\ \isanewline
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}possibleAllocationsRel\ N\ G{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}winningAllocationRel\ N\ G\ t\ b\ {\isacharequal}{\isacharequal}\ t\ {\isacharparenleft}winningAllocationsRel\ N\ G\ b{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}winningAllocationsAlg\ N\ G\ b\ {\isacharequal}{\isacharequal}\ argmaxList\ {\isacharparenleft}proceeds\ b{\isacharparenright}\ {\isacharparenleft}possibleAllocationsAlg\ N\ G{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}winningAllocationAlg\ N\ G\ t\ b\ {\isacharequal}{\isacharequal}\ t\ {\isacharparenleft}winningAllocationsAlg\ N\ G\ b{\isacharparenright}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+payments%
+\end{isamarkuptext}%
+\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+alpha is the maximum sum of bids of all bidders except bidder \isa{n}'s bid, computed over all possible allocations of all goods,
+  i.e. the value reportedly generated by value maximization when solved without n's bids%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}alpha\ N\ G\ b\ n\ {\isacharequal}{\isacharequal}\ Max\ {\isacharparenleft}{\isacharparenleft}setsum\ b{\isacharparenright}{\isacharbackquote}{\isacharparenleft}possibleAllocationsRel\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}alphaAlg\ N\ G\ b\ n\ {\isacharequal}{\isacharequal}\ Max\ {\isacharparenleft}{\isacharparenleft}proceeds\ b{\isacharparenright}{\isacharbackquote}{\isacharparenleft}set\ {\isacharparenleft}possibleAllocationsAlg\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}G{\isacharcolon}{\isacharcolon}{\isacharunderscore}\ list{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}remainingValueRel\ N\ G\ t\ b\ n\ {\isacharequal}{\isacharequal}\ setsum\ b\ {\isacharparenleft}{\isacharparenleft}winningAllocationRel\ N\ G\ t\ b{\isacharparenright}\ {\isacharminus}{\isacharminus}\ n{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}remainingValueAlg\ N\ G\ t\ b\ n\ {\isacharequal}{\isacharequal}\ proceeds\ b\ {\isacharparenleft}{\isacharparenleft}winningAllocationAlg\ N\ G\ t\ b{\isacharparenright}\ {\isacharminus}{\isacharminus}\ n{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}paymentsRel\ N\ G\ t\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}alpha\ N\ G{\isacharparenright}\ {\isacharminus}\ {\isacharparenleft}remainingValueRel\ N\ G\ t{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}paymentsAlg\ N\ G\ t\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}alphaAlg\ N\ G{\isacharparenright}\ {\isacharminus}\ {\isacharparenleft}remainingValueAlg\ N\ G\ t{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:

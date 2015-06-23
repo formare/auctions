@@ -1,0 +1,3123 @@
+%
+\begin{isabellebody}%
+\def\isabellecontext{CombinatorialAuction}%
+%
+\isamarkupheader{VCG auction: definitions and theorems%
+}
+\isamarkuptrue%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{theory}\isamarkupfalse%
+\ CombinatorialAuction\isanewline
+\isanewline
+\isakeyword{imports}\isanewline
+\isanewline
+UniformTieBreaking\isanewline
+{\isachardoublequoteopen}{\isachartilde}{\isachartilde}{\isacharslash}src{\isacharslash}HOL{\isacharslash}Library{\isacharslash}Code{\isacharunderscore}Target{\isacharunderscore}Nat{\isachardoublequoteclose}\ \isanewline
+{\isachardoublequoteopen}{\isachartilde}{\isachartilde}{\isacharslash}src{\isacharslash}HOL{\isacharslash}Library{\isacharslash}Code{\isacharunderscore}Target{\isacharunderscore}Int{\isachardoublequoteclose}\ \isanewline
+\isanewline
+{\isachardoublequoteopen}{\isachartilde}{\isachartilde}{\isacharslash}src{\isacharslash}HOL{\isacharslash}Library{\isacharslash}Code{\isacharunderscore}Numeral{\isachardoublequoteclose}\isanewline
+\isanewline
+\isakeyword{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isamarkupsection{Definition of a VCG auction scheme, through the pair \isa{{\isacharparenleft}vcga{\isacharprime}{\isacharcomma}\ vcgp{\isacharparenright}}%
+}
+\isamarkuptrue%
+\isacommand{type{\isacharunderscore}synonym}\isamarkupfalse%
+\ bidvector{\isacharprime}\ {\isacharequal}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharparenleft}participant\ {\isasymtimes}\ goods{\isacharparenright}\ {\isasymtimes}\ price{\isacharparenright}\ set{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}participants\ b{\isacharprime}\ {\isacharequal}{\isacharequal}\ Domain\ {\isacharparenleft}Domain\ b{\isacharprime}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}seller\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}{\isadigit{0}}{\isacharcolon}{\isacharcolon}integer{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}allAllocations\ N\ G\ {\isacharequal}{\isacharequal}\ possibleAllocationsRel\ N\ G{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}allAllocations{\isacharprime}\ N\ {\isasymOmega}\ {\isacharequal}{\isacharequal}\ injectionsUniverse\ {\isasyminter}\ \isanewline
+{\isacharbraceleft}a{\isachardot}\ Domain\ a\ {\isasymsubseteq}\ N\ {\isacharampersand}\ Range\ a\ {\isasymin}\ all{\isacharunderscore}partitions\ {\isasymOmega}{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}allAllocations{\isacharprime}{\isacharprime}\ N\ G\ {\isacharequal}{\isacharequal}\ allocationsUniverse{\isasyminter}{\isacharbraceleft}a{\isachardot}\ Domain\ a\ {\isasymsubseteq}\ N\ {\isacharampersand}\ {\isasymUnion}\ Range\ a\ {\isacharequal}\ G{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}{\isacharcolon}\ {\isachardoublequoteopen}allAllocations\ N\ G{\isacharequal}allAllocations{\isacharprime}\ N\ G\ {\isacharampersand}\ \isanewline
+allAllocations\ N\ G{\isacharequal}allAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{9}}\ nn{\isadigit{2}}{\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}b{\isacharcolon}\ \isanewline
+{\isachardoublequoteopen}{\isacharparenleft}a\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ N\ G{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}a\ {\isasymin}\ allocationsUniverse{\isacharampersand}\ Domain\ a\ {\isasymsubseteq}\ N\ {\isacharampersand}\ {\isasymUnion}\ Range\ a\ {\isacharequal}\ G{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ force%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}soldAllocations\ N\ {\isasymOmega}\ {\isacharequal}{\isacharequal}\ \isanewline
+{\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}allAllocations\ {\isacharparenleft}N\ {\isasymunion}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isasymOmega}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}soldAllocations{\isacharprime}\ N\ {\isasymOmega}\ {\isacharequal}{\isacharequal}\ \isanewline
+{\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}allAllocations{\isacharprime}\ {\isacharparenleft}N\ {\isasymunion}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isasymOmega}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}\ N\ {\isasymOmega}\ {\isacharequal}{\isacharequal}\ \isanewline
+{\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}N\ {\isasymunion}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isasymOmega}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}c{\isacharcolon}\ \isanewline
+{\isachardoublequoteopen}soldAllocations\ N\ G\ {\isacharequal}\ soldAllocations{\isacharprime}\ N\ G\ {\isacharampersand}\ soldAllocations{\isacharprime}\ N\ G\ {\isacharequal}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{2}}{\isadigit{8}}\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}d{\isacharcolon}\ {\isachardoublequoteopen}soldAllocations\ {\isacharequal}\ soldAllocations{\isacharprime}\ {\isacharampersand}\ soldAllocations{\isacharprime}\ {\isacharequal}\ soldAllocations{\isacharprime}{\isacharprime}\isanewline
+{\isacharampersand}\ soldAllocations\ {\isacharequal}\ soldAllocations{\isacharprime}{\isacharprime}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}c\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}soldAllocations\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ G\ {\isasymsubseteq}\ soldAllocations\ N\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{4}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}a\ {\isasymin}\ allocationsUniverse{\isacharparenright}\ {\isacharequal}\ {\isacharparenleft}a\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}Domain\ a{\isacharparenright}\ {\isacharparenleft}{\isasymUnion}\ Range\ a{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{5}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}N{\isadigit{1}}\ {\isasymsubseteq}\ N{\isadigit{2}}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}allAllocations{\isacharprime}{\isacharprime}\ N{\isadigit{1}}\ G\ {\isasymsubseteq}\ allAllocations{\isacharprime}{\isacharprime}\ N{\isadigit{2}}\ G{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{6}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}a\ {\isacharminus}{\isacharminus}\ x{\isacharparenright}\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}x{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{obtain}\isamarkupfalse%
+\ aa\ \isakeyword{where}\ {\isachardoublequoteopen}a{\isacharequal}aa\ {\isacharminus}{\isacharminus}\ seller\ {\isacharampersand}\ aa\ {\isasymin}\ allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ G{\isachardoublequoteclose}\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymsubseteq}\ aa\ {\isacharampersand}\ aa\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ nn{\isadigit{2}}{\isadigit{4}}b\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{5}}b\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{8}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}a\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}Domain\ a{\isacharparenright}\ {\isacharparenleft}{\isasymUnion}Range\ a{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{3}}{\isadigit{7}}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ \ \isakeyword{assumes}\ {\isachardoublequoteopen}N{\isadigit{1}}\ {\isasymsubseteq}\ N{\isadigit{2}}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}\ N{\isadigit{1}}\ G\ {\isasymsubseteq}\ soldAllocations{\isacharprime}{\isacharprime}\ N{\isadigit{2}}\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{3}}{\isadigit{5}}\ lm{\isadigit{3}}{\isadigit{6}}\ \ nn{\isadigit{2}}{\isadigit{4}}c\ lm{\isadigit{2}}{\isadigit{8}}b\ lm{\isadigit{2}}{\isadigit{8}}\ lm{\isadigit{3}}{\isadigit{4}}\ lm{\isadigit{3}}{\isadigit{8}}\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lll{\isadigit{5}}{\isadigit{9}}b{\isacharcolon}\ {\isachardoublequoteopen}runiq\ {\isacharparenleft}X{\isasymtimes}{\isacharbraceleft}y{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ rightUniqueTrivialCartes\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ trivial{\isacharunderscore}singleton{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}b{\isacharcolon}\ {\isachardoublequoteopen}{\isacharbraceleft}x{\isacharbraceright}{\isasymtimes}{\isacharbraceleft}y{\isacharbraceright}\ {\isasymin}\ injectionsUniverse{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ Universes{\isachardot}lm{\isadigit{3}}{\isadigit{7}}\ \isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{0}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G\ {\isacharequal}\ \isanewline
+{\isacharparenleft}EX\ aa{\isachardot}\ aa\ {\isacharminus}{\isacharminus}\ {\isacharparenleft}seller{\isacharparenright}{\isacharequal}a\ {\isacharampersand}\ aa{\isasymin}allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}N\ {\isasymunion}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ G{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{8}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}R\ {\isacharplus}{\isacharasterisk}\ {\isacharparenleft}{\isacharbraceleft}x{\isacharbraceright}{\isasymtimes}Y{\isacharparenright}{\isacharparenright}\ {\isacharminus}{\isacharminus}\ x\ {\isacharequal}\ R\ {\isacharminus}{\isacharminus}\ x{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ paste{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}e{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ {\isachardoublequoteopen}Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{4}}{\isadigit{1}}\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}i{\isacharequal}{\isachardoublequoteopen}seller{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}Y{\isacharequal}{\isachardoublequoteopen}{\isacharbraceleft}G{\isacharminus}{\isasymUnion}\ Range\ a{\isacharbraceright}{\isacharminus}{\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}b{\isacharequal}{\isachardoublequoteopen}{\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isasymtimes}{\isacharquery}Y{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}aa{\isacharequal}{\isachardoublequoteopen}a{\isasymunion}{\isacharquery}b{\isachardoublequoteclose}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}aa{\isacharprime}{\isacharequal}{\isachardoublequoteopen}a\ {\isacharplus}{\isacharasterisk}\ {\isacharquery}b{\isachardoublequoteclose}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\isanewline
+{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}b\ {\isasymsubseteq}\ {\isacharbraceleft}{\isacharparenleft}{\isacharquery}i{\isacharcomma}G{\isacharminus}{\isasymUnion}\ Range\ a{\isacharparenright}{\isacharbraceright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharparenleft}{\isacharquery}i{\isacharcomma}\ {\isacharbraceleft}{\isacharbraceright}{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fastforce\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}b\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ allocationUniverseProperty\ lm{\isadigit{3}}{\isadigit{5}}b\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{3}}{\isacharcolon}\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ a\ {\isasyminter}\ {\isasymUnion}\ {\isacharparenleft}Range\ {\isacharquery}b{\isacharparenright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{4}}{\isacharcolon}\ {\isachardoublequoteopen}Domain\ a\ {\isasyminter}\ Domain\ {\isacharquery}b\ {\isacharequal}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}aa\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{1}}\ {\isadigit{2}}\ {\isadigit{3}}\ {\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{2}}{\isadigit{3}}{\isacharparenright}\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}aa\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}Domain\ {\isacharquery}aa{\isacharparenright}\ \isanewline
+{\isacharparenleft}{\isasymUnion}\ Range\ {\isacharquery}aa{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ metis\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isachardoublequoteopen}{\isacharquery}aa\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}{\isasymUnion}\ Range\ {\isacharquery}aa{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{5}}\ assms\ paste{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Range\ {\isacharquery}aa\ {\isacharequal}\ Range\ a\ {\isasymunion}\ {\isacharquery}Y{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isachardoublequoteopen}{\isasymUnion}\ Range\ {\isacharquery}aa\ {\isacharequal}\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Un{\isacharunderscore}Diff{\isacharunderscore}cancel\ Un{\isacharunderscore}Diff{\isacharunderscore}cancel{\isadigit{2}}\ Union{\isacharunderscore}Un{\isacharunderscore}distrib\ Union{\isacharunderscore}empty\ Union{\isacharunderscore}insert\ \ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ cSup{\isacharunderscore}singleton\ subset{\isacharunderscore}Un{\isacharunderscore}eq{\isacharparenright}\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isachardoublequoteopen}{\isacharquery}aa{\isacharprime}\ {\isacharequal}\ {\isacharquery}aa{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ paste{\isacharunderscore}disj{\isacharunderscore}domains{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}aa{\isacharprime}\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isacharparenright}\ G{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Domain\ {\isacharquery}b\ {\isasymsubseteq}\ {\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}aa{\isacharprime}\ {\isacharminus}{\isacharminus}\ {\isacharquery}i\ {\isacharequal}\ a\ {\isacharminus}{\isacharminus}\ {\isacharquery}i{\isachardoublequoteclose}\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{1}}{\isadigit{8}}{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ auto\ \isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{3}}{\isacharcolon}\ \isanewline
+{\isachardoublequoteopen}a{\isasymin}allAllocations\ N\ {\isasymOmega}{\isacharequal}{\isacharparenleft}a{\isasymin}injectionsUniverse\ {\isacharampersand}\ Domain\ a{\isasymsubseteq}N\ {\isacharampersand}\ Range\ a{\isasymin}all{\isacharunderscore}partitions\ {\isasymOmega}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}full{\isacharunderscore}types{\isacharparenright}\ lm{\isadigit{1}}{\isadigit{9}}c{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}n{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}i{\isacharequal}{\isachardoublequoteopen}seller{\isachardoublequoteclose}\ \isacommand{obtain}\isamarkupfalse%
+\ aa\ \isakeyword{where}\isanewline
+{\isadigit{0}}{\isacharcolon}\ {\isachardoublequoteopen}a{\isacharequal}aa\ {\isacharminus}{\isacharminus}\ {\isacharquery}i\ {\isacharampersand}\ aa\ {\isasymin}\ allAllocations{\isacharprime}{\isacharprime}\ {\isacharparenleft}N\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isacharparenright}\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ lm{\isadigit{4}}{\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Domain\ aa\ {\isasymsubseteq}\ N\ {\isasymunion}\ {\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{3}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Domain\ a\ {\isasymsubseteq}\ N\ {\isacharminus}\ {\isacharbraceleft}{\isacharquery}i{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{0}}\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations\ N\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{2}}{\isadigit{8}}d\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse\ {\isacharampersand}\ Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{3}}{\isadigit{7}}n\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{3}}{\isadigit{7}}n\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{4}}{\isadigit{0}}b\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}d{\isacharcolon}\ \isanewline
+{\isachardoublequoteopen}{\isacharparenleft}a{\isasymin}soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isacharparenright}{\isacharequal}{\isacharparenleft}a{\isasymin}allocationsUniverse{\isacharampersand}\ Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}c\ lm{\isadigit{3}}{\isadigit{7}}e\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}mono{\isacharunderscore}tags{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}a{\isasymin}allocationsUniverse{\isacharampersand}\ Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isacharparenright}\ {\isacharequal}\ \isanewline
+{\isacharparenleft}a{\isasymin}allocationsUniverse{\isacharampersand}\ a{\isasymin}{\isacharbraceleft}aa{\isachardot}\ Domain\ aa\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ aa\ {\isasymsubseteq}\ G{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}\ mem{\isacharunderscore}Collect{\isacharunderscore}eq{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}f{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}a{\isasymin}soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isacharparenright}{\isacharequal}\isanewline
+{\isacharparenleft}a{\isasymin}allocationsUniverse{\isacharampersand}\ a{\isasymin}{\isacharbraceleft}aa{\isachardot}\ Domain\ aa\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ aa\ {\isasymsubseteq}\ G{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L\ {\isacharequal}\ {\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}L\ {\isacharequal}\ {\isacharparenleft}a{\isasymin}allocationsUniverse{\isacharampersand}\ Domain\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ a\ {\isasymsubseteq}\ G{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{3}}{\isadigit{7}}d{\isacharparenright}\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharquery}R{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{4}}{\isadigit{2}}{\isacharparenright}\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}g{\isacharcolon}\ {\isachardoublequoteopen}a{\isasymin}soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isacharequal}\isanewline
+{\isacharparenleft}a{\isasymin}\ {\isacharparenleft}allocationsUniverse\ {\isasyminter}\ {\isacharbraceleft}aa{\isachardot}\ Domain\ aa\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}\ Range\ aa\ {\isasymsubseteq}\ G{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}f\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}mono{\isacharunderscore}tags{\isacharparenright}\ Int{\isacharunderscore}iff{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G\ {\isacharequal}{\isacharequal}\ \isanewline
+allocationsUniverse{\isasyminter}{\isacharbraceleft}aa{\isachardot}\ Domain\ aa{\isasymsubseteq}N{\isacharminus}{\isacharbraceleft}seller{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}Range\ aa{\isasymsubseteq}G{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{4}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}a\ {\isacharminus}{\isacharminus}\ n\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}bb{\isacharequal}seller\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}d{\isacharequal}Domain\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}r{\isacharequal}Range\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}X{\isadigit{2}}{\isacharequal}{\isachardoublequoteopen}{\isacharbraceleft}aa{\isachardot}\ {\isacharquery}d\ aa{\isasymsubseteq}N{\isacharminus}{\isacharbraceleft}{\isacharquery}bb{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}{\isacharquery}r\ aa{\isasymsubseteq}G{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}X{\isadigit{1}}{\isacharequal}{\isachardoublequoteopen}{\isacharbraceleft}aa{\isachardot}\ {\isacharquery}d\ aa{\isasymsubseteq}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharminus}{\isacharbraceleft}{\isacharquery}bb{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}{\isacharquery}r\ aa{\isasymsubseteq}G{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a{\isasymin}{\isacharquery}X{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+\ \ {\isadigit{0}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}d\ a\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}{\isacharquery}bb{\isacharbraceright}\ {\isacharampersand}\ {\isasymUnion}{\isacharquery}r\ a\ {\isasymsubseteq}\ G{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}d\ {\isacharparenleft}a{\isacharminus}{\isacharminus}n{\isacharparenright}\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}{\isacharquery}bb{\isacharbraceright}{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ outside{\isacharunderscore}reduces{\isacharunderscore}domain\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Diff{\isacharunderscore}mono\ subset{\isacharunderscore}refl{\isacharparenright}\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+\ \ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharminus}{\isacharbraceleft}{\isacharquery}bb{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fastforce\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+\ \ {\isachardoublequoteopen}{\isacharquery}d\ {\isacharparenleft}a{\isacharminus}{\isacharminus}n{\isacharparenright}\ {\isasymsubseteq}\ N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharminus}{\isacharbraceleft}{\isacharquery}bb{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ {\isacharquery}r\ {\isacharparenleft}a{\isacharminus}{\isacharminus}n{\isacharparenright}\ {\isasymsubseteq}\ G{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{unfolding}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{0}}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isacharminus}{\isacharminus}\ n\ {\isasymin}\ {\isacharquery}X{\isadigit{1}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+\ \ {\isachardoublequoteopen}a{\isacharminus}{\isacharminus}n\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ Int{\isacharunderscore}iff\ lm{\isadigit{3}}{\isadigit{5}}d\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}lifting{\isacharcomma}mono{\isacharunderscore}tags{\isacharparenright}{\isacharparenright}\ \isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}h{\isacharcolon}\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isacharequal}soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\isanewline
+{\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L{\isacharequal}{\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\isacommand{fix}\isamarkupfalse%
+\ a\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ {\isacharquery}L\ {\isacharequal}\ {\isacharparenleft}a\ {\isasymin}\ {\isacharquery}R{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{3}}{\isadigit{7}}g{\isacharparenright}\isacommand{{\isacharbraceright}}\isamarkupfalse%
+\ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}e{\isacharcolon}\ {\isachardoublequoteopen}soldAllocations{\isacharequal}soldAllocations{\isacharprime}\ {\isacharampersand}\ soldAllocations{\isacharprime}{\isacharequal}soldAllocations{\isacharprime}{\isacharprime}\ {\isacharampersand}\isanewline
+soldAllocations{\isacharprime}{\isacharprime}{\isacharequal}soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}h\ lm{\isadigit{2}}{\isadigit{8}}d\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{4}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}a\ {\isacharminus}{\isacharminus}\ n\ {\isasymin}\ soldAllocations\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}A{\isacharprime}{\isacharequal}soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ {\isacharquery}A{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{2}}{\isadigit{8}}e\ \isacommand{by}\isamarkupfalse%
+\ metis\ \isacommand{then}\isamarkupfalse%
+\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isacharminus}{\isacharminus}\ n\ {\isasymin}\ {\isacharquery}A{\isacharprime}\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ G{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{4}}{\isadigit{4}}{\isacharparenright}\ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{8}}e\ \isacommand{by}\isamarkupfalse%
+\ metis\ \isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}i{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}G{\isadigit{1}}\ {\isasymsubseteq}\ G{\isadigit{2}}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isadigit{1}}\ {\isasymsubseteq}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isadigit{2}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{3}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}G{\isadigit{1}}\ {\isasymsubseteq}\ G{\isadigit{2}}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isadigit{1}}\ {\isasymsubseteq}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isadigit{2}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{3}}{\isadigit{7}}i\ lm{\isadigit{3}}{\isadigit{7}}h\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isadigit{1}}\ {\isacharequal}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isadigit{1}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{3}}{\isadigit{7}}h{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isasymsubseteq}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{3}}{\isadigit{7}}i{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ soldAllocations{\isacharprime}{\isacharprime}\ N\ G{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{7}}h\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalAllocations{\isacharprime}{\isacharprime}\ N\ {\isasymOmega}\ b\ {\isacharequal}{\isacharequal}\ argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}soldAllocations\ N\ {\isasymOmega}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ G\ b{\isacharequal}{\isacharequal}\isanewline
+argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ G{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{3}}d{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}{\isacharparenleft}a\ outside\ {\isacharparenleft}X{\isasymunion}{\isacharbraceleft}i{\isacharbraceright}{\isacharparenright}{\isacharparenright}\ {\isasymunion}\ {\isacharparenleft}{\isacharbraceleft}i{\isacharbraceright}{\isasymtimes}{\isacharparenleft}{\isacharbraceleft}{\isasymUnion}{\isacharparenleft}a{\isacharbackquote}{\isacharbackquote}{\isacharparenleft}X{\isasymunion}{\isacharbraceleft}i{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isacharbraceright}{\isacharminus}{\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{4}}{\isadigit{3}}b\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}randomBids{\isacharprime}\ N\ {\isasymOmega}\ b\ random{\isacharequal}{\isacharequal}resolvingBid{\isacharprime}\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isasymOmega}\ b\ random{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcgas\ N\ G\ b\ r\ \ {\isacharequal}{\isacharequal}\ Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}\ {\isacharbackquote}\ \isanewline
+\ \ \ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcga\ N\ G\ b\ r\ {\isacharequal}{\isacharequal}\ the{\isacharunderscore}elem\ {\isacharparenleft}vcgas\ N\ G\ b\ r{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}the{\isacharunderscore}elem\isanewline
+{\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharminus}{\isacharminus}\ seller{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{1}}{\isacharcolon}\ \isakeyword{assumes}\ \isanewline
+{\isachardoublequoteopen}card\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}vcga\ N\ G\ b\ r\ {\isacharequal}\ \isanewline
+{\isacharparenleft}the{\isacharunderscore}elem\isanewline
+{\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharminus}{\isacharminus}\ seller{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ cardOneTheElem\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{1}}b{\isacharcolon}\ \isakeyword{assumes}\ \isanewline
+{\isachardoublequoteopen}card\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}vcga\ N\ G\ b\ r\ {\isacharequal}\ vcga{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}l{\isacharequal}{\isacharquery}r{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{1}}\isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}l{\isacharequal}{\isacharparenleft}the{\isacharunderscore}elem\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ \isanewline
+{\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharminus}{\isacharminus}\ seller{\isachardoublequoteclose}\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{1}}{\isacharparenright}\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharquery}r{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ force\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{9}}{\isadigit{2}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}card\ {\isacharparenleft}\isanewline
+{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ bids\ random{\isacharparenright}\isanewline
+\ \ \ \ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ bids\ {\isacharparenleft}allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}card\ {\isacharquery}l{\isacharequal}{\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\ \ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}N{\isacharequal}{\isachardoublequoteopen}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}b{\isacharprime}{\isacharequal}{\isachardoublequoteopen}randomBids{\isacharprime}\ N\ G\ bids\ random{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}s{\isacharequal}setsum\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}a{\isacharequal}argmax\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}f{\isacharequal}{\isachardoublequoteopen}{\isacharquery}a\ {\isasymcirc}\ {\isacharquery}s{\isachardoublequoteclose}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}N{\isasymnoteq}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\ \isacommand{have}\isamarkupfalse%
+\ {\isadigit{4}}{\isacharcolon}\ {\isachardoublequoteopen}finite\ {\isacharquery}N{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a\ {\isacharparenleft}{\isacharquery}s\ {\isacharquery}b{\isacharprime}{\isacharparenright}\ {\isacharparenleft}{\isacharquery}a\ {\isacharparenleft}{\isacharquery}s\ bids{\isacharparenright}\ {\isacharparenleft}allAllocations\ {\isacharquery}N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharequal}\isanewline
+\ \ {\isacharbraceleft}chosenAllocation{\isacharprime}\ {\isacharquery}N\ G\ bids\ random{\isacharbraceright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L{\isacharequal}{\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}\isanewline
+\ \ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{1}}\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ {\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{9}}{\isadigit{2}}{\isacharparenright}\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}L{\isacharequal}\ {\isacharquery}f\ {\isacharquery}b{\isacharprime}\ {\isacharparenleft}{\isacharquery}f\ bids\ {\isacharparenleft}allAllocations\ {\isacharquery}N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}l{\isacharequal}{\isacharbraceleft}chosenAllocation{\isacharprime}\ {\isacharquery}N\ G\ bids\ random{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\ \ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isachardot}{\isachardot}{\isachardot}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ presburger\ \isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{2}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}vcga\ N\ G\ b\ r\ {\isacharequal}\ vcga{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}l{\isacharequal}{\isacharquery}r{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{1}}b\ lm{\isadigit{9}}{\isadigit{2}}c\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{theorem}\isamarkupfalse%
+\ vcgaDefiniteness{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}card\ {\isacharparenleft}vcgas\ N\ G\ b\ r{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{9}}{\isadigit{2}}c\ cardOneImageCardOne\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}argmax{\isasymcirc}setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\ \isanewline
+{\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}card\ {\isacharquery}X{\isacharequal}{\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{9}}{\isadigit{2}}c\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}Outside{\isacharprime}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharquery}X\ {\isacharequal}\ vcgas\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ cardOneImageCardOne\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{theorem}\isamarkupfalse%
+\ vcgpDefiniteness{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}{\isasymexists}{\isacharbang}\ y{\isachardot}\ vcgap\ N\ G\ b\ r\ n{\isacharequal}y{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ vcgaDefiniteness\ \isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Here we are showing that our way of randomizing using randomBids' actually breaks the tie:
+we are left with a singleton after the tie-breaking step.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{9}}{\isadigit{2}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}card\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isacharparenright}{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\isanewline
+{\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}card\ {\isacharquery}L{\isacharequal}{\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}n{\isacharequal}{\isachardoublequoteopen}{\isacharbraceleft}seller{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}{\isacharquery}n\ {\isasymunion}\ N{\isacharparenright}{\isasymnoteq}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{4}}{\isacharcolon}\ {\isachardoublequoteopen}finite\ {\isacharparenleft}{\isacharquery}n{\isasymunion}N{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isachardoublequoteopen}terminatingAuctionRel\ {\isacharparenleft}{\isacharquery}n{\isasymunion}N{\isacharparenright}\ G\ b\ r\ {\isacharequal}\ {\isacharbraceleft}chosenAllocation{\isacharprime}\ {\isacharparenleft}{\isacharquery}n{\isasymunion}N{\isacharparenright}\ G\ b\ r{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{1}}\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isanewline
+assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ {\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{9}}{\isadigit{2}}{\isacharparenright}\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}L\ {\isacharequal}\ terminatingAuctionRel\ {\isacharparenleft}{\isacharquery}n{\isasymunion}N{\isacharparenright}\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}\ {\isasymsubseteq}\ \isanewline
+maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}the{\isacharunderscore}elem\isanewline
+{\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isacharparenright}\ {\isasymin}\isanewline
+{\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}the{\isacharunderscore}elem\ {\isacharquery}X\ {\isasymin}\ {\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{9}}{\isadigit{2}}b\ lm{\isadigit{5}}{\isadigit{7}}\isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharquery}X{\isacharequal}{\isadigit{1}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{9}}{\isadigit{2}}b{\isacharparenright}\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}X\ {\isasymsubseteq}\ {\isacharquery}R{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ cardinalityOneTheElem\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isasymin}\ {\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}{\isacharbackquote}{\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{8}}\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}{\isacharbackquote}{\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ G\ b{\isacharparenright}\ {\isasymsubseteq}\ soldAllocations\ N\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ force%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{theorem}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}d{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}a\ {\isasymin}\ {\isacharquery}A{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{8}}b\ lm{\isadigit{6}}{\isadigit{2}}\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a\ {\isasymin}\ {\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}{\isacharbackquote}{\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{5}}{\isadigit{8}}b{\isacharparenright}\ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{2}}\ \ \isacommand{by}\isamarkupfalse%
+\ fastforce\ \isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}f{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}vcga\ N\ G\ b\ r\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharunderscore}{\isasymin}{\isacharquery}r{\isachardoublequoteclose}{\isacharparenright}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isasymin}\ {\isacharquery}r{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{5}}{\isadigit{8}}d{\isacharparenright}\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{2}}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{9}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymforall}X{\isachardot}\ X\ {\isasymin}\ Range\ a\ {\isasymlongrightarrow}b\ {\isacharparenleft}seller{\isacharcomma}\ X{\isacharparenright}{\isacharequal}{\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ a{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}setsum\ b\ a\ {\isacharequal}\ setsum\ b\ {\isacharparenleft}a{\isacharminus}{\isacharminus}seller{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}n{\isacharequal}seller\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}finite\ {\isacharparenleft}a{\isacharbar}{\isacharbar}{\isacharbraceleft}{\isacharquery}n{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ finite{\isacharunderscore}Int{\isacharparenright}\ \isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}z\ {\isasymin}\ a{\isacharbar}{\isacharbar}{\isacharbraceleft}{\isacharquery}n{\isacharbraceright}{\isachardot}\ b\ z{\isacharequal}{\isadigit{0}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ restrict{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}setsum\ b\ {\isacharparenleft}a{\isacharbar}{\isacharbar}{\isacharbraceleft}{\isacharquery}n{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ {\isadigit{0}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ setsum{\isachardot}neutral{\isacharparenright}\isanewline
+\isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ setsumOutside\ assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ comm{\isacharunderscore}monoid{\isacharunderscore}add{\isacharunderscore}class{\isachardot}add{\isachardot}right{\isacharunderscore}neutral{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{9}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymforall}a{\isasymin}A{\isachardot}\ finite\ a\ {\isacharampersand}\ {\isacharparenleft}{\isasymforall}\ X{\isachardot}\ X{\isasymin}Range\ a\ {\isasymlongrightarrow}\ b\ {\isacharparenleft}seller{\isacharcomma}\ X{\isacharparenright}{\isacharequal}{\isadigit{0}}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}{\isacharbraceleft}setsum\ b\ a{\isacharbar}\ a{\isachardot}\ a{\isasymin}A{\isacharbraceright}{\isacharequal}{\isacharbraceleft}setsum\ b\ {\isacharparenleft}a\ {\isacharminus}{\isacharminus}\ seller{\isacharparenright}{\isacharbar}\ a{\isachardot}\ a{\isasymin}A{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{9}}b\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}EX\ a{\isachardot}\ {\isacharparenleft}{\isacharparenleft}a\ {\isasymin}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isacharparenright}\ \isanewline
+{\isacharampersand}\ {\isacharparenleft}vcga{\isacharprime}\ N\ G\ b\ r\ {\isacharequal}\ a\ {\isacharminus}{\isacharminus}\ seller{\isacharparenright}\ \isanewline
+{\isacharampersand}\ {\isacharparenleft}a\ {\isasymin}\ argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}EX\ a{\isachardot}\ {\isacharunderscore}\ {\isacharampersand}\ {\isacharunderscore}\ {\isacharampersand}\ a\ {\isasymin}\ {\isacharquery}X{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{8}}b\ argmax{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}{\isasymforall}aa{\isasymin}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardot}\ finite\ aa{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ List{\isachardot}finite{\isacharunderscore}set\ UniformTieBreaking{\isachardot}lm{\isadigit{4}}{\isadigit{4}}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{1}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isanewline
+{\isachardoublequoteopen}{\isasymforall}aa{\isasymin}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardot}\ {\isasymforall}\ X\ {\isasymin}\ Range\ aa{\isachardot}\ b\ {\isacharparenleft}seller{\isacharcomma}\ X{\isacharparenright}{\isacharequal}{\isadigit{0}}{\isachardoublequoteclose}\isanewline
+{\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isasymforall}aa{\isasymin}{\isacharquery}X{\isachardot}\ {\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\ \isakeyword{shows}\ {\isachardoublequoteopen}setsum\ b\ {\isacharparenleft}vcga{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharequal}Max{\isacharbraceleft}setsum\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}n{\isacharequal}seller\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}s{\isacharequal}setsum\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}a{\isacharequal}{\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{obtain}\isamarkupfalse%
+\ a\ \isakeyword{where}\ \isanewline
+{\isadigit{0}}{\isacharcolon}\ {\isachardoublequoteopen}a\ {\isasymin}\ maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b\ {\isacharampersand}\ {\isacharquery}a{\isacharequal}a{\isacharminus}{\isacharminus}{\isacharquery}n\ {\isacharampersand}\ \isanewline
+{\isacharparenleft}a{\isasymin}argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}allAllocations{\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}{\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}{\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharunderscore}\ {\isacharampersand}\ {\isacharquery}a{\isacharequal}{\isacharunderscore}\ {\isacharampersand}\ a{\isasymin}{\isacharquery}Z{\isachardoublequoteclose}{\isacharparenright}\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isadigit{2}}{\isacharcomma}{\isadigit{3}}{\isacharparenright}\ lm{\isadigit{5}}{\isadigit{8}}c\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}{\isasymforall}aa{\isasymin}{\isacharquery}X{\isachardot}\ finite\ aa\ {\isacharampersand}\ {\isacharparenleft}{\isasymforall}\ X{\isachardot}\ X{\isasymin}Range\ aa\ {\isasymlongrightarrow}\ b\ {\isacharparenleft}{\isacharquery}n{\isacharcomma}\ X{\isacharparenright}{\isacharequal}{\isadigit{0}}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{4}}{\isacharparenright}\ \isanewline
+List{\isachardot}finite{\isacharunderscore}set\ UniformTieBreaking{\isachardot}lm{\isadigit{4}}{\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ metis\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}a\ {\isasymin}\ {\isacharquery}X{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{0}}\ \isacommand{by}\isamarkupfalse%
+\ auto\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ {\isacharquery}Z{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{0}}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ {\isacharquery}X{\isasyminter}{\isacharbraceleft}x{\isachardot}\ {\isacharquery}s\ b\ x\ {\isacharequal}\ Max\ {\isacharparenleft}{\isacharquery}s\ b\ {\isacharbackquote}\ {\isacharquery}X{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{8}}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ {\isacharbraceleft}x{\isachardot}\ {\isacharquery}s\ b\ x\ {\isacharequal}\ Max\ {\isacharparenleft}{\isacharquery}s\ b\ {\isacharbackquote}\ {\isacharquery}X{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{8}}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}s\ b\ {\isacharbackquote}\ {\isacharquery}X\ {\isacharequal}\ {\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa{\isasymin}{\isacharquery}X{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}s\ b\ a\ {\isacharequal}\ Max\ {\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa{\isasymin}{\isacharquery}X{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa{\isasymin}{\isacharquery}X{\isacharbraceright}\ {\isacharequal}\ {\isacharbraceleft}{\isacharquery}s\ b\ {\isacharparenleft}aa{\isacharminus}{\isacharminus}{\isacharquery}n{\isacharparenright}{\isacharbar}\ aa{\isachardot}\ aa{\isasymin}{\isacharquery}X{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{5}}{\isadigit{9}}c{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa\ {\isasymin}\ Outside{\isacharprime}\ {\isacharbraceleft}{\isacharquery}n{\isacharbraceright}{\isacharbackquote}{\isacharquery}X{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Max\ {\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharbraceright}\ {\isacharequal}\ {\isacharquery}s\ b\ a{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharquery}s\ b\ {\isacharparenleft}a{\isacharminus}{\isacharminus}{\isacharquery}n{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{1}}\ {\isadigit{2}}\ lm{\isadigit{5}}{\isadigit{9}}b\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}s\ b\ {\isacharquery}a{\isacharequal}Max{\isacharbraceleft}{\isacharquery}s\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ {\isadigit{0}}\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Adequacy theorem: the allocation satisfies the standard pen-and-paper specification of a VCG auction.
+See, for example, \cite[\S~1.2]{cramton}.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{theorem}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{1}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ {\isachardoublequoteopen}{\isasymforall}\ X{\isachardot}\ b\ {\isacharparenleft}seller{\isacharcomma}\ X{\isacharparenright}{\isacharequal}{\isadigit{0}}{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}setsum\ b\ {\isacharparenleft}vcga{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharequal}Max{\isacharbraceleft}setsum\ b\ aa{\isacharbar}\ aa{\isachardot}\ aa\ {\isasymin}\ soldAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{6}}{\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}e{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isasymin}\ allocationsUniverse\ {\isacharampersand}\ {\isasymUnion}\ Range\ {\isacharparenleft}vcga{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ {\isasymsubseteq}\ set\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{8}}b\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}a{\isacharequal}{\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}n{\isacharequal}seller\isanewline
+\isacommand{obtain}\isamarkupfalse%
+\ a\ \isakeyword{where}\ \isanewline
+{\isadigit{0}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharquery}a{\isacharequal}a\ {\isacharminus}{\isacharminus}\ seller\ {\isacharampersand}\ a\ {\isasymin}\ maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isachardoublequoteclose}\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{8}}b\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}a\ {\isasymin}\ allAllocations\ {\isacharparenleft}{\isacharbraceleft}{\isacharquery}n{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b\ {\isasymsubseteq}\ allocationsUniverse{\isachardoublequoteclose}\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ mono{\isacharunderscore}tags{\isacharparenright}\ UniformTieBreaking{\isachardot}lm{\isadigit{0}}{\isadigit{3}}\ Universes{\isachardot}lm{\isadigit{5}}{\isadigit{0}}\ subset{\isacharunderscore}trans{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a{\isacharequal}a\ {\isacharminus}{\isacharminus}\ seller\ {\isacharampersand}\ a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{5}}d\ \isacommand{by}\isamarkupfalse%
+\ auto\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ a{\isacharequal}\ set\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ nn{\isadigit{2}}{\isadigit{4}}c\ {\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ {\isacharquery}a\ {\isasymsubseteq}\ set\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ {\isadigit{0}}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{3}}{\isadigit{5}}d\ Outside{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isacharequal}\ the{\isacharunderscore}elem\ {\isacharparenleft}{\isacharparenleft}argmax\ {\isasymcirc}\ setsum{\isacharparenright}\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ \isanewline
+{\isacharparenleft}{\isacharparenleft}argmax\ {\isasymcirc}\ setsum{\isacharparenright}\ b\ {\isacharparenleft}allAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharminus}{\isacharminus}\ seller{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcgp\ N\ G\ b\ r\ n\ {\isacharequal}{\isacharequal}\isanewline
+Max\ {\isacharparenleft}setsum\ b\ {\isacharbackquote}\ {\isacharparenleft}soldAllocations\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharminus}\ {\isacharparenleft}setsum\ b\ {\isacharparenleft}vcga\ N\ G\ b\ r\ {\isacharminus}{\isacharminus}\ n{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{3}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ X{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ X{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}Max\ {\isacharparenleft}f{\isacharbackquote}X{\isacharparenright}\ {\isachargreater}{\isacharequal}\ f\ x{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L\ {\isachargreater}{\isacharequal}\ {\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}hide{\isacharunderscore}lams{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}\ Max{\isachardot}coboundedI\ finite{\isacharunderscore}imageI\ image{\isacharunderscore}eqI{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{9}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}finite\ {\isacharparenleft}soldAllocations\ N\ G{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{5}}{\isadigit{9}}\isanewline
+finite{\isachardot}emptyI\ finite{\isachardot}insertI\ finite{\isacharunderscore}UnI\ finite{\isacharunderscore}imageI\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+The price paid by any participant is non-negative.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{theorem}\isamarkupfalse%
+\ NonnegPrices{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}vcgp\ N\ G\ b\ r\ n\ {\isachargreater}{\isacharequal}\ {\isacharparenleft}{\isadigit{0}}{\isacharcolon}{\isacharcolon}price{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}a{\isacharequal}{\isachardoublequoteopen}vcga\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}A{\isacharequal}soldAllocations\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}f{\isacharequal}{\isachardoublequoteopen}setsum\ b{\isachardoublequoteclose}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a\ {\isasymin}\ {\isacharquery}A\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{5}}{\isadigit{8}}f{\isacharparenright}\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a\ {\isacharminus}{\isacharminus}\ n\ {\isasymin}\ {\isacharquery}A\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{4}}{\isadigit{4}}b{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}finite\ {\isacharparenleft}{\isacharquery}A\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ lm{\isadigit{5}}{\isadigit{9}}\ finite{\isacharunderscore}set\ finite{\isacharunderscore}Diff\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Max\ {\isacharparenleft}{\isacharquery}f{\isacharbackquote}{\isacharparenleft}{\isacharquery}A\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isasymge}\ {\isacharquery}f\ {\isacharparenleft}{\isacharquery}a\ {\isacharminus}{\isacharminus}\ n{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L\ {\isachargreater}{\isacharequal}\ {\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{6}}{\isadigit{3}}{\isacharparenright}\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}L\ {\isacharminus}\ {\isacharquery}R\ {\isachargreater}{\isacharequal}{\isadigit{0}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ linarith\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{9}}b{\isacharcolon}\ {\isachardoublequoteopen}allAllocations\ N\ G\ {\isacharequal}\ possibleAllocationsRel\ N\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ lm{\isadigit{1}}{\isadigit{9}}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}strictAllocationsUniverse\ {\isacharequal}{\isacharequal}\ allocationsUniverse{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}Goods\ bids\ {\isacharequal}{\isacharequal}\ {\isasymUnion}{\isacharparenleft}{\isacharparenleft}snd{\isasymcirc}fst{\isacharparenright}{\isacharbackquote}bids{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{5}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}Range\ a\ {\isasymin}\ partitionsUniverse{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ mono{\isacharunderscore}tags{\isacharparenright}\ Int{\isacharunderscore}iff\ lm{\isadigit{2}}{\isadigit{2}}\ mem{\isacharunderscore}Collect{\isacharunderscore}eq{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{4}}{\isadigit{5}}a{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations\ N\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}Range\ a\ {\isasymin}\ partitionsUniverse{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ soldAllocations{\isacharprime}{\isacharprime}{\isacharprime}\ N\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{2}}{\isadigit{8}}e\ \isacommand{by}\isamarkupfalse%
+\ metis\ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{4}}{\isadigit{5}}{\isacharparenright}\ \isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ \isakeyword{assumes}\ \isanewline
+{\isachardoublequoteopen}N\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}terminatingAuctionRel\ N\ G\ {\isacharparenleft}bids{\isacharparenright}\ random{\isacharparenright}\ {\isacharequal}\ \isanewline
+{\isacharbraceleft}chosenAllocation{\isacharprime}\ N\ G\ bids\ random\ {\isacharminus}{\isacharminus}\ {\isacharparenleft}seller{\isacharparenright}{\isacharbraceright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L{\isacharequal}{\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{9}}{\isadigit{2}}\ Outside{\isacharunderscore}def\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}R\ {\isacharequal}\ Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}\ {\isacharbackquote}\ {\isacharbraceleft}chosenAllocation{\isacharprime}\ N\ G\ bids\ random{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ Outside{\isacharunderscore}def\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ blast\ \isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isacharparenleft}Outside{\isacharprime}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}{\isacharbackquote}{\isacharparenleft}terminatingAuctionRel\ N\ G\ bids\ random{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{9}}{\isadigit{2}}\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}terminatingAuctionRel\ N\ G\ b\ r\ {\isacharequal}\ \isanewline
+{\isacharparenleft}{\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}resolvingBid{\isacharprime}\ N\ G\ b\ {\isacharparenleft}r{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isasymcirc}\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+{\isacharparenleft}possibleAllocationsRel\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ force%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{term}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}Union\ {\isasymcirc}\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}resolvingBid{\isacharprime}\ N\ G\ b\ {\isacharparenleft}r{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isasymcirc}\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}{\isacharparenright}{\isacharparenright}\isanewline
+{\isacharparenleft}possibleAllocationsRel\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ G\ b{\isacharequal}winningAllocationsRel\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}\ {\isasymunion}\ N{\isacharparenright}\ G\ b{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ fast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{4}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isanewline
+{\isachardoublequoteopen}n{\isadigit{1}}\ {\isasymin}\ Domain\ a{\isachardoublequoteclose}\ {\isachardoublequoteopen}n{\isadigit{2}}\ {\isasymin}\ Domain\ a{\isachardoublequoteclose}\isanewline
+{\isachardoublequoteopen}n{\isadigit{1}}\ {\isasymnoteq}\ n{\isadigit{2}}{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}a{\isacharcomma}{\isacharcomma}n{\isadigit{1}}\ {\isasyminter}\ a{\isacharcomma}{\isacharcomma}n{\isadigit{2}}{\isacharequal}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ lm{\isadigit{2}}{\isadigit{2}}\ mem{\isacharunderscore}Collect{\isacharunderscore}eq\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}Range\ a\ {\isasymin}\ partitionsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{2}}{\isadigit{2}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ injectionsUniverse\ {\isacharampersand}\ a\ {\isasymin}\ partitionValuedUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}\ IntD{\isadigit{1}}\ IntD{\isadigit{2}}{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a{\isacharcomma}{\isacharcomma}n{\isadigit{1}}\ {\isasymin}\ Range\ a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}mono{\isacharunderscore}tags{\isacharparenright}\ eval{\isacharunderscore}runiq{\isacharunderscore}in{\isacharunderscore}Range\ mem{\isacharunderscore}Collect{\isacharunderscore}eq{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a{\isacharcomma}{\isacharcomma}n{\isadigit{1}}\ {\isasymnoteq}\ a{\isacharcomma}{\isacharcomma}n{\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ \isanewline
+assms\ converse{\isachardot}intros\ eval{\isacharunderscore}runiq{\isacharunderscore}rel\ mem{\isacharunderscore}Collect{\isacharunderscore}eq\ runiq{\isacharunderscore}basic\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ is{\isacharunderscore}non{\isacharunderscore}overlapping{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ eval{\isacharunderscore}runiq{\isacharunderscore}in{\isacharunderscore}Range\ mem{\isacharunderscore}Collect{\isacharunderscore}eq{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{4}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isanewline
+{\isachardoublequoteopen}n{\isadigit{1}}\ {\isasymin}\ Domain\ a{\isachardoublequoteclose}\ {\isachardoublequoteopen}n{\isadigit{2}}\ {\isasymin}\ Domain\ a{\isachardoublequoteclose}\isanewline
+{\isachardoublequoteopen}n{\isadigit{1}}\ {\isasymnoteq}\ n{\isadigit{2}}{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}a{\isacharcomma}{\isacharcomma}{\isacharcomma}n{\isadigit{1}}\ {\isasyminter}\ a{\isacharcomma}{\isacharcomma}{\isacharcomma}n{\isadigit{2}}{\isacharequal}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{6}}{\isadigit{4}}\ imageEquivalence\ \isacommand{by}\isamarkupfalse%
+\ fastforce%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+No good is assigned twice.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{theorem}\isamarkupfalse%
+\ PairwiseDisjointAllocations{\isacharcolon}\isanewline
+\isakeyword{fixes}\ n{\isadigit{1}}{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}participant{\isachardoublequoteclose}\ \isakeyword{fixes}\ G{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}goods\ list{\isachardoublequoteclose}\ \isakeyword{fixes}\ N{\isacharcolon}{\isacharcolon}{\isachardoublequoteopen}participant\ set{\isachardoublequoteclose}\isanewline
+\isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \ \isanewline
+\ \isanewline
+{\isachardoublequoteopen}n{\isadigit{1}}\ {\isasymnoteq}\ n{\isadigit{2}}{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}vcga{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharcomma}{\isacharcomma}{\isacharcomma}n{\isadigit{1}}\ {\isasyminter}\ {\isacharparenleft}vcga{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharcomma}{\isacharcomma}{\isacharcomma}n{\isadigit{2}}{\isacharequal}{\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{5}}{\isadigit{8}}e\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{6}}{\isadigit{4}}c\ assms\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ \isakeyword{assumes}\ {\isachardoublequoteopen}R{\isacharcomma}{\isacharcomma}{\isacharcomma}x\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ R{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ {\isacharparenleft}R{\isacharbackquote}{\isacharbackquote}{\isacharbraceleft}x{\isacharbraceright}{\isacharparenright}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}R{\isacharbackquote}{\isacharbackquote}{\isacharbraceleft}x{\isacharbraceright}\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ \isakeyword{assumes}\ {\isachardoublequoteopen}runiq\ f{\isachardoublequoteclose}\ \isakeyword{and}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ f{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}{\isacharparenleft}f\ {\isacharcomma}{\isacharcomma}\ x{\isacharparenright}\ {\isasymin}\ Range\ f{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ eval{\isacharunderscore}runiq{\isacharunderscore}in{\isacharunderscore}Range{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Nothing outside the set of goods is allocated.%
+\end{isamarkuptext}%
+\isamarkuptrue%
+\isacommand{theorem}\isamarkupfalse%
+\ OnlyGoodsAllocated{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ {\isachardoublequoteopen}g\ {\isasymin}\ {\isacharparenleft}vcga\ N\ G\ b\ r{\isacharparenright}{\isacharcomma}{\isacharcomma}{\isacharcomma}n{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}g\ {\isasymin}\ set\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}a{\isacharequal}{\isachardoublequoteopen}vcga{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a\ {\isasymin}\ allocationsUniverse{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isadigit{2}}{\isacharcomma}{\isadigit{3}}{\isacharparenright}\ lm{\isadigit{5}}{\isadigit{8}}e\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}runiq\ {\isacharquery}a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isadigit{2}}{\isacharcomma}{\isadigit{3}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}n\ {\isasymin}\ Domain\ {\isacharquery}a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ eval{\isacharunderscore}rel{\isacharunderscore}def\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{2}}\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a{\isacharcomma}{\isacharcomma}n\ {\isasymin}\ Range\ {\isacharquery}a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ eval{\isacharunderscore}runiq{\isacharunderscore}in{\isacharunderscore}Range\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}a{\isacharcomma}{\isacharcomma}{\isacharcomma}n\ {\isasymin}\ Range\ {\isacharquery}a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ imageEquivalence\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}g\ {\isasymin}\ {\isasymUnion}\ Range\ {\isacharquery}a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{0}}{\isadigit{2}}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymUnion}\ Range\ {\isacharquery}a\ {\isasymsubseteq}\ set\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isadigit{2}}{\isacharcomma}{\isadigit{3}}{\isacharparenright}\ lm{\isadigit{5}}{\isadigit{8}}e\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}allStrictAllocations\ N\ G\ {\isacharequal}{\isacharequal}\ possibleAllocationsAlg\ N\ G{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations\ N\ G\ b{\isacharequal}{\isacharequal}\isanewline
+argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}set\ {\isacharparenleft}allStrictAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations{\isadigit{2}}\ N\ G\ b{\isacharequal}\isanewline
+argmax\ {\isacharparenleft}setsum\ b{\isacharparenright}\ {\isacharparenleft}set\ {\isacharparenleft}allStrictAllocations\ {\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}chosenAllocation\ N\ G\ b\ {\isacharparenleft}r{\isacharcolon}{\isacharcolon}integer{\isacharparenright}\ {\isacharequal}{\isacharequal}\ \isanewline
+hd{\isacharparenleft}perm{\isadigit{2}}\ {\isacharparenleft}takeAll\ {\isacharparenleft}{\isacharpercent}x{\isachardot}\ x{\isasymin}\ {\isacharparenleft}argmax\ {\isasymcirc}\ setsum{\isacharparenright}\ b\ {\isacharparenleft}set\ {\isacharparenleft}allStrictAllocations\ N\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}allStrictAllocations\ N\ G{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}nat{\isacharunderscore}of{\isacharunderscore}integer\ r{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}chosenAllocationEff\ N\ G\ b\ {\isacharparenleft}r{\isacharcolon}{\isacharcolon}integer{\isacharparenright}\ {\isacharequal}{\isacharequal}\ \isanewline
+{\isacharparenleft}takeAll\ {\isacharparenleft}{\isacharpercent}x{\isachardot}\ x{\isasymin}\ {\isacharparenleft}argmax\ {\isasymcirc}\ setsum{\isacharparenright}\ b\ {\isacharparenleft}set\ {\isacharparenleft}allStrictAllocations\ N\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}allStrictAllocations\ N\ G{\isacharparenright}\ {\isacharbang}\ {\isacharparenleft}nat{\isacharunderscore}of{\isacharunderscore}integer\ r{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}maxbid\ a\ N\ G\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}summedBidVector\ bids\ N\ G\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}summedBidVectorRel\ bids\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}tiebids\ a\ N\ G\ {\isacharequal}{\isacharequal}\ summedBidVector\ {\isacharparenleft}maxbid\ a\ N\ G{\isacharparenright}\ N\ G{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}resolvingBid\ N\ G\ bids\ random\ {\isacharequal}{\isacharequal}\ tiebids\ {\isacharparenleft}chosenAllocation\ N\ G\ bids\ random{\isacharparenright}\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}randomBids\ N\ {\isasymOmega}\ b\ random{\isacharequal}{\isacharequal}resolvingBid\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isasymOmega}\ b\ random{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcgaAlgWithoutLosers\ N\ G\ b\ r\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}the{\isacharunderscore}elem\isanewline
+{\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations\ N\ G\ b{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharminus}{\isacharminus}\ seller{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}addLosers\ participantset\ allo{\isacharequal}{\isacharequal}{\isacharparenleft}participantset\ {\isasymtimes}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}\ {\isacharplus}{\isacharasterisk}\ allo{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcgaAlg\ N\ G\ b\ r\ {\isacharequal}\ addLosers\ N\ {\isacharparenleft}vcgaAlgWithoutLosers\ N\ G\ b\ r{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}allAllocationsComp\ N\ {\isasymOmega}\ {\isacharequal}{\isacharequal}\ \isanewline
+{\isacharparenleft}Outside{\isacharprime}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharbackquote}\ set\ {\isacharparenleft}allStrictAllocations\ {\isacharparenleft}N\ {\isasymunion}\ {\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isasymOmega}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcgpAlg\ N\ G\ b\ r\ n\ {\isacharequal}\isanewline
+Max\ {\isacharparenleft}setsum\ b\ {\isacharbackquote}\ {\isacharparenleft}allAllocationsComp\ {\isacharparenleft}N{\isacharminus}{\isacharbraceleft}n{\isacharbraceright}{\isacharparenright}\ G{\isacharparenright}{\isacharparenright}\ {\isacharminus}\ {\isacharparenleft}setsum\ b\ {\isacharparenleft}vcgaAlgWithoutLosers\ N\ G\ b\ r\ {\isacharminus}{\isacharminus}\ n{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{1}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ Domain\ f{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}toFunction\ f\ x\ {\isacharequal}\ {\isacharparenleft}f\ Elsee\ {\isadigit{0}}{\isacharparenright}\ x{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ toFunctionWithFallback{\isadigit{2}}{\isacharunderscore}def\isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ assms\ toFunction{\isacharunderscore}def{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{3}}{\isacharcolon}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}Y\ {\isasymtimes}\ {\isacharbraceleft}{\isadigit{0}}{\isacharcolon}{\isacharcolon}nat{\isacharbraceright}{\isacharparenright}\ {\isacharequal}\ Y\ {\isacharampersand}\ Domain\ {\isacharparenleft}X\ {\isasymtimes}\ {\isacharbraceleft}{\isadigit{1}}{\isacharbraceright}{\isacharparenright}{\isacharequal}X{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{4}}{\isacharcolon}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}X\ {\isacharless}{\isacharbar}{\isacharbar}\ Y{\isacharparenright}\ {\isacharequal}\ X\ {\isasymunion}\ Y{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{3}}\ paste{\isacharunderscore}Domain\ sup{\isacharunderscore}commute\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{4}}b{\isacharcolon}\ {\isachardoublequoteopen}Domain\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ {\isacharequal}\ pseudoAllocation\ a\ {\isasymunion}\ N\ {\isasymtimes}\ {\isacharparenleft}finestpart\ G{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{4}}\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{9}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}pseudoAllocation\ a{\isacharparenright}\ {\isasymsubseteq}\ Domain\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ lm{\isadigit{0}}{\isadigit{4}}\ Un{\isacharunderscore}upper{\isadigit{1}}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{2}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}summedBidVector{\isacharprime}\ b\ N\ G\ x{\isacharequal}summedBidVector\ b\ N\ G\ x{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ summedBidVector{\isacharunderscore}def\ \isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{1}}\ Domain{\isachardot}simps\ imageI\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharcomma}lifting{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{0}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymforall}x\ {\isasymin}\ X{\isachardot}\ f\ x\ {\isacharequal}\ g\ x{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}setsum\ f\ X\ {\isacharequal}\ setsum\ g\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ setsum{\isachardot}cong\ \isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{6}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}fst\ pair\ {\isasymin}\ N{\isachardoublequoteclose}\ {\isachardoublequoteopen}snd\ pair\ {\isasymin}\ Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}setsum\ {\isacharparenleft}{\isacharpercent}g{\isachardot}\isanewline
+{\isacharparenleft}toFunction\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isacharparenright}\isanewline
+{\isacharparenleft}fst\ pair{\isacharcomma}\ g{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}finestpart\ {\isacharparenleft}snd\ pair{\isacharparenright}{\isacharparenright}\ {\isacharequal}\isanewline
+setsum\ {\isacharparenleft}{\isacharpercent}g{\isachardot}\ \isanewline
+{\isacharparenleft}{\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isacharparenright}\isanewline
+{\isacharparenleft}fst\ pair{\isacharcomma}\ g{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}finestpart\ {\isacharparenleft}snd\ pair{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{1}}\ lm{\isadigit{0}}{\isadigit{5}}\ lm{\isadigit{0}}{\isadigit{4}}\ Un{\isacharunderscore}upper{\isadigit{1}}\ UnCI\ UnI{\isadigit{1}}\ setsum{\isachardot}cong\ finestpartSubset\ Diff{\isacharunderscore}iff\ Pow{\isacharunderscore}iff\ in{\isacharunderscore}mono\isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}f{\isadigit{1}}{\isacharequal}{\isachardoublequoteopen}{\isacharpercent}g{\isachardot}{\isacharparenleft}toFunction\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isacharparenright}{\isacharparenleft}fst\ pair{\isacharcomma}\ g{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}f{\isadigit{2}}{\isacharequal}{\isachardoublequoteopen}{\isacharpercent}g{\isachardot}{\isacharparenleft}{\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isacharparenright}{\isacharparenleft}fst\ pair{\isacharcomma}\ g{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{{\isacharbraceleft}}\isamarkupfalse%
+\ \isanewline
+\ \ \isacommand{fix}\isamarkupfalse%
+\ g\ \isacommand{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}g\ {\isasymin}\ finestpart\ {\isacharparenleft}snd\ pair{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ \isanewline
+\ \ {\isadigit{0}}{\isacharcolon}\ {\isachardoublequoteopen}g\ {\isasymin}\ finestpart\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ finestpartSubset\ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ Diff{\isacharunderscore}iff\ Pow{\isacharunderscore}iff\ in{\isacharunderscore}mono{\isacharparenright}\isanewline
+\ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}f{\isadigit{1}}\ g\ {\isacharequal}\ {\isacharquery}f{\isadigit{2}}\ g{\isachardoublequoteclose}\ \isanewline
+\ \ \isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\ \ \ \ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymAnd}x\isactrlsub {\isadigit{1}}\ x\isactrlsub {\isadigit{2}}{\isachardot}\ {\isacharparenleft}x\isactrlsub {\isadigit{1}}{\isacharcomma}\ g{\isacharparenright}\ {\isasymin}\ x\isactrlsub {\isadigit{2}}\ {\isasymtimes}\ finestpart\ G\ {\isasymor}\ x\isactrlsub {\isadigit{1}}\ {\isasymnotin}\ x\isactrlsub {\isadigit{2}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isadigit{0}}\ mem{\isacharunderscore}Sigma{\isacharunderscore}iff{\isacharparenright}\ \isanewline
+\ \ \ \ \isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}pseudoAllocation\ a\ {\isacharless}{\isacharbar}\ {\isacharparenleft}N\ {\isasymtimes}\ finestpart\ G{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}fst\ pair{\isacharcomma}\ g{\isacharparenright}\ {\isacharequal}\ maxbid\ a\ N\ G\ {\isacharparenleft}fst\ pair{\isacharcomma}\ g{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isacommand{unfolding}\isamarkupfalse%
+\ toFunctionWithFallback{\isadigit{2}}{\isacharunderscore}def\ maxbid{\isacharunderscore}def\isanewline
+\ \ \ \ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}\ lm{\isadigit{0}}{\isadigit{4}}\ UnCI\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ toFunction{\isacharunderscore}def{\isacharparenright}\isanewline
+\ \ \ \ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ maxbid{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\ \ \isacommand{qed}\isamarkupfalse%
+\isanewline
+\isacommand{{\isacharbraceright}}\isamarkupfalse%
+\isanewline
+\isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ setsum{\isachardot}cong\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{7}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}pair\ {\isasymin}\ N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}summedBid\ {\isacharparenleft}toFunction\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isacharparenright}\ pair\ {\isacharequal}\ \isanewline
+summedBid\ {\isacharparenleft}{\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isacharparenright}\ pair{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{6}}\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}fst\ pair\ {\isasymin}\ N{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ force\ \isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}snd\ pair\ {\isasymin}\ Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ force\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{6}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{8}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymforall}x\ {\isasymin}\ X{\isachardot}\ f\ x\ {\isacharequal}\ g\ x{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}f{\isacharbackquote}X{\isacharequal}g{\isacharbackquote}X{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ image{\isacharunderscore}cong{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{9}}{\isacharcolon}\ {\isachardoublequoteopen}{\isasymforall}\ pair\ {\isasymin}\ N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isachardot}\ \ \isanewline
+summedBid\ {\isacharparenleft}toFunction\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isacharparenright}\ pair\ {\isacharequal}\ \isanewline
+summedBid\ {\isacharparenleft}{\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isacharparenright}\ pair{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{0}}{\isadigit{7}}\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\ \ \isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{0}}{\isacharcolon}\ \isanewline
+{\isachardoublequoteopen}{\isacharparenleft}summedBid\ {\isacharparenleft}toFunction\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isacharequal}\isanewline
+{\isacharparenleft}summedBid\ {\isacharparenleft}{\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isacharparenright}{\isacharparenright}\ {\isacharbackquote}\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}f{\isadigit{1}}\ {\isacharbackquote}\ {\isacharquery}Z\ {\isacharequal}\ {\isacharquery}f{\isadigit{2}}\ {\isacharbackquote}\ {\isacharquery}Z{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ z\ {\isasymin}\ {\isacharquery}Z{\isachardot}\ {\isacharquery}f{\isadigit{1}}\ z\ {\isacharequal}\ {\isacharquery}f{\isadigit{2}}\ z{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{0}}{\isadigit{9}}{\isacharparenright}\ \isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{0}}{\isadigit{8}}{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{1}}{\isacharcolon}\ {\isachardoublequoteopen}summedBidVectorRel\ {\isacharparenleft}toFunction\ {\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}{\isacharparenright}\ N\ G\ {\isacharequal}\isanewline
+summedBidVectorRel\ {\isacharparenleft}{\isacharparenleft}bidMaximizedBy\ a\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isacharparenright}\ N\ G{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{0}}\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{2}}{\isacharcolon}\ {\isachardoublequoteopen}summedBidVectorRel\ {\isacharparenleft}maxbid{\isacharprime}\ a\ N\ G{\isacharparenright}\ N\ G\ {\isacharequal}\ summedBidVectorRel\ {\isacharparenleft}maxbid\ a\ N\ G{\isacharparenright}\ N\ G{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ maxbid{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{1}}\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{3}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}summedBidVector{\isacharprime}\ {\isacharparenleft}maxbid{\isacharprime}\ a\ N\ G{\isacharparenright}\ N\ G\ x\ {\isacharequal}\ summedBidVector\ {\isacharparenleft}maxbid\ a\ N\ G{\isacharparenright}\ N\ G\ x{\isachardoublequoteclose}\isanewline
+{\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}f{\isadigit{1}}\ {\isacharquery}g{\isadigit{1}}\ N\ G\ x\ {\isacharequal}\ {\isacharquery}f{\isadigit{2}}\ {\isacharquery}g{\isadigit{2}}\ N\ G\ x{\isachardoublequoteclose}{\isacharparenright}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{0}}{\isadigit{2}}\ lm{\isadigit{1}}{\isadigit{2}}\ \ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}h{\isadigit{1}}{\isacharequal}{\isachardoublequoteopen}maxbid{\isacharprime}\ a\ N\ G{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}h{\isadigit{2}}{\isacharequal}{\isachardoublequoteopen}maxbid\ a\ N\ G{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}hh{\isadigit{1}}{\isacharequal}{\isachardoublequoteopen}real\ {\isasymcirc}\ {\isacharquery}h{\isadigit{1}}{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}hh{\isadigit{2}}{\isacharequal}{\isachardoublequoteopen}real\ {\isasymcirc}\ {\isacharquery}h{\isadigit{2}}{\isachardoublequoteclose}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}summedBidVectorRel\ {\isacharquery}h{\isadigit{1}}\ N\ G\ {\isacharequal}\ summedBidVectorRel\ {\isacharquery}h{\isadigit{2}}\ N\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{2}}\ \isacommand{by}\isamarkupfalse%
+\ metis\ \isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}summedBidVector\ {\isacharquery}h{\isadigit{2}}\ N\ G{\isacharequal}{\isacharparenleft}summedBidVectorRel\ {\isacharquery}h{\isadigit{2}}\ N\ G{\isacharparenright}\ Elsee\ {\isadigit{0}}{\isachardoublequoteclose}\isanewline
+\isacommand{unfolding}\isamarkupfalse%
+\ summedBidVector{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}\ summedBidVector\ {\isacharquery}h{\isadigit{2}}\ N\ G{\isacharequal}summedBidVectorRel\ {\isacharquery}h{\isadigit{1}}\ N\ G\ Elsee\ {\isadigit{0}}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}\ x\ {\isacharequal}\ {\isacharparenleft}toFunction\ {\isacharparenleft}summedBidVectorRel\ {\isacharquery}h{\isadigit{1}}\ N\ G{\isacharparenright}{\isacharparenright}\ x{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isanewline
+lm{\isadigit{0}}{\isadigit{1}}\ UniformTieBreaking{\isachardot}lm{\isadigit{6}}{\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}mono{\isacharunderscore}tags{\isacharparenright}{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}summedBidVector\ {\isacharquery}h{\isadigit{2}}\ N\ G\ x\ {\isacharequal}\ {\isacharparenleft}toFunction\ {\isacharparenleft}summedBidVectorRel\ {\isacharquery}h{\isadigit{1}}\ N\ G{\isacharparenright}{\isacharparenright}\ x{\isachardoublequoteclose}\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}lifting{\isacharcomma}\ no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}\isanewline
+\isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{0}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}possibleAllocationsRel\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ {\isacharequal}\ set\ {\isacharparenleft}possibleAllocationsAlg\ N\ G{\isacharparenright}{\isachardoublequoteclose}\ \ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ Universes{\isachardot}lm{\isadigit{7}}{\isadigit{0}}b\ \isacommand{by}\isamarkupfalse%
+\ metis%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{4}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ A\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}card\ B\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}card\ {\isacharparenleft}A\ {\isasymunion}\ B{\isacharparenright}\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ card{\isacharunderscore}gt{\isacharunderscore}{\isadigit{0}}{\isacharunderscore}iff\ finite{\isacharunderscore}Un\ sup{\isacharunderscore}eq{\isacharunderscore}bot{\isacharunderscore}iff\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{2}}{\isadigit{4}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ A\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\isacharbraceleft}a{\isacharbraceright}\ {\isasymunion}\ A{\isacharparenright}\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{2}}{\isadigit{4}}\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ card{\isacharunderscore}empty\ card{\isacharunderscore}insert{\isacharunderscore}disjoint\ empty{\isacharunderscore}iff\ finite{\isachardot}emptyI\ lessI{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b\ {\isacharequal}\ maximalStrictAllocations\ N\ G\ b{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ allStrictAllocations{\isacharunderscore}def\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{7}}{\isadigit{0}}c\ lm{\isadigit{2}}{\isadigit{4}}b\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{0}}d{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}allAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ {\isacharequal}\ set\ {\isacharparenleft}allStrictAllocations\ N\ G{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ allStrictAllocations{\isacharunderscore}def\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{7}}{\isadigit{0}}c\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\ \isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{0}}f{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}winningAllocationsRel\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b\ {\isacharequal}\ \isanewline
+{\isacharparenleft}argmax\ {\isasymcirc}\ setsum{\isacharparenright}\ b\ {\isacharparenleft}set\ {\isacharparenleft}allStrictAllocations\ N\ G{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ allStrictAllocations{\isacharunderscore}def\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{7}}{\isadigit{0}}c\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ comp{\isacharunderscore}apply{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{0}}g{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}chosenAllocation{\isacharprime}\ N\ G\ b\ r\ {\isacharequal}\ chosenAllocation\ N\ G\ b\ r{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{unfolding}\isamarkupfalse%
+\ chosenAllocation{\isacharunderscore}def\ \isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{7}}{\isadigit{0}}f\ allStrictAllocations{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\ \isanewline
+%
+\endisadelimproof
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{3}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}x\ {\isasymin}\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}tiebids{\isacharprime}\ a\ N\ G\ x\ {\isacharequal}\ tiebids\ a\ N\ G\ x{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L{\isacharequal}{\isacharunderscore}{\isachardoublequoteclose}{\isacharparenright}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}L\ {\isacharequal}\ summedBidVector{\isacharprime}\ {\isacharparenleft}maxbid{\isacharprime}\ a\ N\ G{\isacharparenright}\ N\ G\ x{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ fast\ \isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\isachardot}{\isachardot}{\isacharequal}\ \isanewline
+summedBidVector\ {\isacharparenleft}maxbid\ a\ N\ G{\isacharparenright}\ N\ G\ x{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{1}}{\isadigit{3}}{\isacharparenright}\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isanewline
+\isacommand{unfolding}\isamarkupfalse%
+\ tiebids{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ fast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\ \isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{4}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}a\ {\isasymsubseteq}\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ {\isacharparenleft}set\ G{\isacharparenright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}setsum\ {\isacharparenleft}resolvingBid{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ a\ {\isacharequal}\ setsum\ {\isacharparenleft}resolvingBid\ N\ G\ b\ r{\isacharparenright}\ a{\isachardoublequoteclose}\ {\isacharparenleft}\isakeyword{is}\ {\isachardoublequoteopen}{\isacharquery}L{\isacharequal}{\isacharquery}R{\isachardoublequoteclose}{\isacharparenright}\ \isanewline
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}c{\isacharprime}{\isacharequal}{\isachardoublequoteopen}chosenAllocation{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}c{\isacharequal}{\isachardoublequoteopen}chosenAllocation\ N\ G\ b\ r{\isachardoublequoteclose}\ \isacommand{let}\isamarkupfalse%
+\ {\isacharquery}r{\isacharprime}{\isacharequal}{\isachardoublequoteopen}resolvingBid{\isacharprime}\ N\ G\ b\ r{\isachardoublequoteclose}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}c{\isacharprime}\ {\isacharequal}\ {\isacharquery}c{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isadigit{2}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{7}}{\isadigit{0}}g{\isacharparenright}\ \isacommand{then}\isamarkupfalse%
+\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharquery}r{\isacharprime}\ {\isacharequal}\ tiebids{\isacharprime}\ {\isacharquery}c\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}x\ {\isasymin}\ a{\isachardot}\ tiebids{\isacharprime}\ {\isacharquery}c\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ x\ {\isacharequal}\ tiebids\ {\isacharquery}c\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ x{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ lm{\isadigit{1}}{\isadigit{3}}b\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}x\ {\isasymin}\ a{\isachardot}\ {\isacharquery}r{\isacharprime}\ x\ {\isacharequal}\ resolvingBid\ N\ G\ b\ r\ x{\isachardoublequoteclose}\ \isacommand{unfolding}\isamarkupfalse%
+\ resolvingBid{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ setsum{\isachardot}cong\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{5}}{\isacharcolon}\ {\isachardoublequoteopen}allAllocations\ N\ G\ {\isasymsubseteq}\ Pow\ {\isacharparenleft}N\ {\isasymtimes}\ {\isacharparenleft}Pow\ G\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ PowI\ lm{\isadigit{4}}{\isadigit{0}}c\ subsetI{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{4}}b{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}card\ N\ {\isachargreater}\ {\isadigit{0}}{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}a\ {\isasymin}\ allAllocations\ N\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}setsum\ {\isacharparenleft}resolvingBid{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ a\ {\isacharequal}\ setsum\ {\isacharparenleft}resolvingBid\ N\ G\ b\ r{\isacharparenright}\ a{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymsubseteq}\ N\ {\isasymtimes}\ {\isacharparenleft}Pow\ {\isacharparenleft}set\ G{\isacharparenright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ lm{\isadigit{1}}{\isadigit{5}}\ \isacommand{by}\isamarkupfalse%
+\ blast\ \isanewline
+\isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isadigit{2}}{\isacharparenright}\ lm{\isadigit{1}}{\isadigit{4}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{4}}c{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}a\ {\isasymin}\ maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isachardoublequoteclose}\ \isanewline
+\isakeyword{shows}\ {\isachardoublequoteopen}setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ a\ {\isacharequal}\ setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}\ a{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}{\isachargreater}{\isadigit{0}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ sup{\isacharunderscore}eq{\isacharunderscore}bot{\isacharunderscore}iff\ insert{\isacharunderscore}not{\isacharunderscore}empty\isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ card{\isacharunderscore}gt{\isacharunderscore}{\isadigit{0}}{\isacharunderscore}iff\ finite{\isachardot}emptyI\ finite{\isachardot}insertI\ finite{\isacharunderscore}UnI{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ simp\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}a\ {\isasymin}\ allAllocations\ {\isacharparenleft}N{\isasymunion}{\isacharbraceleft}seller{\isacharbraceright}{\isacharparenright}\ {\isacharparenleft}set\ G{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ fastforce\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{unfolding}\isamarkupfalse%
+\ randomBids{\isacharunderscore}def\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{1}}{\isadigit{4}}b{\isacharparenright}\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{6}}{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymforall}x{\isasymin}X{\isachardot}\ f\ x\ {\isacharequal}\ g\ x{\isachardoublequoteclose}\ \isakeyword{shows}\ {\isachardoublequoteopen}argmax\ f\ X{\isacharequal}argmax\ g\ X{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ argmaxLemma\ Collect{\isacharunderscore}cong\ image{\isacharunderscore}cong\ \isanewline
+\isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis{\isacharparenleft}no{\isacharunderscore}types{\isacharcomma}lifting{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{9}}{\isadigit{2}}e{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}{\isadigit{1}}{\isacharequal}card\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ lm{\isadigit{9}}{\isadigit{2}}b\ lm{\isadigit{1}}{\isadigit{4}}c\ \isanewline
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}\ a\ {\isasymin}\ maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isachardot}\ \isanewline
+setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}\ a\ {\isacharequal}\ setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}\ a{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isadigit{1}}{\isacharparenright}\ lm{\isadigit{1}}{\isadigit{4}}c\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{then}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}\ {\isacharequal}\isanewline
+argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids{\isacharprime}\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{6}}\ \isacommand{by}\isamarkupfalse%
+\ blast\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isachardot}{\isachardot}{\isachardot}\ {\isacharequal}\ {\isadigit{1}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{9}}{\isadigit{2}}b{\isacharparenright}\isanewline
+\isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ presburger\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{corollary}\isamarkupfalse%
+\ lm{\isadigit{7}}{\isadigit{0}}e{\isacharcolon}\ \isakeyword{assumes}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharequal}maximalStrictAllocations\ N\ G\ b{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\isanewline
+\isacommand{let}\isamarkupfalse%
+\ {\isacharquery}N{\isacharequal}{\isachardoublequoteopen}{\isacharbraceleft}seller{\isacharbraceright}\ {\isasymunion}\ N{\isachardoublequoteclose}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharquery}N{\isachargreater}{\isadigit{0}}{\isachardoublequoteclose}\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}full{\isacharunderscore}types{\isacharparenright}\ card{\isacharunderscore}gt{\isacharunderscore}{\isadigit{0}}{\isacharunderscore}iff\ finite{\isacharunderscore}insert\ insert{\isacharunderscore}is{\isacharunderscore}Un\ insert{\isacharunderscore}not{\isacharunderscore}empty{\isacharparenright}\isanewline
+\isacommand{thus}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{2}}{\isacharparenright}\ lm{\isadigit{7}}{\isadigit{0}}d\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isacommand{corollary}\isamarkupfalse%
+\ \isakeyword{assumes}\ {\isachardoublequoteopen}distinct\ G{\isachardoublequoteclose}\ {\isachardoublequoteopen}set\ G\ {\isasymnoteq}\ {\isacharbraceleft}{\isacharbraceright}{\isachardoublequoteclose}\ {\isachardoublequoteopen}finite\ N{\isachardoublequoteclose}\ \isakeyword{shows}\ \isanewline
+{\isachardoublequoteopen}{\isadigit{1}}{\isacharequal}card\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations\ N\ G\ b{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{proof}\isamarkupfalse%
+\ {\isacharminus}\ \isanewline
+\isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isadigit{1}}{\isacharequal}card\ {\isacharparenleft}argmax\ {\isacharparenleft}setsum\ {\isacharparenleft}randomBids\ N\ G\ b\ r{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{9}}{\isadigit{2}}e{\isacharparenright}\isanewline
+\isacommand{moreover}\isamarkupfalse%
+\ \isacommand{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b\ {\isacharequal}\ maximalStrictAllocations\ N\ G\ b{\isachardoublequoteclose}\ \isanewline
+\isacommand{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isadigit{1}}{\isacharparenright}\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}rule\ lm{\isadigit{7}}{\isadigit{0}}e{\isacharparenright}\ \isacommand{ultimately}\isamarkupfalse%
+\ \isacommand{show}\isamarkupfalse%
+\ {\isacharquery}thesis\ \isacommand{by}\isamarkupfalse%
+\ metis\isanewline
+\isacommand{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}maximalStrictAllocations{\isacharprime}\ N\ {\isacharparenleft}set\ G{\isacharparenright}\ b\ {\isasymsubseteq}\ Pow\ {\isacharparenleft}{\isacharparenleft}{\isacharbraceleft}seller{\isacharbraceright}{\isasymunion}N{\isacharparenright}\ {\isasymtimes}\ {\isacharparenleft}Pow\ {\isacharparenleft}set\ G{\isacharparenright}\ {\isacharminus}\ {\isacharbraceleft}{\isacharbraceleft}{\isacharbraceright}{\isacharbraceright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{5}}\ UniformTieBreaking{\isachardot}lm{\isadigit{0}}{\isadigit{3}}\ subset{\isacharunderscore}trans\ \isacommand{by}\isamarkupfalse%
+\ {\isacharparenleft}metis\ {\isacharparenleft}no{\isacharunderscore}types{\isacharparenright}{\isacharparenright}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ lm{\isadigit{1}}{\isadigit{7}}{\isacharcolon}\ {\isachardoublequoteopen}{\isacharparenleft}image\ converse{\isacharparenright}\ {\isacharparenleft}Union\ X{\isacharparenright}{\isacharequal}Union\ {\isacharparenleft}{\isacharparenleft}image\ converse{\isacharparenright}\ {\isacharbackquote}\ X{\isacharparenright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}possibleAllocationsRel\ N\ G\ {\isacharequal}\isanewline
+Union\ {\isacharbraceleft}converse{\isacharbackquote}{\isacharparenleft}injections\ Y\ N{\isacharparenright}{\isacharbar}\ Y{\isachardot}\ Y\ {\isasymin}\ all{\isacharunderscore}partitions\ G{\isacharbraceright}{\isachardoublequoteclose}\ \isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ {\isachardoublequoteopen}allAllocations\ N\ {\isasymOmega}\ {\isacharequal}\ Union{\isacharbraceleft}{\isacharbraceleft}a{\isacharcircum}{\isacharminus}{\isadigit{1}}{\isacharbar}a{\isachardot}\ a{\isasymin}injections\ Y\ N{\isacharbraceright}{\isacharbar}Y{\isachardot}\ Y{\isasymin}all{\isacharunderscore}partitions\ {\isasymOmega}{\isacharbraceright}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{by}\isamarkupfalse%
+\ auto%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isacommand{term}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}{\isasymSum}i{\isasymin}X{\isachardot}\ f\ i{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{term}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}{\isasymUnion}i{\isasymin}X{\isachardot}\ x\ i{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}endowment\ a\ n\ {\isacharequal}{\isacharequal}\ a{\isacharcomma}{\isacharcomma}{\isacharcomma}n{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}vcgEndowment\ N\ G\ b\ r\ n{\isacharequal}{\isacharequal}endowment\ {\isacharparenleft}vcga\ N\ G\ b\ r{\isacharparenright}\ n{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}firstPriceP\ N\ {\isasymOmega}\ b\ r\ n\ {\isacharequal}{\isacharequal}\isanewline
+b\ {\isacharparenleft}n{\isacharcomma}\ winningAllocationAlg\ N\ {\isasymOmega}\ r\ b{\isacharcomma}{\isacharcomma}\ n{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{lemma}\isamarkupfalse%
+\ \isakeyword{assumes}\ {\isachardoublequoteopen}{\isasymforall}\ X{\isachardot}\ b\ {\isacharparenleft}n{\isacharcomma}\ X{\isacharparenright}\ {\isasymge}\ {\isadigit{0}}{\isachardoublequoteclose}\ \isakeyword{shows}\isanewline
+{\isachardoublequoteopen}firstPriceP\ N\ {\isasymOmega}\ b\ r\ n\ {\isasymge}\ {\isadigit{0}}{\isachardoublequoteclose}%
+\isadelimproof
+\ %
+\endisadelimproof
+%
+\isatagproof
+\isacommand{using}\isamarkupfalse%
+\ assms\ \isacommand{by}\isamarkupfalse%
+\ blast%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}goods\ {\isacharequal}{\isacharequal}\ sorted{\isacharunderscore}list{\isacharunderscore}of{\isacharunderscore}set\ o\ Union\ o\ Range\ o\ Domain{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}allocationPrettyPrint{\isadigit{2}}\ a\ {\isacharequal}{\isacharequal}\ map\ {\isacharparenleft}{\isacharpercent}x{\isachardot}\ {\isacharparenleft}x{\isacharcomma}\ sorted{\isacharunderscore}list{\isacharunderscore}of{\isacharunderscore}set{\isacharparenleft}a{\isacharcomma}{\isacharcomma}x{\isacharparenright}{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}{\isacharparenleft}sorted{\isacharunderscore}list{\isacharunderscore}of{\isacharunderscore}set\ {\isasymcirc}\ Domain{\isacharparenright}\ a{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}helper\ {\isacharparenleft}list{\isacharparenright}\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}{\isacharparenleft}{\isacharparenleft}hd{\isasymcirc}hd{\isacharparenright}\ list{\isacharcomma}\ set\ {\isacharparenleft}list{\isacharbang}{\isadigit{1}}{\isacharparenright}{\isacharparenright}{\isacharcomma}\ hd{\isacharparenleft}list{\isacharbang}{\isadigit{2}}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}listBid{\isadigit{2}}funcBid\ listBid\ {\isacharequal}\ {\isacharparenleft}helper{\isacharbackquote}{\isacharparenleft}set\ listBid{\isacharparenright}{\isacharparenright}\ Elsee\ {\isacharparenleft}{\isadigit{0}}{\isacharcolon}{\isacharcolon}integer{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}singleBidConverter\ x\ {\isacharequal}{\isacharequal}\ {\isacharparenleft}{\isacharparenleft}fst\ x{\isacharcomma}\ set\ {\isacharparenleft}{\isacharparenleft}fst\ o\ snd{\isacharparenright}\ x{\isacharparenright}{\isacharparenright}{\isacharcomma}\ {\isacharparenleft}snd\ o\ snd{\isacharparenright}\ x{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}Bid{\isadigit{2}}funcBid\ b\ {\isacharequal}\ set\ {\isacharparenleft}map\ singleBidConverter\ b{\isacharparenright}\ Elsee\ {\isacharparenleft}{\isadigit{0}}{\isacharcolon}{\isacharcolon}integer{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}participantsSet\ b\ {\isacharequal}{\isacharequal}\ fst\ {\isacharbackquote}\ {\isacharparenleft}set\ b{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}goodsList{\isadigit{2}}\ b\ {\isacharequal}{\isacharequal}\ sorted{\isacharunderscore}list{\isacharunderscore}of{\isacharunderscore}set\ {\isacharparenleft}Union\ {\isacharparenleft}{\isacharparenleft}set\ o\ fst\ o\ snd{\isacharparenright}\ {\isacharbackquote}{\isacharparenleft}set\ b{\isacharparenright}{\isacharparenright}{\isacharparenright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}allocation\ b\ r\ {\isacharequal}\ {\isacharbraceleft}allocationPrettyPrint{\isadigit{2}}\ \isanewline
+{\isacharparenleft}vcgaAlg\ {\isacharparenleft}{\isacharparenleft}participantsSet\ b{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}goodsList{\isadigit{2}}\ b{\isacharparenright}\ {\isacharparenleft}Bid{\isadigit{2}}funcBid\ b{\isacharparenright}\ r{\isacharparenright}\isanewline
+{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isacommand{definition}\isamarkupfalse%
+\ {\isachardoublequoteopen}payments\ b\ r\ {\isacharequal}\ vcgpAlg\ {\isacharparenleft}{\isacharparenleft}participantsSet\ b{\isacharparenright}{\isacharparenright}\ {\isacharparenleft}goodsList{\isadigit{2}}\ b{\isacharparenright}\ {\isacharparenleft}Bid{\isadigit{2}}funcBid\ b{\isacharparenright}\ r{\isachardoublequoteclose}\isanewline
+\isacommand{export{\isacharunderscore}code}\isamarkupfalse%
+\ allocation\ payments\ chosenAllocationEff\ \isakeyword{in}\ Scala\ \isakeyword{module{\isacharunderscore}name}\ VCG\ \isakeyword{file}\ {\isachardoublequoteopen}{\isacharslash}dev{\isacharslash}shm{\isacharslash}VCG{\isachardot}scala{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isanewline
+\isacommand{abbreviation}\isamarkupfalse%
+\ {\isachardoublequoteopen}b{\isadigit{0}}{\isadigit{1}}\ {\isacharequal}{\isacharequal}\ \isanewline
+{\isacharbraceleft}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{1}}{\isacharcolon}{\isacharcolon}integer{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharcolon}{\isacharcolon}integer{\isacharcomma}\ {\isadigit{1}}{\isadigit{2}}{\isacharcomma}\ {\isadigit{1}}{\isadigit{3}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{2}}{\isadigit{0}}{\isacharcolon}{\isacharcolon}integer{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{1}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharcomma}{\isadigit{1}}{\isadigit{2}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{8}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{2}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{0}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{2}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{2}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{5}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{2}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{2}}{\isacharcomma}{\isadigit{1}}{\isadigit{3}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{8}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{2}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharcomma}{\isadigit{1}}{\isadigit{2}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{2}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharcomma}{\isadigit{1}}{\isadigit{3}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{7}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{2}}{\isacharcomma}{\isadigit{1}}{\isadigit{3}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{8}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{3}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharcomma}{\isadigit{1}}{\isadigit{2}}{\isacharcomma}{\isadigit{1}}{\isadigit{3}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{9}}{\isacharparenright}{\isacharcomma}\isanewline
+{\isacharparenleft}{\isacharparenleft}{\isadigit{4}}{\isacharcomma}{\isacharbraceleft}{\isadigit{1}}{\isadigit{1}}{\isacharcomma}{\isadigit{1}}{\isadigit{2}}{\isacharcomma}{\isadigit{1}}{\isadigit{3}}{\isacharcomma}{\isadigit{1}}{\isadigit{4}}{\isacharcomma}{\isadigit{1}}{\isadigit{5}}{\isacharcomma}{\isadigit{1}}{\isadigit{6}}{\isacharbraceright}{\isacharparenright}{\isacharcomma}{\isadigit{1}}{\isadigit{9}}{\isacharparenright}\isanewline
+{\isacharbraceright}{\isachardoublequoteclose}\isanewline
+\isacommand{value}\isamarkupfalse%
+\ {\isachardoublequoteopen}participants\ b{\isadigit{0}}{\isadigit{1}}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isacommand{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+\isanewline
+\end{isabellebody}%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "root"
+%%% End:
