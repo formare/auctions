@@ -1,0 +1,242 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Combinatorial Auction Test Suite</title>
+</head>
+
+<body>
+
+<p align="center"><b><font size="4">Combinatorial Auction Test Suite
+(CATS)  Version 2.0</font></b><br>
+</p>
+<p><u><b>Table of Contents</b></u></p>
+<p>1.&nbsp;&nbsp; <a href="#1.  Introduction">Introduction: What is CATS?</a><br>
+2.&nbsp;&nbsp; <a href="#2.  Contents of this distribution">Contents of this
+distribution</a><br>
+3.&nbsp;&nbsp; <a href="#3.  Compiling and executing">Compiling and executing</a><br>
+4.&nbsp;&nbsp; <a href="#4.  File Formats">File Formats</a><br>
+5.&nbsp;&nbsp; <a href="#6.  License Agreement">License Agreement</a></p>
+<p><u><b><a name="1.  Introduction">1.&nbsp; Introduction</a></b></u></p>
+<p>The Combinatorial Auction Test Suite (CATS) was designed to answer a growing
+need in the academic community: testing, benchmarking and comparing algorithms
+for solving the combinatorial auction winner determination problem.&nbsp; For
+details about the combinatorial auction winner determination problem,
+references, and a detailed description of all CATS distributions see:</p>
+<p><i><a href="http://robotics.stanford.edu/CATS/CATS.ps">Towards a Universal
+Test Suite for Combinatorial Auction Algorithms</a>, </i>Leyton-Brown, K.,
+Pearson, M., &amp; Shoham, Y., in the proceedings of ACM Conference on
+Electronic Commerce (EC-00), 2000.</p>
+<p><b>Abstract:</b><br>
+General combinatorial auctions---auctions in which bidders place unrestricted
+bids for bundles of goods---are the subject of increasing study. Much of this
+work has focused on algorithms for finding an optimal or approximately optimal
+set of winning bids. Comparatively little attention has been paid to methodical
+evaluation and comparison of these algorithms. In particular, there has not been
+a systematic discussion of appropriate data sets that can serve as universally
+accepted and well-motivated benchmarks. We propose a suite of distribution
+families for generating realistic, economically motivated combinatorial bids in
+five broad real-world domains. We hope that this work will yield many comments,
+criticisms and extensions, bringing the community closer to a universal
+combinatorial auction test suite.</p>
+<p>For descriptions of the advanced features new in CATS 2.0 and their
+applications see:</p>
+<p><i><a href="boosting.ps">Boosting as a Metaphor for Algorithm Design</a>,</i>
+Leyton-Brown, K., Nudelman, E., Andrew, G., McFadden, J., & Shoham, Y., a working paper.  Two short versions covering different aspects of the full paper were presented at IJCAI '03 and Constraint Programming '03.</p>
+<p>For a complete list of general CATS parameters, run CATS with the <font face="Courier New">-help</font>
+flag.&nbsp; For a list of parameters for any particular distribution, run CATS
+with the <font face="Courier New">-help</font> flag and <font face="Courier New">-d
+&lt;dist_name&gt;</font>.&nbsp; Helpful information about using CATS can be
+found on this page or in the <a href="CATSguide.pdf">CATS User Guide</a>,
+available here in pdf format.</p>
+<p><b><u><a name="2.  Contents of this distribution">2.&nbsp; Contents of this
+distribution</a></u></b></p>
+<p>This distribution of CATS includes a single executable that can be used to
+generate from all five distributions described in
+sections 4.1-4.5 of the original CATS paper.</p>
+<p><b>Paths</b> is essentially as described in
+section 4.1 <i>Paths in Space.&nbsp;</i>&nbsp; The paths distribution has been
+modified to address two problems that would occur in the original: a significant
+number of goods (10-30%) would not be part of any bid, and there would often be
+single bids or groups of bids that did not share any goods with the
+others.&nbsp; These situations should not occur in CATS 2.0-- every good occurs
+in at least one bid, and the bid conflict graph (a graph with a node for every
+bid and an edge connecting bids that share some good) is guaranteed to be
+connected.</p>
+<p><b>Regions</b> is described in
+section 4.2 <i>Proximity in Space.&nbsp; </i>
+The current version mirrors the one described in the paper with the
+following corrections:</p>
+
+<ul>
+
+<li> In the bid generation routine, we make bids on DISTINCT bundles.  
+That is, we make XOR bids on all B_i such that two copies of the same bid
+do not appear.
+
+<li> The routine Add_Good_To_Bundle now first checks to see if the bundle
+is already full and, if so, it does nothing.
+
+<li> On the line for bid generation which contains "For each good, reset
+p(g) = rand(-deviation * max_good_value, deviation + max_good_value)"
+there is the typeo.  The plus should be another star.  That is, the line
+should read, "For each good, reset p(g) = rand(-deviation *
+max_good_value, deviation * max_good_value)"
+
+<li> In the graph generation routine, we use floor(sqrt(num_goods)) rather
+than the ceiling.
+
+</ul>
+
+The following clarifications should be made regarding the distribution:
+
+<ul>
+
+<li> In the bid generation routine, the phrase "if value(B) <= 0 on B,
+restart ..." is redundant.  We simply mean, "if value(B) <= 0,
+restart ..."
+
+<li> In the bid generation routine, notice we generate a bid on B before
+beginning to search for substitutable bids.  If you read the algorithm
+closely, you notice that we can actually generate MAX_SUBSTITUTABLE_BIDS+1
+XORed bids.  After all, we bid on B, then we generate at most
+MAX_SUBSTITUTABLE_BIDS addition XORed bids.
+
+</ul>
+
+<p><b>Arbitrary</b> is described in
+section 4.3 <i>Arbitrary Relationships</i>.&nbsp; This distribution relies on
+much of the same code as &quot;regions&quot; in exactly the way described in
+the paper.  Notice, however, the corrections and clarifications to the 
+regions bid generation program, described above.</p>
+
+<p><b>Matching</b> is described in
+section 4.4 <i>Temporal Matching</i>.&nbsp; The current version mirrors
+the one described in the paper with the following corrections:</p>
+
+<ul>
+<li> Now use max(LONGEST_FLIGHT_TIME, num_times) whereever
+LONGEST_FLIGHT_TIME appears.  This corrects against problems that can
+appear if flight time required is actually more time than is for sale.
+</ul>
+
+<p><b>Scheduling</b> is described in section 4.5 <i>Temporal Scheduling</i>.&nbsp; The current
+version mirrors exactly the one described in the paper.</p>
+
+<p><b>Legacy</b> distributions L1 through L8 as described in the paper are also
+available.&nbsp; Due to the difficulty in generating large numbers of
+non-dominated bids with L1 and L5, a warning message will be shown if they are
+used.</p>
+
+Running CATS with the &quot;<font face="Courier New">-cats2cplex</font>&quot;
+flag followed by input and output filenames will run the built-in file
+converter.
+
+<p><b><u><a name="3.  Compiling and executing">3.&nbsp; Compiling and
+executing</a></u></b></p> <p>We have compiled and tested these algorithms
+on Sun/Solaris, Linux and Windows XP using g++.&nbsp; You will probably have to edit the Makefile to get CATS to compile on your
+system.  If there are compilation problems, check the library and include directories in the Makefile.  The current Makefile is configured to
+compile in Linux.  To solve linear programming problems, CATS uses a free library called lp_solve
+4.0 by default, which is included with the distribution.  If you have access to CPLEX 8.0, we strongly recommend
+using it in place of lp_solve 4.0.  This requires only changing the comments in the Makefile (more precise instructions are in the
+Makefile).&nbsp; To compile on UNIX, also remove the <font face="Courier New">-DLINUX</font> flags.  To compile on
+Windows systems, replace the <font face="Courier New">-DLINUX</font> flags with <font face="Courier New">-DWIN32</font>.&nbsp;
+Also, to compile
+under other systems, the following changes will (probably) need to be
+made:</p>
+
+<ul>
+  <li><font face="Courier New">srand48()</font> should be replaced with the
+    local system's routine to seed the random number generator with an unsigned
+    long integer.&nbsp; All the current
+    programs seed the random number generator with a call to the system clock.</li>
+  <li><font face="Courier New">drand48()</font> should be replaced with the
+    local system's routine to generate a random real number between 0 and
+    1.</li>
+  <li><font face="Courier New">lrand48()</font> should be replaced with the
+    local system's routine to generate a non-negative long integer.</li>
+</ul>
+
+
+<p><u><b><a name="4.  File Formats">4.&nbsp; File Formats</a></b></u></p>
+<p>Each program in this suite outputs a file with the following format:</p>
+<p><font face="Courier New">% comments</font></p>
+<p><font face="Courier New">...</font></p>
+<p><font face="Courier New">goods &lt;NUMBER OF GOODS&gt;<br>
+bids &lt;NUMBER OF BIDS&gt;<br>
+0&nbsp;&nbsp; &lt;content of bid 0&gt;<br>
+1&nbsp;&nbsp; &lt;content of bid 1&gt;<br>
+...<br>
+&lt;NUMBER OF BIDS-2&gt;&nbsp; &lt;content of bid NUMBER OF BIDS - 2&gt;<br>
+&lt;NUMBER OF BIDS-1&gt;&nbsp; &lt;content of bid NUMBER OF BIDS - 1&gt;</font></p>
+<p>where <font face="Courier New">&lt;content of bid i&gt;</font> (i between 0
+and NUMBER OF BIDS-1, inclusive) represents:</p>
+<p><font face="Courier New">&lt;real number representing price&gt;&nbsp;
+&lt;good i requested&gt;&nbsp; &lt;good j requested&gt;&nbsp; ... &lt;good k
+requested&gt;&nbsp; #</font></p>
+<p>where each good number is between 0 and NUMBER OF GOODS-1</p>
+<p>Informally, the file format is: any number of comment lines beginning with
+percent sign, the word &quot;goods&quot; followed by the total number of
+goods,&nbsp;on the next line, the word &quot;bids&quot; followed by the
+total number of bids.&nbsp; Then each following line is the bid number, followed
+by the price, followed by each good-number requested, all terminated by a pound
+sign.&nbsp; Each line that represents a bid is tab-delimited.</p>
+<p>It is also possible to output in CPLEX format (in addition to CATS format)
+with the <font face="Courier New">-cplex</font> flag, and to convert from CATS
+to CPLEX using the <font face="Courier New">-cats2cplex</font> flag.</p>
+<p>Most distributions included in this test suite generate real valued
+prices.&nbsp; Should you wish to test on a combinatorial auction solver that
+only takes integer valued prices (e.g., modeling an auction with a bidding
+increment), you can add the <font face="Courier New">-int_prices</font> flag to
+the command line.  &nbsp; Note that this constant factor
+by which you multiply through must
+be significant -- for instance, if you rescale the prices to integers
+between 0 and
+5, the difficulty of the problem may change.&nbsp; The default factor is 1000;
+you can change it using the <font face="Courier New">-bid_alpha</font> flag
+followed by the new factor.&nbsp; If you publicize results of
+your algorithm on the distribution, be sure to mention what factor you used! :-)</p>
+<p><b><u><a name="6.  License Agreement">5.&nbsp; License Agreement</a></u></b></p>
+<p>Combinatorial Auction Test Suite (CATS)<br>
+Copyright 2003.&nbsp; All Rights Reserved.<br>
+This license information must be included with the CATS code.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+CONDITIONS</p>
+<ol>
+  <li>Redistributions of source code must retain the above copyright notice,
+    this list of conditions, and the following disclaimer.</li>
+  <li>Redistributions in binary form must contain the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.</li>
+  <li>All modifications to the source code must be clearly marked as such.&nbsp;
+    Binary redistributions based on modified source code must be clearly marked
+    as modified versions in the documentation and/or other materials provided
+    with the distribution.</li>
+  <li>Notice must be given of the location of the availability of the unmodified
+    current source code, e.g., <a href="http://robotics.stanford.edu/CATS/">http://robotics.stanford.edu/CATS/</a>
+    in the documentation and/or other materials provided with the distribution.</li>
+  <li>No part of the program, its source code, binaries or anything derived from
+    it can be used for profit without written permission from the copyright
+    holders.</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DISCLAIMER</p>
+<p>This software is provided &quot;as is&quot; and any expressed or implied
+warranties, including, but not limited to, the implied warranties of
+merchantability
+and fitness for a particular purpose are disclaimed.&nbsp; In no event shall any
+of its authors or contributors be liable for any direct, indirect, incidental,
+special, exemplary, or consequential damages (including, but not limited to,
+procurement of substitute goods or services; loss of use, data, or profits; or
+business interruption) however caused and on any theory of liability, whether in
+contract, strict liability, or tort (including negligence or otherwise) arising
+in any way out of the use of this software, even if advised of the possibility
+of such damage</p>
+
+</body>
+
+</html>

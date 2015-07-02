@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>Combinatorial Auction Test Suite (CATS)</title>
+<style type="text/css">
+.style1 {
+	font-weight: normal;
+}
+</style>
+</head>
+
+<h1>Combinatorial Auction Test Suite (CATS)</h1>
+The Combinatorial Auction Test Suite is a generator of combinatorial auction instances for the testing of CA algorithms.  It features five
+distributions of instances from realistic, economically motivated domains, as well as a collection of artificial distributions that have been used in the literature.  Since the release of CATS 1.0 in 2000, it has become a standard benchmark for the evaluation and comparison of CA algorithms.
+
+<h4>What's up with dummy goods? <span class="style1">A number of people have 
+emailed me over the years to ask how dummy goods work; this evidently needs to 
+be cleared up. These are goods that aren't really sold in the auction, but that 
+are added by CATS to enforce additional XOR constraints (specifically, that one 
+bidder can't win more than one of his bids). Thus, when you ask CATS to generate 
+an auction with 20 goods, you'll see higher-numbered goods in some of the bids; 
+these are the dummy goods. The number of dummy goods are given in the header at 
+the top of the file. You can learn more about them on page 99 of my
+<a href="thesis.pdf">thesis</a>. <strong>
+Dummy goods can also be used to tell which agent each bid comes from. </strong>
+Every bid that includes the same dummy good comes from the same bidder. Every 
+bid without any dummy goods is a unique bid from a different bidder. Thus, you 
+can use CATS to model agents' valuations in a combinatorial auction, as well as 
+for generating input for winner determination algorithms.</span></h4>
+<h4>Current Version: 2.0</h4>
+
+<p>
+
+Major enhancements over version 1.0:</p>
+<ul><li>the ability to generate much harder instances<li>a revised, more realistic and more efficient "paths" generator<li>the capacity to create hybrid distributions (distributions over generators) and to sample randomly from a distribution's parameters<li>the capacity to create custom distributions that emphasize certain qualities of the built-in distributions (as we did for hardness; this feature could also be used to select instances that score highly on a custom "realism" metric, for example)<li>the ability to generate a specified number of "non-dominated" bids<li>output in CATS and CPLEX formats<li>the inclusion of all distributions into a single executable, with a flexible and easy-to-use interface</ul>
+
+<p>Documentation:
+
+<ul>
+
+<li>The <a href="CATS-readme.html">README</a> that describes basic CATS usage
+
+<li>The <a href="CATSguide.pdf">CATS User Guide</a>, which describes how to use
+  the advanced features of CATS 2.0 (pdf format)
+
+<li>The paper that describes the
+distributions in <a href="CATS.ps">postscript</a> and <a
+href="CATS.pdf">pdf</a>.
+<br>
+<i>Towards a Universal Test Suite for Combinatorial Auction
+Algorithms</i><br>
+Leyton-Brown, K., Pearson, M., & Shoham, Y.<br>
+In the Proceedings of ACM Conference on Electronic Commerce
+(EC-00), 2000.
+
+<li>The paper that describes some of the new, advanced features in CATS 2.0 in <a href="boosting.ps">postscript</a> and <a
+href="boosting.pdf">pdf</a>.
+<br>
+<i>Boosting as a Metaphor for Algorithm Design</i><br>
+Leyton-Brown, K., Nudelman, E., Andrew, G., McFadden, J., & Shoham, Y.<br>
+A working paper.  Two short versions covering different aspects of the full paper were presented at IJCAI '03 and Constraint Programming '03.
+
+<li>There is also a chapter on CATS in the book Combinatorial Auctions (Cramton, 
+Shoham, Steinberg, eds.), MIT Press.</ul>
+<p>Downloads:</p>
+<ul>
+<li>Executable distributions:
+<ul>
+	<li><a href="CATS-windows.zip">CATS 2.0 as a zipped Windows executable</a>
+	<li><a href="CATS20UNIX.gz">CATS 2.0 as a gzipped UNIX executable</a>
+	<li><a href="CATS20LINUX.gz">CATS 2.0 as a gzipped Linux (x86) executable</a></ul>
+<li>Source distributions:
+<ul>
+	<li><a href="CATS20source.tgz">CATS 2.0 as a tarred gzipped source distribution</a>
+	<li><a href="CATS20source.zip">CATS 2.0 as a zipped source distribution</a>
+</ul>
+<li>Old version:<ul>
+<li><a href="CATS.tar.gz">CATS 1.0 as a tarred gzipped source distribution</a></li>
+<li><a href="CATS.zip">CATS 1.0 as a zipped source distribution</a></li>
+</ul>
+
+</li>
+</ul>
+
+<span class="m">
+<p>
+
+If you find any bugs or other problems with CATS, please contact Kevin 
+Leyton-Brown (<a href="http://www.cs.ubc.ca/~kevinlb">http://www.cs.ubc.ca/~kevinlb</a>).&nbsp; 
+Please note that I'm not able to address software-support questions; however, 
+I'll do my best to correct any bugs that are found.<p>
+
+<i>
+
+<small>Last updated
+  <!--webbot bot="Timestamp" S-Type="EDITED" S-Format="%m/%d/%Y" startspan -->07/06/2011<!--webbot bot="Timestamp" i-checksum="12589" endspan --></small></i>
+</html>
