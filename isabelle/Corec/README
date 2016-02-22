@@ -1,0 +1,7 @@
+This is the code accompanying NFM2016 submission.
+
+It has been tested with Isabelle2015 and afp-2015-08-21.
+You will need to symlink the thys directory of afp as ~/afp.
+Or to change the import directives in the present thy files according to your set-up.
+Following the definition of evaluateMe2 in the sources, you will find the few lines of glue code which need to be appended to the generated file.
+
