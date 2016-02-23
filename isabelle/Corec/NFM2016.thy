@@ -57,23 +57,6 @@ definition "evaluateMe2 (input :: _) (output:: _)
 = snd (output (String.implode ''Starting\<newline>Input the number of bidders:'', True, []),
 dynamicAuction2 input output)"
 
-text{*
-def input[A](n:(Boolean, List[a.nat])) :
-(BigInt, (Boolean, List[a.nat])) = {
-val x=readInt;
-return (x,n);
-}
-
-def output[A](x: (String, A)) : A = {
-println(fst (x));
-return (snd (x));
-}
-
-def main(args: Array[String]) {
-val x=evaluateMe2(input, output);
-}                  
-*}
-
 value "evaluateMe2 myInput snd"
 
 abbreviation "dynamicAuctionAttempt livelinessPredicate input output == ltakeWhile  
@@ -98,31 +81,6 @@ definition "evaluateMe (input(*::(integer list => integer list)*))
 = snd (output (String.implode ''Starting\<newline>Input the number of bidders:'', [])
 , dynamicAuction input output)"
 
-text{*
-Thus, the manually-written Scala code (to be appended to the Isabelle-generated lines) will be:
-
-def untrustedInput(n:List[String]) : List[String] = {
-	val x=readLine;
-	return (x::n);
-}
-
-def untrustedOutput(x: (List[String], String)) : List[String] = {
-	println(snd (x));
-	return (fst (x));
-}
-
-def main(args: Array[String]) {
-	val x=evaluateMe(untrustedInput, untrustedOutput);
-}
-
-It can't probably get thinner than this.
-A possible improvement could be to handle everything besides input/output from inside Isabelle, including
-conversion from strings (as from input) to numbers and viceversa (for output); 
-this is definitely possible, but how realistic given our schedule?
-We could momentarily choose to directly use Scala integers as input/output, 
-which is less robust/flexible/elegant but simpler.
-*}
-
 abbreviation "numbersCharslist == map char_of_nat [48..<58]"
 
 abbreviation "natOfString string == listsum (map (% (m,d). d*(10^m))
@@ -130,6 +88,32 @@ abbreviation "natOfString string == listsum (map (% (m,d). d*(10^m))
 (zip (rev [0..<size prunedString]) (map ((%n. n-48) o nat_of_char) prunedString))))"
 
 export_code fst snd evaluateMe evaluateMe2 in Scala module_name a file "/dev/shm/a.scala"
+
+text{* Glue code, to be appended to the generated Scala file:
+def input[A](n:(Boolean, List[a.nat])) :
+(BigInt, (Boolean, List[a.nat])) = {
+val x=readInt;
+return (x,n);
+}
+
+def output[A](x: (String, A)) : A = {
+println(fst (x));
+return (snd (x));
+}
+
+def main(args: Array[String]) {
+val x=evaluateMe2(input, output);
+}                  
+*}
+
+text{*
+It can't probably get thinner than this.
+A possible improvement could be to handle everything besides input/output from inside Isabelle, including
+conversion from strings (as from input) to numbers and viceversa (for output); 
+this is definitely possible, but how realistic given our schedule?
+We could momentarily choose to directly use Scala integers as input/output, 
+which is less robust/flexible/elegant but simpler.
+*}
 
 abbreviation "deltaBids (*step*) l == (* step # *) (pairWise (op -) (tl l) l)"
 
