@@ -1,4 +1,4 @@
-This is the code accompanying the paper.
+This is the code accompanying the paper titled "Corecursion for Compositional Verification".
 
 It has been tested with Isabelle2015 and afp-2015-08-21.
 You will need to symlink the thys directory of afp as ~/afp.
