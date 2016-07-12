@@ -1,4 +1,4 @@
-theory NFM2016
+theory Corec
 
 imports 
 ListUtils
