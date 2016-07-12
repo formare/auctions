@@ -1,4 +1,5 @@
 theory AuctionTools
+
 imports Main 
 "~~/src/HOL/Library/Code_Target_Nat"
 "~/afp/Vickrey_Clarke_Groves/MiscTools"
